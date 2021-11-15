@@ -55,6 +55,26 @@ struct View1D {
   T* _data;
 };
 
+template<typename T>
+struct View2D {
+  View2D(int s1, int s0, T* data) : _s1(s1), _s0(s0), _data(data) {}
+
+  View1D<T> operator[](int i1) {
+    assert(i1 < _s1);
+    return View1D<T>(_s0, _data + i1 * _s0);
+  }
+
+  const View1D<T> operator[](int i1) const {
+    assert(i1 < _s1);
+    return View1D<T>(_s0, _data + i1 * _s0);
+  }
+
+ private:
+  int _s1;
+  int _s0;
+  T* _data;
+};
+
 template<typename Space, typename T>
 struct Matrix1D {
   explicit Matrix1D(int s0) : Matrix1D(s0, Space::template alloc<T>(s0)) {}
@@ -159,6 +179,64 @@ struct Matrix2D {
   T* _data;
 };
 
+template<typename Space, typename T>
+struct Matrix3D {
+  Matrix3D(int s2, int s1, int s0) : Matrix3D(s2, s1, s0, Space::template alloc<T>(s1 * s0)) {}
+
+  // Non-copyable
+  Matrix3D(const Matrix3D&) = delete;
+  Matrix3D& operator=(const Matrix3D&) = delete;
+
+  // Movable
+  Matrix3D(Matrix3D&& o) : _s2(o._s2), _s1(o._s1), _s0(o._s0), _data(std::exchange(o._data, nullptr)) {}
+  Matrix3D& operator=(Matrix3D&& o) {
+    _s2 = o._s2;
+    _s1 = o._s1;
+    _s0 = o._s0;
+    _data = std::exchange(o._data, nullptr);
+    return *this;
+  }
+
+  ~Matrix3D() {
+    if (_data) Space::free(_data);
+  }
+
+  int s0() const { return _s0; }
+
+  int s1() const { return _s1; }
+
+  int s2() const { return _s2; }
+
+  View2D<T> operator[](int i2) {
+    assert(i2 < _s2);
+    return View2D<T>(_s1, _s0, _data + i2 * _s1 * _s0);
+  }
+
+  const View2D<T> operator[](int i2) const {
+    assert(i2 < _s2);
+    return View2D<T>(_s1, _s0, _data + i2 * _s1 * _s0);
+  }
+
+  Matrix3D<Device, T> clone_to(Device) const {
+    return Matrix3D<Device, T>(_s2, _s1, _s0, Device::clone_from_host(_s2 * _s1 * _s0, _data));
+  }
+
+  Matrix3D<Host, T> clone_to(Host) const {
+    return Matrix3D<Host, T>(_s2, _s1, _s0, Host::clone_from_device(_s2 * _s1 * _s0, _data));
+  }
+
+ private:
+  template<typename OtherSpace, typename OtherT> friend class Matrix3D;
+
+  explicit Matrix3D(int s2, int s1, int s0, T* data) : _s2(s2), _s1(s1), _s0(s0), _data(data) {}
+
+ private:
+  int _s2;
+  int _s1;
+  int _s0;
+  T* _data;
+};
+
 template<typename OtherSpace, typename Space, typename T>
 typename std::enable_if_t<!std::is_same_v<Space, OtherSpace>, Matrix1D<OtherSpace, T>>
 transfer_to(Matrix1D<Space, T>&& m) {
@@ -182,6 +260,19 @@ transfer_to(Matrix2D<Space, T>&& m) {
 
 template<typename Space, typename T>
 Matrix2D<Space, T>&& transfer_to(Matrix2D<Space, T>&& m) {
+  return std::move(m);
+}
+
+template<typename OtherSpace, typename Space, typename T>
+typename std::enable_if_t<!std::is_same_v<Space, OtherSpace>, Matrix3D<OtherSpace, T>>
+transfer_to(Matrix3D<Space, T>&& m) {
+  // Ensure for consistency that the parameter is unusable after transfer
+  // (moved to a local temporary that gets destroyed)
+  return Matrix3D<Space, T>(std::move(m)).clone_to(OtherSpace());
+}
+
+template<typename Space, typename T>
+Matrix3D<Space, T>&& transfer_to(Matrix3D<Space, T>&& m) {
   return std::move(m);
 }
 

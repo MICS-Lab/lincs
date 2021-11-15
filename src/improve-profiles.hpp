@@ -71,4 +71,51 @@ class Domain {
   Domain(int, int, int, Matrix2D<Space, float>&&, Matrix1D<Space, int>&&);
 };
 
+struct Model {
+  std::vector<std::vector<float>> profiles;
+  std::vector<float> weights;
+  float threshold;
+};
+
+template<typename Space>
+class Models {
+ public:
+  static Models make(
+    const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
+    const std::vector<Model>& models);
+
+ public:
+  const Domain<Space>& domain;
+
+  const int models_count;
+
+  const Matrix2D<Space, float> weights;
+  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
+  // Second index: index of model, from `0` to `models_count - 1`
+  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
+  // @todo Investigate if this weird index order is actually improving performance
+
+  const Matrix1D<Space, float> thresholds;
+  // Index: index of model, from `0` to `models_count - 1`
+
+  // @todo Confirm with Vincent Mousseau that we can "denormalize" the weights
+  // (so that they have an arbitrary sum) and normalize the threshold to always be 1.
+  // This should be equivalent to just dividing the weights and threshold by the threshold,
+  // and give the same results.
+  // Advantage: remove the need to store the thresholds and normalize the sum of the weights.
+
+  Matrix3D<Space, float> profiles;
+  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
+  // Second index: index of category below profile, from `0` to `domain.categories_count - 2`
+  // Third index: index of model, from `0` to `models_count - 1`
+  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
+  // @todo Investigate if this weird index order is actually improving performance
+
+  // @todo Evaluate if it's worth storing and updating the models' assignments
+  // @todo Evaluate if it's wirth storing and updating the models' classification accuracies
+
+ private:
+  Models(const Domain<Space>&, int, Matrix2D<Space, float>&&, Matrix1D<Space, float>&&, Matrix3D<Space, float>&&);
+};
+
 #endif  // IMPROVE_PROFILES_HPP_
