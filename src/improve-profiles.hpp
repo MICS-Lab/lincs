@@ -45,7 +45,7 @@ struct LearningAlternative {
 template<typename Space>
 class Domain {
  public:
-  static Domain make(const std::vector<LearningAlternative>& learning_alternatives);
+  static Domain make(int categories_count, const std::vector<LearningAlternative>& learning_alternatives);
 
  public:
   const int categories_count;

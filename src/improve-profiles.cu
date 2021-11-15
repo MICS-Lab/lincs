@@ -21,30 +21,33 @@ Domain<Space>::Domain(
     learning_alternatives_count(learning_alternatives_count_),
     learning_alternatives(std::move(learning_alternatives_)),
     learning_assignments(std::move(learning_assignments_)) {
+  assert(categories_count > 1);
+  assert(criteria_count > 0);
+  assert(learning_alternatives_count > 0);
   assert(learning_alternatives.s1() == criteria_count);
   assert(learning_alternatives.s0() == learning_alternatives_count);
   assert(learning_assignments.s0() == learning_alternatives_count);
 }
 
 template<typename Space>
-Domain<Space> Domain<Space>::make(const std::vector<LearningAlternative>& learning_alternatives) {
+Domain<Space> Domain<Space>::make(int categories_count, const std::vector<LearningAlternative>& learning_alternatives) {
+  assert(categories_count > 1);
   assert(!learning_alternatives.empty());
   const int criteria_count = learning_alternatives.front().criteria.size();
   const int alternatives_count = learning_alternatives.size();
 
   Matrix2D<Host, float> alternatives(criteria_count, alternatives_count);
   Matrix1D<Host, int> assignments(alternatives_count);
-  int categories_count = 0;
 
   for (int alt_index = 0; alt_index != alternatives_count; ++alt_index) {
     const LearningAlternative& alt = learning_alternatives[alt_index];
-
-    categories_count = std::max(categories_count, alt.assignment + 1);
 
     assert(alt.criteria.size() == criteria_count);
     for (int crit_index = 0; crit_index != criteria_count; ++crit_index) {
       alternatives[crit_index][alt_index] = alt.criteria[crit_index];
     }
+
+    assert(alt.assignment >= 0 && alt.assignment < categories_count);
     assignments[alt_index] = alt.assignment;
   }
 
@@ -96,6 +99,7 @@ Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector
       weights[crit_index][model_index] = model.weights[crit_index];
     }
 
+    // @todo Add assertions checking profiles are ordered on each criterion
     assert(model.profiles.size() == domain.categories_count - 1);
     for (int cat_index = 0; cat_index != domain.categories_count - 1; ++cat_index) {
       const std::vector<float>& category_profile = model.profiles[cat_index];
@@ -116,3 +120,6 @@ Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector
 
 template class Models<Host>;
 template class Models<Device>;
+
+// void improve_profiles(Models* models) {
+// }

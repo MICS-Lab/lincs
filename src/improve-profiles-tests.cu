@@ -10,7 +10,7 @@
 
 
 TEST(MakeModels, SingleAlternativeSingleCriteria) {
-  Domain<Host> domain = Domain<Host>::make({
+  Domain<Host> domain = Domain<Host>::make(2, {
     {{0.25}, 1},
   });
 
@@ -38,7 +38,7 @@ TEST(MakeModels, SingleAlternativeSingleCriteria) {
 }
 
 TEST(MakeModels, SeveralAlternativesSingleCriteria) {
-  Domain<Host> domain = Domain<Host>::make({
+  Domain<Host> domain = Domain<Host>::make(4, {
     {{0.00}, 0},
     {{0.25}, 1},
     {{0.50}, 2},
@@ -55,6 +55,10 @@ TEST(MakeModels, SeveralAlternativesSingleCriteria) {
   EXPECT_EQ(domain.learning_alternatives[0][3], 0.75);
   EXPECT_EQ(domain.learning_alternatives[0][4], 1.00);
   EXPECT_EQ(domain.learning_assignments[0], 0);
+  EXPECT_EQ(domain.learning_assignments[1], 1);
+  EXPECT_EQ(domain.learning_assignments[2], 2);
+  EXPECT_EQ(domain.learning_assignments[3], 2);
+  EXPECT_EQ(domain.learning_assignments[4], 3);
 
   Models<Host> models = Models<Host>::make(domain, {
     {{{0.25}, {0.50}, {0.75}}, {1.}, 1.},
@@ -69,7 +73,7 @@ TEST(MakeModels, SeveralAlternativesSingleCriteria) {
 }
 
 TEST(MakeModels, SingleAlternativeSeveralCriteria) {
-  Domain<Host> domain = Domain<Host>::make({
+  Domain<Host> domain = Domain<Host>::make(2, {
     {{0.25, 0.75, 0.50}, 1},
   });
 
