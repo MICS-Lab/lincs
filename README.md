@@ -10,3 +10,8 @@ Previous implementations:
 
 - [Original sequential implementation in Python by Olivier Sobrie](https://github.com/oso/pymcda)
 - [Sequential implementation in C++ by Emma Dixneuf, Thibault Monsel and Thomas Vindard](https://github.com/Mostah/fastPL/)
+
+Build everything and run all tests
+==================================
+
+    ./make.sh -j$(nproc)
