@@ -75,4 +75,4 @@ build/tests/%-tests: build/obj/%-tests.o build/obj/%.o
 build/obj/%.o: src/%.cu
 	@echo "nvcc -c $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc -c $< -o $@
+	@nvcc -std=c++17 -c $< -o $@
