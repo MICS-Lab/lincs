@@ -1,10 +1,12 @@
+# Copyright 2021 Vincent Jacques
+
 FROM ubuntu:20.04
 
 # System packages
 RUN set -x \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      wget `# Common tools` \
+      wget python3-pip `# Common tools` \
       software-properties-common dirmngr gpg-agent `# Required when adding the NVidia APT repository` \
       make cmake g++ `# Build tools` \
 && apt-get clean
@@ -35,3 +37,7 @@ RUN set -x \
 
 # Put 'nvcc' in the PATH
 ENV PATH="/usr/local/cuda-11.2/bin:${PATH}"
+
+# Python packages
+RUN pip3 install \
+      cpplint `# Static analysis tools`

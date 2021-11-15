@@ -1,3 +1,5 @@
+# Copyright 2021 Vincent Jacques
+
 import sys
 
 dependents = " ".join(sys.argv[1:])

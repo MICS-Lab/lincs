@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright 2021 Vincent Jacques
 
 set -o errexit
 
