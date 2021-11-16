@@ -117,6 +117,15 @@ TEST(GetAssignment, SingleCriterion) {
   EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.51}}, {1}}}), 0, 0), 0);
 }
 
+TEST(GetAssignment, SingleCriterionManyCategories) {
+  Domain<Host> domain = Domain<Host>::make(4, {{{0.2}, 0}, {{0.4}, 1}, {{0.6}, 2}, {{0.8}, 3}});
+
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.3}, {0.5}, {0.7}}, {5}}}), 0, 0), 0);
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.3}, {0.5}, {0.7}}, {5}}}), 0, 1), 1);
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.3}, {0.5}, {0.7}}, {5}}}), 0, 2), 2);
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.3}, {0.5}, {0.7}}, {5}}}), 0, 3), 3);
+}
+
 TEST(GetAssignment, SeveralCriteria) {
   Domain<Host> domain = Domain<Host>::make(2, {{{0.3, 0.7}, 0}});
 

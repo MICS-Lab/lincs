@@ -121,7 +121,7 @@ int get_assignment(const Models<Space>& models, int model_index, int alternative
   assert(model_index >= 0 && model_index < models.models_count);
   assert(alternative_index >= 0 && alternative_index < models.domain.learning_alternatives_count);
 
-  for (int category_index = 1; category_index != models.domain.categories_count; ++category_index) {
+  for (int category_index = models.domain.categories_count - 1; category_index != 0; --category_index) {
     const int profile_index = category_index - 1;
     float weight_at_or_above_profile = 0;
     for (int crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
