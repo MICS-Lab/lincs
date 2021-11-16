@@ -157,3 +157,16 @@ TEST(GetAssignmentAndAccuracy, SeveralAlternativesSeveralModels) {
   EXPECT_EQ(get_assignment(models, 1, 1), 1);
   EXPECT_EQ(get_accuracy(models, 1), 2);
 }
+
+// @todo Unit-test compute_move_desirability (it's deterministic)
+
+TEST(ImproveProfiles, First) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.1}}, {1}}});
+
+  EXPECT_EQ(get_accuracy(models, 0), 0);
+
+  improve_profiles(&models);
+
+  EXPECT_EQ(get_accuracy(models, 0), 1);
+}

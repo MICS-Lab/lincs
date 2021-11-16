@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <utility>
 #include <cassert>
+#include <random>
 
 #include "cuda-utils.hpp"
 
@@ -157,3 +158,143 @@ int get_accuracy(const Models<Space>& models, const int model_index) {
 }
 
 template int get_accuracy(const Models<Host>&, int);
+
+float compute_move_desirability(
+  const Models<Host>& models,
+  const int model_index,
+  const int profile_index,
+  const int criterion_index,
+  const float destination
+) {
+  int v = 0;
+  int w = 0;
+  int t = 0;
+  int q = 0;
+  int r = 0;
+
+  const float current_position = models.profiles[criterion_index][profile_index][model_index];
+  const float weight = models.weights[criterion_index][model_index];
+
+  for (int alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
+    const float value = models.domain.learning_alternatives[criterion_index][alt_index];
+    const int learning_assignment = models.domain.learning_assignments[alt_index];
+    const int model_assignment = get_assignment(models, model_index, alt_index);
+
+    // @todo Factorize with get_assignment
+    float weight_at_or_above_profile = 0;
+    for (int crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+      const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
+      const float profile_value = models.profiles[crit_index][profile_index][model_index];
+      if (alternative_value >= profile_value) {
+        weight_at_or_above_profile += models.weights[crit_index][model_index];
+      }
+    }
+
+    // Direct translation of the top of page 78 of Sobrie's thesis
+    // Correspondance:
+    // - learning_assignment: bottom index of A*
+    // - model_assignment: top index of A*
+    // - profile_index: h
+    // - destination: b_j +/- \delta
+    // - current_position: b_j
+    // - value: a_j
+    // - weight_at_or_above_profile: \sigma
+    // - weight: w_j
+    // - 1: \lambda
+    if (destination > current_position) {
+      if (
+          learning_assignment == profile_index
+          && model_assignment == profile_index + 1
+          && destination > value
+          && value >= current_position
+          && weight_at_or_above_profile - weight < 1) ++v;
+      // @todo Implement other cases
+    } else {
+      // @todo Implement
+    }
+  }
+
+  if (v + w + t + q + r == 0) {
+    // The move has no impact. @todo What should its desirability be?
+    return 0;
+  } else {
+    return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
+  }
+}
+
+void improve_model_profile(
+  Models<Host>* models,
+  const int model_index,
+  const int profile_index,
+  const int criterion_index
+) {
+  std::random_device rd;
+  std::mt19937 g(rd());
+
+  // WARNING: We're assuming all criteria have values in [0, 1]
+  // @todo Can we relax this assumption?
+  // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
+  const float lowest_destination =
+    profile_index == 0 ? 0. :
+    models->profiles[criterion_index][profile_index - 1][model_index];
+  const float highest_destination =
+    profile_index == models->domain.categories_count - 2 ? 1. :
+    models->profiles[criterion_index][profile_index + 1][model_index];
+  std::uniform_real_distribution<> destination_distribution(lowest_destination, highest_destination);
+
+  float best_destination = models->profiles[criterion_index][profile_index][model_index];
+  float best_desirability = compute_move_desirability(
+    *models, model_index, profile_index, criterion_index, best_destination);
+  // Not sure about this part: we're considering an arbitrary number of possible moves as described in
+  // Mousseau's prez-mics-2018(8).pdf, but:
+  //  - this is wasteful when there are fewer alternatives in the interval
+  //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
+  for (int n = 0; n < 1024; ++n) {
+    // Map (embarassigly parallel)
+    const float destination = destination_distribution(g);
+    const float desirability = compute_move_desirability(
+      *models, model_index, profile_index, criterion_index, destination);
+    // Reduce (divide and conquer?) (atomic compare-and-swap?)
+    if (desirability > best_desirability) {
+      best_desirability = desirability;
+      best_destination = destination;
+    }
+  }
+
+  // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
+  if (std::uniform_real_distribution<>(0.f, 1.f)(g) <= best_desirability) {
+    models->profiles[criterion_index][profile_index][model_index] = best_destination;
+  }
+}
+
+void improve_model_profile(
+  Models<Host>* models,
+  const int model_index,
+  const int profile_index,
+  const std::vector<int>& criterion_indexes
+) {
+  // Loop is not parallel because iteration N+1 relies on side effect in iteration N
+  // (We could challenge this aspect of the algorithm described by Sobrie)
+  for (int criterion_index : criterion_indexes) {
+    improve_model_profile(models, model_index, profile_index, criterion_index);
+  }
+}
+
+template<>
+void improve_profiles<Host>(Models<Host>* models) {
+  std::random_device rd;
+  std::mt19937 g(rd());
+
+  std::vector<int> criterion_indexes(models->domain.criteria_count, 0);
+  std::iota(criterion_indexes.begin(), criterion_indexes.end(), 0);
+
+  // Outer loop is embarassingly parallel
+  for (int model_index = 0; model_index != models->models_count; ++model_index) {
+    // Inner loop is not parallel because iteration N+1 relies on side effect in iteration N
+    // (We could challenge this aspect of the algorithm described by Sobrie)
+    for (int profile_index = 0; profile_index != models->domain.categories_count - 1; ++profile_index) {
+      std::shuffle(criterion_indexes.begin(), criterion_indexes.end(), g);
+      improve_model_profile(models, model_index, profile_index, criterion_indexes);
+    }
+  }
+}

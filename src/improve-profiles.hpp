@@ -118,4 +118,7 @@ int get_assignment(const Models<Space>& models, int model_index, int alternative
 template<typename Space>
 int get_accuracy(const Models<Space>& models, int model_index);
 
+template<typename Space>
+void improve_profiles(Models<Space>*);
+
 #endif  // IMPROVE_PROFILES_HPP_
