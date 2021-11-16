@@ -11,9 +11,9 @@
 
 template<typename Space>
 Domain<Space>::Domain(
-      int categories_count_,
-      int criteria_count_,
-      int learning_alternatives_count_,
+      const int categories_count_,
+      const int criteria_count_,
+      const int learning_alternatives_count_,
       Matrix2D<Space, float>&& learning_alternatives_,
       Matrix1D<Space, int>&& learning_assignments_) :
     categories_count(categories_count_),
@@ -30,7 +30,10 @@ Domain<Space>::Domain(
 }
 
 template<typename Space>
-Domain<Space> Domain<Space>::make(int categories_count, const std::vector<LearningAlternative>& learning_alternatives) {
+Domain<Space> Domain<Space>::make(
+  const int categories_count,
+  const std::vector<LearningAlternative>& learning_alternatives
+) {
   assert(categories_count > 1);
   assert(!learning_alternatives.empty());
   const int criteria_count = learning_alternatives.front().criteria.size();
@@ -65,7 +68,7 @@ template class Domain<Device>;
 template<typename Space>
 Models<Space>::Models(
       const Domain<Space>& domain_,
-      int models_count_,
+      const int models_count_,
       Matrix2D<Space, float>&& weights_,
       Matrix3D<Space, float>&& profiles_) :
     domain(domain_),
@@ -115,7 +118,7 @@ template class Models<Host>;
 template class Models<Device>;
 
 template<typename Space>
-int get_assignment(const Models<Space>& models, int model_index, int alternative_index) {
+int get_assignment(const Models<Space>& models, const int model_index, const int alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   assert(model_index >= 0 && model_index < models.models_count);
@@ -139,7 +142,7 @@ int get_assignment(const Models<Space>& models, int model_index, int alternative
 }
 
 template<typename Space>
-int get_accuracy(const Models<Space>& models, int model_index) {
+int get_accuracy(const Models<Space>& models, const int model_index) {
   // @todo Evaluate if it's worth storing and updating the models' accuracy
   // (instead of recomputing it here)
   int accuracy = 0;
