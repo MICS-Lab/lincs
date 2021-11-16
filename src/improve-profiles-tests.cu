@@ -95,3 +95,54 @@ TEST(MakeModels, SingleAlternativeSeveralCriteria) {
   EXPECT_EQ(models.profiles[1][0][0], 0.50);
   EXPECT_EQ(models.profiles[2][0][0], 0.75);
 }
+
+TEST(GetAssignment, SingleCriterion) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 0}});
+
+  // Alternative above profile, heavy weight => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.49}}, {5}}}), 0, 0), 1);
+  // Alternative above profile, weight just enough => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.49}}, {1}}}), 0, 0), 1);
+  // Alternative above profile, but insufficient weight => stay in C0
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.49}}, {0.99}}}), 0, 0), 0);
+
+  // Alternative equal to profile, heavy weight => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.5}}, {5}}}), 0, 0), 1);
+  // Alternative equal to profile, weight just enough => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.5}}, {1}}}), 0, 0), 1);
+  // Alternative equal to profile, but insufficient weight => stay in C0
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.5}}, {0.99}}}), 0, 0), 0);
+
+  // Alternative below profile, whatever weight => stay in C0
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.51}}, {1}}}), 0, 0), 0);
+}
+
+TEST(GetAssignment, SeveralCriteria) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.3, 0.7}, 0}});
+
+  // Alternative fully above profile, heavy weights => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.29, 0.69}}, {5, 5}}}), 0, 0), 1);
+  // Alternative above profile on first criterion, heavy weight on first criterion => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.29, 0.71}}, {5, 0.1}}}), 0, 0), 1);
+  // Alternative above profile on second criterion, heavy weight on second criterion => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.31, 0.69}}, {0.1, 5}}}), 0, 0), 1);
+  // Alternative fully above profile, weights just enough => reach C1
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.29, 0.69}}, {0.5, 0.5}}}), 0, 0), 1);
+  // Alternative fully above profile, but insufficient weight => stay in C0
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.29, 0.69}}, {0.49, 0.49}}}), 0, 0), 0);
+  // Alternative above profile on first criterion, but insufficient weight => stay in C0
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.29, 0.71}}, {0.99, 5}}}), 0, 0), 0);
+  // Alternative above profile on second criterion, but insufficient weight => stay in C0
+  EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.31, 0.69}}, {5, 0.99}}}), 0, 0), 0);
+}
+
+TEST(GetAssignment, SeveralAlternativesSeveralModels) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.25}, 0}, {{0.75}, 0}});
+
+  Models<Host> models = Models<Host>::make(domain, {{{{0.9}}, {1}}, {{{0.5}}, {1}}});
+
+  EXPECT_EQ(get_assignment(models, 0, 0), 0);
+  EXPECT_EQ(get_assignment(models, 0, 1), 0);
+  EXPECT_EQ(get_assignment(models, 1, 0), 0);
+  EXPECT_EQ(get_assignment(models, 1, 1), 1);
+}

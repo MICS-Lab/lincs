@@ -114,5 +114,28 @@ Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector
 template class Models<Host>;
 template class Models<Device>;
 
-// void improve_profiles(Models* models) {
-// }
+template<typename Space>
+int get_assignment(const Models<Space>& models, int model_index, int alternative_index) {
+  // @todo Evaluate if it's worth storing and updating the models' assignments
+  // (instead of recomputing them here)
+  assert(model_index >= 0 && model_index < models.models_count);
+  assert(alternative_index >= 0 && alternative_index < models.domain.learning_alternatives_count);
+
+  for (int category_index = 1; category_index != models.domain.categories_count; ++category_index) {
+    const int profile_index = category_index - 1;
+    float weight_at_or_above_profile = 0;
+    for (int crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+      const float alternative_value = models.domain.learning_alternatives[crit_index][alternative_index];
+      const float profile_value = models.profiles[crit_index][profile_index][model_index];
+      if (alternative_value >= profile_value) {
+        weight_at_or_above_profile += models.weights[crit_index][model_index];
+      }
+    }
+    if (weight_at_or_above_profile >= 1) {
+      return category_index;
+    }
+  }
+  return 0;
+}
+
+template int get_assignment(const Models<Host>&, int, int);

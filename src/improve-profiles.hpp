@@ -106,11 +106,13 @@ class Models {
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
   // @todo Investigate if this weird index order is actually improving performance
 
-  // @todo Evaluate if it's worth storing and updating the models' assignments
   // @todo Evaluate if it's wirth storing and updating the models' classification accuracies
 
  private:
   Models(const Domain<Space>&, int, Matrix2D<Space, float>&&, Matrix3D<Space, float>&&);
 };
+
+template<typename Space>
+int get_assignment(const Models<Space>& models, int model_index, int alternative_index);
 
 #endif  // IMPROVE_PROFILES_HPP_
