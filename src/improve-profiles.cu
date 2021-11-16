@@ -67,16 +67,13 @@ Models<Space>::Models(
       const Domain<Space>& domain_,
       int models_count_,
       Matrix2D<Space, float>&& weights_,
-      Matrix1D<Space, float>&& thresholds_,
       Matrix3D<Space, float>&& profiles_) :
     domain(domain_),
     models_count(models_count_),
     weights(std::move(weights_)),
-    thresholds(std::move(thresholds_)),
     profiles(std::move(profiles_)) {
   assert(weights.s1() == domain.criteria_count);
   assert(weights.s0() == models_count);
-  assert(thresholds.s0() == models_count);
   assert(profiles.s2() == domain.criteria_count);
   assert(profiles.s1() == domain.categories_count - 1);
   assert(profiles.s0() == models_count);
@@ -86,13 +83,10 @@ template<typename Space>
 Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector<Model>& models) {
   const int models_count = models.size();
   Matrix2D<Host, float> weights(domain.criteria_count, models_count);
-  Matrix1D<Host, float> thresholds(models_count);
   Matrix3D<Host, float> profiles(domain.criteria_count, domain.categories_count - 1, models_count);
 
   for (int model_index = 0; model_index != models_count; ++model_index) {
     const Model& model = models[model_index];
-
-    thresholds[model_index] = model.threshold;
 
     assert(model.weights.size() == domain.criteria_count);
     for (int crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
@@ -114,7 +108,6 @@ Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector
     domain,
     models_count,
     transfer_to<Space>(std::move(weights)),
-    transfer_to<Space>(std::move(thresholds)),
     transfer_to<Space>(std::move(profiles)));
 }
 

@@ -74,7 +74,6 @@ class Domain {
 struct Model {
   std::vector<std::vector<float>> profiles;
   std::vector<float> weights;
-  float threshold;
 };
 
 template<typename Space>
@@ -94,15 +93,11 @@ class Models {
   // Second index: index of model, from `0` to `models_count - 1`
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
   // @todo Investigate if this weird index order is actually improving performance
-
-  const Matrix1D<Space, float> thresholds;
-  // Index: index of model, from `0` to `models_count - 1`
-
-  // @todo Confirm with Vincent Mousseau that we can "denormalize" the weights
-  // (so that they have an arbitrary sum) and normalize the threshold to always be 1.
-  // This should be equivalent to just dividing the weights and threshold by the threshold,
-  // and give the same results.
-  // Advantage: remove the need to store the thresholds and normalize the sum of the weights.
+  // Compared to their description in the thesis, weights are denormalized:
+  // - their sum is not constrained to be 1
+  // - we don't store the threshold; we assume it's always 1
+  // - this approach corresponds to dividing the weights and threshold as defined in the thesis by the threshold
+  // - it simplifies the implementation because it removes the sum constraint and the threshold variables
 
   Matrix3D<Space, float> profiles;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
@@ -115,7 +110,7 @@ class Models {
   // @todo Evaluate if it's wirth storing and updating the models' classification accuracies
 
  private:
-  Models(const Domain<Space>&, int, Matrix2D<Space, float>&&, Matrix1D<Space, float>&&, Matrix3D<Space, float>&&);
+  Models(const Domain<Space>&, int, Matrix2D<Space, float>&&, Matrix3D<Space, float>&&);
 };
 
 #endif  // IMPROVE_PROFILES_HPP_
