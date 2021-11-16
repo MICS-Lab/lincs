@@ -138,4 +138,19 @@ int get_assignment(const Models<Space>& models, int model_index, int alternative
   return 0;
 }
 
-template int get_assignment(const Models<Host>&, int, int);
+template<typename Space>
+int get_accuracy(const Models<Space>& models, int model_index) {
+  // @todo Evaluate if it's worth storing and updating the models' accuracy
+  // (instead of recomputing it here)
+  int accuracy = 0;
+  for (int alternative_index = 0; alternative_index != models.domain.learning_alternatives_count; ++alternative_index) {
+    const int expected_assignment = models.domain.learning_assignments[alternative_index];
+    const int actual_assignment = get_assignment(models, model_index, alternative_index);
+    if (actual_assignment == expected_assignment) {
+      ++accuracy;
+    }
+  }
+  return accuracy;
+}
+
+template int get_accuracy(const Models<Host>&, int);

@@ -136,13 +136,15 @@ TEST(GetAssignment, SeveralCriteria) {
   EXPECT_EQ(get_assignment(Models<Host>::make(domain, {{{{0.31, 0.69}}, {5, 0.99}}}), 0, 0), 0);
 }
 
-TEST(GetAssignment, SeveralAlternativesSeveralModels) {
-  Domain<Host> domain = Domain<Host>::make(2, {{{0.25}, 0}, {{0.75}, 0}});
+TEST(GetAssignmentAndAccuracy, SeveralAlternativesSeveralModels) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.25}, 0}, {{0.75}, 1}});
 
   Models<Host> models = Models<Host>::make(domain, {{{{0.9}}, {1}}, {{{0.5}}, {1}}});
 
   EXPECT_EQ(get_assignment(models, 0, 0), 0);
   EXPECT_EQ(get_assignment(models, 0, 1), 0);
+  EXPECT_EQ(get_accuracy(models, 0), 1);
   EXPECT_EQ(get_assignment(models, 1, 0), 0);
   EXPECT_EQ(get_assignment(models, 1, 1), 1);
+  EXPECT_EQ(get_accuracy(models, 1), 2);
 }
