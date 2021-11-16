@@ -93,12 +93,12 @@ Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector
       weights[crit_index][model_index] = model.weights[crit_index];
     }
 
-    // @todo Add assertions checking profiles are ordered on each criterion
     assert(model.profiles.size() == domain.categories_count - 1);
     for (int cat_index = 0; cat_index != domain.categories_count - 1; ++cat_index) {
       const std::vector<float>& category_profile = model.profiles[cat_index];
       assert(category_profile.size() == domain.criteria_count);
       for (int crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
+        assert(cat_index == 0 || model.profiles[cat_index - 1][crit_index] <= model.profiles[cat_index][crit_index]);
         profiles[crit_index][cat_index][model_index] = category_profile[crit_index];
       }
     }
