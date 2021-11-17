@@ -22,6 +22,7 @@ struct Model {
 
   void save_to(std::ostream&) const;
   static Model load_from(std::istream&);
+  static Model make_homogeneous(int criteria_count, float weights_sum, int categories_count);
 
   const int criteria_count;
   const int categories_count;

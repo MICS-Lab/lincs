@@ -105,6 +105,19 @@ Model Model::load_from(std::istream& s) {
   return Model(criteria_count, categories_count, profiles, weights);
 }
 
+Model Model::make_homogeneous(int criteria_count, float weights_sum, int categories_count) {
+  std::vector<std::vector<float>> profiles;
+  profiles.reserve(categories_count - 1);
+  for (int profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
+    const float value = static_cast<float>(profile_index + 1) / categories_count;
+    profiles.push_back(std::vector<float>(criteria_count, value));
+  }
+
+  std::vector<float> weights(criteria_count, weights_sum / criteria_count);
+
+  return Model(criteria_count, categories_count, profiles, weights);
+}
+
 ClassifiedAlternative::ClassifiedAlternative(
   const std::vector<float>& criteria_values_,
   const int assigned_category_):
@@ -136,6 +149,27 @@ void LearningSet::save_to(std::ostream& s) const {
     s << space_separated(alternative.criteria_values.begin(), alternative.criteria_values.end())
       << " " << alternative.assigned_category << std::endl;
   }
+}
+
+LearningSet LearningSet::load_from(std::istream& s) {
+  int criteria_count;
+  s >> criteria_count;
+  int categories_count;
+  s >> categories_count;
+  int alternatives_count;
+  s >> alternatives_count;
+
+  std::vector<ClassifiedAlternative> alternatives;
+  alternatives.reserve(alternatives_count);
+  for (int alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+    std::vector<float> criteria_values(criteria_count);
+    s >> space_separated(criteria_values.begin(), criteria_values.end());
+    int assigned_category;
+    s >> assigned_category;
+    alternatives.push_back(ClassifiedAlternative(criteria_values, assigned_category));
+  }
+
+  return LearningSet(criteria_count, categories_count, alternatives_count, alternatives);
 }
 
 }  // namespace ppl::io

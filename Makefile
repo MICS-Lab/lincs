@@ -16,10 +16,13 @@ source_directories=library tools
 all_source_files=$(shell find $(source_directories) -name '*.cu')
 all_header_files=$(shell find $(source_directories) -name '*.hpp')
 test_source_files=$(shell find $(source_directories) -name '*-tests.cu')
+test_shell_files=$(shell find $(source_directories) -name '*-tests.sh')
 tools_source_files=$(shell find tools -name '*.cu')
 
+tools=$(foreach file,$(tools_source_files),$(patsubst tools/%.cu,build/tools/bin/%,$(file)))
+
 .PHONY: tools
-tools: $(foreach file,$(tools_source_files),$(patsubst tools/%.cu,build/tools/bin/%,$(file)))
+tools: $(tools)
 
 ##########################
 # Automated dependencies #
@@ -41,6 +44,7 @@ build/deps/%.deps: %.cu
 build/tools/bin/generate-model: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
 build/tools/bin/generate-learning-set: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
 build/tests/library/improve-profiles-tests: build/obj/library/io.o
+build/tools/bin/test-improve-profiles: build/obj/library/io.o build/obj/library/improve-profiles.o
 
 ########
 # Lint #
@@ -61,15 +65,25 @@ build/lint/%.cpplint.ok: %
 # Tests #
 #########
 
-test_sentinel_files=$(foreach file,$(test_source_files),$(patsubst %.cu,build/tests/%.ok,$(file)))
+test_sentinel_files=$(foreach file,$(test_source_files) $(test_shell_files),$(patsubst %,build/tests/%.ok,$(file)))
 
 .PHONY: test
 test: $(test_sentinel_files)
 
-build/tests/%-tests.ok: build/tests/%-tests
+# - unit-ish tests
+build/tests/%-tests.cu.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
 	@./$<
+	@touch $@
+
+# - integration-ish tests
+build/tests/%-tests.sh.ok: %-tests.sh $(tools)
+	@echo "$<"
+	@mkdir -p $(dir $@)
+	@rm -r $@-wd
+	@mkdir -p $@-wd
+	@cd $@-wd && BUILD_DIR=../../.. bash ../../../../$<
 	@touch $@
 
 ########
