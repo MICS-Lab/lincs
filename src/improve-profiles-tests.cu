@@ -165,9 +165,129 @@ TEST(ComputeMoveDesirability, NoImpact) {
   Desirability d = compute_move_desirability(models, 0, 0, 0, 0.2);
   EXPECT_EQ(d.v, 0);
   EXPECT_EQ(d.w, 0);
-  EXPECT_EQ(d.t, 0);
   EXPECT_EQ(d.q, 0);
   EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveUpForOneMoreCorrectAssignment) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.4}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.6);
+  EXPECT_EQ(d.v, 1);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveDownForOneMoreCorrectAssignment) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 1}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.6}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.4);
+  EXPECT_EQ(d.v, 1);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveUpForIncreasedCorrectCoalition) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5, 0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.4, 0.4}}, {1, 1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.6);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 1);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveDownForIncreasedCorrectCoalition) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5, 0.5}, 1}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.6, 0.6}}, {0.5, 0.5}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.4);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 1);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveUpForOneFewerCorrectAssignment) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 1}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.4}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.6);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 1);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveDownForOneFewerCorrectAssignment) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.6}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.4);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 1);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveUpForDecreasedCorrectCoalition) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5, 0.5}, 1}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.4, 0.6}}, {0.5, 0.5}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.6);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 1);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveDownForDecreasedCorrectCoalition) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5, 0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.6, 0.4}}, {1, 1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.4);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 1);
+  EXPECT_EQ(d.t, 0);
+}
+
+TEST(ComputeMoveDesirability, MoveUpForIncreasedBetterCoalition) {
+  Domain<Host> domain = Domain<Host>::make(3, {{{0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.3}, {0.4}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 1, 0, 0.6);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 1);
+}
+
+TEST(ComputeMoveDesirability, MoveDownForIncreasedBetterCoalition) {
+  Domain<Host> domain = Domain<Host>::make(3, {{{0.5}, 2}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.6}, {0.7}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.4);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+  EXPECT_EQ(d.t, 1);
 }
 
 TEST(ImproveProfiles, First) {

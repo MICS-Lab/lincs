@@ -172,6 +172,7 @@ Desirability compute_move_desirability(
   const float weight = models.weights[criterion_index][model_index];
 
   for (int alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
+    // Map (embarassigly parallel)
     const float value = models.domain.learning_alternatives[criterion_index][alt_index];
     const int learning_assignment = models.domain.learning_assignments[alt_index];
     const int model_assignment = get_assignment(models, model_index, alt_index);
@@ -186,7 +187,10 @@ Desirability compute_move_desirability(
       }
     }
 
-    // Direct translation of the top of page 78 of Sobrie's thesis
+    // Reduce (atomicAdd)
+
+    // These imbricated conditionals could be factorized, but this form has the benefit
+    // of being a direct translation of the top of page 78 of Sobrie's thesis.
     // Correspondance:
     // - learning_assignment: bottom index of A*
     // - model_assignment: top index of A*
@@ -199,14 +203,62 @@ Desirability compute_move_desirability(
     // - 1: \lambda
     if (destination > current_position) {
       if (
-          learning_assignment == profile_index
-          && model_assignment == profile_index + 1
-          && destination > value
-          && value >= current_position
-          && weight_at_or_above_profile - weight < 1) ++desirability.v;
-      // @todo Implement other cases
+        learning_assignment == profile_index
+        && model_assignment == profile_index + 1
+        && destination > value
+        && value >= current_position
+        && weight_at_or_above_profile - weight < 1) ++desirability.v;
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index + 1
+        && destination > value
+        && value >= current_position
+        && weight_at_or_above_profile - weight >= 1) ++desirability.w;
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index + 1
+        && destination > value
+        && value >= current_position
+        && weight_at_or_above_profile - weight < 1) ++desirability.q;
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index
+        && destination > value
+        && value >= current_position) ++desirability.r;
+      if (
+        learning_assignment < profile_index
+        && model_assignment > profile_index
+        && destination > value
+        && value >= current_position) ++desirability.t;
     } else {
-      // @todo Implement
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index
+        && destination < value
+        && value < current_position
+        && weight_at_or_above_profile + weight >= 1) ++desirability.v;
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index
+        && destination < value
+        && value < current_position
+        && weight_at_or_above_profile + weight < 1) ++desirability.w;
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index
+        && destination < value
+        && value < current_position
+        && weight_at_or_above_profile + weight >= 1) ++desirability.q;
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index + 1
+        && destination <= value
+        && value < current_position) ++desirability.r;
+      if (
+        learning_assignment > profile_index + 1
+        && model_assignment < profile_index + 1
+        && destination < value
+        && value <= current_position) ++desirability.t;
     }
   }
 

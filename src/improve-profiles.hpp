@@ -121,9 +121,9 @@ int get_accuracy(const Models<Space>& models, int model_index);
 struct Desirability {
   int v = 0;
   int w = 0;
-  int t = 0;
   int q = 0;
   int r = 0;
+  int t = 0;
 
   float value() const {
     if (v + w + t + q + r == 0) {
