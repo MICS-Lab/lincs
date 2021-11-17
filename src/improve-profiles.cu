@@ -125,6 +125,9 @@ int get_assignment(const Models<Space>& models, const int model_index, const int
   assert(model_index >= 0 && model_index < models.models_count);
   assert(alternative_index >= 0 && alternative_index < models.domain.learning_alternatives_count);
 
+  // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
+  // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
+  // phase keeping the maximum 'category_index' that passes the weight threshold.
   for (int category_index = models.domain.categories_count - 1; category_index != 0; --category_index) {
     const int profile_index = category_index - 1;
     float weight_at_or_above_profile = 0;
@@ -148,8 +151,10 @@ int get_accuracy(const Models<Space>& models, const int model_index) {
   // (instead of recomputing it here)
   int accuracy = 0;
   for (int alternative_index = 0; alternative_index != models.domain.learning_alternatives_count; ++alternative_index) {
+    // Map (embarassingly parallel)
     const int expected_assignment = models.domain.learning_assignments[alternative_index];
     const int actual_assignment = get_assignment(models, model_index, alternative_index);
+    // Single-key reduce (atomicAdd)
     if (actual_assignment == expected_assignment) {
       ++accuracy;
     }
@@ -187,7 +192,7 @@ Desirability compute_move_desirability(
       }
     }
 
-    // Reduce (atomicAdd)
+    // Single-key reduce (atomicAdd)
 
     // These imbricated conditionals could be factorized, but this form has the benefit
     // of being a direct translation of the top of page 78 of Sobrie's thesis.
@@ -303,7 +308,7 @@ void improve_model_profile(
     const float destination = destination_distribution(g);
     const float desirability = compute_move_desirability(
       *models, model_index, profile_index, criterion_index, destination).value();
-    // Reduce (divide and conquer?) (atomic compare-and-swap?)
+    // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
     if (desirability > best_desirability) {
       best_desirability = desirability;
       best_destination = destination;
