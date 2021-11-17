@@ -239,6 +239,13 @@ void improve_model_profile(
   // Mousseau's prez-mics-2018(8).pdf, but:
   //  - this is wasteful when there are fewer alternatives in the interval
   //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
+  // @todo Ask Vincent Mousseau about the following:
+  // We could consider only a finite set of values for b_j described as follows:
+  // - sort all the 'a_j's
+  // - compute all midpoints between two successive 'a_j'
+  // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
+  // Then instead of taking a random values in destination_distribution, we'd take a random subset of
+  // the intersection of these midpoints with that interval.
   for (int n = 0; n < 1024; ++n) {
     // Map (embarassigly parallel)
     const float destination = destination_distribution(g);
