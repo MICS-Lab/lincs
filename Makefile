@@ -34,6 +34,14 @@ build/deps/%.deps: %.cu
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
+#######################
+# Manual dependencies #
+#######################
+
+build/tools/bin/generate-model: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
+build/tools/bin/generate-learning-set: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
+build/tests/library/improve-profiles-tests: build/obj/library/io.o
+
 ########
 # Lint #
 ########

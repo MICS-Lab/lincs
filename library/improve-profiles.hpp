@@ -34,18 +34,16 @@ Variables (input and output, modified by this algorithm by side-effect):
 
 #include <vector>
 
+#include "io.hpp"
 #include "matrix.hpp"
 
 
-struct LearningAlternative {
-  std::vector<float> criteria;
-  int assignment;
-};
+namespace ppl::improve_profiles {
 
 template<typename Space>
 class Domain {
  public:
-  static Domain make(int categories_count, const std::vector<LearningAlternative>& learning_alternatives);
+  static Domain make(const io::LearningSet&);
 
  public:
   const int categories_count;
@@ -71,17 +69,12 @@ class Domain {
   Domain(int, int, int, Matrix2D<Space, float>&&, Matrix1D<Space, int>&&);
 };
 
-struct Model {
-  std::vector<std::vector<float>> profiles;
-  std::vector<float> weights;
-};
-
 template<typename Space>
 class Models {
  public:
   static Models make(
     const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
-    const std::vector<Model>& models);
+    const std::vector<io::Model>& models);
 
  public:
   const Domain<Space>& domain;
@@ -144,5 +137,7 @@ Desirability compute_move_desirability(
 
 template<typename Space>
 void improve_profiles(Models<Space>*);
+
+}  // namespace ppl::improve_profiles
 
 #endif  // IMPROVE_PROFILES_HPP_

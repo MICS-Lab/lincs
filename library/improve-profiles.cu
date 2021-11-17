@@ -10,6 +10,8 @@
 #include "cuda-utils.hpp"
 
 
+namespace ppl::improve_profiles {
+
 template<typename Space>
 Domain<Space>::Domain(
       const int categories_count_,
@@ -31,34 +33,26 @@ Domain<Space>::Domain(
 }
 
 template<typename Space>
-Domain<Space> Domain<Space>::make(
-  const int categories_count,
-  const std::vector<LearningAlternative>& learning_alternatives
-) {
-  assert(categories_count > 1);
-  assert(!learning_alternatives.empty());
-  const int criteria_count = learning_alternatives.front().criteria.size();
-  const int alternatives_count = learning_alternatives.size();
+Domain<Space> Domain<Space>::make(const io::LearningSet& learning_set) {
+  assert(learning_set.is_valid());
 
-  Matrix2D<Host, float> alternatives(criteria_count, alternatives_count);
-  Matrix1D<Host, int> assignments(alternatives_count);
+  Matrix2D<Host, float> alternatives(learning_set.criteria_count, learning_set.alternatives_count);
+  Matrix1D<Host, int> assignments(learning_set.alternatives_count);
 
-  for (int alt_index = 0; alt_index != alternatives_count; ++alt_index) {
-    const LearningAlternative& alt = learning_alternatives[alt_index];
+  for (int alt_index = 0; alt_index != learning_set.alternatives_count; ++alt_index) {
+    const io::ClassifiedAlternative& alt = learning_set.alternatives[alt_index];
 
-    assert(alt.criteria.size() == criteria_count);
-    for (int crit_index = 0; crit_index != criteria_count; ++crit_index) {
-      alternatives[crit_index][alt_index] = alt.criteria[crit_index];
+    for (int crit_index = 0; crit_index != learning_set.criteria_count; ++crit_index) {
+      alternatives[crit_index][alt_index] = alt.criteria_values[crit_index];
     }
 
-    assert(alt.assignment >= 0 && alt.assignment < categories_count);
-    assignments[alt_index] = alt.assignment;
+    assignments[alt_index] = alt.assigned_category;
   }
 
   return Domain(
-    categories_count,
-    criteria_count,
-    alternatives_count,
+    learning_set.categories_count,
+    learning_set.criteria_count,
+    learning_set.alternatives_count,
     transfer_to<Space>(std::move(alternatives)),
     transfer_to<Space>(std::move(assignments)));
 }
@@ -84,25 +78,22 @@ Models<Space>::Models(
 }
 
 template<typename Space>
-Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector<Model>& models) {
+Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector<io::Model>& models) {
   const int models_count = models.size();
   Matrix2D<Host, float> weights(domain.criteria_count, models_count);
   Matrix3D<Host, float> profiles(domain.criteria_count, domain.categories_count - 1, models_count);
 
   for (int model_index = 0; model_index != models_count; ++model_index) {
-    const Model& model = models[model_index];
+    const io::Model& model = models[model_index];
+    assert(model.is_valid());
 
-    assert(model.weights.size() == domain.criteria_count);
     for (int crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
       weights[crit_index][model_index] = model.weights[crit_index];
     }
 
-    assert(model.profiles.size() == domain.categories_count - 1);
     for (int cat_index = 0; cat_index != domain.categories_count - 1; ++cat_index) {
       const std::vector<float>& category_profile = model.profiles[cat_index];
-      assert(category_profile.size() == domain.criteria_count);
       for (int crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
-        assert(cat_index == 0 || model.profiles[cat_index - 1][crit_index] <= model.profiles[cat_index][crit_index]);
         profiles[crit_index][cat_index][model_index] = category_profile[crit_index];
       }
     }
@@ -352,3 +343,5 @@ void improve_profiles<Host>(Models<Host>* models) {
     }
   }
 }
+
+}  // namespace ppl::improve_profiles
