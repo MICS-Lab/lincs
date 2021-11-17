@@ -5,49 +5,55 @@
 #####################
 
 .PHONY: default
-default: lint test
+default: lint test tools
 
 #############
 # Inventory #
 #############
 
-all_source_files=$(shell find src -name '*.cu')
-all_header_files=$(shell find src -name '*.hpp')
-test_source_files=$(shell find src  -name '*-tests.cu')
+source_directories=library tools
+
+all_source_files=$(shell find $(source_directories) -name '*.cu')
+all_header_files=$(shell find $(source_directories) -name '*.hpp')
+test_source_files=$(shell find $(source_directories) -name '*-tests.cu')
+tools_source_files=$(shell find tools -name '*.cu')
+
+.PHONY: tools
+tools: $(foreach file,$(tools_source_files),$(patsubst tools/%.cu,build/tools/bin/%,$(file)))
 
 ##########################
 # Automated dependencies #
 ##########################
 
-dependency_files=$(foreach file,$(all_source_files),$(patsubst src/%.cu,build/deps/%.deps,$(file)))
+dependency_files=$(foreach file,$(all_source_files),$(patsubst %.cu,build/deps/%.deps,$(file)))
 
 $(foreach file,$(dependency_files),$(eval include $(file)))
 
-build/deps/%.deps: src/%.cu
+build/deps/%.deps: %.cu
 	@echo "nvcc -MM $< -o $@"
 	@mkdir -p $(dir $@)
-	@g++ -MM -x c++ $< | python3 tools/fix-g++-MM.py build/obj/$*.o $@ >$@
+	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
 ########
 # Lint #
 ########
 
-cpplint_sentinel_files=$(foreach file,$(all_source_files) $(all_header_files),$(patsubst src/%,build/lint/%.cpplint.ok,$(file)))
+cpplint_sentinel_files=$(foreach file,$(all_source_files) $(all_header_files),$(patsubst %,build/lint/%.cpplint.ok,$(file)))
 
 .PHONY: lint
 lint: $(cpplint_sentinel_files)
 
-build/lint/%.cpplint.ok: src/%
+build/lint/%.cpplint.ok: %
 	@echo "cpplint $<"
 	@mkdir -p $(dir $@)
-	@cpplint --root=src --linelength=120 $<
+	@cpplint --root=library --linelength=120 $<
 	@touch $@
 
 #########
 # Tests #
 #########
 
-test_sentinel_files=$(foreach file,$(test_source_files),$(patsubst src/%.cu,build/tests/%.ok,$(file)))
+test_sentinel_files=$(foreach file,$(test_source_files),$(patsubst %.cu,build/tests/%.ok,$(file)))
 
 .PHONY: test
 test: $(test_sentinel_files)
@@ -64,15 +70,21 @@ build/tests/%-tests.ok: build/tests/%-tests
 
 # - of test executables
 build/tests/%-tests: build/obj/%-tests.o build/obj/%.o
-	@echo "nvcc    $^ -o $@"
+	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
 	@nvcc $^ -lgtest_main -lgtest -o $@
+
+# - of tools
+build/tools/bin/%: build/obj/tools/%.o
+	@echo "nvcc    $< -o $@"
+	@mkdir -p $(dir $@)
+	@nvcc $^ -o $@
 
 ###############
 # Compilation #
 ###############
 
-build/obj/%.o: src/%.cu
+build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"
 	@mkdir -p $(dir $@)
 	@nvcc -std=c++17 -c $< -o $@
