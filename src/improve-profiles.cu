@@ -159,18 +159,14 @@ int get_accuracy(const Models<Space>& models, const int model_index) {
 
 template int get_accuracy(const Models<Host>&, int);
 
-float compute_move_desirability(
+Desirability compute_move_desirability(
   const Models<Host>& models,
   const int model_index,
   const int profile_index,
   const int criterion_index,
   const float destination
 ) {
-  int v = 0;
-  int w = 0;
-  int t = 0;
-  int q = 0;
-  int r = 0;
+  Desirability desirability;
 
   const float current_position = models.profiles[criterion_index][profile_index][model_index];
   const float weight = models.weights[criterion_index][model_index];
@@ -207,19 +203,14 @@ float compute_move_desirability(
           && model_assignment == profile_index + 1
           && destination > value
           && value >= current_position
-          && weight_at_or_above_profile - weight < 1) ++v;
+          && weight_at_or_above_profile - weight < 1) ++desirability.v;
       // @todo Implement other cases
     } else {
       // @todo Implement
     }
   }
 
-  if (v + w + t + q + r == 0) {
-    // The move has no impact. @todo What should its desirability be?
-    return 0;
-  } else {
-    return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
-  }
+  return desirability;
 }
 
 void improve_model_profile(
@@ -243,8 +234,7 @@ void improve_model_profile(
   std::uniform_real_distribution<> destination_distribution(lowest_destination, highest_destination);
 
   float best_destination = models->profiles[criterion_index][profile_index][model_index];
-  float best_desirability = compute_move_desirability(
-    *models, model_index, profile_index, criterion_index, best_destination);
+  float best_desirability = Desirability().value();
   // Not sure about this part: we're considering an arbitrary number of possible moves as described in
   // Mousseau's prez-mics-2018(8).pdf, but:
   //  - this is wasteful when there are fewer alternatives in the interval
@@ -253,7 +243,7 @@ void improve_model_profile(
     // Map (embarassigly parallel)
     const float destination = destination_distribution(g);
     const float desirability = compute_move_desirability(
-      *models, model_index, profile_index, criterion_index, destination);
+      *models, model_index, profile_index, criterion_index, destination).value();
     // Reduce (divide and conquer?) (atomic compare-and-swap?)
     if (desirability > best_desirability) {
       best_desirability = desirability;

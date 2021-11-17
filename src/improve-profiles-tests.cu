@@ -158,7 +158,17 @@ TEST(GetAssignmentAndAccuracy, SeveralAlternativesSeveralModels) {
   EXPECT_EQ(get_accuracy(models, 1), 2);
 }
 
-// @todo Unit-test compute_move_desirability (it's deterministic)
+TEST(ComputeMoveDesirability, NoImpact) {
+  Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 0}});
+  Models<Host> models = Models<Host>::make(domain, {{{{0.1}}, {1}}});
+
+  Desirability d = compute_move_desirability(models, 0, 0, 0, 0.2);
+  EXPECT_EQ(d.v, 0);
+  EXPECT_EQ(d.w, 0);
+  EXPECT_EQ(d.t, 0);
+  EXPECT_EQ(d.q, 0);
+  EXPECT_EQ(d.r, 0);
+}
 
 TEST(ImproveProfiles, First) {
   Domain<Host> domain = Domain<Host>::make(2, {{{0.5}, 0}});

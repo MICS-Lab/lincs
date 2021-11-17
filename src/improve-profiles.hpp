@@ -118,6 +118,30 @@ int get_assignment(const Models<Space>& models, int model_index, int alternative
 template<typename Space>
 int get_accuracy(const Models<Space>& models, int model_index);
 
+struct Desirability {
+  int v = 0;
+  int w = 0;
+  int t = 0;
+  int q = 0;
+  int r = 0;
+
+  float value() const {
+    if (v + w + t + q + r == 0) {
+      // The move has no impact. @todo What should its desirability be?
+      return 0;
+    } else {
+      return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
+    }
+  }
+};
+
+Desirability compute_move_desirability(
+  const Models<Host>& models,
+  int model_index,
+  int profile_index,
+  int criterion_index,
+  float destination);
+
 template<typename Space>
 void improve_profiles(Models<Space>*);
 
