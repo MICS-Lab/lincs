@@ -81,7 +81,7 @@ build/tests/%-tests.cu.ok: build/tests/%-tests
 build/tests/%-tests.sh.ok: %-tests.sh $(tools)
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@rm -r $@-wd
+	@rm -rf $@-wd
 	@mkdir -p $@-wd
 	@cd $@-wd && BUILD_DIR=../../.. bash ../../../../$<
 	@touch $@
