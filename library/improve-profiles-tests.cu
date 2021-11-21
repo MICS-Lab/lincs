@@ -242,18 +242,24 @@ TEST(GetAccuracy, RandomDomainUniformModel) {
   auto reference_model = ppl::generate::model(&gen1, 4, 5);
   std::fill(reference_model.weights.begin(), reference_model.weights.end(), 0.5);
   std::mt19937 gen2(57);
-  auto learning_set = ppl::generate::learning_set(&gen2, reference_model, 250);
+  auto learning_set = ppl::generate::learning_set(&gen2, reference_model, 100'000);
 
   auto model = ppl::io::Model::make_homogeneous(learning_set.criteria_count, 2., learning_set.categories_count);
   auto domain = ppl::improve_profiles::Domain<Host>::make(learning_set);
   auto models = ppl::improve_profiles::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
 
-  EXPECT_EQ(get_accuracy(models, 0), 103);
+  #ifndef NOSTOPWATCH
+  for (int i = 0; i != 10; ++i)
+  #endif
+  ASSERT_EQ(get_accuracy(models, 0), 44'667);
 
   auto device_domain = domain.clone_to<Device>();
   auto device_models = models.clone_to<Device>(device_domain);
 
-  EXPECT_EQ(get_accuracy(device_models, 0), 103);
+  #ifndef NOSTOPWATCH
+  for (int i = 0; i != 10; ++i)
+  #endif
+  ASSERT_EQ(get_accuracy(device_models, 0), 44'667);
 }
 
 TEST(ComputeMoveDesirability, NoImpact) {

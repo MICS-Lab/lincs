@@ -10,6 +10,7 @@
 #include <random>
 
 #include "cuda-utils.hpp"
+#include "stopwatch.hpp"
 
 
 namespace ppl::improve_profiles {
@@ -174,6 +175,8 @@ __host__ __device__ bool is_correctly_assigned(
 }
 
 unsigned int get_accuracy(const Models<Host>& models, const int model_index) {
+  STOPWATCH("get_accuracy (Host)");
+
   unsigned int accuracy = 0;
 
   ModelsView models_view = models.get_view();
@@ -201,6 +204,8 @@ __global__ void get_accuracy__kernel(ModelsView models, const int model_index, u
 }
 
 unsigned int get_accuracy(const Models<Device>& models, const int model_index) {
+  STOPWATCH("get_accuracy (Device)");
+
   unsigned int* device_accuracy = alloc_device<unsigned int>(1);
   cudaMemset(device_accuracy, 0, sizeof(unsigned int));
   checkCudaErrors();
@@ -456,6 +461,8 @@ __host__ __device__ void improve_profiles(RandomNumberGenerator random, const Mo
 }
 
 void improve_profiles(Models<Host>* models) {
+  STOPWATCH("improve_profiles (Host)");
+
   RandomNumberGenerator random;
   random.init_for_host();
   improve_profiles(random, models->get_view());
@@ -468,6 +475,8 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
 }
 
 void improve_profiles(Models<Device>* models) {
+  STOPWATCH("improve_profiles (Device)");
+
   RandomNumberGenerator random;
   random.init_for_device();
   improve_profiles__kernel<<<1, 1>>>(random, models->get_view());

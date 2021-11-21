@@ -39,10 +39,28 @@ build/deps/%.deps: %.cu builder/fix-g++-MM.py
 # Manual dependencies #
 #######################
 
-build/tools/bin/generate-model: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
-build/tools/bin/generate-learning-set: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
-build/tests/library/improve-profiles-tests: build/obj/library/io.o build/obj/library/generate.o
-build/tools/bin/test-improve-profiles: build/obj/library/io.o build/obj/library/improve-profiles.o
+build/tests/library/improve-profiles-tests: \
+  build/obj/library/io.o \
+  build/obj/library/generate.o \
+  build/obj/library/improve-profiles.o \
+  build/obj/library/stopwatch.o
+
+build/tools/bin/generate-model: \
+  build/obj/library/io.o \
+  build/obj/library/generate.o \
+  build/obj/library/improve-profiles.o \
+  build/obj/library/stopwatch.o
+
+build/tools/bin/generate-learning-set: \
+  build/obj/library/io.o \
+  build/obj/library/generate.o \
+  build/obj/library/improve-profiles.o \
+  build/obj/library/stopwatch.o
+
+build/tools/bin/test-improve-profiles: \
+  build/obj/library/io.o \
+  build/obj/library/improve-profiles.o \
+  build/obj/library/stopwatch.o
 
 ########
 # Lint #
@@ -98,7 +116,7 @@ build/tests/%-tests.sh.ok: %-tests.sh $(tools)
 ########
 
 # - of test executables
-build/tests/%-tests: build/obj/%-tests.o build/obj/%.o
+build/tests/%-tests: build/obj/%-tests.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
 	@nvcc $^ -lgtest_main -lgtest -o $@

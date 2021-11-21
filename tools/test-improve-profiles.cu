@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "../library/improve-profiles.hpp"
+#include "../library/stopwatch.hpp"
 
 
 void usage(char* name) {
@@ -16,11 +17,14 @@ void usage(char* name) {
 
 template<typename Space>
 bool loop(const ppl::io::LearningSet& learning_set, ppl::improve_profiles::Models<Space>* models) {
+  STOPWATCH("test-improve-profiles loop");
+
   const float accuracy_before = ppl::improve_profiles::get_accuracy(*models, 0);
   std::cout << "Accuracy before: " << accuracy_before << "/" << learning_set.alternatives_count << std::endl;
 
   float accuracy_after = 0;
   for (int i = 1; i <= 10; ++i) {
+    STOPWATCH("test-improve-profiles loop iteration");
     ppl::improve_profiles::improve_profiles(models);
     accuracy_after = ppl::improve_profiles::get_accuracy(*models, 0);
     std::cout << "Accuracy after iteration n°" << i << ": "
@@ -34,6 +38,8 @@ bool loop(const ppl::io::LearningSet& learning_set, ppl::improve_profiles::Model
 }
 
 int main(int argc, char* argv[]) {
+  STOPWATCH("test-improve-profiles");
+
   if (argc < 2) usage(argv[0]);
   const bool run_on_device = argc > 2;
 
