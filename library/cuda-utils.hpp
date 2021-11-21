@@ -4,6 +4,7 @@
 #define CUDA_UTILS_HPP_
 
 #include <cassert>
+#include <cstdio>
 
 
 __host__ __device__
