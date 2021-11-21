@@ -28,11 +28,9 @@ tools: $(tools)
 # Automated dependencies #
 ##########################
 
-dependency_files=$(foreach file,$(all_source_files),$(patsubst %.cu,build/deps/%.deps,$(file)))
+$(foreach file,$(foreach file,$(all_source_files),$(patsubst %.cu,build/deps/%.deps,$(file))),$(eval include $(file)))
 
-$(foreach file,$(dependency_files),$(eval include $(file)))
-
-build/deps/%.deps: %.cu
+build/deps/%.deps: %.cu builder/fix-g++-MM.py
 	@echo "nvcc -MM $< -o $@"
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
@@ -77,6 +75,15 @@ build/tests/%-tests.cu.ok: build/tests/%-tests
 	@./$<
 	@touch $@
 
+# - non-compilation tests
+
+$(foreach file,$(foreach file,$(test_source_files),$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file))),$(eval include $(file)))
+
+build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cu
+	@echo $^
+	@mkdir -p $(dir $@)
+	@python3 $^ >$@
+
 # - integration-ish tests
 build/tests/%-tests.sh.ok: %-tests.sh $(tools)
 	@echo "$<"
@@ -109,4 +116,4 @@ build/tools/bin/%: build/obj/tools/%.o
 build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc -std=c++17 -c $< -o $@
+	@nvcc -std=c++17 -g --expt-relaxed-constexpr -c $< -o $@
