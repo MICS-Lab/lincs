@@ -41,10 +41,12 @@ Variables (input and output, modified by this algorithm by side-effect):
 
 namespace ppl::improve_profiles {
 
+typedef unsigned int uint;
+
 struct DomainView {
-  const int categories_count;
-  const int criteria_count;
-  const int learning_alternatives_count;
+  const uint categories_count;
+  const uint criteria_count;
+  const uint learning_alternatives_count;
 
   MatrixView2D<const float> learning_alternatives;
   // First index: index of criterion, from `0` to `criteria_count - 1`
@@ -57,7 +59,7 @@ struct DomainView {
   //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
   //  - to handle criterion where a lower value is better, we'd need to store an aditional boolean indicator
 
-  MatrixView1D<const int> learning_assignments;
+  MatrixView1D<const uint> learning_assignments;
   // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
   // Possible values: from `0` to `categories_count - 1`
 };
@@ -92,20 +94,20 @@ class Domain {
   DomainView get_view() const;
 
  private:
-  Domain(int, int, int, float*, int*);
+  Domain(uint, uint, uint, float*, uint*);
 
  private:
-  const int categories_count;
-  const int criteria_count;
-  const int learning_alternatives_count;
+  const uint categories_count;
+  const uint criteria_count;
+  const uint learning_alternatives_count;
   float* const learning_alternatives;
-  int* const learning_assignments;
+  uint* const learning_assignments;
 };
 
 struct ModelsView {
   DomainView domain;
 
-  const int models_count;
+  const uint models_count;
 
   const MatrixView2D<float> weights;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
@@ -160,30 +162,31 @@ class Models {
   ModelsView get_view() const;  // @todo Remove const
 
  private:
-  Models(const Domain<Space>&, int, float*, float*);
+  Models(const Domain<Space>&, uint, float*, float*);
 
  private:
   const Domain<Space>& domain;
-  const int models_count;
+  const uint models_count;
   float* const weights;
   float* const profiles;
 };
 
-int get_assignment(const Models<Host>&, int model_index, int alternative_index);
+uint get_assignment(const Models<Host>&, uint model_index, uint alternative_index);
 
 // Accuracy is returned as an integer between `0` and `models.domain.alternatives_count`.
 // (To get the accuracy described in the thesis, it should be devided by `models.domain.alternatives_count`)
-unsigned int get_accuracy(const Models<Host>&, int model_index);
-unsigned int get_accuracy(const Models<Device>&, int model_index);
+uint get_accuracy(const Models<Host>&, uint model_index);
+uint get_accuracy(const Models<Device>&, uint model_index);
 
 struct Desirability {
-  int v = 0;
-  int w = 0;
-  int q = 0;
-  int r = 0;
-  int t = 0;
+  uint v = 0;
+  uint w = 0;
+  uint q = 0;
+  uint r = 0;
+  uint t = 0;
 
-  __host__ __device__ float value() const {
+  __host__ __device__
+  float value() const {
     if (v + w + t + q + r == 0) {
       // The move has no impact. @todo What should its desirability be?
       return 0;

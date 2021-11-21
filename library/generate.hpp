@@ -9,9 +9,11 @@
 
 namespace ppl::generate {
 
-io::Model model(std::mt19937* gen, int criteria_count, int categories_count);
+typedef unsigned int uint;
 
-io::LearningSet learning_set(std::mt19937* gen, const io::Model& model, int alternatives_count);
+io::Model model(std::mt19937* gen, uint criteria_count, uint categories_count);
+
+io::LearningSet learning_set(std::mt19937* gen, const io::Model& model, uint alternatives_count);
 
 }  // namespace ppl::generate
 

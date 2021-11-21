@@ -23,7 +23,7 @@ bool loop(const ppl::io::LearningSet& learning_set, ppl::improve_profiles::Model
   std::cout << "Accuracy before: " << accuracy_before << "/" << learning_set.alternatives_count << std::endl;
 
   float accuracy_after = 0;
-  for (int i = 1; i <= 10; ++i) {
+  for (unsigned int i = 1; i <= 10; ++i) {
     STOPWATCH("test-improve-profiles loop iteration");
     ppl::improve_profiles::improve_profiles(models);
     accuracy_after = ppl::improve_profiles::get_accuracy(*models, 0);

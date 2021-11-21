@@ -28,8 +28,8 @@ int main(int argc, char* argv[]) {
   const std::string model_file_name(argv[1]);
   std::ifstream model_file(model_file_name);
   ppl::io::Model model = ppl::io::Model::load_from(model_file);
-  int alternatives_count;
-  int seed;
+  unsigned int alternatives_count;
+  unsigned int seed;
 
   try {
     alternatives_count = std::stoi(argv[2]);

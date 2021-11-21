@@ -17,19 +17,19 @@ namespace ppl::improve_profiles {
 
 __host__ __device__ Desirability compute_move_desirability(
   const ModelsView&,
-  int model_index,
-  int profile_index,
-  int criterion_index,
+  uint model_index,
+  uint profile_index,
+  uint criterion_index,
   float destination);
 
 }  // namespace ppl::improve_profiles
 
 Domain<Host> make_domain(
-  const int categories_count,
-  const std::vector<std::pair<std::vector<float>, int>>& alternatives_
+  const uint categories_count,
+  const std::vector<std::pair<std::vector<float>, uint>>& alternatives_
 ) {
-  const int criteria_count = alternatives_.front().first.size();
-  const int alternatives_count = alternatives_.size();
+  const uint criteria_count = alternatives_.front().first.size();
+  const uint alternatives_count = alternatives_.size();
 
   std::vector<ppl::io::ClassifiedAlternative> alternatives;
   for (auto alternative : alternatives_) {
@@ -43,9 +43,9 @@ Models<Host> make_models(
   const Domain<Host>& domain,
   const std::vector<std::pair<std::vector<std::vector<float>>, std::vector<float>>>& models_
 ) {
-  const int criteria_count = domain.get_view().criteria_count;
-  const int categories_count = domain.get_view().categories_count;
-  const int models_count = models_.size();
+  const uint criteria_count = domain.get_view().criteria_count;
+  const uint categories_count = domain.get_view().categories_count;
+  const uint models_count = models_.size();
 
   std::vector<ppl::io::Model> models;
   for (auto model : models_) {
@@ -57,9 +57,9 @@ Models<Host> make_models(
 
 Desirability compute_move_desirability(
     const Models<Host>& models,
-    int model_index,
-    int profile_index,
-    int criterion_index,
+    uint model_index,
+    uint profile_index,
+    uint criterion_index,
     float destination) {
   return compute_move_desirability(models.get_view(), model_index, profile_index, criterion_index, destination);
 }

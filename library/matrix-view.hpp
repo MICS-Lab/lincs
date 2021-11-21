@@ -30,7 +30,7 @@ Multi-dimensional array interface:
 template<typename T>
 class MatrixView1D {
  public:
-  DECS MatrixView1D(int s0, T* data) : _s0(s0), _data(data) {}
+  DECS MatrixView1D(unsigned int s0, T* data) : _s0(s0), _data(data) {}
 
   template<typename U>
   friend class MatrixView1D;
@@ -38,15 +38,15 @@ class MatrixView1D {
   template<typename U>
   DECS MatrixView1D(const MatrixView1D<U>& o) : _s0(o._s0), _data(o._data) {}
 
-  DECS int s0() const { return _s0; }
+  DECS unsigned int s0() const { return _s0; }
 
-  DECS T& operator[](int i0) const {
+  DECS T& operator[](unsigned int i0) const {
     assert(i0 < _s0);
     return *(_data + i0);
   }
 
  private:
-  const int _s0;
+  const unsigned int _s0;
   T* const _data;
 };
 
@@ -54,7 +54,7 @@ class MatrixView1D {
 template<typename T>
 class MatrixView2D {
  public:
-  DECS MatrixView2D(int s1, int s0, T* data) : _s1(s1), _s0(s0), _data(data) {}
+  DECS MatrixView2D(unsigned int s1, unsigned int s0, T* data) : _s1(s1), _s0(s0), _data(data) {}
 
   template<typename U>
   friend class MatrixView2D;
@@ -62,17 +62,17 @@ class MatrixView2D {
   template<typename U>
   DECS MatrixView2D(const MatrixView2D<U>& o) : _s1(o._s1), _s0(o._s0), _data(o._data) {}
 
-  DECS int s1() const { return _s1; }
-  DECS int s0() const { return _s0; }
+  DECS unsigned int s1() const { return _s1; }
+  DECS unsigned int s0() const { return _s0; }
 
-  DECS MatrixView1D<T> operator[](int i1) const {
+  DECS MatrixView1D<T> operator[](unsigned int i1) const {
     assert(i1 < _s1);
     return MatrixView1D<T>(_s0, _data + i1 * _s0);
   }
 
  private:
-  const int _s1;
-  const int _s0;
+  const unsigned int _s1;
+  const unsigned int _s0;
   T* const _data;
 };
 
@@ -80,7 +80,8 @@ class MatrixView2D {
 template<typename T>
 class MatrixView3D {
  public:
-  DECS MatrixView3D(int s2, int s1, int s0, T* data) : _s2(s2), _s1(s1), _s0(s0), _data(data) {}
+  DECS MatrixView3D(unsigned int s2, unsigned int s1, unsigned int s0, T* data) :
+    _s2(s2), _s1(s1), _s0(s0), _data(data) {}
 
   template<typename U>
   friend class MatrixView3D;
@@ -88,19 +89,19 @@ class MatrixView3D {
   template<typename U>
   DECS MatrixView3D(const MatrixView3D<U>& o) : _s2(o._s2), _s1(o._s1), _s0(o._s0), _data(o._data) {}
 
-  DECS int s2() const { return _s2; }
-  DECS int s1() const { return _s1; }
-  DECS int s0() const { return _s0; }
+  DECS unsigned int s2() const { return _s2; }
+  DECS unsigned int s1() const { return _s1; }
+  DECS unsigned int s0() const { return _s0; }
 
-  DECS MatrixView2D<T> operator[](int i2) const {
+  DECS MatrixView2D<T> operator[](unsigned int i2) const {
     assert(i2 < _s2);
     return MatrixView2D<T>(_s1, _s0, _data + i2 * _s1 * _s0);
   }
 
  private:
-  const int _s2;
-  const int _s1;
-  const int _s0;
+  const unsigned int _s2;
+  const unsigned int _s1;
+  const unsigned int _s0;
   T* const _data;
 };
 

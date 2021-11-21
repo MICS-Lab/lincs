@@ -25,9 +25,9 @@ void usage(char* name) {
 int main(int argc, char* argv[]) {
   if (argc != 4) usage(argv[0]);
 
-  int criteria_count;
-  int categories_count;
-  int seed;
+  unsigned int criteria_count;
+  unsigned int categories_count;
+  unsigned int seed;
 
   try {
     criteria_count = std::stoi(argv[1]);

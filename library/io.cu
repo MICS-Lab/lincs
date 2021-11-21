@@ -43,8 +43,8 @@ std::istream& operator>>(std::istream& s, space_separated<T> v) {
 namespace ppl::io {
 
 Model::Model(
-  const int criteria_count_,
-  const int categories_count_,
+  const uint criteria_count_,
+  const uint categories_count_,
   const std::vector<std::vector<float>>& profiles_,
   const std::vector<float>& weights_) :
     criteria_count(criteria_count_),
@@ -92,9 +92,9 @@ void Model::save_to(std::ostream& s) const {
 }
 
 Model Model::load_from(std::istream& s) {
-  int criteria_count;
+  uint criteria_count;
   s >> criteria_count;
-  int categories_count;
+  uint categories_count;
   s >> categories_count;
   std::vector<float> weights(criteria_count);
   s >> space_separated(weights.begin(), weights.end());
@@ -105,10 +105,10 @@ Model Model::load_from(std::istream& s) {
   return Model(criteria_count, categories_count, profiles, weights);
 }
 
-Model Model::make_homogeneous(int criteria_count, float weights_sum, int categories_count) {
+Model Model::make_homogeneous(uint criteria_count, float weights_sum, uint categories_count) {
   std::vector<std::vector<float>> profiles;
   profiles.reserve(categories_count - 1);
-  for (int profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
+  for (uint profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
     const float value = static_cast<float>(profile_index + 1) / categories_count;
     profiles.push_back(std::vector<float>(criteria_count, value));
   }
@@ -120,14 +120,14 @@ Model Model::make_homogeneous(int criteria_count, float weights_sum, int categor
 
 ClassifiedAlternative::ClassifiedAlternative(
   const std::vector<float>& criteria_values_,
-  const int assigned_category_):
+  const uint assigned_category_):
     criteria_values(criteria_values_),
     assigned_category(assigned_category_) {}
 
 LearningSet::LearningSet(
-  const int criteria_count_,
-  const int categories_count_,
-  const int alternatives_count_,
+  const uint criteria_count_,
+  const uint categories_count_,
+  const uint alternatives_count_,
   const std::vector<ClassifiedAlternative>& alternatives_) :
     criteria_count(criteria_count_),
     categories_count(categories_count_),
@@ -152,19 +152,19 @@ void LearningSet::save_to(std::ostream& s) const {
 }
 
 LearningSet LearningSet::load_from(std::istream& s) {
-  int criteria_count;
+  uint criteria_count;
   s >> criteria_count;
-  int categories_count;
+  uint categories_count;
   s >> categories_count;
-  int alternatives_count;
+  uint alternatives_count;
   s >> alternatives_count;
 
   std::vector<ClassifiedAlternative> alternatives;
   alternatives.reserve(alternatives_count);
-  for (int alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+  for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
     std::vector<float> criteria_values(criteria_count);
     s >> space_separated(criteria_values.begin(), criteria_values.end());
-    int assigned_category;
+    uint assigned_category;
     s >> assigned_category;
     alternatives.push_back(ClassifiedAlternative(criteria_values, assigned_category));
   }

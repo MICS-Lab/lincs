@@ -10,12 +10,12 @@
 
 namespace ppl::generate {
 
-io::Model model(std::mt19937* gen, const int criteria_count, const int categories_count) {
+io::Model model(std::mt19937* gen, const uint criteria_count, const uint categories_count) {
   // Profile can take any values. We arbitrarily generate them uniformly between 0 and 1
   std::uniform_real_distribution<float> values_distribution(0.0f, 1.0f);
 
   std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
-  for (int crit_index = 0; crit_index != criteria_count; ++crit_index) {
+  for (uint crit_index = 0; crit_index != criteria_count; ++crit_index) {
     // Profiles must be ordered on each criterion, so we generate a random column...
     std::vector<float> column(categories_count - 1);
     std::generate(
@@ -24,7 +24,7 @@ io::Model model(std::mt19937* gen, const int criteria_count, const int categorie
     // ... sort it...
     std::sort(column.begin(), column.end());
     // ... and assign that column accross all profiles.
-    for (int profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
+    for (uint profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
       profiles[profile_index][crit_index] = column[profile_index];
     }
   }
@@ -57,7 +57,7 @@ io::Model model(std::mt19937* gen, const int criteria_count, const int categorie
 io::LearningSet learning_set(
     std::mt19937* gen,
     const io::Model& model,
-    const int alternatives_count) {
+    const uint alternatives_count) {
   std::vector<io::ClassifiedAlternative> alternatives;
   alternatives.reserve(alternatives_count);
 
@@ -65,7 +65,7 @@ io::LearningSet learning_set(
   // We just generate random profiles uniformly in [0, 1]...
   std::uniform_real_distribution<float> values_distribution(0.0f, 1.0f);
 
-  for (int alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+  for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
     std::vector<float> criteria_values(model.criteria_count);
     std::generate(
       criteria_values.begin(), criteria_values.end(),
@@ -80,7 +80,7 @@ io::LearningSet learning_set(
   auto models = improve_profiles::Models<Host>::make(domain, std::vector<io::Model>(1, model));
 
   // ... and simulate their category assignment according to "ground truth" (the provided model in that case).
-  for (int alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+  for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
     alternatives[alt_index].assigned_category = improve_profiles::get_assignment(models, 0, alt_index);
   }
 
