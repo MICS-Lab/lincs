@@ -403,11 +403,15 @@ TEST(ImproveProfiles, First) {
   auto device_domain = domain.clone_to<Device>();
   auto device_models = models.clone_to<Device>(device_domain);
 
+  RandomSource random;
+  random.init_for_host(42);
+  random.init_for_device(42);
+
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  improve_profiles(&models);
+  improve_profiles(random, &models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 
   EXPECT_EQ(get_accuracy(device_models, 0), 0);
-  improve_profiles(&device_models);
+  improve_profiles(random, &device_models);
   EXPECT_EQ(get_accuracy(device_models, 0), 1);
 }

@@ -6,43 +6,36 @@
 
 #include <curand_kernel.h>
 
+#include <random>
+
 #include "cuda-utils.hpp"
 
 
-__global__ void initialize_rng(curandState* const rng_states, const uint seed);
+struct RandomSource {
+  RandomSource();
+  ~RandomSource();
+
+  void init_for_host(int seed);
+
+  void init_for_device(int seed);
+
+  curandState* rng_states;
+  std::mt19937* gen;
+};
 
 struct RandomNumberGenerator {
-  RandomNumberGenerator() : _rng_states(nullptr) {}
-
-  void init_for_host() {
-  }
-
-  void init_for_device() {
-    _rng_states = alloc_host<curandState>(1024);
-    checkCudaErrors();
-    initialize_rng<<<1, 1024>>>(_rng_states, 43);
-    cudaDeviceSynchronize();
-    checkCudaErrors();
-  }
+  RandomNumberGenerator(const RandomSource& source) :  // NOLINT(runtime/explicit)
+    _rng_states(source.rng_states), _gen(source.gen) {}
 
   __host__ __device__
-  float uniform_float(const float min, const float max) {
-    #ifdef __CUDA_ARCH__
-    return min + (max - min) * curand_uniform(_rng_states);
-    #else
-    // @todo Implement using <random>
-    return min + (max - min) * static_cast<float>(rand()) / RAND_MAX;  // NOLINT(runtime/threadsafe_fn)
-    #endif
-  }
+  float uniform_float(const float min, const float max);
 
   __host__ __device__
-  uint uniform_int(const uint min, const uint max) {
-    // @todo Implement
-    return 0;
-  }
+  uint uniform_int(const uint min, const uint max);
 
  private:
   curandState* _rng_states;
+  std::mt19937* _gen;
 };
 
 

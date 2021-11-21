@@ -37,6 +37,7 @@ Variables (input and output, modified by this algorithm by side-effect):
 #include "io.hpp"
 #include "cuda-utils.hpp"
 #include "matrix-view.hpp"
+#include "randomness.hpp"
 
 
 namespace ppl::improve_profiles {
@@ -196,8 +197,8 @@ struct Desirability {
   }
 };
 
-void improve_profiles(Models<Host>*);
-void improve_profiles(Models<Device>*);
+void improve_profiles(const RandomSource& random, Models<Host>*);
+void improve_profiles(const RandomSource& random, Models<Device>*);
 
 }  // namespace ppl::improve_profiles
 

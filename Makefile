@@ -46,6 +46,9 @@ build/tests/library/improve-profiles-tests: \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
+build/tests/library/randomness-tests: \
+  build/obj/library/randomness.o
+
 build/tools/bin/generate-model: \
   build/obj/library/io.o \
   build/obj/library/generate.o \

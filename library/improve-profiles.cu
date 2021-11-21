@@ -493,11 +493,9 @@ void improve_profiles(RandomNumberGenerator random, const ModelsView& models) {
   }
 }
 
-void improve_profiles(Models<Host>* models) {
+void improve_profiles(const RandomSource& random, Models<Host>* models) {
   STOPWATCH("improve_profiles (Host)");
 
-  RandomNumberGenerator random;
-  random.init_for_host();
   improve_profiles(random, models->get_view());
 }
 
@@ -507,11 +505,9 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
   improve_profiles(random, models);
 }
 
-void improve_profiles(Models<Device>* models) {
+void improve_profiles(const RandomSource& random, Models<Device>* models) {
   STOPWATCH("improve_profiles (Device)");
 
-  RandomNumberGenerator random;
-  random.init_for_device();
   improve_profiles__kernel<<<1, 1>>>(random, models->get_view());
   cudaDeviceSynchronize();
   checkCudaErrors();
