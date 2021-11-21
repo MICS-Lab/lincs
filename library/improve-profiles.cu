@@ -226,11 +226,11 @@ uint get_accuracy(const Models<Device>& models, const uint model_index) {
 
 __host__ __device__
 void increment(uint* i, uint max) {
-  // #ifdef __CUDA_ARCH__
-  // atomicInc(i, max);
-  // #else
+  #ifdef __CUDA_ARCH__
+  atomicInc(i, max);
+  #else
   ++*i;
-  // #endif
+  #endif
 }
 
 __host__ __device__
@@ -341,6 +341,23 @@ void update_move_desirability(
   }
 }
 
+__global__ void compute_move_desirability__kernel(
+  const ModelsView models,
+  const uint model_index,
+  const uint profile_index,
+  const uint criterion_index,
+  const float destination,
+  Desirability* desirability
+) {
+  const uint alt_index = threadIdx.x + BLOCKDIM * blockIdx.x;
+  assert(alt_index < models.domain.learning_alternatives_count + BLOCKDIM);
+
+  if (alt_index < models.domain.learning_alternatives_count) {
+    update_move_desirability(
+      models, model_index, profile_index, criterion_index, destination, alt_index, desirability);
+  }
+}
+
 __host__ __device__
 Desirability compute_move_desirability(
   const ModelsView& models,
@@ -349,14 +366,25 @@ Desirability compute_move_desirability(
   const uint criterion_index,
   const float destination
 ) {
-  Desirability desirability;
+  #ifdef __CUDA_ARCH__
+    Desirability* desirability = new Desirability;
 
-  for (uint alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
-    update_move_desirability(
-      models, model_index, profile_index, criterion_index, destination, alt_index, &desirability);
-  }
+    compute_move_desirability__kernel<<<CONFIG(models.domain.learning_alternatives_count)>>>(
+        models, model_index, profile_index, criterion_index, destination, desirability);
+    cudaDeviceSynchronize();
+    checkCudaErrors();
 
-  return desirability;
+    Desirability d = *desirability;
+    delete desirability;
+  #else
+    Desirability d;
+    for (uint alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
+      update_move_desirability(
+        models, model_index, profile_index, criterion_index, destination, alt_index, &d);
+    }
+  #endif
+
+  return d;
 }
 
 __global__ void initialize_rng(curandState* const rng_states, const uint seed) {

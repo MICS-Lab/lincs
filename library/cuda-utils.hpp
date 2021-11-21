@@ -6,13 +6,16 @@
 #include <cassert>
 
 
+__host__ __device__
 inline void checkCudaErrors_(const char* file, unsigned int line) {
   cudaError_t error = cudaGetLastError();
   if (error) {
     printf(
       "CUDA ERROR, detected at %s:%i: %i %s\n",
       file, line, static_cast<unsigned int>(error), cudaGetErrorName(error));
+    #ifndef __CUDA_ARCH__
     assert(false);  // Dump core for further investigations
+    #endif
   }
 }
 
@@ -35,6 +38,7 @@ void free_host(T* p) {
 }
 
 template<typename T>
+__host__ __device__
 T* alloc_device(unsigned int n) {
   if (n == 0) return nullptr;
   T* p;
@@ -44,6 +48,7 @@ T* alloc_device(unsigned int n) {
 }
 
 template<typename T>
+__host__ __device__
 void free_device(T* p) {
   if (p == nullptr) return;
   cudaFree(p);

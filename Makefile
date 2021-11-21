@@ -134,4 +134,4 @@ build/tools/bin/%: build/obj/tools/%.o
 build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc -std=c++17 -g --expt-relaxed-constexpr -c $< -o $@
+	@nvcc -std=c++17 -g --expt-relaxed-constexpr -dc $< -o $@
