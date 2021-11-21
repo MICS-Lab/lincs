@@ -248,10 +248,12 @@ TEST(GetAccuracy, RandomDomainUniformModel) {
   auto domain = ppl::improve_profiles::Domain<Host>::make(learning_set);
   auto models = ppl::improve_profiles::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
 
+  const unsigned int expected_accuracy = 44'667;
+
   #ifndef NOSTOPWATCH
   for (int i = 0; i != 10; ++i)
   #endif
-  ASSERT_EQ(get_accuracy(models, 0), 44'667);
+  ASSERT_EQ(get_accuracy(models, 0), expected_accuracy);
 
   auto device_domain = domain.clone_to<Device>();
   auto device_models = models.clone_to<Device>(device_domain);
@@ -259,7 +261,7 @@ TEST(GetAccuracy, RandomDomainUniformModel) {
   #ifndef NOSTOPWATCH
   for (int i = 0; i != 10; ++i)
   #endif
-  ASSERT_EQ(get_accuracy(device_models, 0), 44'667);
+  ASSERT_EQ(get_accuracy(device_models, 0), expected_accuracy);
 }
 
 TEST(ComputeMoveDesirability, NoImpact) {
@@ -398,9 +400,14 @@ TEST(ImproveProfiles, First) {
   auto domain = make_domain(2, {{{0.5}, 0}});
   auto models = make_models(domain, {{{{0.1}}, {1}}});
 
+  auto device_domain = domain.clone_to<Device>();
+  auto device_models = models.clone_to<Device>(device_domain);
+
   EXPECT_EQ(get_accuracy(models, 0), 0);
-
   improve_profiles(&models);
-
   EXPECT_EQ(get_accuracy(models, 0), 1);
+
+  EXPECT_EQ(get_accuracy(device_models, 0), 0);
+  improve_profiles(&device_models);
+  EXPECT_EQ(get_accuracy(device_models, 0), 1);
 }
