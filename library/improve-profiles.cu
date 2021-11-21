@@ -2,6 +2,8 @@
 
 #include "improve-profiles.hpp"
 
+#include <curand_kernel.h>
+
 #include <algorithm>
 #include <utility>
 #include <cassert>
@@ -14,30 +16,25 @@ namespace ppl::improve_profiles {
 
 template<typename Space>
 Domain<Space>::Domain(
-      const int categories_count_,
-      const int criteria_count_,
-      const int learning_alternatives_count_,
-      Matrix2D<Space, float>&& learning_alternatives_,
-      Matrix1D<Space, int>&& learning_assignments_) :
+  const int categories_count_,
+  const int criteria_count_,
+  const int learning_alternatives_count_,
+  float* learning_alternatives_,
+  int* learning_assignments_) :
     categories_count(categories_count_),
     criteria_count(criteria_count_),
     learning_alternatives_count(learning_alternatives_count_),
-    learning_alternatives(std::move(learning_alternatives_)),
-    learning_assignments(std::move(learning_assignments_)) {
-  assert(categories_count > 1);
-  assert(criteria_count > 0);
-  assert(learning_alternatives_count > 0);
-  assert(learning_alternatives.s1() == criteria_count);
-  assert(learning_alternatives.s0() == learning_alternatives_count);
-  assert(learning_assignments.s0() == learning_alternatives_count);
-}
+    learning_alternatives(learning_alternatives_),
+    learning_assignments(learning_assignments_) {}
 
-template<typename Space>
-Domain<Space> Domain<Space>::make(const io::LearningSet& learning_set) {
+template<>
+Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
   assert(learning_set.is_valid());
 
-  Matrix2D<Host, float> alternatives(learning_set.criteria_count, learning_set.alternatives_count);
-  Matrix1D<Host, int> assignments(learning_set.alternatives_count);
+  float* alternatives_ = alloc_host<float>(learning_set.criteria_count * learning_set.alternatives_count);
+  MatrixView2D<float> alternatives(learning_set.criteria_count, learning_set.alternatives_count, alternatives_);
+  int* assignments_ = alloc_host<int>(learning_set.alternatives_count);
+  MatrixView1D<int> assignments(learning_set.alternatives_count, assignments_);
 
   for (int alt_index = 0; alt_index != learning_set.alternatives_count; ++alt_index) {
     const io::ClassifiedAlternative& alt = learning_set.alternatives[alt_index];
@@ -53,8 +50,25 @@ Domain<Space> Domain<Space>::make(const io::LearningSet& learning_set) {
     learning_set.categories_count,
     learning_set.criteria_count,
     learning_set.alternatives_count,
-    transfer_to<Space>(std::move(alternatives)),
-    transfer_to<Space>(std::move(assignments)));
+    alternatives_,
+    assignments_);
+}
+
+template<typename Space>
+Domain<Space>::~Domain() {
+  Space::free(learning_alternatives);
+  Space::free(learning_assignments);
+}
+
+template<typename Space>
+DomainView Domain<Space>::get_view() const {
+  return {
+    categories_count,
+    criteria_count,
+    learning_alternatives_count,
+    MatrixView2D<const float>(criteria_count, learning_alternatives_count, learning_alternatives),
+    MatrixView1D<const int>(learning_alternatives_count, learning_assignments),
+  };
 }
 
 template class Domain<Host>;
@@ -62,55 +76,64 @@ template class Domain<Device>;
 
 template<typename Space>
 Models<Space>::Models(
-      const Domain<Space>& domain_,
-      const int models_count_,
-      Matrix2D<Space, float>&& weights_,
-      Matrix3D<Space, float>&& profiles_) :
+  const Domain<Space>& domain_,
+  const int models_count_,
+  float* weights_,
+  float* profiles_) :
     domain(domain_),
     models_count(models_count_),
-    weights(std::move(weights_)),
-    profiles(std::move(profiles_)) {
-  assert(weights.s1() == domain.criteria_count);
-  assert(weights.s0() == models_count);
-  assert(profiles.s2() == domain.criteria_count);
-  assert(profiles.s1() == domain.categories_count - 1);
-  assert(profiles.s0() == models_count);
-}
+    weights(weights_),
+    profiles(profiles_) {}
 
-template<typename Space>
-Models<Space> Models<Space>::make(const Domain<Space>& domain, const std::vector<io::Model>& models) {
+template<>
+Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io::Model>& models) {
+  DomainView domain_view = domain.get_view();
   const int models_count = models.size();
-  Matrix2D<Host, float> weights(domain.criteria_count, models_count);
-  Matrix3D<Host, float> profiles(domain.criteria_count, domain.categories_count - 1, models_count);
+  float* weights_ = alloc_host<float>(domain_view.criteria_count * models_count);
+  MatrixView2D<float> weights(domain_view.criteria_count, models_count, weights_);
+  float* profiles_ = alloc_host<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
+  MatrixView3D<float> profiles(domain_view.criteria_count, domain_view.categories_count - 1, models_count, profiles_);
 
   for (int model_index = 0; model_index != models_count; ++model_index) {
     const io::Model& model = models[model_index];
     assert(model.is_valid());
 
-    for (int crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
+    for (int crit_index = 0; crit_index != domain_view.criteria_count; ++crit_index) {
       weights[crit_index][model_index] = model.weights[crit_index];
     }
 
-    for (int cat_index = 0; cat_index != domain.categories_count - 1; ++cat_index) {
+    for (int cat_index = 0; cat_index != domain_view.categories_count - 1; ++cat_index) {
       const std::vector<float>& category_profile = model.profiles[cat_index];
-      for (int crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
+      for (int crit_index = 0; crit_index != domain_view.criteria_count; ++crit_index) {
         profiles[crit_index][cat_index][model_index] = category_profile[crit_index];
       }
     }
   }
 
-  return Models(
-    domain,
+  return Models(domain, models_count, weights_, profiles_);
+}
+
+template<typename Space>
+Models<Space>::~Models() {
+  Space::free(weights);
+  Space::free(profiles);
+}
+
+template<typename Space>
+ModelsView Models<Space>::get_view() const {
+  DomainView domain_view = domain.get_view();
+  return {
+    domain_view,
     models_count,
-    transfer_to<Space>(std::move(weights)),
-    transfer_to<Space>(std::move(profiles)));
+    MatrixView2D<float>(domain_view.criteria_count, models_count, weights),
+    MatrixView3D<float>(domain_view.criteria_count, domain_view.categories_count - 1, models_count, profiles),
+  };
 }
 
 template class Models<Host>;
 template class Models<Device>;
 
-template<typename Space>
-int get_assignment(const Models<Space>& models, const int model_index, const int alternative_index) {
+__host__ __device__ int get_assignment(const ModelsView& models, const int model_index, const int alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   assert(model_index >= 0 && model_index < models.models_count);
@@ -136,27 +159,66 @@ int get_assignment(const Models<Space>& models, const int model_index, const int
   return 0;
 }
 
-template<typename Space>
-int get_accuracy(const Models<Space>& models, const int model_index) {
-  // @todo Evaluate if it's worth storing and updating the models' accuracy
-  // (instead of recomputing it here)
-  int accuracy = 0;
-  for (int alternative_index = 0; alternative_index != models.domain.learning_alternatives_count; ++alternative_index) {
-    // Map (embarassingly parallel)
-    const int expected_assignment = models.domain.learning_assignments[alternative_index];
-    const int actual_assignment = get_assignment(models, model_index, alternative_index);
-    // Single-key reduce (atomicAdd)
-    if (actual_assignment == expected_assignment) {
+int get_assignment(const Models<Host>& models, const int model_index, const int alternative_index) {
+  return get_assignment(models.get_view(), model_index, alternative_index);
+}
+
+__host__ __device__ bool is_correctly_assigned(
+    const ModelsView& models,
+    const int model_index,
+    const int alternative_index) {
+  const int expected_assignment = models.domain.learning_assignments[alternative_index];
+  const int actual_assignment = get_assignment(models, model_index, alternative_index);
+
+  return actual_assignment == expected_assignment;
+}
+
+unsigned int get_accuracy(const Models<Host>& models, const int model_index) {
+  unsigned int accuracy = 0;
+
+  ModelsView models_view = models.get_view();
+  for (int alt_index = 0; alt_index != models_view.domain.learning_alternatives_count; ++alt_index) {
+    if (is_correctly_assigned(models_view, model_index, alt_index)) {
       ++accuracy;
     }
   }
+
   return accuracy;
 }
 
-template int get_accuracy(const Models<Host>&, int);
+#define BLOCKDIM 16
+#define CONFIG(size) (size) / BLOCKDIM + ((size) % BLOCKDIM ? 1 : 0), BLOCKDIM
 
-Desirability compute_move_desirability(
-  const Models<Host>& models,
+__global__ void get_accuracy__kernel(ModelsView models, const int model_index, unsigned int* const accuracy) {
+  const int alt_index = threadIdx.x + BLOCKDIM * blockIdx.x;
+  assert(0 <= alt_index && alt_index < models.domain.learning_alternatives_count + BLOCKDIM);
+
+  if (alt_index < models.domain.learning_alternatives_count) {
+    if (is_correctly_assigned(models, model_index, alt_index)) {
+      atomicInc(accuracy, models.domain.learning_alternatives_count);
+    }
+  }
+}
+
+unsigned int get_accuracy(const Models<Device>& models, const int model_index) {
+  unsigned int* device_accuracy = alloc_device<unsigned int>(1);
+  cudaMemset(device_accuracy, 0, sizeof(unsigned int));
+  checkCudaErrors();
+
+  ModelsView models_view = models.get_view();
+  get_accuracy__kernel<<<CONFIG(models_view.domain.learning_alternatives_count)>>>(
+    models_view, model_index, device_accuracy);
+  cudaDeviceSynchronize();
+  checkCudaErrors();
+
+  unsigned int host_accuracy;
+  copy_device_to_host(1, device_accuracy, &host_accuracy);
+  free_device(device_accuracy);
+  return host_accuracy;
+}
+
+__host__ __device__ Desirability compute_move_desirability(
+  const ModelsView& models,
   const int model_index,
   const int profile_index,
   const int criterion_index,
@@ -261,27 +323,61 @@ Desirability compute_move_desirability(
   return desirability;
 }
 
-void improve_model_profile(
-  Models<Host>* models,
+__global__ void initialize_rng(curandState* const rng_states, const unsigned int seed) {
+  unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  curand_init(seed, tid, 0, &rng_states[tid]);
+}
+
+struct RandomNumberGenerator {
+  RandomNumberGenerator() : _rng_states(nullptr) {}
+
+  void init_for_host() {
+  }
+
+  void init_for_device() {
+    _rng_states = alloc_host<curandState>(1024);
+    checkCudaErrors();
+    initialize_rng<<<1, 1024>>>(_rng_states, 43);
+    cudaDeviceSynchronize();
+    checkCudaErrors();
+  }
+
+  __host__ __device__ float uniform_float(const float min, const float max) {
+    #ifdef __CUDA_ARCH__
+    return min + (max - min) * curand_uniform(_rng_states);
+    #else
+    // @todo Implement using <random>
+    return min + (max - min) * static_cast<float>(rand()) / RAND_MAX;  // NOLINT(runtime/threadsafe_fn)
+    #endif
+  }
+
+  __host__ __device__ int uniform_int(const int min, const int max) {
+    // @todo Implement
+    return 0;
+  }
+
+ private:
+  curandState* _rng_states;
+};
+
+__host__ __device__ void improve_model_profile(
+  RandomNumberGenerator random,
+  ModelsView models,
   const int model_index,
   const int profile_index,
   const int criterion_index
 ) {
-  std::random_device rd;
-  std::mt19937 g(rd());
-
   // WARNING: We're assuming all criteria have values in [0, 1]
   // @todo Can we relax this assumption?
   // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
   const float lowest_destination =
     profile_index == 0 ? 0. :
-    models->profiles[criterion_index][profile_index - 1][model_index];
+    models.profiles[criterion_index][profile_index - 1][model_index];
   const float highest_destination =
-    profile_index == models->domain.categories_count - 2 ? 1. :
-    models->profiles[criterion_index][profile_index + 1][model_index];
-  std::uniform_real_distribution<> destination_distribution(lowest_destination, highest_destination);
+    profile_index == models.domain.categories_count - 2 ? 1. :
+    models.profiles[criterion_index][profile_index + 1][model_index];
 
-  float best_destination = models->profiles[criterion_index][profile_index][model_index];
+  float best_destination = models.profiles[criterion_index][profile_index][model_index];
   float best_desirability = Desirability().value();
   // Not sure about this part: we're considering an arbitrary number of possible moves as described in
   // Mousseau's prez-mics-2018(8).pdf, but:
@@ -292,13 +388,13 @@ void improve_model_profile(
   // - sort all the 'a_j's
   // - compute all midpoints between two successive 'a_j'
   // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
-  // Then instead of taking a random values in destination_distribution, we'd take a random subset of
-  // the intersection of these midpoints with that interval.
+  // Then instead of taking a random values in [lowest_destination, highest_destination],
+  // we'd take a random subset of the intersection of these midpoints with that interval.
   for (int n = 0; n < 64; ++n) {
     // Map (embarassigly parallel)
-    const float destination = destination_distribution(g);
+    const float destination = random.uniform_float(lowest_destination, highest_destination);
     const float desirability = compute_move_desirability(
-      *models, model_index, profile_index, criterion_index, destination).value();
+      models, model_index, profile_index, criterion_index, destination).value();
     // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
     if (desirability > best_desirability) {
       best_desirability = desirability;
@@ -307,41 +403,76 @@ void improve_model_profile(
   }
 
   // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
-  if (std::uniform_real_distribution<>(0.f, 1.f)(g) <= best_desirability) {
-    models->profiles[criterion_index][profile_index][model_index] = best_destination;
+  if (random.uniform_float(0, 1) <= best_desirability) {
+    models.profiles[criterion_index][profile_index][model_index] = best_destination;
   }
 }
 
-void improve_model_profile(
-  Models<Host>* models,
+__host__ __device__ void improve_model_profile(
+  RandomNumberGenerator random,
+  ModelsView models,
   const int model_index,
   const int profile_index,
-  const std::vector<int>& criterion_indexes
+  MatrixView1D<int> criterion_indexes
 ) {
   // Loop is not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (int criterion_index : criterion_indexes) {
-    improve_model_profile(models, model_index, profile_index, criterion_index);
+  for (int crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
+    improve_model_profile(random, models, model_index, profile_index, criterion_indexes[crit_idx_idx]);
   }
 }
 
-template<>
-void improve_profiles<Host>(Models<Host>* models) {
-  std::random_device rd;
-  std::mt19937 g(rd());
+template<typename T>
+__host__ __device__ void swap(T& a, T& b) {
+  T c = a;
+  a = b;
+  b = c;
+}
 
-  std::vector<int> criterion_indexes(models->domain.criteria_count, 0);
-  std::iota(criterion_indexes.begin(), criterion_indexes.end(), 0);
+template<typename T>
+__host__ __device__ void shuffle(RandomNumberGenerator random, MatrixView1D<T> m) {
+  for (int i = 0; i != m.s0(); ++i) {
+    swap(m[i], m[random.uniform_int(0, m.s0())]);
+  }
+}
+
+__host__ __device__ void improve_profiles(RandomNumberGenerator random, const ModelsView& models) {
+  int* criterion_indexes_ = new int[models.domain.criteria_count];
+  MatrixView1D<int> criterion_indexes(models.domain.criteria_count, criterion_indexes_);
+  for (int crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
+    criterion_indexes[crit_idx_idx] = crit_idx_idx;
+  }
 
   // Outer loop is embarassingly parallel
-  for (int model_index = 0; model_index != models->models_count; ++model_index) {
+  for (int model_index = 0; model_index != models.models_count; ++model_index) {
     // Inner loop is not parallel because iteration N+1 relies on side effect in iteration N
     // (We could challenge this aspect of the algorithm described by Sobrie)
-    for (int profile_index = 0; profile_index != models->domain.categories_count - 1; ++profile_index) {
-      std::shuffle(criterion_indexes.begin(), criterion_indexes.end(), g);
-      improve_model_profile(models, model_index, profile_index, criterion_indexes);
+    for (int profile_index = 0; profile_index != models.domain.categories_count - 1; ++profile_index) {
+      shuffle(random, criterion_indexes);
+      improve_model_profile(random, models, model_index, profile_index, criterion_indexes);
     }
   }
+  delete[] criterion_indexes_;
+}
+
+void improve_profiles(Models<Host>* models) {
+  RandomNumberGenerator random;
+  random.init_for_host();
+  improve_profiles(random, models->get_view());
+}
+
+__global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsView models) {
+  assert(blockIdx.x == 0);
+  assert(threadIdx.x == 0);
+  improve_profiles(random, models);
+}
+
+void improve_profiles(Models<Device>* models) {
+  RandomNumberGenerator random;
+  random.init_for_device();
+  improve_profiles__kernel<<<1, 1>>>(random, models->get_view());
+  cudaDeviceSynchronize();
+  checkCudaErrors();
 }
 
 }  // namespace ppl::improve_profiles

@@ -35,24 +35,20 @@ Variables (input and output, modified by this algorithm by side-effect):
 #include <vector>
 
 #include "io.hpp"
-#include "matrix.hpp"
+#include "cuda-utils.hpp"
+#include "matrix-view.hpp"
 
 
 namespace ppl::improve_profiles {
 
-template<typename Space>
-class Domain {
- public:
-  static Domain make(const io::LearningSet&);
-
- public:
+struct DomainView {
   const int categories_count;
   const int criteria_count;
   const int learning_alternatives_count;
 
-  Matrix2D<Space, float> learning_alternatives;
+  MatrixView2D<const float> learning_alternatives;
   // First index: index of criterion, from `0` to `criteria_count - 1`
-  // Second index: index of alternative, from `0` to `alternatives_count - 1`
+  // Second index: index of alternative, from `0` to `learning_alternatives_count - 1`
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
   // @todo Investigate if this weird index order is actually improving performance
   // Values are pre-normalized on each criterion so that the possible values are from `0.0` to `1.0`.
@@ -61,27 +57,57 @@ class Domain {
   //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
   //  - to handle criterion where a lower value is better, we'd need to store an aditional boolean indicator
 
-  Matrix1D<Space, int> learning_assignments;
-  // Index: index of alternative, from `0` to `alternatives_count - 1`
+  MatrixView1D<const int> learning_assignments;
+  // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
   // Possible values: from `0` to `categories_count - 1`
-
- private:
-  Domain(int, int, int, Matrix2D<Space, float>&&, Matrix1D<Space, int>&&);
 };
 
 template<typename Space>
-class Models {
+class Domain {
  public:
-  static Models make(
-    const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
-    const std::vector<io::Model>& models);
+  static Domain make(const io::LearningSet&);
+  ~Domain();
+
+  // Non-copyable
+  Domain(const Domain&) = delete;
+  Domain& operator=(const Domain&) = delete;
+
+  // Movable (not yet implemented)
+  Domain(Domain&&);
+  Domain& operator=(Domain&&);
+
+  template<typename OtherSpace> friend class Domain;
+
+  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
+  Domain<OtherSpace> clone_to() const {
+    return Domain<OtherSpace>(
+      categories_count,
+      criteria_count,
+      learning_alternatives_count,
+      FromTo<Space, OtherSpace>::clone(criteria_count * learning_alternatives_count, learning_alternatives),
+      FromTo<Space, OtherSpace>::clone(learning_alternatives_count, learning_assignments));
+  }
 
  public:
-  const Domain<Space>& domain;
+  DomainView get_view() const;
+
+ private:
+  Domain(int, int, int, float*, int*);
+
+ private:
+  const int categories_count;
+  const int criteria_count;
+  const int learning_alternatives_count;
+  float* const learning_alternatives;
+  int* const learning_assignments;
+};
+
+struct ModelsView {
+  DomainView domain;
 
   const int models_count;
 
-  const Matrix2D<Space, float> weights;
+  const MatrixView2D<float> weights;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
   // Second index: index of model, from `0` to `models_count - 1`
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
@@ -92,24 +118,63 @@ class Models {
   // - this approach corresponds to dividing the weights and threshold as defined in the thesis by the threshold
   // - it simplifies the implementation because it removes the sum constraint and the threshold variables
 
-  Matrix3D<Space, float> profiles;
+  const MatrixView3D<float> profiles;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
   // Second index: index of category below profile, from `0` to `domain.categories_count - 2`
   // Third index: index of model, from `0` to `models_count - 1`
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
   // @todo Investigate if this weird index order is actually improving performance
-
- private:
-  Models(const Domain<Space>&, int, Matrix2D<Space, float>&&, Matrix3D<Space, float>&&);
 };
 
 template<typename Space>
-int get_assignment(const Models<Space>& models, int model_index, int alternative_index);
+class Models {
+ public:
+  static Models make(
+    const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
+    const std::vector<io::Model>& models);
+  ~Models();
+
+  // Non-copyable
+  Models(const Models&) = delete;
+  Models& operator=(const Models&) = delete;
+
+  // Movable (not yet implemented)
+  Models(Models&&);
+  Models& operator=(Models&&);
+
+  template<typename OtherSpace> friend class Models;
+
+  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
+  Models<OtherSpace> clone_to(const Domain<OtherSpace>& domain) const {
+    DomainView domain_view = domain.get_view();
+    return Models<OtherSpace>(
+      domain,
+      models_count,
+      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * models_count, weights),
+      FromTo<Space, OtherSpace>::clone(
+        domain_view.criteria_count * (domain_view.categories_count - 1) * models_count,
+        profiles));
+  }
+
+ public:
+  ModelsView get_view() const;  // @todo Remove const
+
+ private:
+  Models(const Domain<Space>&, int, float*, float*);
+
+ private:
+  const Domain<Space>& domain;
+  const int models_count;
+  float* const weights;
+  float* const profiles;
+};
+
+int get_assignment(const Models<Host>&, int model_index, int alternative_index);
 
 // Accuracy is returned as an integer between `0` and `models.domain.alternatives_count`.
 // (To get the accuracy described in the thesis, it should be devided by `models.domain.alternatives_count`)
-template<typename Space>
-int get_accuracy(const Models<Space>& models, int model_index);
+unsigned int get_accuracy(const Models<Host>&, int model_index);
+unsigned int get_accuracy(const Models<Device>&, int model_index);
 
 struct Desirability {
   int v = 0;
@@ -118,7 +183,7 @@ struct Desirability {
   int r = 0;
   int t = 0;
 
-  float value() const {
+  __host__ __device__ float value() const {
     if (v + w + t + q + r == 0) {
       // The move has no impact. @todo What should its desirability be?
       return 0;
@@ -128,15 +193,8 @@ struct Desirability {
   }
 };
 
-Desirability compute_move_desirability(
-  const Models<Host>& models,
-  int model_index,
-  int profile_index,
-  int criterion_index,
-  float destination);
-
-template<typename Space>
-void improve_profiles(Models<Space>*);
+void improve_profiles(Models<Host>*);
+void improve_profiles(Models<Device>*);
 
 }  // namespace ppl::improve_profiles
 

@@ -26,8 +26,8 @@ struct Model {
 
   const int criteria_count;
   const int categories_count;
-  const std::vector<std::vector<float>> profiles;
-  const std::vector<float> weights;
+  std::vector<std::vector<float>> profiles;
+  std::vector<float> weights;
 };
 
 struct ClassifiedAlternative {
@@ -54,7 +54,7 @@ struct LearningSet {
   const int criteria_count;
   const int categories_count;
   const int alternatives_count;
-  const std::vector<ClassifiedAlternative> alternatives;
+  std::vector<ClassifiedAlternative> alternatives;
 };
 
 }  // namespace ppl::io

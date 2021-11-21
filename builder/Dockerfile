@@ -31,7 +31,7 @@ RUN set -x \
  && add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /" \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      cuda-cudart-dev-11-2 `# Development version of direct dependencies` \
+      cuda-cudart-dev-11-2 libcurand-dev-11-2 `# Development version of direct dependencies` \
       cuda-nvcc-11-2 `# Build tools` \
  && apt-get clean
 

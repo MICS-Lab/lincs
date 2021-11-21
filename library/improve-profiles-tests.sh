@@ -12,4 +12,8 @@ sed '3s/.*/0.5 0.5 0.5 0.5/' model-4-5-$seed.txt >model.txt
 
 $BUILD_DIR/tools/bin/generate-learning-set model.txt 250 $seed
 
-$BUILD_DIR/tools/bin/test-improve-profiles learning-set--model--250-$seed.txt
+echo "On CPU:"
+time $BUILD_DIR/tools/bin/test-improve-profiles learning-set--model--250-$seed.txt
+
+echo "On GPU:"
+time $BUILD_DIR/tools/bin/test-improve-profiles learning-set--model--250-$seed.txt --device

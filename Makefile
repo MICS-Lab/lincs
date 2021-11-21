@@ -41,7 +41,7 @@ build/deps/%.deps: %.cu builder/fix-g++-MM.py
 
 build/tools/bin/generate-model: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
 build/tools/bin/generate-learning-set: build/obj/library/generate.o build/obj/library/io.o build/obj/library/improve-profiles.o
-build/tests/library/improve-profiles-tests: build/obj/library/io.o
+build/tests/library/improve-profiles-tests: build/obj/library/io.o build/obj/library/generate.o
 build/tools/bin/test-improve-profiles: build/obj/library/io.o build/obj/library/improve-profiles.o
 
 ########

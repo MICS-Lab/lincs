@@ -78,4 +78,39 @@ T* clone_device_to_host(int n, const T* src) {
   return dst;
 }
 
+struct Host {
+  template<typename T>
+  static T* alloc(int n) { return alloc_host<T>(n); }
+
+  template<typename T>
+  static void free(T* p) { free_host(p); }
+};
+
+struct Device {
+  template<typename T>
+  static T* alloc(int n) { return alloc_device<T>(n); }
+
+  template<typename T>
+  static void free(T* p) { free_device(p); }
+};
+
+template<typename From, typename To>
+struct FromTo;
+
+template<>
+struct FromTo<Host, Device> {
+  template<typename T>
+  static T* clone(int n, T* p) {
+    return clone_host_to_device(n, p);
+  }
+};
+
+template<>
+struct FromTo<Device, Host> {
+  template<typename T>
+  static T* clone(int n, T* p) {
+    return clone_device_to_host(n, p);
+  }
+};
+
 #endif  // CUDA_UTILS_HPP_
