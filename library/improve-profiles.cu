@@ -189,7 +189,7 @@ unsigned int get_accuracy(const Models<Host>& models, const int model_index) {
   return accuracy;
 }
 
-#define BLOCKDIM 16
+#define BLOCKDIM 512
 #define CONFIG(size) (size) / BLOCKDIM + ((size) % BLOCKDIM ? 1 : 0), BLOCKDIM
 
 __global__ void get_accuracy__kernel(ModelsView models, const int model_index, unsigned int* const accuracy) {
