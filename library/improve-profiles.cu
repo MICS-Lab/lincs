@@ -294,7 +294,7 @@ void improve_model_profile(
   // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
   // Then instead of taking a random values in destination_distribution, we'd take a random subset of
   // the intersection of these midpoints with that interval.
-  for (int n = 0; n < 1024; ++n) {
+  for (int n = 0; n < 64; ++n) {
     // Map (embarassigly parallel)
     const float destination = destination_distribution(g);
     const float desirability = compute_move_desirability(
