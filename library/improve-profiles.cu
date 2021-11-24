@@ -259,6 +259,18 @@ void update_move_desirability(
     }
   }
 
+  // These imbricated conditionals could be factorized, but this form has the benefit
+  // of being a direct translation of the top of page 78 of Sobrie's thesis.
+  // Correspondance:
+  // - learning_assignment: bottom index of A*
+  // - model_assignment: top index of A*
+  // - profile_index: h
+  // - destination: b_j +/- \delta
+  // - current_position: b_j
+  // - value: a_j
+  // - weight_at_or_above_profile: \sigma
+  // - weight: w_j
+  // - 1: \lambda
   if (destination > current_position) {
     if (
       learning_assignment == profile_index
