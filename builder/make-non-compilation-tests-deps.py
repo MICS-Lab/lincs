@@ -1,9 +1,12 @@
 # Copyright 2021 Vincent Jacques
 
 import sys
+import os.path
+
 
 source_file_name = sys.argv[1]
-assert source_file_name.endswith("-tests.cu") or source_file_name.endswith("-tests.cpp")
+(source_file_base_name, source_file_extension) = os.path.splitext(source_file_name)
+assert source_file_extension in [".cu", ".cpp"]
 
 line_numbers_with_tests = []
 with open(source_file_name) as f:
@@ -20,7 +23,14 @@ if line_numbers_with_tests:
 
     for line_number in line_numbers_with_tests:
         print()
-        print(f"build/tests/{source_file_name[:-9]}-non-compilation-test-{line_number}.ok: {source_file_name} build/obj/{source_file_name[:-3]}.o")
-        print(f'\t@echo "nvcc -c $< -DEXPECT_COMPILE_ERROR={line_number}"')
-        print("\t@mkdir -p $(dir $@)")
-        print(f'\t@if nvcc -std=c++17 --expt-relaxed-constexpr -c $< -DEXPECT_COMPILE_ERROR={line_number} -o foo.o 2>/dev/null; then echo "{source_file_name}:{line_number}: non-compilation test failed"; else touch $@; fi')
+        print(f"build/tests/{source_file_name[:-9]}-non-compilation-test-{line_number}.ok: {source_file_name}")
+        if source_file_extension == ".cu":
+            print(f'\t@echo "nvcc -c $< -DEXPECT_COMPILE_ERROR={line_number}"')
+            print("\t@mkdir -p $(dir $@)")
+            print("\t@nvcc $(NVCC_COMPILE_OPTIONS) $< -o $@-base.o")
+            print(f'\t@if nvcc $(NVCC_COMPILE_OPTIONS) -DEXPECT_COMPILE_ERROR={line_number} $< -o $@-test.o 2>/dev/null; then echo "{source_file_name}:{line_number}: non-compilation test failed"; else touch $@; fi')
+        else:
+            print(f'\t@echo "g++  -c $< -DEXPECT_COMPILE_ERROR={line_number}"')
+            print("\t@mkdir -p $(dir $@)")
+            print("\t@g++ $(GPP_COMPILE_OPTIONS) $< -o $@-base.o")
+            print(f'\t@if g++ $(GPP_COMPILE_OPTIONS) -DEXPECT_COMPILE_ERROR={line_number} $< -o $@-test.o 2>/dev/null; then echo "{source_file_name}:{line_number}: non-compilation test failed"; else touch $@; fi')

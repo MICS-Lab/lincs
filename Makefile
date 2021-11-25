@@ -161,12 +161,15 @@ build/tools/bin/%: build/obj/tools/%.o
 # Compilation #
 ###############
 
+NVCC_COMPILE_OPTIONS=-dc -std=c++17 -g --expt-relaxed-constexpr
+GPP_COMPILE_OPTIONS=-std=c++17 -g -c -I/usr/local/cuda-11.2/targets/x86_64-linux/include
+
 build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc -std=c++17 -g --expt-relaxed-constexpr -dc $< -o $@
+	@nvcc $(NVCC_COMPILE_OPTIONS) $< -o $@
 
 build/obj/%.o: %.cpp
 	@echo "g++  -c $< -o $@"
 	@mkdir -p $(dir $@)
-	@g++ -std=c++17 -g -c $< -o $@
+	@g++ $(GPP_COMPILE_OPTIONS) $< -o $@

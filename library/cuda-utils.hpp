@@ -3,11 +3,19 @@
 #ifndef CUDA_UTILS_HPP_
 #define CUDA_UTILS_HPP_
 
+#include <cuda_runtime.h>
+
 #include <cassert>
 #include <cstdio>
 
 
-__host__ __device__
+#ifdef __NVCC__
+#define HOST_DEVICE_DECORATORS __host__ __device__
+#else
+#define HOST_DEVICE_DECORATORS
+#endif
+
+HOST_DEVICE_DECORATORS
 inline void checkCudaErrors_(const char* file, unsigned int line) {
   cudaError_t error = cudaGetLastError();
   if (error) {
@@ -39,7 +47,7 @@ void free_host(T* p) {
 }
 
 template<typename T>
-__host__ __device__
+HOST_DEVICE_DECORATORS
 T* alloc_device(unsigned int n) {
   if (n == 0) return nullptr;
   T* p;
@@ -49,7 +57,7 @@ T* alloc_device(unsigned int n) {
 }
 
 template<typename T>
-__host__ __device__
+HOST_DEVICE_DECORATORS
 void free_device(T* p) {
   if (p == nullptr) return;
   cudaFree(p);
