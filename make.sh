@@ -21,6 +21,7 @@ docker run \
   --rm --interactive --tty \
   --user $(id -u):$(id -g) \
   --gpus all \
+  --network none `# Ensure the repository is self-contained (except for the "docker build" phase)` \
   --volume "$PWD:/wd" --workdir /wd \
   parallel-preference-learning-builder \
     make "$@"

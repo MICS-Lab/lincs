@@ -13,13 +13,13 @@ default: lint test tools
 
 source_directories=library tools
 
-all_source_files=$(shell find $(source_directories) -name '*.cu')
+all_source_files=$(shell find $(source_directories) -name '*.cu' -or -name '*.cpp')
 all_header_files=$(shell find $(source_directories) -name '*.hpp')
-test_source_files=$(shell find $(source_directories) -name '*-tests.cu')
+test_source_files=$(shell find $(source_directories) -name '*-tests.cu' -or -name '*-tests.cpp')
 test_shell_files=$(shell find $(source_directories) -name '*-tests.sh')
-tools_source_files=$(shell find tools -name '*.cu')
+tools_source_files=$(shell find tools -name '*.cu' -or -name '*.cpp')
 
-tools=$(foreach file,$(tools_source_files),$(patsubst tools/%.cu,build/tools/bin/%,$(file)))
+tools=$(foreach file,$(tools_source_files),$(patsubst tools/%.cpp,build/tools/bin/%,$(patsubst tools/%.cu,build/tools/bin/%,$(file))))
 
 .PHONY: tools
 tools: $(tools)
@@ -28,9 +28,14 @@ tools: $(tools)
 # Automated dependencies #
 ##########################
 
-$(foreach file,$(foreach file,$(all_source_files),$(patsubst %.cu,build/deps/%.deps,$(file))),$(eval include $(file)))
+$(foreach file,$(foreach file,$(all_source_files),$(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file)))),$(eval include $(file)))
 
 build/deps/%.deps: %.cu builder/fix-g++-MM.py
+	@echo "nvcc -MM $< -o $@"
+	@mkdir -p $(dir $@)
+	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
+
+build/deps/%.deps: %.cpp builder/fix-g++-MM.py
 	@echo "nvcc -MM $< -o $@"
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
@@ -45,6 +50,9 @@ build/tests/library/improve-profiles-tests: \
   build/obj/library/improve-profiles.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
+
+build/tests/library/improve-weights-tests: \
+  build/obj/library/improve-weights.o
 
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o
@@ -100,11 +108,22 @@ build/tests/%-tests.cu.ok: build/tests/%-tests
 	@./$<
 	@touch $@
 
+build/tests/%-tests.cpp.ok: build/tests/%-tests
+	@echo "$<"
+	@mkdir -p $(dir $@)
+	@./$<
+	@touch $@
+
 # - non-compilation tests
 
-$(foreach file,$(foreach file,$(test_source_files),$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file))),$(eval include $(file)))
+$(foreach file,$(foreach file,$(test_source_files),$(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps,$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file)))),$(eval include $(file)))
 
 build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cu
+	@echo $^
+	@mkdir -p $(dir $@)
+	@python3 $^ >$@
+
+build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cpp
 	@echo $^
 	@mkdir -p $(dir $@)
 	@python3 $^ >$@
@@ -126,13 +145,13 @@ build/tests/%-tests.sh.ok: %-tests.sh $(tools)
 build/tests/%-tests: build/obj/%-tests.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lgtest_main -lgtest -o $@
+	@nvcc $^ -lgtest_main -lgtest -lortools -o $@
 
 # - of tools
 build/tools/bin/%: build/obj/tools/%.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -o $@
+	@nvcc $^ -lortools -o $@
 
 ###############
 # Compilation #
@@ -142,3 +161,8 @@ build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"
 	@mkdir -p $(dir $@)
 	@nvcc -std=c++17 -g --expt-relaxed-constexpr -dc $< -o $@
+
+build/obj/%.o: %.cpp
+	@echo "g++  -c $< -o $@"
+	@mkdir -p $(dir $@)
+	@g++ -std=c++17 -g -c $< -o $@

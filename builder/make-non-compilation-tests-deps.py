@@ -3,7 +3,7 @@
 import sys
 
 source_file_name = sys.argv[1]
-assert source_file_name.endswith("-tests.cu")
+assert source_file_name.endswith("-tests.cu") or source_file_name.endswith("-tests.cpp")
 
 line_numbers_with_tests = []
 with open(source_file_name) as f:

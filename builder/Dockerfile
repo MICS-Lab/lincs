@@ -41,3 +41,11 @@ ENV PATH="/usr/local/cuda-11.2/bin:${PATH}"
 # Python packages
 RUN pip3 install \
       cpplint `# Static analysis tools`
+
+# OR-Tools
+RUN set -x \
+ && wget https://github.com/google/or-tools/releases/download/v9.1/or-tools_amd64_ubuntu-20.04_v9.1.9490.tar.gz \
+ && tar xf or-tools_amd64_ubuntu-20.04_v9.1.9490.tar.gz \
+ && cp -r or-tools_Ubuntu-20.04-64bit_v9.1.9490/include/* /usr/local/include \
+ && cp -r or-tools_Ubuntu-20.04-64bit_v9.1.9490/lib/*.so /usr/local/lib \
+ && rm -r or-tools_Ubuntu-20.04-64bit_v9.1.9490 or-tools_amd64_ubuntu-20.04_v9.1.9490.tar.gz
