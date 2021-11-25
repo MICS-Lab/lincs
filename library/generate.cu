@@ -76,8 +76,8 @@ io::LearningSet learning_set(
   }
 
   io::LearningSet learning_set(model.criteria_count, model.categories_count, alternatives_count, alternatives);
-  auto domain = improve_profiles::Domain<Host>::make(learning_set);
-  auto models = improve_profiles::Models<Host>::make(domain, std::vector<io::Model>(1, model));
+  auto domain = Domain<Host>::make(learning_set);
+  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
 
   // ... and simulate their category assignment according to "ground truth" (the provided model in that case).
   for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {

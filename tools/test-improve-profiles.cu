@@ -19,7 +19,7 @@ template<typename Space>
 bool loop(
     const RandomSource& random,
     const ppl::io::LearningSet& learning_set,
-    ppl::improve_profiles::Models<Space>* models
+    ppl::Models<Space>* models
 ) {
   STOPWATCH("test-improve-profiles loop");
 
@@ -61,8 +61,8 @@ int main(int argc, char* argv[]) {
 
   auto model = ppl::io::Model::make_homogeneous(learning_set.criteria_count, 2., learning_set.categories_count);
 
-  auto domain = ppl::improve_profiles::Domain<Host>::make(learning_set);
-  auto models = ppl::improve_profiles::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
+  auto domain = ppl::Domain<Host>::make(learning_set);
+  auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
 
   RandomSource random;
 

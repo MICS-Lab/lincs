@@ -1,15 +1,17 @@
 // Copyright 2021 Vincent Jacques
 
-#include "improve-profiles.hpp"
-
 #include <gtest/gtest.h>
 
 #include "generate.hpp"
+#include "improve-profiles.hpp"
 
 
-using ppl::improve_profiles::Domain;
-using ppl::improve_profiles::Models;
+using ppl::Domain;
+using ppl::Models;
 using ppl::improve_profiles::Desirability;
+using ppl::improve_profiles::get_assignment;
+using ppl::improve_profiles::get_accuracy;
+using ppl::improve_profiles::improve_profiles;
 
 namespace ppl::improve_profiles {
 
@@ -61,7 +63,8 @@ Desirability compute_move_desirability(
     uint profile_index,
     uint criterion_index,
     float destination) {
-  return compute_move_desirability(models.get_view(), model_index, profile_index, criterion_index, destination);
+  return ppl::improve_profiles::compute_move_desirability(
+    models.get_view(), model_index, profile_index, criterion_index, destination);
 }
 
 
@@ -245,8 +248,8 @@ TEST(GetAccuracy, RandomDomainUniformModel) {
   auto learning_set = ppl::generate::learning_set(&gen2, reference_model, 100'000);
 
   auto model = ppl::io::Model::make_homogeneous(learning_set.criteria_count, 2., learning_set.categories_count);
-  auto domain = ppl::improve_profiles::Domain<Host>::make(learning_set);
-  auto models = ppl::improve_profiles::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
+  auto domain = Domain<Host>::make(learning_set);
+  auto models = Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
 
   const unsigned int expected_accuracy = 44'667;
 
