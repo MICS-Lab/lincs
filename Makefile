@@ -53,7 +53,9 @@ build/tests/library/improve-profiles-tests: \
   build/obj/library/stopwatch.o
 
 build/tests/library/improve-weights-tests: \
-  build/obj/library/improve-weights.o
+  build/obj/library/improve-weights.o \
+  build/obj/library/io.o \
+  build/obj/library/problem.o
 
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o

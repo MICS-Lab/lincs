@@ -3,16 +3,19 @@
 #ifndef IMPROVE_WEIGHTS_HPP_
 #define IMPROVE_WEIGHTS_HPP_
 
-// #include "ortools/lp_data/lp_data.h"
+#include <ortools/lp_data/lp_data.h>
 
-// #include "improve-profiles.hpp"
+#include <memory>
+
+#include "problem.hpp"
 
 
 namespace ppl::improve_weights {
 
 typedef unsigned int uint;
 
-// operations_research::glop::LinearProgram make_linear_program(improve_profiles::Models<Host>, uint model_index);
+std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
+  const float epsilon, const Models<Host>&, uint model_index);
 
 }  // namespace ppl::improve_weights
 
