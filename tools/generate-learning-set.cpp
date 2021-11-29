@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
   const std::string model_file_name(argv[1]);
   std::ifstream model_file(model_file_name);
-  ppl::io::Model model = ppl::io::Model::load_from(model_file);
+  auto model = ppl::io::Model::load_from(model_file);
   unsigned int alternatives_count;
   unsigned int seed;
 
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::mt19937 gen(seed);
-  const ppl::io::LearningSet learning_set = ppl::generate::learning_set(&gen, model, alternatives_count);
+  auto learning_set = ppl::generate::learning_set(&gen, model, alternatives_count);
 
   std::ostringstream file_name;
   file_name

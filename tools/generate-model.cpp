@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::mt19937 gen(seed);
-  const ppl::io::Model model = ppl::generate::model(&gen, criteria_count, categories_count);
+  auto model = ppl::generate::model(&gen, criteria_count, categories_count);
 
   std::ostringstream file_name;
   file_name << "model-" << criteria_count << "-" << categories_count << "-" << seed << ".txt";

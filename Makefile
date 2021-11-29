@@ -28,7 +28,7 @@ tools: $(tools)
 # Automated dependencies #
 ##########################
 
-$(foreach file,$(foreach file,$(all_source_files),$(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file)))),$(eval include $(file)))
+$(foreach file,$(all_source_files),$(eval include $(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file)))))
 
 build/deps/%.deps: %.cu builder/fix-g++-MM.py
 	@echo "nvcc -MM $< -o $@"
@@ -36,7 +36,7 @@ build/deps/%.deps: %.cu builder/fix-g++-MM.py
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
 build/deps/%.deps: %.cpp builder/fix-g++-MM.py
-	@echo "nvcc -MM $< -o $@"
+	@echo "g++  -MM $< -o $@"
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
@@ -96,6 +96,16 @@ build/tools/bin/test-improve-weights: \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
+build/tests/library/improve-profiles-tests.sh.ok: \
+  build/tools/bin/generate-model \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/test-improve-profiles
+
+build/tests/library/improve-weights-tests.sh.ok: \
+  build/tools/bin/generate-model \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/test-improve-weights
+
 ########
 # Lint #
 ########
@@ -135,7 +145,7 @@ build/tests/%-tests.cpp.ok: build/tests/%-tests
 
 # - non-compilation tests
 
-$(foreach file,$(foreach file,$(test_source_files),$(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps,$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file)))),$(eval include $(file)))
+$(foreach file,$(test_source_files),$(eval include $(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps,$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file)))))
 
 build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cu
 	@echo $^
@@ -148,7 +158,7 @@ build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-dep
 	@python3 $^ >$@
 
 # - integration-ish tests
-build/tests/%-tests.sh.ok: %-tests.sh $(tools)
+build/tests/%-tests.sh.ok: %-tests.sh
 	@echo "$<"
 	@mkdir -p $(dir $@)
 	@rm -rf $@-wd

@@ -23,22 +23,21 @@ bool loop(
 ) {
   STOPWATCH("test-improve-profiles loop");
 
-  const float accuracy_before = ppl::improve_profiles::get_accuracy(*models, 0);
-  std::cout << "Accuracy before: " << accuracy_before << "/" << learning_set.alternatives_count << std::endl;
+  std::cout << "Accuracy before: "
+    << ppl::improve_profiles::get_accuracy(*models, 0) << "/" << learning_set.alternatives_count << std::endl;
 
-  float accuracy_after = 0;
-  for (unsigned int i = 1; i <= 10; ++i) {
+  for (unsigned int i = 1; i <= 15; ++i) {
     STOPWATCH("test-improve-profiles loop iteration");
     ppl::improve_profiles::improve_profiles(random, models);
-    accuracy_after = ppl::improve_profiles::get_accuracy(*models, 0);
+    const uint accuracy = ppl::improve_profiles::get_accuracy(*models, 0);
     std::cout << "Accuracy after iteration n°" << i << ": "
-              << accuracy_after << "/" << learning_set.alternatives_count << std::endl;
-    if (accuracy_after == learning_set.alternatives_count) {
-      break;
+              << accuracy << "/" << learning_set.alternatives_count << std::endl;
+    if (accuracy == learning_set.alternatives_count) {
+      return true;
     }
   }
 
-  return accuracy_after > accuracy_before;
+  return false;
 }
 
 int main(int argc, char* argv[]) {
