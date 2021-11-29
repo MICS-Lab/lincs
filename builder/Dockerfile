@@ -9,8 +9,8 @@ RUN set -x \
       wget python3-pip `# Common tools` \
       software-properties-common dirmngr gpg-agent `# Required when adding the NVidia APT repository` \
       make cmake g++ `# Build tools` \
-      file gdb `# Debug tools` \
-&& apt-get clean
+      file gdb valgrind `# Debug tools` \
+ && apt-get clean
 
 # Google Test
 RUN set -x \
@@ -44,9 +44,10 @@ RUN pip3 install \
       cpplint `# Static analysis tools`
 
 # OR-Tools
+# DO NOT UPGRADE to version 9.y: there is a SegFault bug (that I still need to report)
 RUN set -x \
- && wget https://github.com/google/or-tools/releases/download/v9.1/or-tools_amd64_ubuntu-20.04_v9.1.9490.tar.gz \
- && tar xf or-tools_amd64_ubuntu-20.04_v9.1.9490.tar.gz \
- && cp -r or-tools_Ubuntu-20.04-64bit_v9.1.9490/include/* /usr/local/include \
- && cp -r or-tools_Ubuntu-20.04-64bit_v9.1.9490/lib/*.so /usr/local/lib \
- && rm -r or-tools_Ubuntu-20.04-64bit_v9.1.9490 or-tools_amd64_ubuntu-20.04_v9.1.9490.tar.gz
+ && wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
+ && tar xf or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
+ && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include \
+ && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib \
+ && rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz

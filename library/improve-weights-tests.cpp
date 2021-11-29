@@ -8,8 +8,12 @@
 #include <ortools/lp_data/lp_data.h>
 #include <ortools/lp_data/lp_types.h>
 
+#include "improve-profiles.hpp"
+
 
 using ppl::improve_weights::make_verbose_linear_program;
+using ppl::improve_weights::improve_weights;
+using ppl::improve_profiles::get_accuracy;
 
 ppl::Domain<Host> make_domain(
   const uint categories_count,
@@ -388,4 +392,13 @@ TEST(MakeLinearProgram, ThreeCriteriaAFewAlternatives) {
       "x'_6 >= 0;\n"
       "y_6 >= 0;\n"
       "y'_6 >= 0;\n");
+}
+
+TEST(ImproveWeights, First) {
+  auto domain = make_domain(2, {{{1}, 1}});
+  auto models = make_models(domain, {{{{0.5}}, {0}}});
+
+  EXPECT_EQ(get_accuracy(models, 0), 0);
+  improve_weights(&models);
+  EXPECT_EQ(get_accuracy(models, 0), 1);
 }
