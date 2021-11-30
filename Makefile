@@ -155,13 +155,13 @@ test: $(test_sentinel_files)
 build/tests/%-tests.cu.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@./$<
+	@valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
 build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@./$<
+	@valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
 # - non-compilation tests
