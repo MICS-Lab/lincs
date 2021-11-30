@@ -2,8 +2,9 @@
 
 #include "io.hpp"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <numeric>
 
 
 namespace {
@@ -85,7 +86,15 @@ bool Model::is_valid() const {
 void Model::save_to(std::ostream& s) const {
   s << criteria_count << std::endl;
   s << categories_count << std::endl;
-  s << space_separated(weights.begin(), weights.end()) << std::endl;
+  const float weights_sum = std::accumulate(weights.begin(), weights.end(), 0.f);
+  assert(weights_sum != 0);
+  std::vector<float> normalized_weights(weights);
+  std::transform(
+    normalized_weights.begin(), normalized_weights.end(),
+    normalized_weights.begin(),
+    [weights_sum](float w) { return w / weights_sum; });
+  s << space_separated(normalized_weights.begin(), normalized_weights.end()) << std::endl;
+  s << 1 / weights_sum << std::endl;;
   for (auto profile : profiles) {
     s << space_separated(profile.begin(), profile.end()) << std::endl;
   }
@@ -98,6 +107,9 @@ Model Model::load_from(std::istream& s) {
   s >> categories_count;
   std::vector<float> weights(criteria_count);
   s >> space_separated(weights.begin(), weights.end());
+  float threshold;
+  s >> threshold;
+  std::transform(weights.begin(), weights.end(), weights.begin(), [threshold](float w) { return w / threshold; });
   std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
   for (auto& profile : profiles) {
     s >> space_separated(profile.begin(), profile.end());

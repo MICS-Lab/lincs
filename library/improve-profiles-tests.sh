@@ -5,8 +5,8 @@ trap 'echo "Error on ${BASH_SOURCE[0]}:$LINENO"' ERR
 
 $BUILD_DIR/tools/bin/generate-model 4 5 57
 
-# Sum of weights == 2 to match test-improve-profiles.cu
-sed '3s/.*/0.5 0.5 0.5 0.5/' model-4-5-57.txt >model.txt
+# Homogeneous weights to match test-improve-profiles.cu
+sed -e '3s/.*/0.25 0.25 0.25 0.25/' -e '4s/.*/0.5/' model-4-5-57.txt >model.txt
 
 $BUILD_DIR/tools/bin/generate-learning-set model.txt 250 42
 

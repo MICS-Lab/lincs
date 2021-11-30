@@ -82,6 +82,9 @@ build/tests/library/improve-weights-tests: \
   build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
+build/tests/library/io-tests: \
+  build/obj/library/io.o
+
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o
 
