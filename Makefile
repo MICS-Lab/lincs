@@ -5,7 +5,7 @@
 #####################
 
 .PHONY: default
-default: lint test tools
+default: dep-graph lint test tools
 
 #############
 # Inventory #
@@ -24,6 +24,9 @@ tools=$(foreach file,$(tools_source_files),$(patsubst tools/%.cpp,build/tools/bi
 .PHONY: tools
 tools: $(tools)
 
+.PHONY: dep-graph
+dep-graph: build/dependency-graph.png
+
 ##########################
 # Automated dependencies #
 ##########################
@@ -39,6 +42,11 @@ build/deps/%.deps: %.cpp builder/fix-g++-MM.py
 	@echo "g++  -MM $< -o $@"
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
+
+build/dependency-graph.png: $(foreach file,$(all_source_files),$(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file))))
+	@echo "cat *.deps | dot -o $@"
+	@mkdir -p $(dir $@)
+	@cat $^ | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
 
 #######################
 # Manual dependencies #

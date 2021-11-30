@@ -6,7 +6,7 @@ FROM ubuntu:20.04
 RUN set -x \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      wget python3-pip `# Common tools` \
+      wget python3-pip graphviz `# Common tools` \
       software-properties-common dirmngr gpg-agent `# Required when adding the NVidia APT repository` \
       make cmake g++ `# Build tools` \
       file gdb valgrind `# Debug tools` \
