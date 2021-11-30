@@ -11,13 +11,6 @@
 
 namespace ppl::improve_profiles {
 
-uint get_assignment(const Models<Host>&, uint model_index, uint alternative_index);
-
-// Accuracy is returned as an integer between `0` and `models.domain.alternatives_count`.
-// (To get the accuracy described in the thesis, it should be devided by `models.domain.alternatives_count`)
-uint get_accuracy(const Models<Host>&, uint model_index);
-uint get_accuracy(const Models<Device>&, uint model_index);
-
 struct Desirability {
   uint v = 0;
   uint w = 0;

@@ -9,11 +9,12 @@
 #include <ortools/lp_data/lp_types.h>
 
 #include "improve-profiles.hpp"
+#include "assign.hpp"
 
 
 using ppl::improve_weights::make_verbose_linear_program;
 using ppl::improve_weights::improve_weights;
-using ppl::improve_profiles::get_accuracy;
+using ppl::get_accuracy;
 
 ppl::Domain<Host> make_domain(
   const uint categories_count,

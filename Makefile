@@ -44,66 +44,75 @@ build/deps/%.deps: %.cpp builder/fix-g++-MM.py
 # Manual dependencies #
 #######################
 
-build/tests/library/improve-profiles-tests: \
-  build/obj/library/io.o \
+build/tests/library/assign-tests: \
+  build/obj/library/assign.o \
   build/obj/library/generate.o \
+  build/obj/library/io.o \
+  build/obj/library/problem.o \
+  build/obj/library/stopwatch.o
+
+build/tests/library/problem-tests: \
+  build/obj/library/io.o \
+  build/obj/library/problem.o
+
+build/tests/library/improve-profiles-tests: \
+  build/obj/library/assign.o \
   build/obj/library/improve-profiles.o \
+  build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
-# @todo Clean this up (by moving get_accuracy into its own file)
 build/tests/library/improve-weights-tests: \
+  build/obj/library/assign.o \
   build/obj/library/improve-weights.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
-  build/obj/library/improve-profiles.o \
-  build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o
 
 build/tools/bin/generate-model: \
-  build/obj/library/io.o \
+  build/obj/library/assign.o \
   build/obj/library/generate.o \
-  build/obj/library/improve-profiles.o \
+  build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
 build/tools/bin/generate-learning-set: \
-  build/obj/library/io.o \
+  build/obj/library/assign.o \
   build/obj/library/generate.o \
-  build/obj/library/improve-profiles.o \
+  build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
 build/tools/bin/test-improve-profiles: \
-  build/obj/library/io.o \
+  build/obj/library/assign.o \
   build/obj/library/improve-profiles.o \
+  build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
-# @todo Clean this up (by moving get_accuracy into its own file)
 build/tools/bin/test-improve-weights: \
+  build/obj/library/assign.o \
   build/obj/library/improve-weights.o \
   build/obj/library/io.o \
-  build/obj/library/improve-profiles.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
 build/tests/library/improve-profiles-tests.sh.ok: \
-  build/tools/bin/generate-model \
   build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
   build/tools/bin/test-improve-profiles
 
 build/tests/library/improve-weights-tests.sh.ok: \
-  build/tools/bin/generate-model \
   build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
   build/tools/bin/test-improve-weights
 
 ########

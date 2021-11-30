@@ -4,8 +4,8 @@
 #include <sstream>
 #include <fstream>
 
+#include "../library/assign.hpp"
 #include "../library/improve-weights.hpp"
-#include "../library/improve-profiles.hpp"
 #include "../library/stopwatch.hpp"
 
 
@@ -31,11 +31,11 @@ int main(int argc, char* argv[]) {
   auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
 
   std::cout << "Accuracy before: "
-    << ppl::improve_profiles::get_accuracy(models, 0) << "/" << learning_set.alternatives_count << std::endl;
+    << ppl::get_accuracy(models, 0) << "/" << learning_set.alternatives_count << std::endl;
 
   ppl::improve_weights::improve_weights(&models);
 
-  const uint accuracy = ppl::improve_profiles::get_accuracy(models, 0);
+  const uint accuracy = ppl::get_accuracy(models, 0);
   std::cout << "Accuracy after: " << accuracy << "/" << learning_set.alternatives_count << std::endl;
 
   return accuracy == learning_set.alternatives_count ? 0 : 1;

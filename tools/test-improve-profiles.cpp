@@ -1,9 +1,10 @@
 // Copyright 2021 Vincent Jacques
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
+#include "../library/assign.hpp"
 #include "../library/improve-profiles.hpp"
 #include "../library/stopwatch.hpp"
 
@@ -24,12 +25,12 @@ bool loop(
   STOPWATCH("test-improve-profiles loop");
 
   std::cout << "Accuracy before: "
-    << ppl::improve_profiles::get_accuracy(*models, 0) << "/" << learning_set.alternatives_count << std::endl;
+    << ppl::get_accuracy(*models, 0) << "/" << learning_set.alternatives_count << std::endl;
 
   for (unsigned int i = 1; i <= 15; ++i) {
     STOPWATCH("test-improve-profiles loop iteration");
     ppl::improve_profiles::improve_profiles(random, models);
-    const uint accuracy = ppl::improve_profiles::get_accuracy(*models, 0);
+    const uint accuracy = ppl::get_accuracy(*models, 0);
     std::cout << "Accuracy after iteration n°" << i << ": "
               << accuracy << "/" << learning_set.alternatives_count << std::endl;
     if (accuracy == learning_set.alternatives_count) {

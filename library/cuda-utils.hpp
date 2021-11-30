@@ -127,4 +127,7 @@ struct FromTo<Device, Host> {
   }
 };
 
+#define BLOCKDIM 512
+#define CONFIG(size) (size) / BLOCKDIM + ((size) % BLOCKDIM ? 1 : 0), BLOCKDIM
+
 #endif  // CUDA_UTILS_HPP_
