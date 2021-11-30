@@ -31,7 +31,9 @@ dep-graph: build/dependency-graph.png
 # Automated dependencies #
 ##########################
 
-$(foreach file,$(all_source_files),$(eval include $(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file)))))
+dependency_files=$(foreach file,$(all_source_files),$(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file))))
+
+$(foreach file,$(dependency_files),$(eval include $(file)))
 
 build/deps/%.deps: %.cu builder/fix-g++-MM.py
 	@echo "nvcc -MM $< -o $@"
@@ -43,14 +45,16 @@ build/deps/%.deps: %.cpp builder/fix-g++-MM.py
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
-build/dependency-graph.png: $(foreach file,$(all_source_files),$(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file))))
+build/dependency-graph.png: builder/deps-to-dot.py $(dependency_files)
 	@echo "cat *.deps | dot -o $@"
 	@mkdir -p $(dir $@)
-	@cat $^ | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
+	@cat $(dependency_files) | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
 
 #######################
 # Manual dependencies #
 #######################
+
+# Of test executables to object files
 
 build/tests/library/assign-tests: \
   build/obj/library/assign.o \
@@ -88,6 +92,20 @@ build/tests/library/io-tests: \
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o
 
+# Of test shell scripts to tools
+
+build/tests/library/improve-profiles-tests.sh.ok: \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
+  build/tools/bin/test-improve-profiles
+
+build/tests/library/improve-weights-tests.sh.ok: \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
+  build/tools/bin/test-improve-weights
+
+# Of tools to object files
+
 build/tools/bin/generate-model: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
@@ -120,16 +138,6 @@ build/tools/bin/test-improve-weights: \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
-build/tests/library/improve-profiles-tests.sh.ok: \
-  build/tools/bin/generate-learning-set \
-  build/tools/bin/generate-model \
-  build/tools/bin/test-improve-profiles
-
-build/tests/library/improve-weights-tests.sh.ok: \
-  build/tools/bin/generate-learning-set \
-  build/tools/bin/generate-model \
-  build/tools/bin/test-improve-weights
-
 ########
 # Lint #
 ########
@@ -154,7 +162,8 @@ test_sentinel_files=$(foreach file,$(test_source_files) $(test_shell_files),$(pa
 .PHONY: test
 test: $(test_sentinel_files)
 
-# - unit-ish tests
+# Unit-ish tests
+
 build/tests/%-tests.cu.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
@@ -167,7 +176,7 @@ build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
-# - non-compilation tests
+# Non-compilation tests
 
 $(foreach file,$(test_source_files),$(eval include $(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps,$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file)))))
 
@@ -181,7 +190,8 @@ build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-dep
 	@mkdir -p $(dir $@)
 	@python3 $^ >$@
 
-# - integration-ish tests
+# Integration-ish tests
+
 build/tests/%-tests.sh.ok: %-tests.sh
 	@echo "$<"
 	@mkdir -p $(dir $@)
@@ -194,13 +204,15 @@ build/tests/%-tests.sh.ok: %-tests.sh
 # Link #
 ########
 
-# - of test executables
+# Of test executables
+
 build/tests/%-tests: build/obj/%-tests.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
 	@nvcc $^ -lgtest_main -lgtest -lortools -o $@
 
-# - of tools
+# Of tools
+
 build/tools/bin/%: build/obj/tools/%.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
