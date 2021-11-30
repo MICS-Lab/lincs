@@ -6,6 +6,8 @@
 #include <ortools/lp_data/lp_data.h>
 #include <ortools/lp_data/lp_types.h>
 
+#include <memory>
+
 #include "assign.hpp"
 #include "improve-profiles.hpp"
 #include "test-utils.hpp"

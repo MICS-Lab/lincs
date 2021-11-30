@@ -3,10 +3,6 @@
 #ifndef IMPROVE_WEIGHTS_HPP_
 #define IMPROVE_WEIGHTS_HPP_
 
-#include <ortools/lp_data/lp_data.h>
-
-#include <memory>
-
 #include "problem.hpp"
 
 
