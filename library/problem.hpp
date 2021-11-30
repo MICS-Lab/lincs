@@ -106,6 +106,8 @@ class Models {
     const std::vector<io::Model>& models);
   ~Models();
 
+  std::vector<io::Model> unmake() const;
+
   // Non-copyable
   Models(const Models&) = delete;
   Models& operator=(const Models&) = delete;

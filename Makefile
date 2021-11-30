@@ -89,6 +89,17 @@ build/tests/library/improve-weights-tests: \
 build/tests/library/io-tests: \
   build/obj/library/io.o
 
+build/tests/library/learn-tests: \
+  build/obj/library/assign.o \
+  build/obj/library/generate.o \
+  build/obj/library/improve-profiles.o \
+  build/obj/library/improve-weights.o \
+  build/obj/library/io.o \
+  build/obj/library/learn.o \
+  build/obj/library/problem.o \
+  build/obj/library/randomness.o \
+  build/obj/library/stopwatch.o
+
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o
 
