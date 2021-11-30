@@ -16,6 +16,8 @@ struct Model {
     uint criteria_count,
     uint categories_count,
     const std::vector<std::vector<float>>& profiles,
+    // @todo Add min/max values for each criterion.
+    // Then remove (everywhere) the assumption that these values are 0 and 1.
     const std::vector<float>& weights);
 
   bool is_valid() const;
