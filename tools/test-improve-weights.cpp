@@ -30,12 +30,12 @@ int main(int argc, char* argv[]) {
   auto domain = ppl::Domain<Host>::make(learning_set);
   auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
 
-  std::cout << "Accuracy before: "
-    << ppl::get_accuracy(models, 0) << "/" << learning_set.alternatives_count << std::endl;
+  uint accuracy = ppl::get_accuracy(models, 0);
+  std::cout << "Accuracy before: " << accuracy << "/" << learning_set.alternatives_count << std::endl;
 
   ppl::improve_weights::improve_weights(&models);
 
-  const uint accuracy = ppl::get_accuracy(models, 0);
+  accuracy = ppl::get_accuracy(models, 0);
   std::cout << "Accuracy after: " << accuracy << "/" << learning_set.alternatives_count << std::endl;
 
   return accuracy == learning_set.alternatives_count ? 0 : 1;
