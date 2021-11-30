@@ -9,8 +9,6 @@
 
 namespace ppl::io {
 
-typedef unsigned int uint;
-
 // Classes for easy input/output of domain objects
 
 struct Model {

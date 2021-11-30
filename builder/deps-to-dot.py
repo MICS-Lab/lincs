@@ -8,7 +8,7 @@ print("digraph G {")
 print('  node [shape="box"];')
 
 def is_important(name):
-    if name in {"cuda-utils", "matrix-view", "stopwatch"}:
+    if name in {"cuda-utils", "matrix-view", "stopwatch", "uint"}:
         return False
     if name.endswith("-tests"):
         return False

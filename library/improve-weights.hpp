@@ -12,11 +12,6 @@
 
 namespace ppl::improve_weights {
 
-typedef unsigned int uint;
-
-std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
-  const float epsilon, const Models<Host>&, uint model_index);
-
 void improve_weights(Models<Host>*);
 
 }  // namespace ppl::improve_weights

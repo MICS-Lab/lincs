@@ -8,11 +8,10 @@
 #include "cuda-utils.hpp"
 #include "io.hpp"
 #include "matrix-view.hpp"
+#include "uint.hpp"
 
 
 namespace ppl {
-
-typedef unsigned int uint;
 
 struct DomainView {
   const uint categories_count;

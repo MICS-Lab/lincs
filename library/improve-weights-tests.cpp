@@ -2,51 +2,28 @@
 
 #include "improve-weights.hpp"
 
-#include <gtest/gtest.h>
-
 #include <ortools/glop/lp_solver.h>
 #include <ortools/lp_data/lp_data.h>
 #include <ortools/lp_data/lp_types.h>
 
-#include "improve-profiles.hpp"
 #include "assign.hpp"
+#include "improve-profiles.hpp"
+#include "test-utils.hpp"
 
+
+namespace ppl::improve_weights {
+
+// Internal functions (not declared in the header) that we still want to unit-test
+
+std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
+  const float epsilon, const Models<Host>&, uint model_index);
+
+}  // namespace ppl::improve_weights
 
 using ppl::improve_weights::make_verbose_linear_program;
 using ppl::improve_weights::improve_weights;
 using ppl::get_accuracy;
 
-ppl::Domain<Host> make_domain(
-  const uint categories_count,
-  const std::vector<std::pair<std::vector<float>, uint>>& alternatives_
-) {
-  const uint criteria_count = alternatives_.front().first.size();
-  const uint alternatives_count = alternatives_.size();
-
-  std::vector<ppl::io::ClassifiedAlternative> alternatives;
-  for (auto alternative : alternatives_) {
-    alternatives.push_back(ppl::io::ClassifiedAlternative(alternative.first, alternative.second));
-  }
-
-  return ppl::Domain<Host>::make(ppl::io::LearningSet(
-    criteria_count, categories_count, alternatives_count, alternatives));
-}
-
-ppl::Models<Host> make_models(
-  const ppl::Domain<Host>& domain,
-  const std::vector<std::pair<std::vector<std::vector<float>>, std::vector<float>>>& models_
-) {
-  const uint criteria_count = domain.get_view().criteria_count;
-  const uint categories_count = domain.get_view().categories_count;
-  const uint models_count = models_.size();
-
-  std::vector<ppl::io::Model> models;
-  for (auto model : models_) {
-    models.push_back(ppl::io::Model(criteria_count, categories_count, model.first, model.second));
-  }
-
-  return ppl::Models<Host>::make(domain, models);
-}
 
 TEST(GlopExploration, FromSample) {
   // Exploration test inspired from
