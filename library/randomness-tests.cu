@@ -15,13 +15,25 @@ TEST(OnHost, UniformityOfFloat) {
   source.init_for_host(5489);
   RandomNumberGenerator random(source);
 
-  std::vector<unsigned int> histogram(1000, 0);
+  std::vector<std::vector<unsigned int>> histograms(omp_get_max_threads(), std::vector<unsigned int>(1000, 0));
+
+  #pragma omp parallel for
   for (unsigned int i = 0; i < 10'000'000; ++i) {
     float v = random.uniform_float(1000, 2000);
-    ASSERT_GE(v, 1000);
-    ASSERT_LT(v, 2000);
-    ++histogram.at(std::floor(v - 1000));
+    assert(v >= 1000);
+    assert(v < 2000);
+    ++histograms[omp_get_thread_num()][std::floor(v - 1000)];
   }
+
+  std::vector<unsigned int> histogram(1000, 0);
+  for (auto& hist : histograms) {
+    for (int i = 0; i != 1000; ++i) {
+      histogram[i] += hist[i];
+    }
+  }
+
+  ASSERT_EQ(std::accumulate(histogram.begin(), histogram.end(), 0), 10'000'000);
+
   for (unsigned int count : histogram) {
     EXPECT_GE(count, 9'500);
     EXPECT_LE(count, 10'500);
@@ -62,16 +74,28 @@ TEST(OnHost, UniformityOfInt) {
   source.init_for_host(5489);
   RandomNumberGenerator random(source);
 
-  std::vector<unsigned int> histogram(1000, 0);
-  for (unsigned int i = 0; i < 10000000; ++i) {
+  std::vector<std::vector<unsigned int>> histograms(omp_get_max_threads(), std::vector<unsigned int>(1000, 0));
+
+  #pragma omp parallel for
+  for (unsigned int i = 0; i < 10'000'000; ++i) {
     int v = random.uniform_int(1000, 2000);
-    ASSERT_GE(v, 1000);
-    ASSERT_LT(v, 2000);
-    ++histogram.at(v - 1000);
+    assert(v >= 1000);
+    assert(v < 2000);
+    ++histograms[omp_get_thread_num()][v - 1000];
   }
+
+  std::vector<unsigned int> histogram(1000, 0);
+  for (auto& hist : histograms) {
+    for (int i = 0; i != 1000; ++i) {
+      histogram[i] += hist[i];
+    }
+  }
+
+  ASSERT_EQ(std::accumulate(histogram.begin(), histogram.end(), 0), 10'000'000);
+
   for (unsigned int count : histogram) {
-    EXPECT_GE(count, 9500);
-    EXPECT_LE(count, 10500);
+    EXPECT_GE(count, 9'500);
+    EXPECT_LE(count, 10'500);
   }
 }
 

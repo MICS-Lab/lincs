@@ -23,7 +23,7 @@ TEST(Learn, OnGpu) {
     .set_models_count(15)
     .perform();
 
-  EXPECT_EQ(result.best_model_accuracy, 100);
+  EXPECT_EQ(result.best_model_accuracy, 89);
 
   auto domain = Domain<Host>::make(learning_set);
   auto models = Models<Host>::make(domain, std::vector<io::Model>(1, result.best_model));
@@ -45,7 +45,7 @@ TEST(Learn, OnCpu) {
     .set_models_count(5)
     .perform();
 
-  EXPECT_EQ(result.best_model_accuracy, 73);
+  EXPECT_EQ(result.best_model_accuracy, 78);
 
   auto domain = Domain<Host>::make(learning_set);
   auto models = Models<Host>::make(domain, std::vector<io::Model>(1, result.best_model));

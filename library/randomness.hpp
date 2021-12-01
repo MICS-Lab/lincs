@@ -5,6 +5,7 @@
 
 
 #include <curand_kernel.h>
+#include <omp.h>
 
 #include <map>
 #include <random>
@@ -15,8 +16,6 @@
 
 /*
 A source of randomness.
-
-Warning: *not* thread-safe on the host.
 */
 struct RandomSource {
   RandomSource();
@@ -44,7 +43,9 @@ struct RandomNumberGenerator {
   __host__ __device__
   uint uniform_int(const uint min, const uint max);
 
-  auto& urbg() { return *_gen; }
+  std::mt19937& urbg() {
+    return _gen[omp_get_thread_num()];
+  }
 
  private:
   curandState* _rng_states;

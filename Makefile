@@ -220,15 +220,21 @@ test: $(test_sentinel_files)
 
 # Unit-ish tests
 
+# Run once without Valgrind to check multi-threaded behavior,
+# then once with Valgrind to check for invalid memory accesses.
+# (Valgrind effectively serializes all threads)
+
 build/tests/%-tests.cu.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
+	@$<
 	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
 build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
+	@$<
 	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
@@ -265,21 +271,21 @@ build/tests/%-tests.sh.ok: %-tests.sh
 build/tests/%-tests: build/obj/%-tests.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lgtest_main -lgtest -lortools -o $@
+	@nvcc $^ -lgtest_main -lgtest -lortools -Xcompiler -fopenmp -o $@
 
 # Of tools
 
 build/tools/bin/%: build/obj/tools/%.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lortools -o $@
+	@nvcc $^ -lortools -Xcompiler -fopenmp -o $@
 
 ###############
 # Compilation #
 ###############
 
-NVCC_COMPILE_OPTIONS=-dc -std=c++17 -g --expt-relaxed-constexpr -Xcompiler -Wall,-Wextra,-Werror
-GPP_COMPILE_OPTIONS=-std=c++17 -g -c -I/usr/local/cuda-11.2/targets/x86_64-linux/include -Wall -Wextra -Wpedantic -Werror
+NVCC_COMPILE_OPTIONS=-dc -std=c++17 -g --expt-relaxed-constexpr -Xcompiler -Wall,-Wextra,-Werror,-fopenmp
+GPP_COMPILE_OPTIONS=-std=c++17 -g -c -I/usr/local/cuda-11.2/targets/x86_64-linux/include -Wall -Wextra -Wpedantic -Werror -fopenmp
 
 build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"

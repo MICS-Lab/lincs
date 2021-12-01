@@ -127,7 +127,7 @@ Other parts are negligible for now, so we should focus efforts on those two func
 
 Low hanging fruits in `improve_profiles`:
 
-- parallelize the loop on models: it is embarrassingly parallel.
+- (DONE) parallelize the loop on models: it is embarrassingly parallel.
 - pre-compute the interesting values for profiles, and make the algorithm choose between them (see description in comment in `improve_model_profile`)
 - store and update the models' accuracy instead of recomputing it again and again. (This may not be a huge improvement because `get_accuracy` is quite fast)
 

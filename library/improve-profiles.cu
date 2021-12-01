@@ -301,30 +301,32 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   delete[] criterion_indexes_;
 }
 
-__host__ __device__
-void improve_profiles(RandomNumberGenerator random, const ModelsView& models) {
-  // Embarrassingly parallel
-  for (uint model_index = 0; model_index != models.models_count; ++model_index) {
-    improve_model_profiles(random, models, model_index);
-  }
-}
-
 void improve_profiles(const RandomSource& random, Models<Host>* models) {
   STOPWATCH("improve_profiles (Host)");
 
-  improve_profiles(random, models->get_view());
+  auto models_view = models->get_view();
+
+  #pragma omp parallel for
+  for (uint model_index = 0; model_index != models_view.models_count; ++model_index) {
+    improve_model_profiles(random, models_view, model_index);
+  }
 }
 
 __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsView models) {
-  assert(blockIdx.x == 0);
-  assert(threadIdx.x == 0);
-  improve_profiles(random, models);
+  const uint model_index = threadIdx.x + BLOCKDIM * blockIdx.x;
+  assert(model_index < models.models_count + BLOCKDIM);
+
+  if (model_index < models.models_count) {
+    improve_model_profiles(random, models, model_index);
+  }
 }
 
 void improve_profiles(const RandomSource& random, Models<Device>* models) {
   STOPWATCH("improve_profiles (Device)");
 
-  improve_profiles__kernel<<<1, 1>>>(random, models->get_view());
+  auto models_view = models->get_view();
+
+  improve_profiles__kernel<<<CONFIG(models_view.models_count)>>>(random, models_view);
   cudaDeviceSynchronize();
   checkCudaErrors();
 }

@@ -6,3 +6,8 @@ Initial:
 
 - GPU: 0m26.288s
 - CPU: 1m10.929s
+
+After parallelization:
+
+- GPU: 0m25.046s
+- CPU: 0m26.161s
