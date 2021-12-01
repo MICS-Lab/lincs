@@ -106,6 +106,7 @@ class Models {
     const std::vector<io::Model>& models);
   ~Models();
 
+  io::Model unmake_one(uint model_index) const;
   std::vector<io::Model> unmake() const;
 
   // Non-copyable

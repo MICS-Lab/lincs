@@ -108,28 +108,37 @@ Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io
 }
 
 template<>
+io::Model Models<Host>::unmake_one(uint model_index) const {
+  ModelsView view = get_view();
+
+  std::vector<std::vector<float>> profiles(view.domain.categories_count - 1);
+  for (uint cat_index = 0; cat_index != view.domain.categories_count - 1; ++cat_index) {
+    profiles[cat_index].reserve(view.domain.criteria_count);
+    for (uint crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
+      profiles[cat_index].push_back(view.profiles[crit_index][cat_index][model_index]);
+    }
+  }
+
+  std::vector<float> weights;
+  weights.reserve(view.domain.criteria_count);
+  for (uint crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
+    weights.push_back(view.weights[crit_index][model_index]);
+  }
+
+  return io::Model(view.domain.criteria_count, view.domain.categories_count, profiles, weights);
+}
+
+template<>
 std::vector<io::Model> Models<Host>::unmake() const {
   ModelsView view = get_view();
 
   std::vector<io::Model> models;
+
   models.reserve(view.models_count);
   for (uint model_index = 0; model_index != models_count; ++model_index) {
-    std::vector<std::vector<float>> profiles(view.domain.categories_count - 1);
-    for (uint cat_index = 0; cat_index != view.domain.categories_count - 1; ++cat_index) {
-      profiles[cat_index].reserve(view.domain.criteria_count);
-      for (uint crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
-        profiles[cat_index].push_back(view.profiles[crit_index][cat_index][model_index]);
-      }
-    }
-
-    std::vector<float> weights;
-    weights.reserve(view.domain.criteria_count);
-    for (uint crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
-      weights.push_back(view.weights[crit_index][model_index]);
-    }
-
-    models.push_back(io::Model(view.domain.criteria_count, view.domain.categories_count, profiles, weights));
+    models.push_back(unmake_one(model_index));
   }
+
   return models;
 }
 
