@@ -376,7 +376,7 @@ TEST(MakeLinearProgram, ThreeCriteriaAFewAlternatives) {
 
 TEST(ImproveWeights, First) {
   auto domain = make_domain(2, {{{1}, 1}});
-  auto models = make_models(domain, {{{{0.5}}, {0}}});
+  auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
   improve_weights(&models);

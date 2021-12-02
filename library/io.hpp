@@ -3,8 +3,10 @@
 #ifndef IO_HPP_
 #define IO_HPP_
 
-#include <vector>
 #include <iostream>
+#include <optional>
+#include <string>
+#include <vector>
 
 
 namespace ppl::io {
@@ -20,7 +22,8 @@ struct Model {
     // Then remove (everywhere) the assumption that these values are 0 and 1.
     const std::vector<float>& weights);
 
-  bool is_valid() const;
+  std::optional<std::string> validate() const;
+  bool is_valid() const { return !validate(); }
 
   void save_to(std::ostream&) const;
   static Model load_from(std::istream&);
@@ -48,7 +51,8 @@ struct LearningSet {
     uint alternatives_count,
     const std::vector<ClassifiedAlternative>& alternatives);
 
-  bool is_valid() const;
+  std::optional<std::string> validate() const;
+  bool is_valid() const { return !validate(); }
 
   void save_to(std::ostream&) const;
   static LearningSet load_from(std::istream&);

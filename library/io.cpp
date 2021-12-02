@@ -3,7 +3,6 @@
 #include "io.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <numeric>
 
 
@@ -41,6 +40,15 @@ std::istream& operator>>(std::istream& s, space_separated<T> v) {
 
 }  // namespace
 
+namespace {
+  void check_valid(const std::string& type_name, const std::optional<std::string>& error) {
+    if (error) {
+      std::cerr << "Error during " << type_name << " validation: " << *error << std::endl;
+      exit(1);
+    }
+  }
+}
+
 namespace ppl::io {
 
 Model::Model(
@@ -52,42 +60,70 @@ Model::Model(
     categories_count(categories_count_),
     profiles(profiles_),
     weights(weights_) {
-  assert(is_valid());
+  check_valid("model", validate());
 }
 
-bool Model::is_valid() const {
+std::optional<std::string> Model::validate() const {
   // Valid counts
-  if (criteria_count < 1) return false;
+  if (criteria_count < 1) return "fewer than 1 criteria";
 
-  if (categories_count < 2) return false;
+  if (categories_count < 2) return "fewer than 2 categories";
 
   // Consistent sizes
-  if (profiles.size() != categories_count - 1) return false;
+  if (profiles.size() != categories_count - 1) return "inconsistent number of profiles";
 
   if (std::any_of(
-      profiles.begin(), profiles.end(),
-      [this](const std::vector<float>& profile) { return profile.size() != criteria_count; }
-  )) return false;
+    profiles.begin(), profiles.end(),
+    [this](const std::vector<float>& profile) { return profile.size() != criteria_count; }
+  )) return "inconsistent profile length";
 
-  if (weights.size() != criteria_count) return false;
+  if (weights.size() != criteria_count) return "inconsistent number of weights";
 
-  // Positive weights
+  // Positive weights...
   if (std::any_of(
     weights.begin(), weights.end(),
     [](float w) { return w < 0; }
-  )) return false;
+  )) return "negative weight";
+  // ... with at least one non-zero weight
+  if (std::all_of(
+    weights.begin(), weights.end(),
+    [](float w) { return w == 0; }
+  )) return "all weights are zero";
 
-  // @todo Profiles between 0 and 1
-  // @todo Profiles ordered on each criterion
+  // Profiles between 0...
+  if (std::any_of(
+    profiles.front().begin(), profiles.front().end(),
+    [](const float v) { return v < 0; }
+  )) return "profile below 0.0";
+  // ... and 1
+  if (std::any_of(
+    profiles.back().begin(), profiles.back().end(),
+    [](const float v) { return v > 1; }
+  )) return "profile above 1.0";
 
-  return true;
+  // Profiles ordered on each criterion, with at least one criterion with different values
+  for (uint profile_index = 0; profile_index != categories_count - 2; ++profile_index) {
+    bool at_least_one_strictly_above = false;
+    for (uint crit_index = 0; crit_index != criteria_count; ++crit_index) {
+      const float lower_value = profiles[profile_index][crit_index];
+      const float higher_value = profiles[profile_index + 1][crit_index];
+      if (higher_value > lower_value) {
+        at_least_one_strictly_above = true;
+      } else if (higher_value < lower_value) {
+        return "pair of unordered profiles";
+      }
+    }
+    if (!at_least_one_strictly_above) return "pair of equal profiles";
+  }
+
+  return std::nullopt;
 }
 
 void Model::save_to(std::ostream& s) const {
   s << criteria_count << std::endl;
   s << categories_count << std::endl;
-  const float weights_sum = std::accumulate(weights.begin(), weights.end(), 0.f);
-  assert(weights_sum != 0);
+  float weights_sum = std::accumulate(weights.begin(), weights.end(), 0.f);
+  if (weights_sum == 0) weights_sum = 1;  // Don't crash, just output a model with weights set to zeros
   std::vector<float> normalized_weights(weights);
   std::transform(
     normalized_weights.begin(), normalized_weights.end(),
@@ -133,7 +169,7 @@ Model Model::make_homogeneous(uint criteria_count, float weights_sum, uint categ
 ClassifiedAlternative::ClassifiedAlternative(
   const std::vector<float>& criteria_values_,
   const uint assigned_category_):
-    criteria_values(criteria_values_),
+    criteria_values(criteria_values_),  // @todo Rename 'performances'
     assigned_category(assigned_category_) {}
 
 LearningSet::LearningSet(
@@ -145,12 +181,54 @@ LearningSet::LearningSet(
     categories_count(categories_count_),
     alternatives_count(alternatives_count_),
     alternatives(alternatives_) {
-  assert(is_valid());
+  check_valid("learning set", validate());
 }
 
-bool LearningSet::is_valid() const {
-  // @todo Check everything
-  return true;
+std::optional<std::string> LearningSet::validate() const {
+  // Valid counts
+  if (criteria_count < 1) return "fewer than 1 criteria";
+
+  if (categories_count < 2) return "fewer than 2 categories";
+
+  if (alternatives_count < 1) return "fewer than 1 alternatives";
+
+  // Consistent sizes
+  if (alternatives.size() != alternatives_count) return "inconsistent number of alternatives";
+
+  if (std::any_of(
+    alternatives.begin(), alternatives.end(),
+    [this](const ClassifiedAlternative& alt) { return alt.criteria_values.size() != criteria_count; }
+  )) return "inconsistent alternative length";
+
+  // Performances between zero and one
+  if (std::any_of(
+    alternatives.begin(), alternatives.end(),
+    [](const ClassifiedAlternative& alt) {
+      return std::any_of(
+        alt.criteria_values.begin(), alt.criteria_values.end(),
+        [](const float performance) { return performance < 0; });
+    }
+  )) return "performance below 0.0";
+  if (std::any_of(
+    alternatives.begin(), alternatives.end(),
+    [](const ClassifiedAlternative& alt) {
+      return std::any_of(
+        alt.criteria_values.begin(), alt.criteria_values.end(),
+        [](const float performance) { return performance > 1; });
+    }
+  )) return "performance above 1.0";
+
+  // Assignment between zero and categories_count
+  if (std::any_of(
+    alternatives.begin(), alternatives.end(),
+    [](const ClassifiedAlternative& alt) { return alt.assigned_category < 0; }
+  )) return "assigned category below 0";
+  if (std::any_of(
+    alternatives.begin(), alternatives.end(),
+    [this](const ClassifiedAlternative& alt) { return alt.assigned_category >= categories_count; }
+  )) return "assigned category too large";
+
+  return std::nullopt;
 }
 
 void LearningSet::save_to(std::ostream& s) const {
