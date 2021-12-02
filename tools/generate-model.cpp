@@ -1,7 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
 #include <iostream>
-#include <sstream>
 #include <fstream>
 
 #include "../library/generate.hpp"
@@ -14,10 +13,10 @@ void usage(char* name) {
     "Generate a pseudo-random model with NB_CRIT criteria and NB_CAT categories,\n"
     "with random seed SEED.\n"
     "\n"
-    "The model will be stored in file 'model-NB_CRIT-NB_CAT-SEED.txt'.\n"
+    "The generated model is printed on standard output.\n"
     "\n"
-    "Model generation is deterministic: the same NB_CRIT, NB_CAT and SEED will\n"
-    "always generate the same file."
+    "Model generation is deterministic: the same NB_CRIT, NB_CAT and SEED\n"
+    "always generate the same model."
     << std::endl;
   exit(1);
 }
@@ -38,10 +37,5 @@ int main(int argc, char* argv[]) {
   }
 
   std::mt19937 gen(seed);
-  auto model = ppl::generate::model(&gen, criteria_count, categories_count);
-
-  std::ostringstream file_name;
-  file_name << "model-" << criteria_count << "-" << categories_count << "-" << seed << ".txt";
-  std::ofstream file(file_name.str());
-  model.save_to(file);
+  ppl::generate::model(&gen, criteria_count, categories_count).save_to(std::cout);
 }

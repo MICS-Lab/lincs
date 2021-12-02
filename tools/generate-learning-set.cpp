@@ -1,7 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
 #include <iostream>
-#include <sstream>
 #include <fstream>
 
 #include "../library/generate.hpp"
@@ -14,10 +13,10 @@ void usage(char* name) {
     "Generate a pseudo-random learning set for the model taken from file MODEL.txt\n"
     "with NB_ALT alternatives and random seed SEED.\n"
     "\n"
-    "The learning set will be stored in file 'learning-set--MODEL--NB_ALT-SEED.txt'.\n"
+    "The generated learning set is printed on standard output.\n"
     "\n"
     "Learning set generation is deterministic: the same MODEL.txt file, NB_ALT and\n"
-    "SEED will always generate the same file."
+    "SEED always generate the same learning set."
     << std::endl;
   exit(1);
 }
@@ -39,12 +38,5 @@ int main(int argc, char* argv[]) {
   }
 
   std::mt19937 gen(seed);
-  auto learning_set = ppl::generate::learning_set(&gen, model, alternatives_count);
-
-  std::ostringstream file_name;
-  file_name
-    << "learning-set--" << model_file_name.substr(0, model_file_name.size() - 4)
-    << "--" << alternatives_count << "-" << seed << ".txt";
-  std::ofstream file(file_name.str());
-  learning_set.save_to(file);
+  ppl::generate::learning_set(&gen, model, alternatives_count).save_to(std::cout);
 }
