@@ -15,11 +15,12 @@ TEST(Learn, First) {
 
   RandomSource random;
   random.init_for_host(42);
+  random.init_for_device(42);
 
-  auto reconstructed_model = ppl::learn::learn_from(random, learning_set);
+  auto [reconstructed_model, accuracy] = ppl::learn::learn_from(random, learning_set);
+  EXPECT_GE(accuracy, 98);
 
   auto domain = ppl::Domain<Host>::make(learning_set);
   auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, reconstructed_model));
-
-  EXPECT_GE(ppl::get_accuracy(models, 0), 98);
+  EXPECT_EQ(ppl::get_accuracy(models, 0), accuracy);
 }

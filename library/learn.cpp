@@ -9,14 +9,15 @@
 #include "improve-profiles.hpp"
 #include "improve-weights.hpp"
 #include "median-and-max.hpp"
+#include "stopwatch.hpp"
 
 
 namespace ppl::learn {
 
-// This file makes a lot of calls to `get_accuracy`. @todo Consider caching the results of `get_accuracy`
-
 template<typename Iterator>
 void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, const Iterator model_indexes_end) {
+  STOPWATCH("initialize_models");
+
   ModelsView models_view = models->get_view();
 
   for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
@@ -36,59 +37,52 @@ void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, 
 }
 
 std::vector<uint> partition_models_by_accuracy(const uint models_count, const ppl::Models<Host>& models) {
+  std::vector<uint> accuracies(models_count, 0);
+  for (uint model_index = 0; model_index != models_count; ++model_index) {
+    accuracies[model_index] = get_accuracy(models, model_index);
+  }
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
   ensure_median_and_max(
     model_indexes.begin(), model_indexes.end(),
-    [&models](uint left_model_index, uint right_model_index) {
-      return get_accuracy(models, left_model_index) < get_accuracy(models, right_model_index);
+    [&accuracies](uint left_model_index, uint right_model_index) {
+      return accuracies[left_model_index] < accuracies[right_model_index];
     });
   return model_indexes;
 }
 
-io::Model learn_from(const RandomSource& random, const io::LearningSet& learning_set) {
-  auto domain = ppl::Domain<Host>::make(learning_set);
-  auto start_model = ppl::io::Model::make_homogeneous(learning_set.criteria_count, 0, learning_set.categories_count);
-  const uint models_count = 15;
-  auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(models_count, start_model));
+std::pair<io::Model, uint> learn_from(const RandomSource& random, const io::LearningSet& learning_set) {
+  STOPWATCH("learn_from");
 
-  std::vector<uint> accuracies(models_count, 0);
+  auto host_domain = ppl::Domain<Host>::make(learning_set);
+  auto device_domain = host_domain.clone_to<Device>();
+
+  const uint models_count = 15;
+  const uint iterations_count = 6;
+
+  auto host_models = ppl::Models<Host>::make(host_domain, models_count);
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  initialize_models(&models, model_indexes.begin(), model_indexes.end());
-  for (uint model_index = 0; model_index != models_count; ++model_index) {
-    accuracies[model_index] = get_accuracy(models, model_index);
-  }
-  std::cerr << "After first init: " << std::endl;
-  for (uint model_index : model_indexes) {
-    std::cerr << " - model " << model_index << ": "
-      << accuracies[model_index] << "/" << learning_set.alternatives_count << " " << std::endl;
+  initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
+  auto device_models = host_models.clone_to<Device>(device_domain);
+
+  uint best_accuracy = 0;
+  for (int i = 0; i != iterations_count && best_accuracy != learning_set.alternatives_count; ++i) {
+    STOPWATCH("learn_from iteration");
+
+    improve_weights::improve_weights(&host_models);
+    replicate_weights(host_models, &device_models);
+    improve_profiles::improve_profiles(random, &device_models);
+    replicate_profiles(device_models, &host_models);
+    model_indexes = partition_models_by_accuracy(models_count, host_models);
+    initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
+
+    best_accuracy = get_accuracy(host_models, model_indexes.back());
+    std::cerr << "After iteration n°" << i << ": best accuracy = " <<
+      best_accuracy << "/" << learning_set.alternatives_count << std::endl;
   }
 
-  for (int i = 0; i != 5 && accuracies[model_indexes.back()] != learning_set.alternatives_count; ++i) {
-    improve_weights::improve_weights(&models);
-    improve_profiles::improve_profiles(random, &models);
-    model_indexes = partition_models_by_accuracy(models_count, models);
-    for (uint model_index = 0; model_index != models_count; ++model_index) {
-      accuracies[model_index] = get_accuracy(models, model_index);
-    }
-    std::cerr << "After iteration n°" << i << ": " << std::endl;
-    for (uint model_index : model_indexes) {
-      std::cerr << " - model " << model_index << ": "
-        << accuracies[model_index] << "/" << learning_set.alternatives_count << " " << std::endl;
-    }
-    initialize_models(&models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
-    for (uint model_index = 0; model_index != models_count; ++model_index) {
-      accuracies[model_index] = get_accuracy(models, model_index);
-    }
-    std::cerr << "After reinit n°" << i << ": " << std::endl;
-    for (uint model_index : model_indexes) {
-      std::cerr << " - model " << model_index << ": "
-        << accuracies[model_index] << "/" << learning_set.alternatives_count << " " << std::endl;
-    }
-  }
-
-  return models.unmake_one(model_indexes.back());
+  return std::make_pair(host_models.unmake_one(model_indexes.back()), best_accuracy);
 }
 
 }  // namespace ppl::learn

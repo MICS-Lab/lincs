@@ -104,6 +104,9 @@ class Models {
   static Models make(
     const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
     const std::vector<io::Model>& models);
+  static Models make(
+    const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
+    uint models_count);
   ~Models();
 
   io::Model unmake_one(uint model_index) const;
@@ -137,12 +140,19 @@ class Models {
  private:
   Models(const Domain<Space>&, uint, float*, float*);
 
+  friend void replicate_weights(const Models<Host>&, Models<Device>*);
+  friend void replicate_profiles(const Models<Device>&, Models<Host>*);
+
  private:
   const Domain<Space>& domain;
   const uint models_count;
   float* const weights;
   float* const profiles;
 };
+
+void replicate_weights(const Models<Host>&, Models<Device>*);
+
+void replicate_profiles(const Models<Device>&, Models<Host>*);
 
 }  // namespace ppl
 

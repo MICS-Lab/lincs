@@ -80,31 +80,39 @@ Models<Space>::Models(
     profiles(profiles_) {}
 
 template<>
-Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io::Model>& models) {
+Models<Host> Models<Host>::make(const Domain<Host>& domain, const uint models_count) {
   DomainView domain_view = domain.get_view();
-  const uint models_count = models.size();
   float* weights_ = alloc_host<float>(domain_view.criteria_count * models_count);
   MatrixView2D<float> weights(domain_view.criteria_count, models_count, weights_);
   float* profiles_ = alloc_host<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
   MatrixView3D<float> profiles(domain_view.criteria_count, domain_view.categories_count - 1, models_count, profiles_);
 
+  return Models(domain, models_count, weights_, profiles_);
+}
+
+template<>
+Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io::Model>& models) {
+  const uint models_count = models.size();
+  auto r = make(domain, models_count);
+  auto view = r.get_view();
+
   for (uint model_index = 0; model_index != models_count; ++model_index) {
     const io::Model& model = models[model_index];
     assert(model.is_valid());
 
-    for (uint crit_index = 0; crit_index != domain_view.criteria_count; ++crit_index) {
-      weights[crit_index][model_index] = model.weights[crit_index];
+    for (uint crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
+      view.weights[crit_index][model_index] = model.weights[crit_index];
     }
 
-    for (uint cat_index = 0; cat_index != domain_view.categories_count - 1; ++cat_index) {
+    for (uint cat_index = 0; cat_index != view.domain.categories_count - 1; ++cat_index) {
       const std::vector<float>& category_profile = model.profiles[cat_index];
-      for (uint crit_index = 0; crit_index != domain_view.criteria_count; ++crit_index) {
-        profiles[crit_index][cat_index][model_index] = category_profile[crit_index];
+      for (uint crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
+        view.profiles[crit_index][cat_index][model_index] = category_profile[crit_index];
       }
     }
   }
 
-  return Models(domain, models_count, weights_, profiles_);
+  return r;
 }
 
 template<>
@@ -161,5 +169,19 @@ ModelsView Models<Space>::get_view() const {
 
 template class Models<Host>;
 template class Models<Device>;
+
+void replicate_weights(const Models<Host>& src, Models<Device>* dst) {
+  DomainView domain = src.domain.get_view();
+  copy_host_to_device(
+    domain.criteria_count * src.models_count,
+    src.weights, dst->weights);
+}
+
+void replicate_profiles(const Models<Device>& src, Models<Host>* dst) {
+  DomainView domain = src.domain.get_view();
+  copy_device_to_host(
+    domain.criteria_count * (domain.categories_count - 1) * src.models_count,
+    src.profiles, dst->profiles);
+}
 
 }  // namespace ppl

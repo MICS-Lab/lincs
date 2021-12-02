@@ -115,6 +115,11 @@ build/tests/library/improve-weights-tests.sh.ok: \
   build/tools/bin/generate-model \
   build/tools/bin/test-improve-weights
 
+build/tests/library/learn-tests.sh.ok: \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
+  build/tools/bin/test-learn
+
 # Of tools to object files
 
 build/tools/bin/generate-model: \
@@ -145,6 +150,16 @@ build/tools/bin/test-improve-weights: \
   build/obj/library/assign.o \
   build/obj/library/improve-weights.o \
   build/obj/library/io.o \
+  build/obj/library/problem.o \
+  build/obj/library/randomness.o \
+  build/obj/library/stopwatch.o
+
+build/tools/bin/test-learn: \
+  build/obj/library/assign.o \
+  build/obj/library/improve-profiles.o \
+  build/obj/library/improve-weights.o \
+  build/obj/library/io.o \
+  build/obj/library/learn.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
