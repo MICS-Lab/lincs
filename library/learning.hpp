@@ -63,7 +63,7 @@ class Learning {
 
  private:
   Domain<Host> _host_domain;
-  std::optional<uint> _target_accuracy;
+  uint _target_accuracy;
   std::optional<uint> _max_iterations;
   std::optional<std::chrono::steady_clock::duration> _max_duration;
   std::optional<uint> _models_count;

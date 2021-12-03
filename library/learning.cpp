@@ -14,7 +14,10 @@
 
 namespace ppl::learning {
 
-Learning::Learning(const io::LearningSet& learning_set) : _host_domain(Domain<Host>::make(learning_set)) {}
+Learning::Learning(const io::LearningSet& learning_set) :
+  _host_domain(Domain<Host>::make(learning_set)),
+  _target_accuracy(learning_set.alternatives_count)
+{}
 
 template<typename Iterator>
 void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, const Iterator model_indexes_end) {
@@ -53,8 +56,36 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const pp
   return model_indexes;
 }
 
+std::function<bool(uint, uint)> make_terminate(
+    std::optional<uint> max_iterations,
+    uint target_accuracy,
+    std::optional<std::chrono::steady_clock::duration> max_duration
+) {
+  std::function<bool(uint, uint)> r = [target_accuracy](uint, uint accuracy) {
+    return accuracy >= target_accuracy;
+  };
+
+  if (max_iterations) {
+    uint max_it = *max_iterations;
+    r = [max_it, r](uint iteration, uint accuracy) {
+      return iteration >= max_it || r(iteration, accuracy);
+    };
+  }
+
+  if (max_duration) {
+    auto max_time = std::chrono::steady_clock::now() + *max_duration;
+    r = [max_time, r](uint iteration, uint accuracy) {
+      return r(iteration, accuracy) || std::chrono::steady_clock::now() >= max_time;
+    };
+  }
+
+  return r;
+}
+
 Learning::Result Learning::perform() const {
   STOPWATCH("Learning::perform");
+
+  auto terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
 
   RandomSource random;
   random.init_for_host(*_random_seed);
@@ -71,7 +102,7 @@ Learning::Result Learning::perform() const {
   auto device_models = host_models.clone_to<Device>(device_domain);
 
   uint best_accuracy = 0;
-  for (int i = 0; i != _max_iterations && best_accuracy < _target_accuracy; ++i) {
+  for (int i = 0; !terminate(i, best_accuracy); ++i) {
     STOPWATCH("Learning::perform iteration");
 
     improve_weights::improve_weights(&host_models);
