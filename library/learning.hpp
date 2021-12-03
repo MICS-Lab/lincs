@@ -55,6 +55,8 @@ class Learning {
 
   // Execution
   struct Result {
+    Result(io::Model model, uint accuracy) : best_model(model), best_model_accuracy(accuracy) {}
+
     io::Model best_model;
     uint best_model_accuracy;
   };

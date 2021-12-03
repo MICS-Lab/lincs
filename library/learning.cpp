@@ -150,7 +150,7 @@ Learning::Result Learning::perform() const {
     }
   }
 
-  return { host_models.unmake_one(model_indexes.back()), best_accuracy };
+  return Result(host_models.unmake_one(model_indexes.back()), best_accuracy);
 }
 
 }  // namespace ppl
