@@ -1,8 +1,8 @@
 # Copyright 2021 Vincent Jacques
 
-#####################
-# Top-level targets #
-#####################
+############################
+# Default top-level target #
+############################
 
 .PHONY: default
 default: dep-graph lint test tools
@@ -21,11 +21,18 @@ tools_source_files=$(shell find tools -name '*.cu' -or -name '*.cpp')
 
 tools=$(foreach file,$(tools_source_files),$(patsubst tools/%.cpp,build/tools/bin/%,$(patsubst tools/%.cu,build/tools/bin/%,$(file))))
 
+###############################
+# Secondary top-level targets #
+###############################
+
 .PHONY: tools
 tools: $(tools)
 
 .PHONY: dep-graph
 dep-graph: build/dependency-graph.png
+
+.PHONY: compile
+compile: $(foreach file,$(all_source_files),$(patsubst %.cpp,build/obj/%.o,$(patsubst %.cu,build/obj/%.o,$(file))))
 
 ##########################
 # Automated dependencies #
@@ -258,8 +265,8 @@ build/tools/bin/%: build/obj/tools/%.o
 # Compilation #
 ###############
 
-NVCC_COMPILE_OPTIONS=-dc -std=c++17 -g --expt-relaxed-constexpr
-GPP_COMPILE_OPTIONS=-std=c++17 -g -c -I/usr/local/cuda-11.2/targets/x86_64-linux/include
+NVCC_COMPILE_OPTIONS=-dc -std=c++17 -g --expt-relaxed-constexpr -Xcompiler -Wall,-Wextra,-Werror
+GPP_COMPILE_OPTIONS=-std=c++17 -g -c -I/usr/local/cuda-11.2/targets/x86_64-linux/include -Wall -Wextra -Wpedantic -Werror
 
 build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"

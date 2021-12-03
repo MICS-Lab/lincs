@@ -218,11 +218,7 @@ std::optional<std::string> LearningSet::validate() const {
     }
   )) return "performance above 1.0";
 
-  // Assignment between zero and categories_count
-  if (std::any_of(
-    alternatives.begin(), alternatives.end(),
-    [](const ClassifiedAlternative& alt) { return alt.assigned_category < 0; }
-  )) return "assigned category below 0";
+  // Assignment less than categories_count
   if (std::any_of(
     alternatives.begin(), alternatives.end(),
     [this](const ClassifiedAlternative& alt) { return alt.assigned_category >= categories_count; }

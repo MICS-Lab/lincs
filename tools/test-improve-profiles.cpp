@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   unsigned int seed;
   try {
     seed = std::stoi(argv[2]);
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument&) {
     usage(argv[0]);
   }
 

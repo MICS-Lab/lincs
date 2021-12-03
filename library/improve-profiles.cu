@@ -16,7 +16,13 @@
 namespace ppl::improve_profiles {
 
 __host__ __device__
-void increment(uint* i, uint max) {
+void increment(
+    uint* i,
+    uint
+    #ifdef __CUDA_ARCH__
+    max
+    #endif
+) {
   #ifdef __CUDA_ARCH__
   atomicInc(i, max);
   #else

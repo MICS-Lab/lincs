@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     criteria_count = std::stoi(argv[1]);
     categories_count = std::stoi(argv[2]);
     seed = std::stoi(argv[3]);
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument&) {
     usage(argv[0]);
   }
 

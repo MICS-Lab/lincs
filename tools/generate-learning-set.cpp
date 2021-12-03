@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
   try {
     alternatives_count = std::stoi(argv[2]);
     seed = std::stoi(argv[3]);
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument&) {
     usage(argv[0]);
   }
 

@@ -25,7 +25,6 @@ ppl::Models<Host> make_models(
 ) {
   const uint criteria_count = domain.get_view().criteria_count;
   const uint categories_count = domain.get_view().categories_count;
-  const uint models_count = models_.size();
 
   std::vector<ppl::io::Model> models;
   for (auto model : models_) {
