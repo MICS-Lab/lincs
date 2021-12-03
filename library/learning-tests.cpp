@@ -13,14 +13,16 @@ TEST(Learn, First) {
   std::mt19937 gen2(57);
   auto learning_set = ppl::generate::learning_set(&gen2, reference_model, 100);
 
-  RandomSource random;
-  random.init_for_host(42);
-  random.init_for_device(42);
+  auto result = ppl::learning::Learning(learning_set)
+    .set_max_iterations(6)
+    .set_target_accuracy(learning_set.alternatives_count)
+    .set_random_seed(42)
+    .set_models_count(15)
+    .perform();
 
-  auto [reconstructed_model, accuracy] = ppl::learning::learn_from(random, learning_set);
-  EXPECT_GE(accuracy, 98);
+  EXPECT_GE(result.best_model_accuracy, 98);
 
   auto domain = ppl::Domain<Host>::make(learning_set);
-  auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, reconstructed_model));
-  EXPECT_EQ(ppl::get_accuracy(models, 0), accuracy);
+  auto models = ppl::Models<Host>::make(domain, std::vector<ppl::io::Model>(1, result.best_model));
+  EXPECT_EQ(ppl::get_accuracy(models, 0), result.best_model_accuracy);
 }

@@ -72,17 +72,6 @@ class Learning {
   UseGpu _use_gpu;
 };
 
-inline std::pair<io::Model, uint> learn_from(const RandomSource& random, const io::LearningSet& learning_set) {
-  auto result = Learning(learning_set)
-    .set_max_iterations(6)
-    .set_target_accuracy(learning_set.alternatives_count)
-    .set_random_seed(42)
-    .set_models_count(15)
-    .perform();
-
-  return std::make_pair(result.best_model, result.best_model_accuracy);
-}
-
 }  // namespace ppl::learning
 
 #endif  // LEARNING_HPP_

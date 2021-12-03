@@ -21,12 +21,14 @@ int main(int argc, char* argv[]) {
   std::ifstream learning_set_file(argv[1]);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);
 
-  RandomSource random;
-  random.init_for_host(42);
-  random.init_for_device(42);
+  auto result = ppl::learning::Learning(learning_set)
+    .set_max_iterations(6)
+    .set_target_accuracy(learning_set.alternatives_count)
+    .set_random_seed(42)
+    .set_models_count(15)
+    .perform();
 
-  auto [model, accuracy] = ppl::learning::learn_from(random, learning_set);
-  model.save_to(std::cout);
+  result.best_model.save_to(std::cout);
 
-  return accuracy == learning_set.alternatives_count ? 0 : 1;
+  return result.best_model_accuracy == learning_set.alternatives_count ? 0 : 1;
 }
