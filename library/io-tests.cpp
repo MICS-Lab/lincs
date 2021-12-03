@@ -4,7 +4,7 @@
 #include "test-utils.hpp"
 
 
-using ppl::io::Model;
+namespace ppl::io {
 
 TEST(SerializeDeserialize, Model) {
   Model model(3, 2, {{0.3, 0.4, 0.5}}, {0.7, 0.8, 0.9});
@@ -33,3 +33,5 @@ TEST(SerializeDeserialize, Model) {
   EXPECT_NEAR(deserialized.weights[1], 0.8, 1e-5);
   EXPECT_NEAR(deserialized.weights[2], 0.9, 1e-5);
 }
+
+}  // namespace ppl::io

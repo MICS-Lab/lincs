@@ -12,7 +12,7 @@
 #include "stopwatch.hpp"
 
 
-namespace ppl::learning {
+namespace ppl {
 
 Learning::Learning(const io::LearningSet& learning_set) :
   _host_domain(Domain<Host>::make(learning_set)),
@@ -21,7 +21,7 @@ Learning::Learning(const io::LearningSet& learning_set) :
 {}
 
 template<typename Iterator>
-void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, const Iterator model_indexes_end) {
+void initialize_models(Models<Host>* models, Iterator model_indexes_begin, const Iterator model_indexes_end) {
   STOPWATCH("initialize_models");
 
   ModelsView models_view = models->get_view();
@@ -42,7 +42,7 @@ void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, 
   }
 }
 
-std::vector<uint> partition_models_by_accuracy(const uint models_count, const ppl::Models<Host>& models) {
+std::vector<uint> partition_models_by_accuracy(const uint models_count, const Models<Host>& models) {
   std::vector<uint> accuracies(models_count, 0);
   for (uint model_index = 0; model_index != models_count; ++model_index) {
     accuracies[model_index] = get_accuracy(models, model_index);
@@ -106,7 +106,7 @@ Learning::Result Learning::perform() const {
 
   const uint models_count = _models_count ? *_models_count : 9;  // @todo Decide on a good default value
 
-  auto host_models = ppl::Models<Host>::make(_host_domain, models_count);
+  auto host_models = Models<Host>::make(_host_domain, models_count);
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
   initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
@@ -122,9 +122,9 @@ Learning::Result Learning::perform() const {
     for (int i = 0; !terminate(i, best_accuracy); ++i) {
       STOPWATCH("Learning::perform iteration");
 
-      improve_weights::improve_weights(&host_models);
+      improve_weights(&host_models);
       replicate_weights(host_models, &device_models);
-      improve_profiles::improve_profiles(random, &device_models);
+      improve_profiles(random, &device_models);
       replicate_profiles(device_models, &host_models);
       model_indexes = partition_models_by_accuracy(models_count, host_models);
       initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
@@ -139,8 +139,8 @@ Learning::Result Learning::perform() const {
     for (int i = 0; !terminate(i, best_accuracy); ++i) {
       STOPWATCH("Learning::perform iteration");
 
-      improve_weights::improve_weights(&host_models);
-      improve_profiles::improve_profiles(random, &host_models);
+      improve_weights(&host_models);
+      improve_profiles(random, &host_models);
       model_indexes = partition_models_by_accuracy(models_count, host_models);
       initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
 
@@ -153,4 +153,4 @@ Learning::Result Learning::perform() const {
   return { host_models.unmake_one(model_indexes.back()), best_accuracy };
 }
 
-}  // namespace ppl::learning
+}  // namespace ppl

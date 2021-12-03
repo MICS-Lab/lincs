@@ -9,7 +9,7 @@
 #include "randomness.hpp"
 
 
-namespace ppl::improve_profiles {
+namespace ppl {
 
 struct Desirability {
   uint v = 0;
@@ -32,6 +32,6 @@ struct Desirability {
 void improve_profiles(const RandomSource& random, Models<Host>*);
 void improve_profiles(const RandomSource& random, Models<Device>*);
 
-}  // namespace ppl::improve_profiles
+}  // namespace ppl
 
 #endif  // IMPROVE_PROFILES_HPP_

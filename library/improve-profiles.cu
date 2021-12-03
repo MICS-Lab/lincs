@@ -13,7 +13,7 @@
 #include "assign.hpp"
 
 
-namespace ppl::improve_profiles {
+namespace ppl {
 
 __host__ __device__
 void increment(
@@ -323,4 +323,4 @@ void improve_profiles(const RandomSource& random, Models<Device>* models) {
   checkCudaErrors();
 }
 
-}  // namespace ppl::improve_profiles
+}  // namespace ppl

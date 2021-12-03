@@ -13,18 +13,11 @@
 #include "test-utils.hpp"
 
 
-namespace ppl::improve_weights {
+namespace ppl {
 
-// Internal functions (not declared in the header) that we still want to unit-test
-
+// Internal function (not declared in the header) that we still want to unit-test
 std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
   const float epsilon, const Models<Host>&, uint model_index);
-
-}  // namespace ppl::improve_weights
-
-using ppl::improve_weights::make_verbose_linear_program;
-using ppl::improve_weights::improve_weights;
-using ppl::get_accuracy;
 
 
 TEST(GlopExploration, FromSample) {
@@ -382,3 +375,5 @@ TEST(ImproveWeights, First) {
   improve_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 }
+
+}  // namespace ppl

@@ -10,13 +10,16 @@
 
 #include "problem.hpp"
 
+namespace ppl {
 
-ppl::Domain<Host> make_domain(
+Domain<Host> make_domain(
   uint categories_count,
   const std::vector<std::pair<std::vector<float>, uint>>& alternatives_);
 
-ppl::Models<Host> make_models(
-  const ppl::Domain<Host>& domain,
+Models<Host> make_models(
+  const Domain<Host>& domain,
   const std::vector<std::pair<std::vector<std::vector<float>>, std::vector<float>>>& models_);
+
+}  // namespace ppl
 
 #endif  // TEST_UTILS_HPP_

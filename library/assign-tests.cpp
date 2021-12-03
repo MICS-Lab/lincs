@@ -5,10 +5,7 @@
 #include "test-utils.hpp"
 
 
-using ppl::Domain;
-using ppl::Models;
-using ppl::get_assignment;
-using ppl::get_accuracy;
+namespace ppl {
 
 TEST(GetAssignment, SingleCriterion) {
   auto domain = make_domain(2, {{{0.5}, 0}});
@@ -79,14 +76,14 @@ TEST(GetAssignmentAndAccuracy, SeveralAlternativesSeveralModels) {
 
 TEST(GetAccuracy, RandomDomainUniformModel) {
   std::mt19937 gen1(57);
-  auto reference_model = ppl::generate::model(&gen1, 4, 5);
+  auto reference_model = generate::model(&gen1, 4, 5);
   std::fill(reference_model.weights.begin(), reference_model.weights.end(), 0.5);
   std::mt19937 gen2(57);
-  auto learning_set = ppl::generate::learning_set(&gen2, reference_model, 10'000);
+  auto learning_set = generate::learning_set(&gen2, reference_model, 10'000);
 
-  auto model = ppl::io::Model::make_homogeneous(learning_set.criteria_count, 2., learning_set.categories_count);
+  auto model = io::Model::make_homogeneous(learning_set.criteria_count, 2., learning_set.categories_count);
   auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<ppl::io::Model>(1, model));
+  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
 
   const unsigned int expected_accuracy = 4'459;
 
@@ -97,3 +94,5 @@ TEST(GetAccuracy, RandomDomainUniformModel) {
 
   ASSERT_EQ(get_accuracy(device_models, 0), expected_accuracy);
 }
+
+}  // namespace ppl

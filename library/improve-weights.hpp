@@ -6,10 +6,10 @@
 #include "problem.hpp"
 
 
-namespace ppl::improve_weights {
+namespace ppl {
 
 void improve_weights(Models<Host>*);
 
-}  // namespace ppl::improve_weights
+}  // namespace ppl
 
 #endif  // IMPROVE_WEIGHTS_HPP_

@@ -29,7 +29,7 @@ bool loop(
 
   for (unsigned int i = 1; i <= 15; ++i) {
     STOPWATCH("test-improve-profiles loop iteration");
-    ppl::improve_profiles::improve_profiles(random, models);
+    ppl::improve_profiles(random, models);
     accuracy = ppl::get_accuracy(*models, 0);
     std::cout << "Accuracy after iteration n°" << i << ": "
       << accuracy << "/" << learning_set.alternatives_count << std::endl;

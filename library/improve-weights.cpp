@@ -11,7 +11,7 @@
 #include "stopwatch.hpp"
 
 
-namespace ppl::improve_weights {
+namespace ppl {
 
 namespace glp = operations_research::glop;
 
@@ -135,4 +135,4 @@ void improve_weights(Models<Host>* models) {
   improve_weights(models->get_view());
 }
 
-}  // namespace ppl::improve_weights
+}  // namespace ppl

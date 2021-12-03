@@ -4,6 +4,8 @@
 #include "test-utils.hpp"
 
 
+namespace ppl {
+
 TEST(MakeModels, SingleAlternativeSingleCriteria) {
   auto domain = make_domain(2, {
     {{0.25}, 1},
@@ -108,3 +110,5 @@ TEST(MakeModels, SingleAlternativeSeveralCriteria) {
   EXPECT_EQ(models_view.profiles[1][0][0], 0.50);
   EXPECT_EQ(models_view.profiles[2][0][0], 0.75);
 }
+
+}  // namespace ppl

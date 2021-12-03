@@ -6,15 +6,9 @@
 #include "test-utils.hpp"
 
 
-using ppl::Models;
-using ppl::improve_profiles::Desirability;
-using ppl::get_accuracy;
-using ppl::improve_profiles::improve_profiles;
+namespace ppl {
 
-namespace ppl::improve_profiles {
-
-// Internal functions (not declared in the header) that we still want to unit-test
-
+// Internal function (not declared in the header) that we still want to unit-test
 __host__ __device__ Desirability compute_move_desirability(
   const ModelsView&,
   uint model_index,
@@ -22,15 +16,13 @@ __host__ __device__ Desirability compute_move_desirability(
   uint criterion_index,
   float destination);
 
-}  // namespace ppl::improve_profiles
-
 Desirability compute_move_desirability(
     const Models<Host>& models,
     uint model_index,
     uint profile_index,
     uint criterion_index,
     float destination) {
-  return ppl::improve_profiles::compute_move_desirability(
+  return compute_move_desirability(
     models.get_view(), model_index, profile_index, criterion_index, destination);
 }
 
@@ -186,3 +178,5 @@ TEST(ImproveProfiles, First) {
   improve_profiles(random, &device_models);
   EXPECT_EQ(get_accuracy(device_models, 0), 1);
 }
+
+}  // namespace ppl

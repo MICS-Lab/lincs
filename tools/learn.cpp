@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
   if (target_accuracy_percentage)
     target_accuracy = std::ceil(*target_accuracy_percentage * learning_set.alternatives_count / 100);
 
-  ppl::learning::Learning learning(learning_set);
+  ppl::Learning learning(learning_set);
 
   if (target_accuracy)
     learning.set_target_accuracy(*target_accuracy);

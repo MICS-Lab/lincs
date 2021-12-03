@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
   uint accuracy = ppl::get_accuracy(models, 0);
   std::cout << "Accuracy before: " << accuracy << "/" << learning_set.alternatives_count << std::endl;
 
-  ppl::improve_weights::improve_weights(&models);
+  ppl::improve_weights(&models);
 
   accuracy = ppl::get_accuracy(models, 0);
   std::cout << "Accuracy after: " << accuracy << "/" << learning_set.alternatives_count << std::endl;

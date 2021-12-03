@@ -12,7 +12,7 @@
 #include "randomness.hpp"
 
 
-namespace ppl::learning {
+namespace ppl {
 
 class Learning {
  public:
@@ -74,6 +74,6 @@ class Learning {
   UseGpu _use_gpu;
 };
 
-}  // namespace ppl::learning
+}  // namespace ppl
 
 #endif  // LEARNING_HPP_
