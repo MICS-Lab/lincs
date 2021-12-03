@@ -4,6 +4,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <CLI11.hpp>
+
 #include "../library/learning.hpp"
 #include "../library/stopwatch.hpp"
 
@@ -15,13 +17,66 @@ void usage(char* name) {
 }
 
 int main(int argc, char* argv[]) {
+  CLI::App app("Learn a model from a learning set");
+
+  std::string learning_set_file_name;
+  app.add_option("LEARNING_SET.txt", learning_set_file_name)
+    ->required()
+    ->check(CLI::ExistingFile);
+
+  std::optional<float> target_accuracy;
+  app.add_option("--target-accuracy", target_accuracy);
+
+  std::optional<uint> max_iterations;
+  app.add_option("--max-iterations", max_iterations);
+
+  std::optional<uint> max_duration;
+  app.add_option("--max-duration-seconds", max_duration);
+
+  std::optional<uint> models_count;
+  app.add_option("--models-count", models_count);
+
+  std::optional<uint> random_seed;
+  app.add_option("--random-seed", random_seed);
+
+  bool force_gpu = false;
+  app.add_flag("--force-gpu", force_gpu);
+
+  bool forbid_gpu = false;
+  app.add_flag("--forbid-gpu", forbid_gpu);
+
+  try {
+    app.parse(argc, argv);
+    if (force_gpu && forbid_gpu) {
+      throw CLI::ParseError("Options --force-gpu and --forbid-gpu are incompatible", 1);
+    }
+  } catch (const CLI::ParseError& e) {
+      return app.exit(e);
+  }
+
   STOPWATCH("learn");
 
-  if (argc != 2) usage(argv[0]);
-
-  std::ifstream learning_set_file(argv[1]);
+  std::ifstream learning_set_file(learning_set_file_name);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);
+
   ppl::learning::Learning learning(learning_set);
-  learning.set_max_duration(std::chrono::seconds(10));
+
+  if (target_accuracy)
+    learning.set_target_accuracy(std::ceil(*target_accuracy * learning_set.alternatives_count));
+  if (max_iterations)
+    learning.set_max_iterations(*max_iterations);
+  if (max_duration)
+    learning.set_max_duration(std::chrono::seconds(*max_duration));
+
+  if (models_count)
+    learning.set_models_count(*models_count);
+  if (random_seed)
+    learning.set_random_seed(*random_seed);
+
+  if (force_gpu)
+    learning.force_using_gpu();
+  if (forbid_gpu)
+    learning.forbid_using_gpu();
+
   learning.perform().best_model.save_to(std::cout);
 }

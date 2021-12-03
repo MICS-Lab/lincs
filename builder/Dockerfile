@@ -51,3 +51,8 @@ RUN set -x \
  && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include \
  && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib \
  && rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+
+# CLI11
+RUN set -x \
+ && cd /usr/local/include \
+ && wget https://github.com/CLIUtils/CLI11/releases/download/v2.1.2/CLI11.hpp

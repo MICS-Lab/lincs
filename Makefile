@@ -127,6 +127,11 @@ build/tests/library/learning-tests.sh.ok: \
   build/tools/bin/generate-model \
   build/tools/bin/test-learning
 
+build/tests/tools/learn-tests.sh.ok: \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
+  build/tools/bin/learn
+
 # Of tools to object files
 
 build/tools/bin/generate-model: \
