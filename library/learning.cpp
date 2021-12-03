@@ -16,7 +16,8 @@ namespace ppl::learning {
 
 Learning::Learning(const io::LearningSet& learning_set) :
   _host_domain(Domain<Host>::make(learning_set)),
-  _target_accuracy(learning_set.alternatives_count)
+  _target_accuracy(learning_set.alternatives_count),
+  _use_gpu(UseGpu::Auto)
 {}
 
 template<typename Iterator>
@@ -82,39 +83,71 @@ std::function<bool(uint, uint)> make_terminate(
   return r;
 }
 
+bool use_gpu(Learning::UseGpu use) {
+  switch (use) {
+    case Learning::UseGpu::Force:
+      return true;
+    case Learning::UseGpu::Forbid:
+      return false;
+    case Learning::UseGpu::Auto:
+    default:
+      // @todo Detect GPU and return true only if it's usable
+      return true;
+  }
+}
+
 Learning::Result Learning::perform() const {
   STOPWATCH("Learning::perform");
 
-  auto terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
+  const std::function<bool(uint, uint)> terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
 
   RandomSource random;
-  random.init_for_host(*_random_seed);
-  random.init_for_device(*_random_seed);
+  const uint random_seed = _random_seed ? *_random_seed : std::random_device()();
 
-  auto device_domain = _host_domain.clone_to<Device>();
-
-  const uint models_count = *_models_count;
+  const uint models_count = _models_count ? *_models_count : 9;  // @todo Decide on a good default value
 
   auto host_models = ppl::Models<Host>::make(_host_domain, models_count);
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
   initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
-  auto device_models = host_models.clone_to<Device>(device_domain);
 
   uint best_accuracy = 0;
-  for (int i = 0; !terminate(i, best_accuracy); ++i) {
-    STOPWATCH("Learning::perform iteration");
 
-    improve_weights::improve_weights(&host_models);
-    replicate_weights(host_models, &device_models);
-    improve_profiles::improve_profiles(random, &device_models);
-    replicate_profiles(device_models, &host_models);
-    model_indexes = partition_models_by_accuracy(models_count, host_models);
-    initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
+  if (use_gpu(_use_gpu)) {
+    random.init_for_device(random_seed);
 
-    best_accuracy = get_accuracy(host_models, model_indexes.back());
-    std::cerr << "After iteration n°" << i << ": best accuracy = " <<
-      best_accuracy << "/" << _host_domain.get_view().learning_alternatives_count << std::endl;
+    auto device_domain = _host_domain.clone_to<Device>();
+    auto device_models = host_models.clone_to<Device>(device_domain);
+
+    for (int i = 0; !terminate(i, best_accuracy); ++i) {
+      STOPWATCH("Learning::perform iteration");
+
+      improve_weights::improve_weights(&host_models);
+      replicate_weights(host_models, &device_models);
+      improve_profiles::improve_profiles(random, &device_models);
+      replicate_profiles(device_models, &host_models);
+      model_indexes = partition_models_by_accuracy(models_count, host_models);
+      initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
+
+      best_accuracy = get_accuracy(host_models, model_indexes.back());
+      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
+        best_accuracy << "/" << _host_domain.get_view().learning_alternatives_count << std::endl;
+    }
+  } else {
+    random.init_for_host(random_seed);
+
+    for (int i = 0; !terminate(i, best_accuracy); ++i) {
+      STOPWATCH("Learning::perform iteration");
+
+      improve_weights::improve_weights(&host_models);
+      improve_profiles::improve_profiles(random, &host_models);
+      model_indexes = partition_models_by_accuracy(models_count, host_models);
+      initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
+
+      best_accuracy = get_accuracy(host_models, model_indexes.back());
+      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
+        best_accuracy << "/" << _host_domain.get_view().learning_alternatives_count << std::endl;
+    }
   }
 
   return { host_models.unmake_one(model_indexes.back()), best_accuracy };

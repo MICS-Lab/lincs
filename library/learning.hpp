@@ -61,6 +61,9 @@ class Learning {
 
   Result perform() const;
 
+ public:
+  enum class UseGpu { Auto, Force, Forbid };
+
  private:
   Domain<Host> _host_domain;
   uint _target_accuracy;
@@ -68,7 +71,6 @@ class Learning {
   std::optional<std::chrono::steady_clock::duration> _max_duration;
   std::optional<uint> _models_count;
   std::optional<uint> _random_seed;
-  enum class UseGpu { Auto, Force, Forbid };
   UseGpu _use_gpu;
 };
 
