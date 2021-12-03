@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Quick tests of the command-line interface of learn.cpp
+# For more in-depth tests of the learning process, see ../library/learning-tests.*
+
 set -o errexit
 set -o pipefail
 trap 'echo "Error on ${BASH_SOURCE[0]}:$LINENO"' ERR
@@ -33,6 +36,8 @@ $BUILD_DIR/tools/bin/generate-learning-set model.txt 500 42 >learning-set.txt
 
 fail_learn learning-set.txt --force-gpu --forbid-gpu
 
+fail_learn learning-set.txt --target-accuracy 100.01
+
 time run_learn learning-set.txt --force-gpu
 
-time run_learn learning-set.txt --forbid-gpu --target-accuracy 0.9
+time run_learn learning-set.txt --forbid-gpu --target-accuracy 89.9
