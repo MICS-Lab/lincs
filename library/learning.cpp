@@ -96,111 +96,105 @@ bool use_gpu(Learning::UseGpu use) {
   }
 }
 
-struct GpuLearningExecution {
+// https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism
+template<typename ConcreteLearningExecution>
+struct LearningExecution {
+  LearningExecution(
+    const Domain<Host>& host_domain_,
+    uint models_count_,
+    std::function<bool(uint, uint)> terminate_) :
+      self(static_cast<ConcreteLearningExecution&>(*this)),
+      host_domain(host_domain_),
+      models_count(models_count_),
+      host_models(Models<Host>::make(host_domain, models_count)),
+      model_indexes(models_count, 0),
+      terminate(terminate_) {
+    std::iota(model_indexes.begin(), model_indexes.end(), 0);
+    initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
+  }
+
+  Learning::Result execute() {
+    uint best_accuracy = 0;
+
+    for (int i = 0; !terminate(i, best_accuracy); ++i) {
+      self.improve_models();
+
+      model_indexes = partition_models_by_accuracy(models_count, host_models);
+      initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
+
+      best_accuracy = get_accuracy(host_models, model_indexes.back());
+      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
+        best_accuracy << "/" << host_domain.get_view().learning_alternatives_count << std::endl;
+    }
+
+    return Learning::Result(host_models.unmake_one(model_indexes.back()), best_accuracy);
+  }
+
+ private:
+  ConcreteLearningExecution& self;
+
+ protected:
+  const Domain<Host>& host_domain;
+  uint models_count;
+  Models<Host> host_models;
+  std::vector<uint> model_indexes;
+
+ private:
+  std::function<bool(uint, uint)> terminate;
+};
+
+struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
   GpuLearningExecution(
     const Domain<Host>& host_domain_,
     uint models_count_,
     std::function<bool(uint, uint)> terminate_,
     uint random_seed_) :
-      host_domain(host_domain_),
-      models_count(models_count_),
-      random_seed(random_seed_),
-      terminate(terminate_)
-  {}
-
-  Learning::Result execute() {
-    RandomSource random;
-    random.init_for_device(random_seed);
-
-    auto host_models = Models<Host>::make(host_domain, models_count);
-    std::vector<uint> model_indexes(models_count, 0);
-    std::iota(model_indexes.begin(), model_indexes.end(), 0);
-    initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
-
-    uint best_accuracy = 0;
-
-    auto device_domain = host_domain.clone_to<Device>();
-    auto device_models = host_models.clone_to<Device>(device_domain);
-
-    for (int i = 0; !terminate(i, best_accuracy); ++i) {
-      STOPWATCH("Learning::perform iteration");
-
-      improve_weights(&host_models);
-      replicate_weights(host_models, &device_models);
-      improve_profiles(random, &device_models);
-      replicate_profiles(device_models, &host_models);
-      model_indexes = partition_models_by_accuracy(models_count, host_models);
-      initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
-
-      best_accuracy = get_accuracy(host_models, model_indexes.back());
-      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
-        best_accuracy << "/" << host_domain.get_view().learning_alternatives_count << std::endl;
-    }
-
-    return Learning::Result(host_models.unmake_one(model_indexes.back()), best_accuracy);
+      LearningExecution<GpuLearningExecution>(host_domain_, models_count_, terminate_),
+      device_domain(host_domain.clone_to<Device>()),
+      device_models(host_models.clone_to<Device>(device_domain)),
+      random() {
+    random.init_for_device(random_seed_);
   }
 
- protected:
-  const Domain<Host>& host_domain;
-  uint models_count;
-  uint random_seed;
-  std::function<bool(uint, uint)> terminate;
+  void improve_models() {
+    improve_weights(&host_models);
+    replicate_weights(host_models, &device_models);
+    improve_profiles(random, &device_models);
+    replicate_profiles(device_models, &host_models);
+  }
+
+ private:
+  Domain<Device> device_domain;
+  Models<Device> device_models;
+  RandomSource random;
 };
 
-struct CpuLearningExecution {
+struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
   CpuLearningExecution(
     const Domain<Host>& host_domain_,
     uint models_count_,
     std::function<bool(uint, uint)> terminate_,
     uint random_seed_) :
-      host_domain(host_domain_),
-      models_count(models_count_),
-      random_seed(random_seed_),
-      terminate(terminate_)
-  {}
-
-  Learning::Result execute() {
-    RandomSource random;
-    random.init_for_host(random_seed);
-
-    auto host_models = Models<Host>::make(host_domain, models_count);
-    std::vector<uint> model_indexes(models_count, 0);
-    std::iota(model_indexes.begin(), model_indexes.end(), 0);
-    initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
-
-    uint best_accuracy = 0;
-
-    for (int i = 0; !terminate(i, best_accuracy); ++i) {
-      STOPWATCH("Learning::perform iteration");
-
-      improve_weights(&host_models);
-      improve_profiles(random, &host_models);
-      model_indexes = partition_models_by_accuracy(models_count, host_models);
-      initialize_models(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
-
-      best_accuracy = get_accuracy(host_models, model_indexes.back());
-      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
-        best_accuracy << "/" << host_domain.get_view().learning_alternatives_count << std::endl;
-    }
-
-    return Learning::Result(host_models.unmake_one(model_indexes.back()), best_accuracy);
+      LearningExecution<CpuLearningExecution>(host_domain_, models_count_, terminate_),
+      random() {
+    random.init_for_host(random_seed_);
   }
 
- protected:
-  const Domain<Host>& host_domain;
-  uint models_count;
-  uint random_seed;
-  std::function<bool(uint, uint)> terminate;
+  void improve_models() {
+    improve_weights(&host_models);
+    improve_profiles(random, &host_models);
+  }
+
+ private:
+  RandomSource random;
 };
 
 Learning::Result Learning::perform() const {
   STOPWATCH("Learning::perform");
 
-  const std::function<bool(uint, uint)> terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
-
-  const uint random_seed = _random_seed ? *_random_seed : std::random_device()();
-
   const uint models_count = _models_count ? *_models_count : 9;  // @todo Decide on a good default value
+  const std::function<bool(uint, uint)> terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
+  const uint random_seed = _random_seed ? *_random_seed : std::random_device()();
 
   if (use_gpu(_use_gpu)) {
     return GpuLearningExecution(_host_domain, models_count, terminate, random_seed).execute();
