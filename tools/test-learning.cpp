@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../library/learn.hpp"
+#include "../library/learning.hpp"
 #include "../library/stopwatch.hpp"
 
 
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   random.init_for_host(42);
   random.init_for_device(42);
 
-  auto [model, accuracy] = ppl::learn::learn_from(random, learning_set);
+  auto [model, accuracy] = ppl::learning::learn_from(random, learning_set);
   model.save_to(std::cout);
 
   return accuracy == learning_set.alternatives_count ? 0 : 1;

@@ -1,6 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
-#include "learn.hpp"
+#include "learning.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -12,7 +12,7 @@
 #include "stopwatch.hpp"
 
 
-namespace ppl::learn {
+namespace ppl::learning {
 
 template<typename Iterator>
 void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, const Iterator model_indexes_end) {
@@ -85,4 +85,4 @@ std::pair<io::Model, uint> learn_from(const RandomSource& random, const io::Lear
   return std::make_pair(host_models.unmake_one(model_indexes.back()), best_accuracy);
 }
 
-}  // namespace ppl::learn
+}  // namespace ppl::learning

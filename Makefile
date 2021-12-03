@@ -89,13 +89,13 @@ build/tests/library/improve-weights-tests: \
 build/tests/library/io-tests: \
   build/obj/library/io.o
 
-build/tests/library/learn-tests: \
+build/tests/library/learning-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
   build/obj/library/improve-profiles.o \
   build/obj/library/improve-weights.o \
   build/obj/library/io.o \
-  build/obj/library/learn.o \
+  build/obj/library/learning.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
@@ -115,10 +115,10 @@ build/tests/library/improve-weights-tests.sh.ok: \
   build/tools/bin/generate-model \
   build/tools/bin/test-improve-weights
 
-build/tests/library/learn-tests.sh.ok: \
+build/tests/library/learning-tests.sh.ok: \
   build/tools/bin/generate-learning-set \
   build/tools/bin/generate-model \
-  build/tools/bin/test-learn
+  build/tools/bin/test-learning
 
 # Of tools to object files
 
@@ -154,12 +154,12 @@ build/tools/bin/test-improve-weights: \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
 
-build/tools/bin/test-learn: \
+build/tools/bin/test-learning: \
   build/obj/library/assign.o \
   build/obj/library/improve-profiles.o \
   build/obj/library/improve-weights.o \
   build/obj/library/io.o \
-  build/obj/library/learn.o \
+  build/obj/library/learning.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o

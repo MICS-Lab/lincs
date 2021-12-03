@@ -2,7 +2,7 @@
 
 #include "assign.hpp"
 #include "generate.hpp"
-#include "learn.hpp"
+#include "learning.hpp"
 #include "test-utils.hpp"
 
 
@@ -17,7 +17,7 @@ TEST(Learn, First) {
   random.init_for_host(42);
   random.init_for_device(42);
 
-  auto [reconstructed_model, accuracy] = ppl::learn::learn_from(random, learning_set);
+  auto [reconstructed_model, accuracy] = ppl::learning::learn_from(random, learning_set);
   EXPECT_GE(accuracy, 98);
 
   auto domain = ppl::Domain<Host>::make(learning_set);
