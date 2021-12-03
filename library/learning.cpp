@@ -14,6 +14,8 @@
 
 namespace ppl::learning {
 
+Learning::Learning(const io::LearningSet& learning_set) : _host_domain(Domain<Host>::make(learning_set)) {}
+
 template<typename Iterator>
 void initialize_models(ppl::Models<Host>* models, Iterator model_indexes_begin, const Iterator model_indexes_end) {
   STOPWATCH("initialize_models");
@@ -51,24 +53,26 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const pp
   return model_indexes;
 }
 
-std::pair<io::Model, uint> learn_from(const RandomSource& random, const io::LearningSet& learning_set) {
-  STOPWATCH("learn_from");
+Learning::Result Learning::perform() const {
+  STOPWATCH("Learning::perform");
 
-  auto host_domain = ppl::Domain<Host>::make(learning_set);
-  auto device_domain = host_domain.clone_to<Device>();
+  RandomSource random;
+  random.init_for_host(*_random_seed);
+  random.init_for_device(*_random_seed);
 
-  const uint models_count = 15;
-  const uint iterations_count = 6;
+  auto device_domain = _host_domain.clone_to<Device>();
 
-  auto host_models = ppl::Models<Host>::make(host_domain, models_count);
+  const uint models_count = *_models_count;
+
+  auto host_models = ppl::Models<Host>::make(_host_domain, models_count);
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
   initialize_models(&host_models, model_indexes.begin(), model_indexes.end());
   auto device_models = host_models.clone_to<Device>(device_domain);
 
   uint best_accuracy = 0;
-  for (int i = 0; i != iterations_count && best_accuracy != learning_set.alternatives_count; ++i) {
-    STOPWATCH("learn_from iteration");
+  for (int i = 0; i != _max_iterations && best_accuracy < _target_accuracy; ++i) {
+    STOPWATCH("Learning::perform iteration");
 
     improve_weights::improve_weights(&host_models);
     replicate_weights(host_models, &device_models);
@@ -79,10 +83,10 @@ std::pair<io::Model, uint> learn_from(const RandomSource& random, const io::Lear
 
     best_accuracy = get_accuracy(host_models, model_indexes.back());
     std::cerr << "After iteration n°" << i << ": best accuracy = " <<
-      best_accuracy << "/" << learning_set.alternatives_count << std::endl;
+      best_accuracy << "/" << _host_domain.get_view().learning_alternatives_count << std::endl;
   }
 
-  return std::make_pair(host_models.unmake_one(model_indexes.back()), best_accuracy);
+  return { host_models.unmake_one(model_indexes.back()), best_accuracy };
 }
 
 }  // namespace ppl::learning
