@@ -179,4 +179,39 @@ TEST(ImproveProfiles, First) {
   EXPECT_EQ(get_accuracy(device_models, 0), 1);
 }
 
+TEST(ImproveProfies, Larger) {
+  std::mt19937 gen(42);
+  auto model = generate::model(&gen, 4, 5);
+
+  std::fill(model.weights.begin(), model.weights.end(), 0.5);
+
+  auto learning_set = generate::learning_set(&gen, model, 250);
+  auto domain = Domain<Host>::make(learning_set);
+
+  auto models = make_models(
+    domain,
+    {{
+      {
+        {0.2, 0.2, 0.2, 0.2},
+        {0.4, 0.4, 0.4, 0.4},
+        {0.6, 0.6, 0.6, 0.6},
+        {0.8, 0.8, 0.8, 0.8}},
+      {0.5, 0.5, 0.5, 0.5}}});
+
+  auto device_domain = domain.clone_to<Device>();
+  auto device_models = models.clone_to<Device>(device_domain);
+
+  RandomSource random;
+  random.init_for_host(42);
+  random.init_for_device(42);
+
+  EXPECT_EQ(get_accuracy(models, 0), 132);
+  improve_profiles(random, &models);
+  EXPECT_EQ(get_accuracy(models, 0), 164);
+
+  EXPECT_EQ(get_accuracy(device_models, 0), 132);
+  improve_profiles(random, &device_models);
+  EXPECT_EQ(get_accuracy(device_models, 0), 163);
+}
+
 }  // namespace ppl

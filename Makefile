@@ -78,6 +78,7 @@ build/tests/library/problem-tests: \
 
 build/tests/library/improve-profiles-tests: \
   build/obj/library/assign.o \
+  build/obj/library/generate.o \
   build/obj/library/improve-profiles.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
@@ -114,11 +115,6 @@ build/tests/library/randomness-tests: \
 
 # Of test shell scripts to tools
 
-build/tests/library/improve-profiles-tests.sh.ok: \
-  build/tools/bin/generate-learning-set \
-  build/tools/bin/generate-model \
-  build/tools/bin/test-improve-profiles
-
 build/tests/library/learning-tests.sh.ok: \
   build/tools/bin/generate-learning-set \
   build/tools/bin/generate-model \
@@ -154,14 +150,6 @@ build/tools/bin/learn: \
   build/obj/library/initialize.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
-  build/obj/library/problem.o \
-  build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o
-
-build/tools/bin/test-improve-profiles: \
-  build/obj/library/assign.o \
-  build/obj/library/improve-profiles.o \
-  build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
   build/obj/library/stopwatch.o
