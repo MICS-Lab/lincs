@@ -3,37 +3,34 @@
 #include <iostream>
 #include <fstream>
 
+#include <CLI11.hpp>
+
 #include "../library/generate.hpp"
 
 
-void usage(char* name) {
-  std::cerr <<
-    "Usage: " << name << " NB_CRIT NB_CAT SEED\n"
-    "\n"
+int main(int argc, char* argv[]) {
+  CLI::App app(
     "Generate a pseudo-random model with NB_CRIT criteria and NB_CAT categories,\n"
-    "with random seed SEED.\n"
+    "from random seed SEED.\n"
     "\n"
     "The generated model is printed on standard output.\n"
     "\n"
     "Model generation is deterministic: the same NB_CRIT, NB_CAT and SEED\n"
-    "always generate the same model."
-    << std::endl;
-  exit(1);
-}
-
-int main(int argc, char* argv[]) {
-  if (argc != 4) usage(argv[0]);
+    "always generate the same model.\n");
 
   unsigned int criteria_count;
+  app.add_option("NB_CRIT", criteria_count)->required();
+
   unsigned int categories_count;
+  app.add_option("NB_CAT", categories_count)->required();
+
   unsigned int seed;
+  app.add_option("SEED", seed)->required();
 
   try {
-    criteria_count = std::stoi(argv[1]);
-    categories_count = std::stoi(argv[2]);
-    seed = std::stoi(argv[3]);
-  } catch (std::invalid_argument&) {
-    usage(argv[0]);
+    app.parse(argc, argv);
+  } catch (const CLI::ParseError& e) {
+    return app.exit(e);
   }
 
   std::mt19937 gen(seed);

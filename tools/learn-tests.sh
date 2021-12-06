@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Quick tests of the command-line interface of learn.cpp
 # For more in-depth tests of the learning process, see ../library/learning-tests.*
 

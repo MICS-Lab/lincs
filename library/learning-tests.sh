@@ -1,5 +1,3 @@
-#!/bin/bash
-
 set -o errexit
 trap 'echo "Error on ${BASH_SOURCE[0]}:$LINENO"' ERR
 

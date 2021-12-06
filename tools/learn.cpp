@@ -10,14 +10,13 @@
 #include "../library/stopwatch.hpp"
 
 
-void usage(char* name) {
-  std::cerr <<
-    "Usage: " << name << " LEARNING_SET.txt\n";
-  exit(1);
-}
-
 int main(int argc, char* argv[]) {
-  CLI::App app("Learn a model from a learning set");
+  CLI::App app(
+    "Learn a model the learning set taken from file LEARNING_SET.txt.\n"
+    "\n"
+    "The resulting model is printed on standard output.\n"
+    "\n"
+    "Learning is not deterministic: different runs will produce different models.\n");
 
   std::string learning_set_file_name;
   app.add_option("LEARNING_SET.txt", learning_set_file_name)
@@ -52,7 +51,7 @@ int main(int argc, char* argv[]) {
       throw CLI::ParseError("Options --force-gpu and --forbid-gpu are incompatible", 1);
     }
   } catch (const CLI::ParseError& e) {
-      return app.exit(e);
+    return app.exit(e);
   }
 
   STOPWATCH("learn");
