@@ -87,6 +87,7 @@ build/tests/library/improve-profiles-tests: \
 
 build/tests/library/improve-weights-tests: \
   build/obj/library/assign.o \
+  build/obj/library/generate.o \
   build/obj/library/improve-weights.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
@@ -117,11 +118,6 @@ build/tests/library/improve-profiles-tests.sh.ok: \
   build/tools/bin/generate-learning-set \
   build/tools/bin/generate-model \
   build/tools/bin/test-improve-profiles
-
-build/tests/library/improve-weights-tests.sh.ok: \
-  build/tools/bin/generate-learning-set \
-  build/tools/bin/generate-model \
-  build/tools/bin/test-improve-weights
 
 build/tests/library/learning-tests.sh.ok: \
   build/tools/bin/generate-learning-set \
@@ -165,14 +161,6 @@ build/tools/bin/learn: \
 build/tools/bin/test-improve-profiles: \
   build/obj/library/assign.o \
   build/obj/library/improve-profiles.o \
-  build/obj/library/io.o \
-  build/obj/library/problem.o \
-  build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o
-
-build/tools/bin/test-improve-weights: \
-  build/obj/library/assign.o \
-  build/obj/library/improve-weights.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \

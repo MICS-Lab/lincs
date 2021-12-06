@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "assign.hpp"
-#include "improve-profiles.hpp"
+#include "generate.hpp"
 #include "test-utils.hpp"
 
 
@@ -374,6 +374,21 @@ TEST(ImproveWeights, First) {
   EXPECT_EQ(get_accuracy(models, 0), 0);
   improve_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
+}
+
+TEST(ImproveWeight, Larger) {
+  std::mt19937 gen(57);
+  auto model = generate::model(&gen, 4, 3);
+  auto learning_set = generate::learning_set(&gen, model, 1000);
+
+  std::fill(model.weights.begin(), model.weights.end(), 0.25);
+
+  auto domain = Domain<Host>::make(learning_set);
+  auto models = Models<Host>::make(domain, {model});
+
+  EXPECT_EQ(get_accuracy(models, 0), 233);
+  improve_weights(&models);
+  EXPECT_EQ(get_accuracy(models, 0), 1000);
 }
 
 }  // namespace ppl
