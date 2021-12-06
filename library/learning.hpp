@@ -17,7 +17,11 @@ namespace ppl {
 class Learning {
  public:
   // Mandatory parameters
-  explicit Learning(const io::LearningSet&);
+  explicit Learning(const io::LearningSet& learning_set) :
+    _host_domain(Domain<Host>::make(learning_set)),
+    _target_accuracy(learning_set.alternatives_count),
+    _use_gpu(UseGpu::Auto)
+  {}
 
   // Termination criteria
   Learning& set_target_accuracy(uint target_accuracy) {
