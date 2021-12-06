@@ -216,6 +216,12 @@ void improve_model_profile(
 
   float best_destination = models.profiles[criterion_index][profile_index][model_index];
   float best_desirability = Desirability().value();
+
+  if (lowest_destination == highest_destination) {
+    assert(best_destination == lowest_destination);
+    return;
+  }
+
   // Not sure about this part: we're considering an arbitrary number of possible moves as described in
   // Mousseau's prez-mics-2018(8).pdf, but:
   //  - this is wasteful when there are fewer alternatives in the interval

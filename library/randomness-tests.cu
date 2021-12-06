@@ -102,3 +102,27 @@ TEST(OnDevice, UniformityOfInt) {
     EXPECT_LE(count, 10500);
   }
 }
+
+TEST(ProbabilityWeightedGenerator, Single) {
+  auto g = ProbabilityWeightedGenerator<uint>::make({{42, 2}});
+
+  EXPECT_EQ(g.get_value_probabilities(), (std::map<uint, double> {{42, 1}}));
+
+  std::mt19937 gen;
+  EXPECT_EQ(g(gen), 42);
+}
+
+TEST(ProbabilityWeightedGenerator, Three) {
+  auto g = ProbabilityWeightedGenerator<uint>::make({{0, 1}, {1, 10}, {2, 9}});
+
+  EXPECT_EQ(g.get_value_probabilities(), (std::map<uint, double> {{0, 0.05}, {1, 0.5}, {2, 0.45}}));
+
+  std::mt19937 gen(42);
+  std::vector<uint> histogram(3);
+  for (uint i = 0; i != 10000; ++i) {
+    ++histogram[g(gen)];
+  }
+  EXPECT_EQ(histogram[0], 526);  // 5%
+  EXPECT_EQ(histogram[1], 4947);  // 50%
+  EXPECT_EQ(histogram[2], 4527);  // 45%
+}

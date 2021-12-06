@@ -95,6 +95,13 @@ build/tests/library/improve-weights-tests: \
   build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
+build/tests/library/initialize-tests: \
+  build/obj/library/initialize.o \
+  build/obj/library/io.o \
+  build/obj/library/problem.o \
+  build/obj/library/stopwatch.o \
+  build/obj/library/test-utils.o
+
 build/tests/library/io-tests: \
   build/obj/library/io.o
 
@@ -190,13 +197,13 @@ test: $(test_sentinel_files)
 build/tests/%-tests.cu.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@valgrind --exit-on-first-error=yes --error-exitcode=1 $<
+	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
 build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@valgrind --exit-on-first-error=yes --error-exitcode=1 $<
+	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
 # Non-compilation tests
@@ -220,7 +227,7 @@ build/tests/%-tests.sh.ok: %-tests.sh
 	@mkdir -p $(dir $@)
 	@rm -rf $@-wd
 	@mkdir -p $@-wd
-	@cd $@-wd && BUILD_DIR=../../.. bash ../../../../$<
+	@cd $@-wd && BUILD_DIR=../../.. timeout 300 bash ../../../../$<
 	@touch $@
 
 ########

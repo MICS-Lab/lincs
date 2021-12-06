@@ -75,16 +75,20 @@ struct LearningExecution {
   LearningExecution(
     const Domain<Host>& host_domain_,
     uint models_count_,
-    std::function<bool(uint, uint)> terminate_) :
+    std::function<bool(uint, uint)> terminate_,
+    uint random_seed_) :
       self(static_cast<ConcreteLearningExecution&>(*this)),
-      initializer(),
       models_count(models_count_),
       model_indexes(models_count, 0),
       terminate(terminate_),
       host_domain(host_domain_),
-      host_models(Models<Host>::make(host_domain, models_count)) {
+      host_models(Models<Host>::make(host_domain, models_count)),
+      random_seed(random_seed_),
+      random(),
+      initializer(host_models) {
+    random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
-    initializer.initialize(&host_models, model_indexes.begin(), model_indexes.end());
+    initializer.initialize(random, &host_models, model_indexes.begin(), model_indexes.end());
   }
 
   Learning::Result execute() {
@@ -94,7 +98,10 @@ struct LearningExecution {
       self.improve_models();
 
       model_indexes = partition_models_by_accuracy(models_count, host_models);
-      initializer.initialize(&host_models, model_indexes.begin(), model_indexes.begin() + models_count / 2);
+      initializer.initialize(
+        random,
+        &host_models,
+        model_indexes.begin(), model_indexes.begin() + models_count / 2);
 
       best_accuracy = get_accuracy(host_models, model_indexes.back());
       std::cerr << "After iteration n°" << i << ": best accuracy = " <<
@@ -106,7 +113,6 @@ struct LearningExecution {
 
  private:
   ConcreteLearningExecution& self;
-  ModelsInitializer initializer;
   uint models_count;
   std::vector<uint> model_indexes;
   std::function<bool(uint, uint)> terminate;
@@ -114,19 +120,23 @@ struct LearningExecution {
  protected:
   const Domain<Host>& host_domain;
   Models<Host> host_models;
+  uint random_seed;
+  RandomSource random;
+
+ private:
+  ModelsInitializer initializer;
 };
 
 struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
   GpuLearningExecution(
-    const Domain<Host>& host_domain_,
-    uint models_count_,
-    std::function<bool(uint, uint)> terminate_,
-    uint random_seed_) :
-      LearningExecution<GpuLearningExecution>(host_domain_, models_count_, terminate_),
+    const Domain<Host>& host_domain,
+    uint models_count,
+    std::function<bool(uint, uint)> terminate,
+    uint random_seed) :
+      LearningExecution<GpuLearningExecution>(host_domain, models_count, terminate, random_seed),
       device_domain(host_domain.clone_to<Device>()),
-      device_models(host_models.clone_to<Device>(device_domain)),
-      random() {
-    random.init_for_device(random_seed_);
+      device_models(host_models.clone_to<Device>(device_domain)) {
+    random.init_for_device(random_seed);
   }
 
   void improve_models() {
@@ -139,27 +149,21 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
  private:
   Domain<Device> device_domain;
   Models<Device> device_models;
-  RandomSource random;
 };
 
 struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
   CpuLearningExecution(
-    const Domain<Host>& host_domain_,
-    uint models_count_,
-    std::function<bool(uint, uint)> terminate_,
-    uint random_seed_) :
-      LearningExecution<CpuLearningExecution>(host_domain_, models_count_, terminate_),
-      random() {
-    random.init_for_host(random_seed_);
-  }
+    const Domain<Host>& host_domain,
+    uint models_count,
+    std::function<bool(uint, uint)> terminate,
+    uint random_seed) :
+      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed)
+  {}
 
   void improve_models() {
     improve_weights(&host_models);
     improve_profiles(random, &host_models);
   }
-
- private:
-  RandomSource random;
 };
 
 Learning::Result Learning::perform() const {
