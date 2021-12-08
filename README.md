@@ -115,3 +115,50 @@ They contain tests that give a lot of information about the file's purpose.
 Also have a look at the comments in the `*.hpp` files.
 
 <!-- @todo Write a tool named `classify` to classify a set of alternatives using a model. -->
+
+Roadmap
+=======
+
+Optimize learning duration
+--------------------------
+
+Initial measurements with class `Stopwatch` show that roughly 1/3 of the learning time is spent in `improve_weights` and 2/3 is spent in `improve_profiles`.
+Other parts are negligible for now, so we should focus efforts on those two functions.
+
+Low hanging fruits in `improve_profiles`:
+
+- parallelize the loop on models: it is embarrassingly parallel.
+- pre-compute the interesting values for profiles, and make the algorithm choose between them (see description in comment in `improve_model_profile`)
+- store and update the models' accuracy instead of recomputing it again and again. (This may not be a huge improvement because `get_accuracy` is quite fast)
+
+Then, find more intelligent things to improve.
+Note that this is good news: the part we want to focus on is actually te longest part.
+
+Low hanging fruits in `improve_weights`:
+
+- parallelize the loop on models using OpenMP: it is embarrassingly parallel.
+- avoid repeating some computations in `make_internal_linear_program`: keep one `LinearProgram` in memory for each model, and update it.
+Also always pass it to the same `glop::LPSolver`, dedicated to this model, to benefit from GLOP's "re-use" feature, that makes it faster to solve a linear problem that's not too different from a previously solved one.
+Warning: this will use more host memory.
+
+It's probably all we can do in `improve_weights` without significant effort: going further would require diving into solving linear programs, which is its own research domain.
+
+Relax simplifying assumptions
+-----------------------------
+
+- relax the assumption that higher numerical values on criteria are better than lower numerical values.
+This could be reversed.
+
+- relax the assumption that numerical values for criteria are between 0 and 1.
+Allow arbitrary ranges.
+
+- generalize the criteria values to more kinds of ordered sets
+
+- allow "single-peaked" criteria where the good values are in an interval, and high and low numerical values are both bad (*e.g.* blood pressure, where good values are between two bounds, and values outside these bounds are bad)
+
+Learn from noisy learning sets
+------------------------------
+
+We currently learn from pseudo-random learning sets that are generated using an MR-sort model.
+It is consequently always possible to reconstruct that model exactly, and to reach 100% accuracy.
+We should handle generation of noisy pseudo-random learning sets that can only be *approximated* by an MR-sort model.
