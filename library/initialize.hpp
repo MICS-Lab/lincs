@@ -11,6 +11,9 @@
 
 namespace ppl {
 
+/*
+Implement 3.3.2 of https://tel.archives-ouvertes.fr/tel-01370555/document
+*/
 class ModelsInitializer {
  public:
   explicit ModelsInitializer(const Models<Host>&);

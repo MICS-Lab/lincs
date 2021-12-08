@@ -102,7 +102,16 @@ The learning algorithm has three main modules:
 <!-- @todo Should we rename to "optimize weights"? (because it does find optimal weights given fixed profiles) -->
 - a heuristic for improving profiles given fixed weights, which is in `library/improve-profiles.cpp`
 
+General utilities
+-----------------
+
 `library/improve-profiles.cpp` depends on the application of a model (to assign a category to an alternative).
 All the assignment algorithms are in `library/assign.cpp`.
+
+`library/initialize.cpp`, `library/improve-weights.cpp` and `library/improve-profiles.cpp` all use a common representation of the learning set and models in memory that is in `library/problem.hpp`.
+
+When in doubt about a source file, have a look at the associated `-tests.*` file(s).
+They contain tests that give a lot of information about the file's purpose.
+Also have a look at the comments in the `*.hpp` files.
 
 <!-- @todo Write a tool named `classify` to classify a set of alternatives using a model. -->

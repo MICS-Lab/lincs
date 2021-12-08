@@ -13,6 +13,11 @@
 
 namespace ppl {
 
+/*
+The constants of the problem, i.e. the sizes of the domain, and the learning set.
+
+@todo Split Domain and DomainView class into Domain proper (sizes, labels, etc.) and LearningSet (classified alternatives)
+*/
 struct DomainView {
   const uint categories_count;
   const uint criteria_count;
@@ -74,6 +79,9 @@ class Domain {
   uint* const learning_assignments;
 };
 
+/*
+The variables of the problem: the models being trained
+*/
 struct ModelsView {
   DomainView domain;
 
@@ -150,8 +158,10 @@ class Models {
   float* const profiles;
 };
 
+// Utility function to replicate weights (computed on the host) onto the device
 void replicate_weights(const Models<Host>&, Models<Device>*);
 
+// Utility function to replicate profiles (computed on the device) onto the host
 void replicate_profiles(const Models<Device>&, Models<Host>*);
 
 }  // namespace ppl

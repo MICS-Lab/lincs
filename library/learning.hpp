@@ -14,6 +14,11 @@
 
 namespace ppl {
 
+/*
+The action of learning a model from a learning set.
+
+To be configured using `set_*`, then `perform`ed.
+*/
 class Learning {
  public:
   // Mandatory parameters

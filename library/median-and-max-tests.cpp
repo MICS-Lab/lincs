@@ -101,7 +101,13 @@ TEST(EnsureMedianAndMax, RepeatedRandom) {
     std::random_shuffle(v.begin(), v.end());
 
     ensure_median_and_max(v.begin(), v.end(), std::less<int>());
+    for (int i = 0; i != 49; ++i) {
+      EXPECT_LT(v[i], 49);  // Below median
+    }
     EXPECT_EQ(v[49], 49);  // Median
+    for (int i = 50; i != 98; ++i) {
+      EXPECT_GT(v[i], 49);  // Above median
+    }
     EXPECT_EQ(v[98], 98);  // Max
   }
 }

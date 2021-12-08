@@ -13,6 +13,11 @@
 #include "cuda-utils.hpp"
 
 
+/*
+A source of randomness.
+
+Warning: *not* thread-safe on the host.
+*/
 struct RandomSource {
   RandomSource();
   ~RandomSource();
@@ -25,6 +30,10 @@ struct RandomSource {
   std::mt19937* gen;
 };
 
+/*
+A view inside a RandomSource, to be passed around by value
+into code that requires random numbers.
+*/
 struct RandomNumberGenerator {
   RandomNumberGenerator(const RandomSource& source) :  // NOLINT(runtime/explicit)
     _rng_states(source.rng_states), _gen(source.gen) {}
@@ -42,6 +51,10 @@ struct RandomNumberGenerator {
   std::mt19937* _gen;
 };
 
+/*
+Pick random values from a finite set with given probabilities
+(a discrete distribution with arbitrary values).
+*/
 template<typename T>
 class ProbabilityWeightedGenerator {
   ProbabilityWeightedGenerator(const std::vector<T>& values, const std::vector<double>& probabilities) :

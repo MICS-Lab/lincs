@@ -29,6 +29,7 @@ struct Desirability {
   }
 };
 
+// Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/document
 void improve_profiles(const RandomSource& random, Models<Host>*);
 void improve_profiles(const RandomSource& random, Models<Device>*);
 
