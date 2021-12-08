@@ -74,11 +74,11 @@ void ModelsInitializer::initialize(
 
   ModelsView models_view = models->get_view();
 
-  // Embarassingly parallel
+  // Embarrassingly parallel
   for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
     const uint model_index = *model_indexes_begin;
 
-    // Embarassingly parallel, parallel with next loop
+    // Embarrassingly parallel, parallel with next loop
     for (uint crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
       // Not parallel because of the profiles ordering constraint
       for (uint category_index = models_view.domain.categories_count - 1; category_index != 0; --category_index) {
@@ -101,7 +101,7 @@ void ModelsInitializer::initialize(
       }
     }
 
-    // Embarassingly parallel, parallel with previous loop
+    // Embarrassingly parallel, parallel with previous loop
     for (uint crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
       models_view.weights[crit_index][model_index] = 2. / models_view.domain.criteria_count;
     }

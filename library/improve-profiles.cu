@@ -234,7 +234,7 @@ void improve_model_profile(
   // Then instead of taking a random values in [lowest_destination, highest_destination],
   // we'd take a random subset of the intersection of these midpoints with that interval.
   for (uint n = 0; n < 64; ++n) {
-    // Map (embarassigly parallel)
+    // Map (embarrassingly parallel)
     const float destination = random.uniform_float(lowest_destination, highest_destination);
     const float desirability = compute_move_desirability(
       models, model_index, profile_index, criterion_index, destination).value();
@@ -303,7 +303,7 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
 
 __host__ __device__
 void improve_profiles(RandomNumberGenerator random, const ModelsView& models) {
-  // Embarassingly parallel
+  // Embarrassingly parallel
   for (uint model_index = 0; model_index != models.models_count; ++model_index) {
     improve_model_profiles(random, models, model_index);
   }
