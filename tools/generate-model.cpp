@@ -27,11 +27,7 @@ int main(int argc, char* argv[]) {
   unsigned int seed;
   app.add_option("SEED", seed)->required();
 
-  try {
-    app.parse(argc, argv);
-  } catch (const CLI::ParseError& e) {
-    return app.exit(e);
-  }
+  CLI11_PARSE(app, argc, argv);
 
   std::mt19937 gen(seed);
   ppl::generate::model(&gen, criteria_count, categories_count).save_to(std::cout);

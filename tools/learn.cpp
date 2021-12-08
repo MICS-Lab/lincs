@@ -12,7 +12,7 @@
 
 int main(int argc, char* argv[]) {
   CLI::App app(
-    "Learn a model the learning set taken from file LEARNING_SET.txt.\n"
+    "Learn a model from the learning set taken from file LEARNING_SET.txt.\n"
     "\n"
     "The resulting model is printed on standard output.\n"
     "\n"
@@ -45,13 +45,10 @@ int main(int argc, char* argv[]) {
   bool forbid_gpu = false;
   app.add_flag("--forbid-gpu", forbid_gpu);
 
-  try {
-    app.parse(argc, argv);
-    if (force_gpu && forbid_gpu) {
-      throw CLI::ParseError("Options --force-gpu and --forbid-gpu are incompatible", 1);
-    }
-  } catch (const CLI::ParseError& e) {
-    return app.exit(e);
+  CLI11_PARSE(app, argc, argv);
+
+  if (force_gpu && forbid_gpu) {
+    return app.exit(CLI::ParseError("Options --force-gpu and --forbid-gpu are incompatible", 1));
   }
 
   STOPWATCH("learn");

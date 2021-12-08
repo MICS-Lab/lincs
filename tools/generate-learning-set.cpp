@@ -29,11 +29,7 @@ int main(int argc, char* argv[]) {
   unsigned int seed;
   app.add_option("SEED", seed)->required();
 
-  try {
-    app.parse(argc, argv);
-  } catch (const CLI::ParseError& e) {
-    return app.exit(e);
-  }
+  CLI11_PARSE(app, argc, argv);
 
   std::ifstream model_file(model_file_name);
   auto model = ppl::io::Model::load_from(model_file);
