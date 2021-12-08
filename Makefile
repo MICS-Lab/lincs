@@ -11,36 +11,61 @@ default: dep-graph lint test tools
 # Inventory #
 #############
 
-source_directories=library tools
+# Source files
+tools_source_files := $(wildcard tools/*.cpp)
+header_files := $(wildcard library/*.hpp)
+cpp_lib_source_files := $(wildcard library/*.cpp)
+cu_lib_source_files := $(wildcard library/*.cu)
+cpp_test_source_files := $(wildcard */*-tests.cpp)
+cu_test_source_files := $(wildcard */*-tests.cu)
+sh_test_source_files := $(wildcard */*-tests.sh)
 
-all_source_files=$(shell find $(source_directories) -name '*.cu' -or -name '*.cpp')
-all_header_files=$(shell find $(source_directories) -name '*.hpp')
-test_source_files=$(shell find $(source_directories) -name '*-tests.cu' -or -name '*-tests.cpp')
-test_shell_files=$(shell find $(source_directories) -name '*-tests.sh')
-tools_source_files=$(shell find tools -name '*.cu' -or -name '*.cpp')
+# Intermediate files
+object_files := $(patsubst %.cpp,build/obj/%.o,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/obj/%.o,$(cu_lib_source_files))
+dependency_includes := $(patsubst %.cpp,build/deps/%.deps,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/deps/%.deps,$(cu_lib_source_files))
+non_compilation_includes := $(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps, $(cpp_test_source_files)) $(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps, $(cu_test_source_files))
 
-tools=$(foreach file,$(tools_source_files),$(patsubst tools/%.cpp,build/tools/bin/%,$(patsubst tools/%.cu,build/tools/bin/%,$(file))))
+# Sentinel files
+cpplint_sentinel_files := $(patsubst %,build/lint/%.cpplint.ok,$(tools_source_files) $(header_files) $(cpp_lib_source_files) $(cu_lib_source_files))
+test_sentinel_files := $(patsubst %,build/tests/%.ok,$(cpp_test_source_files) $(cu_test_source_files) $(sh_test_source_files))
+
+# Final products
+tools_binary_files := $(patsubst tools/%.cpp,build/tools/bin/%,$(tools_source_files))
+
+.PHONY: debug-inventory
+debug-inventory:
+	@echo "tools_source_files:\n$(tools_source_files)\n"
+	@echo "header_files:\n$(header_files)\n"
+	@echo "cpp_lib_source_files:\n$(cpp_lib_source_files)\n"
+	@echo "cu_lib_source_files:\n$(cu_lib_source_files)\n"
+	@echo "cpp_test_source_files:\n$(cpp_test_source_files)\n"
+	@echo "cu_test_source_files:\n$(cu_test_source_files)\n"
+	@echo "sh_test_source_files:\n$(sh_test_source_files)\n"
+	@echo "object_files:\n$(object_files)\n"
+	@echo "dependency_includes:\n$(dependency_includes)\n"
+	@echo "non_compilation_includes:\n$(non_compilation_includes)\n"
+	@echo "cpplint_sentinel_files:\n$(cpplint_sentinel_files)\n"
+	@echo "test_sentinel_files:\n$(test_sentinel_files)\n"
+	@echo "tools_binary_files:\n$(tools_binary_files)"
 
 ###############################
 # Secondary top-level targets #
 ###############################
 
 .PHONY: tools
-tools: $(tools)
+tools: $(tools_binary_files)
 
 .PHONY: dep-graph
 dep-graph: build/dependency-graph.png
 
 .PHONY: compile
-compile: $(foreach file,$(all_source_files),$(patsubst %.cpp,build/obj/%.o,$(patsubst %.cu,build/obj/%.o,$(file))))
+compile: $(object_files)
 
 ##########################
 # Automated dependencies #
 ##########################
 
-dependency_files=$(foreach file,$(all_source_files),$(patsubst %.cpp,build/deps/%.deps,$(patsubst %.cu,build/deps/%.deps,$(file))))
-
-$(foreach file,$(dependency_files),$(eval include $(file)))
+$(foreach file,$(dependency_includes),$(eval include $(file)))
 
 build/deps/%.deps: %.cu builder/fix-g++-MM.py
 	@echo "nvcc -MM $< -o $@"
@@ -52,10 +77,10 @@ build/deps/%.deps: %.cpp builder/fix-g++-MM.py
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
-build/dependency-graph.png: builder/deps-to-dot.py $(dependency_files)
+build/dependency-graph.png: builder/deps-to-dot.py $(dependency_includes)
 	@echo "cat *.deps | dot -o $@"
 	@mkdir -p $(dir $@)
-	@cat $(dependency_files) | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
+	@cat $(dependency_includes) | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
 
 #######################
 # Manual dependencies #
@@ -172,8 +197,6 @@ build/tools/bin/learn: \
 # Lint #
 ########
 
-cpplint_sentinel_files=$(foreach file,$(all_source_files) $(all_header_files),$(patsubst %,build/lint/%.cpplint.ok,$(file)))
-
 .PHONY: lint
 lint: $(cpplint_sentinel_files)
 
@@ -186,8 +209,6 @@ build/lint/%.cpplint.ok: %
 #########
 # Tests #
 #########
-
-test_sentinel_files=$(foreach file,$(test_source_files) $(test_shell_files),$(patsubst %,build/tests/%.ok,$(file)))
 
 .PHONY: test
 test: $(test_sentinel_files)
@@ -208,7 +229,7 @@ build/tests/%-tests.cpp.ok: build/tests/%-tests
 
 # Non-compilation tests
 
-$(foreach file,$(test_source_files),$(eval include $(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps,$(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps,$(file)))))
+$(foreach file,$(non_compilation_includes),$(eval include $(file)))
 
 build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cu
 	@echo $^
