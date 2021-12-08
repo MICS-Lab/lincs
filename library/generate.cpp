@@ -34,7 +34,7 @@ io::Model model(std::mt19937* gen, const uint criteria_count, const uint categor
   // A model where the sum of all weights is below 1 is useless for test purposes,
   // (because it assigns all alternatives to category 0), so we try to avoid that.
   // It should also be possible to have some huge weights, but not too often.
-  // We should get these requirments reviewed by a statistics expert.
+  // We should get these requirements reviewed by a statistics expert.
   // For the time being, we use a Gamma distribution of shape aplha and scale beta:
   //  - its mean is alpha * beta
   //  - its variance is alpha * beta²
