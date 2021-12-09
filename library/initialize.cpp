@@ -12,6 +12,9 @@ namespace ppl {
 
 std::map<float, double> get_candidate_probabilities(const DomainView& domain, uint crit_index, uint profile_index) {
   std::vector<float> values_below;
+  // The size used for 'reserve' is a few times larger than the actual final size,
+  // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
+  // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
   values_below.reserve(domain.learning_alternatives_count);
   std::vector<float> values_above;
   values_above.reserve(domain.learning_alternatives_count);
@@ -101,6 +104,9 @@ void ModelsInitializer::initialize(
       }
     }
 
+    // Initializing weights below is useless globally because they'll be overwritten in
+    // 'improve_weights' just after initialization. But it's very quick so we do it anyway
+    // so that this function initializes whole models.
     // Embarrassingly parallel, parallel with previous loop
     for (uint crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
       models_view.weights[crit_index][model_index] = 2. / models_view.domain.criteria_count;
