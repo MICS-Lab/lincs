@@ -38,3 +38,4 @@ After:
 
 The improvement is negligible in our case, even though the unit-ish tests demonstrate that a gain is possible in the ideal case.
 It seems our case does not match the requirement for effective re-use of the linear program.
+The failed optimization, implemented in 91833733 and 2ee314ed, has been reverted.

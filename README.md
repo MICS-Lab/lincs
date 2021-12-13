@@ -137,7 +137,7 @@ Note that this is good news: the part we want to focus on is actually the longes
 Low hanging fruits in `optimize_weights`:
 
 - (DONE) parallelize the loop on models using OpenMP: it is embarrassingly parallel.
-- avoid repeating some computations in `make_internal_linear_program`: keep one `LinearProgram` in memory for each model, and update it.
+- (TRIED BUT NO IMPROVEMENT) avoid repeating some computations in `make_internal_linear_program`: keep one `LinearProgram` in memory for each model, and update it.
 Also always pass it to the same `glop::LPSolver`, dedicated to this model, to benefit from GLOP's "re-use" feature, that makes it faster to solve a linear problem that's not too different from a previously solved one.
 Warning: this will use more host memory.
 
