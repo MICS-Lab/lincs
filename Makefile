@@ -152,6 +152,11 @@ build/tests/library/learning-tests.sh.ok: \
   build/tools/bin/generate-model \
   build/tools/bin/learn
 
+build/tests/library/learning-optim-tests.sh.ok: \
+  build/tools/bin/generate-learning-set \
+  build/tools/bin/generate-model \
+  build/tools/bin/learn
+
 build/tests/tools/generate-learning-set-tests.sh.ok: \
   build/tools/bin/generate-learning-set \
   build/tools/bin/generate-model
