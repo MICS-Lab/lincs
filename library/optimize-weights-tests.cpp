@@ -14,13 +14,9 @@
 
 namespace ppl {
 
-// Internal functions (not declared in the header) that we still want to unit-test
+// Internal function (not declared in the header) that we still want to unit-test
 std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
   const float epsilon, const Models<Host>&, uint model_index);
-
-void structure_linear_program(LinearProgram* lp, const float epsilon, const ModelsView&);
-
-void update_linear_program(LinearProgram* lp, const ModelsView&, const uint model_index);
 
 
 TEST(GlopExploration, FromSample) {
@@ -375,7 +371,7 @@ TEST(OptimizeWeights, First) {
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  WeightsOptimizer(models).optimize_weights(&models);
+  optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 }
 
@@ -390,107 +386,8 @@ TEST(OptimizeWeights, Larger) {
   auto models = Models<Host>::make(domain, {model});
 
   EXPECT_EQ(get_accuracy(models, 0), 233);
-  WeightsOptimizer(models).optimize_weights(&models);
+  optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1000);
-}
-
-
-#define REUSE_REPETITIONS 100
-
-TEST(Reuse, Nothing) {
-  std::mt19937 gen(57);
-  auto model = generate::model(&gen, 6, 3);
-  auto learning_set = generate::learning_set(&gen, model, 1000);
-
-  auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
-  auto models_view = models.get_view();
-
-  for (int i = 0; i != REUSE_REPETITIONS; ++i) {
-    LinearProgram lp;
-    structure_linear_program(&lp, 1e-6, models_view);
-    update_linear_program(&lp, models_view, 0);
-    lp.program.CleanUp();
-
-    glp::GlopParameters parameters;
-    parameters.set_provide_strong_optimal_guarantee(true);
-    glp::LPSolver solver;
-    solver.SetParameters(parameters);
-
-    EXPECT_EQ(solver.Solve(lp.program), glp::ProblemStatus::OPTIMAL);
-  }
-}
-
-TEST(Reuse, BothWithoutChanges) {
-  std::mt19937 gen(57);
-  auto model = generate::model(&gen, 6, 3);
-  auto learning_set = generate::learning_set(&gen, model, 1000);
-
-  auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
-  auto models_view = models.get_view();
-
-  LinearProgram lp;
-  structure_linear_program(&lp, 1e-6, models_view);
-  update_linear_program(&lp, models_view, 0);
-  lp.program.CleanUp();
-
-  glp::GlopParameters parameters;
-  parameters.set_provide_strong_optimal_guarantee(true);
-  glp::LPSolver solver;
-  solver.SetParameters(parameters);
-
-  for (int i = 0; i != REUSE_REPETITIONS; ++i) {
-    EXPECT_EQ(solver.Solve(lp.program), glp::ProblemStatus::OPTIMAL);
-  }
-}
-
-TEST(Reuse, Program) {
-  std::mt19937 gen(57);
-  auto model = generate::model(&gen, 6, 3);
-  auto learning_set = generate::learning_set(&gen, model, 1000);
-
-  auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
-  auto models_view = models.get_view();
-
-  LinearProgram lp;
-  structure_linear_program(&lp, 1e-6, models_view);
-  update_linear_program(&lp, models_view, 0);
-  lp.program.CleanUp();
-
-  for (int i = 0; i != REUSE_REPETITIONS; ++i) {
-    glp::GlopParameters parameters;
-    parameters.set_provide_strong_optimal_guarantee(true);
-    glp::LPSolver solver;
-    solver.SetParameters(parameters);
-
-    EXPECT_EQ(solver.Solve(lp.program), glp::ProblemStatus::OPTIMAL);
-  }
-}
-
-TEST(Reuse, SolverWithIdenticalPrograms) {
-  std::mt19937 gen(57);
-  auto model = generate::model(&gen, 6, 3);
-  auto learning_set = generate::learning_set(&gen, model, 1000);
-
-  auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
-  auto models_view = models.get_view();
-
-  glp::GlopParameters parameters;
-  parameters.set_provide_strong_optimal_guarantee(true);
-  glp::LPSolver solver;
-  solver.SetParameters(parameters);
-
-  for (int i = 0; i != REUSE_REPETITIONS; ++i) {
-    LinearProgram lp;
-    structure_linear_program(&lp, 1e-6, models_view);
-    update_linear_program(&lp, models_view, 0);
-    lp.program.CleanUp();
-
-    EXPECT_EQ(solver.Solve(lp.program), glp::ProblemStatus::OPTIMAL);
-  }
 }
 
 }  // namespace ppl

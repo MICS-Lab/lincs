@@ -235,6 +235,7 @@ build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
 	@$<
+	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
 	@touch $@
 
 # Non-compilation tests
