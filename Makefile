@@ -111,10 +111,10 @@ build/tests/library/improve-profiles-tests: \
   build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
-build/tests/library/improve-weights-tests: \
+build/tests/library/optimize-weights-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
-  build/obj/library/improve-weights.o \
+  build/obj/library/optimize-weights.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/stopwatch.o \
@@ -134,7 +134,7 @@ build/tests/library/learning-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
   build/obj/library/improve-profiles.o \
-  build/obj/library/improve-weights.o \
+  build/obj/library/optimize-weights.o \
   build/obj/library/initialize.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
@@ -190,7 +190,7 @@ build/tools/bin/generate-learning-set: \
 build/tools/bin/learn: \
   build/obj/library/assign.o \
   build/obj/library/improve-profiles.o \
-  build/obj/library/improve-weights.o \
+  build/obj/library/optimize-weights.o \
   build/obj/library/initialize.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \

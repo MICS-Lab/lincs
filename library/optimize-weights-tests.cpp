@@ -1,7 +1,5 @@
 // Copyright 2021 Vincent Jacques
 
-#include "improve-weights.hpp"
-
 #include <ortools/glop/lp_solver.h>
 #include <ortools/lp_data/lp_data.h>
 #include <ortools/lp_data/lp_types.h>
@@ -10,6 +8,7 @@
 
 #include "assign.hpp"
 #include "generate.hpp"
+#include "optimize-weights.hpp"
 #include "test-utils.hpp"
 
 
@@ -367,16 +366,16 @@ TEST(MakeLinearProgram, ThreeCriteriaAFewAlternatives) {
       "y'_6 >= 0;\n");
 }
 
-TEST(ImproveWeights, First) {
+TEST(OptimizeWeights, First) {
   auto domain = make_domain(2, {{{1}, 1}});
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  improve_weights(&models);
+  optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 }
 
-TEST(ImproveWeight, Larger) {
+TEST(OptimizeWeights, Larger) {
   std::mt19937 gen(57);
   auto model = generate::model(&gen, 4, 3);
   auto learning_set = generate::learning_set(&gen, model, 1000);
@@ -387,7 +386,7 @@ TEST(ImproveWeight, Larger) {
   auto models = Models<Host>::make(domain, {model});
 
   EXPECT_EQ(get_accuracy(models, 0), 233);
-  improve_weights(&models);
+  optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1000);
 }
 

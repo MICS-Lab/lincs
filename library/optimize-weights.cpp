@@ -1,6 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
-#include "improve-weights.hpp"
+#include "optimize-weights.hpp"
 
 #include <ortools/glop/lp_solver.h>
 
@@ -109,7 +109,7 @@ std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
   return make_verbose_linear_program(epsilon, models_.get_view(), model_index)->program;
 }
 
-void improve_weights(const ModelsView& models) {
+void optimize_weights(const ModelsView& models) {
   // Embarrassingly parallel
   for (uint model_index = 0; model_index != models.models_count; ++model_index) {
     auto lp = make_internal_linear_program(1e-6, models, model_index);
@@ -129,10 +129,10 @@ void improve_weights(const ModelsView& models) {
   }
 }
 
-void improve_weights(Models<Host>* models) {
-  STOPWATCH("improve_weights (Host)");
+void optimize_weights(Models<Host>* models) {
+  STOPWATCH("optimize_weights (Host)");
 
-  improve_weights(models->get_view());
+  optimize_weights(models->get_view());
 }
 
 }  // namespace ppl

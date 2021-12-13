@@ -7,7 +7,7 @@
 
 #include "assign.hpp"
 #include "improve-profiles.hpp"
-#include "improve-weights.hpp"
+#include "optimize-weights.hpp"
 #include "initialize.hpp"
 #include "median-and-max.hpp"
 #include "stopwatch.hpp"
@@ -140,7 +140,7 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
   }
 
   void improve_models() {
-    improve_weights(&host_models);
+    optimize_weights(&host_models);
     replicate_weights(host_models, &device_models);
     improve_profiles(random, &device_models);
     replicate_profiles(device_models, &host_models);
@@ -161,7 +161,7 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
   {}
 
   void improve_models() {
-    improve_weights(&host_models);
+    optimize_weights(&host_models);
     improve_profiles(random, &host_models);
   }
 };

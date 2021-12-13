@@ -98,7 +98,7 @@ The `ppl::Learning` class and its `perform` method are in `library/learning.cpp`
 The learning algorithm has three main modules:
 
 - a heuristic for (re-)initializing models, which is in `library/initialize.cpp`
-- a linear program for optimizing weights given fixed profiles, which is in `library/improve-weights.cpp`
+- a linear program for optimizing weights given fixed profiles, which is in `library/optimize-weights.cpp`
 <!-- @todo Should we rename to "optimize weights"? (because it does find optimal weights given fixed profiles) -->
 - a heuristic for improving profiles given fixed weights, which is in `library/improve-profiles.cpp`
 
@@ -108,7 +108,7 @@ General utilities
 `library/improve-profiles.cpp` depends on the application of a model (to assign a category to an alternative).
 All the assignment algorithms are in `library/assign.cpp`.
 
-`library/initialize.cpp`, `library/improve-weights.cpp` and `library/improve-profiles.cpp` all use a common representation of the learning set and models in memory that is in `library/problem.hpp`.
+`library/initialize.cpp`, `library/optimize-weights.cpp` and `library/improve-profiles.cpp` all use a common representation of the learning set and models in memory that is in `library/problem.hpp`.
 
 When in doubt about a source file, have a look at the associated `-tests.*` file(s).
 They contain tests that give a lot of information about the file's purpose.
@@ -122,7 +122,7 @@ Roadmap
 Optimize learning duration
 --------------------------
 
-Initial measurements with class `Stopwatch` show that roughly 1/3 of the learning time is spent in `improve_weights` and 2/3 is spent in `improve_profiles`.
+Initial measurements with class `Stopwatch` show that roughly 1/3 of the learning time is spent in `optimize_weights` and 2/3 is spent in `improve_profiles`.
 Other parts are negligible for now, so we should focus efforts on those two functions.
 
 Low hanging fruits in `improve_profiles`:
@@ -134,14 +134,14 @@ Low hanging fruits in `improve_profiles`:
 Then, find more intelligent things to improve.
 Note that this is good news: the part we want to focus on is actually te longest part.
 
-Low hanging fruits in `improve_weights`:
+Low hanging fruits in `optimize_weights`:
 
 - parallelize the loop on models using OpenMP: it is embarrassingly parallel.
 - avoid repeating some computations in `make_internal_linear_program`: keep one `LinearProgram` in memory for each model, and update it.
 Also always pass it to the same `glop::LPSolver`, dedicated to this model, to benefit from GLOP's "re-use" feature, that makes it faster to solve a linear problem that's not too different from a previously solved one.
 Warning: this will use more host memory.
 
-It's probably all we can do in `improve_weights` without significant effort: going further would require diving into solving linear programs, which is its own research domain.
+It's probably all we can do in `optimize_weights` without significant effort: going further would require diving into solving linear programs, which is its own research domain.
 
 Relax simplifying assumptions
 -----------------------------

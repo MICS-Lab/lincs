@@ -105,7 +105,7 @@ void ModelsInitializer::initialize(
     }
 
     // Initializing weights below is useless globally because they'll be overwritten in
-    // 'improve_weights' just after initialization. But it's very quick so we do it anyway
+    // 'optimize_weights' just after initialization. But it's very quick so we do it anyway
     // so that this function initializes whole models.
     // Embarrassingly parallel, parallel with previous loop
     for (uint crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
