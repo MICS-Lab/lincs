@@ -30,3 +30,11 @@ Before:
 
 - CPU+GPU: 0m26.995s
 - full CPU: 0m46.461s
+
+After:
+
+- CPU+GPU: 0m26.344s
+- full CPU: 0m45.222s
+
+The improvement is negligible in our case, even though the unit-ish tests demonstrate that a gain is possible in the ideal case.
+It seems our case does not match the requirement for effective re-use of the linear program.
