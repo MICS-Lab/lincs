@@ -171,11 +171,11 @@ TEST(ImproveProfiles, First) {
   random.init_for_device(42);
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  improve_profiles(random, &models);
+  ProfilesImprover(models).improve_profiles(random, &models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 
   EXPECT_EQ(get_accuracy(device_models, 0), 0);
-  improve_profiles(random, &device_models);
+  ProfilesImprover(models).improve_profiles(random, &device_models);
   EXPECT_EQ(get_accuracy(device_models, 0), 1);
 }
 
@@ -206,11 +206,11 @@ TEST(ImproveProfies, Larger) {
   random.init_for_device(42);
 
   EXPECT_EQ(get_accuracy(models, 0), 132);
-  improve_profiles(random, &models);
+  ProfilesImprover(models).improve_profiles(random, &models);
   EXPECT_EQ(get_accuracy(models, 0), 164);
 
   EXPECT_EQ(get_accuracy(device_models, 0), 132);
-  improve_profiles(random, &device_models);
+  ProfilesImprover(models).improve_profiles(random, &device_models);
   EXPECT_EQ(get_accuracy(device_models, 0), 163);
 }
 

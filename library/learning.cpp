@@ -135,20 +135,23 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
     uint random_seed) :
       LearningExecution<GpuLearningExecution>(host_domain, models_count, terminate, random_seed),
       device_domain(host_domain.clone_to<Device>()),
-      device_models(host_models.clone_to<Device>(device_domain)) {
+      device_models(host_models.clone_to<Device>(device_domain)),
+      profiles_improver(host_models) {
     random.init_for_device(random_seed);
   }
 
   void improve_models() {
     optimize_weights(&host_models);
     replicate_models(host_models, &device_models);
-    improve_profiles(random, &device_models);
+    profiles_improver.improve_profiles(random, &device_models);
     replicate_profiles(device_models, &host_models);
   }
 
  private:
   Domain<Device> device_domain;
   Models<Device> device_models;
+
+  ProfilesImprover profiles_improver;
 };
 
 struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
@@ -157,13 +160,17 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
     uint models_count,
     std::function<bool(uint, uint)> terminate,
     uint random_seed) :
-      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed)
-  {}
+      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed),
+      profiles_improver(host_models) {
+  }
 
   void improve_models() {
     optimize_weights(&host_models);
-    improve_profiles(random, &host_models);
+    profiles_improver.improve_profiles(random, &host_models);
   }
+
+ private:
+  ProfilesImprover profiles_improver;
 };
 
 Learning::Result Learning::perform() const {

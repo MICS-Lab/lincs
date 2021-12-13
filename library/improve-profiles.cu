@@ -301,7 +301,9 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   delete[] criterion_indexes_;
 }
 
-void improve_profiles(const RandomSource& random, Models<Host>* models) {
+ProfilesImprover::ProfilesImprover(const Models<Host>&) {}
+
+void ProfilesImprover::improve_profiles(const RandomSource& random, Models<Host>* models) {
   STOPWATCH("improve_profiles (Host)");
 
   auto models_view = models->get_view();
@@ -321,7 +323,7 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
   }
 }
 
-void improve_profiles(const RandomSource& random, Models<Device>* models) {
+void ProfilesImprover::improve_profiles(const RandomSource& random, Models<Device>* models) {
   STOPWATCH("improve_profiles (Device)");
 
   auto models_view = models->get_view();
