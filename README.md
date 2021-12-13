@@ -132,7 +132,7 @@ Low hanging fruits in `improve_profiles`:
 - store and update the models' accuracy instead of recomputing it again and again. (This may not be a huge improvement because `get_accuracy` is quite fast)
 
 Then, find more intelligent things to improve.
-Note that this is good news: the part we want to focus on is actually te longest part.
+Note that this is good news: the part we want to focus on is actually the longest part.
 
 Low hanging fruits in `optimize_weights`:
 
