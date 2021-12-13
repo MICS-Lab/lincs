@@ -1,8 +1,8 @@
 // Copyright 2021 Vincent Jacques
 
-#include "matrix-view.hpp"
-
 #include <gtest/gtest.h>
+
+#include "matrix-view.hpp"
 
 
 int data[125];

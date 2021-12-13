@@ -1,13 +1,12 @@
 // Copyright 2021 Vincent Jacques
 
-#include "randomness.hpp"
-
 #include <gtest/gtest.h>
 
 #include <cmath>
 
-#include "matrix-view.hpp"
 #include "cuda-utils.hpp"
+#include "matrix-view.hpp"
+#include "randomness.hpp"
 
 
 TEST(OnHost, UniformityOfFloat) {
