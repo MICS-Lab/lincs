@@ -85,7 +85,8 @@ struct LearningExecution {
       host_models(Models<Host>::make(host_domain, models_count)),
       random_seed(random_seed_),
       random(),
-      initializer(host_models) {
+      initializer(host_models),
+      weights_optimizer(host_models) {
     random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
     initializer.initialize(random, &host_models, model_indexes.begin(), model_indexes.end());
@@ -95,7 +96,8 @@ struct LearningExecution {
     uint best_accuracy = 0;
 
     for (int i = 0; !terminate(i, best_accuracy); ++i) {
-      self.improve_models();
+      weights_optimizer.optimize_weights(&host_models);
+      self.improve_profiles();
 
       model_indexes = partition_models_by_accuracy(models_count, host_models);
       initializer.initialize(
@@ -125,6 +127,7 @@ struct LearningExecution {
 
  private:
   ModelsInitializer initializer;
+  WeightsOptimizer weights_optimizer;
 };
 
 struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
@@ -139,10 +142,9 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
     random.init_for_device(random_seed);
   }
 
-  void improve_models() {
-    optimize_weights(&host_models);
+  void improve_profiles() {
     replicate_weights(host_models, &device_models);
-    improve_profiles(random, &device_models);
+    ppl::improve_profiles(random, &device_models);
     replicate_profiles(device_models, &host_models);
   }
 
@@ -160,9 +162,8 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
       LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed)
   {}
 
-  void improve_models() {
-    optimize_weights(&host_models);
-    improve_profiles(random, &host_models);
+  void improve_profiles() {
+    ppl::improve_profiles(random, &host_models);
   }
 };
 

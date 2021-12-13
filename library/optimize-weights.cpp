@@ -129,10 +129,12 @@ void optimize_weights(const ModelsView& models) {
   }
 }
 
-void optimize_weights(Models<Host>* models) {
-  STOPWATCH("optimize_weights (Host)");
+WeightsOptimizer::WeightsOptimizer(const Models<Host>&) {}
 
-  optimize_weights(models->get_view());
+void WeightsOptimizer::optimize_weights(Models<Host>* models) {
+  STOPWATCH("WeightOptimize::optimize_weights (Host)");
+
+  ppl::optimize_weights(models->get_view());
 }
 
 }  // namespace ppl

@@ -371,7 +371,7 @@ TEST(OptimizeWeights, First) {
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  optimize_weights(&models);
+  WeightsOptimizer(models).optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 }
 
@@ -386,7 +386,7 @@ TEST(OptimizeWeights, Larger) {
   auto models = Models<Host>::make(domain, {model});
 
   EXPECT_EQ(get_accuracy(models, 0), 233);
-  optimize_weights(&models);
+  WeightsOptimizer(models).optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1000);
 }
 
