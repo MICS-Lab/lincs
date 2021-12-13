@@ -110,7 +110,7 @@ std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
 }
 
 void optimize_weights(const ModelsView& models) {
-  // Embarrassingly parallel
+  #pragma omp parallel for
   for (uint model_index = 0; model_index != models.models_count; ++model_index) {
     auto lp = make_internal_linear_program(1e-6, models, model_index);
 

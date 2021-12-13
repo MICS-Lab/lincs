@@ -11,3 +11,15 @@ After parallelization:
 
 - GPU: 0m25.046s
 - CPU: 0m26.161s
+
+# Parallelization of the outer loop in `optimize_weights`
+
+Before:
+
+- GPU: 0m25.046s
+- CPU: 0m26.161s
+
+After:
+
+- GPU: 0m4.560s
+- CPU: 0m5.367s
