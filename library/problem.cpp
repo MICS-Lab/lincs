@@ -170,8 +170,11 @@ ModelsView Models<Space>::get_view() const {
 template class Models<Host>;
 template class Models<Device>;
 
-void replicate_weights(const Models<Host>& src, Models<Device>* dst) {
+void replicate_models(const Models<Host>& src, Models<Device>* dst) {
   DomainView domain = src.domain.get_view();
+  copy_host_to_device(
+    domain.criteria_count * (domain.categories_count - 1) * src.models_count,
+    src.profiles, dst->profiles);
   copy_host_to_device(
     domain.criteria_count * src.models_count,
     src.weights, dst->weights);

@@ -141,7 +141,7 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
 
   void improve_models() {
     optimize_weights(&host_models);
-    replicate_weights(host_models, &device_models);
+    replicate_models(host_models, &device_models);
     improve_profiles(random, &device_models);
     replicate_profiles(device_models, &host_models);
   }

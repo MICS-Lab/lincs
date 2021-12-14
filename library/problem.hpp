@@ -148,7 +148,7 @@ class Models {
  private:
   Models(const Domain<Space>&, uint, float*, float*);
 
-  friend void replicate_weights(const Models<Host>&, Models<Device>*);
+  friend void replicate_models(const Models<Host>&, Models<Device>*);
   friend void replicate_profiles(const Models<Device>&, Models<Host>*);
 
  private:
@@ -158,8 +158,9 @@ class Models {
   float* const profiles;
 };
 
-// Utility function to replicate weights (computed on the host) onto the device
-void replicate_weights(const Models<Host>&, Models<Device>*);
+// Utility function to replicate weights (computed on the host) and
+// profiles (re-initialized on the host) onto the device
+void replicate_models(const Models<Host>&, Models<Device>*);
 
 // Utility function to replicate profiles (computed on the device) onto the host
 void replicate_profiles(const Models<Device>&, Models<Host>*);
