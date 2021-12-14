@@ -16,7 +16,10 @@ namespace ppl {
 /*
 The constants of the problem, i.e. the sizes of the domain, and the learning set.
 
-@todo Split Domain and DomainView class into Domain proper (sizes, labels, etc.) and LearningSet (classified alternatives)
+@todo Split Domain and DomainView class into:
+- Domain proper (sizes, labels, etc.)
+- LearningSet (classified alternatives)
+- Candidates (candidate values for each criterion)
 */
 struct DomainView {
   const uint categories_count;
@@ -37,6 +40,13 @@ struct DomainView {
   MatrixView1D<const uint> learning_assignments;
   // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
   // Possible values: from `0` to `categories_count - 1`
+
+  MatrixView1D<const uint> candidates_counts;
+  // Index: index of criterion, from `0` to `criteria_count - 1`
+
+  MatrixView2D<const float> candidates;
+  // First index: index of criterion, from `0` to `criteria_count - 1`
+  // Second index: index of candidate, from `0` to `candidates_counts[crit_index] - 1`
 };
 
 template<typename Space>
@@ -62,14 +72,17 @@ class Domain {
       criteria_count,
       learning_alternatives_count,
       FromTo<Space, OtherSpace>::clone(criteria_count * learning_alternatives_count, learning_alternatives),
-      FromTo<Space, OtherSpace>::clone(learning_alternatives_count, learning_assignments));
+      FromTo<Space, OtherSpace>::clone(learning_alternatives_count, learning_assignments),
+      FromTo<Space, OtherSpace>::clone(criteria_count, candidates_counts),
+      max_candidates_count,
+      FromTo<Space, OtherSpace>::clone(criteria_count * max_candidates_count, candidates));
   }
 
  public:
   DomainView get_view() const;
 
  private:
-  Domain(uint, uint, uint, float*, uint*);
+  Domain(uint, uint, uint, float*, uint*, uint*, uint, float*);
 
  private:
   const uint categories_count;
@@ -77,6 +90,9 @@ class Domain {
   const uint learning_alternatives_count;
   float* const learning_alternatives;
   uint* const learning_assignments;
+  uint* const candidates_counts;
+  const uint max_candidates_count;
+  float* const candidates;
 };
 
 /*

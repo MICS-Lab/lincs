@@ -8,8 +8,15 @@
 
 namespace ppl {
 
-// Internal function (not declared in the header) that we still want to unit-test
-__host__ __device__ Desirability compute_move_desirability(
+// Internal functions (not declared in the header) that we still want to unit-test
+__host__ __device__
+uint find_smallest_index_above(const MatrixView1D<const float>&, const uint, const float);
+
+__host__ __device__
+uint find_greatest_index_below(const MatrixView1D<const float>&, const uint, const float);
+
+__host__ __device__
+Desirability compute_move_desirability(
   const ModelsView&,
   uint model_index,
   uint profile_index,
@@ -26,6 +33,27 @@ Desirability compute_move_desirability(
     models.get_view(), model_index, profile_index, criterion_index, destination);
 }
 
+TEST(FindIndex, One) {
+  float data[] {1, 42};
+  MatrixView1D m(2, data);
+
+  EXPECT_EQ(find_greatest_index_below(m, 1, 1), 0);
+  EXPECT_EQ(find_smallest_index_above(m, 1, 1), 0);
+}
+
+TEST(FindIndex, Several) {
+  float data[] {1, 2, 3, 4, 5, 42};
+  MatrixView1D m(6, data);
+
+  EXPECT_EQ(find_greatest_index_below(m, 5, 3.2), 2);
+  EXPECT_EQ(find_smallest_index_above(m, 5, 3.2), 3);
+
+  EXPECT_EQ(find_greatest_index_below(m, 5, 1), 0);
+  EXPECT_EQ(find_smallest_index_above(m, 5, 1), 0);
+
+  EXPECT_EQ(find_greatest_index_below(m, 5, 5), 4);
+  EXPECT_EQ(find_smallest_index_above(m, 5, 5), 4);
+}
 
 TEST(ComputeMoveDesirability, NoImpact) {
   auto domain = make_domain(2, {{{0.5}, 0}});
@@ -171,12 +199,39 @@ TEST(ImproveProfiles, First) {
   random.init_for_device(42);
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  ProfilesImprover(models).improve_profiles(random, &models);
+  ProfilesImprover().improve_profiles(random, &models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 
   EXPECT_EQ(get_accuracy(device_models, 0), 0);
-  ProfilesImprover(models).improve_profiles(random, &device_models);
+  ProfilesImprover().improve_profiles(random, &device_models);
   EXPECT_EQ(get_accuracy(device_models, 0), 1);
+}
+
+TEST(ImproveProfies, SingleCriterion) {
+  std::mt19937 gen(42);
+  auto model = generate::model(&gen, 1, 2);
+  model.weights.front() = 1;
+  // std::cout << "We're looking for " << model.profiles[0][0] << std::endl;
+
+  auto learning_set = generate::learning_set(&gen, model, 25);
+  auto domain = Domain<Host>::make(learning_set);
+
+  auto models = make_models(domain, {{{{0}}, {1}}});
+
+  auto device_domain = domain.clone_to<Device>();
+  auto device_models = models.clone_to<Device>(device_domain);
+
+  RandomSource random;
+  random.init_for_host(42);
+  random.init_for_device(42);
+
+  EXPECT_EQ(get_accuracy(models, 0), 13);
+  ProfilesImprover().improve_profiles(random, &models);
+  EXPECT_EQ(get_accuracy(models, 0), 23);
+
+  EXPECT_EQ(get_accuracy(device_models, 0), 13);
+  ProfilesImprover().improve_profiles(random, &device_models);
+  EXPECT_EQ(get_accuracy(device_models, 0), 23);
 }
 
 TEST(ImproveProfies, Larger) {
@@ -206,11 +261,11 @@ TEST(ImproveProfies, Larger) {
   random.init_for_device(42);
 
   EXPECT_EQ(get_accuracy(models, 0), 132);
-  ProfilesImprover(models).improve_profiles(random, &models);
+  ProfilesImprover().improve_profiles(random, &models);
   EXPECT_EQ(get_accuracy(models, 0), 164);
 
   EXPECT_EQ(get_accuracy(device_models, 0), 132);
-  ProfilesImprover(models).improve_profiles(random, &device_models);
+  ProfilesImprover().improve_profiles(random, &device_models);
   EXPECT_EQ(get_accuracy(device_models, 0), 163);
 }
 

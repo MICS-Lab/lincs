@@ -138,8 +138,7 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
     uint random_seed) :
       LearningExecution<GpuLearningExecution>(host_domain, models_count, terminate, random_seed),
       device_domain(host_domain.clone_to<Device>()),
-      device_models(host_models.clone_to<Device>(device_domain)),
-      profiles_improver(host_models) {
+      device_models(host_models.clone_to<Device>(device_domain)) {
     random.init_for_device(random_seed);
   }
 
@@ -162,8 +161,7 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
     uint models_count,
     std::function<bool(uint, uint)> terminate,
     uint random_seed) :
-      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed),
-      profiles_improver(host_models) {
+      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed) {
   }
 
   void improve_profiles() {

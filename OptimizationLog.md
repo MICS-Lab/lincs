@@ -46,3 +46,8 @@ Before:
 
 - CPU+GPU: 0m26.649s for accuracy 3924/4000
 - full CPU: 0m45.555s for accuracy 3828/4000
+
+After:
+
+- CPU+GPU: 0m26.173s for accuracy 3917/4000
+- full CPU: 0m44.708s for accuracy 3960/4000
