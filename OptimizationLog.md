@@ -51,3 +51,6 @@ After:
 
 - CPU+GPU: 0m26.173s for accuracy 3917/4000
 - full CPU: 0m44.708s for accuracy 3960/4000
+
+The impact on accuracy is not clear, and the impact on duration is null.
+This failed optimization has been reverted.

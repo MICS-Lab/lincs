@@ -17,9 +17,6 @@ TEST(MakeModels, SingleAlternativeSingleCriteria) {
   EXPECT_EQ(domain_view.learning_alternatives_count, 1);
   EXPECT_EQ(domain_view.learning_alternatives[0][0], 0.25);
   EXPECT_EQ(domain_view.learning_assignments[0], 1);
-  EXPECT_EQ(domain_view.candidates_counts[0], 2);
-  EXPECT_EQ(domain_view.candidates[0][0], 0);
-  EXPECT_EQ(domain_view.candidates[0][1], 1);
 
   {
     auto models = make_models(domain, {});
@@ -73,13 +70,6 @@ TEST(MakeModels, SeveralAlternativesSingleCriteria) {
   EXPECT_EQ(domain_view.learning_assignments[2], 2);
   EXPECT_EQ(domain_view.learning_assignments[3], 2);
   EXPECT_EQ(domain_view.learning_assignments[4], 3);
-  EXPECT_EQ(domain_view.candidates_counts[0], 6);
-  EXPECT_EQ(domain_view.candidates[0][0], 0);
-  EXPECT_EQ(domain_view.candidates[0][1], 0.125);
-  EXPECT_EQ(domain_view.candidates[0][2], 0.375);
-  EXPECT_EQ(domain_view.candidates[0][3], 0.625);
-  EXPECT_EQ(domain_view.candidates[0][4], 0.875);
-  EXPECT_EQ(domain_view.candidates[0][5], 1);
 
   auto models = make_models(domain, {
     {{{0.25}, {0.50}, {0.75}}, {1.}},
@@ -106,15 +96,6 @@ TEST(MakeModels, SingleAlternativeSeveralCriteria) {
   EXPECT_EQ(domain_view.learning_alternatives[1][0], 0.75);
   EXPECT_EQ(domain_view.learning_alternatives[2][0], 0.50);
   EXPECT_EQ(domain_view.learning_assignments[0], 1);
-  EXPECT_EQ(domain_view.candidates_counts[0], 2);
-  EXPECT_EQ(domain_view.candidates[0][0], 0);
-  EXPECT_EQ(domain_view.candidates[0][1], 1);
-  EXPECT_EQ(domain_view.candidates_counts[1], 2);
-  EXPECT_EQ(domain_view.candidates[1][0], 0);
-  EXPECT_EQ(domain_view.candidates[1][1], 1);
-  EXPECT_EQ(domain_view.candidates_counts[2], 2);
-  EXPECT_EQ(domain_view.candidates[2][0], 0);
-  EXPECT_EQ(domain_view.candidates[2][1], 1);
 
   auto models = make_models(domain, {
     {{{0.25, 0.50, 0.75}}, {0.25, 0.50, 0.25}},

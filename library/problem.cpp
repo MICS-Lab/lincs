@@ -2,10 +2,6 @@
 
 #include "problem.hpp"
 
-#include <algorithm>
-#include <set>
-#include <utility>
-
 #include "cuda-utils.hpp"
 #include "io.hpp"
 
@@ -18,54 +14,12 @@ Domain<Space>::Domain(
   const uint criteria_count_,
   const uint learning_alternatives_count_,
   float* learning_alternatives_,
-  uint* learning_assignments_,
-  uint* candidates_counts_,
-  uint max_candidates_count_,
-  float* candidates_) :
+  uint* learning_assignments_) :
     categories_count(categories_count_),
     criteria_count(criteria_count_),
     learning_alternatives_count(learning_alternatives_count_),
     learning_alternatives(learning_alternatives_),
-    learning_assignments(learning_assignments_),
-    candidates_counts(candidates_counts_),
-    max_candidates_count(max_candidates_count_),
-    candidates(candidates_) {}
-
-std::vector<std::vector<float>> make_candidates(
-    const uint criteria_count,
-    const uint alternatives_count,
-    const MatrixView2D<float>& alternatives
-) {
-  std::vector<std::vector<float>> candidates(criteria_count);
-
-  #pragma omp parallel for
-  for (uint crit_index = 0; crit_index < criteria_count; ++crit_index) {
-    std::set<float> values;
-    for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
-      values.insert(alternatives[crit_index][alt_index]);
-    }
-
-    std::vector<float> cands;
-    candidates[crit_index].reserve(values.size() + 1);
-    candidates[crit_index].push_back(0);
-
-    float prev_value;
-    bool go = false;
-    for (auto value : values) {
-      if (go) {
-        candidates[crit_index].push_back((value + prev_value) / 2);
-      }
-      prev_value = value;
-      go = true;
-    }
-
-    candidates[crit_index].push_back(1);
-
-    assert(std::is_sorted(candidates[crit_index].begin(), candidates[crit_index].end()));
-  }
-
-  return candidates;
-}
+    learning_assignments(learning_assignments_) {}
 
 template<>
 Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
@@ -86,34 +40,12 @@ Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
     assignments[alt_index] = alt.assigned_category;
   }
 
-  auto candidates_vector = make_candidates(learning_set.criteria_count, learning_set.alternatives_count, alternatives);
-  assert(candidates_vector.size() == learning_set.criteria_count);
-  uint max_candidates_count = 0;
-  for (uint crit_index = 0; crit_index != learning_set.criteria_count; ++crit_index) {
-    const uint candidates_count = candidates_vector[crit_index].size();
-    max_candidates_count = std::max(max_candidates_count, candidates_count);
-  }
-  uint* candidates_counts_ = alloc_host<uint>(learning_set.criteria_count);
-  MatrixView1D<uint> candidates_counts(learning_set.criteria_count, candidates_counts_);
-  float* candidates_ = alloc_host<float>(learning_set.criteria_count * max_candidates_count);
-  MatrixView2D<float> candidates(learning_set.criteria_count, max_candidates_count, candidates_);
-  for (uint crit_index = 0; crit_index != learning_set.criteria_count; ++crit_index) {
-    const uint candidates_count = candidates_vector[crit_index].size();
-    candidates_counts[crit_index] = candidates_count;
-    for (uint cand_index = 0; cand_index != candidates_count; ++cand_index) {
-      candidates[crit_index][cand_index] = candidates_vector[crit_index][cand_index];
-    }
-  }
-
   return Domain(
     learning_set.categories_count,
     learning_set.criteria_count,
     learning_set.alternatives_count,
     alternatives_,
-    assignments_,
-    candidates_counts_,
-    max_candidates_count,
-    candidates_);
+    assignments_);
 }
 
 template<typename Space>
@@ -130,8 +62,6 @@ DomainView Domain<Space>::get_view() const {
     learning_alternatives_count,
     MatrixView2D<const float>(criteria_count, learning_alternatives_count, learning_alternatives),
     MatrixView1D<const uint>(learning_alternatives_count, learning_assignments),
-    MatrixView1D<const uint>(criteria_count, candidates_counts),
-    MatrixView2D<const float>(criteria_count, max_candidates_count, candidates),
   };
 }
 

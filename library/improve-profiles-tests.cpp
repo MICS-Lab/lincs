@@ -8,15 +8,8 @@
 
 namespace ppl {
 
-// Internal functions (not declared in the header) that we still want to unit-test
-__host__ __device__
-uint find_smallest_index_above(const MatrixView1D<const float>&, const uint, const float);
-
-__host__ __device__
-uint find_greatest_index_below(const MatrixView1D<const float>&, const uint, const float);
-
-__host__ __device__
-Desirability compute_move_desirability(
+// Internal function (not declared in the header) that we still want to unit-test
+__host__ __device__ Desirability compute_move_desirability(
   const ModelsView&,
   uint model_index,
   uint profile_index,
@@ -33,27 +26,6 @@ Desirability compute_move_desirability(
     models.get_view(), model_index, profile_index, criterion_index, destination);
 }
 
-TEST(FindIndex, One) {
-  float data[] {1, 42};
-  MatrixView1D m(2, data);
-
-  EXPECT_EQ(find_greatest_index_below(m, 1, 1), 0);
-  EXPECT_EQ(find_smallest_index_above(m, 1, 1), 0);
-}
-
-TEST(FindIndex, Several) {
-  float data[] {1, 2, 3, 4, 5, 42};
-  MatrixView1D m(6, data);
-
-  EXPECT_EQ(find_greatest_index_below(m, 5, 3.2), 2);
-  EXPECT_EQ(find_smallest_index_above(m, 5, 3.2), 3);
-
-  EXPECT_EQ(find_greatest_index_below(m, 5, 1), 0);
-  EXPECT_EQ(find_smallest_index_above(m, 5, 1), 0);
-
-  EXPECT_EQ(find_greatest_index_below(m, 5, 5), 4);
-  EXPECT_EQ(find_smallest_index_above(m, 5, 5), 4);
-}
 
 TEST(ComputeMoveDesirability, NoImpact) {
   auto domain = make_domain(2, {{{0.5}, 0}});
