@@ -8,8 +8,16 @@
 
 namespace ppl {
 
-// Implement 3.3.3 of https://tel.archives-ouvertes.fr/tel-01370555/document
-void optimize_weights(Models<Host>*);
+/*
+Implement 3.3.3 of https://tel.archives-ouvertes.fr/tel-01370555/document
+*/
+class WeightsOptimizer {
+ public:
+  explicit WeightsOptimizer(const Models<Host>&);
+
+ public:
+  void optimize_weights(Models<Host>*);
+};
 
 }  // namespace ppl
 
