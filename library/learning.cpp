@@ -8,7 +8,7 @@
 #include "assign.hpp"
 #include "improve-profiles.hpp"
 #include "optimize-weights.hpp"
-#include "initialize.hpp"
+#include "initialize-profiles.hpp"
 #include "median-and-max.hpp"
 #include "stopwatch.hpp"
 
@@ -85,11 +85,11 @@ struct LearningExecution {
       host_models(Models<Host>::make(host_domain, models_count)),
       random_seed(random_seed_),
       random(),
-      initializer(host_models),
+      profiles_initializer(host_models),
       weights_optimizer(host_models) {
     random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
-    initializer.initialize(random, &host_models, model_indexes.begin(), model_indexes.end());
+    profiles_initializer.initialize_profiles(random, &host_models, model_indexes.begin(), model_indexes.end());
   }
 
   Learning::Result execute() {
@@ -100,7 +100,7 @@ struct LearningExecution {
       self.improve_profiles();
 
       model_indexes = partition_models_by_accuracy(models_count, host_models);
-      initializer.initialize(
+      profiles_initializer.initialize_profiles(
         random,
         &host_models,
         model_indexes.begin(), model_indexes.begin() + models_count / 2);
@@ -126,7 +126,7 @@ struct LearningExecution {
   RandomSource random;
 
  private:
-  ModelsInitializer initializer;
+  ProfilesInitializer profiles_initializer;
   WeightsOptimizer weights_optimizer;
 };
 

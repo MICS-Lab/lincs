@@ -1,7 +1,7 @@
 // Copyright 2021 Vincent Jacques
 
-#ifndef INITIALIZE_HPP_
-#define INITIALIZE_HPP_
+#ifndef INITIALIZE_PROFILES_HPP_
+#define INITIALIZE_PROFILES_HPP_
 
 #include <vector>
 
@@ -14,12 +14,12 @@ namespace ppl {
 /*
 Implement 3.3.2 of https://tel.archives-ouvertes.fr/tel-01370555/document
 */
-class ModelsInitializer {
+class ProfilesInitializer {
  public:
-  explicit ModelsInitializer(const Models<Host>&);
+  explicit ProfilesInitializer(const Models<Host>&);
 
  public:
-  void initialize(
+  void initialize_profiles(
     RandomNumberGenerator random,
     Models<Host>* models,
     std::vector<uint>::const_iterator model_indexes_begin,
@@ -31,4 +31,4 @@ class ModelsInitializer {
 
 }  // namespace ppl
 
-#endif  // INITIALIZE_HPP_
+#endif  // INITIALIZE_PROFILES_HPP_

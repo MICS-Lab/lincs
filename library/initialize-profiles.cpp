@@ -1,6 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
-#include "initialize.hpp"
+#include "initialize-profiles.hpp"
 
 #include <algorithm>
 #include <map>
@@ -50,8 +50,8 @@ std::map<float, double> get_candidate_probabilities(const DomainView& domain, ui
   return candidate_probabilities;
 }
 
-ModelsInitializer::ModelsInitializer(const Models<Host>& models) {
-  STOPWATCH("ModelsInitializer::ModelsInitializer");
+ProfilesInitializer::ProfilesInitializer(const Models<Host>& models) {
+  STOPWATCH("ProfilesInitializer::ProfilesInitializer");
 
   ModelsView models_view = models.get_view();
 
@@ -67,13 +67,13 @@ ModelsInitializer::ModelsInitializer(const Models<Host>& models) {
   }
 }
 
-void ModelsInitializer::initialize(
+void ProfilesInitializer::initialize_profiles(
   RandomNumberGenerator random,
   Models<Host>* models,
   std::vector<uint>::const_iterator model_indexes_begin,
   const std::vector<uint>::const_iterator model_indexes_end
 ) {
-  STOPWATCH("ModelsInitializer::initialize");
+  STOPWATCH("ProfilesInitializer::initialize_profiles");
 
   ModelsView models_view = models->get_view();
 
@@ -102,14 +102,6 @@ void ModelsInitializer::initialize(
 
         models_view.profiles[crit_index][profile_index][model_index] = value;
       }
-    }
-
-    // Initializing weights below is useless globally because they'll be overwritten in
-    // 'optimize_weights' just after initialization. But it's very quick so we do it anyway
-    // so that this function initializes whole models.
-    // Embarrassingly parallel, parallel with previous loop
-    for (uint crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
-      models_view.weights[crit_index][model_index] = 2. / models_view.domain.criteria_count;
     }
   }
 }

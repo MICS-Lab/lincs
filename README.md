@@ -97,7 +97,7 @@ It finally prints the learned `ppl::io::Model` on the standard output.
 The `ppl::Learning` class and its `perform` method are in `library/learning.cpp`.
 The learning algorithm has three main modules:
 
-- a heuristic for (re-)initializing models, which is in `library/initialize.cpp`
+- a heuristic for (re-)initializing profiles, which is in `library/initialize-profiles.cpp`
 - a linear program for optimizing weights given fixed profiles, which is in `library/optimize-weights.cpp`
 <!-- @todo Should we rename to "optimize weights"? (because it does find optimal weights given fixed profiles) -->
 - a heuristic for improving profiles given fixed weights, which is in `library/improve-profiles.cpp`
@@ -108,7 +108,7 @@ General utilities
 `library/improve-profiles.cpp` depends on the application of a model (to assign a category to an alternative).
 All the assignment algorithms are in `library/assign.cpp`.
 
-`library/initialize.cpp`, `library/optimize-weights.cpp` and `library/improve-profiles.cpp` all use a common representation of the learning set and models in memory that is in `library/problem.hpp`.
+`library/initialize-profiles.cpp`, `library/optimize-weights.cpp` and `library/improve-profiles.cpp` all use a common representation of the learning set and models in memory that is in `library/problem.hpp`.
 
 When in doubt about a source file, have a look at the associated `-tests.*` file(s).
 They contain tests that give a lot of information about the file's purpose.
