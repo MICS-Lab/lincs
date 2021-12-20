@@ -16,7 +16,8 @@ Ownership semantics:
   - the size of usable data must be at least sN * ... * s0 * sizeof(T)
 
 Multi-dimensional array interface:
-  MatrixView3D<int> a(4, 5, 6);
+  int* data = ...;
+  MatrixView3D a(4, 5, 6, data);
   a[3][4][5] = 42;
 
 */
