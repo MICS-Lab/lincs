@@ -119,46 +119,133 @@ Also have a look at the comments in the `*.hpp` files.
 Roadmap
 =======
 
+(Click the arrows for details)
+
+Documentation
+-------------
+
+<details>
+  <summary>Add a glossary</summary>
+  Introduce the vocabulary of the domain in a natural-ish order.
+</details>
+
+Instrumentation and tooling
+---------------------------
+
+<details>
+  <summary>Integrate Chrones</summary>
+  The current stopwatch approach is very limited.
+  Use Chrones to get more details about how the execution duration is distributed.
+</details>
+
+<details>
+  <summary>Improve Chrones for multi-threaded programs</summary>
+  Currently, Chrones does not make it very explicit that several threads were running concurrently.
+  Find a way to improve that, and implement it.
+</details>
+
+<details>
+  <summary>Improve Chrones for CUDA programs</summary>
+  Currently, Chrones does not allow measuring durations in kernel code.
+  Allow that.
+</details>
+
+<details>
+  <summary>Visualize models evolution</summary>
+  Visualize the evolution of the accuracies of the models being trained.
+  Visualize life events of models (flush, initialize, mutate, mix, improve_profiles, optimize_weights) and how they impact accuracy.
+</details>
+
+<details>
+  <summary>Define performance metric(s)</summary>
+  Define a (set of) metric(s) to rate the performance of the learning algorithm.
+  This (these) metric(s) should probably take into account the accuracy reach and the duration to reach it.
+  Maybe also the accuracies and training durations of intermediate models.
+</details>
+
+<details>
+  <summary>Run statistically significant set of trainings</summary>
+  Running trainings tests always on the same learning set has the risk of over-optimizing the code for that specific learning set.
+  Add scripts to automatically run several training, on several training sets, to rate improvements in a repeatable way.
+  Use the metric(s) defined in previous point.
+</details>
+
 Optimize learning duration
 --------------------------
 
 Initial measurements with class `Stopwatch` show that roughly 1/3 of the learning time is spent in `optimize_weights` and 2/3 is spent in `improve_profiles`.
 Other parts are negligible for now, so we should focus efforts on those two functions.
 
-Low hanging fruits in `improve_profiles`:
+### Low hanging fruits in `improve_profiles`:
 
-- (DONE) parallelize the loop on models: it is embarrassingly parallel.
-- (TRIED, FAILED, TO BE RETRIED WITH MORE INSTRUMENTATION) pre-compute the interesting values for profiles, and make the algorithm choose between them (see description in comment in `improve_model_profile`)
-- (POSTPONED UNTIL WE HAVE MORE INSTRUMENTATION) store and update the models' accuracy instead of recomputing it again and again. (This may not be a huge improvement because `get_accuracy` is quite fast)
+<details>
+  <summary>Parallelize the loop on models ✔️</summary>
+  The loop is embarrassingly parallel.
+  This really improved the execution duration, as detailed in <code>OptimizationLog.md</code>.
+</details>
+
+<details>
+  <summary>Pre-compute the interesting values for profiles ❌</summary>
+   ...and make the algorithm choose between them (see description in comment in `improve_model_profile`).
+   <p>This should be retried when we have more instrumentation to better understand why it failed.
+</details>
+
+<details>
+  <summary>Store and update the models' accuracy</summary>
+  ...instead of recomputing it again and again. (This may not be a huge improvement because <code>get_accuracy</code> is quite fast)
+</details>
 
 Then, find more intelligent things to improve.
 Note that this is good news: the part we want to focus on is actually the longest part.
 
-Low hanging fruits in `optimize_weights`:
+### Low hanging fruits in `optimize_weights`:
 
-- (DONE) parallelize the loop on models using OpenMP: it is embarrassingly parallel.
-- (TRIED BUT NO IMPROVEMENT) avoid repeating some computations in `make_internal_linear_program`: keep one `LinearProgram` in memory for each model, and update it.
+<details>
+  <summary>Parallelize the loop on models using OpenMP ✔️</summary>
+  The loop is embarrassingly parallel.
+  This really improved the execution duration, as detailed in <code>OptimizationLog.md</code>.
+</details>
+
+<details>
+  <summary>Avoid repeating some computations in <code>make_internal_linear_program</code> ❌</summary>
+  Keep one `LinearProgram` in memory for each model, and update it.
 Also always pass it to the same `glop::LPSolver`, dedicated to this model, to benefit from GLOP's "re-use" feature, that makes it faster to solve a linear problem that's not too different from a previously solved one.
 Warning: this will use more host memory.
+<p>This was implemented and worked. There was no improvement though, as detailed in <code>OptimizationLog.md</code>.
+</details>
 
 It's probably all we can do in `optimize_weights` without significant effort: going further would require diving into solving linear programs, which is its own research domain.
 
-Relax simplifying assumptions
------------------------------
+Generalize
+----------
 
-- relax the assumption that higher numerical values on criteria are better than lower numerical values.
-This could be reversed.
+<details>
+  <summary>Relax assumption that criteria values increase with categories</summary>
+  Currently, the code assumes that a higher numerical values on criteria are better than lower numerical values.
+  This could be reversed.
+  Handle the reversed case.
+</details>
 
-- relax the assumption that numerical values for criteria are between 0 and 1.
-Allow arbitrary ranges.
+<details>
+  <summary>Relax assumption on criteria boundaries</summary>
+  Currently, the code assumes that numerical values for criteria are between 0 and 1.
+  Allow arbitrary ranges.
+</details>
 
-- generalize the criteria values to more kinds of ordered sets
+<details>
+  <summary>Generalize criteria values to more kinds of ordered sets</summary>
+  Currently, criteria are real-valued.
+  Allow some other kings of ordered sets, like finite set of labels.
+</details>
 
-- allow "single-peaked" criteria where the good values are in an interval, and high and low numerical values are both bad (*e.g.* blood pressure, where good values are between two bounds, and values outside these bounds are bad)
+<details>
+  <summary>Allow "single-peaked" criteria</summary>
+  Single-peaked criteria are those where the good values are in an interval, and high and low numerical values are both bad (*e.g.* blood pressure, where good values are between two bounds, and values outside these bounds are bad).
+</details>
 
-Learn from noisy learning sets
-------------------------------
-
-We currently learn from pseudo-random learning sets that are generated using an MR-sort model.
-It is consequently always possible to reconstruct that model exactly, and to reach 100% accuracy.
-We should handle generation of noisy pseudo-random learning sets that can only be *approximated* by an MR-sort model.
+<details>
+  <summary>Learn from noisy learning sets</summary>
+  We currently learn from pseudo-random learning sets that are generated using an MR-sort model.
+  It is consequently always possible to reconstruct that model exactly, and to reach 100% accuracy.
+  We should handle generation of noisy pseudo-random learning sets that can only be *approximated* by an MR-sort model.
+</details>
