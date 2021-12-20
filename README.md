@@ -170,6 +170,20 @@ Instrumentation and tooling
   Use the metric(s) defined in previous point.
 </details>
 
+<details>
+  <summary>Support profiling tools</summary>
+  Identify profiling tools, both generic and CUDA-specific, and make the easy to run on the code.
+</details>
+
+<details>
+  <summary>Support policies</summary>
+  Experimenting on the code will require writing and testing several versions of some parts of the code.
+  The "industrial" way of doing that is to use git branches.
+  But this makes it difficult to compare them.
+  <p>Structure the code so that several implementations (aka several policies) can be selected at runtime, just before starting a learning.
+  Integrate that feature in the script evaluating the performance of the algorithm.
+</details>
+
 Optimize learning duration
 --------------------------
 
@@ -218,6 +232,19 @@ It's probably all we can do in `optimize_weights` without significant effort: go
 
 Generalize
 ----------
+
+<details>
+  <summary>Add classification tool</summary>
+  Currently, we don't provide a <code>classify</code> tool, or a file format for non-classified alternatives.
+  Provide both.
+</details>
+
+<details>
+  <summary>Split the notion of "domain" and "learning set"</summary>
+  Currently, the learning set file contains a very terse description of the domain (namely the number of criteria and categories).
+  This information belongs to a "domain" file, along with a more detailed description of the criteria (label, extreme values, etc.) and categories (labels, etc.).
+  This split should be replicated in <code>library/io.cpp</code> and <code>library/problem.cpp</code>.
+</details>
 
 <details>
   <summary>Relax assumption that criteria values increase with categories</summary>
