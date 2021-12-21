@@ -1,8 +1,12 @@
 // Copyright 2021 Vincent Jacques
 
+#include <chrones.hpp>
+
 #include "test-utils.hpp"
 #include "randomness.hpp"
 
+
+CHRONABLE("initialize-profiles-tests")
 
 namespace ppl {
 

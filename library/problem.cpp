@@ -2,6 +2,8 @@
 
 #include "problem.hpp"
 
+#include <chrones.hpp>
+
 #include "cuda-utils.hpp"
 #include "io.hpp"
 
@@ -23,6 +25,8 @@ Domain<Space>::Domain(
 
 template<>
 Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
+  CHRONE();
+
   assert(learning_set.is_valid());
 
   float* alternatives_ = alloc_host<float>(learning_set.criteria_count * learning_set.alternatives_count);
@@ -81,6 +85,8 @@ Models<Space>::Models(
 
 template<>
 Models<Host> Models<Host>::make(const Domain<Host>& domain, const uint models_count) {
+  CHRONE();
+
   DomainView domain_view = domain.get_view();
   float* weights_ = alloc_host<float>(domain_view.criteria_count * models_count);
   MatrixView2D<float> weights(domain_view.criteria_count, models_count, weights_);
@@ -92,6 +98,8 @@ Models<Host> Models<Host>::make(const Domain<Host>& domain, const uint models_co
 
 template<>
 Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io::Model>& models) {
+  CHRONE();
+
   const uint models_count = models.size();
   auto r = make(domain, models_count);
   auto view = r.get_view();
@@ -117,6 +125,8 @@ Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io
 
 template<>
 io::Model Models<Host>::unmake_one(uint model_index) const {
+  CHRONE();
+
   ModelsView view = get_view();
 
   std::vector<std::vector<float>> profiles(view.domain.categories_count - 1);
@@ -138,6 +148,8 @@ io::Model Models<Host>::unmake_one(uint model_index) const {
 
 template<>
 std::vector<io::Model> Models<Host>::unmake() const {
+  CHRONE();
+
   ModelsView view = get_view();
 
   std::vector<io::Model> models;
@@ -171,6 +183,8 @@ template class Models<Host>;
 template class Models<Device>;
 
 void replicate_models(const Models<Host>& src, Models<Device>* dst) {
+  CHRONE();
+
   DomainView domain = src.domain.get_view();
   copy_host_to_device(
     domain.criteria_count * (domain.categories_count - 1) * src.models_count,
@@ -181,6 +195,8 @@ void replicate_models(const Models<Host>& src, Models<Device>* dst) {
 }
 
 void replicate_profiles(const Models<Device>& src, Models<Host>* dst) {
+  CHRONE();
+
   DomainView domain = src.domain.get_view();
   copy_device_to_host(
     domain.criteria_count * (domain.categories_count - 1) * src.models_count,

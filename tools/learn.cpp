@@ -4,13 +4,17 @@
 #include <fstream>
 #include <iostream>
 
+#include <chrones.hpp>
 #include <CLI11.hpp>
 
 #include "../library/learning.hpp"
-#include "../library/stopwatch.hpp"
 
+
+CHRONABLE("learn")
 
 int main(int argc, char* argv[]) {
+  CHRONE();
+
   CLI::App app(
     "Learn a model from the learning set taken from file LEARNING_SET.txt.\n"
     "\n"
@@ -50,8 +54,6 @@ int main(int argc, char* argv[]) {
   if (force_gpu && forbid_gpu) {
     return app.exit(CLI::ParseError("Options --force-gpu and --forbid-gpu are incompatible", 1));
   }
-
-  STOPWATCH("learn");
 
   std::ifstream learning_set_file(learning_set_file_name);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);

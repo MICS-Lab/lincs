@@ -3,12 +3,17 @@
 #include <iostream>
 #include <fstream>
 
+#include <chrones.hpp>
 #include <CLI11.hpp>
 
 #include "../library/generate.hpp"
 
 
+CHRONABLE("generate-model")
+
 int main(int argc, char* argv[]) {
+  CHRONE();
+
   CLI::App app(
     "Generate a pseudo-random model with NB_CRIT criteria and NB_CAT categories,\n"
     "from random seed SEED.\n"

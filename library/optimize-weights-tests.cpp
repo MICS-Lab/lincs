@@ -6,11 +6,15 @@
 
 #include <memory>
 
+#include <chrones.hpp>
+
 #include "assign.hpp"
 #include "generate.hpp"
 #include "optimize-weights.hpp"
 #include "test-utils.hpp"
 
+
+CHRONABLE("optimize-weights-tests")
 
 namespace ppl {
 

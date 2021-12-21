@@ -5,21 +5,25 @@
 #include <vector>
 #include <algorithm>
 
+#include <chrones.hpp>
+
 #include "assign.hpp"
 #include "improve-profiles.hpp"
 #include "optimize-weights.hpp"
 #include "initialize-profiles.hpp"
 #include "median-and-max.hpp"
-#include "stopwatch.hpp"
 
 
 namespace ppl {
 
 std::vector<uint> partition_models_by_accuracy(const uint models_count, const Models<Host>& models) {
+  CHRONE();
+
   std::vector<uint> accuracies(models_count, 0);
   for (uint model_index = 0; model_index != models_count; ++model_index) {
     accuracies[model_index] = get_accuracy(models, model_index);
   }
+
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
   ensure_median_and_max(
@@ -27,6 +31,7 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
     [&accuracies](uint left_model_index, uint right_model_index) {
       return accuracies[left_model_index] < accuracies[right_model_index];
     });
+
   return model_indexes;
 }
 
@@ -93,6 +98,8 @@ struct LearningExecution {
   }
 
   Learning::Result execute() {
+    CHRONE();
+
     uint best_accuracy = 0;
 
     for (int i = 0; !terminate(i, best_accuracy); ++i) {
@@ -173,7 +180,7 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
 };
 
 Learning::Result Learning::perform() const {
-  STOPWATCH("Learning::perform");
+  CHRONE();
 
   const uint models_count = _models_count ? *_models_count : 9;  // @todo Decide on a good default value
   const std::function<bool(uint, uint)> terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);

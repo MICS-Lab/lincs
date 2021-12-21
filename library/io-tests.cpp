@@ -1,8 +1,12 @@
 // Copyright 2021 Vincent Jacques
 
+#include <chrones.hpp>
+
 #include "io.hpp"
 #include "test-utils.hpp"
 
+
+CHRONABLE("io-tests")
 
 namespace ppl::io {
 

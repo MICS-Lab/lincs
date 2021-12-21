@@ -2,8 +2,9 @@
 
 #include "assign.hpp"
 
+#include <chrones.hpp>
+
 #include "cuda-utils.hpp"
-#include "stopwatch.hpp"
 
 
 namespace ppl {
@@ -51,8 +52,6 @@ bool is_correctly_assigned(
 }
 
 uint get_accuracy(const Models<Host>& models, const uint model_index) {
-  STOPWATCH("get_accuracy (Host)");
-
   uint accuracy = 0;
 
   ModelsView models_view = models.get_view();
@@ -77,7 +76,7 @@ __global__ void get_accuracy__kernel(ModelsView models, const uint model_index, 
 }
 
 uint get_accuracy(const Models<Device>& models, const uint model_index) {
-  STOPWATCH("get_accuracy (Device)");
+  CHRONE();
 
   uint* device_accuracy = alloc_device<uint>(1);
   cudaMemset(device_accuracy, 0, sizeof(uint));

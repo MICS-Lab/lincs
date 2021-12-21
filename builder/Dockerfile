@@ -8,6 +8,7 @@ RUN set -x \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       wget python3-pip graphviz `# Common tools` \
       software-properties-common dirmngr gpg-agent `# Required when adding the NVidia APT repository` \
+      libboost-all-dev  `# Development version of direct dependencies` \
       make cmake g++ `# Build tools` \
       file gdb valgrind `# Debug tools` \
  && apt-get clean
@@ -56,3 +57,19 @@ RUN set -x \
 RUN set -x \
  && cd /usr/local/include \
  && wget https://github.com/CLIUtils/CLI11/releases/download/v2.1.2/CLI11.hpp
+
+# Chrones
+RUN set -x \
+ && mkdir /tmp/compile_chrones \
+ && cd /tmp/compile_chrones \
+ && wget https://github.com/LaurentCabaret/chrones/raw/master/c%2B%2B/chrones.hpp \
+ && wget https://github.com/LaurentCabaret/chrones/raw/master/c%2B%2B/chrones.cpp \
+ && wget https://github.com/LaurentCabaret/chrones/raw/master/chrones-report.py \
+ && chmod +x chrones-report.py \
+ && g++ -c chrones.cpp -o chrones.o \
+ && ar -crs libchrones.a chrones.o \
+ && cp chrones.hpp /usr/local/include \
+ && cp libchrones.a /usr/local/lib \
+ && cp chrones-report.py /usr/local/bin \
+ && cd .. \
+ && rm -r compile_chrones

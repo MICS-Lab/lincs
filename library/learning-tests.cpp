@@ -1,10 +1,14 @@
 // Copyright 2021 Vincent Jacques
 
+#include <chrones.hpp>
+
 #include "assign.hpp"
 #include "generate.hpp"
 #include "learning.hpp"
 #include "test-utils.hpp"
 
+
+CHRONABLE("learning-tests")
 
 namespace ppl {
 

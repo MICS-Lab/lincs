@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 
-#include "stopwatch.hpp"
+#include <chrones.hpp>
 
 
 namespace ppl {
@@ -26,6 +26,8 @@ struct LinearProgram {
 
 std::shared_ptr<LinearProgram> make_internal_linear_program(
     const float epsilon, const ModelsView& models, uint model_index) {
+  CHRONE();
+
   auto lp = std::make_shared<LinearProgram>();
 
   lp->program = std::make_shared<glp::LinearProgram>();
@@ -83,6 +85,8 @@ std::shared_ptr<LinearProgram> make_internal_linear_program(
 
 std::shared_ptr<LinearProgram> make_verbose_linear_program(
     const float epsilon, const ModelsView& models, uint model_index) {
+  CHRONE();
+
   auto lp = make_internal_linear_program(epsilon, models, model_index);
 
   assert(lp->weight_variables.size() == models.domain.criteria_count);
@@ -106,10 +110,14 @@ std::shared_ptr<LinearProgram> make_verbose_linear_program(
 
 std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
     const float epsilon, const Models<Host>& models_, uint model_index) {
+  CHRONE();
+
   return make_verbose_linear_program(epsilon, models_.get_view(), model_index)->program;
 }
 
 void optimize_weights(const ModelsView& models) {
+  CHRONE();
+
   #pragma omp parallel for
   for (uint model_index = 0; model_index != models.models_count; ++model_index) {
     auto lp = make_internal_linear_program(1e-6, models, model_index);
@@ -132,7 +140,7 @@ void optimize_weights(const ModelsView& models) {
 WeightsOptimizer::WeightsOptimizer(const Models<Host>&) {}
 
 void WeightsOptimizer::optimize_weights(Models<Host>* models) {
-  STOPWATCH("WeightOptimize::optimize_weights (Host)");
+  CHRONE();
 
   ppl::optimize_weights(models->get_view());
 }

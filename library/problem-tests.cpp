@@ -1,8 +1,12 @@
 // Copyright 2021 Vincent Jacques
 
+#include <chrones.hpp>
+
 #include "problem.hpp"
 #include "test-utils.hpp"
 
+
+CHRONABLE("problem-tests")
 
 namespace ppl {
 

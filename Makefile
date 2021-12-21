@@ -93,7 +93,6 @@ build/tests/library/assign-tests: \
   build/obj/library/generate.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
-  build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
 build/tests/library/problem-tests: \
@@ -108,7 +107,6 @@ build/tests/library/improve-profiles-tests: \
   build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
 build/tests/library/optimize-weights-tests: \
@@ -117,14 +115,12 @@ build/tests/library/optimize-weights-tests: \
   build/obj/library/optimize-weights.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
-  build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
 build/tests/library/initialize-profiles-tests: \
   build/obj/library/initialize-profiles.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
-  build/obj/library/stopwatch.o \
   build/obj/library/test-utils.o
 
 build/tests/library/io-tests: \
@@ -139,8 +135,7 @@ build/tests/library/learning-tests: \
   build/obj/library/io.o \
   build/obj/library/learning.o \
   build/obj/library/problem.o \
-  build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o
+  build/obj/library/randomness.o
 
 build/tests/library/randomness-tests: \
   build/obj/library/randomness.o
@@ -176,16 +171,14 @@ build/tools/bin/generate-model: \
   build/obj/library/generate.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
-  build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o
+  build/obj/library/randomness.o
 
 build/tools/bin/generate-learning-set: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
-  build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o
+  build/obj/library/randomness.o
 
 build/tools/bin/learn: \
   build/obj/library/assign.o \
@@ -195,8 +188,7 @@ build/tools/bin/learn: \
   build/obj/library/io.o \
   build/obj/library/learning.o \
   build/obj/library/problem.o \
-  build/obj/library/randomness.o \
-  build/obj/library/stopwatch.o
+  build/obj/library/randomness.o
 
 ########
 # Lint #
@@ -227,15 +219,15 @@ test: $(test_sentinel_files)
 build/tests/%-tests.cu.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@$<
-	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
+	@cd build/tests && ../../$<
+	@cd build/tests && timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 ../../$<
 	@touch $@
 
 build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@echo "$<"
 	@mkdir -p $(dir $@)
-	@$<
-	@timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 $<
+	@cd build/tests && ../../$<
+	@cd build/tests && timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 ../../$<
 	@touch $@
 
 # Non-compilation tests
@@ -260,6 +252,7 @@ build/tests/%-tests.sh.ok: %-tests.sh
 	@rm -rf $@-wd
 	@mkdir -p $@-wd
 	@cd $@-wd && BUILD_DIR=../../.. timeout 300 bash ../../../../$<
+	@cd $@-wd && for f in *.chrones.csv; do chrones-report.py summaries $$f >$${f#.csv}.summaries.json; done
 	@touch $@
 
 ########
@@ -271,14 +264,14 @@ build/tests/%-tests.sh.ok: %-tests.sh
 build/tests/%-tests: build/obj/%-tests.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lgtest_main -lgtest -lortools -Xcompiler -fopenmp -o $@
+	@nvcc $^ -lgtest_main -lgtest -lortools -lchrones -lboost_thread -Xcompiler -fopenmp -o $@
 
 # Of tools
 
 build/tools/bin/%: build/obj/tools/%.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lortools -Xcompiler -fopenmp -o $@
+	@nvcc $^ -lortools -lchrones -lboost_thread -Xcompiler -fopenmp -o $@
 
 ###############
 # Compilation #

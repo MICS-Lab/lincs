@@ -5,12 +5,16 @@
 #include <algorithm>
 #include <vector>
 
+#include <chrones.hpp>
+
 #include "assign.hpp"
 
 
 namespace ppl::generate {
 
 io::Model model(std::mt19937* gen, const uint criteria_count, const uint categories_count) {
+  CHRONE();
+
   // Profile can take any values. We arbitrarily generate them uniformly between 0 and 1
   std::uniform_real_distribution<float> values_distribution(0.0f, 1.0f);
 
@@ -58,6 +62,8 @@ io::LearningSet learning_set(
     std::mt19937* gen,
     const io::Model& model,
     const uint alternatives_count) {
+  CHRONE();
+
   std::vector<io::ClassifiedAlternative> alternatives;
   alternatives.reserve(alternatives_count);
 

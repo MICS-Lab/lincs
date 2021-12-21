@@ -3,12 +3,17 @@
 #include <iostream>
 #include <fstream>
 
+#include <chrones.hpp>
 #include <CLI11.hpp>
 
 #include "../library/generate.hpp"
 
 
+CHRONABLE("generate-learning-set")
+
 int main(int argc, char* argv[]) {
+  CHRONE();
+
   CLI::App app(
     "Generate a pseudo-random learning set of NB_ALT alternatives,\n"
     "for the model taken from file MODEL.txt, and from random seed SEED.\n"

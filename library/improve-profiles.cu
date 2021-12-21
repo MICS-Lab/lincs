@@ -7,8 +7,9 @@
 #include <cassert>
 #include <random>
 
+#include <chrones.hpp>
+
 #include "cuda-utils.hpp"
-#include "stopwatch.hpp"
 #include "randomness.hpp"
 #include "assign.hpp"
 
@@ -204,6 +205,8 @@ void improve_model_profile(
   const uint profile_index,
   const uint criterion_index
 ) {
+  CHRONE();
+
   // WARNING: We're assuming all criteria have values in [0, 1]
   // @todo Can we relax this assumption?
   // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
@@ -259,6 +262,8 @@ void improve_model_profile(
   const uint profile_index,
   MatrixView1D<uint> criterion_indexes
 ) {
+  CHRONE();
+
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (uint crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
@@ -284,6 +289,8 @@ void shuffle(RandomNumberGenerator random, MatrixView1D<T> m) {
 
 __host__ __device__
 void improve_model_profiles(RandomNumberGenerator random, const ModelsView& models, const uint model_index) {
+  CHRONE();
+
   uint* criterion_indexes_ = new uint[models.domain.criteria_count];
   MatrixView1D<uint> criterion_indexes(models.domain.criteria_count, criterion_indexes_);
   // Not worth parallelizing because models.domain.criteria_count is typically small
@@ -302,7 +309,7 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
 }
 
 void ProfilesImprover::improve_profiles(const RandomSource& random, Models<Host>* models) {
-  STOPWATCH("improve_profiles (Host)");
+  CHRONE();
 
   auto models_view = models->get_view();
 
@@ -322,7 +329,7 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
 }
 
 void ProfilesImprover::improve_profiles(const RandomSource& random, Models<Device>* models) {
-  STOPWATCH("improve_profiles (Device)");
+  CHRONE();
 
   auto models_view = models->get_view();
 

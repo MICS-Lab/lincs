@@ -5,12 +5,14 @@
 #include <algorithm>
 #include <map>
 
-#include "stopwatch.hpp"
+#include <chrones.hpp>
 
 
 namespace ppl {
 
 std::map<float, double> get_candidate_probabilities(const DomainView& domain, uint crit_index, uint profile_index) {
+  CHRONE();
+
   std::vector<float> values_below;
   // The size used for 'reserve' is a few times larger than the actual final size,
   // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
@@ -51,7 +53,7 @@ std::map<float, double> get_candidate_probabilities(const DomainView& domain, ui
 }
 
 ProfilesInitializer::ProfilesInitializer(const Models<Host>& models) {
-  STOPWATCH("ProfilesInitializer::ProfilesInitializer");
+  CHRONE();
 
   ModelsView models_view = models.get_view();
 
@@ -73,7 +75,7 @@ void ProfilesInitializer::initialize_profiles(
   std::vector<uint>::const_iterator model_indexes_begin,
   const std::vector<uint>::const_iterator model_indexes_end
 ) {
-  STOPWATCH("ProfilesInitializer::initialize_profiles");
+  CHRONE();
 
   ModelsView models_view = models->get_view();
 

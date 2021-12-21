@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <numeric>
 
+#include <chrones.hpp>
+
 
 namespace {
 
@@ -64,6 +66,8 @@ Model::Model(
 }
 
 std::optional<std::string> Model::validate() const {
+  CHRONE();
+
   // Valid counts
   if (criteria_count < 1) return "fewer than 1 criteria";
 
@@ -120,6 +124,8 @@ std::optional<std::string> Model::validate() const {
 }
 
 void Model::save_to(std::ostream& s) const {
+  CHRONE();
+
   s << criteria_count << std::endl;
   s << categories_count << std::endl;
   float weights_sum = std::accumulate(weights.begin(), weights.end(), 0.f);
@@ -137,6 +143,8 @@ void Model::save_to(std::ostream& s) const {
 }
 
 Model Model::load_from(std::istream& s) {
+  CHRONE();
+
   uint criteria_count;
   s >> criteria_count;
   uint categories_count;
@@ -154,6 +162,8 @@ Model Model::load_from(std::istream& s) {
 }
 
 Model Model::make_homogeneous(uint criteria_count, float weights_sum, uint categories_count) {
+  CHRONE();
+
   std::vector<std::vector<float>> profiles;
   profiles.reserve(categories_count - 1);
   for (uint profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
@@ -185,6 +195,8 @@ LearningSet::LearningSet(
 }
 
 std::optional<std::string> LearningSet::validate() const {
+  CHRONE();
+
   // Valid counts
   if (criteria_count < 1) return "fewer than 1 criteria";
 
@@ -228,6 +240,8 @@ std::optional<std::string> LearningSet::validate() const {
 }
 
 void LearningSet::save_to(std::ostream& s) const {
+  CHRONE();
+
   s << criteria_count << std::endl;
   s << categories_count << std::endl;
   s << alternatives_count << std::endl;
@@ -238,6 +252,8 @@ void LearningSet::save_to(std::ostream& s) const {
 }
 
 LearningSet LearningSet::load_from(std::istream& s) {
+  CHRONE();
+
   uint criteria_count;
   s >> criteria_count;
   uint categories_count;

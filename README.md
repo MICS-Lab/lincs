@@ -133,9 +133,9 @@ Instrumentation and tooling
 ---------------------------
 
 <details>
-  <summary>Integrate Chrones</summary>
-  The current stopwatch approach is very limited.
-  Use Chrones to get more details about how the execution duration is distributed.
+  <summary>Integrate Chrones ✔️</summary>
+  The previous stopwatch approach was very limited.
+  Using Chrones lets us get more details about how the execution duration is distributed.
 </details>
 
 <details>
