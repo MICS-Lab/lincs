@@ -176,11 +176,11 @@ Instrumentation and tooling
 </details>
 
 <details>
-  <summary>Support policies</summary>
+  <summary>Support strategies</summary>
   Experimenting on the code will require writing and testing several versions of some parts of the code.
   The "industrial" way of doing that is to use git branches.
   But this makes it difficult to compare them.
-  <p>Structure the code so that several implementations (aka several policies) can be selected at runtime, just before starting a learning.
+  <p>Structure the code so that several implementations (aka several <a href="https://en.wikipedia.org/wiki/Strategy_pattern">strategies</a>) can be selected at runtime, just before starting a learning.
   Integrate that feature in the script evaluating the performance of the algorithm.
 </details>
 
