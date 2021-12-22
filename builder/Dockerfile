@@ -63,9 +63,9 @@ RUN set -x \
 RUN set -x \
  && mkdir /tmp/compile_chrones \
  && cd /tmp/compile_chrones \
- && wget https://github.com/LaurentCabaret/chrones/raw/76b4d2d1/c%2B%2B/chrones.hpp \
- && wget https://github.com/LaurentCabaret/chrones/raw/76b4d2d1/c%2B%2B/chrones.cpp \
- && wget https://github.com/LaurentCabaret/chrones/raw/76b4d2d1/chrones-report.py \
+ && wget https://github.com/LaurentCabaret/chrones/raw/d371f2b/c%2B%2B/chrones.hpp \
+ && wget https://github.com/LaurentCabaret/chrones/raw/d371f2b/c%2B%2B/chrones.cpp \
+ && wget https://github.com/LaurentCabaret/chrones/raw/d371f2b/chrones-report.py \
  && chmod +x chrones-report.py \
  && g++ -c chrones.cpp -o chrones.o \
  && ar -crs libchrones.a chrones.o \
