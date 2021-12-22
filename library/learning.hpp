@@ -67,13 +67,13 @@ class Learning {
   // Observability
   class Observer {
    public:
-    virtual void after_main_iteration(int i, int best_accuracy, const Models<Host>&) = 0;
+    virtual void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) = 0;
   };
 
   class ProgressReporter : public Observer {
    public:
-    void after_main_iteration(int i, int best_accuracy, const Models<Host>& models) override {
-      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
+    void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) override {
+      std::cerr << "After iteration n°" << iteration_index << ": best accuracy = " <<
         best_accuracy << "/" << models.get_view().domain.learning_alternatives_count << std::endl;
     }
   };

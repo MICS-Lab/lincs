@@ -46,15 +46,15 @@ std::function<bool(uint, uint)> make_terminate(
 
   if (max_iterations) {
     uint max_it = *max_iterations;
-    r = [max_it, r](uint iteration, uint accuracy) {
-      return iteration >= max_it || r(iteration, accuracy);
+    r = [max_it, r](uint iteration_index, uint accuracy) {
+      return iteration_index >= max_it || r(iteration_index, accuracy);
     };
   }
 
   if (max_duration) {
     auto max_time = std::chrono::steady_clock::now() + *max_duration;
-    r = [max_time, r](uint iteration, uint accuracy) {
-      return r(iteration, accuracy) || std::chrono::steady_clock::now() >= max_time;
+    r = [max_time, r](uint iteration_index, uint accuracy) {
+      return r(iteration_index, accuracy) || std::chrono::steady_clock::now() >= max_time;
     };
   }
 
@@ -104,7 +104,7 @@ struct LearningExecution {
 
     uint best_accuracy = 0;
 
-    for (int i = 0; !terminate(i, best_accuracy); ++i) {
+    for (int iteration_index = 0; !terminate(iteration_index, best_accuracy); ++iteration_index) {
       weights_optimizer.optimize_weights(&host_models);
       self.improve_profiles();
 
@@ -117,7 +117,7 @@ struct LearningExecution {
       best_accuracy = get_accuracy(host_models, model_indexes.back());
 
       for (auto observer : observers) {
-        observer->after_main_iteration(i, best_accuracy, host_models);
+        observer->after_main_iteration(iteration_index, best_accuracy, host_models);
       }
     }
 
