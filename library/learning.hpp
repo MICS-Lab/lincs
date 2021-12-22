@@ -27,6 +27,8 @@ class Learning {
   explicit Learning(const io::LearningSet& learning_set) :
     _host_domain(Domain<Host>::make(learning_set)),
     _target_accuracy(learning_set.alternatives_count),
+    _models_count(9),  // @todo Decide on a good default value
+    _random_seed(std::random_device()()),
     _use_gpu(UseGpu::Auto)
   {}
 
@@ -100,8 +102,8 @@ class Learning {
   uint _target_accuracy;
   std::optional<uint> _max_iterations;
   std::optional<std::chrono::steady_clock::duration> _max_duration;
-  std::optional<uint> _models_count;
-  std::optional<uint> _random_seed;
+  uint _models_count;
+  uint _random_seed;
   UseGpu _use_gpu;
   std::vector<std::shared_ptr<Observer>> _observers;
 };

@@ -191,14 +191,12 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
 Learning::Result Learning::perform() const {
   CHRONE();
 
-  const uint models_count = _models_count ? *_models_count : 9;  // @todo Decide on a good default value
   const std::function<bool(uint, uint)> terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
-  const uint random_seed = _random_seed ? *_random_seed : std::random_device()();
 
   if (use_gpu(_use_gpu)) {
-    return GpuLearningExecution(_host_domain, models_count, terminate, random_seed, _observers).execute();
+    return GpuLearningExecution(_host_domain, _models_count, terminate, _random_seed, _observers).execute();
   } else {
-    return CpuLearningExecution(_host_domain, models_count, terminate, random_seed, _observers).execute();
+    return CpuLearningExecution(_host_domain, _models_count, terminate, _random_seed, _observers).execute();
   }
 }
 
