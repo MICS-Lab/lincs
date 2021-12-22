@@ -87,6 +87,9 @@ struct ModelsView {
 
   const uint models_count;
 
+  const MatrixView1D<uint> initialization_iteration_indexes;
+  // Index: index of model, from `0` to `models_count - 1`
+
   const MatrixView2D<float> weights;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
   // Second index: index of model, from `0` to `models_count - 1`
@@ -136,6 +139,7 @@ class Models {
     return Models<OtherSpace>(
       domain,
       models_count,
+      FromTo<Space, OtherSpace>::clone(models_count, initialization_iteration_indexes),
       FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * models_count, weights),
       FromTo<Space, OtherSpace>::clone(
         domain_view.criteria_count * (domain_view.categories_count - 1) * models_count,
@@ -146,7 +150,7 @@ class Models {
   ModelsView get_view() const;  // @todo Remove const
 
  private:
-  Models(const Domain<Space>&, uint, float*, float*);
+  Models(const Domain<Space>&, uint, uint*, float*, float*);
 
   friend void replicate_models(const Models<Host>&, Models<Device>*);
   friend void replicate_profiles(const Models<Device>&, Models<Host>*);
@@ -154,6 +158,7 @@ class Models {
  private:
   const Domain<Space>& domain;
   const uint models_count;
+  uint* const initialization_iteration_indexes;
   float* const weights;
   float* const profiles;
 };

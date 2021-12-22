@@ -76,10 +76,12 @@ template<typename Space>
 Models<Space>::Models(
   const Domain<Space>& domain_,
   const uint models_count_,
+  uint* initialization_iteration_indexes_,
   float* weights_,
   float* profiles_) :
     domain(domain_),
     models_count(models_count_),
+    initialization_iteration_indexes(initialization_iteration_indexes_),
     weights(weights_),
     profiles(profiles_) {}
 
@@ -88,12 +90,12 @@ Models<Host> Models<Host>::make(const Domain<Host>& domain, const uint models_co
   CHRONE();
 
   DomainView domain_view = domain.get_view();
-  float* weights_ = alloc_host<float>(domain_view.criteria_count * models_count);
-  MatrixView2D<float> weights(domain_view.criteria_count, models_count, weights_);
-  float* profiles_ = alloc_host<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
-  MatrixView3D<float> profiles(domain_view.criteria_count, domain_view.categories_count - 1, models_count, profiles_);
 
-  return Models(domain, models_count, weights_, profiles_);
+  uint* initialization_iteration_indexes = alloc_host<uint>(models_count);
+  float* weights = alloc_host<float>(domain_view.criteria_count * models_count);
+  float* profiles = alloc_host<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
+
+  return Models(domain, models_count, initialization_iteration_indexes, weights, profiles);
 }
 
 template<>
@@ -174,6 +176,7 @@ ModelsView Models<Space>::get_view() const {
   return {
     domain_view,
     models_count,
+    MatrixView1D<uint>(models_count, initialization_iteration_indexes),
     MatrixView2D<float>(domain_view.criteria_count, models_count, weights),
     MatrixView3D<float>(domain_view.criteria_count, domain_view.categories_count - 1, models_count, profiles),
   };

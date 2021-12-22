@@ -22,6 +22,7 @@ class ProfilesInitializer {
   void initialize_profiles(
     RandomNumberGenerator random,
     Models<Host>* models,
+    uint iteration_index,
     std::vector<uint>::const_iterator model_indexes_begin,
     std::vector<uint>::const_iterator model_indexes_end);
 

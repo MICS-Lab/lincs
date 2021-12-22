@@ -96,7 +96,7 @@ struct LearningExecution {
       observers(observers_) {
     random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
-    profiles_initializer.initialize_profiles(random, &host_models, model_indexes.begin(), model_indexes.end());
+    profiles_initializer.initialize_profiles(random, &host_models, 0, model_indexes.begin(), model_indexes.end());
   }
 
   Learning::Result execute() {
@@ -105,15 +105,17 @@ struct LearningExecution {
     uint best_accuracy = 0;
 
     for (int iteration_index = 0; !terminate(iteration_index, best_accuracy); ++iteration_index) {
+      if (iteration_index != 0) {
+        profiles_initializer.initialize_profiles(
+          random, &host_models,
+          iteration_index,
+          model_indexes.begin(), model_indexes.begin() + models_count / 2);
+      }
+
       weights_optimizer.optimize_weights(&host_models);
       self.improve_profiles();
 
       model_indexes = partition_models_by_accuracy(models_count, host_models);
-      profiles_initializer.initialize_profiles(
-        random,
-        &host_models,
-        model_indexes.begin(), model_indexes.begin() + models_count / 2);
-
       best_accuracy = get_accuracy(host_models, model_indexes.back());
 
       for (auto observer : observers) {

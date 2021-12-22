@@ -72,6 +72,7 @@ ProfilesInitializer::ProfilesInitializer(const Models<Host>& models) {
 void ProfilesInitializer::initialize_profiles(
   RandomNumberGenerator random,
   Models<Host>* models,
+  const uint iteration_index,
   std::vector<uint>::const_iterator model_indexes_begin,
   const std::vector<uint>::const_iterator model_indexes_end
 ) {
@@ -83,7 +84,9 @@ void ProfilesInitializer::initialize_profiles(
   for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
     const uint model_index = *model_indexes_begin;
 
-    // Embarrassingly parallel, parallel with next loop
+    models_view.initialization_iteration_indexes[model_index] = iteration_index;
+
+    // Embarrassingly parallel
     for (uint crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
       // Not parallel because of the profiles ordering constraint
       for (uint category_index = models_view.domain.categories_count - 1; category_index != 0; --category_index) {

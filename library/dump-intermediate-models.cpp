@@ -23,6 +23,7 @@ void IntermediateModelsDumper::after_main_iteration(int iteration_index, int, co
   for (uint model_index = 0; model_index != models_view.models_count; ++model_index) {
     stream
       << "      - model_index: " << model_index << "\n"
+      << "        initialization_iteration_index: " << models_view.initialization_iteration_indexes[model_index] << "\n"
       << "        accuracy: " << get_accuracy(models, model_index) << "\n"
       << "        profiles:\n";
     for (uint profile_index = 0; profile_index != models_view.domain.categories_count - 1; ++profile_index) {
