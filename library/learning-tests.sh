@@ -22,4 +22,14 @@ time $BUILD_DIR/tools/bin/learn \
   --max-duration-seconds 10 \
   --models-count 15 \
   --target-accuracy 100 \
+  --dump-intermediate-models intermediate-models.yml \
   learning-set.txt
+
+python3 -c """
+import yaml
+
+with open('intermediate-models.yml') as f:
+    intermediates = yaml.load(f, Loader=yaml.Loader)
+
+print('There was', len(intermediates['iterations']), 'iterations')
+"""

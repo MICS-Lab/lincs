@@ -182,6 +182,7 @@ build/tools/bin/generate-learning-set: \
 
 build/tools/bin/learn: \
   build/obj/library/assign.o \
+  build/obj/library/dump-intermediate-models.o \
   build/obj/library/improve-profiles.o \
   build/obj/library/initialize-profiles.o \
   build/obj/library/io.o \

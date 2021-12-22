@@ -8,6 +8,7 @@
 #include <CLI11.hpp>
 
 #include "../library/learning.hpp"
+#include "../library/dump-intermediate-models.hpp"
 
 
 CHRONABLE("learn")
@@ -52,6 +53,10 @@ int main(int argc, char* argv[]) {
   bool quiet = false;
   app.add_flag("--quiet", quiet, "don't show progress on standard error");
 
+  std::optional<std::string> intermediate_models_file_name;
+  app.add_option("--dump-intermediate-models", intermediate_models_file_name)
+    ->check(CLI::NonexistentPath);
+
   CLI11_PARSE(app, argc, argv);
 
   if (force_gpu && forbid_gpu) {
@@ -78,6 +83,12 @@ int main(int argc, char* argv[]) {
   if (forbid_gpu) learning.forbid_using_gpu();
 
   if (!quiet) learning.subscribe(std::make_shared<ppl::Learning::ProgressReporter>());
+
+  std::optional<std::ofstream> intermediate_models_file;
+  if (intermediate_models_file_name) {
+    intermediate_models_file = std::ofstream(*intermediate_models_file_name);
+    learning.subscribe(std::make_shared<ppl::IntermediateModelsDumper>(*intermediate_models_file));
+  }
 
   auto result = learning.perform();
   result.best_model.save_to(std::cout);

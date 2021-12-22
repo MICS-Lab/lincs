@@ -42,6 +42,7 @@ ENV PATH="/usr/local/cuda-11.2/bin:${PATH}"
 
 # Python packages
 RUN pip3 install \
+      PyYaml  `# Common tools` \
       cpplint `# Static analysis tools`
 
 # OR-Tools
