@@ -45,10 +45,11 @@ int main(int argc, char* argv[]) {
   app.add_option("--random-seed", random_seed);
 
   bool force_gpu = false;
-  app.add_flag("--force-gpu", force_gpu);
+  auto force_gpu_flag = app.add_flag("--force-gpu", force_gpu);
 
   bool forbid_gpu = false;
-  app.add_flag("--forbid-gpu", forbid_gpu);
+  app.add_flag("--forbid-gpu", forbid_gpu)
+    ->excludes(force_gpu_flag);
 
   bool quiet = false;
   app.add_flag("--quiet", quiet, "don't show progress on standard error");
@@ -58,10 +59,6 @@ int main(int argc, char* argv[]) {
     ->check(CLI::NonexistentPath);
 
   CLI11_PARSE(app, argc, argv);
-
-  if (force_gpu && forbid_gpu) {
-    return app.exit(CLI::ParseError("Options --force-gpu and --forbid-gpu are incompatible", 1));
-  }
 
   std::ifstream learning_set_file(learning_set_file_name);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);
