@@ -4,8 +4,10 @@
 #define LEARNING_HPP_
 
 #include <chrono>  // NOLINT(build/c++11)
+#include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include "io.hpp"
 #include "problem.hpp"
@@ -62,6 +64,24 @@ class Learning {
     return *this;
   }
 
+  // Observability
+  class Observer {
+   public:
+    virtual void after_main_iteration(int i, int best_accuracy, const Models<Host>&) = 0;
+  };
+
+  class ProgressReporter : public Observer {
+   public:
+    void after_main_iteration(int i, int best_accuracy, const Models<Host>& models) override {
+      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
+        best_accuracy << "/" << models.get_view().domain.learning_alternatives_count << std::endl;
+    }
+  };
+
+  void subscribe(std::shared_ptr<Observer> observer) {
+    _observers.push_back(observer);
+  }
+
   // Execution
   struct Result {
     Result(io::Model model, uint accuracy) : best_model(model), best_model_accuracy(accuracy) {}
@@ -83,6 +103,7 @@ class Learning {
   std::optional<uint> _models_count;
   std::optional<uint> _random_seed;
   UseGpu _use_gpu;
+  std::vector<std::shared_ptr<Observer>> _observers;
 };
 
 }  // namespace ppl

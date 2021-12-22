@@ -49,6 +49,9 @@ int main(int argc, char* argv[]) {
   bool forbid_gpu = false;
   app.add_flag("--forbid-gpu", forbid_gpu);
 
+  bool quiet = false;
+  app.add_flag("--quiet", quiet, "don't show progress on standard error");
+
   CLI11_PARSE(app, argc, argv);
 
   if (force_gpu && forbid_gpu) {
@@ -64,22 +67,17 @@ int main(int argc, char* argv[]) {
 
   ppl::Learning learning(learning_set);
 
-  if (target_accuracy)
-    learning.set_target_accuracy(*target_accuracy);
-  if (max_iterations)
-    learning.set_max_iterations(*max_iterations);
-  if (max_duration)
-    learning.set_max_duration(std::chrono::seconds(*max_duration));
+  if (target_accuracy) learning.set_target_accuracy(*target_accuracy);
+  if (max_iterations) learning.set_max_iterations(*max_iterations);
+  if (max_duration) learning.set_max_duration(std::chrono::seconds(*max_duration));
 
-  if (models_count)
-    learning.set_models_count(*models_count);
-  if (random_seed)
-    learning.set_random_seed(*random_seed);
+  if (models_count) learning.set_models_count(*models_count);
+  if (random_seed) learning.set_random_seed(*random_seed);
 
-  if (force_gpu)
-    learning.force_using_gpu();
-  if (forbid_gpu)
-    learning.forbid_using_gpu();
+  if (force_gpu) learning.force_using_gpu();
+  if (forbid_gpu) learning.forbid_using_gpu();
+
+  if (!quiet) learning.subscribe(std::make_shared<ppl::Learning::ProgressReporter>());
 
   auto result = learning.perform();
   result.best_model.save_to(std::cout);

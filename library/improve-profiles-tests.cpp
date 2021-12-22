@@ -187,7 +187,6 @@ TEST(ImproveProfies, SingleCriterion) {
   std::mt19937 gen(42);
   auto model = generate::model(&gen, 1, 2);
   model.weights.front() = 1;
-  // std::cout << "We're looking for " << model.profiles[0][0] << std::endl;
 
   auto learning_set = generate::learning_set(&gen, model, 25);
   auto domain = Domain<Host>::make(learning_set);

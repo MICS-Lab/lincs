@@ -6,6 +6,7 @@ $BUILD_DIR/tools/bin/generate-learning-set model.txt 500 42 >learning-set.txt
 
 # We don't reach 100% accuracy in less than 1s
 if $BUILD_DIR/tools/bin/learn \
+  --quiet \
   --max-duration-seconds 1 \
   --models-count 15 \
   --target-accuracy 100 \
@@ -13,6 +14,8 @@ if $BUILD_DIR/tools/bin/learn \
 then
   false
 fi
+
+echo
 
 # We do reach 100% accuracy in less than 10s
 time $BUILD_DIR/tools/bin/learn \

@@ -81,7 +81,8 @@ struct LearningExecution {
     const Domain<Host>& host_domain_,
     uint models_count_,
     std::function<bool(uint, uint)> terminate_,
-    uint random_seed_) :
+    uint random_seed_,
+    std::vector<std::shared_ptr<Learning::Observer>> observers_) :
       self(static_cast<ConcreteLearningExecution&>(*this)),
       models_count(models_count_),
       model_indexes(models_count, 0),
@@ -91,7 +92,8 @@ struct LearningExecution {
       random_seed(random_seed_),
       random(),
       profiles_initializer(host_models),
-      weights_optimizer(host_models) {
+      weights_optimizer(host_models),
+      observers(observers_) {
     random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
     profiles_initializer.initialize_profiles(random, &host_models, model_indexes.begin(), model_indexes.end());
@@ -113,8 +115,10 @@ struct LearningExecution {
         model_indexes.begin(), model_indexes.begin() + models_count / 2);
 
       best_accuracy = get_accuracy(host_models, model_indexes.back());
-      std::cerr << "After iteration n°" << i << ": best accuracy = " <<
-        best_accuracy << "/" << host_domain.get_view().learning_alternatives_count << std::endl;
+
+      for (auto observer : observers) {
+        observer->after_main_iteration(i, best_accuracy, host_models);
+      }
     }
 
     return Learning::Result(host_models.unmake_one(model_indexes.back()), best_accuracy);
@@ -135,6 +139,7 @@ struct LearningExecution {
  private:
   ProfilesInitializer profiles_initializer;
   WeightsOptimizer weights_optimizer;
+  std::vector<std::shared_ptr<Learning::Observer>> observers;
 };
 
 struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
@@ -142,8 +147,9 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
     const Domain<Host>& host_domain,
     uint models_count,
     std::function<bool(uint, uint)> terminate,
-    uint random_seed) :
-      LearningExecution<GpuLearningExecution>(host_domain, models_count, terminate, random_seed),
+    uint random_seed,
+    std::vector<std::shared_ptr<Learning::Observer>> observers) :
+      LearningExecution<GpuLearningExecution>(host_domain, models_count, terminate, random_seed, observers),
       device_domain(host_domain.clone_to<Device>()),
       device_models(host_models.clone_to<Device>(device_domain)) {
     random.init_for_device(random_seed);
@@ -167,8 +173,9 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
     const Domain<Host>& host_domain,
     uint models_count,
     std::function<bool(uint, uint)> terminate,
-    uint random_seed) :
-      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed) {
+    uint random_seed,
+    std::vector<std::shared_ptr<Learning::Observer>> observers) :
+      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed, observers) {
   }
 
   void improve_profiles() {
@@ -187,9 +194,9 @@ Learning::Result Learning::perform() const {
   const uint random_seed = _random_seed ? *_random_seed : std::random_device()();
 
   if (use_gpu(_use_gpu)) {
-    return GpuLearningExecution(_host_domain, models_count, terminate, random_seed).execute();
+    return GpuLearningExecution(_host_domain, models_count, terminate, random_seed, _observers).execute();
   } else {
-    return CpuLearningExecution(_host_domain, models_count, terminate, random_seed).execute();
+    return CpuLearningExecution(_host_domain, models_count, terminate, random_seed, _observers).execute();
   }
 }
 
