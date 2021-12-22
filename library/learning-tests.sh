@@ -32,6 +32,7 @@ with open('intermediate-models.yml') as f:
     intermediates = yaml.load(f, Loader=yaml.Loader)
 
 print('There was', len(intermediates['iterations']), 'iterations')
+
 for iteration in intermediates['iterations']:
     initialized_this_iteration = 0
     for model in iteration['models']:
