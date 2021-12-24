@@ -35,32 +35,6 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
   return model_indexes;
 }
 
-std::function<bool(uint, uint)> make_terminate(
-    std::optional<uint> max_iterations,
-    uint target_accuracy,
-    std::optional<std::chrono::steady_clock::duration> max_duration
-) {
-  std::function<bool(uint, uint)> r = [target_accuracy](uint, uint accuracy) {
-    return accuracy >= target_accuracy;
-  };
-
-  if (max_iterations) {
-    uint max_it = *max_iterations;
-    r = [max_it, r](uint iteration_index, uint accuracy) {
-      return iteration_index >= max_it || r(iteration_index, accuracy);
-    };
-  }
-
-  if (max_duration) {
-    auto max_time = std::chrono::steady_clock::now() + *max_duration;
-    r = [max_time, r](uint iteration_index, uint accuracy) {
-      return r(iteration_index, accuracy) || std::chrono::steady_clock::now() >= max_time;
-    };
-  }
-
-  return r;
-}
-
 bool use_gpu(Learning::UseGpu use) {
   switch (use) {
     case Learning::UseGpu::Force:
@@ -80,13 +54,13 @@ struct LearningExecution {
   LearningExecution(
     const Domain<Host>& host_domain_,
     uint models_count_,
-    std::function<bool(uint, uint)> terminate_,
+    std::shared_ptr<TerminationStrategy> termination_strategy_,
     uint random_seed_,
     std::vector<std::shared_ptr<Learning::Observer>> observers_) :
       self(static_cast<ConcreteLearningExecution&>(*this)),
       models_count(models_count_),
       model_indexes(models_count, 0),
-      terminate(terminate_),
+      termination_strategy(termination_strategy_),
       host_domain(host_domain_),
       host_models(Models<Host>::make(host_domain, models_count)),
       random_seed(random_seed_),
@@ -104,7 +78,7 @@ struct LearningExecution {
 
     uint best_accuracy = 0;
 
-    for (int iteration_index = 0; !terminate(iteration_index, best_accuracy); ++iteration_index) {
+    for (int iteration_index = 0; !termination_strategy->terminate(iteration_index, best_accuracy); ++iteration_index) {
       if (iteration_index != 0) {
         profiles_initializer.initialize_profiles(
           random, &host_models,
@@ -130,7 +104,7 @@ struct LearningExecution {
   ConcreteLearningExecution& self;
   uint models_count;
   std::vector<uint> model_indexes;
-  std::function<bool(uint, uint)> terminate;
+  std::shared_ptr<TerminationStrategy> termination_strategy;
 
  protected:
   const Domain<Host>& host_domain;
@@ -148,10 +122,10 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
   GpuLearningExecution(
     const Domain<Host>& host_domain,
     uint models_count,
-    std::function<bool(uint, uint)> terminate,
+    std::shared_ptr<TerminationStrategy> termination_strategy,
     uint random_seed,
     std::vector<std::shared_ptr<Learning::Observer>> observers) :
-      LearningExecution<GpuLearningExecution>(host_domain, models_count, terminate, random_seed, observers),
+      LearningExecution<GpuLearningExecution>(host_domain, models_count, termination_strategy, random_seed, observers),
       device_domain(host_domain.clone_to<Device>()),
       device_models(host_models.clone_to<Device>(device_domain)) {
     random.init_for_device(random_seed);
@@ -174,10 +148,10 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
   CpuLearningExecution(
     const Domain<Host>& host_domain,
     uint models_count,
-    std::function<bool(uint, uint)> terminate,
+    std::shared_ptr<TerminationStrategy> termination_strategy,
     uint random_seed,
     std::vector<std::shared_ptr<Learning::Observer>> observers) :
-      LearningExecution<CpuLearningExecution>(host_domain, models_count, terminate, random_seed, observers) {
+      LearningExecution<CpuLearningExecution>(host_domain, models_count, termination_strategy, random_seed, observers) {
   }
 
   void improve_profiles() {
@@ -191,12 +165,10 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
 Learning::Result Learning::perform() const {
   CHRONE();
 
-  const std::function<bool(uint, uint)> terminate = make_terminate(_max_iterations, _target_accuracy, _max_duration);
-
   if (use_gpu(_use_gpu)) {
-    return GpuLearningExecution(_host_domain, _models_count, terminate, _random_seed, _observers).execute();
+    return GpuLearningExecution(_host_domain, _models_count, _termination_strategy, _random_seed, _observers).execute();
   } else {
-    return CpuLearningExecution(_host_domain, _models_count, terminate, _random_seed, _observers).execute();
+    return CpuLearningExecution(_host_domain, _models_count, _termination_strategy, _random_seed, _observers).execute();
   }
 }
 

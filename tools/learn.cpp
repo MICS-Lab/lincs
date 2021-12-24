@@ -7,11 +7,48 @@
 #include <chrones.hpp>
 #include <CLI11.hpp>
 
-#include "../library/learning.hpp"
 #include "../library/dump-intermediate-models.hpp"
+#include "../library/learning.hpp"
+#include "../library/terminate/accuracy.hpp"
+#include "../library/terminate/any.hpp"
+#include "../library/terminate/duration.hpp"
+#include "../library/terminate/iterations.hpp"
 
 
 CHRONABLE("learn")
+
+std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
+  const ppl::io::LearningSet& learning_set,
+  std::optional<uint> target_accuracy,
+  std::optional<uint> max_iterations,
+  std::optional<std::chrono::seconds> max_duration
+) {
+  std::vector<std::shared_ptr<ppl::TerminationStrategy>> terminate_strategies;
+
+  if (target_accuracy) {
+    terminate_strategies.push_back(
+      std::make_shared<ppl::TerminateAtAccuracy>(*target_accuracy));
+  } else {
+    terminate_strategies.push_back(
+      std::make_shared<ppl::TerminateAtAccuracy>(learning_set.alternatives_count));
+  }
+
+  if (max_iterations) {
+    terminate_strategies.push_back(
+      std::make_shared<ppl::TerminateAfterIterations>(*max_iterations));
+  }
+
+  if (max_duration) {
+    terminate_strategies.push_back(
+      std::make_shared<ppl::TerminateAfterDuration>(*max_duration));
+  }
+
+  if (terminate_strategies.size() == 1) {
+    return terminate_strategies[0];
+  } else {
+    return std::make_shared<ppl::TerminateOnAny>(terminate_strategies);
+  }
+}
 
 int main(int argc, char* argv[]) {
   CHRONE();
@@ -35,8 +72,8 @@ int main(int argc, char* argv[]) {
   std::optional<uint> max_iterations;
   app.add_option("--max-iterations", max_iterations);
 
-  std::optional<uint> max_duration;
-  app.add_option("--max-duration-seconds", max_duration);
+  std::optional<uint> max_duration_seconds;
+  app.add_option("--max-duration-seconds", max_duration_seconds);
 
   std::optional<uint> models_count;
   app.add_option("--models-count", models_count);
@@ -63,15 +100,19 @@ int main(int argc, char* argv[]) {
   std::ifstream learning_set_file(learning_set_file_name);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);
 
+  // Todo (much later): use C++23's std::optional::transform
   std::optional<uint> target_accuracy;
   if (target_accuracy_percentage)
     target_accuracy = std::ceil(*target_accuracy_percentage * learning_set.alternatives_count / 100);
 
-  ppl::Learning learning(learning_set);
+  // Todo (much later): use C++23's std::optional::transform
+  std::optional<std::chrono::seconds> max_duration;
+  if (max_duration_seconds)
+    max_duration = std::chrono::seconds(*max_duration_seconds);
 
-  if (target_accuracy) learning.set_target_accuracy(*target_accuracy);
-  if (max_iterations) learning.set_max_iterations(*max_iterations);
-  if (max_duration) learning.set_max_duration(std::chrono::seconds(*max_duration));
+  ppl::Learning learning(
+    learning_set,
+    make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
 
   if (models_count) learning.set_models_count(*models_count);
   if (random_seed) learning.set_random_seed(*random_seed);

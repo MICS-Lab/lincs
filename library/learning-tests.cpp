@@ -5,6 +5,7 @@
 #include "assign.hpp"
 #include "generate.hpp"
 #include "learning.hpp"
+#include "terminate/iterations.hpp"
 #include "test-utils.hpp"
 
 
@@ -19,9 +20,9 @@ TEST(Learn, OnGpu) {
   std::mt19937 gen2(57);
   auto learning_set = generate::learning_set(&gen2, reference_model, 100);
 
-  auto result = Learning(learning_set)
-    .set_max_iterations(3)
-    .set_target_accuracy(learning_set.alternatives_count)
+  auto result = Learning(
+      learning_set,
+      std::make_shared<TerminateAfterIterations>(3))
     .force_using_gpu()
     .set_random_seed(42)
     .set_models_count(15)
@@ -41,9 +42,9 @@ TEST(Learn, OnCpu) {
   std::mt19937 gen2(57);
   auto learning_set = generate::learning_set(&gen2, reference_model, 100);
 
-  auto result = Learning(learning_set)
-    .set_max_iterations(2)
-    .set_target_accuracy(learning_set.alternatives_count)
+  auto result = Learning(
+      learning_set,
+      std::make_shared<TerminateAfterIterations>(2))
     .forbid_using_gpu()
     .set_random_seed(42)
     .set_models_count(5)

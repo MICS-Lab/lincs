@@ -12,6 +12,7 @@
 #include "io.hpp"
 #include "problem.hpp"
 #include "randomness.hpp"
+#include "terminate.hpp"
 
 
 namespace ppl {
@@ -24,27 +25,15 @@ To be configured using `set_*`, then `perform`ed.
 class Learning {
  public:
   // Mandatory parameters
-  explicit Learning(const io::LearningSet& learning_set) :
+  explicit Learning(
+      const io::LearningSet& learning_set,
+      std::shared_ptr<TerminationStrategy> termination_strategy) :
     _host_domain(Domain<Host>::make(learning_set)),
-    _target_accuracy(learning_set.alternatives_count),
     _models_count(9),  // @todo Decide on a good default value
     _random_seed(std::random_device()()),
-    _use_gpu(UseGpu::Auto)
+    _use_gpu(UseGpu::Auto),
+    _termination_strategy(termination_strategy)
   {}
-
-  // Termination criteria
-  Learning& set_target_accuracy(uint target_accuracy) {
-    _target_accuracy = target_accuracy;
-    return *this;
-  }
-  Learning& set_max_iterations(uint max_iterations) {
-    _max_iterations = max_iterations;
-    return *this;
-  }
-  Learning& set_max_duration(std::chrono::steady_clock::duration max_duration) {
-    _max_duration = max_duration;
-    return *this;
-  }
 
   // Execution parameters
   Learning& set_models_count(uint models_count) {
@@ -99,13 +88,13 @@ class Learning {
 
  private:
   Domain<Host> _host_domain;
-  uint _target_accuracy;
-  std::optional<uint> _max_iterations;
-  std::optional<std::chrono::steady_clock::duration> _max_duration;
   uint _models_count;
   uint _random_seed;
   UseGpu _use_gpu;
   std::vector<std::shared_ptr<Observer>> _observers;
+
+  // @todo Could we use a std::unique_ptr instead of this std::shared_ptr?
+  std::shared_ptr<TerminationStrategy> _termination_strategy;
 };
 
 }  // namespace ppl

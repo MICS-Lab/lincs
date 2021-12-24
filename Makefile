@@ -13,9 +13,9 @@ default: dep-graph lint test tools
 
 # Source files
 tools_source_files := $(wildcard tools/*.cpp)
-header_files := $(wildcard library/*.hpp)
-cpp_lib_source_files := $(wildcard library/*.cpp)
-cu_lib_source_files := $(wildcard library/*.cu)
+header_files := $(wildcard library/*.hpp) $(wildcard library/*/*.hpp)
+cpp_lib_source_files := $(wildcard library/*.cpp) $(wildcard library/*/*.cpp)
+cu_lib_source_files := $(wildcard library/*.cu) $(wildcard library/*/*.cu)
 cpp_test_source_files := $(wildcard */*-tests.cpp)
 cu_test_source_files := $(wildcard */*-tests.cu)
 sh_test_source_files := $(wildcard */*-tests.sh)
