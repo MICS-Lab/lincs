@@ -26,20 +26,17 @@ class Learning {
  public:
   // Mandatory parameters
   explicit Learning(
-      const io::LearningSet& learning_set,
+      const Domain<Host>& host_domain,
+      Models<Host>* host_models,
       std::shared_ptr<TerminationStrategy> termination_strategy) :
-    _host_domain(Domain<Host>::make(learning_set)),
-    _models_count(9),  // @todo Decide on a good default value
+    _host_domain(host_domain),
+    _host_models(host_models),
     _random_seed(std::random_device()()),
     _use_gpu(UseGpu::Auto),
     _termination_strategy(termination_strategy)
   {}
 
   // Execution parameters
-  Learning& set_models_count(uint models_count) {
-    _models_count = models_count;
-    return *this;
-  }
   Learning& set_random_seed(uint random_seed) {
     _random_seed = random_seed;
     return *this;
@@ -87,8 +84,8 @@ class Learning {
   enum class UseGpu { Auto, Force, Forbid };
 
  private:
-  Domain<Host> _host_domain;
-  uint _models_count;
+  const Domain<Host>& _host_domain;
+  Models<Host>* _host_models;
   uint _random_seed;
   UseGpu _use_gpu;
   std::vector<std::shared_ptr<Observer>> _observers;

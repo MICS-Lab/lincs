@@ -75,7 +75,9 @@ int main(int argc, char* argv[]) {
   std::optional<uint> max_duration_seconds;
   app.add_option("--max-duration-seconds", max_duration_seconds);
 
-  std::optional<uint> models_count;
+  // @todo Find a good default value
+  // @todo Put the default value in the `learning` module
+  uint models_count = 9;
   app.add_option("--models-count", models_count);
 
   std::optional<uint> random_seed;
@@ -110,11 +112,13 @@ int main(int argc, char* argv[]) {
   if (max_duration_seconds)
     max_duration = std::chrono::seconds(*max_duration_seconds);
 
+  auto domain = ppl::Domain<Host>::make(learning_set);
+  auto models = ppl::Models<Host>::make(domain, models_count);
+
   ppl::Learning learning(
-    learning_set,
+    domain, &models,
     make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
 
-  if (models_count) learning.set_models_count(*models_count);
   if (random_seed) learning.set_random_seed(*random_seed);
 
   if (force_gpu) learning.force_using_gpu();

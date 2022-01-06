@@ -20,19 +20,20 @@ TEST(Learn, OnGpu) {
   std::mt19937 gen2(57);
   auto learning_set = generate::learning_set(&gen2, reference_model, 100);
 
+  auto domain = Domain<Host>::make(learning_set);
+  auto models = Models<Host>::make(domain, 15);
+
   auto result = Learning(
-      learning_set,
+      domain, &models,
       std::make_shared<TerminateAfterIterations>(3))
     .force_using_gpu()
     .set_random_seed(42)
-    .set_models_count(15)
     .perform();
 
   EXPECT_EQ(result.best_model_accuracy, 89);
 
-  auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, result.best_model));
-  EXPECT_EQ(get_accuracy(models, 0), result.best_model_accuracy);
+  auto best_models = Models<Host>::make(domain, std::vector<io::Model>(1, result.best_model));
+  EXPECT_EQ(get_accuracy(best_models, 0), result.best_model_accuracy);
 }
 
 TEST(Learn, OnCpu) {
@@ -42,19 +43,20 @@ TEST(Learn, OnCpu) {
   std::mt19937 gen2(57);
   auto learning_set = generate::learning_set(&gen2, reference_model, 100);
 
+  auto domain = Domain<Host>::make(learning_set);
+  auto models = Models<Host>::make(domain, 5);
+
   auto result = Learning(
-      learning_set,
+      domain, &models,
       std::make_shared<TerminateAfterIterations>(2))
     .forbid_using_gpu()
     .set_random_seed(42)
-    .set_models_count(5)
     .perform();
 
   EXPECT_EQ(result.best_model_accuracy, 78);
 
-  auto domain = Domain<Host>::make(learning_set);
-  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, result.best_model));
-  EXPECT_EQ(get_accuracy(models, 0), result.best_model_accuracy);
+  auto best_models = Models<Host>::make(domain, std::vector<io::Model>(1, result.best_model));
+  EXPECT_EQ(get_accuracy(best_models, 0), result.best_model_accuracy);
 }
 
 }  // namespace ppl
