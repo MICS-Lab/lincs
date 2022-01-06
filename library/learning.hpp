@@ -38,7 +38,6 @@ class Learning {
     _host_domain(host_domain),
     _host_models(host_models),
     _random_seed(std::random_device()()),
-    _use_gpu(UseGpu::Auto),
     _profiles_initialization_strategy(profiles_initialization_strategy),
     _weights_optimization_strategy(weights_optimization_strategy),
     _profiles_improvement_strategy(profiles_improvement_strategy),
@@ -48,16 +47,6 @@ class Learning {
   // Execution parameters
   Learning& set_random_seed(uint random_seed) {
     _random_seed = random_seed;
-    return *this;
-  }
-
-  // Execution space
-  Learning& force_using_gpu() {
-    _use_gpu = UseGpu::Force;
-    return *this;
-  }
-  Learning& forbid_using_gpu() {
-    _use_gpu = UseGpu::Forbid;
     return *this;
   }
 
@@ -89,14 +78,10 @@ class Learning {
 
   Result perform() const;
 
- public:
-  enum class UseGpu { Auto, Force, Forbid };
-
  private:
   const Domain<Host>& _host_domain;
   Models<Host>* _host_models;
   uint _random_seed;
-  UseGpu _use_gpu;
   std::vector<std::shared_ptr<Observer>> _observers;
 
   // @todo Could we use std::unique_ptr instead of std::shared_ptr?

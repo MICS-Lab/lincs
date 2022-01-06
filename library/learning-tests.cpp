@@ -35,7 +35,6 @@ TEST(Learn, OnGpu) {
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(&host_models, &device_models),
       std::make_shared<TerminateAfterIterations>(3))
-    .force_using_gpu()
     .set_random_seed(42)
     .perform();
 
@@ -61,7 +60,6 @@ TEST(Learn, OnCpu) {
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(&host_models),
       std::make_shared<TerminateAfterIterations>(2))
-    .forbid_using_gpu()
     .set_random_seed(42)
     .perform();
 

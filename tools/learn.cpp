@@ -165,9 +165,6 @@ int main(int argc, char* argv[]) {
 
   if (random_seed) learning.set_random_seed(*random_seed);
 
-  if (force_gpu) learning.force_using_gpu();
-  if (forbid_gpu) learning.forbid_using_gpu();
-
   if (!quiet) learning.subscribe(std::make_shared<ppl::Learning::ProgressReporter>());
 
   std::optional<std::ofstream> intermediate_models_file;

@@ -35,19 +35,6 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
   return model_indexes;
 }
 
-bool use_gpu(Learning::UseGpu use) {
-  switch (use) {
-    case Learning::UseGpu::Force:
-      return true;
-    case Learning::UseGpu::Forbid:
-      return false;
-    case Learning::UseGpu::Auto:
-    default:
-      // @todo Detect GPU and return true only if it's usable
-      return true;
-  }
-}
-
 struct LearningExecution {
   LearningExecution(
     const Domain<Host>& host_domain_,
