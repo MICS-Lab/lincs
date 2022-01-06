@@ -36,6 +36,7 @@ struct Desirability {
   }
 };
 
+// @todo Move to improve-profiles/heuristic-for-accuracy
 /*
 Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/document
 */
