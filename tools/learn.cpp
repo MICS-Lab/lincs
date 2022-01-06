@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
   uint models_count = 9;
   app.add_option("--models-count", models_count);
 
-  std::optional<uint> random_seed;
+  uint random_seed = std::random_device()();
   app.add_option("--random-seed", random_seed);
 
   bool force_gpu = false;
@@ -175,15 +175,20 @@ int main(int argc, char* argv[]) {
     intermediate_models_file = std::ofstream(*intermediate_models_file_name);
   }
 
+  RandomSource random;
+  random.init_for_host(random_seed);
+  if (use_gpu) {
+    random.init_for_device(random_seed);
+  }
+
   ppl::Learning learning(
     host_domain, &host_models,
+    random,
     make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(host_models),
     make_weights_optimization_strategy(),
     make_profiles_improvement_strategy(&host_models, device_models_address),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
-
-  if (random_seed) learning.set_random_seed(*random_seed);
 
   auto result = learning.perform();
   result.best_model.save_to(std::cout);

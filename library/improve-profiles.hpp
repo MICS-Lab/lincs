@@ -15,7 +15,7 @@ class ProfilesImprovementStrategy {
  public:
   virtual ~ProfilesImprovementStrategy() {}
 
-  virtual void improve_profiles(const RandomSource& random) = 0;
+  virtual void improve_profiles(RandomNumberGenerator random) = 0;
 };
 
 struct Desirability {
@@ -42,8 +42,8 @@ Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/doc
 */
 class ProfilesImprover {
  public:
-  void improve_profiles(const RandomSource& random, Models<Host>*);
-  void improve_profiles(const RandomSource& random, Models<Device>*);
+  void improve_profiles(RandomNumberGenerator random, Models<Host>*);
+  void improve_profiles(RandomNumberGenerator random, Models<Device>*);
 };
 
 }  // namespace ppl

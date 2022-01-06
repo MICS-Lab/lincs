@@ -29,14 +29,18 @@ TEST(Learn, OnGpu) {
   auto device_domain = host_domain.clone_to<Device>();
   auto device_models = host_models.clone_to<Device>(device_domain);
 
+  RandomSource random;
+  random.init_for_host(42);
+  random.init_for_device(42);
+
   auto result = Learning(
       host_domain, &host_models,
+      random,
       {},
       std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(&host_models, &device_models),
       std::make_shared<TerminateAfterIterations>(3))
-    .set_random_seed(42)
     .perform();
 
   EXPECT_EQ(result.best_model_accuracy, 89);
@@ -55,14 +59,17 @@ TEST(Learn, OnCpu) {
   auto host_domain = Domain<Host>::make(learning_set);
   auto host_models = Models<Host>::make(host_domain, 5);
 
+  RandomSource random;
+  random.init_for_host(42);
+
   auto result = Learning(
       host_domain, &host_models,
+      random,
       {},
       std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(&host_models),
       std::make_shared<TerminateAfterIterations>(2))
-    .set_random_seed(42)
     .perform();
 
   EXPECT_EQ(result.best_model_accuracy, 78);

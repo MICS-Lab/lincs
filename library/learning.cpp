@@ -43,7 +43,7 @@ struct LearningExecution {
     std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy_,
     std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy_,
     std::shared_ptr<TerminationStrategy> termination_strategy_,
-    uint random_seed_,
+    RandomNumberGenerator random_,
     std::vector<std::shared_ptr<LearningObserver>> observers_) :
       models_count(host_models_->get_view().models_count),
       model_indexes(models_count, 0),
@@ -53,11 +53,8 @@ struct LearningExecution {
       termination_strategy(termination_strategy_),
       host_domain(host_domain_),
       host_models(host_models_),
-      random_seed(random_seed_),
-      random(),
+      random(random_),
       observers(observers_) {
-    random.init_for_host(random_seed);
-    random.init_for_device(random_seed);  // @todo Initialize for device *only* when actually using the GPU
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
     profiles_initialization_strategy->initialize_profiles(
       random, host_models,
@@ -104,8 +101,7 @@ struct LearningExecution {
  protected:
   const Domain<Host>& host_domain;
   Models<Host>* host_models;
-  uint random_seed;
-  RandomSource random;
+  RandomNumberGenerator random;
 
  private:
   std::vector<std::shared_ptr<LearningObserver>> observers;
@@ -120,7 +116,7 @@ Learning::Result Learning::perform() const {
     _weights_optimization_strategy,
     _profiles_improvement_strategy,
     _termination_strategy,
-    _random_seed, _observers).execute();
+    _random, _observers).execute();
 }
 
 }  // namespace ppl

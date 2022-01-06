@@ -15,7 +15,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
  public:
   explicit ImproveProfilesWithAccuracyHeuristicOnCpu(Models<Host>* models) : _models(models) {}
 
-  void improve_profiles(const RandomSource& random /* @todo Put in ctor */) override {
+  void improve_profiles(RandomNumberGenerator random /* @todo Put in ctor */) override {
     _profiles_improver.improve_profiles(random, _models);
   };
 
@@ -36,7 +36,7 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStra
     _host_models(host_models),
     _device_models(device_models) {}
 
-  void improve_profiles(const RandomSource& random /* @todo Put in ctor */) override {
+  void improve_profiles(RandomNumberGenerator random /* @todo Put in ctor */) override {
     replicate_models(*_host_models, _device_models);
     _profiles_improver.improve_profiles(random, _device_models);
     replicate_profiles(*_device_models, _host_models);

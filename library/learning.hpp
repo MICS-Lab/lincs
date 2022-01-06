@@ -32,6 +32,7 @@ class Learning {
   explicit Learning(
       const Domain<Host>& host_domain,
       Models<Host>* host_models,
+      RandomNumberGenerator random,
       std::vector<std::shared_ptr<LearningObserver>> observers,
       std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
       std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
@@ -39,19 +40,13 @@ class Learning {
       std::shared_ptr<TerminationStrategy> termination_strategy) :
     _host_domain(host_domain),
     _host_models(host_models),
-    _random_seed(std::random_device()()),
+    _random(random),
     _observers(observers),
     _profiles_initialization_strategy(profiles_initialization_strategy),
     _weights_optimization_strategy(weights_optimization_strategy),
     _profiles_improvement_strategy(profiles_improvement_strategy),
     _termination_strategy(termination_strategy)
   {}
-
-  // Execution parameters
-  Learning& set_random_seed(uint random_seed) {
-    _random_seed = random_seed;
-    return *this;
-  }
 
   // Execution
   struct Result {
@@ -66,7 +61,7 @@ class Learning {
  private:
   const Domain<Host>& _host_domain;
   Models<Host>* _host_models;
-  uint _random_seed;
+  RandomNumberGenerator _random;
 
   // @todo Could we use std::unique_ptr instead of std::shared_ptr?
   std::vector<std::shared_ptr<LearningObserver>> _observers;
