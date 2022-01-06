@@ -55,6 +55,7 @@ struct LearningExecution {
     const Domain<Host>& host_domain_,
     Models<Host>* host_models_,
     std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy_,
+    std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy_,
     std::shared_ptr<TerminationStrategy> termination_strategy_,
     uint random_seed_,
     std::vector<std::shared_ptr<Learning::Observer>> observers_) :
@@ -62,12 +63,12 @@ struct LearningExecution {
       models_count(host_models_->get_view().models_count),
       model_indexes(models_count, 0),
       profiles_initialization_strategy(profiles_initialization_strategy_),
+      weights_optimization_strategy(weights_optimization_strategy_),
       termination_strategy(termination_strategy_),
       host_domain(host_domain_),
       host_models(host_models_),
       random_seed(random_seed_),
       random(),
-      weights_optimizer(*host_models),
       observers(observers_) {
     random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
@@ -90,7 +91,7 @@ struct LearningExecution {
           model_indexes.begin(), model_indexes.begin() + models_count / 2);
       }
 
-      weights_optimizer.optimize_weights(host_models);
+      weights_optimization_strategy->optimize_weights(host_models);
       self.improve_profiles();
 
       model_indexes = partition_models_by_accuracy(models_count, *host_models);
@@ -110,6 +111,7 @@ struct LearningExecution {
   uint models_count;
   std::vector<uint> model_indexes;
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy;
+  std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy;
   std::shared_ptr<TerminationStrategy> termination_strategy;
 
  protected:
@@ -119,7 +121,6 @@ struct LearningExecution {
   RandomSource random;
 
  private:
-  WeightsOptimizer weights_optimizer;
   std::vector<std::shared_ptr<Learning::Observer>> observers;
 };
 
@@ -128,12 +129,14 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
     const Domain<Host>& host_domain,
     Models<Host>* host_models,
     std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
+    std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
     std::shared_ptr<TerminationStrategy> termination_strategy,
     uint random_seed,
     std::vector<std::shared_ptr<Learning::Observer>> observers) :
       LearningExecution<GpuLearningExecution>(
         host_domain, host_models,
         profiles_initialization_strategy,
+        weights_optimization_strategy,
         termination_strategy,
         random_seed,
         observers),
@@ -160,12 +163,15 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
     const Domain<Host>& host_domain,
     Models<Host>* host_models,
     std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
+    std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
     std::shared_ptr<TerminationStrategy> termination_strategy,
     uint random_seed,
     std::vector<std::shared_ptr<Learning::Observer>> observers) :
       LearningExecution<CpuLearningExecution>(
         host_domain, host_models,
-        profiles_initialization_strategy, termination_strategy,
+        profiles_initialization_strategy,
+        weights_optimization_strategy,
+        termination_strategy,
         random_seed, observers) {
   }
 
@@ -183,12 +189,16 @@ Learning::Result Learning::perform() const {
   if (use_gpu(_use_gpu)) {
     return GpuLearningExecution(
       _host_domain, _host_models,
-      _profiles_initialization_strategy, _termination_strategy,
+      _profiles_initialization_strategy,
+      _weights_optimization_strategy,
+      _termination_strategy,
       _random_seed, _observers).execute();
   } else {
     return CpuLearningExecution(
       _host_domain, _host_models,
-      _profiles_initialization_strategy, _termination_strategy,
+      _profiles_initialization_strategy,
+      _weights_optimization_strategy,
+      _termination_strategy,
       _random_seed, _observers).execute();
   }
 }

@@ -8,15 +8,11 @@
 
 namespace ppl {
 
-/*
-Implement 3.3.3 of https://tel.archives-ouvertes.fr/tel-01370555/document
-*/
-class WeightsOptimizer {
+class WeightsOptimizationStrategy {
  public:
-  explicit WeightsOptimizer(const Models<Host>&);
+  virtual ~WeightsOptimizationStrategy() {}
 
- public:
-  void optimize_weights(Models<Host>*);
+  virtual void optimize_weights(Models<Host>*) = 0;
 };
 
 }  // namespace ppl

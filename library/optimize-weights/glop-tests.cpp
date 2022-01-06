@@ -8,13 +8,13 @@
 
 #include <chrones.hpp>
 
-#include "assign.hpp"
-#include "generate.hpp"
-#include "optimize-weights.hpp"
-#include "test-utils.hpp"
+#include "../assign.hpp"
+#include "../generate.hpp"
+#include "../test-utils.hpp"
+#include "glop.hpp"
 
 
-CHRONABLE("optimize-weights-tests")
+CHRONABLE("glop-tests")
 
 namespace ppl {
 
@@ -375,7 +375,7 @@ TEST(OptimizeWeights, First) {
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  WeightsOptimizer(models).optimize_weights(&models);
+  OptimizeWeightsUsingGlop().optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 }
 
@@ -390,7 +390,7 @@ TEST(OptimizeWeights, Larger) {
   auto models = Models<Host>::make(domain, {model});
 
   EXPECT_EQ(get_accuracy(models, 0), 233);
-  WeightsOptimizer(models).optimize_weights(&models);
+  OptimizeWeightsUsingGlop().optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1000);
 }
 

@@ -110,11 +110,11 @@ build/tests/library/improve-profiles-tests: \
   build/obj/library/randomness.o \
   build/obj/library/test-utils.o
 
-build/tests/library/optimize-weights-tests: \
+build/tests/library/optimize-weights/glop-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
   build/obj/library/io.o \
-  build/obj/library/optimize-weights.o \
+  build/obj/library/optimize-weights/glop.o \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
@@ -134,7 +134,7 @@ build/tests/library/learning-tests: \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
-  build/obj/library/optimize-weights.o \
+  build/obj/library/optimize-weights/glop.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o
 
@@ -188,7 +188,7 @@ build/tools/bin/learn: \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
-  build/obj/library/optimize-weights.o \
+  build/obj/library/optimize-weights/glop.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o
 

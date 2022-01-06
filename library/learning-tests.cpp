@@ -6,6 +6,7 @@
 #include "generate.hpp"
 #include "initialize-profiles/max-power-per-criterion.hpp"
 #include "learning.hpp"
+#include "optimize-weights/glop.hpp"
 #include "terminate/iterations.hpp"
 #include "test-utils.hpp"
 
@@ -27,6 +28,7 @@ TEST(Learn, OnGpu) {
   auto result = Learning(
       domain, &models,
       std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(models),
+      std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<TerminateAfterIterations>(3))
     .force_using_gpu()
     .set_random_seed(42)
@@ -51,6 +53,7 @@ TEST(Learn, OnCpu) {
   auto result = Learning(
       domain, &models,
       std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(models),
+      std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<TerminateAfterIterations>(2))
     .forbid_using_gpu()
     .set_random_seed(42)

@@ -10,6 +10,7 @@
 #include "../library/dump-intermediate-models.hpp"
 #include "../library/initialize-profiles/max-power-per-criterion.hpp"
 #include "../library/learning.hpp"
+#include "../library/optimize-weights/glop.hpp"
 #include "../library/terminate/accuracy.hpp"
 #include "../library/terminate/any.hpp"
 #include "../library/terminate/duration.hpp"
@@ -23,6 +24,11 @@ std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initializatio
 ) {
   // @todo Complete with other strategies
   return std::make_shared<ppl::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(models);
+}
+
+std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy() {
+  // @todo Complete with other strategies
+  return std::make_shared<ppl::OptimizeWeightsUsingGlop>();
 }
 
 std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
@@ -126,6 +132,7 @@ int main(int argc, char* argv[]) {
   ppl::Learning learning(
     domain, &models,
     make_profiles_initialization_strategy(models),
+    make_weights_optimization_strategy(),
     make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
 
   if (random_seed) learning.set_random_seed(*random_seed);

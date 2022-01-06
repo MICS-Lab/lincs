@@ -1,6 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
-#include "optimize-weights.hpp"
+#include "glop.hpp"
 
 #include <ortools/glop/lp_solver.h>
 
@@ -137,9 +137,7 @@ void optimize_weights(const ModelsView& models) {
   }
 }
 
-WeightsOptimizer::WeightsOptimizer(const Models<Host>&) {}
-
-void WeightsOptimizer::optimize_weights(Models<Host>* models) {
+void OptimizeWeightsUsingGlop::optimize_weights(Models<Host>* models) {
   CHRONE();
 
   ppl::optimize_weights(models->get_view());
