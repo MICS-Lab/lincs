@@ -1,6 +1,6 @@
 // Copyright 2021-2022 Vincent Jacques
 
-#include "improve-profiles.hpp"
+#include "heuristic-for-accuracy.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -9,9 +9,8 @@
 
 #include <chrones.hpp>
 
-#include "cuda-utils.hpp"
-#include "randomness.hpp"
-#include "assign.hpp"
+#include "../assign.hpp"
+#include "../cuda-utils.hpp"
 
 
 namespace ppl {
@@ -308,14 +307,16 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   delete[] criterion_indexes_;
 }
 
-void ProfilesImprover::improve_profiles(RandomNumberGenerator random, Models<Host>* models) {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(Models<Host>* models) {
   CHRONE();
+
+  assert(models == _models);
 
   auto models_view = models->get_view();
 
   #pragma omp parallel for
   for (uint model_index = 0; model_index != models_view.models_count; ++model_index) {
-    improve_model_profiles(random, models_view, model_index);
+    improve_model_profiles(_random, models_view, model_index);
   }
 }
 
@@ -328,14 +329,20 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
   }
 }
 
-void ProfilesImprover::improve_profiles(RandomNumberGenerator random, Models<Device>* models) {
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(Models<Host>* host_models) {
   CHRONE();
 
-  auto models_view = models->get_view();
+  assert(host_models == _host_models);
 
-  improve_profiles__kernel<<<CONFIG(models_view.models_count)>>>(random, models_view);
+  replicate_models(*host_models, _device_models);
+
+  auto models_view = _device_models->get_view();
+
+  improve_profiles__kernel<<<CONFIG(models_view.models_count)>>>(_random, models_view);
   cudaDeviceSynchronize();
   checkCudaErrors();
+
+  replicate_profiles(*_device_models, host_models);
 }
 
 }  // namespace ppl

@@ -108,10 +108,10 @@ build/tests/library/problem-tests: \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
-build/tests/library/improve-profiles-tests: \
+build/tests/library/improve-profiles/heuristic-for-accuracy-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
-  build/obj/library/improve-profiles.o \
+  build/obj/library/improve-profiles/heuristic-for-accuracy.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o \
@@ -137,7 +137,7 @@ build/tests/library/io-tests: \
 build/tests/library/learning-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
-  build/obj/library/improve-profiles.o \
+  build/obj/library/improve-profiles/heuristic-for-accuracy.o \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
@@ -190,7 +190,7 @@ build/tools/bin/generate-learning-set: \
 
 build/tools/bin/learn: \
   build/obj/library/assign.o \
-  build/obj/library/improve-profiles.o \
+  build/obj/library/improve-profiles/heuristic-for-accuracy.o \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
