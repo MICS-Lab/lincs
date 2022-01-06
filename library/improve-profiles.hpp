@@ -15,7 +15,7 @@ class ProfilesImprovementStrategy {
  public:
   virtual ~ProfilesImprovementStrategy() {}
 
-  virtual void improve_profiles() = 0;  // @todo Re-add models?
+  virtual void improve_profiles(Models<Host>*) = 0;
 };
 
 struct Desirability {

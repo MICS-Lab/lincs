@@ -56,6 +56,9 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
   RandomNumberGenerator random,
   const Models<Host>& models) :
+#ifndef NDEBUG
+    _models(&models),
+#endif
     _random(random) {
   CHRONE();
 
@@ -80,6 +83,8 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
   const std::vector<uint>::const_iterator model_indexes_end
 ) {
   CHRONE();
+
+  assert(models == _models);
 
   ModelsView models_view = models->get_view();
 

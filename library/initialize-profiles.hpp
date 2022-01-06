@@ -16,7 +16,7 @@ class ProfilesInitializationStrategy {
   virtual ~ProfilesInitializationStrategy() {}
 
   virtual void initialize_profiles(
-    Models<Host>* models,  // @todo Put in ctor?
+    Models<Host>* models,
     uint iteration_index,
     std::vector<uint>::const_iterator model_indexes_begin,
     std::vector<uint>::const_iterator model_indexes_end) = 0;

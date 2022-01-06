@@ -18,12 +18,15 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(RandomNumberGenerator, const Models<Host>&);
 
   void initialize_profiles(
-    Models<Host>* models,
+    Models<Host>*,
     uint iteration_index,
     std::vector<uint>::const_iterator model_indexes_begin,
     std::vector<uint>::const_iterator model_indexes_end) override;
 
  private:
+#ifndef NDEBUG
+  const Models<Host>* const _models;
+#endif
   RandomNumberGenerator _random;
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> _generators;
 };

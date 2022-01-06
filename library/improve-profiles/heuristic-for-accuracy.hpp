@@ -16,16 +16,24 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
   ImproveProfilesWithAccuracyHeuristicOnCpu(
       RandomNumberGenerator random,
       Models<Host>* models) :
-    _random(random),
-    _models(models) {}
+#ifndef NDEBUG
+    _models(models),
+#endif
+    _random(random) {}
 
-  void improve_profiles() override {
-    _profiles_improver.improve_profiles(_random, _models);
+  void improve_profiles(Models<Host>* models) override {
+    CHRONE();
+
+    assert(models == _models);
+
+    _profiles_improver.improve_profiles(_random, models);
   };
 
  private:
+#ifndef NDEBUG
+  const Models<Host>* const _models;
+#endif
   RandomNumberGenerator _random;
-  Models<Host>* _models;
   ProfilesImprover _profiles_improver;
 };
 
@@ -39,19 +47,27 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStra
       RandomNumberGenerator random,
       Models<Host>* host_models,
       Models<Device>* device_models) :
-    _random(random),
+#ifndef NDEBUG
     _host_models(host_models),
+#endif
+    _random(random),
     _device_models(device_models) {}
 
-  void improve_profiles() override {
-    replicate_models(*_host_models, _device_models);
+  void improve_profiles(Models<Host>* host_models) override {
+    CHRONE();
+
+    assert(host_models == _host_models);
+
+    replicate_models(*host_models, _device_models);
     _profiles_improver.improve_profiles(_random, _device_models);
-    replicate_profiles(*_device_models, _host_models);
+    replicate_profiles(*_device_models, host_models);
   };
 
  private:
+#ifndef NDEBUG
+  const Models<Host>* const _host_models;
+#endif
   RandomNumberGenerator _random;
-  Models<Host>* _host_models;
   Models<Device>* _device_models;
   ProfilesImprover _profiles_improver;
 };
