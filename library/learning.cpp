@@ -35,40 +35,49 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
   return model_indexes;
 }
 
-Learning::Result Learning::perform() const {
+LearningResult perform_learning(
+  Models<Host>* host_models,
+  RandomNumberGenerator random,
+  // @todo Could we use std::unique_ptr instead of std::shared_ptr?
+  std::vector<std::shared_ptr<LearningObserver>> observers,
+  std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
+  std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
+  std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
+  std::shared_ptr<TerminationStrategy> termination_strategy
+) {
   CHRONE();
 
-  const uint models_count = _host_models->get_view().models_count;
+  const uint models_count = host_models->get_view().models_count;
 
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  _profiles_initialization_strategy->initialize_profiles(
-    _random, _host_models,
+  profiles_initialization_strategy->initialize_profiles(
+    random, host_models,
     0,
     model_indexes.begin(), model_indexes.end());
 
   uint best_accuracy = 0;
 
-  for (int iteration_index = 0; !_termination_strategy->terminate(iteration_index, best_accuracy); ++iteration_index) {
+  for (int iteration_index = 0; !termination_strategy->terminate(iteration_index, best_accuracy); ++iteration_index) {
     if (iteration_index != 0) {
-      _profiles_initialization_strategy->initialize_profiles(
-        _random, _host_models,
+      profiles_initialization_strategy->initialize_profiles(
+        random, host_models,
         iteration_index,
         model_indexes.begin(), model_indexes.begin() + models_count / 2);
     }
 
-    _weights_optimization_strategy->optimize_weights(_host_models);
-    _profiles_improvement_strategy->improve_profiles(_random);
+    weights_optimization_strategy->optimize_weights(host_models);
+    profiles_improvement_strategy->improve_profiles(random);
 
-    model_indexes = partition_models_by_accuracy(models_count, *_host_models);
-    best_accuracy = get_accuracy(*_host_models, model_indexes.back());
+    model_indexes = partition_models_by_accuracy(models_count, *host_models);
+    best_accuracy = get_accuracy(*host_models, model_indexes.back());
 
-    for (auto observer : _observers) {
-      observer->after_main_iteration(iteration_index, best_accuracy, *_host_models);
+    for (auto observer : observers) {
+      observer->after_main_iteration(iteration_index, best_accuracy, *host_models);
     }
   }
 
-  return Result(_host_models->unmake_one(model_indexes.back()), best_accuracy);
+  return LearningResult(host_models->unmake_one(model_indexes.back()), best_accuracy);
 }
 
 }  // namespace ppl

@@ -181,8 +181,8 @@ int main(int argc, char* argv[]) {
     random.init_for_device(random_seed);
   }
 
-  ppl::Learning learning(
-    host_domain, &host_models,
+  auto result = ppl::perform_learning(
+    &host_models,
     random,
     make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(host_models),
@@ -190,7 +190,6 @@ int main(int argc, char* argv[]) {
     make_profiles_improvement_strategy(&host_models, device_models_address),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
-  auto result = learning.perform();
   result.best_model.save_to(std::cout);
   if (target_accuracy_percentage && result.best_model_accuracy < target_accuracy) {
     std::cerr << "Accuracy reached ("
