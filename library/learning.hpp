@@ -28,6 +28,9 @@ struct LearningResult {
   uint best_model_accuracy;
 };
 
+// @todo Find a good default value. How?
+const uint default_models_count = 9;
+
 LearningResult perform_learning(
   Models<Host>* host_models,
   // @todo Could we use std::unique_ptr instead of std::shared_ptr?

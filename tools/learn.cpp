@@ -116,9 +116,7 @@ int main(int argc, char* argv[]) {
   std::optional<uint> max_duration_seconds;
   app.add_option("--max-duration-seconds", max_duration_seconds);
 
-  // @todo Find a good default value
-  // @todo Put the default value in the `learning` module
-  uint models_count = 9;
+  uint models_count = ppl::default_models_count;
   app.add_option("--models-count", models_count);
 
   uint random_seed = std::random_device()();
