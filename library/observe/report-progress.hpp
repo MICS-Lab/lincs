@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef OBSERVE_REPORT_PROGRESS_HPP_
 #define OBSERVE_REPORT_PROGRESS_HPP_

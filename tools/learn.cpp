@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <fstream>

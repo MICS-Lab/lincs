@@ -1,3 +1,3 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #include "matrix-view.hpp"

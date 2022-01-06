@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef CUDA_UTILS_HPP_
 #define CUDA_UTILS_HPP_

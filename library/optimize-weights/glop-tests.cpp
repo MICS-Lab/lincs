@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #include <ortools/glop/lp_solver.h>
 #include <ortools/lp_data/lp_data.h>

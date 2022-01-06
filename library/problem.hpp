@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef PROBLEM_HPP_
 #define PROBLEM_HPP_

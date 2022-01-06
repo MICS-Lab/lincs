@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef IMPROVE_PROFILES_HEURISTIC_FOR_ACCURACY_HPP_
 #define IMPROVE_PROFILES_HEURISTIC_FOR_ACCURACY_HPP_

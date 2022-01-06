@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef OPTIMIZE_WEIGHTS_GLOP_HPP_
 #define OPTIMIZE_WEIGHTS_GLOP_HPP_

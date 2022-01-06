@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef MEDIAN_AND_MAX_HPP_
 #define MEDIAN_AND_MAX_HPP_

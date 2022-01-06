@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef INITIALIZE_PROFILES_HPP_
 #define INITIALIZE_PROFILES_HPP_

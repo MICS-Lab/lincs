@@ -1,4 +1,4 @@
-// Copyright 2021 Vincent Jacques
+// Copyright 2021-2022 Vincent Jacques
 
 #ifndef TERMINATE_ANY_HPP_
 #define TERMINATE_ANY_HPP_
