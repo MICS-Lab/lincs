@@ -112,8 +112,8 @@ build/tests/library/improve-profiles-tests: \
 build/tests/library/optimize-weights-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
-  build/obj/library/optimize-weights.o \
   build/obj/library/io.o \
+  build/obj/library/optimize-weights.o \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
@@ -130,10 +130,10 @@ build/tests/library/learning-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
   build/obj/library/improve-profiles.o \
-  build/obj/library/optimize-weights.o \
   build/obj/library/initialize-profiles.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
+  build/obj/library/optimize-weights.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o
 
