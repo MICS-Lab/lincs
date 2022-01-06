@@ -3,8 +3,6 @@
 #ifndef IMPROVE_PROFILES_HPP_
 #define IMPROVE_PROFILES_HPP_
 
-#include <vector>
-
 #include "problem.hpp"
 #include "randomness.hpp"
 

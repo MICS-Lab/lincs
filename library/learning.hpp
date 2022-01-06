@@ -3,19 +3,13 @@
 #ifndef LEARNING_HPP_
 #define LEARNING_HPP_
 
-#include <chrono>  // NOLINT(build/c++11)
 #include <memory>
-#include <optional>
-#include <utility>
 #include <vector>
 
 #include "improve-profiles.hpp"
 #include "initialize-profiles.hpp"
-#include "io.hpp"
 #include "observe.hpp"
 #include "optimize-weights.hpp"
-#include "problem.hpp"
-#include "randomness.hpp"
 #include "terminate.hpp"
 
 

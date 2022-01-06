@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../initialize-profiles.hpp"
+#include "../randomness.hpp"
 
 
 namespace ppl {

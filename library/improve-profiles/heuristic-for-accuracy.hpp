@@ -3,6 +3,8 @@
 #ifndef IMPROVE_PROFILES_HEURISTIC_FOR_ACCURACY_HPP_
 #define IMPROVE_PROFILES_HEURISTIC_FOR_ACCURACY_HPP_
 
+#include <chrones.hpp>
+
 #include "../improve-profiles.hpp"
 
 

@@ -2,15 +2,12 @@
 
 #include "learning.hpp"
 
-#include <vector>
 #include <algorithm>
+#include <numeric>
 
 #include <chrones.hpp>
 
 #include "assign.hpp"
-#include "improve-profiles.hpp"
-#include "optimize-weights.hpp"
-#include "initialize-profiles.hpp"
 #include "median-and-max.hpp"
 
 
@@ -37,7 +34,6 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
 
 LearningResult perform_learning(
   Models<Host>* models,
-  // @todo Could we use std::unique_ptr instead of std::shared_ptr?
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
