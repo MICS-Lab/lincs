@@ -183,11 +183,11 @@ build/tools/bin/generate-learning-set: \
 
 build/tools/bin/learn: \
   build/obj/library/assign.o \
-  build/obj/library/dump-intermediate-models.o \
   build/obj/library/improve-profiles.o \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
+  build/obj/library/observe/dump-intermediate-models.o \
   build/obj/library/optimize-weights/glop.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o

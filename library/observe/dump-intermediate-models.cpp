@@ -2,18 +2,18 @@
 
 #include "dump-intermediate-models.hpp"
 
-#include "assign.hpp"
+#include "../assign.hpp"
 
 
 namespace ppl {
 
-IntermediateModelsDumper::IntermediateModelsDumper(std::ostream& stream_) :
+DumpIntermediateModels::DumpIntermediateModels(std::ostream& stream_) :
     stream(stream_) {
   // Emitting YAML by hand... we could do better, but it works for now
   stream << "iterations:" << std::endl;
 }
 
-void IntermediateModelsDumper::after_main_iteration(int iteration_index, int, const Models<Host>& models) {
+void DumpIntermediateModels::after_main_iteration(int iteration_index, int, const Models<Host>& models) {
   stream
     << "  - iteration_index: " << iteration_index << "\n"
     << "    models:\n";

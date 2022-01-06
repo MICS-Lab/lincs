@@ -44,7 +44,7 @@ struct LearningExecution {
     std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy_,
     std::shared_ptr<TerminationStrategy> termination_strategy_,
     uint random_seed_,
-    std::vector<std::shared_ptr<Learning::Observer>> observers_) :
+    std::vector<std::shared_ptr<LearningObserver>> observers_) :
       models_count(host_models_->get_view().models_count),
       model_indexes(models_count, 0),
       profiles_initialization_strategy(profiles_initialization_strategy_),
@@ -108,7 +108,7 @@ struct LearningExecution {
   RandomSource random;
 
  private:
-  std::vector<std::shared_ptr<Learning::Observer>> observers;
+  std::vector<std::shared_ptr<LearningObserver>> observers;
 };
 
 Learning::Result Learning::perform() const {

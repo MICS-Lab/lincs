@@ -7,10 +7,11 @@
 #include <chrones.hpp>
 #include <CLI11.hpp>
 
-#include "../library/dump-intermediate-models.hpp"
 #include "../library/improve-profiles/heuristic-for-accuracy.hpp"
 #include "../library/initialize-profiles/max-power-per-criterion.hpp"
 #include "../library/learning.hpp"
+#include "../library/observe/dump-intermediate-models.hpp"
+#include "../library/observe/report-progress.hpp"
 #include "../library/optimize-weights/glop.hpp"
 #include "../library/terminate/accuracy.hpp"
 #include "../library/terminate/any.hpp"
@@ -19,6 +20,23 @@
 
 
 CHRONABLE("learn")
+
+std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
+  const bool quiet,
+  std::optional<std::ofstream>& intermediate_models_file
+) {
+  std::vector<std::shared_ptr<ppl::LearningObserver>> observers;
+
+  if (intermediate_models_file) {
+    observers.push_back(std::make_shared<ppl::DumpIntermediateModels>(*intermediate_models_file));
+  }
+
+  if (!quiet) {
+    observers.push_back(std::make_shared<ppl::ReportProgress>());
+  }
+
+  return observers;
+}
 
 std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
   const ppl::Models<Host>& models
@@ -156,22 +174,20 @@ int main(int argc, char* argv[]) {
     device_models_address = &*device_models;
   }
 
+  std::optional<std::ofstream> intermediate_models_file;
+  if (intermediate_models_file_name) {
+    intermediate_models_file = std::ofstream(*intermediate_models_file_name);
+  }
+
   ppl::Learning learning(
     host_domain, &host_models,
+    make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(host_models),
     make_weights_optimization_strategy(),
     make_profiles_improvement_strategy(&host_models, device_models_address),
     make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
 
   if (random_seed) learning.set_random_seed(*random_seed);
-
-  if (!quiet) learning.subscribe(std::make_shared<ppl::Learning::ProgressReporter>());
-
-  std::optional<std::ofstream> intermediate_models_file;
-  if (intermediate_models_file_name) {
-    intermediate_models_file = std::ofstream(*intermediate_models_file_name);
-    learning.subscribe(std::make_shared<ppl::IntermediateModelsDumper>(*intermediate_models_file));
-  }
 
   auto result = learning.perform();
   result.best_model.save_to(std::cout);

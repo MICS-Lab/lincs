@@ -31,6 +31,7 @@ TEST(Learn, OnGpu) {
 
   auto result = Learning(
       host_domain, &host_models,
+      {},
       std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(&host_models, &device_models),
@@ -56,6 +57,7 @@ TEST(Learn, OnCpu) {
 
   auto result = Learning(
       host_domain, &host_models,
+      {},
       std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(&host_models),
