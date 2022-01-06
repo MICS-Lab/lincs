@@ -8,6 +8,7 @@
 #include <CLI11.hpp>
 
 #include "../library/dump-intermediate-models.hpp"
+#include "../library/initialize-profiles/max-power-per-criterion.hpp"
 #include "../library/learning.hpp"
 #include "../library/terminate/accuracy.hpp"
 #include "../library/terminate/any.hpp"
@@ -17,36 +18,43 @@
 
 CHRONABLE("learn")
 
+std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
+  const ppl::Models<Host>& models
+) {
+  // @todo Complete with other strategies
+  return std::make_shared<ppl::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(models);
+}
+
 std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
   const ppl::io::LearningSet& learning_set,
   std::optional<uint> target_accuracy,
   std::optional<uint> max_iterations,
   std::optional<std::chrono::seconds> max_duration
 ) {
-  std::vector<std::shared_ptr<ppl::TerminationStrategy>> terminate_strategies;
+  std::vector<std::shared_ptr<ppl::TerminationStrategy>> termination_strategies;
 
   if (target_accuracy) {
-    terminate_strategies.push_back(
+    termination_strategies.push_back(
       std::make_shared<ppl::TerminateAtAccuracy>(*target_accuracy));
   } else {
-    terminate_strategies.push_back(
+    termination_strategies.push_back(
       std::make_shared<ppl::TerminateAtAccuracy>(learning_set.alternatives_count));
   }
 
   if (max_iterations) {
-    terminate_strategies.push_back(
+    termination_strategies.push_back(
       std::make_shared<ppl::TerminateAfterIterations>(*max_iterations));
   }
 
   if (max_duration) {
-    terminate_strategies.push_back(
+    termination_strategies.push_back(
       std::make_shared<ppl::TerminateAfterDuration>(*max_duration));
   }
 
-  if (terminate_strategies.size() == 1) {
-    return terminate_strategies[0];
+  if (termination_strategies.size() == 1) {
+    return termination_strategies[0];
   } else {
-    return std::make_shared<ppl::TerminateOnAny>(terminate_strategies);
+    return std::make_shared<ppl::TerminateOnAny>(termination_strategies);
   }
 }
 
@@ -117,6 +125,7 @@ int main(int argc, char* argv[]) {
 
   ppl::Learning learning(
     domain, &models,
+    make_profiles_initialization_strategy(models),
     make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
 
   if (random_seed) learning.set_random_seed(*random_seed);

@@ -54,23 +54,27 @@ struct LearningExecution {
   LearningExecution(
     const Domain<Host>& host_domain_,
     Models<Host>* host_models_,
+    std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy_,
     std::shared_ptr<TerminationStrategy> termination_strategy_,
     uint random_seed_,
     std::vector<std::shared_ptr<Learning::Observer>> observers_) :
       self(static_cast<ConcreteLearningExecution&>(*this)),
       models_count(host_models_->get_view().models_count),
       model_indexes(models_count, 0),
+      profiles_initialization_strategy(profiles_initialization_strategy_),
       termination_strategy(termination_strategy_),
       host_domain(host_domain_),
       host_models(host_models_),
       random_seed(random_seed_),
       random(),
-      profiles_initializer(*host_models),
       weights_optimizer(*host_models),
       observers(observers_) {
     random.init_for_host(random_seed);
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
-    profiles_initializer.initialize_profiles(random, host_models, 0, model_indexes.begin(), model_indexes.end());
+    profiles_initialization_strategy->initialize_profiles(
+      random, host_models,
+      0,
+      model_indexes.begin(), model_indexes.end());
   }
 
   Learning::Result execute() {
@@ -80,7 +84,7 @@ struct LearningExecution {
 
     for (int iteration_index = 0; !termination_strategy->terminate(iteration_index, best_accuracy); ++iteration_index) {
       if (iteration_index != 0) {
-        profiles_initializer.initialize_profiles(
+        profiles_initialization_strategy->initialize_profiles(
           random, host_models,
           iteration_index,
           model_indexes.begin(), model_indexes.begin() + models_count / 2);
@@ -105,6 +109,7 @@ struct LearningExecution {
   ConcreteLearningExecution& self;
   uint models_count;
   std::vector<uint> model_indexes;
+  std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy;
   std::shared_ptr<TerminationStrategy> termination_strategy;
 
  protected:
@@ -114,7 +119,6 @@ struct LearningExecution {
   RandomSource random;
 
  private:
-  ProfilesInitializer profiles_initializer;
   WeightsOptimizer weights_optimizer;
   std::vector<std::shared_ptr<Learning::Observer>> observers;
 };
@@ -123,10 +127,16 @@ struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
   GpuLearningExecution(
     const Domain<Host>& host_domain,
     Models<Host>* host_models,
+    std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
     std::shared_ptr<TerminationStrategy> termination_strategy,
     uint random_seed,
     std::vector<std::shared_ptr<Learning::Observer>> observers) :
-      LearningExecution<GpuLearningExecution>(host_domain, host_models, termination_strategy, random_seed, observers),
+      LearningExecution<GpuLearningExecution>(
+        host_domain, host_models,
+        profiles_initialization_strategy,
+        termination_strategy,
+        random_seed,
+        observers),
       device_domain(host_domain.clone_to<Device>()),
       device_models(host_models->clone_to<Device>(device_domain)) {
     random.init_for_device(random_seed);
@@ -149,10 +159,14 @@ struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
   CpuLearningExecution(
     const Domain<Host>& host_domain,
     Models<Host>* host_models,
+    std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
     std::shared_ptr<TerminationStrategy> termination_strategy,
     uint random_seed,
     std::vector<std::shared_ptr<Learning::Observer>> observers) :
-      LearningExecution<CpuLearningExecution>(host_domain, host_models, termination_strategy, random_seed, observers) {
+      LearningExecution<CpuLearningExecution>(
+        host_domain, host_models,
+        profiles_initialization_strategy, termination_strategy,
+        random_seed, observers) {
   }
 
   void improve_profiles() {
@@ -167,9 +181,15 @@ Learning::Result Learning::perform() const {
   CHRONE();
 
   if (use_gpu(_use_gpu)) {
-    return GpuLearningExecution(_host_domain, _host_models, _termination_strategy, _random_seed, _observers).execute();
+    return GpuLearningExecution(
+      _host_domain, _host_models,
+      _profiles_initialization_strategy, _termination_strategy,
+      _random_seed, _observers).execute();
   } else {
-    return CpuLearningExecution(_host_domain, _host_models, _termination_strategy, _random_seed, _observers).execute();
+    return CpuLearningExecution(
+      _host_domain, _host_models,
+      _profiles_initialization_strategy, _termination_strategy,
+      _random_seed, _observers).execute();
   }
 }
 

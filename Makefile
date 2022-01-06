@@ -13,12 +13,13 @@ default: dep-graph lint test tools
 
 # Source files
 tools_source_files := $(wildcard tools/*.cpp)
+# At what depth shall we replace the sequence of 'wildcard */*/*' by a single 'shell find'?
 header_files := $(wildcard library/*.hpp) $(wildcard library/*/*.hpp)
 cpp_lib_source_files := $(wildcard library/*.cpp) $(wildcard library/*/*.cpp)
 cu_lib_source_files := $(wildcard library/*.cu) $(wildcard library/*/*.cu)
-cpp_test_source_files := $(wildcard */*-tests.cpp)
-cu_test_source_files := $(wildcard */*-tests.cu)
-sh_test_source_files := $(wildcard */*-tests.sh)
+cpp_test_source_files := $(wildcard */*-tests.cpp) $(wildcard */*/*-tests.cpp)
+cu_test_source_files := $(wildcard */*-tests.cu) $(wildcard */*/*-tests.cu)
+sh_test_source_files := $(wildcard */*-tests.sh) $(wildcard */*/*-tests.sh)
 
 # Intermediate files
 object_files := $(patsubst %.cpp,build/obj/%.o,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/obj/%.o,$(cu_lib_source_files))
@@ -117,8 +118,8 @@ build/tests/library/optimize-weights-tests: \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
-build/tests/library/initialize-profiles-tests: \
-  build/obj/library/initialize-profiles.o \
+build/tests/library/initialize-profiles/max-power-per-criterion-tests: \
+  build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
@@ -130,7 +131,7 @@ build/tests/library/learning-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
   build/obj/library/improve-profiles.o \
-  build/obj/library/initialize-profiles.o \
+  build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
   build/obj/library/optimize-weights.o \
@@ -184,7 +185,7 @@ build/tools/bin/learn: \
   build/obj/library/assign.o \
   build/obj/library/dump-intermediate-models.o \
   build/obj/library/improve-profiles.o \
-  build/obj/library/initialize-profiles.o \
+  build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
   build/obj/library/learning.o \
   build/obj/library/optimize-weights.o \

@@ -2,11 +2,11 @@
 
 #include <chrones.hpp>
 
-#include "test-utils.hpp"
-#include "randomness.hpp"
+#include "../randomness.hpp"
+#include "../test-utils.hpp"
 
 
-CHRONABLE("initialize-profiles-tests")
+CHRONABLE("max-power-per-criterion-tests")
 
 namespace ppl {
 

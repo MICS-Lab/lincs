@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "initialize-profiles.hpp"
 #include "io.hpp"
 #include "problem.hpp"
 #include "randomness.hpp"
@@ -28,11 +29,13 @@ class Learning {
   explicit Learning(
       const Domain<Host>& host_domain,
       Models<Host>* host_models,
+      std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
       std::shared_ptr<TerminationStrategy> termination_strategy) :
     _host_domain(host_domain),
     _host_models(host_models),
     _random_seed(std::random_device()()),
     _use_gpu(UseGpu::Auto),
+    _profiles_initialization_strategy(profiles_initialization_strategy),
     _termination_strategy(termination_strategy)
   {}
 
@@ -90,7 +93,8 @@ class Learning {
   UseGpu _use_gpu;
   std::vector<std::shared_ptr<Observer>> _observers;
 
-  // @todo Could we use a std::unique_ptr instead of this std::shared_ptr?
+  // @todo Could we use std::unique_ptr instead of std::shared_ptr?
+  std::shared_ptr<ProfilesInitializationStrategy> _profiles_initialization_strategy;
   std::shared_ptr<TerminationStrategy> _termination_strategy;
 };
 

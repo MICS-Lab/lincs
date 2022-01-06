@@ -11,23 +11,16 @@
 
 namespace ppl {
 
-/*
-Implement 3.3.2 of https://tel.archives-ouvertes.fr/tel-01370555/document
-*/
-class ProfilesInitializer {
+class ProfilesInitializationStrategy {
  public:
-  explicit ProfilesInitializer(const Models<Host>&);
+  virtual ~ProfilesInitializationStrategy() {}
 
- public:
-  void initialize_profiles(
-    RandomNumberGenerator random,
-    Models<Host>* models,
+  virtual void initialize_profiles(
+    RandomNumberGenerator random,  // @todo Put in ctor
+    Models<Host>* models,  // @todo Put in ctor
     uint iteration_index,
     std::vector<uint>::const_iterator model_indexes_begin,
-    std::vector<uint>::const_iterator model_indexes_end);
-
- private:
-  std::vector<std::vector<ProbabilityWeightedGenerator<float>>> _generators;
+    std::vector<uint>::const_iterator model_indexes_end) = 0;
 };
 
 }  // namespace ppl

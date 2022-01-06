@@ -1,6 +1,6 @@
 // Copyright 2021 Vincent Jacques
 
-#include "initialize-profiles.hpp"
+#include "max-power-per-criterion.hpp"
 
 #include <algorithm>
 #include <map>
@@ -52,7 +52,8 @@ std::map<float, double> get_candidate_probabilities(const DomainView& domain, ui
   return candidate_probabilities;
 }
 
-ProfilesInitializer::ProfilesInitializer(const Models<Host>& models) {
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const Models<Host>& models) {
   CHRONE();
 
   ModelsView models_view = models.get_view();
@@ -69,7 +70,7 @@ ProfilesInitializer::ProfilesInitializer(const Models<Host>& models) {
   }
 }
 
-void ProfilesInitializer::initialize_profiles(
+void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
   RandomNumberGenerator random,
   Models<Host>* models,
   const uint iteration_index,
