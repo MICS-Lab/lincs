@@ -11,6 +11,25 @@
 namespace ppl {
 
 template<typename Space>
+Domain<Space>::Domain(Domain<Space>&& other) :
+  categories_count(other.categories_count),
+  criteria_count(other.criteria_count),
+  learning_alternatives_count(other.learning_alternatives_count),
+  learning_alternatives(std::exchange(other.learning_alternatives, nullptr)),
+  learning_assignments(std::exchange(other.learning_assignments, nullptr)) {}
+
+template<typename Space>
+Domain<Space>& Domain<Space>::operator=(Domain<Space>&& other) {
+  categories_count = other.categories_count;
+  criteria_count = other.criteria_count;
+  learning_alternatives_count = other.learning_alternatives_count;
+  learning_alternatives = std::exchange(other.learning_alternatives, nullptr);
+  learning_assignments = std::exchange(other.learning_assignments, nullptr);
+
+  return *this;
+}
+
+template<typename Space>
 Domain<Space>::Domain(
   const uint categories_count_,
   const uint criteria_count_,
@@ -71,6 +90,26 @@ DomainView Domain<Space>::get_view() const {
 
 template class Domain<Host>;
 template class Domain<Device>;
+
+template<typename Space>
+Models<Space>::Models(Models<Space>&& other) :
+  domain(other.domain),
+  models_count(other.models_count),
+  initialization_iteration_indexes(std::exchange(other.initialization_iteration_indexes, nullptr)),
+  weights(std::exchange(other.weights, nullptr)),
+  profiles(std::exchange(other.profiles, nullptr)) {}
+
+template<typename Space>
+Models<Space>& Models<Space>::operator=(Models<Space>&& other) {
+  assert(&other.domain == &domain);
+
+  models_count = other.models_count;
+  initialization_iteration_indexes = std::exchange(other.initialization_iteration_indexes, nullptr);
+  weights = std::exchange(other.weights, nullptr);
+  profiles = std::exchange(other.profiles, nullptr);
+
+  return *this;
+}
 
 template<typename Space>
 Models<Space>::Models(

@@ -11,6 +11,13 @@
 
 namespace ppl {
 
+class ProfilesImprovementStrategy {
+ public:
+  virtual ~ProfilesImprovementStrategy() {}
+
+  virtual void improve_profiles(const RandomSource& random) = 0;
+};
+
 struct Desirability {
   uint v = 0;
   uint w = 0;

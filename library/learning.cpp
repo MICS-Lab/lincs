@@ -48,22 +48,21 @@ bool use_gpu(Learning::UseGpu use) {
   }
 }
 
-// https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism
-template<typename ConcreteLearningExecution>
 struct LearningExecution {
   LearningExecution(
     const Domain<Host>& host_domain_,
     Models<Host>* host_models_,
     std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy_,
     std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy_,
+    std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy_,
     std::shared_ptr<TerminationStrategy> termination_strategy_,
     uint random_seed_,
     std::vector<std::shared_ptr<Learning::Observer>> observers_) :
-      self(static_cast<ConcreteLearningExecution&>(*this)),
       models_count(host_models_->get_view().models_count),
       model_indexes(models_count, 0),
       profiles_initialization_strategy(profiles_initialization_strategy_),
       weights_optimization_strategy(weights_optimization_strategy_),
+      profiles_improvement_strategy(profiles_improvement_strategy_),
       termination_strategy(termination_strategy_),
       host_domain(host_domain_),
       host_models(host_models_),
@@ -71,6 +70,7 @@ struct LearningExecution {
       random(),
       observers(observers_) {
     random.init_for_host(random_seed);
+    random.init_for_device(random_seed);  // @todo Initialize for device *only* when actually using the GPU
     std::iota(model_indexes.begin(), model_indexes.end(), 0);
     profiles_initialization_strategy->initialize_profiles(
       random, host_models,
@@ -92,7 +92,7 @@ struct LearningExecution {
       }
 
       weights_optimization_strategy->optimize_weights(host_models);
-      self.improve_profiles();
+      profiles_improvement_strategy->improve_profiles(random);
 
       model_indexes = partition_models_by_accuracy(models_count, *host_models);
       best_accuracy = get_accuracy(*host_models, model_indexes.back());
@@ -107,11 +107,11 @@ struct LearningExecution {
 
  private:
   // @todo Use the same naming convention in all classes (with leading underscores) (even in these "internal" classes)
-  ConcreteLearningExecution& self;
   uint models_count;
   std::vector<uint> model_indexes;
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy;
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy;
+  std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy;
   std::shared_ptr<TerminationStrategy> termination_strategy;
 
  protected:
@@ -124,83 +124,16 @@ struct LearningExecution {
   std::vector<std::shared_ptr<Learning::Observer>> observers;
 };
 
-struct GpuLearningExecution : LearningExecution<GpuLearningExecution> {
-  GpuLearningExecution(
-    const Domain<Host>& host_domain,
-    Models<Host>* host_models,
-    std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
-    std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
-    std::shared_ptr<TerminationStrategy> termination_strategy,
-    uint random_seed,
-    std::vector<std::shared_ptr<Learning::Observer>> observers) :
-      LearningExecution<GpuLearningExecution>(
-        host_domain, host_models,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        termination_strategy,
-        random_seed,
-        observers),
-      device_domain(host_domain.clone_to<Device>()),
-      device_models(host_models->clone_to<Device>(device_domain)) {
-    random.init_for_device(random_seed);
-  }
-
-  void improve_profiles() {
-    replicate_models(*host_models, &device_models);
-    profiles_improver.improve_profiles(random, &device_models);
-    replicate_profiles(device_models, host_models);
-  }
-
- private:
-  Domain<Device> device_domain;
-  Models<Device> device_models;
-
-  ProfilesImprover profiles_improver;
-};
-
-struct CpuLearningExecution : LearningExecution<CpuLearningExecution> {
-  CpuLearningExecution(
-    const Domain<Host>& host_domain,
-    Models<Host>* host_models,
-    std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
-    std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
-    std::shared_ptr<TerminationStrategy> termination_strategy,
-    uint random_seed,
-    std::vector<std::shared_ptr<Learning::Observer>> observers) :
-      LearningExecution<CpuLearningExecution>(
-        host_domain, host_models,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        termination_strategy,
-        random_seed, observers) {
-  }
-
-  void improve_profiles() {
-    profiles_improver.improve_profiles(random, host_models);
-  }
-
- private:
-  ProfilesImprover profiles_improver;
-};
-
 Learning::Result Learning::perform() const {
   CHRONE();
 
-  if (use_gpu(_use_gpu)) {
-    return GpuLearningExecution(
-      _host_domain, _host_models,
-      _profiles_initialization_strategy,
-      _weights_optimization_strategy,
-      _termination_strategy,
-      _random_seed, _observers).execute();
-  } else {
-    return CpuLearningExecution(
-      _host_domain, _host_models,
-      _profiles_initialization_strategy,
-      _weights_optimization_strategy,
-      _termination_strategy,
-      _random_seed, _observers).execute();
-  }
+  return LearningExecution(
+    _host_domain, _host_models,
+    _profiles_initialization_strategy,
+    _weights_optimization_strategy,
+    _profiles_improvement_strategy,
+    _termination_strategy,
+    _random_seed, _observers).execute();
 }
 
 }  // namespace ppl

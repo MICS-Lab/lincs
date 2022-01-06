@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "improve-profiles.hpp"
 #include "initialize-profiles.hpp"
 #include "io.hpp"
 #include "optimize-weights.hpp"
@@ -32,6 +33,7 @@ class Learning {
       Models<Host>* host_models,
       std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
       std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
+      std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
       std::shared_ptr<TerminationStrategy> termination_strategy) :
     _host_domain(host_domain),
     _host_models(host_models),
@@ -39,6 +41,7 @@ class Learning {
     _use_gpu(UseGpu::Auto),
     _profiles_initialization_strategy(profiles_initialization_strategy),
     _weights_optimization_strategy(weights_optimization_strategy),
+    _profiles_improvement_strategy(profiles_improvement_strategy),
     _termination_strategy(termination_strategy)
   {}
 
@@ -99,6 +102,7 @@ class Learning {
   // @todo Could we use std::unique_ptr instead of std::shared_ptr?
   std::shared_ptr<ProfilesInitializationStrategy> _profiles_initialization_strategy;
   std::shared_ptr<WeightsOptimizationStrategy> _weights_optimization_strategy;
+  std::shared_ptr<ProfilesImprovementStrategy> _profiles_improvement_strategy;
   std::shared_ptr<TerminationStrategy> _termination_strategy;
 };
 

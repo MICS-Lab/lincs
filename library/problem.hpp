@@ -72,11 +72,11 @@ class Domain {
   Domain(uint, uint, uint, float*, uint*);
 
  private:
-  const uint categories_count;
-  const uint criteria_count;
-  const uint learning_alternatives_count;
-  float* const learning_alternatives;
-  uint* const learning_assignments;
+  uint categories_count;
+  uint criteria_count;
+  uint learning_alternatives_count;
+  float* learning_alternatives;
+  uint* learning_assignments;
 };
 
 /*
@@ -157,10 +157,10 @@ class Models {
 
  private:
   const Domain<Space>& domain;
-  const uint models_count;
-  uint* const initialization_iteration_indexes;
-  float* const weights;
-  float* const profiles;
+  uint models_count;
+  uint* initialization_iteration_indexes;
+  float* weights;
+  float* profiles;
 };
 
 // Utility function to replicate weights (computed on the host) and

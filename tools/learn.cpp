@@ -8,6 +8,7 @@
 #include <CLI11.hpp>
 
 #include "../library/dump-intermediate-models.hpp"
+#include "../library/improve-profiles/heuristic-for-accuracy.hpp"
 #include "../library/initialize-profiles/max-power-per-criterion.hpp"
 #include "../library/learning.hpp"
 #include "../library/optimize-weights/glop.hpp"
@@ -29,6 +30,17 @@ std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initializatio
 std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy() {
   // @todo Complete with other strategies
   return std::make_shared<ppl::OptimizeWeightsUsingGlop>();
+}
+
+std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
+  ppl::Models<Host>* host_models,
+  std::optional<ppl::Models<Device>*> device_models
+) {
+  if (device_models) {
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(host_models, *device_models);
+  } else {
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(host_models);
+  }
 }
 
 std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
@@ -126,13 +138,29 @@ int main(int argc, char* argv[]) {
   if (max_duration_seconds)
     max_duration = std::chrono::seconds(*max_duration_seconds);
 
-  auto domain = ppl::Domain<Host>::make(learning_set);
-  auto models = ppl::Models<Host>::make(domain, models_count);
+  auto host_domain = ppl::Domain<Host>::make(learning_set);
+  auto host_models = ppl::Models<Host>::make(host_domain, models_count);
+
+  // @todo Detect GPU...
+  // and verify it's usable when force_gpu is set
+  // or set use_gpu according to its usability.
+  // For the now, we always use the GPU unless explicitely forbiden.
+  const bool use_gpu = !forbid_gpu;
+
+  std::optional<ppl::Domain<Device>> device_domain;
+  std::optional<ppl::Models<Device>> device_models;
+  std::optional<ppl::Models<Device>*> device_models_address;
+  if (use_gpu) {
+    device_domain = host_domain.clone_to<Device>();
+    device_models = host_models.clone_to<Device>(*device_domain);
+    device_models_address = &*device_models;
+  }
 
   ppl::Learning learning(
-    domain, &models,
-    make_profiles_initialization_strategy(models),
+    host_domain, &host_models,
+    make_profiles_initialization_strategy(host_models),
     make_weights_optimization_strategy(),
+    make_profiles_improvement_strategy(&host_models, device_models_address),
     make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
 
   if (random_seed) learning.set_random_seed(*random_seed);
