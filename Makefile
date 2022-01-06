@@ -24,6 +24,7 @@ sh_test_source_files := $(wildcard */*-tests.sh) $(wildcard */*/*-tests.sh)
 # Intermediate files
 object_files := $(patsubst %.cpp,build/obj/%.o,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/obj/%.o,$(cu_lib_source_files))
 dependency_includes := $(patsubst %.cpp,build/deps/%.deps,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/deps/%.deps,$(cu_lib_source_files))
+header_dependency_includes := $(patsubst %.hpp,build/deps/%.deps,$(header_files))
 non_compilation_includes := $(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps, $(cpp_test_source_files)) $(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps, $(cu_test_source_files))
 
 # Sentinel files
@@ -78,10 +79,16 @@ build/deps/%.deps: %.cpp builder/fix-g++-MM.py
 	@mkdir -p $(dir $@)
 	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
 
-build/dependency-graph.png: builder/deps-to-dot.py $(dependency_includes)
+# Fall-back rule for modules without a .cpp: the .deps file is only required for the dependency-graph.png
+build/deps/%.deps: %.hpp builder/fix-g++-MM.py
+	@echo "g++  -MM $< -o $@"
+	@mkdir -p $(dir $@)
+	@g++ -MM -x c++ $< | python3 builder/fix-g++-MM.py build/obj/$*.o $@ >$@
+
+build/dependency-graph.png: builder/deps-to-dot.py $(dependency_includes) $(header_dependency_includes)
 	@echo "cat *.deps | dot -o $@"
 	@mkdir -p $(dir $@)
-	@cat $(dependency_includes) | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
+	@cat $(dependency_includes) $(header_dependency_includes) | python3 builder/deps-to-dot.py | tred | dot -Tpng -o $@
 
 #######################
 # Manual dependencies #
