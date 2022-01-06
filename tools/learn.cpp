@@ -62,20 +62,14 @@ std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_stra
 }
 
 std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
-  const ppl::io::LearningSet& learning_set,
-  std::optional<uint> target_accuracy,
+  uint target_accuracy,
   std::optional<uint> max_iterations,
   std::optional<std::chrono::seconds> max_duration
 ) {
   std::vector<std::shared_ptr<ppl::TerminationStrategy>> termination_strategies;
 
-  if (target_accuracy) {
-    termination_strategies.push_back(
-      std::make_shared<ppl::TerminateAtAccuracy>(*target_accuracy));
-  } else {
-    termination_strategies.push_back(
-      std::make_shared<ppl::TerminateAtAccuracy>(learning_set.alternatives_count));
-  }
+  termination_strategies.push_back(
+    std::make_shared<ppl::TerminateAtAccuracy>(target_accuracy));
 
   if (max_iterations) {
     termination_strategies.push_back(
@@ -146,10 +140,12 @@ int main(int argc, char* argv[]) {
   std::ifstream learning_set_file(learning_set_file_name);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);
 
-  // Todo (much later): use C++23's std::optional::transform
-  std::optional<uint> target_accuracy;
-  if (target_accuracy_percentage)
-    target_accuracy = std::ceil(*target_accuracy_percentage * learning_set.alternatives_count / 100);
+  const uint target_accuracy =
+    target_accuracy_percentage
+    ?
+    std::ceil(*target_accuracy_percentage * learning_set.alternatives_count / 100)
+    :
+    learning_set.alternatives_count;
 
   // Todo (much later): use C++23's std::optional::transform
   std::optional<std::chrono::seconds> max_duration;
@@ -185,13 +181,13 @@ int main(int argc, char* argv[]) {
     make_profiles_initialization_strategy(host_models),
     make_weights_optimization_strategy(),
     make_profiles_improvement_strategy(&host_models, device_models_address),
-    make_termination_strategy(learning_set, target_accuracy, max_iterations, max_duration));
+    make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
   if (random_seed) learning.set_random_seed(*random_seed);
 
   auto result = learning.perform();
   result.best_model.save_to(std::cout);
-  if (target_accuracy && result.best_model_accuracy < *target_accuracy) {
+  if (target_accuracy_percentage && result.best_model_accuracy < target_accuracy) {
     std::cerr << "Accuracy reached ("
       << float(result.best_model_accuracy) / learning_set.alternatives_count * 100
       << "%) is below target" << std::endl;
