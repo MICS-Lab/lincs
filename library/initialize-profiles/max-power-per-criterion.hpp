@@ -15,16 +15,16 @@ Implement 3.3.2 of https://tel.archives-ouvertes.fr/tel-01370555/document
 */
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public ProfilesInitializationStrategy {
  public:
-  explicit InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const Models<Host>&);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(RandomNumberGenerator, const Models<Host>&);
 
   void initialize_profiles(
-    RandomNumberGenerator random,
     Models<Host>* models,
     uint iteration_index,
     std::vector<uint>::const_iterator model_indexes_begin,
     std::vector<uint>::const_iterator model_indexes_end) override;
 
  private:
+  RandomNumberGenerator _random;
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> _generators;
 };
 

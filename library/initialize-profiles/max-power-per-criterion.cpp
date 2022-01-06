@@ -53,7 +53,10 @@ std::map<float, double> get_candidate_probabilities(const DomainView& domain, ui
 }
 
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const Models<Host>& models) {
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
+  RandomNumberGenerator random,
+  const Models<Host>& models) :
+    _random(random) {
   CHRONE();
 
   ModelsView models_view = models.get_view();
@@ -71,7 +74,6 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const M
 }
 
 void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  RandomNumberGenerator random,
   Models<Host>* models,
   const uint iteration_index,
   std::vector<uint>::const_iterator model_indexes_begin,
@@ -92,7 +94,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
       // Not parallel because of the profiles ordering constraint
       for (uint category_index = models_view.domain.categories_count - 1; category_index != 0; --category_index) {
         const uint profile_index = category_index - 1;
-        float value = _generators[crit_index][profile_index](random.urbg());
+        float value = _generators[crit_index][profile_index](_random.urbg());
 
         if (profile_index != models_view.domain.categories_count - 2) {
           value = std::min(value, models_view.profiles[crit_index][profile_index + 1][model_index]);

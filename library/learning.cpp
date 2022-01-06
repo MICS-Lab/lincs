@@ -37,7 +37,6 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
 
 LearningResult perform_learning(
   Models<Host>* host_models,
-  RandomNumberGenerator random,
   // @todo Could we use std::unique_ptr instead of std::shared_ptr?
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
@@ -52,7 +51,7 @@ LearningResult perform_learning(
   std::vector<uint> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
   profiles_initialization_strategy->initialize_profiles(
-    random, host_models,
+    host_models,
     0,
     model_indexes.begin(), model_indexes.end());
 
@@ -61,13 +60,13 @@ LearningResult perform_learning(
   for (int iteration_index = 0; !termination_strategy->terminate(iteration_index, best_accuracy); ++iteration_index) {
     if (iteration_index != 0) {
       profiles_initialization_strategy->initialize_profiles(
-        random, host_models,
+        host_models,
         iteration_index,
         model_indexes.begin(), model_indexes.begin() + models_count / 2);
     }
 
     weights_optimization_strategy->optimize_weights(host_models);
-    profiles_improvement_strategy->improve_profiles(random);
+    profiles_improvement_strategy->improve_profiles();
 
     model_indexes = partition_models_by_accuracy(models_count, *host_models);
     best_accuracy = get_accuracy(*host_models, model_indexes.back());

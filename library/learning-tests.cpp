@@ -35,11 +35,10 @@ TEST(Learn, OnGpu) {
 
   auto result = perform_learning(
       &host_models,
-      random,
       {},
-      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(host_models),
+      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
-      std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(&host_models, &device_models),
+      std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(random, &host_models, &device_models),
       std::make_shared<TerminateAfterIterations>(3));
 
   EXPECT_EQ(result.best_model_accuracy, 89);
@@ -63,11 +62,10 @@ TEST(Learn, OnCpu) {
 
   auto result = perform_learning(
       &host_models,
-      random,
       {},
-      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(host_models),
+      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
-      std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(&host_models),
+      std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(random, &host_models),
       std::make_shared<TerminateAfterIterations>(2));
 
   EXPECT_EQ(result.best_model_accuracy, 78);

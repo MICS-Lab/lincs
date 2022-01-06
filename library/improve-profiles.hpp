@@ -15,7 +15,7 @@ class ProfilesImprovementStrategy {
  public:
   virtual ~ProfilesImprovementStrategy() {}
 
-  virtual void improve_profiles(RandomNumberGenerator random) = 0;
+  virtual void improve_profiles() = 0;  // @todo Re-add models?
 };
 
 struct Desirability {

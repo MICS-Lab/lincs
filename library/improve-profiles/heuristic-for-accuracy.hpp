@@ -13,13 +13,18 @@ Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/doc
 */
 class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(Models<Host>* models) : _models(models) {}
+  ImproveProfilesWithAccuracyHeuristicOnCpu(
+      RandomNumberGenerator random,
+      Models<Host>* models) :
+    _random(random),
+    _models(models) {}
 
-  void improve_profiles(RandomNumberGenerator random /* @todo Put in ctor */) override {
-    _profiles_improver.improve_profiles(random, _models);
+  void improve_profiles() override {
+    _profiles_improver.improve_profiles(_random, _models);
   };
 
  private:
+  RandomNumberGenerator _random;
   Models<Host>* _models;
   ProfilesImprover _profiles_improver;
 };
@@ -31,18 +36,21 @@ on the GPU
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStrategy {
  public:
   ImproveProfilesWithAccuracyHeuristicOnGpu(
+      RandomNumberGenerator random,
       Models<Host>* host_models,
       Models<Device>* device_models) :
+    _random(random),
     _host_models(host_models),
     _device_models(device_models) {}
 
-  void improve_profiles(RandomNumberGenerator random /* @todo Put in ctor */) override {
+  void improve_profiles() override {
     replicate_models(*_host_models, _device_models);
-    _profiles_improver.improve_profiles(random, _device_models);
+    _profiles_improver.improve_profiles(_random, _device_models);
     replicate_profiles(*_device_models, _host_models);
   };
 
  private:
+  RandomNumberGenerator _random;
   Models<Host>* _host_models;
   Models<Device>* _device_models;
   ProfilesImprover _profiles_improver;

@@ -39,10 +39,12 @@ std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
 }
 
 std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
+  RandomNumberGenerator random,
   const ppl::Models<Host>& models
 ) {
   // @todo Complete with other strategies
-  return std::make_shared<ppl::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(models);
+  return std::make_shared<ppl::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(
+    random, models);
 }
 
 std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy() {
@@ -51,13 +53,14 @@ std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_stra
 }
 
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
+  RandomNumberGenerator random,
   ppl::Models<Host>* host_models,
   std::optional<ppl::Models<Device>*> device_models
 ) {
   if (device_models) {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(host_models, *device_models);
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(random, host_models, *device_models);
   } else {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(host_models);
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random, host_models);
   }
 }
 
@@ -183,11 +186,10 @@ int main(int argc, char* argv[]) {
 
   auto result = ppl::perform_learning(
     &host_models,
-    random,
     make_observers(quiet, intermediate_models_file),
-    make_profiles_initialization_strategy(host_models),
+    make_profiles_initialization_strategy(random, host_models),
     make_weights_optimization_strategy(),
-    make_profiles_improvement_strategy(&host_models, device_models_address),
+    make_profiles_improvement_strategy(random, &host_models, device_models_address),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
   result.best_model.save_to(std::cout);

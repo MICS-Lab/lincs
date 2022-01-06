@@ -30,7 +30,6 @@ struct LearningResult {
 
 LearningResult perform_learning(
   Models<Host>* host_models,
-  RandomNumberGenerator random,
   // @todo Could we use std::unique_ptr instead of std::shared_ptr?
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
