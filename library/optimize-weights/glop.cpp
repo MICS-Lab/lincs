@@ -15,7 +15,7 @@ namespace ppl {
 
 namespace glp = operations_research::glop;
 
-struct LinearProgram {
+struct OptimizeWeightsUsingGlop::LinearProgram {
   std::shared_ptr<glp::LinearProgram> program;
   std::vector<glp::ColIndex> weight_variables;
   std::vector<glp::ColIndex> x_variables;
@@ -24,11 +24,11 @@ struct LinearProgram {
   std::vector<glp::ColIndex> yp_variables;
 };
 
-std::shared_ptr<LinearProgram> make_internal_linear_program(
+std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_internal_linear_program(
     const float epsilon, const ModelsView& models, uint model_index) {
   CHRONE();
 
-  auto lp = std::make_shared<LinearProgram>();
+  auto lp = std::make_shared<OptimizeWeightsUsingGlop::LinearProgram>();
 
   lp->program = std::make_shared<glp::LinearProgram>();
   lp->weight_variables.reserve(models.domain.criteria_count);
@@ -83,7 +83,7 @@ std::shared_ptr<LinearProgram> make_internal_linear_program(
   return lp;
 }
 
-std::shared_ptr<LinearProgram> make_verbose_linear_program(
+std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_program(
     const float epsilon, const ModelsView& models, uint model_index) {
   CHRONE();
 

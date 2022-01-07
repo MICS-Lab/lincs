@@ -15,6 +15,7 @@
 #include "../library/observe/dump-intermediate-models.hpp"
 #include "../library/observe/report-progress.hpp"
 #include "../library/optimize-weights/glop.hpp"
+#include "../library/optimize-weights/glop-reuse.hpp"
 #include "../library/terminate/accuracy.hpp"
 #include "../library/terminate/any.hpp"
 #include "../library/terminate/duration.hpp"
@@ -51,12 +52,18 @@ std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initializatio
 
 enum class WeightsOptimizationStrategy {
   glop,
+  glop_reuse,
 };
 
-std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy(WeightsOptimizationStrategy strategy) {
+std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy(
+  WeightsOptimizationStrategy strategy,
+  const ppl::Models<Host>& host_models
+) {
   switch (strategy) {
     case WeightsOptimizationStrategy::glop:
       return std::make_shared<ppl::OptimizeWeightsUsingGlop>();
+    case WeightsOptimizationStrategy::glop_reuse:
+      return std::make_shared<ppl::OptimizeWeightsUsingGlopAndReusingPrograms>(host_models);
   }
   throw std::runtime_error("Unknown weights optimization strategy");
 }
@@ -239,7 +246,7 @@ int main(int argc, char* argv[]) {
     &host_models,
     make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(random, host_models),
-    make_weights_optimization_strategy(weights_optimization_strategy),
+    make_weights_optimization_strategy(weights_optimization_strategy, host_models),
     make_profiles_improvement_strategy(random, &host_models, device_models_address),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 

@@ -125,6 +125,15 @@ build/tests/library/optimize-weights/glop-tests: \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
+build/tests/library/optimize-weights/glop-reuse-tests: \
+  build/obj/library/assign.o \
+  build/obj/library/generate.o \
+  build/obj/library/io.o \
+  build/obj/library/optimize-weights/glop.o \
+  build/obj/library/optimize-weights/glop-reuse.o \
+  build/obj/library/problem.o \
+  build/obj/library/test-utils.o
+
 build/tests/library/initialize-profiles/max-power-per-criterion-tests: \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
@@ -196,6 +205,7 @@ build/tools/bin/learn: \
   build/obj/library/learning.o \
   build/obj/library/observe/dump-intermediate-models.o \
   build/obj/library/optimize-weights/glop.o \
+  build/obj/library/optimize-weights/glop-reuse.o \
   build/obj/library/problem.o \
   build/obj/library/randomness.o
 

@@ -3,7 +3,9 @@
 #include <ortools/glop/lp_solver.h>
 #include <ortools/lp_data/lp_data.h>
 #include <ortools/lp_data/lp_types.h>
+#include <valgrind/valgrind.h>
 
+#include <chrono>  // NOLINT(build/c++11)
 #include <memory>
 
 #include <chrones.hpp>
@@ -11,61 +13,25 @@
 #include "../assign.hpp"
 #include "../generate.hpp"
 #include "../test-utils.hpp"
+#include "glop-reuse.hpp"
 #include "glop.hpp"
 
 
-CHRONABLE("glop-tests")
+CHRONABLE("glop-reuse-tests")
 
 namespace ppl {
 
-// Internal function (not declared in the header) that we still want to unit-test
-std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
+namespace glp = operations_research::glop;
+
+// Internal functions (not declared in the header) that we still want to unit-test
+std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program_reuse(
   const float epsilon, const Models<Host>&, uint model_index);
 
+void structure_linear_program(
+  OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp, const float epsilon, const ModelsView&);
 
-TEST(GlopExploration, FromSample) {
-  // Exploration test inspired from
-  // https://github.com/google/or-tools/blob/stable/ortools/glop/samples/simple_glop_program.cc
-  // and simplified
-
-  operations_research::glop::LinearProgram lp;
-
-  operations_research::glop::ColIndex col_x = lp.CreateNewVariable();
-  lp.SetVariableBounds(col_x, -30.0, 6.0);
-  operations_research::glop::ColIndex col_y = lp.CreateNewVariable();
-  lp.SetVariableBounds(col_y, -3.0, 60.0);
-
-  operations_research::glop::RowIndex row_r1 = lp.CreateNewConstraint();
-  lp.SetConstraintBounds(row_r1, 3.0, 3.0);
-  lp.SetCoefficient(row_r1, col_x, 1);
-  lp.SetCoefficient(row_r1, col_y, 1);
-
-  lp.SetObjectiveCoefficient(col_x, 2);
-  lp.SetObjectiveCoefficient(col_y, 1);
-  lp.SetMaximizationProblem(true);
-
-  EXPECT_EQ(lp.num_variables(), 2);
-  EXPECT_EQ(lp.num_constraints(), 1);
-  EXPECT_EQ(
-    lp.Dump(),
-    "max: + 2 c0 + c1;\n"
-    "r0: + c0 + c1 = 3;\n"
-    "-30 <= c0 <= 6;\n"
-    "-3 <= c1 <= 60;\n");
-
-  operations_research::glop::LPSolver solver;
-  operations_research::glop::GlopParameters parameters;
-  parameters.set_provide_strong_optimal_guarantee(true);
-  solver.SetParameters(parameters);
-
-  EXPECT_EQ(solver.Solve(lp), operations_research::glop::ProblemStatus::OPTIMAL);
-
-  EXPECT_NEAR(solver.GetObjectiveValue(), 9, 1e-6);
-
-  const operations_research::glop::DenseRow& values = solver.variable_values();
-  EXPECT_NEAR(values[col_x], 6, 1e-6);
-  EXPECT_NEAR(values[col_y], -3, 1e-6);
-}
+void update_linear_program(
+  OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp, const ModelsView&, const uint model_index);
 
 
 TEST(MakeLinearProgram, OneCriterionOneAlternativeBelowProfileInBottomCategory) {
@@ -77,7 +43,7 @@ TEST(MakeLinearProgram, OneCriterionOneAlternativeBelowProfileInBottomCategory) 
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + y_0 - y'_0 = 0.875;\n"
     "w_0 >= 0;\n"
@@ -96,7 +62,7 @@ TEST(MakeLinearProgram, OneCriterionOneAlternativeBelowProfileInTopCategory) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: - x_0 + x'_0 = 1;\n"
     "w_0 >= 0;\n"
@@ -116,7 +82,7 @@ TEST(MakeLinearProgram, OneCriterionOneAlternativeAboveProfileInBottomCategory) 
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_0 + y_0 - y'_0 = 0.875;\n"
     "w_0 >= 0;\n"
@@ -135,7 +101,7 @@ TEST(MakeLinearProgram, OneCriterionOneAlternativeAboveProfileInTopCategory) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_0 - x_0 + x'_0 = 1;\n"
     "w_0 >= 0;\n"
@@ -155,7 +121,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeBelowProfileInBottomCategory) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + y_0 - y'_0 = 0.875;\n"
     "w_0 >= 0;\n"
@@ -175,7 +141,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeBelowProfileInTopCategory) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: - x_0 + x'_0 = 1;\n"
     "w_0 >= 0;\n"
@@ -196,7 +162,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeAboveProfileInBottomCategory) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_0 + w_1 + y_0 - y'_0 = 0.875;\n"
     "w_0 >= 0;\n"
@@ -216,7 +182,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeAboveProfileInTopCategory) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_0 + w_1 - x_0 + x'_0 = 1;\n"
     "w_0 >= 0;\n"
@@ -237,7 +203,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeBelowThenAboveProfileInBottomCa
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_1 + y_0 - y'_0 = 0.875;\n"
     "w_0 >= 0;\n"
@@ -257,7 +223,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeBelowThenAboveProfileInTopCateg
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_1 - x_0 + x'_0 = 1;\n"
     "w_0 >= 0;\n"
@@ -278,7 +244,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeAboveThenBelowProfileInBottomCa
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_0 + y_0 - y'_0 = 0.875;\n"
     "w_0 >= 0;\n"
@@ -298,7 +264,7 @@ TEST(MakeLinearProgram, TwoCriteriaOneAlternativeAboveThenBelowProfileInTopCateg
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
     "min: + x'_0 + y'_0;\n"
     "r0: + w_0 - x_0 + x'_0 = 1;\n"
     "w_0 >= 0;\n"
@@ -325,7 +291,7 @@ TEST(MakeLinearProgram, ThreeCriteriaAFewAlternatives) {
   });
 
   EXPECT_EQ(
-    make_verbose_linear_program(0.125, models, 0)->Dump(),
+    make_verbose_linear_program_reuse(0.125, models, 0)->Dump(),
       "min: + x'_0 + y'_0 + x'_1 + y'_1 + x'_2 + y'_2 + x'_3 + y'_3 + x'_4 + y'_4 + x'_5 + y'_5 + x'_6 + y'_6;\n"
       "r0: + y_0 - y'_0 = 0.875;\n"
       "r1: + w_0 + y_1 - y'_1 = 0.875;\n"
@@ -370,16 +336,16 @@ TEST(MakeLinearProgram, ThreeCriteriaAFewAlternatives) {
       "y'_6 >= 0;\n");
 }
 
-TEST(OptimizeWeightsUsingGlop, First) {
+TEST(OptimizeWeightsUsingGlopAndReusingPrograms, First) {
   auto domain = make_domain(2, {{{1}, 1}});
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
   EXPECT_EQ(get_accuracy(models, 0), 0);
-  OptimizeWeightsUsingGlop().optimize_weights(&models);
+  OptimizeWeightsUsingGlopAndReusingPrograms(models).optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1);
 }
 
-TEST(OptimizeWeightsUsingGlop, Larger) {
+TEST(OptimizeWeightsUsingGlopAndReusingPrograms, Larger) {
   std::mt19937 gen(57);
   auto model = generate::model(&gen, 4, 3);
   auto learning_set = generate::learning_set(&gen, model, 1000);
@@ -390,8 +356,42 @@ TEST(OptimizeWeightsUsingGlop, Larger) {
   auto models = Models<Host>::make(domain, {model});
 
   EXPECT_EQ(get_accuracy(models, 0), 233);
-  OptimizeWeightsUsingGlop().optimize_weights(&models);
+  OptimizeWeightsUsingGlopAndReusingPrograms(models).optimize_weights(&models);
   EXPECT_EQ(get_accuracy(models, 0), 1000);
+}
+
+// Sadly in actual cases, models are modified too much to benefit from the optimization
+TEST(OptimizeWeightsUsingGlopAndReusingPrograms, IsFasterThanOptimizeWeightsUsingGlopOnUnmodifiedModels) {
+  if (RUNNING_ON_VALGRIND) return;
+
+  std::mt19937 gen(57);
+  auto model = generate::model(&gen, 6, 3);
+  auto learning_set = generate::learning_set(&gen, model, 1000);
+
+  auto domain = Domain<Host>::make(learning_set);
+  auto models = Models<Host>::make(domain, std::vector<io::Model>(1, model));
+
+  auto duration = std::chrono::seconds(2);
+
+  int dont_reuse_count = 0;
+  auto end = std::chrono::steady_clock::now() + duration;
+  OptimizeWeightsUsingGlop dont_reuse;
+  while (std::chrono::steady_clock::now() < end) {
+    dont_reuse.optimize_weights(&models);
+    ++dont_reuse_count;
+  }
+
+  EXPECT_GE(dont_reuse_count, 5);
+
+  int do_reuse_count = 0;
+  end = std::chrono::steady_clock::now() + duration;
+  OptimizeWeightsUsingGlopAndReusingPrograms do_reuse(models);
+  while (std::chrono::steady_clock::now() < end) {
+    do_reuse.optimize_weights(&models);
+    ++do_reuse_count;
+  }
+
+  EXPECT_GT(do_reuse_count, 5 * dont_reuse_count);
 }
 
 }  // namespace ppl

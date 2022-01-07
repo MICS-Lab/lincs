@@ -16,6 +16,9 @@ using GLOP to solve the linear program.
 */
 class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
  public:
+  struct LinearProgram;
+
+ public:
   void optimize_weights(Models<Host>*) override;
 };
 

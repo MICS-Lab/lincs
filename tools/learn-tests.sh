@@ -40,4 +40,4 @@ fail_learn learning-set.txt --weights-optimization-strategy not-a-strategy
 
 time run_learn learning-set.txt --force-gpu --weights-optimization-strategy glop
 
-time run_learn learning-set.txt --forbid-gpu --target-accuracy 89.9
+time run_learn learning-set.txt --forbid-gpu --target-accuracy 89.9 --weights-optimization-strategy glop-reuse
