@@ -74,3 +74,8 @@ RUN set -x \
  && cp chrones-report.py /usr/local/bin \
  && cd .. \
  && rm -r compile_chrones
+
+# MagicEnum
+RUN set -x \
+ && cd /usr/local/include \
+ && wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.7.3/include/magic_enum.hpp

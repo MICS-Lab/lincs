@@ -1,11 +1,13 @@
 // Copyright 2021-2022 Vincent Jacques
 
+#include <algorithm>
 #include <chrono>  // NOLINT(build/c++11)
 #include <fstream>
 #include <iostream>
 
 #include <chrones.hpp>
 #include <CLI11.hpp>
+#include <magic_enum.hpp>
 
 #include "../library/improve-profiles/heuristic-for-accuracy.hpp"
 #include "../library/initialize-profiles/max-power-per-criterion.hpp"
@@ -47,9 +49,16 @@ std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initializatio
     random, models);
 }
 
-std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy() {
-  // @todo Complete with other strategies
-  return std::make_shared<ppl::OptimizeWeightsUsingGlop>();
+enum class WeightsOptimizationStrategy {
+  glop,
+};
+
+std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy(WeightsOptimizationStrategy strategy) {
+  switch (strategy) {
+    case WeightsOptimizationStrategy::glop:
+      return std::make_shared<ppl::OptimizeWeightsUsingGlop>();
+  }
+  throw std::runtime_error("Unknown weights optimization strategy");
 }
 
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
@@ -91,6 +100,34 @@ std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
   }
 }
 
+template<typename T>
+std::string get_enum_possible_values() {
+  auto names = magic_enum::enum_names<T>();
+  std::ostringstream oss;
+  oss << "possible values: ";
+  bool first = true;
+  for (auto name : names) {
+    if (!first) oss << ", ";
+    first = false;
+    std::string fixed_name(name);
+    std::replace(fixed_name.begin(), fixed_name.end(), '_', '-');
+    oss << fixed_name;
+  }
+  return oss.str();
+}
+
+template<typename T>
+T parse_enum_value(const std::string& what, const std::string& name) {
+  std::string fixed_name(name);
+  std::replace(fixed_name.begin(), fixed_name.end(), '-', '_');
+  auto attempt = magic_enum::enum_cast<T>(fixed_name);
+  if (attempt.has_value()) {
+    return attempt.value();
+  } else {
+    throw CLI::ParseError("Unknown " + what + " strategy: " + name, 1);
+  }
+}
+
 int main(int argc, char* argv[]) {
   CHRONE();
 
@@ -106,6 +143,7 @@ int main(int argc, char* argv[]) {
     ->required()
     ->check(CLI::ExistingFile);
 
+  // @todo Show default values in --help
   std::optional<float> target_accuracy_percentage;
   app.add_option("--target-accuracy", target_accuracy_percentage, "as a percentage")
     ->check(CLI::Range(0., 100.));
@@ -136,7 +174,22 @@ int main(int argc, char* argv[]) {
   app.add_option("--dump-intermediate-models", intermediate_models_file_name)
     ->check(CLI::NonexistentPath);
 
-  CLI11_PARSE(app, argc, argv);
+  std::string weights_optimization_strategy_name = "glop";  // @todo Get the name of the first value in the enum
+  app.add_option(
+    "--weights-optimization-strategy",
+    weights_optimization_strategy_name,
+    get_enum_possible_values<WeightsOptimizationStrategy>());
+
+  WeightsOptimizationStrategy weights_optimization_strategy;
+  try {
+    app.parse(argc, argv);
+    // @todo Can this parsing be done with, maybe, converters, during CLI11_PARSE?
+    weights_optimization_strategy = parse_enum_value<WeightsOptimizationStrategy>(
+      "weights optimization",
+      weights_optimization_strategy_name);
+  } catch (const CLI::ParseError& e) {
+    return app.exit(e);
+  }
 
   std::ifstream learning_set_file(learning_set_file_name);
   auto learning_set = ppl::io::LearningSet::load_from(learning_set_file);
@@ -186,7 +239,7 @@ int main(int argc, char* argv[]) {
     &host_models,
     make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(random, host_models),
-    make_weights_optimization_strategy(),
+    make_weights_optimization_strategy(weights_optimization_strategy),
     make_profiles_improvement_strategy(random, &host_models, device_models_address),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
