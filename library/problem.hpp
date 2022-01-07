@@ -32,7 +32,7 @@ struct DomainView {
   // @todo Can we relax this assumption?
   //  - going from `-infinity` to `+infinity` might be possible
   //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
-  //  - to handle criterion where a lower value is better, we'd need to store an aditional boolean indicator
+  //  - to handle criterion where a lower value is better, we'd need to store an additional boolean indicator
 
   MatrixView1D<const uint> learning_assignments;
   // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
@@ -49,7 +49,7 @@ class Domain {
   Domain(const Domain&) = delete;
   Domain& operator=(const Domain&) = delete;
 
-  // Movable (not yet implemented)
+  // Movable
   Domain(Domain&&);
   Domain& operator=(Domain&&);
 
@@ -127,7 +127,7 @@ class Models {
   Models(const Models&) = delete;
   Models& operator=(const Models&) = delete;
 
-  // Movable (not yet implemented)
+  // Movable
   Models(Models&&);
   Models& operator=(Models&&);
 
