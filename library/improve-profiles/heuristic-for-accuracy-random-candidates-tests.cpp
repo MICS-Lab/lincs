@@ -5,10 +5,10 @@
 #include "../assign.hpp"
 #include "../generate.hpp"
 #include "../test-utils.hpp"
-#include "heuristic-for-accuracy.hpp"
+#include "heuristic-for-accuracy-random-candidates.hpp"
 
 
-CHRONABLE("heuristic-for-accuracy-tests")
+CHRONABLE("heuristic-for-accuracy-random-candidates-tests")
 
 namespace ppl {
 

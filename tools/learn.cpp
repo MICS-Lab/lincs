@@ -9,7 +9,7 @@
 #include <CLI11.hpp>
 #include <magic_enum.hpp>
 
-#include "../library/improve-profiles/heuristic-for-accuracy.hpp"
+#include "../library/improve-profiles/heuristic-for-accuracy-random-candidates.hpp"
 #include "../library/initialize-profiles/max-power-per-criterion.hpp"
 #include "../library/learning.hpp"
 #include "../library/observe/dump-intermediate-models.hpp"

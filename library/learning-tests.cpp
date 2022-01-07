@@ -4,7 +4,7 @@
 
 #include "assign.hpp"
 #include "generate.hpp"
-#include "improve-profiles/heuristic-for-accuracy.hpp"
+#include "improve-profiles/heuristic-for-accuracy-random-candidates.hpp"
 #include "initialize-profiles/max-power-per-criterion.hpp"
 #include "learning.hpp"
 #include "optimize-weights/glop.hpp"
