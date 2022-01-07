@@ -34,20 +34,11 @@ Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/doc
 */
 class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStrategy {
  public:
-  ImproveProfilesWithAccuracyHeuristicOnCpu(
-      RandomNumberGenerator random,
-      Models<Host>* models) :
-#ifndef NDEBUG
-    _models(models),
-#endif
-    _random(random) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(RandomNumberGenerator random) : _random(random) {}
 
-  void improve_profiles(Models<Host>* models) override;
+  void improve_profiles(Models<Host>*) override;
 
  private:
-#ifndef NDEBUG
-  const Models<Host>* const _models;
-#endif
   RandomNumberGenerator _random;
 };
 
@@ -59,20 +50,13 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStra
  public:
   ImproveProfilesWithAccuracyHeuristicOnGpu(
       RandomNumberGenerator random,
-      Models<Host>* host_models,
       Models<Device>* device_models) :
-#ifndef NDEBUG
-    _host_models(host_models),
-#endif
     _random(random),
     _device_models(device_models) {}
 
-  void improve_profiles(Models<Host>* host_models) override;
+  void improve_profiles(Models<Host>*) override;
 
  private:
-#ifndef NDEBUG
-  const Models<Host>* const _host_models;
-#endif
   RandomNumberGenerator _random;
   Models<Device>* _device_models;
 };

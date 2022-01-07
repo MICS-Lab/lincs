@@ -310,8 +310,6 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
 void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(Models<Host>* models) {
   CHRONE();
 
-  assert(models == _models);
-
   auto models_view = models->get_view();
 
   #pragma omp parallel for
@@ -331,8 +329,6 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(Models<Host>* host_models) {
   CHRONE();
-
-  assert(host_models == _host_models);
 
   replicate_models(*host_models, _device_models);
 

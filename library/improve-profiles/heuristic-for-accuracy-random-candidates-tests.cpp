@@ -175,7 +175,7 @@ TEST(ImproveProfiles, First) {
     auto host_models = make_host_models();
 
     EXPECT_EQ(get_accuracy(host_models, 0), 0);
-    ImproveProfilesWithAccuracyHeuristicOnCpu(random, &host_models).improve_profiles(&host_models);
+    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(&host_models);
     EXPECT_EQ(get_accuracy(host_models, 0), 1);
   }
 
@@ -185,7 +185,7 @@ TEST(ImproveProfiles, First) {
     auto device_models = host_models.clone_to<Device>(device_domain);
 
     EXPECT_EQ(get_accuracy(device_models, 0), 0);
-    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &host_models, &device_models).improve_profiles(&host_models);
+    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &device_models).improve_profiles(&host_models);
     EXPECT_EQ(get_accuracy(device_models, 0), 1);
   }
 }
@@ -208,7 +208,7 @@ TEST(ImproveProfiles, SingleCriterion) {
     auto host_models = make_host_models();
 
     EXPECT_EQ(get_accuracy(host_models, 0), 13);
-    ImproveProfilesWithAccuracyHeuristicOnCpu(random, &host_models).improve_profiles(&host_models);
+    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(&host_models);
     EXPECT_EQ(get_accuracy(host_models, 0), 23);
   }
 
@@ -218,7 +218,7 @@ TEST(ImproveProfiles, SingleCriterion) {
     auto device_models = host_models.clone_to<Device>(device_domain);
 
     EXPECT_EQ(get_accuracy(device_models, 0), 13);
-    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &host_models, &device_models).improve_profiles(&host_models);
+    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &device_models).improve_profiles(&host_models);
     EXPECT_EQ(get_accuracy(device_models, 0), 23);
   }
 }
@@ -252,7 +252,7 @@ TEST(ImproveProfiles, Larger) {
     auto host_models = make_host_models();
 
     EXPECT_EQ(get_accuracy(host_models, 0), 132);
-    ImproveProfilesWithAccuracyHeuristicOnCpu(random, &host_models).improve_profiles(&host_models);
+    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(&host_models);
     EXPECT_EQ(get_accuracy(host_models, 0), 164);
   }
 
@@ -262,7 +262,7 @@ TEST(ImproveProfiles, Larger) {
     auto device_models = host_models.clone_to<Device>(device_domain);
 
     EXPECT_EQ(get_accuracy(device_models, 0), 132);
-    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &host_models, &device_models).improve_profiles(&host_models);
+    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &device_models).improve_profiles(&host_models);
     EXPECT_EQ(get_accuracy(device_models, 0), 163);
   }
 }

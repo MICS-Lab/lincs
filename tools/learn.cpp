@@ -70,13 +70,12 @@ std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_stra
 
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
   RandomNumberGenerator random,
-  ppl::Models<Host>* host_models,
   std::optional<ppl::Models<Device>*> device_models
 ) {
   if (device_models) {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(random, host_models, *device_models);
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(random, *device_models);
   } else {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random, host_models);
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
   }
 }
 
@@ -247,7 +246,7 @@ int main(int argc, char* argv[]) {
     make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(random, host_models),
     make_weights_optimization_strategy(weights_optimization_strategy, host_models),
-    make_profiles_improvement_strategy(random, &host_models, device_models_address),
+    make_profiles_improvement_strategy(random, device_models_address),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
   result.best_model.save_to(std::cout);
