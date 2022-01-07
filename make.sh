@@ -20,7 +20,17 @@ fi
 
 if [[ -z $PPL_SKIP_BUILDER ]]
 then
+  id_before=$(docker image inspect parallel-preference-learning-builder -f '{{.Id}}' 2>/dev/null || echo none)
+
   docker build builder --tag parallel-preference-learning-builder
+
+  id_after=$(docker image inspect parallel-preference-learning-builder -f '{{.Id}}')
+
+  # Force full rebuild when dependencies change
+  if [[ $id_before != $id_after ]]
+  then
+    rm -rf build
+  fi
 fi
 
 docker run \
