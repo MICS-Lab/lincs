@@ -3,6 +3,7 @@
 #ifndef PROBLEM_HPP_
 #define PROBLEM_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "cuda-utils.hpp"
@@ -42,41 +43,47 @@ struct DomainView {
 template<typename Space>
 class Domain {
  public:
-  static Domain make(const io::LearningSet&);
+  static std::shared_ptr<Domain> make(const io::LearningSet&);
   ~Domain();
 
   // Non-copyable
   Domain(const Domain&) = delete;
   Domain& operator=(const Domain&) = delete;
 
-  // Movable
-  Domain(Domain&&);
-  Domain& operator=(Domain&&);
+  // Non-movable
+  Domain(Domain&&) = delete;
+  Domain& operator=(Domain&&) = delete;
 
   template<typename OtherSpace> friend class Domain;
 
   template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  Domain<OtherSpace> clone_to() const {
-    return Domain<OtherSpace>(
-      categories_count,
-      criteria_count,
-      learning_alternatives_count,
-      FromTo<Space, OtherSpace>::clone(criteria_count * learning_alternatives_count, learning_alternatives),
-      FromTo<Space, OtherSpace>::clone(learning_alternatives_count, learning_assignments));
+  std::shared_ptr<Domain<OtherSpace>> clone_to() const {
+    return std::make_shared<Domain<OtherSpace>>(
+      typename Domain<OtherSpace>::Privacy(),
+      _categories_count,
+      _criteria_count,
+      _learning_alternatives_count,
+      FromTo<Space, OtherSpace>::clone(_criteria_count * _learning_alternatives_count, _learning_alternatives),
+      FromTo<Space, OtherSpace>::clone(_learning_alternatives_count, _learning_assignments));
   }
 
  public:
   DomainView get_view() const;
 
+  // Constructor has to be public for std::make_shared, but we want to make it unaccessible to external code,
+  // so we make that constructor require a private structure.
  private:
-  Domain(uint, uint, uint, float*, uint*);
+  struct Privacy {};
+
+ public:
+  Domain(Privacy, uint, uint, uint, float*, uint*);
 
  private:
-  uint categories_count;
-  uint criteria_count;
-  uint learning_alternatives_count;
-  float* learning_alternatives;
-  uint* learning_assignments;
+  uint _categories_count;
+  uint _criteria_count;
+  uint _learning_alternatives_count;
+  float* _learning_alternatives;
+  uint* _learning_assignments;
 };
 
 /*
@@ -112,12 +119,8 @@ struct ModelsView {
 template<typename Space>
 class Models {
  public:
-  static Models make(
-    const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
-    const std::vector<io::Model>& models);
-  static Models make(
-    const Domain<Space>& domain /* Stored by reference. Don't let the Domain be destructed before the Models. */,
-    uint models_count);
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, const std::vector<io::Model>&);
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, uint models_count);
   ~Models();
 
   io::Model unmake_one(uint model_index) const;
@@ -127,40 +130,45 @@ class Models {
   Models(const Models&) = delete;
   Models& operator=(const Models&) = delete;
 
-  // Movable
-  Models(Models&&);
-  Models& operator=(Models&&);
+  // Non-movable
+  Models(Models&&) = delete;
+  Models& operator=(Models&&) = delete;
 
   template<typename OtherSpace> friend class Models;
 
   template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  Models<OtherSpace> clone_to(const Domain<OtherSpace>& domain) const {
-    DomainView domain_view = domain.get_view();
-    return Models<OtherSpace>(
-      domain,
-      models_count,
-      FromTo<Space, OtherSpace>::clone(models_count, initialization_iteration_indexes),
-      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * models_count, weights),
+  std::shared_ptr<Models<OtherSpace>> clone_to() const {
+    DomainView domain_view = _domain->get_view();
+    return std::make_shared<Models<OtherSpace>>(
+      typename Models<OtherSpace>::Privacy(),
+      _domain->template clone_to<OtherSpace>(),
+      _models_count,
+      FromTo<Space, OtherSpace>::clone(_models_count, _initialization_iteration_indexes),
+      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * _models_count, _weights),
       FromTo<Space, OtherSpace>::clone(
-        domain_view.criteria_count * (domain_view.categories_count - 1) * models_count,
-        profiles));
+        domain_view.criteria_count * (domain_view.categories_count - 1) * _models_count,
+        _profiles));
   }
 
  public:
+  std::shared_ptr<Domain<Space>> get_domain() { return _domain; }
   ModelsView get_view() const;  // @todo Remove const
 
  private:
-  Models(const Domain<Space>&, uint, uint*, float*, float*);
+  struct Privacy {};
+
+ public:
+  Models(Privacy, std::shared_ptr<Domain<Space>>, uint, uint*, float*, float*);
 
   friend void replicate_models(const Models<Host>&, Models<Device>*);
   friend void replicate_profiles(const Models<Device>&, Models<Host>*);
 
  private:
-  const Domain<Space>& domain;
-  uint models_count;
-  uint* initialization_iteration_indexes;
-  float* weights;
-  float* profiles;
+  std::shared_ptr<Domain<Space>> _domain;
+  uint _models_count;
+  uint* _initialization_iteration_indexes;
+  float* _weights;
+  float* _profiles;
 };
 
 // Utility function to replicate weights (computed on the host) and

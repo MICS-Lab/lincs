@@ -3,6 +3,8 @@
 #ifndef OPTIMIZE_WEIGHTS_HPP_
 #define OPTIMIZE_WEIGHTS_HPP_
 
+#include <memory>
+
 #include "problem.hpp"
 
 
@@ -12,7 +14,7 @@ class WeightsOptimizationStrategy {
  public:
   virtual ~WeightsOptimizationStrategy() {}
 
-  virtual void optimize_weights(Models<Host>*) = 0;
+  virtual void optimize_weights(std::shared_ptr<Models<Host>>) = 0;
 };
 
 }  // namespace ppl

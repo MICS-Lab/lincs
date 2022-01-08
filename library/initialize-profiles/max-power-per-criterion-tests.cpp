@@ -17,8 +17,8 @@ std::map<float, double> normalize(const std::map<float, double>& value_probabili
   return ProbabilityWeightedGenerator<float>::make(value_probabilities).get_value_probabilities();
 }
 
-std::map<float, double> get_candidates(const Domain<Host>& domain, uint crit_index, uint profile_index) {
-  return normalize(get_candidate_probabilities(domain.get_view(), crit_index, profile_index));
+std::map<float, double> get_candidates(std::shared_ptr<Domain<Host>> domain, uint crit_index, uint profile_index) {
+  return normalize(get_candidate_probabilities(domain->get_view(), crit_index, profile_index));
 }
 
 TEST(GetValueProbabilities, OneAlternativeBelow) {

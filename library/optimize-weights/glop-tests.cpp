@@ -20,7 +20,7 @@ namespace ppl {
 
 // Internal function (not declared in the header) that we still want to unit-test
 std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program(
-  const float epsilon, const Models<Host>&, uint model_index);
+  const float epsilon, std::shared_ptr<Models<Host>>, uint model_index);
 
 
 TEST(GlopExploration, FromSample) {
@@ -374,9 +374,9 @@ TEST(OptimizeWeightsUsingGlop, First) {
   auto domain = make_domain(2, {{{1}, 1}});
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
-  EXPECT_EQ(get_accuracy(models, 0), 0);
-  OptimizeWeightsUsingGlop().optimize_weights(&models);
-  EXPECT_EQ(get_accuracy(models, 0), 1);
+  EXPECT_EQ(get_accuracy(*models, 0), 0);
+  OptimizeWeightsUsingGlop().optimize_weights(models);
+  EXPECT_EQ(get_accuracy(*models, 0), 1);
 }
 
 TEST(OptimizeWeightsUsingGlop, Larger) {
@@ -389,9 +389,9 @@ TEST(OptimizeWeightsUsingGlop, Larger) {
   auto domain = Domain<Host>::make(learning_set);
   auto models = Models<Host>::make(domain, {model});
 
-  EXPECT_EQ(get_accuracy(models, 0), 233);
-  OptimizeWeightsUsingGlop().optimize_weights(&models);
-  EXPECT_EQ(get_accuracy(models, 0), 1000);
+  EXPECT_EQ(get_accuracy(*models, 0), 233);
+  OptimizeWeightsUsingGlop().optimize_weights(models);
+  EXPECT_EQ(get_accuracy(*models, 0), 1000);
 }
 
 }  // namespace ppl

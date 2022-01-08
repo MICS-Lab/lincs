@@ -109,10 +109,10 @@ std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_pro
 }
 
 std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
-    const float epsilon, const Models<Host>& models_, uint model_index) {
+    const float epsilon, std::shared_ptr<Models<Host>> models_, uint model_index) {
   CHRONE();
 
-  return make_verbose_linear_program(epsilon, models_.get_view(), model_index)->program;
+  return make_verbose_linear_program(epsilon, models_->get_view(), model_index)->program;
 }
 
 void optimize_weights(const ModelsView& models) {
@@ -137,7 +137,7 @@ void optimize_weights(const ModelsView& models) {
   }
 }
 
-void OptimizeWeightsUsingGlop::optimize_weights(Models<Host>* models) {
+void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models<Host>> models) {
   CHRONE();
 
   ppl::optimize_weights(models->get_view());

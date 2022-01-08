@@ -14,7 +14,7 @@ TEST(MakeModels, SingleAlternativeSingleCriteria) {
   auto domain = make_domain(2, {
     {{0.25}, 1},
   });
-  auto domain_view = domain.get_view();
+  auto domain_view = domain->get_view();
 
   EXPECT_EQ(domain_view.categories_count, 2);
   EXPECT_EQ(domain_view.criteria_count, 1);
@@ -24,7 +24,7 @@ TEST(MakeModels, SingleAlternativeSingleCriteria) {
 
   {
     auto models = make_models(domain, {});
-    auto models_view = models.get_view();
+    auto models_view = models->get_view();
 
     EXPECT_EQ(models_view.models_count, 0);
     EXPECT_EQ(models_view.weights.s1(), 1);
@@ -38,7 +38,7 @@ TEST(MakeModels, SingleAlternativeSingleCriteria) {
     auto models = make_models(domain, {
       {{{0.25}}, {1.}},
     });
-    auto models_view = models.get_view();
+    auto models_view = models->get_view();
 
     EXPECT_EQ(models_view.models_count, 1);
     EXPECT_EQ(models_view.weights.s1(), 1);
@@ -59,7 +59,7 @@ TEST(MakeModels, SeveralAlternativesSingleCriteria) {
     {{0.75}, 2},
     {{1.00}, 3},
   });
-  auto domain_view = domain.get_view();
+  auto domain_view = domain->get_view();
 
   EXPECT_EQ(domain_view.categories_count, 4);
   EXPECT_EQ(domain_view.criteria_count, 1);
@@ -78,7 +78,7 @@ TEST(MakeModels, SeveralAlternativesSingleCriteria) {
   auto models = make_models(domain, {
     {{{0.25}, {0.50}, {0.75}}, {1.}},
   });
-  auto models_view = models.get_view();
+  auto models_view = models->get_view();
 
   EXPECT_EQ(models_view.models_count, 1);
   EXPECT_EQ(models_view.weights[0][0], 1.);
@@ -91,7 +91,7 @@ TEST(MakeModels, SingleAlternativeSeveralCriteria) {
   auto domain = make_domain(2, {
     {{0.25, 0.75, 0.50}, 1},
   });
-  auto domain_view = domain.get_view();
+  auto domain_view = domain->get_view();
 
   EXPECT_EQ(domain_view.categories_count, 2);
   EXPECT_EQ(domain_view.criteria_count, 3);
@@ -104,7 +104,7 @@ TEST(MakeModels, SingleAlternativeSeveralCriteria) {
   auto models = make_models(domain, {
     {{{0.25, 0.50, 0.75}}, {0.25, 0.50, 0.25}},
   });
-  auto models_view = models.get_view();
+  auto models_view = models->get_view();
 
   EXPECT_EQ(models_view.models_count, 1);
   EXPECT_EQ(models_view.weights[0][0], 0.25);

@@ -33,7 +33,7 @@ std::vector<uint> partition_models_by_accuracy(const uint models_count, const Mo
 }
 
 LearningResult perform_learning(
-  Models<Host>* models,
+  std::shared_ptr<Models<Host>> models,
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,

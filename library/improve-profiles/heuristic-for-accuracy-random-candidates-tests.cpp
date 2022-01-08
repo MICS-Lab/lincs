@@ -21,13 +21,13 @@ __host__ __device__ Desirability compute_move_desirability(
   float destination);
 
 Desirability compute_move_desirability(
-    const Models<Host>& models,
+    std::shared_ptr<Models<Host>> models,
     uint model_index,
     uint profile_index,
     uint criterion_index,
     float destination) {
   return compute_move_desirability(
-    models.get_view(), model_index, profile_index, criterion_index, destination);
+    models->get_view(), model_index, profile_index, criterion_index, destination);
 }
 
 
@@ -174,19 +174,18 @@ TEST(ImproveProfiles, First) {
   {
     auto host_models = make_host_models();
 
-    EXPECT_EQ(get_accuracy(host_models, 0), 0);
-    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(&host_models);
-    EXPECT_EQ(get_accuracy(host_models, 0), 1);
+    EXPECT_EQ(get_accuracy(*host_models, 0), 0);
+    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(host_models);
+    EXPECT_EQ(get_accuracy(*host_models, 0), 1);
   }
 
   {
     auto host_models = make_host_models();
-    auto device_domain = host_domain.clone_to<Device>();
-    auto device_models = host_models.clone_to<Device>(device_domain);
+    auto device_models = host_models->clone_to<Device>();
 
-    EXPECT_EQ(get_accuracy(device_models, 0), 0);
-    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &device_models).improve_profiles(&host_models);
-    EXPECT_EQ(get_accuracy(device_models, 0), 1);
+    EXPECT_EQ(get_accuracy(*device_models, 0), 0);
+    ImproveProfilesWithAccuracyHeuristicOnGpu(random, device_models).improve_profiles(host_models);
+    EXPECT_EQ(get_accuracy(*device_models, 0), 1);
   }
 }
 
@@ -207,19 +206,18 @@ TEST(ImproveProfiles, SingleCriterion) {
   {
     auto host_models = make_host_models();
 
-    EXPECT_EQ(get_accuracy(host_models, 0), 13);
-    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(&host_models);
-    EXPECT_EQ(get_accuracy(host_models, 0), 23);
+    EXPECT_EQ(get_accuracy(*host_models, 0), 13);
+    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(host_models);
+    EXPECT_EQ(get_accuracy(*host_models, 0), 23);
   }
 
   {
     auto host_models = make_host_models();
-    auto device_domain = host_domain.clone_to<Device>();
-    auto device_models = host_models.clone_to<Device>(device_domain);
+    auto device_models = host_models->clone_to<Device>();
 
-    EXPECT_EQ(get_accuracy(device_models, 0), 13);
-    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &device_models).improve_profiles(&host_models);
-    EXPECT_EQ(get_accuracy(device_models, 0), 23);
+    EXPECT_EQ(get_accuracy(*device_models, 0), 13);
+    ImproveProfilesWithAccuracyHeuristicOnGpu(random, device_models).improve_profiles(host_models);
+    EXPECT_EQ(get_accuracy(*device_models, 0), 23);
   }
 }
 
@@ -251,19 +249,18 @@ TEST(ImproveProfiles, Larger) {
   {
     auto host_models = make_host_models();
 
-    EXPECT_EQ(get_accuracy(host_models, 0), 132);
-    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(&host_models);
-    EXPECT_EQ(get_accuracy(host_models, 0), 164);
+    EXPECT_EQ(get_accuracy(*host_models, 0), 132);
+    ImproveProfilesWithAccuracyHeuristicOnCpu(random).improve_profiles(host_models);
+    EXPECT_EQ(get_accuracy(*host_models, 0), 164);
   }
 
   {
     auto host_models = make_host_models();
-    auto device_domain = host_domain.clone_to<Device>();
-    auto device_models = host_models.clone_to<Device>(device_domain);
+    auto device_models = host_models->clone_to<Device>();
 
-    EXPECT_EQ(get_accuracy(device_models, 0), 132);
-    ImproveProfilesWithAccuracyHeuristicOnGpu(random, &device_models).improve_profiles(&host_models);
-    EXPECT_EQ(get_accuracy(device_models, 0), 163);
+    EXPECT_EQ(get_accuracy(*device_models, 0), 132);
+    ImproveProfilesWithAccuracyHeuristicOnGpu(random, device_models).improve_profiles(host_models);
+    EXPECT_EQ(get_accuracy(*device_models, 0), 163);
   }
 }
 

@@ -3,6 +3,8 @@
 #ifndef IMPROVE_PROFILES_HEURISTIC_FOR_ACCURACY_RANDOM_CANDIDATES_HPP_
 #define IMPROVE_PROFILES_HEURISTIC_FOR_ACCURACY_RANDOM_CANDIDATES_HPP_
 
+#include <memory>
+
 #include <chrones.hpp>
 
 #include "../improve-profiles.hpp"
@@ -36,7 +38,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
  public:
   explicit ImproveProfilesWithAccuracyHeuristicOnCpu(RandomNumberGenerator random) : _random(random) {}
 
-  void improve_profiles(Models<Host>*) override;
+  void improve_profiles(std::shared_ptr<Models<Host>>) override;
 
  private:
   RandomNumberGenerator _random;
@@ -50,15 +52,15 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStra
  public:
   ImproveProfilesWithAccuracyHeuristicOnGpu(
       RandomNumberGenerator random,
-      Models<Device>* device_models) :
+      std::shared_ptr<Models<Device>> device_models) :
     _random(random),
     _device_models(device_models) {}
 
-  void improve_profiles(Models<Host>*) override;
+  void improve_profiles(std::shared_ptr<Models<Host>>) override;
 
  private:
   RandomNumberGenerator _random;
-  Models<Device>* _device_models;
+  std::shared_ptr<Models<Device>> _device_models;
 };
 
 }  // namespace ppl

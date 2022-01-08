@@ -23,7 +23,7 @@ class OptimizeWeightsUsingGlopAndReusingPrograms : public WeightsOptimizationStr
   explicit OptimizeWeightsUsingGlopAndReusingPrograms(const Models<Host>&);
 
  public:
-  void optimize_weights(Models<Host>*) override;
+  void optimize_weights(std::shared_ptr<Models<Host>>) override;
 
  public:
   struct LinearProgram {

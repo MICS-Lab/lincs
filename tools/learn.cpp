@@ -69,11 +69,12 @@ std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_stra
 }
 
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
+  const bool use_gpu,
   RandomNumberGenerator random,
-  std::optional<ppl::Models<Device>*> device_models
+  std::shared_ptr<ppl::Models<Host>> models
 ) {
-  if (device_models) {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(random, *device_models);
+  if (use_gpu) {
+    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(random, models->clone_to<Device>());
   } else {
     return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
   }
@@ -218,18 +219,10 @@ int main(int argc, char* argv[]) {
   // @todo Detect GPU...
   // and verify it's usable when force_gpu is set
   // or set use_gpu according to its usability.
-  // For the now, we always use the GPU unless explicitely forbiden.
+  // For now, we always use the GPU unless explicitely forbiden.
   const bool use_gpu = !forbid_gpu;
 
-  std::optional<ppl::Domain<Device>> device_domain;
-  std::optional<ppl::Models<Device>> device_models;
-  std::optional<ppl::Models<Device>*> device_models_address;
-  if (use_gpu) {
-    device_domain = host_domain.clone_to<Device>();
-    device_models = host_models.clone_to<Device>(*device_domain);
-    device_models_address = &*device_models;
-  }
-
+  // Todo (much later): use C++23's std::optional::transform
   std::optional<std::ofstream> intermediate_models_file;
   if (intermediate_models_file_name) {
     intermediate_models_file = std::ofstream(*intermediate_models_file_name);
@@ -242,11 +235,11 @@ int main(int argc, char* argv[]) {
   }
 
   auto result = ppl::perform_learning(
-    &host_models,
+    host_models,
     make_observers(quiet, intermediate_models_file),
-    make_profiles_initialization_strategy(random, host_models),
-    make_weights_optimization_strategy(weights_optimization_strategy, host_models),
-    make_profiles_improvement_strategy(random, device_models_address),
+    make_profiles_initialization_strategy(random, *host_models),
+    make_weights_optimization_strategy(weights_optimization_strategy, *host_models),
+    make_profiles_improvement_strategy(use_gpu, random, host_models),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
   result.best_model.save_to(std::cout);

@@ -23,15 +23,9 @@ namespace ppl {
 
 namespace glp = operations_research::glop;
 
-// Internal functions (not declared in the header) that we still want to unit-test
+// Internal function (not declared in the header) that we still want to unit-test
 std::shared_ptr<operations_research::glop::LinearProgram> make_verbose_linear_program_reuse(
-  const float epsilon, const Models<Host>&, uint model_index);
-
-void structure_linear_program(
-  OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp, const float epsilon, const ModelsView&);
-
-void update_linear_program(
-  OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp, const ModelsView&, const uint model_index);
+  const float epsilon, std::shared_ptr<Models<Host>>, uint model_index);
 
 
 TEST(MakeLinearProgram, OneCriterionOneAlternativeBelowProfileInBottomCategory) {
@@ -340,9 +334,9 @@ TEST(OptimizeWeightsUsingGlopAndReusingPrograms, First) {
   auto domain = make_domain(2, {{{1}, 1}});
   auto models = make_models(domain, {{{{0.5}}, {0.1}}});
 
-  EXPECT_EQ(get_accuracy(models, 0), 0);
-  OptimizeWeightsUsingGlopAndReusingPrograms(models).optimize_weights(&models);
-  EXPECT_EQ(get_accuracy(models, 0), 1);
+  EXPECT_EQ(get_accuracy(*models, 0), 0);
+  OptimizeWeightsUsingGlopAndReusingPrograms(*models).optimize_weights(models);
+  EXPECT_EQ(get_accuracy(*models, 0), 1);
 }
 
 TEST(OptimizeWeightsUsingGlopAndReusingPrograms, Larger) {
@@ -355,9 +349,9 @@ TEST(OptimizeWeightsUsingGlopAndReusingPrograms, Larger) {
   auto domain = Domain<Host>::make(learning_set);
   auto models = Models<Host>::make(domain, {model});
 
-  EXPECT_EQ(get_accuracy(models, 0), 233);
-  OptimizeWeightsUsingGlopAndReusingPrograms(models).optimize_weights(&models);
-  EXPECT_EQ(get_accuracy(models, 0), 1000);
+  EXPECT_EQ(get_accuracy(*models, 0), 233);
+  OptimizeWeightsUsingGlopAndReusingPrograms(*models).optimize_weights(models);
+  EXPECT_EQ(get_accuracy(*models, 0), 1000);
 }
 
 // Sadly in actual cases, models are modified too much to benefit from the optimization
@@ -377,7 +371,7 @@ TEST(OptimizeWeightsUsingGlopAndReusingPrograms, IsFasterThanOptimizeWeightsUsin
   auto end = std::chrono::steady_clock::now() + duration;
   OptimizeWeightsUsingGlop dont_reuse;
   while (std::chrono::steady_clock::now() < end) {
-    dont_reuse.optimize_weights(&models);
+    dont_reuse.optimize_weights(models);
     ++dont_reuse_count;
   }
 
@@ -385,9 +379,9 @@ TEST(OptimizeWeightsUsingGlopAndReusingPrograms, IsFasterThanOptimizeWeightsUsin
 
   int do_reuse_count = 0;
   end = std::chrono::steady_clock::now() + duration;
-  OptimizeWeightsUsingGlopAndReusingPrograms do_reuse(models);
+  OptimizeWeightsUsingGlopAndReusingPrograms do_reuse(*models);
   while (std::chrono::steady_clock::now() < end) {
-    do_reuse.optimize_weights(&models);
+    do_reuse.optimize_weights(models);
     ++do_reuse_count;
   }
 

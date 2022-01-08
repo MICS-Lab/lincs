@@ -87,7 +87,7 @@ io::LearningSet learning_set(
 
   // ... and simulate their category assignment according to "ground truth" (the provided model in that case).
   for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
-    alternatives[alt_index].assigned_category = get_assignment(models, 0, alt_index);
+    alternatives[alt_index].assigned_category = get_assignment(*models, 0, alt_index);
   }
 
   return io::LearningSet(model.criteria_count, model.categories_count, alternatives_count, alternatives);

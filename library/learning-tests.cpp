@@ -26,25 +26,24 @@ TEST(Learn, OnGpu) {
   auto host_domain = Domain<Host>::make(learning_set);
   auto host_models = Models<Host>::make(host_domain, 15);
 
-  auto device_domain = host_domain.clone_to<Device>();
-  auto device_models = host_models.clone_to<Device>(device_domain);
+  auto device_models = host_models->clone_to<Device>();
 
   RandomSource random;
   random.init_for_host(42);
   random.init_for_device(42);
 
   auto result = perform_learning(
-      &host_models,
+      host_models,
       {},
-      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, host_models),
+      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
-      std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(random, &device_models),
+      std::make_shared<ImproveProfilesWithAccuracyHeuristicOnGpu>(random, device_models),
       std::make_shared<TerminateAfterIterations>(3));
 
   EXPECT_EQ(result.best_model_accuracy, 89);
 
   auto best_models = Models<Host>::make(host_domain, std::vector<io::Model>(1, result.best_model));
-  EXPECT_EQ(get_accuracy(best_models, 0), result.best_model_accuracy);
+  EXPECT_EQ(get_accuracy(*best_models, 0), result.best_model_accuracy);
 }
 
 TEST(Learn, OnCpu) {
@@ -61,9 +60,9 @@ TEST(Learn, OnCpu) {
   random.init_for_host(42);
 
   auto result = perform_learning(
-      &host_models,
+      host_models,
       {},
-      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, host_models),
+      std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *host_models),
       std::make_shared<OptimizeWeightsUsingGlop>(),
       std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(random),
       std::make_shared<TerminateAfterIterations>(2));
@@ -71,7 +70,7 @@ TEST(Learn, OnCpu) {
   EXPECT_EQ(result.best_model_accuracy, 78);
 
   auto best_models = Models<Host>::make(host_domain, std::vector<io::Model>(1, result.best_model));
-  EXPECT_EQ(get_accuracy(best_models, 0), result.best_model_accuracy);
+  EXPECT_EQ(get_accuracy(*best_models, 0), result.best_model_accuracy);
 }
 
 }  // namespace ppl

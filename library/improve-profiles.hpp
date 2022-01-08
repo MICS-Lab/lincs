@@ -3,6 +3,8 @@
 #ifndef IMPROVE_PROFILES_HPP_
 #define IMPROVE_PROFILES_HPP_
 
+#include <memory>
+
 #include "problem.hpp"
 
 
@@ -12,7 +14,7 @@ class ProfilesImprovementStrategy {
  public:
   virtual ~ProfilesImprovementStrategy() {}
 
-  virtual void improve_profiles(Models<Host>*) = 0;
+  virtual void improve_profiles(std::shared_ptr<Models<Host>>) = 0;
 };
 
 }  // namespace ppl

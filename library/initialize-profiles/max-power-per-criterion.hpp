@@ -3,6 +3,7 @@
 #ifndef INITIALIZE_PROFILES_MAX_POWER_PER_CRITERION_HPP_
 #define INITIALIZE_PROFILES_MAX_POWER_PER_CRITERION_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "../initialize-profiles.hpp"
@@ -19,7 +20,7 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(RandomNumberGenerator, const Models<Host>&);
 
   void initialize_profiles(
-    Models<Host>*,
+    std::shared_ptr<Models<Host>>,
     uint iteration_index,
     std::vector<uint>::const_iterator model_indexes_begin,
     std::vector<uint>::const_iterator model_indexes_end) override;

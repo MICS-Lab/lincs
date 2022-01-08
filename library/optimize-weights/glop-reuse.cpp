@@ -119,8 +119,8 @@ void update_linear_program(
 }
 
 std::shared_ptr<glp::LinearProgram> make_verbose_linear_program_reuse(
-    const float epsilon, const Models<Host>& models, uint model_index) {
-  auto models_view = models.get_view();
+    const float epsilon, std::shared_ptr<Models<Host>> models, uint model_index) {
+  auto models_view = models->get_view();
 
   OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram lp;
   structure_linear_program(&lp, epsilon, models_view);
@@ -152,7 +152,7 @@ OptimizeWeightsUsingGlopAndReusingPrograms::OptimizeWeightsUsingGlopAndReusingPr
   }
 }
 
-void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(Models<Host>* models) {
+void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(std::shared_ptr<Models<Host>> models) {
   CHRONE();
 
   auto models_view = models->get_view();

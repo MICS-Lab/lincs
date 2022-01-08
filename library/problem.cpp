@@ -11,39 +11,21 @@
 namespace ppl {
 
 template<typename Space>
-Domain<Space>::Domain(Domain<Space>&& other) :
-  categories_count(other.categories_count),
-  criteria_count(other.criteria_count),
-  learning_alternatives_count(other.learning_alternatives_count),
-  learning_alternatives(std::exchange(other.learning_alternatives, nullptr)),
-  learning_assignments(std::exchange(other.learning_assignments, nullptr)) {}
-
-template<typename Space>
-Domain<Space>& Domain<Space>::operator=(Domain<Space>&& other) {
-  categories_count = other.categories_count;
-  criteria_count = other.criteria_count;
-  learning_alternatives_count = other.learning_alternatives_count;
-  learning_alternatives = std::exchange(other.learning_alternatives, nullptr);
-  learning_assignments = std::exchange(other.learning_assignments, nullptr);
-
-  return *this;
-}
-
-template<typename Space>
 Domain<Space>::Domain(
-  const uint categories_count_,
-  const uint criteria_count_,
-  const uint learning_alternatives_count_,
-  float* learning_alternatives_,
-  uint* learning_assignments_) :
-    categories_count(categories_count_),
-    criteria_count(criteria_count_),
-    learning_alternatives_count(learning_alternatives_count_),
-    learning_alternatives(learning_alternatives_),
-    learning_assignments(learning_assignments_) {}
+  Privacy,
+  const uint categories_count,
+  const uint criteria_count,
+  const uint learning_alternatives_count,
+  float* learning_alternatives,
+  uint* learning_assignments) :
+    _categories_count(categories_count),
+    _criteria_count(criteria_count),
+    _learning_alternatives_count(learning_alternatives_count),
+    _learning_alternatives(learning_alternatives),
+    _learning_assignments(learning_assignments) {}
 
 template<>
-Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
+std::shared_ptr<Domain<Host>> Domain<Host>::make(const io::LearningSet& learning_set) {
   CHRONE();
 
   assert(learning_set.is_valid());
@@ -63,7 +45,8 @@ Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
     assignments[alt_index] = alt.assigned_category;
   }
 
-  return Domain(
+  return std::make_shared<Domain<Host>>(
+    Privacy(),
     learning_set.categories_count,
     learning_set.criteria_count,
     learning_set.alternatives_count,
@@ -73,18 +56,18 @@ Domain<Host> Domain<Host>::make(const io::LearningSet& learning_set) {
 
 template<typename Space>
 Domain<Space>::~Domain() {
-  Space::free(learning_alternatives);
-  Space::free(learning_assignments);
+  Space::free(_learning_alternatives);
+  Space::free(_learning_assignments);
 }
 
 template<typename Space>
 DomainView Domain<Space>::get_view() const {
   return {
-    categories_count,
-    criteria_count,
-    learning_alternatives_count,
-    MatrixView2D<const float>(criteria_count, learning_alternatives_count, learning_alternatives),
-    MatrixView1D<const uint>(learning_alternatives_count, learning_assignments),
+    _categories_count,
+    _criteria_count,
+    _learning_alternatives_count,
+    MatrixView2D<const float>(_criteria_count, _learning_alternatives_count, _learning_alternatives),
+    MatrixView1D<const uint>(_learning_alternatives_count, _learning_assignments),
   };
 }
 
@@ -92,58 +75,42 @@ template class Domain<Host>;
 template class Domain<Device>;
 
 template<typename Space>
-Models<Space>::Models(Models<Space>&& other) :
-  domain(other.domain),
-  models_count(other.models_count),
-  initialization_iteration_indexes(std::exchange(other.initialization_iteration_indexes, nullptr)),
-  weights(std::exchange(other.weights, nullptr)),
-  profiles(std::exchange(other.profiles, nullptr)) {}
-
-template<typename Space>
-Models<Space>& Models<Space>::operator=(Models<Space>&& other) {
-  assert(&other.domain == &domain);
-
-  models_count = other.models_count;
-  initialization_iteration_indexes = std::exchange(other.initialization_iteration_indexes, nullptr);
-  weights = std::exchange(other.weights, nullptr);
-  profiles = std::exchange(other.profiles, nullptr);
-
-  return *this;
-}
-
-template<typename Space>
 Models<Space>::Models(
-  const Domain<Space>& domain_,
-  const uint models_count_,
-  uint* initialization_iteration_indexes_,
-  float* weights_,
-  float* profiles_) :
-    domain(domain_),
-    models_count(models_count_),
-    initialization_iteration_indexes(initialization_iteration_indexes_),
-    weights(weights_),
-    profiles(profiles_) {}
+  Privacy,
+  std::shared_ptr<Domain<Space>> domain,
+  const uint models_count,
+  uint* initialization_iteration_indexes,
+  float* weights,
+  float* profiles) :
+    _domain(domain),
+    _models_count(models_count),
+    _initialization_iteration_indexes(initialization_iteration_indexes),
+    _weights(weights),
+    _profiles(profiles) {}
 
 template<>
-Models<Host> Models<Host>::make(const Domain<Host>& domain, const uint models_count) {
+std::shared_ptr<Models<Host>> Models<Host>::make(std::shared_ptr<Domain<Host>> domain, const uint models_count) {
   CHRONE();
 
-  DomainView domain_view = domain.get_view();
+  DomainView domain_view = domain->get_view();
 
   uint* initialization_iteration_indexes = alloc_host<uint>(models_count);
   float* weights = alloc_host<float>(domain_view.criteria_count * models_count);
   float* profiles = alloc_host<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
 
-  return Models(domain, models_count, initialization_iteration_indexes, weights, profiles);
+  return std::make_shared<Models>(Privacy(), domain, models_count, initialization_iteration_indexes, weights, profiles);
 }
 
 template<>
-Models<Host> Models<Host>::make(const Domain<Host>& domain, const std::vector<io::Model>& models) {
+std::shared_ptr<Models<Host>> Models<Host>::make(
+  std::shared_ptr<Domain<Host>> domain,
+  const std::vector<io::Model>& models
+) {
   CHRONE();
 
   const uint models_count = models.size();
   auto r = make(domain, models_count);
-  auto view = r.get_view();
+  auto view = r->get_view();
 
   for (uint model_index = 0; model_index != models_count; ++model_index) {
     const io::Model& model = models[model_index];
@@ -196,7 +163,7 @@ std::vector<io::Model> Models<Host>::unmake() const {
   std::vector<io::Model> models;
 
   models.reserve(view.models_count);
-  for (uint model_index = 0; model_index != models_count; ++model_index) {
+  for (uint model_index = 0; model_index != _models_count; ++model_index) {
     models.push_back(unmake_one(model_index));
   }
 
@@ -205,19 +172,19 @@ std::vector<io::Model> Models<Host>::unmake() const {
 
 template<typename Space>
 Models<Space>::~Models() {
-  Space::free(weights);
-  Space::free(profiles);
+  Space::free(_weights);
+  Space::free(_profiles);
 }
 
 template<typename Space>
 ModelsView Models<Space>::get_view() const {
-  DomainView domain_view = domain.get_view();
+  DomainView domain = _domain->get_view();
   return {
-    domain_view,
-    models_count,
-    MatrixView1D<uint>(models_count, initialization_iteration_indexes),
-    MatrixView2D<float>(domain_view.criteria_count, models_count, weights),
-    MatrixView3D<float>(domain_view.criteria_count, domain_view.categories_count - 1, models_count, profiles),
+    domain,
+    _models_count,
+    MatrixView1D<uint>(_models_count, _initialization_iteration_indexes),
+    MatrixView2D<float>(domain.criteria_count, _models_count, _weights),
+    MatrixView3D<float>(domain.criteria_count, domain.categories_count - 1, _models_count, _profiles),
   };
 }
 
@@ -227,22 +194,22 @@ template class Models<Device>;
 void replicate_models(const Models<Host>& src, Models<Device>* dst) {
   CHRONE();
 
-  DomainView domain = src.domain.get_view();
+  DomainView domain = src._domain->get_view();
   copy_host_to_device(
-    domain.criteria_count * (domain.categories_count - 1) * src.models_count,
-    src.profiles, dst->profiles);
+    domain.criteria_count * (domain.categories_count - 1) * src._models_count,
+    src._profiles, dst->_profiles);
   copy_host_to_device(
-    domain.criteria_count * src.models_count,
-    src.weights, dst->weights);
+    domain.criteria_count * src._models_count,
+    src._weights, dst->_weights);
 }
 
 void replicate_profiles(const Models<Device>& src, Models<Host>* dst) {
   CHRONE();
 
-  DomainView domain = src.domain.get_view();
+  DomainView domain = src._domain->get_view();
   copy_device_to_host(
-    domain.criteria_count * (domain.categories_count - 1) * src.models_count,
-    src.profiles, dst->profiles);
+    domain.criteria_count * (domain.categories_count - 1) * src._models_count,
+    src._profiles, dst->_profiles);
 }
 
 }  // namespace ppl

@@ -26,8 +26,7 @@ struct LearningResult {
 const uint default_models_count = 9;
 
 LearningResult perform_learning(
-  Models<Host>* host_models,
-  // @todo Could we use std::unique_ptr instead of std::shared_ptr?
+  std::shared_ptr<Models<Host>> host_models,
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,

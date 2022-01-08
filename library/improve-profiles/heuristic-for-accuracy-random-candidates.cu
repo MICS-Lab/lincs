@@ -307,7 +307,7 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   delete[] criterion_indexes_;
 }
 
-void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(Models<Host>* models) {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models<Host>> models) {
   CHRONE();
 
   auto models_view = models->get_view();
@@ -327,10 +327,10 @@ __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsVie
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(Models<Host>* host_models) {
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(std::shared_ptr<Models<Host>> host_models) {
   CHRONE();
 
-  replicate_models(*host_models, _device_models);
+  replicate_models(*host_models, _device_models.get());
 
   auto models_view = _device_models->get_view();
 
@@ -338,7 +338,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(Models<Host>* h
   cudaDeviceSynchronize();
   checkCudaErrors();
 
-  replicate_profiles(*_device_models, host_models);
+  replicate_profiles(*_device_models, host_models.get());
 }
 
 }  // namespace ppl

@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -12,12 +13,12 @@
 
 namespace ppl {
 
-Domain<Host> make_domain(
+std::shared_ptr<Domain<Host>> make_domain(
   uint categories_count,
   const std::vector<std::pair<std::vector<float>, uint>>& alternatives_);
 
-Models<Host> make_models(
-  const Domain<Host>& domain,
+std::shared_ptr<Models<Host>> make_models(
+  std::shared_ptr<Domain<Host>> domain,
   const std::vector<std::pair<std::vector<std::vector<float>>, std::vector<float>>>& models_);
 
 }  // namespace ppl

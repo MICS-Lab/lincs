@@ -74,7 +74,7 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
 }
 
 void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  Models<Host>* models,
+  std::shared_ptr<Models<Host>> models,
   const uint iteration_index,
   std::vector<uint>::const_iterator model_indexes_begin,
   const std::vector<uint>::const_iterator model_indexes_end

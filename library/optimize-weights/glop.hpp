@@ -3,6 +3,7 @@
 #ifndef OPTIMIZE_WEIGHTS_GLOP_HPP_
 #define OPTIMIZE_WEIGHTS_GLOP_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "../optimize-weights.hpp"
@@ -19,7 +20,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
   struct LinearProgram;
 
  public:
-  void optimize_weights(Models<Host>*) override;
+  void optimize_weights(std::shared_ptr<Models<Host>>) override;
 };
 
 }  // namespace ppl
