@@ -29,6 +29,7 @@ non_compilation_includes := $(patsubst %-tests.cpp,build/tests/%-non-compilation
 
 # Sentinel files
 cpplint_sentinel_files := $(patsubst %,build/lint/%.cpplint.ok,$(tools_source_files) $(header_files) $(cpp_lib_source_files) $(cu_lib_source_files))
+test_binary_files := $(patsubst %.cpp,build/tests/%,$(cpp_test_source_files)) $(patsubst %.cu,build/tests/%,$(cu_test_source_files))
 test_sentinel_files := $(patsubst %,build/tests/%.ok,$(cpp_test_source_files) $(cu_test_source_files) $(sh_test_source_files))
 
 # Final products
@@ -47,6 +48,7 @@ debug-inventory:
 	@echo "dependency_includes:\n$(dependency_includes)\n"
 	@echo "non_compilation_includes:\n$(non_compilation_includes)\n"
 	@echo "cpplint_sentinel_files:\n$(cpplint_sentinel_files)\n"
+	@echo "test_binary_files:\n$(test_binary_files)\n"
 	@echo "test_sentinel_files:\n$(test_sentinel_files)\n"
 	@echo "tools_binary_files:\n$(tools_binary_files)"
 
@@ -62,6 +64,9 @@ dep-graph: build/dependency-graph.png
 
 .PHONY: compile
 compile: $(object_files)
+
+.PHONY: link
+link: $(test_binary_files) $(tools_binary_files)
 
 ##########################
 # Automated dependencies #
