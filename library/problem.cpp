@@ -2,6 +2,9 @@
 
 #include "problem.hpp"
 
+#include <algorithm>
+#include <set>
+
 #include <chrones.hpp>
 
 #include "cuda-utils.hpp"
@@ -190,6 +193,104 @@ ModelsView Models<Space>::get_view() const {
 
 template class Models<Host>;
 template class Models<Device>;
+
+std::vector<std::vector<float>> make_candidates(
+    const uint criteria_count,
+    const uint alternatives_count,
+    const MatrixView2D<const float>& alternatives
+) {
+  CHRONE();
+
+  std::vector<std::vector<float>> candidates(criteria_count);
+
+  #pragma omp parallel for
+  for (uint crit_index = 0; crit_index < criteria_count; ++crit_index) {
+    std::set<float> values;
+    for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+      values.insert(alternatives[crit_index][alt_index]);
+    }
+
+    candidates[crit_index].reserve(values.size() + 1);
+    candidates[crit_index].push_back(0);
+
+    float prev_value;
+    bool go = false;
+    for (auto value : values) {
+      if (go) {
+        candidates[crit_index].push_back((value + prev_value) / 2);
+      }
+      prev_value = value;
+      go = true;
+    }
+
+    candidates[crit_index].push_back(1);
+
+    assert(std::is_sorted(candidates[crit_index].begin(), candidates[crit_index].end()));
+  }
+
+  return candidates;
+}
+
+template<>
+std::shared_ptr<Candidates<Host>> Candidates<Host>::make(std::shared_ptr<Domain<Host>> domain) {
+  CHRONE();
+
+  auto domain_view = domain->get_view();
+
+  auto candidates_vectors = make_candidates(
+    domain_view.criteria_count, domain_view.learning_alternatives_count, domain_view.learning_alternatives);
+  assert(candidates_vectors.size() == domain_view.criteria_count);
+  uint max_candidates_count = 0;
+  for (auto& candidates_vector : candidates_vectors) {
+    const uint candidates_count = candidates_vector.size();
+    max_candidates_count = std::max(max_candidates_count, candidates_count);
+  }
+  uint* candidates_counts_ = alloc_host<uint>(domain_view.criteria_count);
+  MatrixView1D<uint> candidates_counts(domain_view.criteria_count, candidates_counts_);
+  float* candidates_ = alloc_host<float>(domain_view.criteria_count * max_candidates_count);
+  MatrixView2D<float> candidates(domain_view.criteria_count, max_candidates_count, candidates_);
+  for (uint crit_index = 0; crit_index != domain_view.criteria_count; ++crit_index) {
+    const uint candidates_count = candidates_vectors[crit_index].size();
+    candidates_counts[crit_index] = candidates_count;
+    for (uint cand_index = 0; cand_index != candidates_count; ++cand_index) {
+      candidates[crit_index][cand_index] = candidates_vectors[crit_index][cand_index];
+    }
+  }
+
+  return std::make_shared<Candidates<Host>>(Privacy(), domain, candidates_counts_, max_candidates_count, candidates_);
+}
+
+template<typename Space>
+Candidates<Space>::Candidates(
+  Privacy,
+  std::shared_ptr<Domain<Space>> domain,
+  uint* candidates_counts,
+  uint max_candidates_count,
+  float* candidates) :
+    _domain(domain),
+    _candidates_counts(candidates_counts),
+    _max_candidates_count(max_candidates_count),
+    _candidates(candidates) {}
+
+template<typename Space>
+Candidates<Space>::~Candidates() {
+  Space::free(_candidates_counts);
+  Space::free(_candidates);
+}
+
+template<typename Space>
+CandidatesView Candidates<Space>::get_view() const {
+  DomainView domain = _domain->get_view();
+
+  return {
+    domain,
+    MatrixView1D<uint>(domain.criteria_count, _candidates_counts),
+    MatrixView2D<float>(domain.criteria_count, _max_candidates_count, _candidates),
+  };
+}
+
+template class Candidates<Host>;
+template class Candidates<Device>;
 
 void replicate_models(const Models<Host>& src, Models<Device>* dst) {
   CHRONE();

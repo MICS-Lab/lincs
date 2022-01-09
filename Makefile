@@ -108,14 +108,32 @@ build/tests/library/assign-tests: \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
+build/tests/library/improve-profiles/desirability-tests: \
+  build/obj/library/assign.o \
+  build/obj/library/improve-profiles/desirability.o \
+  build/obj/library/io.o \
+  build/obj/library/problem.o \
+  build/obj/library/test-utils.o
+
 build/tests/library/problem-tests: \
   build/obj/library/io.o \
   build/obj/library/problem.o \
   build/obj/library/test-utils.o
 
+build/tests/library/improve-profiles/heuristic-for-accuracy-midpoint-candidates-tests: \
+  build/obj/library/assign.o \
+  build/obj/library/generate.o \
+  build/obj/library/improve-profiles/desirability.o \
+  build/obj/library/improve-profiles/heuristic-for-accuracy-midpoint-candidates.o \
+  build/obj/library/io.o \
+  build/obj/library/problem.o \
+  build/obj/library/randomness.o \
+  build/obj/library/test-utils.o
+
 build/tests/library/improve-profiles/heuristic-for-accuracy-random-candidates-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
+  build/obj/library/improve-profiles/desirability.o \
   build/obj/library/improve-profiles/heuristic-for-accuracy-random-candidates.o \
   build/obj/library/io.o \
   build/obj/library/problem.o \
@@ -151,6 +169,7 @@ build/tests/library/io-tests: \
 build/tests/library/learning-tests: \
   build/obj/library/assign.o \
   build/obj/library/generate.o \
+  build/obj/library/improve-profiles/desirability.o \
   build/obj/library/improve-profiles/heuristic-for-accuracy-random-candidates.o \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \
@@ -204,6 +223,8 @@ build/tools/bin/generate-learning-set: \
 
 build/tools/bin/learn: \
   build/obj/library/assign.o \
+  build/obj/library/improve-profiles/desirability.o \
+  build/obj/library/improve-profiles/heuristic-for-accuracy-midpoint-candidates.o \
   build/obj/library/improve-profiles/heuristic-for-accuracy-random-candidates.o \
   build/obj/library/initialize-profiles/max-power-per-criterion.o \
   build/obj/library/io.o \

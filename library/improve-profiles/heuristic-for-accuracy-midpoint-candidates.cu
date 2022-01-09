@@ -1,6 +1,6 @@
 // Copyright 2021-2022 Vincent Jacques
 
-#include "heuristic-for-accuracy-random-candidates.hpp"
+#include "heuristic-for-accuracy-midpoint-candidates.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -13,12 +13,62 @@
 #include "../cuda-utils.hpp"
 #include "desirability.hpp"
 
+
 namespace ppl {
+
+__host__ __device__
+uint find_smallest_index_above(const MatrixView1D<const float>& m, const uint size, const float target) {
+  assert(size > 0);
+  assert(m[0] <= target && target <= m[size - 1]);
+
+  uint lo = 0;
+  uint hi = size - 1;
+  while (lo != hi) {
+    assert(lo < hi);
+    const uint mid = (lo + hi) / 2;
+    assert(lo <= mid && mid < hi);
+    if (m[mid] >= target) {
+      hi = mid;
+    } else {
+      lo = mid + 1;
+    }
+  }
+
+  assert(m[lo] >= target);
+  assert(lo == 0 || m[lo - 1] < target);
+  return lo;
+}
+
+__host__ __device__
+uint find_greatest_index_below(const MatrixView1D<const float>& m, const uint size, const float target) {
+  assert(size > 0);
+  assert(m[0] <= target && target <= m[size - 1]);
+
+  uint lo = 0;
+  uint hi = size - 1;
+  while (lo != hi) {
+    assert(lo < hi);
+    const uint mid = (lo + hi + 1) / 2;
+    assert(lo < mid && mid <= hi);
+    if (m[mid] <= target) {
+      lo = mid;
+    } else {
+      hi = mid - 1;
+    }
+  }
+
+  assert(m[lo] <= target);
+  assert(lo == size - 1 || m[lo + 1] > target);
+  return lo;
+}
+
+namespace {
 
 __host__ __device__
 void improve_model_profile(
   RandomNumberGenerator random,
   ModelsView models,
+  CandidatesView candidates,
   const uint model_index,
   const uint profile_index,
   const uint criterion_index
@@ -43,20 +93,22 @@ void improve_model_profile(
     return;
   }
 
-  // Not sure about this part: we're considering an arbitrary number of possible moves as described in
-  // Mousseau's prez-mics-2018(8).pdf, but:
-  //  - this is wasteful when there are fewer alternatives in the interval
-  //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
-  // @todo Ask Vincent Mousseau about the following:
-  // We could consider only a finite set of values for b_j described as follows:
-  // - sort all the 'a_j's
-  // - compute all midpoints between two successive 'a_j'
-  // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
-  // Then instead of taking a random values in [lowest_destination, highest_destination],
-  // we'd take a random subset of the intersection of these midpoints with that interval.
+  const uint lowest_candidate_index = find_smallest_index_above(
+    candidates.candidates[criterion_index],
+    candidates.candidates_counts[criterion_index],
+    lowest_destination);
+  const uint highest_candidate_index = find_greatest_index_below(
+    candidates.candidates[criterion_index],
+    candidates.candidates_counts[criterion_index],
+    highest_destination);
+
+  // If the difference between `lowest_candidate_index` and `highest_candidate_index`
+  // is in the same order of magnitude as 64, then the current choice strategy
+  // (pick and put back) is suboptimal.
   for (uint n = 0; n < 64; ++n) {
     // Map (embarrassingly parallel)
-    const float destination = random.uniform_float(lowest_destination, highest_destination);
+    const uint candidate_index = random.uniform_int(lowest_candidate_index, highest_candidate_index + 1);
+    const float destination = candidates.candidates[criterion_index][candidate_index];
     const float desirability = compute_move_desirability(
       models, model_index, profile_index, criterion_index, destination).value();
     // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
@@ -76,6 +128,7 @@ __host__ __device__
 void improve_model_profile(
   RandomNumberGenerator random,
   ModelsView models,
+  CandidatesView candidates,
   const uint model_index,
   const uint profile_index,
   MatrixView1D<uint> criterion_indexes
@@ -85,7 +138,7 @@ void improve_model_profile(
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (uint crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
-    improve_model_profile(random, models, model_index, profile_index, criterion_indexes[crit_idx_idx]);
+    improve_model_profile(random, models, candidates, model_index, profile_index, criterion_indexes[crit_idx_idx]);
   }
 }
 
@@ -106,7 +159,12 @@ void shuffle(RandomNumberGenerator random, MatrixView1D<T> m) {
 }
 
 __host__ __device__
-void improve_model_profiles(RandomNumberGenerator random, const ModelsView& models, const uint model_index) {
+void improve_model_profiles(
+  RandomNumberGenerator random,
+  const ModelsView& models,
+  const CandidatesView& candidates,
+  const uint model_index
+) {
   CHRONE();
 
   uint* criterion_indexes_ = new uint[models.domain.criteria_count];
@@ -120,40 +178,52 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (uint profile_index = 0; profile_index != models.domain.categories_count - 1; ++profile_index) {
     shuffle(random, criterion_indexes);
-    improve_model_profile(random, models, model_index, profile_index, criterion_indexes);
+    improve_model_profile(random, models, candidates, model_index, profile_index, criterion_indexes);
   }
 
   delete[] criterion_indexes_;
 }
 
-void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models<Host>> models) {
+}  // namespace
+
+void ImproveProfilesWithAccuracyHeuristicWithMidpointCandidatesOnCpu::improve_profiles(
+    std::shared_ptr<Models<Host>> models
+) {
   CHRONE();
 
   auto models_view = models->get_view();
+  auto candidates_view = _candidates->get_view();
 
   #pragma omp parallel for
   for (uint model_index = 0; model_index != models_view.models_count; ++model_index) {
-    improve_model_profiles(_random, models_view, model_index);
+    improve_model_profiles(_random, models_view, candidates_view, model_index);
   }
 }
 
-__global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsView models) {
+namespace {
+
+__global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsView models, CandidatesView candidates) {
   const uint model_index = threadIdx.x + BLOCKDIM * blockIdx.x;
   assert(model_index < models.models_count + BLOCKDIM);
 
   if (model_index < models.models_count) {
-    improve_model_profiles(random, models, model_index);
+    improve_model_profiles(random, models, candidates, model_index);
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(std::shared_ptr<Models<Host>> host_models) {
+}  // namespace
+
+void ImproveProfilesWithAccuracyHeuristicWithMidpointCandidatesOnGpu::improve_profiles(
+    std::shared_ptr<Models<Host>> host_models
+) {
   CHRONE();
 
   replicate_models(*host_models, _device_models.get());
 
   auto models_view = _device_models->get_view();
+  auto candidates_view = _device_candidates->get_view();
 
-  improve_profiles__kernel<<<CONFIG(models_view.models_count)>>>(_random, models_view);
+  improve_profiles__kernel<<<CONFIG(models_view.models_count)>>>(_random, models_view, candidates_view);
   cudaDeviceSynchronize();
   checkCudaErrors();
 

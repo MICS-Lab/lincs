@@ -64,7 +64,7 @@ TEST(GetAssignment, SeveralCriteria) {
 TEST(GetAssignmentAndAccuracy, SeveralAlternativesSeveralModels) {
   auto domain = make_domain(2, {{{0.25}, 0}, {{0.75}, 1}});
   auto models = make_models(domain, {{{{0.9}}, {1}}, {{{0.5}}, {1}}});
-  auto device_models = models->clone_to<Device>();
+  auto device_models = models->clone_to<Device>(domain->clone_to<Device>());
 
   EXPECT_EQ(get_assignment(*models, 0, 0), 0);
   EXPECT_EQ(get_assignment(*models, 0, 1), 0);
@@ -91,7 +91,7 @@ TEST(GetAccuracy, RandomDomainUniformModel) {
 
   ASSERT_EQ(get_accuracy(*models, 0), expected_accuracy);
 
-  auto device_models = models->clone_to<Device>();
+  auto device_models = models->clone_to<Device>(domain->clone_to<Device>());
 
   ASSERT_EQ(get_accuracy(*device_models, 0), expected_accuracy);
 }

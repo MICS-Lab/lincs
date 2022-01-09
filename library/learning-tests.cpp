@@ -26,7 +26,7 @@ TEST(Learn, OnGpu) {
   auto host_domain = Domain<Host>::make(learning_set);
   auto host_models = Models<Host>::make(host_domain, 15);
 
-  auto device_models = host_models->clone_to<Device>();
+  auto device_models = host_models->clone_to<Device>(host_domain->clone_to<Device>());
 
   RandomSource random;
   random.init_for_host(42);

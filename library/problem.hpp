@@ -137,11 +137,12 @@ class Models {
   template<typename OtherSpace> friend class Models;
 
   template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  std::shared_ptr<Models<OtherSpace>> clone_to() const {
+  std::shared_ptr<Models<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
     DomainView domain_view = _domain->get_view();
+
     return std::make_shared<Models<OtherSpace>>(
       typename Models<OtherSpace>::Privacy(),
-      _domain->template clone_to<OtherSpace>(),
+      other_domain,
       _models_count,
       FromTo<Space, OtherSpace>::clone(_models_count, _initialization_iteration_indexes),
       FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * _models_count, _weights),
@@ -177,6 +178,61 @@ void replicate_models(const Models<Host>&, Models<Device>*);
 
 // Utility function to replicate profiles (computed on the device) onto the host
 void replicate_profiles(const Models<Device>&, Models<Host>*);
+
+struct CandidatesView {
+  DomainView domain;
+
+  MatrixView1D<const uint> candidates_counts;
+  // Index: index of criterion, from `0` to `domain.criteria_count - 1`
+
+  MatrixView2D<const float> candidates;
+  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
+  // Second index: index of candidate, from `0` to `candidates_counts[crit_index] - 1`
+};
+
+template<typename Space>
+class Candidates {
+ public:
+  static std::shared_ptr<Candidates> make(std::shared_ptr<Domain<Space>>);
+  ~Candidates();
+
+  // Non-copyable
+  Candidates(const Candidates&) = delete;
+  Candidates& operator=(const Candidates&) = delete;
+
+  // Non-movable
+  Candidates(Candidates&&) = delete;
+  Candidates& operator=(Candidates&&) = delete;
+
+  template<typename OtherSpace> friend class Candidates;
+
+  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
+  std::shared_ptr<Candidates<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
+    DomainView domain_view = _domain->get_view();
+
+    return std::make_shared<Candidates<OtherSpace>>(
+      typename Candidates<OtherSpace>::Privacy(),
+      other_domain,
+      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count, _candidates_counts),
+      _max_candidates_count,
+      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * _max_candidates_count, _candidates));
+  }
+
+ public:
+  CandidatesView get_view() const;
+
+ private:
+  struct Privacy {};
+
+ public:
+  Candidates(Privacy, std::shared_ptr<Domain<Space>>, uint*, uint, float*);
+
+ private:
+  std::shared_ptr<Domain<Space>> _domain;
+  uint* const _candidates_counts;
+  const uint _max_candidates_count;
+  float* const _candidates;
+};
 
 }  // namespace ppl
 

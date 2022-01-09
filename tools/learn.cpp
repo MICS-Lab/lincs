@@ -9,6 +9,7 @@
 #include <CLI11.hpp>
 #include <magic_enum.hpp>
 
+#include "../library/improve-profiles/heuristic-for-accuracy-midpoint-candidates.hpp"
 #include "../library/improve-profiles/heuristic-for-accuracy-random-candidates.hpp"
 #include "../library/initialize-profiles/max-power-per-criterion.hpp"
 #include "../library/learning.hpp"
@@ -68,16 +69,38 @@ std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_stra
   throw std::runtime_error("Unknown weights optimization strategy");
 }
 
+enum class ProfilesImprovementStrategy {
+  heuristic,
+  heuristic_midpoints,
+};
+
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
+  ProfilesImprovementStrategy strategy,
   const bool use_gpu,
   RandomNumberGenerator random,
+  std::shared_ptr<ppl::Domain<Host>> domain,
   std::shared_ptr<ppl::Models<Host>> models
 ) {
-  if (use_gpu) {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(random, models->clone_to<Device>());
-  } else {
-    return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
+  switch (strategy) {
+    case ProfilesImprovementStrategy::heuristic:
+      if (use_gpu) {
+        return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(
+          random, models->clone_to<Device>(domain->clone_to<Device>()));
+      } else {
+        return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
+      }
+    case ProfilesImprovementStrategy::heuristic_midpoints:
+      auto candidates = ppl::Candidates<Host>::make(domain);
+      if (use_gpu) {
+        auto device_domain = domain->clone_to<Device>();
+        return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicWithMidpointCandidatesOnGpu>(
+          random, models->clone_to<Device>(device_domain), candidates->clone_to<Device>(device_domain));
+      } else {
+        return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicWithMidpointCandidatesOnCpu>(
+          random, candidates);
+      }
   }
+  throw std::runtime_error("Unknown profiles improvement strategy");
 }
 
 std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
@@ -187,13 +210,23 @@ int main(int argc, char* argv[]) {
     weights_optimization_strategy_name,
     get_enum_possible_values<WeightsOptimizationStrategy>());
 
+  std::string profiles_improvement_strategy_name = "heuristic";  // @todo Get the name of the first value in the enum
+  app.add_option(
+    "--profiles-improvement-strategy",
+    profiles_improvement_strategy_name,
+    get_enum_possible_values<ProfilesImprovementStrategy>());
+
   WeightsOptimizationStrategy weights_optimization_strategy;
+  ProfilesImprovementStrategy profiles_improvement_strategy;
   try {
     app.parse(argc, argv);
     // @todo Can this parsing be done with, maybe, converters, during CLI11_PARSE?
     weights_optimization_strategy = parse_enum_value<WeightsOptimizationStrategy>(
       "weights optimization",
       weights_optimization_strategy_name);
+    profiles_improvement_strategy = parse_enum_value<ProfilesImprovementStrategy>(
+      "profiles improvement",
+      profiles_improvement_strategy_name);
   } catch (const CLI::ParseError& e) {
     return app.exit(e);
   }
@@ -239,7 +272,7 @@ int main(int argc, char* argv[]) {
     make_observers(quiet, intermediate_models_file),
     make_profiles_initialization_strategy(random, *host_models),
     make_weights_optimization_strategy(weights_optimization_strategy, *host_models),
-    make_profiles_improvement_strategy(use_gpu, random, host_models),
+    make_profiles_improvement_strategy(profiles_improvement_strategy, use_gpu, random, host_domain, host_models),
     make_termination_strategy(target_accuracy, max_iterations, max_duration));
 
   result.best_model.save_to(std::cout);

@@ -38,6 +38,8 @@ fail_learn learning-set.txt --target-accuracy 100.01
 
 fail_learn learning-set.txt --weights-optimization-strategy not-a-strategy
 
-time run_learn learning-set.txt --force-gpu --weights-optimization-strategy glop
+fail_learn learning-set.txt --profiles-improvement-strategy not-a-strategy
 
-time run_learn learning-set.txt --forbid-gpu --target-accuracy 89.9 --weights-optimization-strategy glop-reuse
+time run_learn learning-set.txt --force-gpu --weights-optimization-strategy glop --profiles-improvement-strategy heuristic
+
+time run_learn learning-set.txt --forbid-gpu --target-accuracy 89.9 --weights-optimization-strategy glop-reuse --profiles-improvement-strategy heuristic-midpoints
