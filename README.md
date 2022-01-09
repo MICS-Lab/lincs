@@ -176,13 +176,44 @@ Instrumentation and tooling
 </details>
 
 <details>
-  <summary>Support strategies</summary>
+  <summary>Support strategies ✔️</summary>
   Experimenting on the code will require writing and testing several versions of some parts of the code.
   The "industrial" way of doing that is to use git branches.
   But this makes it difficult to compare them.
   <p>Structure the code so that several implementations (aka several <a href="https://en.wikipedia.org/wiki/Strategy_pattern">strategies</a>) can be selected at runtime, just before starting a learning.
   Integrate that feature in the script evaluating the performance of the algorithm.
 </details>
+
+Strategies:
+- termination:
+    - duration ✔️
+    - iterations_count ✔️
+    - target_accuracy ✔️
+- iteration:
+    - all models at once ✔️
+    - 1/2 models (to spread CPU and GPU usage)
+- profiles initialization:
+    - Sobrie's heuristic ✔️
+    - homogeneous
+- weights optimization:
+    - GLOP ✔️
+    - GLOP but keeping programs and solvers in memory ✔️
+    - other linear solvers
+- profiles improvement:
+    - Sobrie's heuristic
+        - with random destinations ✔️
+        - with pre-selected destinations ✔️
+        - with/without the random at the end
+    - on CPU ✔️
+    - on GPU ✔️
+- models selection:
+    - top half by accuracy ✔️
+    - other portion
+    - by other measure
+- flush, keep, mix, mutate:
+- natality policy:
+    - keep population stable ✔️
+    - kill low-perf models
 
 Optimize learning duration
 --------------------------

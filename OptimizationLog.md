@@ -38,7 +38,7 @@ After:
 
 The improvement is negligible in our case, even though the unit-ish tests demonstrate that a gain is possible in the ideal case.
 It seems our case does not match the requirement for effective re-use of the linear program.
-The failed optimization has been reverted in commit 96c6706f.
+The failed optimization is available as the "glop-reuse" weights optimization strategy.
 
 # Select one candidate per interval for profiles
 
@@ -53,4 +53,4 @@ After:
 - full CPU: 0m44.708s for accuracy 3960/4000
 
 The impact on accuracy is not clear, and the impact on duration is null.
-This failed optimization has been reverted in commit 8947f03e.
+The failed optimization is available as the "heuristic-midpoint" profiles improvement strategy.
