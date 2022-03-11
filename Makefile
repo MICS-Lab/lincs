@@ -245,7 +245,7 @@ lint: $(cpplint_sentinel_files)
 build/lint/%.cpplint.ok: %
 	@echo "cpplint $<"
 	@mkdir -p $(dir $@)
-	@cpplint --root=library --linelength=120 $<
+	@cpplint --root=library --linelength=120 --filter=-build/include_subdir $<
 	@touch $@
 
 #########
