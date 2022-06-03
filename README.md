@@ -99,7 +99,6 @@ The learning algorithm has three main modules:
 
 - a heuristic for (re-)initializing profiles, which is in `library/initialize-profiles.cpp`
 - a linear program for optimizing weights given fixed profiles, which is in `library/optimize-weights.cpp`
-<!-- @todo Should we rename to "optimize weights"? (because it does find optimal weights given fixed profiles) -->
 - a heuristic for improving profiles given fixed weights, which is in `library/improve-profiles.cpp`
 
 General utilities
