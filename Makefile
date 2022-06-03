@@ -323,7 +323,7 @@ build/tools/bin/%: build/obj/tools/%.o
 ###############
 
 NVCC_COMPILE_OPTIONS=-dc -std=c++17 -g --expt-relaxed-constexpr -Xcompiler -Wall,-Wextra,-Werror,-fopenmp
-GPP_COMPILE_OPTIONS=-std=c++17 -g -c -I/usr/local/cuda-11.2/targets/x86_64-linux/include -Wall -Wextra -Wpedantic -Werror -fopenmp
+GPP_COMPILE_OPTIONS=-c -std=c++17 -g -I/usr/local/cuda-11.2/targets/x86_64-linux/include -Wall -Wextra -Wpedantic -Werror -fopenmp
 
 build/obj/%.o: %.cu
 	@echo "nvcc -c $< -o $@"
