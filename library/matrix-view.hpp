@@ -10,8 +10,8 @@ Usable in __host__, __device__, and __global__ functions.
 Ownership semantics:
   - a copy of a MatrixView points at the same data (like pointers)
   - a MatrixView1D<const T> forbids modification of underlying data (like a const T*)
-  - MatrixView1D<T> is implicitely convertible to MatrixView1D<const T> (like pointers)
-  - MatrixView1D<T> is implicitely convertible to const MatrixView1D<T> (like everything)
+  - MatrixView1D<T> is implicitly convertible to MatrixView1D<const T> (like pointers)
+  - MatrixView1D<T> is implicitly convertible to const MatrixView1D<T> (like everything)
   - data must be managed (allocated, released) outside this class
   - the size of usable data must be at least sN * ... * s0 * sizeof(T)
 

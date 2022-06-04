@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
   // @todo Detect GPU...
   // and verify it's usable when force_gpu is set
   // or set use_gpu according to its usability.
-  // For now, we always use the GPU unless explicitely forbiden.
+  // For now, we always use the GPU unless explicitly forbidden.
   const bool use_gpu = !forbid_gpu;
 
   // Todo (much later): use C++23's std::optional::transform
