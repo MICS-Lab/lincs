@@ -1,0 +1,17 @@
+version: "2.3"
+# Stick to an older version of the docker-compose.yml format to ensure
+# we can use the GPU even with older versions of docker-compose:
+# services:
+#   test:
+#     image: nvidia/cuda:11.3.0-base-ubuntu20.04
+#     command: nvidia-smi
+#     runtime: nvidia
+# (see https://docs.docker.com/compose/gpu-support/#use-of-service-runtime-property-from-compose-v23-format-legacy)
+
+services:
+  fanout:
+    image: nginx:1.21
+    volumes:
+      - ./fanout/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - ${PPL_FANOUT_PORT}:80
