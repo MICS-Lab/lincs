@@ -88,3 +88,54 @@ This page is at path `/computations/<id>` where `id` is an opaque identifier mad
 
 - for a queued or in progress computation, the "Results" section is replaced by the following message: "Computation in progress. This page automatically refreshes every 10 seconds. You can also come back later."
 - for a failed computation: "Computation failed" + error message.
+
+Technical choices
+=================
+
+This GUI is web-based. The server part runs in Docker, using `docker-compose`. The client part is usable in Firefox and Chrome.
+
+The dynamic part of the server is written in Python.
+SQLite3 is used to persist data, through SQLAlchemy.
+
+Note: persisting with SQLite forbids serving the application from several machines.
+This forbids scaling up the application.
+
+The presentation layer uses the Bootstrap CSS framework, to provide a responsive appearance. (Responsive: that adapts to any size of screen)
+
+We must choose between two architectures with different tradeoffs detailed below:
+
+- (A) The dynamic part of the server is a REST API
+- (B) The dynamic part of the server generates HTML
+
+## (A) The dynamic part of the server is a REST API
+
+In that option, the client is a Vue.js application served statically.
+It communicates with the dynamic part of the server through a REST API.
+The dynamic part of the server uses FastAPI (or maybe Flask).
+A NGinx revers proxy is used to unify serving the static client and the dynamic back-end.
+
+Note that the NGinx reverse proxy is a perfect place to implement a (crude) password protection for the application.
+
+Advantages:
+
+- good separation of concerns between the actual GUI and the "glue" layer between the GUI and the tools
+- Vue.js make it easy to build reactive applications. For example, reactivity makes it easy to synchronize the model and its graph in mockups above. Reactive applications are typically more attractive to their end-user, which could help with the "wahou" effect
+- I've already created several applications this way so I know where I'm going
+
+## (B) The dynamic part of the server generates HTML
+
+In that option, the client is made of HTML served directly by the dynamic part of the server.
+A few dynamic parts can be added in the client using jQuery.
+Each action from the user loads a new page.
+The server is written using Flask.
+
+Advantages:
+
+- more traditional
+- may be easier to understand and maintain by people unfamiliar with reactive technologies
+- relative simplicity: a reverse proxy is not required so there are fewer components
+
+## Personal recommendation
+
+I recommend choosing option (A).
+I think the initial development will be barely longer, and I'm sure the maintenance (by myself at least) will be much easier.
