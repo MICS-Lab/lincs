@@ -1,6 +1,8 @@
 import queue
+import tempfile
 import threading
 from typing import Optional
+import subprocess
 
 import datetime
 import os
@@ -57,10 +59,29 @@ class MrSortModelReconstruction(Computation):
     max_iterations = sql.Column(sql.Integer, nullable=True)
     processor = sql.Column(sql.String)  # @todo Use an enum?
     seed = sql.Column(sql.Integer, nullable=False)
+    reconstructed_model = sql.Column(sql.String, nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "mrsort-reconstruction",
     }
+
+    def execute(self):
+        with tempfile.TemporaryDirectory() as d:
+            original_model_file_name = os.path.join(d, "original-model.txt")
+            with open(original_model_file_name, "wt") as f:
+                f.write(self.original_model)
+            learning_set_file_name = os.path.join(d, "learning-set.txt")
+            with open(learning_set_file_name, "wt") as learning_set_file:
+                subprocess.run(
+                    ["bin/generate-learning-set", original_model_file_name, str(self.learning_set_size), str(self.learning_set_seed)],
+                    stdout=learning_set_file,
+                    check=True,
+                )
+            self.reconstructed_model = subprocess.run(
+                ["bin/learn", "--target-accuracy", str(self.target_accuracy_percent), learning_set_file_name],
+                check=True,
+                capture_output=True, universal_newlines=True,
+            ).stdout
 
 Base.metadata.create_all(db_engine)
 
@@ -78,10 +99,8 @@ def dequeue():
             computation.status = "in progress"
             session.commit()
 
-        time.sleep(15)  # @todo Actually implement
+            computation.execute()
 
-        with orm.Session(db_engine) as session:
-            computation = session.get(Computation, id)
             computation.ended_at = datetime.datetime.now()
             computation.status = "success"
             session.commit()
@@ -168,6 +187,7 @@ def computation_of_db(computation: Computation):
             max_iterations=computation.max_iterations,
             processor=computation.processor,
             seed=computation.seed,
+            reconstructed_model=computation.reconstructed_model,
         )
     else:
         assert False

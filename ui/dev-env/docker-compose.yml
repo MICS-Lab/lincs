@@ -1,11 +1,6 @@
 version: "2.3"
-# Stick to an older version of the docker-compose.yml format to ensure
-# we can use the GPU even with older versions of docker-compose:
-# services:
-#   test:
-#     image: nvidia/cuda:11.3.0-base-ubuntu20.04
-#     command: nvidia-smi
-#     runtime: nvidia
+# Stick to an older version of the docker-compose.yml format to ensure we can use
+# the GPU even with older versions of docker-compose, with 'runtime: nvidia'
 # (see https://docs.docker.com/compose/gpu-support/#use-of-service-runtime-property-from-compose-v23-format-legacy)
 
 services:
@@ -27,6 +22,7 @@ services:
       context: backend
     volumes:
       - ../backend:/wd
+      - ../../build/tools/bin:/wd/bin
     working_dir: /wd
     command:
       - uvicorn
@@ -34,6 +30,7 @@ services:
       - --reload
       - --host
       - 0.0.0.0
+    runtime: nvidia
   fanout:
     image: nginx:1.21
     volumes:

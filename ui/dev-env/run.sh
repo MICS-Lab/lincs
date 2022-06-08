@@ -3,6 +3,7 @@
 set -o errexit
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+(cd ../..; ./make.sh -j$(nproc) tools)
 
 export PPL_FANOUT_PORT=${PPL_FANOUT_PORT:-'8080'}
 export COMPOSE_PROJECT_NAME=ppl-dev

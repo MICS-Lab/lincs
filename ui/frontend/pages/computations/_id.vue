@@ -24,6 +24,7 @@
         <p>Duration: {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}</p>
         <h2>Reconstructed vs. original model</h2>
         <p>Original model: {{ computation.original_model }}</p>
+        <p>Reconstructed model: {{ computation.reconstructed_model }}</p>
       </div>
     </div>
   </div>
