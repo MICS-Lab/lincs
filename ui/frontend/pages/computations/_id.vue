@@ -20,6 +20,8 @@
         <p>Processor: {{ computation.processor }}</p>
         <p>Pseudo-random seed: {{ computation.seed }}</p>
         <h2>Results</h2>
+        <p>Status: {{ computation.status }}</p>
+        <p>Duration: {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}</p>
         <h2>Reconstructed vs. original model</h2>
         <p>Original model: {{ computation.original_model }}</p>
       </div>

@@ -12,6 +12,8 @@
           {{ computation.submitted_at }}
           {{ computation.submitted_by }}
           {{ computation.description }}
+          {{ computation.status }}
+          {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}
           <NuxtLink :to="{'name': 'computations-id', 'params': {'id': computation.computation_id }}">Link</NuxtLink>
         </p>
       </div>

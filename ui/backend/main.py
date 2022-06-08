@@ -1,3 +1,5 @@
+import queue
+import threading
 from typing import Optional
 
 import datetime
@@ -35,6 +37,9 @@ class Computation(Base):
     submitted_at = sql.Column(sql.DateTime, nullable=False)
     submitted_by = sql.Column(sql.String, nullable=False)
     description = sql.Column(sql.String, nullable=True)
+    started_at = sql.Column(sql.DateTime, nullable=True)
+    ended_at = sql.Column(sql.DateTime, nullable=True)
+    status = sql.Column(sql.String(50), nullable=False)  # @todo Use an enum?
 
     kind = sql.Column(sql.String(50), nullable=False)
     __mapper_args__ = {
@@ -60,6 +65,32 @@ class MrSortModelReconstruction(Computation):
 Base.metadata.create_all(db_engine)
 
 
+# An in-process queue is enough for now.
+# https://python-rq.org/ will be a suitable alternative for more advanced cases
+jobs_queue = queue.Queue()
+
+def dequeue():
+    while True:
+        id = jobs_queue.get()
+        with orm.Session(db_engine) as session:
+            computation = session.get(Computation, id)
+            computation.started_at = datetime.datetime.now()
+            computation.status = "in progress"
+            session.commit()
+
+        time.sleep(15)  # @todo Actually implement
+
+        with orm.Session(db_engine) as session:
+            computation = session.get(Computation, id)
+            computation.ended_at = datetime.datetime.now()
+            computation.status = "success"
+            session.commit()
+        jobs_queue.task_done()
+
+dequeuing_thread = threading.Thread(target=dequeue, daemon=True)
+dequeuing_thread.start()
+
+
 class SubmitMrSortReconstructionInput(pydantic.BaseModel):
     submitted_by: str
     description: Optional[str]
@@ -81,6 +112,7 @@ def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
             submitted_at=submitted_at,
             submitted_by=input.submitted_by,
             description=input.description,
+            status="queued",
             original_model=input.original_model,
             learning_set_size=input.learning_set_size,
             learning_set_seed=input.learning_set_seed,
@@ -92,6 +124,7 @@ def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
         )
         session.add(computation)
         session.commit()
+        jobs_queue.put(computation.id)
         return computation_of_db(computation)
 
 
@@ -112,12 +145,17 @@ def get_computation(id: str):
 
 
 def computation_of_db(computation: Computation):
+    duration_seconds = None
+    if computation.ended_at is not None:
+        duration_seconds = (computation.ended_at - computation.started_at).total_seconds()
     c = dict(
         computation_id=hashids.encode(computation.id),
         submitted_at=computation.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
         submitted_by=computation.submitted_by,
         description=computation.description,
         kind=computation.kind,
+        status=computation.status,
+        duration_seconds=duration_seconds,
     )
     if computation.kind == "mrsort-reconstruction":
         c.update(
