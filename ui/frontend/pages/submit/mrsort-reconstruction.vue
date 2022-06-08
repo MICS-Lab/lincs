@@ -25,7 +25,7 @@ export default {
       computation: {
         submitted_by: typeof window === 'undefined' ? null : this.$cookies.get("submitter_name"),
         description: '',
-      }
+      },
     }
   },
   methods: {
