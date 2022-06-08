@@ -6,7 +6,6 @@ import subprocess
 
 import datetime
 import os
-import time  # @todo Remove all calls to time.sleep
 
 import fastapi
 import pydantic
@@ -125,7 +124,6 @@ class SubmitMrSortReconstructionInput(pydantic.BaseModel):
 @app.post("/mrsort-reconstructions")
 def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
     submitted_at = datetime.datetime.now()
-    time.sleep(0.5)
     with orm.Session(db_engine) as session:
         computation = MrSortModelReconstruction(
             submitted_at=submitted_at,
@@ -149,14 +147,12 @@ def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
 
 @app.get("/computations")
 def get_computations():
-    time.sleep(0.5)
     with orm.Session(db_engine) as session:
         return [computation_of_db(c) for c in session.execute(sql.select(Computation)).scalars()]
 
 
 @app.get("/computations/{id}")
 def get_computation(id: str):
-    time.sleep(0.5)
     # @todo Return a 404 when not found
     id = hashids.decode(id)[0]
     with orm.Session(db_engine) as session:
