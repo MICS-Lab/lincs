@@ -1,3 +1,5 @@
+from typing import Optional
+
 import datetime
 import os
 import time  # @todo Remove all calls to time.sleep
@@ -30,27 +32,63 @@ class Computation(Base):
     __tablename__ = "computations"
 
     id = sql.Column(sql.Integer, primary_key=True)
-    submitted_at = sql.Column(sql.DateTime)
-    submitted_by = sql.Column(sql.String)
-    description = sql.Column(sql.String)
+    submitted_at = sql.Column(sql.DateTime, nullable=False)
+    submitted_by = sql.Column(sql.String, nullable=False)
+    description = sql.Column(sql.String, nullable=True)
+
+    kind = sql.Column(sql.String(50), nullable=False)
+    __mapper_args__ = {
+        "polymorphic_on": kind,
+    }
+
+class MrSortModelReconstruction(Computation):
+    __tablename__ = "mrsort-reconstructions"
+    id = sql.Column(sql.Integer, sql.ForeignKey("computations.id"), primary_key=True)
+    original_model = sql.Column(sql.String(), nullable=False)
+    learning_set_size = sql.Column(sql.Integer, nullable=False)
+    learning_set_seed = sql.Column(sql.Integer, nullable=False)
+    target_accuracy_percent = sql.Column(sql.Float, nullable=False)
+    max_duration_seconds = sql.Column(sql.Float, nullable=True)
+    max_iterations = sql.Column(sql.Integer, nullable=True)
+    processor = sql.Column(sql.String)  # @todo Use an enum?
+    seed = sql.Column(sql.Integer, nullable=False)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "mrsort-reconstruction",
+    }
 
 Base.metadata.create_all(db_engine)
 
 
-class CreateComputationInput(pydantic.BaseModel):
+class SubmitMrSortReconstructionInput(pydantic.BaseModel):
     submitted_by: str
-    description: str
+    description: Optional[str]
+    original_model: str
+    learning_set_size: int
+    learning_set_seed: int
+    target_accuracy_percent: float
+    max_duration_seconds: Optional[float]
+    max_iterations: Optional[float]
+    processor: str  # @todo Use an enum
+    seed: int
 
-
-@app.post("/computations")
-def create_computation(input: CreateComputationInput):
+@app.post("/mrsort-reconstructions")
+def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
     submitted_at = datetime.datetime.now()
     time.sleep(0.5)
     with orm.Session(db_engine) as session:
-        computation = Computation(
+        computation = MrSortModelReconstruction(
             submitted_at=submitted_at,
             submitted_by=input.submitted_by,
             description=input.description,
+            original_model=input.original_model,
+            learning_set_size=input.learning_set_size,
+            learning_set_seed=input.learning_set_seed,
+            target_accuracy_percent=input.target_accuracy_percent,
+            max_duration_seconds=input.max_duration_seconds,
+            max_iterations=input.max_iterations,
+            processor=input.processor,
+            seed=input.seed,
         )
         session.add(computation)
         session.commit()
@@ -74,9 +112,24 @@ def get_computation(id: str):
 
 
 def computation_of_db(computation: Computation):
-    return dict(
+    c = dict(
         computation_id=hashids.encode(computation.id),
         submitted_at=computation.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
         submitted_by=computation.submitted_by,
         description=computation.description,
+        kind=computation.kind,
     )
+    if computation.kind == "mrsort-reconstruction":
+        c.update(
+            original_model=computation.original_model,
+            learning_set_size=computation.learning_set_size,
+            learning_set_seed=computation.learning_set_seed,
+            target_accuracy_percent=computation.target_accuracy_percent,
+            max_duration_seconds=computation.max_duration_seconds,
+            max_iterations=computation.max_iterations,
+            processor=computation.processor,
+            seed=computation.seed,
+        )
+    else:
+        assert False
+    return c
