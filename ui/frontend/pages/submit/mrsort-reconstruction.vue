@@ -23,13 +23,14 @@ export default {
       base_api_url,
       submitting: false,
       computation: {
-        submitted_by: 'Vincent',  // @todo Load from cookie, default to null
+        submitted_by: typeof window === 'undefined' ? null : this.$cookies.get("submitter_name"),
         description: '',
       }
     }
   },
   methods: {
     async submit() {
+      this.$cookies.set("submitter_name", this.computation.submitted_by)
       this.submitting = true
       const result = await this.$axios.$post(`${this.base_api_url}/computations`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
