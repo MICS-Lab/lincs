@@ -1,3 +1,4 @@
+import datetime
 import os
 import time  # @todo Remove all calls to time.sleep
 
@@ -29,23 +30,31 @@ class Computation(Base):
     __tablename__ = "computations"
 
     id = sql.Column(sql.Integer, primary_key=True)
+    submitted_at = sql.Column(sql.DateTime)
     submitted_by = sql.Column(sql.String)
+    description = sql.Column(sql.String)
 
 Base.metadata.create_all(db_engine)
 
 
 class CreateComputationInput(pydantic.BaseModel):
     submitted_by: str
+    description: str
 
 
 @app.post("/computations")
-def create_computation(computation: CreateComputationInput):
+def create_computation(input: CreateComputationInput):
+    submitted_at = datetime.datetime.now()
     time.sleep(0.5)
     with orm.Session(db_engine) as session:
-        c = Computation(submitted_by=computation.submitted_by)
-        session.add(c)
+        computation = Computation(
+            submitted_at=submitted_at,
+            submitted_by=input.submitted_by,
+            description=input.description,
+        )
+        session.add(computation)
         session.commit()
-        return computation_of_db(c)
+        return computation_of_db(computation)
 
 
 @app.get("/computations")
@@ -60,12 +69,14 @@ def get_computation(id: str):
     time.sleep(0.5)
     id = hashids.decode(id)[0]
     with orm.Session(db_engine) as session:
-        c = session.get(Computation, id)
-        return computation_of_db(c)
+        computation = session.get(Computation, id)
+        return computation_of_db(computation)
 
 
-def computation_of_db(c: Computation):
+def computation_of_db(computation: Computation):
     return dict(
-        computation_id=hashids.encode(c.id),
-        submitted_by=c.submitted_by,
+        computation_id=hashids.encode(computation.id),
+        submitted_at=computation.submitted_at.strftime("%Y-%m-%d %H:%M:%S"),
+        submitted_by=computation.submitted_by,
+        description=computation.description,
     )

@@ -3,7 +3,9 @@
     <h1>Computation results</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
-      <p>Submitted by: {{ submitted_by }}</p>
+      <p>Submitted at: {{ computation.submitted_at }}</p>
+      <p>Submitted by: {{ computation.submitted_by }}</p>
+      <p>Description: {{ computation.description }}</p>
     </div>
   </div>
 </template>
@@ -20,13 +22,12 @@ export default {
     return {
       base_api_url,
       loading: true,
-      submitted_by: null
+      computation: null
     }
   },
   async fetch() {
-    const computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
+    this.computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
     this.loading = false
-    this.submitted_by = computation.submitted_by
   }
 }
 </script>

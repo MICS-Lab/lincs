@@ -9,7 +9,9 @@
     <div v-else>
       <div v-if="computations.length">
         <p v-for="computation in computations">
+          {{ computation.submitted_at }}
           {{ computation.submitted_by }}
+          {{ computation.description }}
           <NuxtLink :to="{'name': 'computations-id', 'params': {'id': computation.computation_id }}">Link</NuxtLink>
         </p>
       </div>

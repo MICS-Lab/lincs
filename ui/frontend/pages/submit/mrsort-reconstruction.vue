@@ -3,7 +3,8 @@
     <h1>MR-Sort model reconstruction submission</h1>
     <div v-if="submitting">Submitting...</div>
     <div v-else>
-      <p>Submitted by: <input v-model="submitted_by" placeholder="Your name"/></p>
+      <p>Submitted by: <input v-model="computation.submitted_by" placeholder="Your name"/></p>
+      <p>Description: <textarea v-model="computation.description" placeholder="Free text for your convenience"></textarea></p>
       <p><button @click="submit">Submit</button></p>
     </div>
   </div>
@@ -19,18 +20,18 @@ export default {
     }
 
     return {
-      submitted_by: 'Vincent',  // @todo Load from cookie, default to null
       base_api_url,
       submitting: false,
+      computation: {
+        submitted_by: 'Vincent',  // @todo Load from cookie, default to null
+        description: '',
+      }
     }
   },
   methods: {
     async submit() {
       this.submitting = true
-      const result = await this.$axios.$post(
-        `${this.base_api_url}/computations`,
-        { submitted_by: this.submitted_by },
-      )
+      const result = await this.$axios.$post(`${this.base_api_url}/computations`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
     }
   }
