@@ -41,6 +41,7 @@ class Computation(Base):
     started_at = sql.Column(sql.DateTime, nullable=True)
     ended_at = sql.Column(sql.DateTime, nullable=True)
     status = sql.Column(sql.String(50), nullable=False)  # @todo Use an enum?
+    failure_reason = sql.Column(sql.String, nullable=True)
 
     kind = sql.Column(sql.String(50), nullable=False)
     __mapper_args__ = {
@@ -98,10 +99,14 @@ def dequeue():
             computation.status = "in progress"
             session.commit()
 
-            computation.execute()
-
+            try:
+                computation.execute()
+            except Exception as e:
+                computation.status = "failed"
+                computation.failure_reason = str(e)
+            else:
+                computation.status = "success"
             computation.ended_at = datetime.datetime.now()
-            computation.status = "success"
             session.commit()
         jobs_queue.task_done()
 
@@ -171,6 +176,7 @@ def computation_of_db(computation: Computation):
         description=computation.description,
         kind=computation.kind,
         status=computation.status,
+        failure_reason=computation.failure_reason,
         duration_seconds=duration_seconds,
     )
     if computation.kind == "mrsort-reconstruction":
