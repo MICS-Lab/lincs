@@ -138,6 +138,7 @@ def get_computations():
 @app.get("/computations/{id}")
 def get_computation(id: str):
     time.sleep(0.5)
+    # @todo Return a 404 when not found
     id = hashids.decode(id)[0]
     with orm.Session(db_engine) as session:
         computation = session.get(Computation, id)

@@ -10,6 +10,7 @@
       <h2>Learning set generation</h2>
       <p>Number of alternatives to generate: <input v-model="computation.learning_set_size"/></p>
       <p>Pseudo-random seed: <input v-model="computation.learning_set_seed"/></p>
+      <!-- @todo Add command-line for generate-learning-set -->
       <h2>Model reconstruction</h2>
       <h3>Termination criteria</h3>
       <p>Target accuracy (%): <input v-model="computation.target_accuracy_percent"/></p>
@@ -21,6 +22,7 @@
         <option>CPU</option>
       </select></p>
       <p>Pseudo-random seed: <input v-model="computation.seed"/></p>
+      <!-- @todo Add command-line for learn -->
       <p><button @click="submit">Submit</button></p>
     </div>
   </div>
