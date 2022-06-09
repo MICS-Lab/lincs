@@ -112,7 +112,7 @@ export default {
       original_model_from_file: '',
       original_model_file: null,
       computation: {
-        submitted_by: this.$cookies && this.$cookies.get("submitter_name"),
+        submitted_by: this.$cookies && this.$cookies.get("submitted_by"),
         description: null,
         original_model: '4\n3\n0.2 0.4 0.2 0.2\n0.6\n0.3 0.4 0.2 0.5\n0.7 0.5 0.4 0.8',
         learning_set_size: 100,
@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     async submit() {
-      this.$cookies.set("submitter_name", this.computation.submitted_by)
+      this.$cookies.set("submitted_by", this.computation.submitted_by, "10d", this.$router.options.base)
       this.submitting = true
       const result = await this.$axios.$post(`${this.base_api_url}/mrsort-reconstructions`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
