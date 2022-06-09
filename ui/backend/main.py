@@ -154,6 +154,7 @@ dequeuing_thread.start()
 def make_mrsort_graph(model: str):
     fig, ax = plt.subplots(1, 1, figsize=(4, 4), layout="constrained")
 
+    # @todo Return 4XX when parsing fails
     model = model.split()
     criteria_count = int(model[0])
     categories_count = int(model[1])

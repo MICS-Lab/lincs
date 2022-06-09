@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- @todo Use Bootstrap -->
     <h2>Computation results</h2>
     <p v-if="loading">Loading...</p>
     <template v-else>
