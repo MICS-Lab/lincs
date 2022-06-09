@@ -1,36 +1,74 @@
 <template>
   <div>
     <h2>MR-Sort model reconstruction submission</h2>
-    <div v-if="submitting">Submitting...</div>
-    <div v-else>
-      <!-- @todo Use Bootstrap: display a nicer form, AND VALIDATE each field -->
-      <p>Submitted by: <input v-model="computation.submitted_by" placeholder="Your name"/></p>
-      <p>Description: <textarea v-model="computation.description" placeholder="Free text for your convenience"></textarea></p>
+    <p v-if="submitting">Submitting...</p>
+    <b-form v-else @submit="submit">
+      <!-- @todo Give a type to each field, validate each field -->
+
+      <b-form-group label="Submitted by:" label-cols-md="auto">
+        <b-form-input v-model="computation.submitted_by" placeholder="Your name" required></b-form-input>
+      </b-form-group>
+
+      <b-form-group label="Description:" label-cols-md="auto">
+        <b-form-textarea
+          v-model="computation.description"
+          placeholder="Free text for your convenience"
+        ></b-form-textarea>
+      </b-form-group>
+
       <h3>Original model</h3>
-      <p><textarea v-model="computation.original_model" rows="7" cols="40"></textarea></p>
-      <input @change="load_model_file" type="file"/>
       <!-- @todo Document the syntax -->
-      <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" /></p>
+      <b-row>
+        <b-col md>
+          <b-form-textarea style="font-family: monospace;" v-model="computation.original_model" rows="11" cols="30"></b-form-textarea>
+          <b-form-file v-model="original_model_file"></b-form-file>
+        </b-col>
+        <b-col md>
+          <b-img fluid :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" />
+        </b-col>
+      </b-row>
+
       <h3>Learning set generation</h3>
-      <p>Number of alternatives to generate: <input v-model="computation.learning_set_size"/></p>
-      <p>Pseudo-random seed: <input v-model="computation.learning_set_seed"/></p>
-      <!-- @todo Add command-line for generate-learning-set -->
+      <b-form-group label="Number of alternatives to generate:" label-cols-md="auto">
+        <b-form-input v-model="computation.learning_set_size" required></b-form-input>
+      </b-form-group>
+
+      <b-form-group label="Pseudo-random seed:" label-cols-md="auto">
+        <b-form-input v-model="computation.learning_set_seed" required></b-form-input>
+      </b-form-group>
+      <!-- @todo Display command-line for generate-learning-set -->
+
       <h3>Model reconstruction</h3>
       <h4>Termination criteria</h4>
-      <p>Target accuracy (%): <input v-model="computation.target_accuracy_percent"/></p>
-      <p>Maximum duration (s): <input v-model="computation.max_duration_seconds"/></p>
-      <p>Maximum number of iterations: <input v-model="computation.max_iterations"/></p>
+      <b-form-group label="Target accuracy (%):" label-cols-md="auto">
+        <b-form-input v-model="computation.target_accuracy_percent" required></b-form-input>
+      </b-form-group>
+
+      <b-form-group label="Maximum duration (s):" label-cols-md="auto">
+        <b-form-input v-model="computation.max_duration_seconds"></b-form-input>
+      </b-form-group>
+
+      <b-form-group label="Maximum number of iterations:" label-cols-md="auto">
+        <b-form-input v-model="computation.max_iterations"></b-form-input>
+      </b-form-group>
+
       <h4>Algorithm</h4>
-      <p>Processor: <select v-model="computation.processor">
-        <option>GPU</option>
-        <option>CPU</option>
-      </select></p>
-      <p>Pseudo-random seed: <input v-model="computation.seed"/></p>
+      <b-form-group label="Processor:" label-cols-md="auto">
+        <b-form-select v-model="computation.processor">
+          <option>GPU</option>
+          <option>CPU</option>
+        </b-form-select>
+      </b-form-group>
+
+      <b-form-group label="Pseudo-random seed:" label-cols-md="auto">
+        <b-form-input v-model="computation.seed" required></b-form-input>
+      </b-form-group>
+
       <!-- @todo Add weights optimization strategy -->
       <!-- @todo Add profiles improvement strategy -->
-      <!-- @todo Add command-line for learn -->
-      <p><button @click="submit">Submit</button></p>
-    </div>
+      <!-- @todo Display command-line for learn -->
+      <b-button type="submit" variant="primary">Submit</b-button>
+    </b-form>
   </div>
 </template>
 
@@ -46,6 +84,8 @@ export default {
     return {
       base_api_url,
       submitting: false,
+      original_model_from_file: '',
+      original_model_file: null,
       computation: {
         submitted_by: this.$cookies && this.$cookies.get("submitter_name"),
         description: null,
@@ -67,16 +107,26 @@ export default {
       const result = await this.$axios.$post(`${this.base_api_url}/mrsort-reconstructions`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
     },
-    load_model_file(event) {
-      var reader = new FileReader();
-      reader.onload = (e) => {
-        this.computation.original_model = e.target.result;
-      };
-      reader.readAsText(event.target.files[0]);
-    },
     randomSeed() {
       return Math.floor(Math.random() * 65536)
     },
-  }
+  },
+  watch: {
+    original_model_file() {
+      if (this.original_model_file !== null) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+          this.original_model_from_file = e.target.result
+          this.computation.original_model = this.original_model_from_file
+        };
+        reader.readAsText(this.original_model_file);
+      }
+    },
+    'computation.original_model'() {
+      if (this.computation.original_model !== this.original_model_from_file) {
+        this.original_model_file = null
+      }
+    },
+  },
 }
 </script>
