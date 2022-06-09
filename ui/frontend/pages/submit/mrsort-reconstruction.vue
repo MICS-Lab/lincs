@@ -47,7 +47,7 @@ export default {
       base_api_url,
       submitting: false,
       computation: {
-        submitted_by: typeof window === 'undefined' ? null : this.$cookies.get("submitter_name"),
+        submitted_by: this.$cookies && this.$cookies.get("submitter_name"),
         description: null,
         original_model: '4\n3\n0.2 0.4 0.2 0.2\n0.6\n0.3 0.4 0.2 0.5\n0.7 0.5 0.4 0.8',
         learning_set_size: 100,

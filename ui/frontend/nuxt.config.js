@@ -35,7 +35,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '~plugins/vue-cookies.js',
+    // About the '.client' part: https://nuxtjs.org/docs/directory-structure/plugins#client-or-server-side-only
+    '~plugins/vue-cookies.client.js',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
