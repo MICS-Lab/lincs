@@ -90,6 +90,8 @@ class MrSortModelReconstruction(Computation):
                 [
                     os.path.join(os.getcwd(), "bin/learn"),
                     "--target-accuracy", str(self.target_accuracy_percent),
+                    "--random-seed", str(self.seed),
+                    "--force-gpu" if self.processor == "GPU" else "--forbid-gpu",
                     learning_set_file_name,
                 ] + (
                     [] if self.max_duration_seconds is None else ["--max-duration-seconds", str(self.max_duration_seconds)]

@@ -31,12 +31,12 @@ This page is at the root of the web application (path `/`).
 
 - the "Description" column is a free text set when submitting the computation
 - the "Status" column can have the following values:
-    - Queued: the computation has been submitted but has not started yet
-    - In progress: the computation has started
-    - Success: the computation has finished and reached its goal
-    - Interrupted: the computation took longer than allowed, but did not error
-    - Error: the computation failed. The cause of the error is displayed
-- the "Results" column is "-" for statuses "Queued" and "In progress". For other statuses, the link takes the user to the appropriate "Results" page described below
+    - "queued": the computation has been submitted but has not started yet
+    - "in progress": the computation has started
+    - "success": the computation has finished and reached its goal
+    - "interrupted": the computation took longer than allowed, but did not error
+    - "failed": the computation failed. The cause of the error is displayed
+- in the "Results" column, the link takes the user to the appropriate "Results" page described below
 - the table is sorted by "Submitted at"
 - there is no custom sorting
 - there is no filtering
@@ -44,7 +44,7 @@ This page is at the root of the web application (path `/`).
 Submission page
 ---------------
 
-This page is at path `/computations/submit/mrsort-reconstruction`.
+This page is at path `/submit/mrsort-reconstruction`.
 
 ![Submission page mockup](mrsort_model_reconstruction_submission.png)
 
@@ -66,9 +66,9 @@ This page is at path `/computations/submit/mrsort-reconstruction`.
 
 #### "Termination criteria" sub-section
 
-- this section list all the criteria that can terminate the computation, similarly to the command-line of the `learn-model` tool
+- this section list all the criteria that can terminate the computation, similarly to the command-line of the `learn` tool
 - computation is terminated as soon as the first criterion is met
-- computation reaches state "Success" if that criterion is the "Target accuracy", and state "Interrupted" otherwise
+- computation reaches state "success" if that criterion is the "Target accuracy", and state "interrupted" otherwise
 
 #### "Algorithm" sub-section
 
@@ -82,12 +82,12 @@ This page is at path `/computations/submit/mrsort-reconstruction`.
 Results page
 ------------
 
-This page is at path `/computations/<id>` where `id` is an opaque identifier made of 8 letters and digits.
+This page is at path `/computations/<id>` where `<id>` is an opaque identifier made of 8 letters and digits.
 
 ![Results page mockup](mrsort_model_reconstruction_results.png)
 
-- for a queued or in progress computation, the "Results" section is replaced by the following message: "Computation in progress. This page automatically refreshes every 10 seconds. You can also come back later."
-- for a failed computation: "Computation failed" + error message.
+- for a queued or in progress computation, the following message is added to the "Status" field: "This page automatically refreshes every 10 seconds. You can also come back later."
+- for a failed computation the error message is added to the "Status" field
 
 Technical choices
 =================
@@ -102,7 +102,7 @@ This forbids scaling up the application.
 
 The presentation layer uses the Bootstrap CSS framework, to provide a responsive appearance. (Responsive: that adapts to any size of screen)
 
-We must choose between two architectures with different tradeoffs detailed below:
+We had to choose between two architectures with different tradeoffs detailed below, and we chose option (A):
 
 - (A) The dynamic part of the server is a REST API
 - (B) The dynamic part of the server generates HTML

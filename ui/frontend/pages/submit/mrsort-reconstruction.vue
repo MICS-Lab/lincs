@@ -3,10 +3,13 @@
     <h1>MR-Sort model reconstruction submission</h1>
     <div v-if="submitting">Submitting...</div>
     <div v-else>
+      <!-- @todo Use Bootstrap: display a nicer form, AND VALIDATE each field -->
       <p>Submitted by: <input v-model="computation.submitted_by" placeholder="Your name"/></p>
       <p>Description: <textarea v-model="computation.description" placeholder="Free text for your convenience"></textarea></p>
       <h2>Original model</h2>
       <p><textarea v-model="computation.original_model" rows="7" cols="40"></textarea></p>
+      <!-- @todo Document the syntax -->
+      <!-- @todo Add button to load the model from a file -->
       <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" /></p>
       <h2>Learning set generation</h2>
       <p>Number of alternatives to generate: <input v-model="computation.learning_set_size"/></p>
@@ -23,6 +26,8 @@
         <option>CPU</option>
       </select></p>
       <p>Pseudo-random seed: <input v-model="computation.seed"/></p>
+      <!-- @todo Add weights optimization strategy -->
+      <!-- @todo Add profiles improvement strategy -->
       <!-- @todo Add command-line for learn -->
       <p><button @click="submit">Submit</button></p>
     </div>

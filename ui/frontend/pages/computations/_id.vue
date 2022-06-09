@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- @todo Use Bootstrap -->
     <h1>Computation results</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
@@ -19,8 +20,15 @@
         <h3>Algorithm</h3>
         <p>Processor: {{ computation.processor }}</p>
         <p>Pseudo-random seed: {{ computation.seed }}</p>
+        <!-- @todo Add weights optimization strategy -->
+        <!-- @todo Add profiles improvement strategy -->
         <h2>Results</h2>
-        <p>Status: {{ computation.status }}<span v-if="computation.status === 'failed'"> ({{ computation.failure_reason }})</span></p>
+        <p>
+          Status: {{ computation.status }}
+          <span v-if="computation.status === 'failed'"> ({{ computation.failure_reason }})</span>
+          <span v-else-if="computation.status === 'queued' || computation.status === 'in progress'"> (This page automatically refreshes every 10 seconds. You can also come back later)</span>
+          <!-- @todo Auto-refresh the page if status is "queued" or "in progress" -->
+        </p>
         <p>Accuracy reached: {{ computation.accuracy_reached_percent === null ? '-' : `${computation.accuracy_reached_percent}%` }}</p>
         <p>Duration: {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}</p>
         <h2>Reconstructed vs. original model</h2>

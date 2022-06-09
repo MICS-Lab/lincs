@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- @todo Use Bootstrap -->
     <h1>Parallel preference learning Demo</h1>
     <p>Intro paragraph, brief explanation with links to the glossary and repository (@todo write).</p>
     <h1>New computation</h1>
@@ -8,6 +9,7 @@
     <div v-if="loading">Loading...</div>
     <div v-else>
       <div v-if="computations.length">
+        <!-- @todo Display computations in a table -->
         <p v-for="computation in computations">
           {{ computation.submitted_at }}
           {{ computation.submitted_by }}
