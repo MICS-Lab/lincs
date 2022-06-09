@@ -76,14 +76,16 @@ class MrSortModelReconstruction(Computation):
             learning_set_file_name = os.path.join(d, "learning-set.txt")
             with open(learning_set_file_name, "wt") as learning_set_file:
                 subprocess.run(
-                    ["bin/generate-learning-set", original_model_file_name, str(self.learning_set_size), str(self.learning_set_seed)],
+                    [os.path.join(os.getcwd(), "bin/generate-learning-set"), original_model_file_name, str(self.learning_set_size), str(self.learning_set_seed)],
                     stdout=learning_set_file,
                     check=True,
+                    cwd=d,
                 )
             self.reconstructed_model = subprocess.run(
-                ["bin/learn", "--target-accuracy", str(self.target_accuracy_percent), learning_set_file_name],
+                [os.path.join(os.getcwd(), "bin/learn"), "--target-accuracy", str(self.target_accuracy_percent), learning_set_file_name],
                 check=True,
                 capture_output=True, universal_newlines=True,
+                cwd=d,
             ).stdout
 
 Base.metadata.create_all(db_engine)
