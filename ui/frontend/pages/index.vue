@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- @todo Use Bootstrap -->
     <h2>Introduction</h2>
     <p>Intro paragraph, brief explanation with links to the glossary and repository (@todo write).</p>
     <h2>New computation</h2>
@@ -8,18 +7,24 @@
     <h2>Existing computations</h2>
     <div v-if="loading">Loading...</div>
     <div v-else>
-      <div v-if="computations.length">
-        <!-- @todo Display computations in a table -->
-        <p v-for="computation in computations">
-          {{ computation.submitted_at }}
-          {{ computation.submitted_by }}
-          {{ computation.description }}
-          {{ computation.status }}<span v-if="computation.status === 'failed'"> ({{ computation.failure_reason }})</span>
-          {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}
-          <NuxtLink :to="{'name': 'computations-id', 'params': {'id': computation.computation_id }}">Link</NuxtLink>
-        </p>
-      </div>
-      <div v-else>No computations yet.</div>
+      <b-table v-if="computations.length" :items="computations" :fields="fields">
+        <template #cell(kind)="data">
+          MR-Sort model reconstruction
+        </template>
+
+        <template #cell(status)="data">
+          {{ data.item.status }}<span class="d-none d-lg-inline" v-if="data.item.status === 'failed'"> ({{ data.item.failure_reason }})</span>
+        </template>
+
+        <template #cell(duration_seconds)="data">
+          {{ data.item.duration_seconds === null ? '-' : `${data.item.duration_seconds}s` }}
+        </template>
+
+        <template #cell(results)="data">
+          <NuxtLink :to="{'name': 'computations-id', 'params': {'id': data.item.computation_id }}">Link</NuxtLink>
+        </template>
+      </b-table>
+      <p v-else>No computations yet.</p>
     </div>
   </div>
 </template>
@@ -33,15 +38,26 @@ export default {
       base_api_url = "http://backend:8000"
     }
 
+    const fields = [
+      {key: 'submitted_at', label: 'Submitted at'},
+      {key: 'submitted_by', label: 'Submitted by'},
+      'kind',
+      'description',
+      'status',
+      {key: 'duration_seconds', label: 'Duration'},
+      'results',
+    ]
+
     return {
       base_api_url,
       loading: true,
-      computations: []
+      computations: [],
+      fields
     }
   },
   async fetch() {
     this.computations = await this.$axios.$get(`${this.base_api_url}/computations`)
     this.loading = false
-  }
+  },
 }
 </script>
