@@ -26,8 +26,7 @@
         <p>
           Status: {{ computation.status }}
           <span v-if="computation.status === 'failed'"> ({{ computation.failure_reason }})</span>
-          <span v-else-if="computation.status === 'queued' || computation.status === 'in progress'"> (This page automatically refreshes every 10 seconds. You can also come back later)</span>
-          <!-- @todo Auto-refresh the page if status is "queued" or "in progress" -->
+          <span v-else-if="!computationDone"> (This page automatically refreshes every {{ polling_interval }} seconds. You can also come back later)</span>
         </p>
         <p>Accuracy reached: {{ computation.accuracy_reached_percent === null ? '-' : `${computation.accuracy_reached_percent}%` }}</p>
         <p>Duration: {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}</p>
@@ -54,13 +53,27 @@ export default {
 
     return {
       base_api_url,
+      polling_interval: 10,
       loading: true,
       computation: null
     }
   },
   async fetch() {
-    this.computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
-    this.loading = false
-  }
+    return await this.fetchComputation()
+  },
+  methods: {
+    async fetchComputation() {
+      this.computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
+      this.loading = false
+      if (!this.computationDone) {
+        setTimeout(() => this.fetchComputation(), this.polling_interval * 1000)
+      }
+    },
+  },
+  computed: {
+    computationDone() {
+      return this.computation.status !== 'queued' && this.computation.status !== 'in progress'
+    },
+  },
 }
 </script>
