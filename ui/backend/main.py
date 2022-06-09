@@ -66,6 +66,8 @@ class MrSortModelReconstruction(Computation):
     max_iterations = sql.Column(sql.Integer, nullable=True)
     processor = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
     seed = sql.Column(sql.Integer, nullable=False)
+    weights_optimization_strategy = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
+    profiles_improvement_strategy = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
     reconstructed_model = sql.Column(sql.String, nullable=True)
     accuracy_reached_percent = sql.Column(sql.Float, nullable=True)
 
@@ -92,6 +94,8 @@ class MrSortModelReconstruction(Computation):
                     "--target-accuracy", str(self.target_accuracy_percent),
                     "--random-seed", str(self.seed),
                     "--force-gpu" if self.processor == "GPU" else "--forbid-gpu",
+                    "--weights-optimization-strategy", self.weights_optimization_strategy,
+                    "--profiles-improvement-strategy", self.profiles_improvement_strategy,
                     learning_set_file_name,
                 ] + (
                     [] if self.max_duration_seconds is None else ["--max-duration-seconds", str(self.max_duration_seconds)]
@@ -187,6 +191,8 @@ class SubmitMrSortReconstructionInput(pydantic.BaseModel):
     max_iterations: Optional[int]
     processor: str  # @todo Use an enum
     seed: int
+    weights_optimization_strategy: str  # @todo Use an enum
+    profiles_improvement_strategy: str  # @todo Use an enum
 
 @app.post("/mrsort-reconstructions")
 def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
@@ -205,6 +211,8 @@ def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
             max_iterations=input.max_iterations,
             processor=input.processor,
             seed=input.seed,
+            weights_optimization_strategy=input.weights_optimization_strategy,
+            profiles_improvement_strategy=input.profiles_improvement_strategy,
         )
         session.add(computation)
         session.commit()
@@ -251,6 +259,8 @@ def computation_of_db(computation: Computation):
             max_iterations=computation.max_iterations,
             processor=computation.processor,
             seed=computation.seed,
+            weights_optimization_strategy=computation.weights_optimization_strategy,
+            profiles_improvement_strategy=computation.profiles_improvement_strategy,
             reconstructed_model=computation.reconstructed_model,
             accuracy_reached_percent=computation.accuracy_reached_percent,
         )

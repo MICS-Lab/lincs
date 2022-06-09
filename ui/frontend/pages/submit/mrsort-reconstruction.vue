@@ -77,8 +77,20 @@
         <b-form-input v-model="computation.seed" required></b-form-input>
       </b-form-group>
 
-      <!-- @todo Add weights optimization strategy -->
-      <!-- @todo Add profiles improvement strategy -->
+      <b-form-group label="Weights optimization strategy:" label-cols-md="auto">
+        <b-form-select v-model="computation.weights_optimization_strategy" required>
+          <option>glop</option>
+          <option>glop-reuse</option>
+        </b-form-select>
+      </b-form-group>
+
+      <b-form-group label="Profiles improvement strategy:" label-cols-md="auto">
+        <b-form-select v-model="computation.profiles_improvement_strategy" required>
+          <option>heuristic</option>
+          <option>heuristic-midpoints</option>
+        </b-form-select>
+      </b-form-group>
+
       <!-- @todo Display command-line for learn -->
       <b-button type="submit" variant="primary">Submit</b-button>
     </b-form>
@@ -110,6 +122,8 @@ export default {
         max_iterations: null,
         processor: "GPU",
         seed: this.randomSeed(),
+        weights_optimization_strategy: 'glop',
+        profiles_improvement_strategy: 'heuristic',
       },
     }
   },

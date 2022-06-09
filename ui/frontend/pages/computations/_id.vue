@@ -31,8 +31,8 @@
             <h5>Algorithm</h5>
             <p>Processor: {{ computation.processor }}</p>
             <p>Pseudo-random seed: {{ computation.seed }}</p>
-            <!-- @todo Add weights optimization strategy -->
-            <!-- @todo Add profiles improvement strategy -->
+            <p>Weights optimization strategy: {{ computation.weights_optimization_strategy }}</p>
+            <p>Profiles improvement strategy: {{ computation.profiles_improvement_strategy }}</p>
           </b-col>
         </b-row>
         <h3>Results</h3>
