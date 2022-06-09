@@ -1,11 +1,11 @@
 <template>
   <div>
     <!-- @todo Use Bootstrap -->
-    <h1>Parallel preference learning Demo</h1>
+    <h2>Introduction</h2>
     <p>Intro paragraph, brief explanation with links to the glossary and repository (@todo write).</p>
-    <h1>New computation</h1>
+    <h2>New computation</h2>
     <p><NuxtLink to="submit/mrsort-reconstruction">MR-Sort model reconstruction</NuxtLink> (from existing MR-Sort model)</p>
-    <h1>Existing computations</h1>
+    <h2>Existing computations</h2>
     <div v-if="loading">Loading...</div>
     <div v-else>
       <div v-if="computations.length">

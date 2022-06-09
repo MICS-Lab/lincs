@@ -1,26 +1,26 @@
 <template>
   <div>
-    <h1>MR-Sort model reconstruction submission</h1>
+    <h2>MR-Sort model reconstruction submission</h2>
     <div v-if="submitting">Submitting...</div>
     <div v-else>
       <!-- @todo Use Bootstrap: display a nicer form, AND VALIDATE each field -->
       <p>Submitted by: <input v-model="computation.submitted_by" placeholder="Your name"/></p>
       <p>Description: <textarea v-model="computation.description" placeholder="Free text for your convenience"></textarea></p>
-      <h2>Original model</h2>
+      <h3>Original model</h3>
       <p><textarea v-model="computation.original_model" rows="7" cols="40"></textarea></p>
       <input @change="load_model_file" type="file"/>
       <!-- @todo Document the syntax -->
       <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" /></p>
-      <h2>Learning set generation</h2>
+      <h3>Learning set generation</h3>
       <p>Number of alternatives to generate: <input v-model="computation.learning_set_size"/></p>
       <p>Pseudo-random seed: <input v-model="computation.learning_set_seed"/></p>
       <!-- @todo Add command-line for generate-learning-set -->
-      <h2>Model reconstruction</h2>
-      <h3>Termination criteria</h3>
+      <h3>Model reconstruction</h3>
+      <h4>Termination criteria</h4>
       <p>Target accuracy (%): <input v-model="computation.target_accuracy_percent"/></p>
       <p>Maximum duration (s): <input v-model="computation.max_duration_seconds"/></p>
       <p>Maximum number of iterations: <input v-model="computation.max_iterations"/></p>
-      <h3>Algorithm</h3>
+      <h4>Algorithm</h4>
       <p>Processor: <select v-model="computation.processor">
         <option>GPU</option>
         <option>CPU</option>
