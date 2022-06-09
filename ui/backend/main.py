@@ -23,15 +23,16 @@ hashids = hashids.Hashids(min_length=8, salt=os.environ.get("PPL_HASHID_SALT", "
 
 
 # https://docs.sqlalchemy.org/en/14/tutorial/engine.html#establishing-connectivity-the-engine
-db_engine = sql.create_engine(
-    "sqlite+pysqlite:///:memory:",  # @todo Write to disc (then remove the next lines)
-    # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#using-a-memory-database-in-multiple-threads
-    connect_args={"check_same_thread": False},
-    poolclass=sql.pool.StaticPool,
-    # End of lines to remove
-    echo=True,  # @todo Remove
-    future=True,
-)
+db_url = os.environ["PPL_DATABASE_URL"]
+db_kwds = dict()
+if db_url.endswith(":memory:"):
+    db_kwds.update(
+        echo=True,
+        # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#using-a-memory-database-in-multiple-threads
+        connect_args={"check_same_thread": False},
+        poolclass=sql.pool.StaticPool,
+    )
+db_engine = sql.create_engine(db_url, **db_kwds, future=True)
 
 Base = orm.declarative_base()
 
