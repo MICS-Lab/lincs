@@ -1,5 +1,6 @@
 import io
 import queue
+import re
 import tempfile
 import threading
 from typing import Optional
@@ -51,6 +52,9 @@ class Computation(Base):
         "polymorphic_on": kind,
     }
 
+class ComputationInterrupted(Exception):
+    pass
+
 class MrSortModelReconstruction(Computation):
     __tablename__ = "mrsort-reconstructions"
     id = sql.Column(sql.Integer, sql.ForeignKey("computations.id"), primary_key=True)
@@ -58,11 +62,12 @@ class MrSortModelReconstruction(Computation):
     learning_set_size = sql.Column(sql.Integer, nullable=False)
     learning_set_seed = sql.Column(sql.Integer, nullable=False)
     target_accuracy_percent = sql.Column(sql.Float, nullable=False)
-    max_duration_seconds = sql.Column(sql.Float, nullable=True)
+    max_duration_seconds = sql.Column(sql.Integer, nullable=True)
     max_iterations = sql.Column(sql.Integer, nullable=True)
     processor = sql.Column(sql.String)  # @todo Use an enum?
     seed = sql.Column(sql.Integer, nullable=False)
     reconstructed_model = sql.Column(sql.String, nullable=True)
+    accuracy_reached_percent = sql.Column(sql.Float, nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "mrsort-reconstruction",
@@ -81,12 +86,34 @@ class MrSortModelReconstruction(Computation):
                     check=True,
                     cwd=d,
                 )
-            self.reconstructed_model = subprocess.run(
-                [os.path.join(os.getcwd(), "bin/learn"), "--target-accuracy", str(self.target_accuracy_percent), learning_set_file_name],
-                check=True,
+            process = subprocess.run(
+                [
+                    os.path.join(os.getcwd(), "bin/learn"),
+                    "--target-accuracy", str(self.target_accuracy_percent),
+                    learning_set_file_name,
+                ] + (
+                    [] if self.max_duration_seconds is None else ["--max-duration-seconds", str(self.max_duration_seconds)]
+                ) + (
+                    [] if self.max_iterations is None else ["--max-iterations", str(self.max_iterations)]
+                ),
+                check=False,
                 capture_output=True, universal_newlines=True,
                 cwd=d,
-            ).stdout
+            )
+            if process.returncode <= 1:
+                self.reconstructed_model = process.stdout
+                if process.returncode == 0:
+                    self.accuracy_reached_percent = self.target_accuracy_percent
+                else:
+                    # @todo Add an option to the tools to print their output in parsable format, including the accuracy reached
+                    accuracy_line = process.stderr.splitlines()[-1].strip()
+                    m = re.fullmatch(r"Accuracy reached \((.*)%\) is below target", accuracy_line)
+                    if m:
+                        self.accuracy_reached_percent = float(m.group(1))
+                    raise ComputationInterrupted()
+            else:
+                print(process.stderr)
+                process.check_returncode()
 
 Base.metadata.create_all(db_engine)
 
@@ -106,6 +133,8 @@ def dequeue():
 
             try:
                 computation.execute()
+            except ComputationInterrupted:
+                computation.status = "interrupted"
             except Exception as e:
                 computation.status = "failed"
                 computation.failure_reason = str(e)
@@ -151,8 +180,8 @@ class SubmitMrSortReconstructionInput(pydantic.BaseModel):
     learning_set_size: int
     learning_set_seed: int
     target_accuracy_percent: float
-    max_duration_seconds: Optional[float]
-    max_iterations: Optional[float]
+    max_duration_seconds: Optional[int]
+    max_iterations: Optional[int]
     processor: str  # @todo Use an enum
     seed: int
 
@@ -220,6 +249,7 @@ def computation_of_db(computation: Computation):
             processor=computation.processor,
             seed=computation.seed,
             reconstructed_model=computation.reconstructed_model,
+            accuracy_reached_percent=computation.accuracy_reached_percent,
         )
     else:
         assert False

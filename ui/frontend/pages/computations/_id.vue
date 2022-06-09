@@ -21,6 +21,7 @@
         <p>Pseudo-random seed: {{ computation.seed }}</p>
         <h2>Results</h2>
         <p>Status: {{ computation.status }}<span v-if="computation.status === 'failed'"> ({{ computation.failure_reason }})</span></p>
+        <p>Accuracy reached: {{ computation.accuracy_reached_percent === null ? '-' : `${computation.accuracy_reached_percent}%` }}</p>
         <p>Duration: {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}</p>
         <h2>Reconstructed vs. original model</h2>
         <p>Original model: {{ computation.original_model }}</p>
