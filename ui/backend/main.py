@@ -1,3 +1,4 @@
+import io
 import queue
 import tempfile
 import threading
@@ -8,10 +9,12 @@ import datetime
 import os
 
 import fastapi
+import starlette.responses
 import pydantic
 import hashids
 import sqlalchemy as sql
 from sqlalchemy import orm
+import matplotlib.pyplot as plt
 
 
 app = fastapi.FastAPI()
@@ -112,6 +115,31 @@ def dequeue():
 
 dequeuing_thread = threading.Thread(target=dequeue, daemon=True)
 dequeuing_thread.start()
+
+
+@app.get("/mrsort-graph")
+def make_mrsort_graph(model: str):
+    fig, ax = plt.subplots(1, 1, figsize=(4, 4), layout="constrained")
+
+    model = model.split()
+    criteria_count = int(model[0])
+    categories_count = int(model[1])
+    # weights = model[2:2 + criteria_count]
+    # threshold = model[2 + criteria_count]
+    xs = list(range(criteria_count))
+    for category_index in range(categories_count - 1):
+        profile = [float(y) for y in model[3 + (1 + category_index) * criteria_count:3 + (2 + category_index) * criteria_count]]
+        ax.plot(xs, profile)
+
+    ax.set_ylim(bottom=0, top=1)
+    ax.set_xlim(left=0, right=criteria_count - 1)
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=100)
+    plt.close(fig)
+
+    buf.seek(0)
+    return starlette.responses.StreamingResponse(buf, media_type="image/png")
 
 
 class SubmitMrSortReconstructionInput(pydantic.BaseModel):

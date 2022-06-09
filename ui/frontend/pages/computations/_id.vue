@@ -24,7 +24,11 @@
         <p>Duration: {{ computation.duration_seconds === null ? '-' : `${computation.duration_seconds}s` }}</p>
         <h2>Reconstructed vs. original model</h2>
         <p>Original model: {{ computation.original_model }}</p>
-        <p>Reconstructed model: {{ computation.reconstructed_model }}</p>
+        <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" /></p>
+        <div v-if="computation.reconstructed_model !== null">
+          <p>Reconstructed model: {{ computation.reconstructed_model }}</p>
+          <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.reconstructed_model.replaceAll('\n', ' ')" /></p>
+        </div>
       </div>
     </div>
   </div>

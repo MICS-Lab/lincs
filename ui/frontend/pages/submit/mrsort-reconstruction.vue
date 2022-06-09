@@ -7,6 +7,7 @@
       <p>Description: <textarea v-model="computation.description" placeholder="Free text for your convenience"></textarea></p>
       <h2>Original model</h2>
       <p><textarea v-model="computation.original_model" rows="7" cols="40"></textarea></p>
+      <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" /></p>
       <h2>Learning set generation</h2>
       <p>Number of alternatives to generate: <input v-model="computation.learning_set_size"/></p>
       <p>Pseudo-random seed: <input v-model="computation.learning_set_seed"/></p>
