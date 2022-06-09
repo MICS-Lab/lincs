@@ -170,6 +170,9 @@ def make_mrsort_graph(model: str):
         profile = [float(y) for y in model[3 + (1 + category_index) * criteria_count:3 + (2 + category_index) * criteria_count]]
         ax.plot(xs, profile)
 
+    # @todo Improve graph:
+    # - adjust ticks to make it explicit that xs are discrete criteria
+    # - print profile indexes somehow (a legend might not be the most readable way)
     ax.set_ylim(bottom=0, top=1)
     ax.set_xlim(left=0, right=criteria_count - 1)
 
