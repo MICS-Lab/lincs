@@ -51,12 +51,12 @@ export default {
         description: null,
         original_model: '4\n3\n0.2 0.4 0.2 0.2\n0.6\n0.3 0.4 0.2 0.5\n0.7 0.5 0.4 0.8',
         learning_set_size: 100,
-        learning_set_seed: 57,  // @todo Randomize
+        learning_set_seed: this.randomSeed(),
         target_accuracy_percent: 99,
         max_duration_seconds: null,
         max_iterations: null,
         processor: "GPU",
-        seed: 89,  // @todo Randomize
+        seed: this.randomSeed(),
       },
     }
   },
@@ -66,7 +66,10 @@ export default {
       this.submitting = true
       const result = await this.$axios.$post(`${this.base_api_url}/mrsort-reconstructions`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
-    }
+    },
+    randomSeed() {
+      return Math.floor(Math.random() * 65536)
+    },
   }
 }
 </script>
