@@ -64,7 +64,7 @@ class MrSortModelReconstruction(Computation):
     target_accuracy_percent = sql.Column(sql.Float, nullable=False)
     max_duration_seconds = sql.Column(sql.Integer, nullable=True)
     max_iterations = sql.Column(sql.Integer, nullable=True)
-    processor = sql.Column(sql.String)  # @todo Use an enum?
+    processor = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
     seed = sql.Column(sql.Integer, nullable=False)
     reconstructed_model = sql.Column(sql.String, nullable=True)
     accuracy_reached_percent = sql.Column(sql.Float, nullable=True)
