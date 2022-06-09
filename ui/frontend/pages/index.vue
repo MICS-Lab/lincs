@@ -5,8 +5,8 @@
     <h2>New computation</h2>
     <p><NuxtLink to="submit/mrsort-reconstruction">MR-Sort model reconstruction</NuxtLink> (from existing MR-Sort model)</p>
     <h2>Existing computations</h2>
-    <div v-if="loading">Loading...</div>
-    <div v-else>
+    <p v-if="loading">Loading...</p>
+    <template v-else>
       <b-table v-if="computations.length" :items="computations" :fields="fields">
         <template #cell(kind)="data">
           MR-Sort model reconstruction
@@ -25,7 +25,7 @@
         </template>
       </b-table>
       <p v-else>No computations yet.</p>
-    </div>
+    </template>
   </div>
 </template>
 
