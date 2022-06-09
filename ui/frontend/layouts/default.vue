@@ -1,5 +1,6 @@
 <template>
   <b-container fluid="md">
+    <!-- @todo Toggle display with ?debug query parameter -->
     <p>Bootstrap size (debug) =
       <span class="d-sm-none">XS <i>i.e.</i> width &lt; 576px</span>
       <span class="d-none d-sm-inline d-md-none">SM <i>i.e.</i> 576px &le; width &lt; 768px</span>
