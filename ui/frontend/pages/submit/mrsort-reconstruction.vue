@@ -8,8 +8,8 @@
       <p>Description: <textarea v-model="computation.description" placeholder="Free text for your convenience"></textarea></p>
       <h2>Original model</h2>
       <p><textarea v-model="computation.original_model" rows="7" cols="40"></textarea></p>
+      <input @change="load_model_file" type="file"/>
       <!-- @todo Document the syntax -->
-      <!-- @todo Add button to load the model from a file -->
       <p><img :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" /></p>
       <h2>Learning set generation</h2>
       <p>Number of alternatives to generate: <input v-model="computation.learning_set_size"/></p>
@@ -66,6 +66,13 @@ export default {
       this.submitting = true
       const result = await this.$axios.$post(`${this.base_api_url}/mrsort-reconstructions`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
+    },
+    load_model_file(event) {
+      var reader = new FileReader();
+      reader.onload = (e) => {
+        this.computation.original_model = e.target.result;
+      };
+      reader.readAsText(event.target.files[0]);
     },
     randomSeed() {
       return Math.floor(Math.random() * 65536)
