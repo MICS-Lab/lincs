@@ -232,11 +232,14 @@ def get_computations():
 
 @app.get("/computations/{id}")
 def get_computation(id: str):
-    # @todo Return a 404 when not found
-    id = hashids.decode(id)[0]
-    with orm.Session(db_engine) as session:
-        computation = session.get(Computation, id)
-        return computation_of_db(computation)
+    id = hashids.decode(id)
+    if len(id) == 1:
+        id = id[0]
+        with orm.Session(db_engine) as session:
+            computation = session.get(Computation, id)
+            if computation is not None:
+                return computation_of_db(computation)
+    raise fastapi.HTTPException(status_code=404, detail="Computation not found")
 
 
 def computation_of_db(computation: Computation):

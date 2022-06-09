@@ -2,6 +2,7 @@
   <div>
     <h2>Computation results</h2>
     <p v-if="loading">Loading...</p>
+    <p v-else-if="message">{{ message }}</p>
     <template v-else>
       <h3>Submission parameters</h3>
       <b-row>
@@ -84,7 +85,8 @@ export default {
       base_api_url,
       polling_interval: 10,
       loading: true,
-      computation: null
+      message: null,
+      computation: null,
     }
   },
   async fetch() {
@@ -92,9 +94,13 @@ export default {
   },
   methods: {
     async fetchComputation() {
-      this.computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
+      try {
+        this.computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
+      } catch {
+        this.message = "Not found"
+      }
       this.loading = false
-      if (!this.computationDone) {
+      if (this.computation && !this.computationDone) {
         setTimeout(() => this.fetchComputation(), this.polling_interval * 1000)
       }
     },
