@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 
 app = fastapi.FastAPI()
-hashids = hashids.Hashids(min_length=8, salt=os.environ.get("PPL_HASHID_SALT", "Default salt"))
+hashids = hashids.Hashids(min_length=8, salt=os.environ["PPL_HASHIDS_SALT"])
 
 
 # https://docs.sqlalchemy.org/en/14/tutorial/engine.html#establishing-connectivity-the-engine

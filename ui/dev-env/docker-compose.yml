@@ -26,6 +26,7 @@ services:
     working_dir: /wd
     environment:
       PPL_DATABASE_URL: "sqlite+pysqlite:///:memory:"
+      PPL_HASHIDS_SALT: development salt
     command:
       - uvicorn
       - main:app
