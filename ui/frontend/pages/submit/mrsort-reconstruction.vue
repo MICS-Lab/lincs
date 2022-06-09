@@ -17,7 +17,20 @@
       </b-form-group>
 
       <h3>Original model</h3>
-      <!-- @todo Document the syntax -->
+      <details>
+        <summary>Model syntax</summary>
+        <ul>
+          <li>Line 1: a single integer, the number <i>M</i> of criteria</li>
+          <li>Line 2: a single integer, the number <i>N</i> of categories</li>
+          <li>Line 3: <i>M</i> decimal numbers separated by spaces, the weights of each criterion</li>
+          <li>Line 4: a single decimal number, the threshold</li>
+          <li>
+            Lines 5 and following: <i>N - 1</i> lines, each describing a profile.
+            Profiles are in increasing order, <i>i.e.</i> lowest profile first.
+            Each profile consists of <i>M</i> decimal numbers separated by spaces, its values on each criterion
+          </li>
+        </ul>
+      </details>
       <b-row>
         <b-col md>
           <b-form-textarea style="font-family: monospace;" v-model="computation.original_model" rows="11" cols="30"></b-form-textarea>
