@@ -32,12 +32,6 @@
 <script>
 export default {
   data() {
-    // @todo Avoid this magic, probably by deactivating server side generation
-    let base_api_url = "/ppl-dev/api"
-    if (typeof window === 'undefined') {
-      base_api_url = "http://backend:8000"
-    }
-
     const fields = [
       {key: 'submitted_at', label: 'Submitted at'},
       {key: 'submitted_by', label: 'Submitted by'},
@@ -49,14 +43,13 @@ export default {
     ]
 
     return {
-      base_api_url,
       loading: true,
       computations: [],
       fields
     }
   },
   async fetch() {
-    this.computations = await this.$axios.$get(`${this.base_api_url}/computations`)
+    this.computations = await this.$axios.$get(`computations`)
     this.loading = false
   },
 }

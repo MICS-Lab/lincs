@@ -35,7 +35,7 @@
           <b-form-file v-model="original_model_file"></b-form-file>
         </b-col>
         <b-col md>
-          <b-img fluid :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" />
+          <b-img fluid :src="'api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" />
         </b-col>
       </b-row>
 
@@ -98,14 +98,7 @@
 <script>
 export default {
   data() {
-    // @todo Avoid this magic, probably by deactivating server side generation
-    let base_api_url = "/ppl-dev/api"
-    if (typeof window === 'undefined') {
-      base_api_url = "http://backend:8000"
-    }
-
     return {
-      base_api_url,
       submitting: false,
       original_model_from_file: '',
       original_model_file: null,
@@ -129,7 +122,7 @@ export default {
     async submit() {
       this.$cookies.set("submitted_by", this.computation.submitted_by, "10d", this.$router.options.base)
       this.submitting = true
-      const result = await this.$axios.$post(`${this.base_api_url}/mrsort-reconstructions`, this.computation)
+      const result = await this.$axios.$post(`mrsort-reconstructions`, this.computation)
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
     },
     randomSeed() {

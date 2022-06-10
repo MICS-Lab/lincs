@@ -57,13 +57,13 @@
           <b-col md="6">
             <h5>Original model</h5>
             <pre>{{ computation.original_model }}</pre>
-            <b-img fluid :src="'/ppl-dev/api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" />
+            <b-img fluid :src="'api/mrsort-graph?model=' + computation.original_model.replaceAll('\n', ' ')" />
           </b-col>
           <b-col md="6">
             <h5>Reconstructed model</h5>
             <template v-if="computation.reconstructed_model !== null">
               <pre>{{ computation.reconstructed_model }}</pre>
-              <b-img fluid :src="'/ppl-dev/api/mrsort-graph?model=' + computation.reconstructed_model.replaceAll('\n', ' ')" />
+              <b-img fluid :src="'api/mrsort-graph?model=' + computation.reconstructed_model.replaceAll('\n', ' ')" />
             </template>
           </b-col>
         </b-row>
@@ -75,14 +75,7 @@
 <script>
 export default {
   data() {
-    // @todo Avoid this magic, probably by deactivating server side generation
-    let base_api_url = "/ppl-dev/api"
-    if (typeof window === 'undefined') {
-      base_api_url = "http://backend:8000"
-    }
-
     return {
-      base_api_url,
       polling_interval: 10,
       loading: true,
       message: null,
@@ -95,7 +88,7 @@ export default {
   methods: {
     async fetchComputation() {
       try {
-        this.computation = await this.$axios.$get(`${this.base_api_url}/computations/${this.$route.params.id}`)
+        this.computation = await this.$axios.$get(`computations/${this.$route.params.id}`)
       } catch {
         this.message = "Not found"
       }
