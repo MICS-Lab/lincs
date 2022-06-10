@@ -1,9 +1,10 @@
+from dataclasses import dataclass
 import io
 import queue
 import re
 import tempfile
 import threading
-from typing import Optional
+from typing import List, Optional
 import subprocess
 
 import datetime
@@ -155,26 +156,56 @@ dequeuing_thread = threading.Thread(target=dequeue, daemon=True)
 dequeuing_thread.start()
 
 
+@dataclass
+class MrSortModel:
+    criteria_count: int
+    categories_count: int
+    weights: List[int]
+    threshold: float
+    profiles: List[List[float]]
+
+    class ParsingError(Exception):
+        pass
+
+    @classmethod
+    def parse(cls, s):
+        parts = " ".join(s.splitlines()).split()  # Ignore actual lines, focus on a list of numbers
+        try:
+            criteria_count = int(parts[0])
+            categories_count = int(parts[1])
+            # Don't uses slices in this function (e.g. `parts[2:2 + criteria_count]`) to make sure
+            # we get the IndexError if `parts`` is too short
+            weights = [float(parts[2 + criterion_index]) for criterion_index in range(criteria_count)]
+            threshold = float(parts[2 + criteria_count])
+            profiles = [
+                [
+                    float(parts[3 + (1 + category_index) * criteria_count + criterion_index])
+                    for criterion_index in range(criteria_count)
+                ]
+                for category_index in range(categories_count - 1)
+            ]
+            return cls(criteria_count, categories_count, weights, threshold, profiles)
+        except (IndexError, ValueError):
+            raise cls.ParsingError()
+
 @app.get("/mrsort-graph")
 def make_mrsort_graph(model: str):
     fig, ax = plt.subplots(1, 1, figsize=(4, 4), layout="constrained")
 
-    # @todo Return 4XX when parsing fails
-    model = model.split()
-    criteria_count = int(model[0])
-    categories_count = int(model[1])
-    # weights = model[2:2 + criteria_count]
-    # threshold = model[2 + criteria_count]
-    xs = list(range(criteria_count))
-    for category_index in range(categories_count - 1):
-        profile = [float(y) for y in model[3 + (1 + category_index) * criteria_count:3 + (2 + category_index) * criteria_count]]
-        ax.plot(xs, profile)
+    try:
+        model = MrSortModel.parse(model)
+    except MrSortModel.ParsingError:
+        raise fastapi.HTTPException(status_code=422, detail="Model format error")
+
+    xs = list(range(model.criteria_count))
+    for category_index in range(model.categories_count - 1):
+        ax.plot(xs, model.profiles[category_index])
 
     # @todo Improve graph:
     # - adjust ticks to make it explicit that xs are discrete criteria
     # - print profile indexes somehow (a legend might not be the most readable way)
     ax.set_ylim(bottom=0, top=1)
-    ax.set_xlim(left=0, right=criteria_count - 1)
+    ax.set_xlim(left=0, right=model.criteria_count - 1)
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=100)
