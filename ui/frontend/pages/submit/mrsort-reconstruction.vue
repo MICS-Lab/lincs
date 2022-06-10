@@ -3,10 +3,8 @@
     <h2>MR-Sort model reconstruction submission</h2>
     <p v-if="submitting">Submitting...</p>
     <b-form v-else @submit="submit">
-      <!-- @todo Give a type to each field, validate each field -->
-
       <b-form-group label="Submitted by:" label-cols-md="auto">
-        <b-form-input v-model="computation.submitted_by" placeholder="Your name" required></b-form-input>
+        <b-form-input v-model="computation.submitted_by" placeholder="Your name" type="text" required></b-form-input>
       </b-form-group>
 
       <b-form-group label="Description:" label-cols-md="auto">
@@ -43,26 +41,26 @@
 
       <h3>Learning set generation</h3>
       <b-form-group label="Number of alternatives to generate:" label-cols-md="auto">
-        <b-form-input v-model="computation.learning_set_size" required></b-form-input>
+        <b-form-input v-model="computation.learning_set_size" type="number" required></b-form-input>
       </b-form-group>
 
       <b-form-group label="Pseudo-random seed:" label-cols-md="auto">
-        <b-form-input v-model="computation.learning_set_seed" required></b-form-input>
+        <b-form-input v-model="computation.learning_set_seed" type="number" required></b-form-input>
       </b-form-group>
       <!-- @todo Display command-line for generate-learning-set -->
 
       <h3>Model reconstruction</h3>
       <h4>Termination criteria</h4>
       <b-form-group label="Target accuracy (%):" label-cols-md="auto">
-        <b-form-input v-model="computation.target_accuracy_percent" required></b-form-input>
+        <b-form-input v-model="computation.target_accuracy_percent" type="number" required></b-form-input>
       </b-form-group>
 
       <b-form-group label="Maximum duration (s):" label-cols-md="auto">
-        <b-form-input v-model="computation.max_duration_seconds"></b-form-input>
+        <b-form-input v-model="computation.max_duration_seconds" type="number"></b-form-input>
       </b-form-group>
 
       <b-form-group label="Maximum number of iterations:" label-cols-md="auto">
-        <b-form-input v-model="computation.max_iterations"></b-form-input>
+        <b-form-input v-model="computation.max_iterations" type="number"></b-form-input>
       </b-form-group>
 
       <h4>Algorithm</h4>
@@ -74,7 +72,7 @@
       </b-form-group>
 
       <b-form-group label="Pseudo-random seed:" label-cols-md="auto">
-        <b-form-input v-model="computation.seed" required></b-form-input>
+        <b-form-input v-model="computation.seed" type="number" required></b-form-input>
       </b-form-group>
 
       <b-form-group label="Weights optimization strategy:" label-cols-md="auto">
