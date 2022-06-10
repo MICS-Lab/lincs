@@ -197,15 +197,13 @@ def make_mrsort_graph(model: str):
     except MrSortModel.ParsingError:
         raise fastapi.HTTPException(status_code=422, detail="Model format error")
 
-    xs = list(range(model.criteria_count))
+    xs = list(f"c{criterion_index}\nw={model.weights[criterion_index]}" for criterion_index in range(model.criteria_count))
     for category_index in range(model.categories_count - 1):
-        ax.plot(xs, model.profiles[category_index])
+        ax.plot(xs, model.profiles[category_index], "o--", label=f"p{category_index}")
 
-    # @todo Improve graph:
-    # - adjust ticks to make it explicit that xs are discrete criteria
-    # - print profile indexes somehow (a legend might not be the most readable way)
     ax.set_ylim(bottom=0, top=1)
-    ax.set_xlim(left=0, right=model.criteria_count - 1)
+    ax.grid(True)
+    ax.legend(title=f"λ={model.threshold}")
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=100)
