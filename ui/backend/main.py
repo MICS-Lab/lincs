@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import enum
 import io
 import queue
 import re
@@ -38,6 +39,13 @@ db_engine = sql.create_engine(db_url, **db_kwds, future=True)
 Base = orm.declarative_base()
 
 class Computation(Base):
+    class Status(enum.Enum):
+        queued = "queued"
+        in_progress = "in progress"
+        success = "success"
+        interrupted = "interrupted"
+        failed = "failed"
+
     __tablename__ = "computations"
 
     id = sql.Column(sql.Integer, primary_key=True)
@@ -46,7 +54,7 @@ class Computation(Base):
     description = sql.Column(sql.String, nullable=True)
     started_at = sql.Column(sql.DateTime, nullable=True)
     ended_at = sql.Column(sql.DateTime, nullable=True)
-    status = sql.Column(sql.String(50), nullable=False)  # @todo Use an enum?
+    status = sql.Column(sql.Enum(Status), nullable=False)
     failure_reason = sql.Column(sql.String, nullable=True)
 
     kind = sql.Column(sql.String(50), nullable=False)
@@ -58,6 +66,18 @@ class ComputationInterrupted(Exception):
     pass
 
 class MrSortModelReconstruction(Computation):
+    class Processor(enum.Enum):
+        cpu = "CPU"
+        gpu = "GPU"
+
+    class WeightsOptimizationStrategy(enum.Enum):
+        glop = "glop"
+        glop_reuse = "glop-reuse"
+
+    class ProfilesImprovementStrategy(enum.Enum):
+        heuristic = "heuristic"
+        heuristic_midpoint = "heuristic-midpoints"
+
     __tablename__ = "mrsort-reconstructions"
     id = sql.Column(sql.Integer, sql.ForeignKey("computations.id"), primary_key=True)
     original_model = sql.Column(sql.String(), nullable=False)
@@ -66,10 +86,10 @@ class MrSortModelReconstruction(Computation):
     target_accuracy_percent = sql.Column(sql.Float, nullable=False)
     max_duration_seconds = sql.Column(sql.Integer, nullable=True)
     max_iterations = sql.Column(sql.Integer, nullable=True)
-    processor = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
+    processor = sql.Column(sql.Enum(Processor), nullable=False)
     seed = sql.Column(sql.Integer, nullable=False)
-    weights_optimization_strategy = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
-    profiles_improvement_strategy = sql.Column(sql.String, nullable=False)  # @todo Use an enum?
+    weights_optimization_strategy = sql.Column(sql.Enum(WeightsOptimizationStrategy), nullable=False)
+    profiles_improvement_strategy = sql.Column(sql.Enum(ProfilesImprovementStrategy), nullable=False)
     reconstructed_model = sql.Column(sql.String, nullable=True)
     accuracy_reached_percent = sql.Column(sql.Float, nullable=True)
 
@@ -84,30 +104,24 @@ class MrSortModelReconstruction(Computation):
                 f.write(self.original_model)
             learning_set_file_name = os.path.join(d, "learning-set.txt")
             with open(learning_set_file_name, "wt") as learning_set_file:
-                subprocess.run(
-                    [os.path.join(os.getcwd(), "bin/generate-learning-set"), original_model_file_name, str(self.learning_set_size), str(self.learning_set_seed)],
-                    stdout=learning_set_file,
-                    check=True,
-                    cwd=d,
-                )
-            process = subprocess.run(
-                [
-                    os.path.join(os.getcwd(), "bin/learn"),
-                    "--target-accuracy", str(self.target_accuracy_percent),
-                    "--random-seed", str(self.seed),
-                    "--force-gpu" if self.processor == "GPU" else "--forbid-gpu",
-                    "--weights-optimization-strategy", self.weights_optimization_strategy,
-                    "--profiles-improvement-strategy", self.profiles_improvement_strategy,
-                    learning_set_file_name,
-                ] + (
-                    [] if self.max_duration_seconds is None else ["--max-duration-seconds", str(self.max_duration_seconds)]
-                ) + (
-                    [] if self.max_iterations is None else ["--max-iterations", str(self.max_iterations)]
-                ),
-                check=False,
-                capture_output=True, universal_newlines=True,
-                cwd=d,
+                command = [os.path.join(os.getcwd(), "bin/generate-learning-set"), original_model_file_name, str(self.learning_set_size), str(self.learning_set_seed)]
+                print("Running", command, flush=True)
+                subprocess.run(command, stdout=learning_set_file, check=True, cwd=d)
+            command = [
+                os.path.join(os.getcwd(), "bin/learn"),
+                "--target-accuracy", str(self.target_accuracy_percent),
+                "--random-seed", str(self.seed),
+                "--force-gpu" if self.processor == MrSortModelReconstruction.Processor.gpu else "--forbid-gpu",
+                "--weights-optimization-strategy", self.weights_optimization_strategy.value,
+                "--profiles-improvement-strategy", self.profiles_improvement_strategy.value,
+                learning_set_file_name,
+            ] + (
+                [] if self.max_duration_seconds is None else ["--max-duration-seconds", str(self.max_duration_seconds)]
+            ) + (
+                [] if self.max_iterations is None else ["--max-iterations", str(self.max_iterations)]
             )
+            print("Running", command, flush=True)
+            process = subprocess.run(command, check=False, capture_output=True, universal_newlines=True, cwd=d)
             if process.returncode <= 1:
                 self.reconstructed_model = process.stdout
                 if process.returncode == 0:
@@ -136,18 +150,18 @@ def dequeue():
         with orm.Session(db_engine) as session:
             computation = session.get(Computation, id)
             computation.started_at = datetime.datetime.now()
-            computation.status = "in progress"
+            computation.status = Computation.Status.in_progress
             session.commit()
 
             try:
                 computation.execute()
             except ComputationInterrupted:
-                computation.status = "interrupted"
+                computation.status = Computation.Status.interrupted
             except Exception as e:
-                computation.status = "failed"
+                computation.status = Computation.Status.failed
                 computation.failure_reason = str(e)
             else:
-                computation.status = "success"
+                computation.status = Computation.Status.success
             computation.ended_at = datetime.datetime.now()
             session.commit()
         jobs_queue.task_done()
@@ -222,10 +236,10 @@ class SubmitMrSortReconstructionInput(pydantic.BaseModel):
     target_accuracy_percent: float
     max_duration_seconds: Optional[int]
     max_iterations: Optional[int]
-    processor: str  # @todo Use an enum
+    processor: MrSortModelReconstruction.Processor
     seed: int
-    weights_optimization_strategy: str  # @todo Use an enum
-    profiles_improvement_strategy: str  # @todo Use an enum
+    weights_optimization_strategy: MrSortModelReconstruction.WeightsOptimizationStrategy
+    profiles_improvement_strategy: MrSortModelReconstruction.ProfilesImprovementStrategy
 
 @app.post("/mrsort-reconstructions")
 def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
@@ -235,7 +249,7 @@ def submit_mrsort_reconstruction(input: SubmitMrSortReconstructionInput):
             submitted_at=submitted_at,
             submitted_by=input.submitted_by,
             description=input.description,
-            status="queued",
+            status=Computation.Status.queued,
             original_model=input.original_model,
             learning_set_size=input.learning_set_size,
             learning_set_seed=input.learning_set_seed,
