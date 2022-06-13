@@ -1,7 +1,10 @@
 <template>
   <div>
     <h2>Introduction</h2>
-    <p>Intro paragraph, brief explanation with links to the glossary and repository (@todo write).</p>
+    <p>
+      <i>Parallel preference learning</i> is an attempt to provide a parallel implementation of the meta-heuristic described in <a href="https://tel.archives-ouvertes.fr/tel-01370555/document">Olivier Sobrie's thesis</a>, for learning the parameters of an MR-sort classification model.
+      The <a href="https://github.com/jacquev6/parallel-preference-learning/">source code is available on GitHub</a>, as well as an introduction and a glossary explaining what it's all about.
+    </p>
     <h2>New computation</h2>
     <p><NuxtLink to="submit/mrsort-reconstruction">MR-Sort model reconstruction</NuxtLink> (from existing MR-Sort model)</p>
     <h2>Existing computations</h2>
