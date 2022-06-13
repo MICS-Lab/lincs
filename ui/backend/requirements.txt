@@ -1,0 +1,5 @@
+fastapi
+hashids
+matplotlib
+SQLAlchemy
+uvicorn[standard]

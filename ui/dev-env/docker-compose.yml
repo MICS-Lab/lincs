@@ -7,9 +7,9 @@ services:
   frontend:
     image: node:18
     volumes:
-      - ../frontend:/wd
-      - frontend-node-modules:/wd/node_modules
-    working_dir: /wd
+      - ../frontend:/application
+      - frontend-node-modules:/application/node_modules
+    working_dir: /application
     environment:
       PPL_BASE_PATH: /ppl-dev
       NODE_OPTIONS: --openssl-legacy-provider  # https://stackoverflow.com/a/69746937/905845
@@ -19,11 +19,12 @@ services:
       - yarn install && exec yarn dev
   backend:
     build:
-      context: backend
+      context: ../..
+      dockerfile: ui/dev-env/backend/Dockerfile
     volumes:
-      - ../backend:/wd
-      - ../../build/tools/bin:/wd/bin
-    working_dir: /wd
+      - ../backend:/application
+      - ../../build/tools/bin:/application/bin
+    working_dir: /application
     environment:
       PPL_DATABASE_URL: "sqlite+pysqlite:///:memory:"
       PPL_HASHIDS_SALT: development salt
