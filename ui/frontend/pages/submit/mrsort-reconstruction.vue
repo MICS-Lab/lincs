@@ -4,7 +4,7 @@
     <p v-if="submitting">Submitting...</p>
     <b-form v-else @submit="submit">
       <b-form-group label="Submitted by:" label-cols-md="auto">
-        <b-form-input v-model="computation.submitted_by" placeholder="Your name" type="text" required></b-form-input>
+        <b-form-input v-model="gui_state.submitted_by" placeholder="Your name" type="text" required></b-form-input>
       </b-form-group>
 
       <b-form-group label="Description:" label-cols-md="auto">
@@ -15,7 +15,7 @@
       </b-form-group>
 
       <h3>Original model</h3>
-      <details>
+      <v-details v-model="gui_state.model_syntax_details_open">
         <summary>Model syntax</summary>
         <ul>
           <li>Line 1: a single integer, the number <i>M</i> of criteria</li>
@@ -28,7 +28,7 @@
             Each profile consists of <i>M</i> decimal numbers separated by spaces, its values on each criterion
           </li>
         </ul>
-      </details>
+      </v-details>
       <b-row>
         <b-col md>
           <b-form-textarea style="font-family: monospace;" v-model="computation.original_model" rows="11" cols="30"></b-form-textarea>
@@ -102,8 +102,14 @@ export default {
       submitting: false,
       original_model_from_file: '',
       original_model_file: null,
+      gui_state: Object.assign(
+        {
+          submitted_by: null,
+          model_syntax_details_open: true,
+        },
+        this.$cookies && this.$cookies.get("gui_state")
+      ),
       computation: {
-        submitted_by: this.$cookies && this.$cookies.get("submitted_by"),
         description: null,
         original_model: '4\n3\n0.2 0.4 0.2 0.2\n0.6\n0.3 0.4 0.2 0.5\n0.7 0.5 0.4 0.8',
         learning_set_size: 100,
@@ -120,9 +126,11 @@ export default {
   },
   methods: {
     async submit() {
-      this.$cookies.set("submitted_by", this.computation.submitted_by, "10d", this.$router.options.base)
       this.submitting = true
-      const result = await this.$axios.$post(`mrsort-reconstructions`, this.computation)
+      const result = await this.$axios.$post(
+        `mrsort-reconstructions`,
+        Object.assign({submitted_by: this.gui_state.submitted_by}, this.computation),
+      )
       this.$router.push({ name: 'computations-id', params: { id: result.computation_id }})
     },
     randomSeed() {
@@ -144,6 +152,12 @@ export default {
       if (this.computation.original_model !== this.original_model_from_file) {
         this.original_model_file = null
       }
+    },
+    gui_state: {
+      deep: true,
+      handler() {
+        this.$cookies.set("gui_state", this.gui_state, "10d", this.$router.options.base)
+      },
     },
   },
 }

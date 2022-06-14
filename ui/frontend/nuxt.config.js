@@ -38,6 +38,7 @@ export default {
   plugins: [
     // About the '.client' part: https://nuxtjs.org/docs/directory-structure/plugins#client-or-server-side-only
     '~plugins/vue-cookies.client.js',
+    '~plugins/vue-details.js',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
