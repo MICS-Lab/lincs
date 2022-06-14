@@ -15,6 +15,7 @@ services:
     volumes:
       - backend-data:/application/data
     runtime: nvidia
+    restart: always  # Handle reboots of the host machine
   frontend-and-fanout:
     build:
       context: ../..
@@ -23,5 +24,6 @@ services:
       - ${PPL_FANOUT_PORT}:80
     depends_on:
       - backend
+    restart: always
 volumes:
   backend-data:
