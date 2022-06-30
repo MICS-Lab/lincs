@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "cuda-utils.hpp"
-#include "matrix-view.hpp"
 #include "randomness.hpp"
 
 
@@ -39,7 +38,7 @@ TEST(OnHost, UniformityOfFloat) {
   }
 }
 
-__global__ void UniformityOfFloat__kernel(RandomNumberGenerator random, MatrixView1D<unsigned int> histogram) {
+__global__ void UniformityOfFloat__kernel(RandomNumberGenerator random, ArrayView1D<Device, unsigned int> histogram) {
   for (unsigned int i = 0; i != 10000; ++i) {
     float v = random.uniform_float(1000, 2000);
     if (v == 2000) printf("Seen 2000\n");
@@ -52,15 +51,14 @@ TEST(OnDevice, UniformityOfFloat) {
   source.init_for_device(5489);
   RandomNumberGenerator random(source);
 
-  unsigned int* device_histogram = alloc_device<unsigned int>(1000);
+  unsigned int* device_histogram = Device::alloc<unsigned int>(1000);
 
-  UniformityOfFloat__kernel<<<1, 1000>>>(random, MatrixView1D(1000, device_histogram));
-  cudaDeviceSynchronize();
-  checkCudaErrors();
+  UniformityOfFloat__kernel<<<1, 1000>>>(random, ArrayView1D<Device, unsigned>(1000, device_histogram));
+  check_last_cuda_error();
 
   std::vector<unsigned int> histogram(1000);
-  copy_device_to_host(1000, device_histogram, histogram.data());
-  free_device(device_histogram);
+  From<Device>::To<Host>::copy(1000, device_histogram, histogram.data());
+  Device::free(device_histogram);
 
   for (unsigned int count : histogram) {
     EXPECT_GE(count, 9'500);
@@ -98,7 +96,7 @@ TEST(OnHost, UniformityOfInt) {
   }
 }
 
-__global__ void UniformityOfInt__kernel(RandomNumberGenerator random, MatrixView1D<unsigned int> histogram) {
+__global__ void UniformityOfInt__kernel(RandomNumberGenerator random, ArrayView1D<Device, unsigned int> histogram) {
   for (unsigned int i = 0; i != 10000; ++i) {
     int v = random.uniform_int(1000, 2000);
     atomicInc(&histogram[v - 1000], 1000000);
@@ -110,15 +108,14 @@ TEST(OnDevice, UniformityOfInt) {
   source.init_for_device(5489);
   RandomNumberGenerator random(source);
 
-  unsigned int* device_histogram = alloc_device<unsigned int>(1000);
+  unsigned int* device_histogram = Device::alloc<unsigned int>(1000);
 
-  UniformityOfInt__kernel<<<1, 1000>>>(random, MatrixView1D(1000, device_histogram));
-  cudaDeviceSynchronize();
-  checkCudaErrors();
+  UniformityOfInt__kernel<<<1, 1000>>>(random, ArrayView1D<Device, unsigned>(1000, device_histogram));
+  check_last_cuda_error();
 
   std::vector<unsigned int> histogram(1000);
-  copy_device_to_host(1000, device_histogram, histogram.data());
-  free_device(device_histogram);
+  From<Device>::To<Host>::copy(1000, device_histogram, histogram.data());
+  Device::free(device_histogram);
 
   for (unsigned int count : histogram) {
     EXPECT_GE(count, 9500);

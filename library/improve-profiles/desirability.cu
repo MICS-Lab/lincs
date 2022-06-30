@@ -150,8 +150,8 @@ __global__ void compute_move_desirability__kernel(
   const float destination,
   Desirability* desirability
 ) {
-  const uint alt_index = threadIdx.x + BLOCKDIM * blockIdx.x;
-  assert(alt_index < models.domain.learning_alternatives_count + BLOCKDIM);
+  const uint alt_index = grid::x();
+  assert(alt_index < models.domain.learning_alternatives_count + grid::blockDim.x);
 
   if (alt_index < models.domain.learning_alternatives_count) {
     update_move_desirability(
@@ -170,10 +170,10 @@ Desirability compute_move_desirability(
   #ifdef __CUDA_ARCH__
     Desirability* desirability = new Desirability;
 
-    compute_move_desirability__kernel<<<CONFIG(models.domain.learning_alternatives_count)>>>(
+    Grid grid = grid::make(models.domain.learning_alternatives_count);
+    compute_move_desirability__kernel<<<LOVE_CONFIG(grid)>>>(
         models, model_index, profile_index, criterion_index, destination, desirability);
-    cudaDeviceSynchronize();
-    checkCudaErrors();
+    check_last_cuda_error();
 
     Desirability d = *desirability;
     delete desirability;

@@ -8,7 +8,6 @@
 
 #include "cuda-utils.hpp"
 #include "io.hpp"
-#include "matrix-view.hpp"
 #include "uint.hpp"
 
 
@@ -24,7 +23,7 @@ struct DomainView {
   const uint criteria_count;
   const uint learning_alternatives_count;
 
-  MatrixView2D<const float> learning_alternatives;
+  ArrayView2D<Anywhere, const float> learning_alternatives;
   // First index: index of criterion, from `0` to `criteria_count - 1`
   // Second index: index of alternative, from `0` to `learning_alternatives_count - 1`
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
@@ -35,7 +34,7 @@ struct DomainView {
   //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
   //  - to handle criterion where a lower value is better, we'd need to store an additional boolean indicator
 
-  MatrixView1D<const uint> learning_assignments;
+  ArrayView1D<Anywhere, const uint> learning_assignments;
   // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
   // Possible values: from `0` to `categories_count - 1`
 };
@@ -63,8 +62,10 @@ class Domain {
       _categories_count,
       _criteria_count,
       _learning_alternatives_count,
-      FromTo<Space, OtherSpace>::clone(_criteria_count * _learning_alternatives_count, _learning_alternatives),
-      FromTo<Space, OtherSpace>::clone(_learning_alternatives_count, _learning_assignments));
+      From<Space>::template To<OtherSpace>::clone(
+        _criteria_count * _learning_alternatives_count, _learning_alternatives),
+      From<Space>::template To<OtherSpace>::clone(
+        _learning_alternatives_count, _learning_assignments));
   }
 
  public:
@@ -94,10 +95,10 @@ struct ModelsView {
 
   const uint models_count;
 
-  const MatrixView1D<uint> initialization_iteration_indexes;
+  const ArrayView1D<Anywhere, uint> initialization_iteration_indexes;
   // Index: index of model, from `0` to `models_count - 1`
 
-  const MatrixView2D<float> weights;
+  const ArrayView2D<Anywhere, float> weights;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
   // Second index: index of model, from `0` to `models_count - 1`
   // (Warning: this might seem reversed and counter-intuitive for some mindsets)
@@ -108,7 +109,7 @@ struct ModelsView {
   // - this approach corresponds to dividing the weights and threshold as defined in the thesis by the threshold
   // - it simplifies the implementation because it removes the sum constraint and the threshold variables
 
-  const MatrixView3D<float> profiles;
+  const ArrayView3D<Anywhere, float> profiles;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
   // Second index: index of category below profile, from `0` to `domain.categories_count - 2`
   // Third index: index of model, from `0` to `models_count - 1`
@@ -144,9 +145,9 @@ class Models {
       typename Models<OtherSpace>::Privacy(),
       other_domain,
       _models_count,
-      FromTo<Space, OtherSpace>::clone(_models_count, _initialization_iteration_indexes),
-      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * _models_count, _weights),
-      FromTo<Space, OtherSpace>::clone(
+      From<Space>::template To<OtherSpace>::clone(_models_count, _initialization_iteration_indexes),
+      From<Space>::template To<OtherSpace>::clone(domain_view.criteria_count * _models_count, _weights),
+      From<Space>::template To<OtherSpace>::clone(
         domain_view.criteria_count * (domain_view.categories_count - 1) * _models_count,
         _profiles));
   }
@@ -182,10 +183,10 @@ void replicate_profiles(const Models<Device>&, Models<Host>*);
 struct CandidatesView {
   DomainView domain;
 
-  MatrixView1D<const uint> candidates_counts;
+  ArrayView1D<Anywhere, const uint> candidates_counts;
   // Index: index of criterion, from `0` to `domain.criteria_count - 1`
 
-  MatrixView2D<const float> candidates;
+  ArrayView2D<Anywhere, const float> candidates;
   // First index: index of criterion, from `0` to `domain.criteria_count - 1`
   // Second index: index of candidate, from `0` to `candidates_counts[crit_index] - 1`
 };
@@ -213,9 +214,9 @@ class Candidates {
     return std::make_shared<Candidates<OtherSpace>>(
       typename Candidates<OtherSpace>::Privacy(),
       other_domain,
-      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count, _candidates_counts),
+      From<Space>::template To<OtherSpace>::clone(domain_view.criteria_count, _candidates_counts),
       _max_candidates_count,
-      FromTo<Space, OtherSpace>::clone(domain_view.criteria_count * _max_candidates_count, _candidates));
+      From<Space>::template To<OtherSpace>::clone(domain_view.criteria_count * _max_candidates_count, _candidates));
   }
 
  public:

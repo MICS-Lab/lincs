@@ -25,7 +25,7 @@ def is_insignificant(name):
 
 
 def is_important(name):
-    if name in {"cuda-utils", "matrix-view", "uint"}:
+    if name in {"cuda-utils", "uint"}:
         return False
 
     if name.startswith("tools/generate-"):

@@ -11,7 +11,7 @@ RandomSource::RandomSource() :
 }
 
 RandomSource::~RandomSource() {
-  free_device(rng_states);
+  Device::free(rng_states);
   if (gen != nullptr) delete[] gen;
 }
 
@@ -27,24 +27,26 @@ void RandomSource::init_for_host(int seed) {
   }
 }
 
+typedef GridFactory1D<1024> grid_1024;
+
 __global__ void initialize_rng(curandState* rng_states, const unsigned int seed) {
-  unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int tid = grid_1024::x();
   assert(tid < 1024);
 
   curand_init(seed, tid, 0, &rng_states[tid]);
 }
 
 void RandomSource::init_for_device(int seed) {
-  rng_states = alloc_device<curandState>(1024);
-  checkCudaErrors();
-  initialize_rng<<<1, 1024>>>(rng_states, seed);
-  cudaDeviceSynchronize();
-  checkCudaErrors();
+  rng_states = Device::alloc<curandState>(1024);
+  Grid grid = grid_1024::make(1024);
+  initialize_rng<<<LOVE_CONFIG(grid)>>>(rng_states, seed);
+  check_last_cuda_error();
 }
 
 __host__ __device__
 float RandomNumberGenerator::uniform_float(const float min, const float max) {
   #ifdef __CUDA_ARCH__
+    // Can be applied to several 'gridDim' => don't use grid_1024 here
   const unsigned int thread_index = threadIdx.x + blockIdx.x * gridDim.x;
   #else
   const int thread_index = omp_get_thread_num();
@@ -63,6 +65,7 @@ float RandomNumberGenerator::uniform_float(const float min, const float max) {
 __host__ __device__
 unsigned int RandomNumberGenerator::uniform_int(const unsigned int min, const unsigned int max) {
   #ifdef __CUDA_ARCH__
+    // Can be applied to several 'gridDim' => don't use grid_1024 here
     const unsigned int thread_index = threadIdx.x + blockIdx.x * gridDim.x;
     return min + curand(&_rng_states[thread_index]) % (max - min);
   #else

@@ -65,8 +65,8 @@ uint get_accuracy(const Models<Host>& models, const uint model_index) {
 }
 
 __global__ void get_accuracy__kernel(ModelsView models, const uint model_index, uint* const accuracy) {
-  const uint alt_index = threadIdx.x + BLOCKDIM * blockIdx.x;
-  assert(alt_index < models.domain.learning_alternatives_count + BLOCKDIM);
+  const uint alt_index = grid::x();
+  assert(alt_index < models.domain.learning_alternatives_count + grid::blockDim.x);
 
   if (alt_index < models.domain.learning_alternatives_count) {
     if (is_correctly_assigned(models, model_index, alt_index)) {
@@ -78,19 +78,18 @@ __global__ void get_accuracy__kernel(ModelsView models, const uint model_index, 
 uint get_accuracy(const Models<Device>& models, const uint model_index) {
   CHRONE();
 
-  uint* device_accuracy = alloc_device<uint>(1);
+  uint* device_accuracy = Device::alloc<uint>(1);
   cudaMemset(device_accuracy, 0, sizeof(uint));
-  checkCudaErrors();
+  check_last_cuda_error_no_sync();
 
   ModelsView models_view = models.get_view();
-  get_accuracy__kernel<<<CONFIG(models_view.domain.learning_alternatives_count)>>>(
-    models_view, model_index, device_accuracy);
-  cudaDeviceSynchronize();
-  checkCudaErrors();
+  Grid grid = grid::make(models_view.domain.learning_alternatives_count);
+  get_accuracy__kernel<<<LOVE_CONFIG(grid)>>>(models_view, model_index, device_accuracy);
+  check_last_cuda_error();
 
   uint host_accuracy;
-  copy_device_to_host(1, device_accuracy, &host_accuracy);
-  free_device(device_accuracy);
+  From<Device>::To<Host>::copy(1, device_accuracy, &host_accuracy);  // NOLINT(build/include_what_you_use)
+  Device::free(device_accuracy);
   return host_accuracy;
 }
 

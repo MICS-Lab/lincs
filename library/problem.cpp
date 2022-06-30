@@ -7,7 +7,6 @@
 
 #include <chrones.hpp>
 
-#include "cuda-utils.hpp"
 #include "io.hpp"
 
 
@@ -33,10 +32,10 @@ std::shared_ptr<Domain<Host>> Domain<Host>::make(const io::LearningSet& learning
 
   assert(learning_set.is_valid());
 
-  float* alternatives_ = alloc_host<float>(learning_set.criteria_count * learning_set.alternatives_count);
-  MatrixView2D<float> alternatives(learning_set.criteria_count, learning_set.alternatives_count, alternatives_);
-  uint* assignments_ = alloc_host<uint>(learning_set.alternatives_count);
-  MatrixView1D<uint> assignments(learning_set.alternatives_count, assignments_);
+  float* alternatives_ = Host::alloc<float>(learning_set.criteria_count * learning_set.alternatives_count);
+  ArrayView2D<Host, float> alternatives(learning_set.criteria_count, learning_set.alternatives_count, alternatives_);
+  uint* assignments_ = Host::alloc<uint>(learning_set.alternatives_count);
+  ArrayView1D<Host, uint> assignments(learning_set.alternatives_count, assignments_);
 
   for (uint alt_index = 0; alt_index != learning_set.alternatives_count; ++alt_index) {
     const io::ClassifiedAlternative& alt = learning_set.alternatives[alt_index];
@@ -69,8 +68,8 @@ DomainView Domain<Space>::get_view() const {
     _categories_count,
     _criteria_count,
     _learning_alternatives_count,
-    MatrixView2D<const float>(_criteria_count, _learning_alternatives_count, _learning_alternatives),
-    MatrixView1D<const uint>(_learning_alternatives_count, _learning_assignments),
+    ArrayView2D<Anywhere, const float>(_criteria_count, _learning_alternatives_count, _learning_alternatives),
+    ArrayView1D<Anywhere, const uint>(_learning_alternatives_count, _learning_assignments),
   };
 }
 
@@ -97,9 +96,9 @@ std::shared_ptr<Models<Host>> Models<Host>::make(std::shared_ptr<Domain<Host>> d
 
   DomainView domain_view = domain->get_view();
 
-  uint* initialization_iteration_indexes = alloc_host<uint>(models_count);
-  float* weights = alloc_host<float>(domain_view.criteria_count * models_count);
-  float* profiles = alloc_host<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
+  uint* initialization_iteration_indexes = Host::alloc<uint>(models_count);
+  float* weights = Host::alloc<float>(domain_view.criteria_count * models_count);
+  float* profiles = Host::alloc<float>(domain_view.criteria_count * (domain_view.categories_count - 1) * models_count);
 
   return std::make_shared<Models>(Privacy(), domain, models_count, initialization_iteration_indexes, weights, profiles);
 }
@@ -185,9 +184,9 @@ ModelsView Models<Space>::get_view() const {
   return {
     domain,
     _models_count,
-    MatrixView1D<uint>(_models_count, _initialization_iteration_indexes),
-    MatrixView2D<float>(domain.criteria_count, _models_count, _weights),
-    MatrixView3D<float>(domain.criteria_count, domain.categories_count - 1, _models_count, _profiles),
+    ArrayView1D<Anywhere, uint>(_models_count, _initialization_iteration_indexes),
+    ArrayView2D<Anywhere, float>(domain.criteria_count, _models_count, _weights),
+    ArrayView3D<Anywhere, float>(domain.criteria_count, domain.categories_count - 1, _models_count, _profiles),
   };
 }
 
@@ -197,7 +196,7 @@ template class Models<Device>;
 std::vector<std::vector<float>> make_candidates(
     const uint criteria_count,
     const uint alternatives_count,
-    const MatrixView2D<const float>& alternatives
+    const ArrayView2D<Anywhere, const float>& alternatives
 ) {
   CHRONE();
 
@@ -245,10 +244,10 @@ std::shared_ptr<Candidates<Host>> Candidates<Host>::make(std::shared_ptr<Domain<
     const uint candidates_count = candidates_vector.size();
     max_candidates_count = std::max(max_candidates_count, candidates_count);
   }
-  uint* candidates_counts_ = alloc_host<uint>(domain_view.criteria_count);
-  MatrixView1D<uint> candidates_counts(domain_view.criteria_count, candidates_counts_);
-  float* candidates_ = alloc_host<float>(domain_view.criteria_count * max_candidates_count);
-  MatrixView2D<float> candidates(domain_view.criteria_count, max_candidates_count, candidates_);
+  uint* candidates_counts_ = Host::alloc<uint>(domain_view.criteria_count);
+  ArrayView1D<Host, uint> candidates_counts(domain_view.criteria_count, candidates_counts_);
+  float* candidates_ = Host::alloc<float>(domain_view.criteria_count * max_candidates_count);
+  ArrayView2D<Host, float> candidates(domain_view.criteria_count, max_candidates_count, candidates_);
   for (uint crit_index = 0; crit_index != domain_view.criteria_count; ++crit_index) {
     const uint candidates_count = candidates_vectors[crit_index].size();
     candidates_counts[crit_index] = candidates_count;
@@ -284,8 +283,8 @@ CandidatesView Candidates<Space>::get_view() const {
 
   return {
     domain,
-    MatrixView1D<uint>(domain.criteria_count, _candidates_counts),
-    MatrixView2D<float>(domain.criteria_count, _max_candidates_count, _candidates),
+    ArrayView1D<Anywhere, uint>(domain.criteria_count, _candidates_counts),
+    ArrayView2D<Anywhere, float>(domain.criteria_count, _max_candidates_count, _candidates),
   };
 }
 
@@ -296,10 +295,10 @@ void replicate_models(const Models<Host>& src, Models<Device>* dst) {
   CHRONE();
 
   DomainView domain = src._domain->get_view();
-  copy_host_to_device(
+  From<Host>::To<Device>::copy(
     domain.criteria_count * (domain.categories_count - 1) * src._models_count,
     src._profiles, dst->_profiles);
-  copy_host_to_device(
+  From<Host>::To<Device>::copy(
     domain.criteria_count * src._models_count,
     src._weights, dst->_weights);
 }
@@ -308,7 +307,7 @@ void replicate_profiles(const Models<Device>& src, Models<Host>* dst) {
   CHRONE();
 
   DomainView domain = src._domain->get_view();
-  copy_device_to_host(
+  From<Device>::To<Host>::copy(
     domain.criteria_count * (domain.categories_count - 1) * src._models_count,
     src._profiles, dst->_profiles);
 }

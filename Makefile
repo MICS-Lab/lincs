@@ -25,7 +25,6 @@ sh_test_source_files := $(wildcard */*-tests.sh) $(wildcard */*/*-tests.sh)
 object_files := $(patsubst %.cpp,build/obj/%.o,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/obj/%.o,$(cu_lib_source_files))
 dependency_includes := $(patsubst %.cpp,build/deps/%.deps,$(cpp_lib_source_files) $(tools_source_files)) $(patsubst %.cu,build/deps/%.deps,$(cu_lib_source_files))
 header_dependency_includes := $(patsubst %.hpp,build/deps/%.deps,$(header_files))
-non_compilation_includes := $(patsubst %-tests.cpp,build/tests/%-non-compilation-tests.deps, $(cpp_test_source_files)) $(patsubst %-tests.cu,build/tests/%-non-compilation-tests.deps, $(cu_test_source_files))
 
 # Sentinel files
 cpplint_sentinel_files := $(patsubst %,build/lint/%.cpplint.ok,$(tools_source_files) $(header_files) $(cpp_lib_source_files) $(cu_lib_source_files))
@@ -46,7 +45,6 @@ debug-inventory:
 	@echo "sh_test_source_files:\n$(sh_test_source_files)\n"
 	@echo "object_files:\n$(object_files)\n"
 	@echo "dependency_includes:\n$(dependency_includes)\n"
-	@echo "non_compilation_includes:\n$(non_compilation_includes)\n"
 	@echo "cpplint_sentinel_files:\n$(cpplint_sentinel_files)\n"
 	@echo "test_binary_files:\n$(test_binary_files)\n"
 	@echo "test_sentinel_files:\n$(test_sentinel_files)\n"
@@ -274,20 +272,6 @@ build/tests/%-tests.cpp.ok: build/tests/%-tests
 	@cd build/tests && ../../$<
 	@cd build/tests && timeout 300 valgrind --exit-on-first-error=yes --error-exitcode=1 ../../$<
 	@touch $@
-
-# Non-compilation tests
-
-$(foreach file,$(non_compilation_includes),$(eval include $(file)))
-
-build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cu
-	@echo $^
-	@mkdir -p $(dir $@)
-	@python3 $^ >$@
-
-build/tests/%-non-compilation-tests.deps: builder/make-non-compilation-tests-deps.py %-tests.cpp
-	@echo $^
-	@mkdir -p $(dir $@)
-	@python3 $^ >$@
 
 # Integration-ish tests
 

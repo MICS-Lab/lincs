@@ -78,7 +78,7 @@ void improve_model_profile(
   ModelsView models,
   const uint model_index,
   const uint profile_index,
-  MatrixView1D<uint> criterion_indexes
+  ArrayView1D<Anywhere, uint> criterion_indexes
 ) {
   CHRONE();
 
@@ -99,7 +99,7 @@ void swap(T& a, T& b) {
 
 template<typename T>
 __host__ __device__
-void shuffle(RandomNumberGenerator random, MatrixView1D<T> m) {
+void shuffle(RandomNumberGenerator random, ArrayView1D<Anywhere, T> m) {
   for (uint i = 0; i != m.s0(); ++i) {
     swap(m[i], m[random.uniform_int(0, m.s0())]);
   }
@@ -110,7 +110,7 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   CHRONE();
 
   uint* criterion_indexes_ = new uint[models.domain.criteria_count];
-  MatrixView1D<uint> criterion_indexes(models.domain.criteria_count, criterion_indexes_);
+  ArrayView1D<Anywhere, uint> criterion_indexes(models.domain.criteria_count, criterion_indexes_);
   // Not worth parallelizing because models.domain.criteria_count is typically small
   for (uint crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
     criterion_indexes[crit_idx_idx] = crit_idx_idx;
@@ -138,8 +138,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr
 }
 
 __global__ void improve_profiles__kernel(RandomNumberGenerator random, ModelsView models) {
-  const uint model_index = threadIdx.x + BLOCKDIM * blockIdx.x;
-  assert(model_index < models.models_count + BLOCKDIM);
+  const uint model_index = grid::x();
+  assert(model_index < models.models_count + grid::blockDim.x);
 
   if (model_index < models.models_count) {
     improve_model_profiles(random, models, model_index);
@@ -153,9 +153,9 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(std::shared_ptr
 
   auto models_view = _device_models->get_view();
 
-  improve_profiles__kernel<<<CONFIG(models_view.models_count)>>>(_random, models_view);
-  cudaDeviceSynchronize();
-  checkCudaErrors();
+  Grid grid = grid::make(models_view.models_count);
+  improve_profiles__kernel<<<LOVE_CONFIG(grid)>>>(_random, models_view);
+  check_last_cuda_error();
 
   replicate_profiles(*_device_models, host_models.get());
 }

@@ -79,3 +79,8 @@ RUN set -x \
 RUN set -x \
  && cd /usr/local/include \
  && wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.7.3/include/magic_enum.hpp
+
+# Lov-e-cuda
+RUN set -x \
+ && cd /usr/local/include \
+ && wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/e5f4b35/lov-e.hpp

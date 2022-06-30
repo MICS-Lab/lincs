@@ -15,14 +15,14 @@ namespace ppl {
 
 // Internal functions (not declared in the header) that we still want to unit-test
 __host__ __device__
-uint find_smallest_index_above(const MatrixView1D<const float>&, const uint, const float);
+uint find_smallest_index_above(const ArrayView1D<Anywhere, const float>&, const uint, const float);
 
 __host__ __device__
-uint find_greatest_index_below(const MatrixView1D<const float>&, const uint, const float);
+uint find_greatest_index_below(const ArrayView1D<Anywhere, const float>&, const uint, const float);
 
 TEST(FindIndex, One) {
   float data[] {1, 42};
-  MatrixView1D m(2, data);
+  ArrayView1D<Host, float> m(2, data);
 
   EXPECT_EQ(find_greatest_index_below(m, 1, 1), 0);
   EXPECT_EQ(find_smallest_index_above(m, 1, 1), 0);
@@ -30,7 +30,7 @@ TEST(FindIndex, One) {
 
 TEST(FindIndex, Several) {
   float data[] {1, 2, 3, 4, 5, 42};
-  MatrixView1D m(6, data);
+  ArrayView1D<Host, float> m(6, data);
 
   EXPECT_EQ(find_greatest_index_below(m, 5, 3.2), 2);
   EXPECT_EQ(find_smallest_index_above(m, 5, 3.2), 3);
