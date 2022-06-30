@@ -1,0 +1,12 @@
+*
+
+# ui/prod-env/backend/Dockerfile:
+!build/tools/bin
+!ui/backend/main.py
+!ui/backend/requirements.txt
+
+# ui/prod-env/frontend/Dockerfile:
+!ui/frontend
+ui/frontend/.nuxt
+ui/frontend/node_modules
+!ui/prod-env/frontend-and-fanout/nginx.conf
