@@ -43,15 +43,6 @@ template<typename Space>
 class Domain {
  public:
   static std::shared_ptr<Domain> make(const io::LearningSet&);
-  ~Domain();
-
-  // Non-copyable
-  Domain(const Domain&) = delete;
-  Domain& operator=(const Domain&) = delete;
-
-  // Non-movable
-  Domain(Domain&&) = delete;
-  Domain& operator=(Domain&&) = delete;
 
   template<typename OtherSpace> friend class Domain;
 
@@ -62,10 +53,8 @@ class Domain {
       _categories_count,
       _criteria_count,
       _learning_alternatives_count,
-      From<Space>::template To<OtherSpace>::clone(
-        _criteria_count * _learning_alternatives_count, _learning_alternatives),
-      From<Space>::template To<OtherSpace>::clone(
-        _learning_alternatives_count, _learning_assignments));
+      _learning_alternatives.template clone_to<OtherSpace>(),
+      _learning_assignments.template clone_to<OtherSpace>());
   }
 
  public:
@@ -77,14 +66,14 @@ class Domain {
   struct Privacy {};
 
  public:
-  Domain(Privacy, uint, uint, uint, float*, uint*);
+  Domain(Privacy, uint, uint, uint, Array2D<Space, float>&&, Array1D<Space, uint>&&);
 
  private:
   uint _categories_count;
   uint _criteria_count;
   uint _learning_alternatives_count;
-  float* _learning_alternatives;
-  uint* _learning_assignments;
+  Array2D<Space, float> _learning_alternatives;
+  Array1D<Space, uint> _learning_assignments;
 };
 
 /*
@@ -122,34 +111,21 @@ class Models {
  public:
   static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, const std::vector<io::Model>&);
   static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, uint models_count);
-  ~Models();
 
   io::Model unmake_one(uint model_index) const;
   std::vector<io::Model> unmake() const;
-
-  // Non-copyable
-  Models(const Models&) = delete;
-  Models& operator=(const Models&) = delete;
-
-  // Non-movable
-  Models(Models&&) = delete;
-  Models& operator=(Models&&) = delete;
 
   template<typename OtherSpace> friend class Models;
 
   template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
   std::shared_ptr<Models<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
-    DomainView domain_view = _domain->get_view();
-
     return std::make_shared<Models<OtherSpace>>(
       typename Models<OtherSpace>::Privacy(),
       other_domain,
       _models_count,
-      From<Space>::template To<OtherSpace>::clone(_models_count, _initialization_iteration_indexes),
-      From<Space>::template To<OtherSpace>::clone(domain_view.criteria_count * _models_count, _weights),
-      From<Space>::template To<OtherSpace>::clone(
-        domain_view.criteria_count * (domain_view.categories_count - 1) * _models_count,
-        _profiles));
+      _initialization_iteration_indexes.template clone_to<OtherSpace>(),
+      _weights.template clone_to<OtherSpace>(),
+      _profiles.template clone_to<OtherSpace>());
   }
 
  public:
@@ -160,7 +136,13 @@ class Models {
   struct Privacy {};
 
  public:
-  Models(Privacy, std::shared_ptr<Domain<Space>>, uint, uint*, float*, float*);
+  Models(
+    Privacy,
+    std::shared_ptr<Domain<Space>>,
+    uint,
+    Array1D<Space, uint>&&,
+    Array2D<Space, float>&&,
+    Array3D<Space, float>&&);
 
   friend void replicate_models(const Models<Host>&, Models<Device>*);
   friend void replicate_profiles(const Models<Device>&, Models<Host>*);
@@ -168,9 +150,9 @@ class Models {
  private:
   std::shared_ptr<Domain<Space>> _domain;
   uint _models_count;
-  uint* _initialization_iteration_indexes;
-  float* _weights;
-  float* _profiles;
+  Array1D<Space, uint> _initialization_iteration_indexes;
+  Array2D<Space, float> _weights;
+  Array3D<Space, float> _profiles;
 };
 
 // Utility function to replicate weights (computed on the host) and
@@ -195,7 +177,6 @@ template<typename Space>
 class Candidates {
  public:
   static std::shared_ptr<Candidates> make(std::shared_ptr<Domain<Space>>);
-  ~Candidates();
 
   // Non-copyable
   Candidates(const Candidates&) = delete;
@@ -209,14 +190,12 @@ class Candidates {
 
   template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
   std::shared_ptr<Candidates<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
-    DomainView domain_view = _domain->get_view();
-
     return std::make_shared<Candidates<OtherSpace>>(
       typename Candidates<OtherSpace>::Privacy(),
       other_domain,
-      From<Space>::template To<OtherSpace>::clone(domain_view.criteria_count, _candidates_counts),
+      _candidates_counts.template clone_to<OtherSpace>(),
       _max_candidates_count,
-      From<Space>::template To<OtherSpace>::clone(domain_view.criteria_count * _max_candidates_count, _candidates));
+      _candidates.template clone_to<OtherSpace>());
   }
 
  public:
@@ -226,13 +205,13 @@ class Candidates {
   struct Privacy {};
 
  public:
-  Candidates(Privacy, std::shared_ptr<Domain<Space>>, uint*, uint, float*);
+  Candidates(Privacy, std::shared_ptr<Domain<Space>>, Array1D<Space, uint>&&, uint, Array2D<Space, float>&&);
 
  private:
   std::shared_ptr<Domain<Space>> _domain;
-  uint* const _candidates_counts;
+  Array1D<Space, uint> _candidates_counts;
   const uint _max_candidates_count;
-  float* const _candidates;
+  Array2D<Space, float> _candidates;
 };
 
 }  // namespace ppl

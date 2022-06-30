@@ -83,4 +83,4 @@ RUN set -x \
 # Lov-e-cuda
 RUN set -x \
  && cd /usr/local/include \
- && wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/e5f4b35/lov-e.hpp
+ && wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/bdd59f9/lov-e.hpp

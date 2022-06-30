@@ -51,16 +51,15 @@ TEST(OnDevice, UniformityOfFloat) {
   source.init_for_device(5489);
   RandomNumberGenerator random(source);
 
-  unsigned int* device_histogram = Device::alloc<unsigned int>(1000);
+  Array1D<Device, unsigned> device_histogram(1000, zeroed);
 
-  UniformityOfFloat__kernel<<<1, 1000>>>(random, ArrayView1D<Device, unsigned>(1000, device_histogram));
+  UniformityOfFloat__kernel<<<1, 1000>>>(random, device_histogram);
   check_last_cuda_error();
 
-  std::vector<unsigned int> histogram(1000);
-  From<Device>::To<Host>::copy(1000, device_histogram, histogram.data());
-  Device::free(device_histogram);
+  auto histogram = device_histogram.clone_to<Host>();
 
-  for (unsigned int count : histogram) {
+  for (unsigned int i = 0; i != 1000; ++i) {
+    const unsigned count = histogram[i];
     EXPECT_GE(count, 9'500);
     EXPECT_LE(count, 10'500);
   }
@@ -108,16 +107,15 @@ TEST(OnDevice, UniformityOfInt) {
   source.init_for_device(5489);
   RandomNumberGenerator random(source);
 
-  unsigned int* device_histogram = Device::alloc<unsigned int>(1000);
+  Array1D<Device, unsigned> device_histogram(1000, zeroed);
 
-  UniformityOfInt__kernel<<<1, 1000>>>(random, ArrayView1D<Device, unsigned>(1000, device_histogram));
+  UniformityOfInt__kernel<<<1, 1000>>>(random, device_histogram);
   check_last_cuda_error();
 
-  std::vector<unsigned int> histogram(1000);
-  From<Device>::To<Host>::copy(1000, device_histogram, histogram.data());
-  Device::free(device_histogram);
+  auto histogram = device_histogram.clone_to<Host>();
 
-  for (unsigned int count : histogram) {
+  for (unsigned int i = 0; i != 1000; ++i) {
+    const unsigned count = histogram[i];
     EXPECT_GE(count, 9500);
     EXPECT_LE(count, 10500);
   }

@@ -6,30 +6,22 @@
 
 
 RandomSource::RandomSource() :
-  rng_states(nullptr),
-  gen(nullptr) {
-}
-
-RandomSource::~RandomSource() {
-  Device::free(rng_states);
-  if (gen != nullptr) delete[] gen;
+  rng_states(1024, zeroed),
+  gen(omp_get_max_threads()) {
 }
 
 void RandomSource::init_for_host(int seed) {
-  const int threads_count = omp_get_max_threads();
-  gen = new std::mt19937[threads_count];
-
   #pragma omp parallel
   {
     const int thread_index = omp_get_thread_num();
-    assert(thread_index < threads_count);
+    assert(thread_index < gen.size());
     gen[thread_index].seed(seed * (thread_index + 1));
   }
 }
 
 typedef GridFactory1D<1024> grid_1024;
 
-__global__ void initialize_rng(curandState* rng_states, const unsigned int seed) {
+__global__ void initialize_rng(ArrayView1D<Device, curandState> rng_states, const unsigned int seed) {
   unsigned int tid = grid_1024::x();
   assert(tid < 1024);
 
@@ -37,7 +29,6 @@ __global__ void initialize_rng(curandState* rng_states, const unsigned int seed)
 }
 
 void RandomSource::init_for_device(int seed) {
-  rng_states = Device::alloc<curandState>(1024);
   Grid grid = grid_1024::make(1024);
   initialize_rng<<<LOVE_CONFIG(grid)>>>(rng_states, seed);
   check_last_cuda_error();

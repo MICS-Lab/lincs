@@ -19,14 +19,13 @@ A source of randomness.
 */
 struct RandomSource {
   RandomSource();
-  ~RandomSource();
 
   void init_for_host(int seed);
 
   void init_for_device(int seed);
 
-  curandState* rng_states;
-  std::mt19937* gen;
+  Array1D<Device, curandState> rng_states;
+  std::vector<std::mt19937> gen;
 };
 
 /*
@@ -34,7 +33,7 @@ A view inside a RandomSource, to be passed around by value
 into code that requires random numbers.
 */
 struct RandomNumberGenerator {
-  RandomNumberGenerator(const RandomSource& source) :  // NOLINT(runtime/explicit)
+  RandomNumberGenerator(RandomSource& source) :  // NOLINT
     _rng_states(source.rng_states), _gen(source.gen) {}
 
   __host__ __device__
@@ -48,8 +47,8 @@ struct RandomNumberGenerator {
   }
 
  private:
-  curandState* _rng_states;
-  std::mt19937* _gen;
+  ArrayView1D<Device, curandState> _rng_states;
+  std::vector<std::mt19937>& _gen;
 };
 
 /*

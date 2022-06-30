@@ -109,8 +109,13 @@ __host__ __device__
 void improve_model_profiles(RandomNumberGenerator random, const ModelsView& models, const uint model_index) {
   CHRONE();
 
-  uint* criterion_indexes_ = new uint[models.domain.criteria_count];
-  ArrayView1D<Anywhere, uint> criterion_indexes(models.domain.criteria_count, criterion_indexes_);
+  #ifdef __CUDA_ARCH__
+    typedef Device CurrentSpace;
+  #else
+    typedef Host CurrentSpace;
+  #endif
+
+  Array1D<CurrentSpace, uint> criterion_indexes(models.domain.criteria_count, uninitialized);
   // Not worth parallelizing because models.domain.criteria_count is typically small
   for (uint crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
     criterion_indexes[crit_idx_idx] = crit_idx_idx;
@@ -119,11 +124,9 @@ void improve_model_profiles(RandomNumberGenerator random, const ModelsView& mode
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (uint profile_index = 0; profile_index != models.domain.categories_count - 1; ++profile_index) {
-    shuffle(random, criterion_indexes);
+    shuffle<uint>(random, criterion_indexes);
     improve_model_profile(random, models, model_index, profile_index, criterion_indexes);
   }
-
-  delete[] criterion_indexes_;
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models<Host>> models) {
