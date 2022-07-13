@@ -293,14 +293,14 @@ build/tests/%-tests.sh.ok: %-tests.sh
 build/tests/%-tests: build/obj/%-tests.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lgtest_main -lgtest -lortools -lchrones -lboost_thread -Xcompiler -fopenmp -o $@
+	@nvcc $^ -lgtest_main -lgtest -lortools -lboost_thread -Xcompiler -fopenmp -o $@
 
 # Of tools
 
 build/tools/bin/%: build/obj/tools/%.o
 	@echo "nvcc    $< -o $@"
 	@mkdir -p $(dir $@)
-	@nvcc $^ -lortools -lchrones -lboost_thread -Xcompiler -fopenmp -o $@
+	@nvcc $^ -lortools -lboost_thread -Xcompiler -fopenmp -o $@
 
 ###############
 # Compilation #

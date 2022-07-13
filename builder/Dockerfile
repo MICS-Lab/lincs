@@ -59,22 +59,6 @@ RUN set -x \
  && cd /usr/local/include \
  && wget https://github.com/CLIUtils/CLI11/releases/download/v2.1.2/CLI11.hpp
 
-# Chrones
-RUN set -x \
- && mkdir /tmp/compile_chrones \
- && cd /tmp/compile_chrones \
- && wget https://github.com/LaurentCabaret/chrones/raw/d371f2b/c%2B%2B/chrones.hpp \
- && wget https://github.com/LaurentCabaret/chrones/raw/d371f2b/c%2B%2B/chrones.cpp \
- && wget https://github.com/LaurentCabaret/chrones/raw/d371f2b/chrones-report.py \
- && chmod +x chrones-report.py \
- && g++ -c chrones.cpp -o chrones.o \
- && ar -crs libchrones.a chrones.o \
- && cp chrones.hpp /usr/local/include \
- && cp libchrones.a /usr/local/lib \
- && cp chrones-report.py /usr/local/bin \
- && cd .. \
- && rm -r compile_chrones
-
 # MagicEnum
 RUN set -x \
  && cd /usr/local/include \
@@ -84,3 +68,11 @@ RUN set -x \
 RUN set -x \
  && cd /usr/local/include \
  && wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/fe6ea85/lov-e.hpp
+
+# Chrones
+RUN set -x \
+ && cd /usr/local/include \
+ && wget https://raw.githubusercontent.com/LaurentCabaret/chrones/02c40fe0/c%2B%2B/chrones.hpp \
+ && cd /usr/local/bin \
+ && wget https://raw.githubusercontent.com/LaurentCabaret/chrones/02c40fe0/chrones-report.py \
+ && chmod +x chrones-report.py
