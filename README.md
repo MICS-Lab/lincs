@@ -34,7 +34,40 @@ Glossary
 
 Here is a list of the main concepts manipulated in this project, with their mathematical notation and the name(s) of the variables representing them in the code.
 
-@todo Add an actual glossary
+### Alternative 
+An alternative is a object that is to be classified (i.e. assigned to one of the ordered categories). It is defined by its performances/evaluation on each criterion of the problem. So as to learn a classification model from data, the decision maker assigns a category to each alternative in the learning set.
+
+### Category
+Classifying an alternative means assigning it one of the ordered categories. The dataset studied is therefore divided/partitionned into several categories.
+
+### Criteria (also Criterion, Attribute)
+A criteria is a function defined on the set of alternatives which defines a performance(a score) specifying the "quality/performance" of an alternative. Thus each criterion enables to  assess an alternative (its performance).
+For each criteria, we define a set of performance levels (thresholds) allowing to classify the alternative in a category.
+The criteria can be :
+  - strictly increasing: the passage of a threshold tends to classify the alternative in the higher category
+- strictly decreasing: the passage of a threshold tends to classify the alternative in the lower category
+  - single peaked: it is the presence in a range of values that is decisive. For example, blood sugar levels can be good or bad depending on whether they are within or outside the medically acceptable range. 
+
+### Performance
+A performance is the value of an alternative or a profile for a given criteria.
+An alternative or a profile can be represented as a performance vector.
+
+### Profile
+A profile is a set of performances for each criteria that defines a border between two consecutive categories
+
+### Dataset (also learning set)
+A dataset consists of a set of alternatives classified by the decision maker according to their performance on each criteria. It is used to train the algorithm to evaluate the impact of each criteria in the classification of the data.
+
+### Decision Maker
+This is the person who creates the learning set by assigning a category to each alternative. the classifier intends to represent the judgment of the Decision Maker
+
+### Weight
+Each criteria of the problem is weighted according to its impact in the ranking of alternatives. 
+The sum of the weighted performances is then used to determine whether a coalition is sufficient to enter a category.
+
+### Lambda or threshold
+The λ, or majority threshold, links the weights to the notion of a sufficient coalition.  It is the value that assigns an alternative to a problem category based on its weighted performance. 
+
 
 Build everything and run all tests
 ==================================
