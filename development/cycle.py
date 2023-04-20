@@ -47,6 +47,8 @@ def main():
         input=source, universal_newlines=True,
     )
     subprocess.run(["./a.out"], check=True, env={"LD_LIBRARY_PATH": "/home/user/.local/lib/python3.10/site-packages"})
+    with open("/wd/plad help-all.txt", "w") as f:
+        subprocess.run(["plad", "help-all"], stdout=f, check=True)
 
 
 if __name__ == "__main__":

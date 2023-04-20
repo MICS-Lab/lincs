@@ -1,0 +1,297 @@
+plad
+====
+
+Usage: plad [OPTIONS] COMMAND [ARGS]...
+
+  plad (plad learns and decides) is a set of tools for training and using MCDA
+  models.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  classification-accuracy  Compute a classification accuracy.
+  classify                 Classify alternatives.
+  generate                 Generate synthetic data.
+  hello                    Say hello.
+  learn                    Learn a model.
+
+plad hello
+==========
+
+Usage: plad hello [OPTIONS] NAME
+
+  Say hello.
+
+Options:
+  --help  Show this message and exit.
+
+plad generate
+=============
+
+Usage: plad generate [OPTIONS] COMMAND [ARGS]...
+
+  Generate synthetic data.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  classification-domain    Generate a synthetic classification domain.
+  classification-model     Generate a synthetic classification model.
+  classified-alternatives  Generate synthetic classified alternatives.
+
+plad generate classification-domain
+===================================
+
+Usage: plad generate classification-domain [OPTIONS] CRITERIA_COUNT
+                                           CATEGORIES_COUNT [OUTPUT_DOMAIN]
+
+  Generate a synthetic classification domain.
+
+  The generated domain has CRITERIA_COUNT criteria and CATEGORIES_COUNT
+  categories.
+
+  The generated *classification domain* file is written to OUTPUT_DOMAIN,
+  which defaults to - to write to the standard output.
+
+Options:
+  --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
+  --help                       Show this message and exit.
+
+plad generate classification-model
+==================================
+
+Usage: plad generate classification-model [OPTIONS] DOMAIN [OUTPUT_MODEL]
+
+  Generate a synthetic classification model.
+
+  DOMAIN is a *classification domain* file describing the domain to generate a
+  model for.
+
+  The generated *classification model* file is written to OUTPUT_MODEL, which
+  defaults to - to write to the standard output.
+
+Options:
+  --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
+  --model-type [mrsort]           The type of classification model to learn.
+                                  [default: mrsort]
+  --mrsort.fixed-threshold FLOAT RANGE
+                                  Use this pre-determined threshold instead of
+                                  a pseudo-random one.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                  
+                                  *  [0.0<=x<=1.0]
+  --help                          Show this message and exit.
+
+plad generate classified-alternatives
+=====================================
+
+Usage: plad generate classified-alternatives [OPTIONS] DOMAIN MODEL
+                                             ALTERNATIVES_COUNT
+                                             [OUTPUT_CLASSIFIED_ALTERNATIVES]
+
+  Generate synthetic classified alternatives.
+
+  DOMAIN is a *classification domain* file describing the domain to generate
+  alternatives for. MODEL is a *classification model* file for that domain
+  describing the model to use to classify the generated alternatives.
+
+  The generated *classified alternatives* file is written to
+  OUTPUT_CLASSIFIED_ALTERNATIVES, which defaults to - to write to the standard
+  output.
+
+Options:
+  --max-imbalance FLOAT RANGE  @todo Define.  [0.0<=x<=1.0]
+  --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
+  --help                       Show this message and exit.
+
+plad learn
+==========
+
+Usage: plad learn [OPTIONS] COMMAND [ARGS]...
+
+  Learn a model.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  classification-model  Learn a classification model.
+
+plad learn classification-model
+===============================
+
+Usage: plad learn classification-model [OPTIONS] DOMAIN LEARNING_SET
+                                       [OUTPUT_MODEL]
+
+  Learn a classification model.
+
+  DOMAIN is a *classification domain* file describing the domain to learn a
+  model for. LEARNING_SET is a *classified alternatives* file for that domain.
+  It's used as a source of truth to learn the model.
+
+  The learned *classification model* file is written to OUTPUT_MODEL, which
+  defaults to - to write to the standard output.
+
+Options:
+  --target-accuracy FLOAT RANGE   The target accuracy to reach on the learning
+                                  set.
+                                  
+                                  *  [default: 1.0; 0.0<=x<=1.0]
+  --max-duration-seconds FLOAT RANGE
+                                  The maximum duration of the learning process
+                                  in seconds.
+                                  
+                                  *  [x>=0]
+  --random-seed INTEGER RANGE     The random seed to use.
+                                  
+                                  Some learning strategies are deterministic,
+                                  pseudo-random processes. This seed is used
+                                  to initialize the pseudo-random number
+                                  generator used by these strategies.
+                                  
+                                  *  [x>=0]
+  --model-type [mrsort|ucncs]     The type of classification model to learn.
+  --mrsort.strategy [weights-profiles-breed]
+                                  The top-level strategy to use to learn the
+                                  MRSort model. See (@todo Add link to doc)
+                                  for details about the available strategies.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                  
+                                  *  [default: weights-profiles-breed]
+  --mrsort.weights-profiles-breed.max-iterations INTEGER RANGE
+                                  The maximum number of iterations to use to
+                                  learn the MRSort model.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                  *  [x>=1]
+  --mrsort.weights-profiles-breed.models-count INTEGER RANGE
+                                  The number of temporary MRSort models to
+                                  train. The result of the learning will be
+                                  the most accurate of those models.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                  *  [default: 9; x>=1]
+  --mrsort.weights-profiles-breed.initialization-strategy [maximize-discrimination-per-criterion]
+                                  The strategy to use to initialize the MRSort
+                                  models. See (@todo Add link to doc) for
+                                  details about the available strategies.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                  *  [default: maximize-discrimination-per-
+                                  criterion]
+  --mrsort.weights-profiles-breed.weights-strategy [linear-program]
+                                  The strategy to use to improve the weights
+                                  of the MRSort models. See (@todo Add link to
+                                  doc) for details about the available
+                                  strategies.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                  *  [default: linear-program]
+  --mrsort.weights-profiles-breed.linear-program.solver [glop]
+                                  The solver to use to solve the linear
+                                  programs. See (@todo Add link to doc) for
+                                  details of available solvers.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                   - '--mrsort.weights-profiles-breed.weights-strategy' is 'linear-program'
+                                  
+                                  *  [default: glop]
+  --mrsort.weights-profiles-breed.profiles-strategy [accuracy-heuristic]
+                                  The strategy to use to improve the profiles
+                                  of the MRSort models. See (@todo Add link to
+                                  doc) for details about the available
+                                  strategies.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                  *  [default: accuracy-heuristic]
+  --mrsort.weights-profiles-breed.accuracy-heuristic.processor [cpu|gpu]
+                                  The processor to use to improve the profiles
+                                  of the MRSort models.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                   - '--mrsort.weights-profiles-breed.profiles-strategy' is 'accuracy-heuristic'
+                                  
+                                  *  [default: cpu]
+  --mrsort.weights-profiles-breed.breed-strategy [reinitialize-least-accurate]
+                                  The strategy to use to breed the MRSort
+                                  models. See (@todo Add link to doc) for
+                                  details about the available strategies.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                  *  [default: reinitialize-least-accurate]
+  --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion FLOAT RANGE
+                                  The portion of the least accurate MRSort
+                                  models to reinitialize.
+                                  
+                                  Only valid if:
+                                   - '--model-type' is 'mrsort'
+                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                   - '--mrsort.weights-profiles-breed.breed-strategy' is 'reinitialize-least-accurate'
+                                  
+                                  *  [default: 0.5; 0.0<=x<=1.0]
+  --help                          Show this message and exit.
+
+plad classify
+=============
+
+Usage: plad classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
+                     [OUTPUT_CLASSIFIED_ALTERNATIVES]
+
+  Classify alternatives.
+
+  DOMAIN is a *classification domain* file. MODEL is a *classification model*
+  file for that domain. ALTERNATIVES is an *unclassified alternatives* file
+  for that domain.
+
+  The *classified alternatives* file is written to
+  OUTPUT_CLASSIFIED_ALTERNATIVES, which defaults to - to write to standard
+  output.
+
+Options:
+  --help  Show this message and exit.
+
+plad classification-accuracy
+============================
+
+Usage: plad classification-accuracy [OPTIONS] DOMAIN MODEL TESTING_SET
+
+  Compute a classification accuracy.
+
+  DOMAIN is a *classification domain* file. MODEL is a *classification model*
+  file for that domain. TESTING_SET is a *classified alternatives* file for
+  that domain.
+
+  The classification accuracy is written to standard output as an integer
+  between 0 and the number of alternatives.
+
+Options:
+  --help  Show this message and exit.
+
