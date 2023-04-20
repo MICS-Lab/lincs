@@ -3,7 +3,7 @@ import subprocess
 
 import click
 
-from . import hello as plad_hello
+import plad
 
 
 def options_tree(name, kwds, dependents):
@@ -99,7 +99,7 @@ def help_all():
 )
 @click.argument("name")
 def hello(name: str):
-    print(plad_hello(name))
+    print(plad.hello(name))
 
 
 @main.group(
