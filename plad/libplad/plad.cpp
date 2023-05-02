@@ -18,4 +18,13 @@ void Domain::dump(std::ostream& os) const {
   os << out.c_str();
 }
 
+Domain Domain::load(std::istream& is) {
+  YAML::Node domain = YAML::Load(is);
+
+  return Domain(
+    domain["criteria"].as<int>(),
+    domain["categories"].as<int>()
+  );
+}
+
 }  // namespace plad

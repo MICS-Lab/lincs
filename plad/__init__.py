@@ -1,1 +1,1 @@
-from libplad import *
+from libplad import Domain, load_domain

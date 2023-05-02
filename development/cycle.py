@@ -25,7 +25,19 @@ def main():
     os.chdir(os.path.expanduser("~"))
 
     # Use as a standalone command-line tool
-    subprocess.run(["plad", "generate", "classification-domain", "3", "2", "-"], check=True)
+    domain = subprocess.run(
+        ["plad", "generate", "classification-domain", "3", "2", "-"],
+        check=True,
+        capture_output=True,
+        universal_newlines=True,
+    ).stdout.strip()
+    print(domain)
+    subprocess.run(
+        ["plad", "generate", "classification-model", "-", "-"],
+        check=True,
+        input=domain,
+        universal_newlines=True,
+    )
     # Use as an executable Python module
     subprocess.run(["python3", "-m", "plad", "generate", "classification-domain", "7", "3"], check=True)
     # Use as a Python package

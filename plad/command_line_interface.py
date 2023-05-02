@@ -191,7 +191,7 @@ def classification_model(
     model_type,
     mrsort__fixed_threshold,
 ):
-    pass
+    domain = plad.load_domain(domain)
 
 
 @generate.command(
@@ -241,7 +241,7 @@ def classified_alternatives(
     output_classified_alternatives,
     random_seed,
 ):
-    pass
+    domain = plad.load_domain(domain)
 
 
 @main.group(
