@@ -16,6 +16,9 @@ libplad = setuptools.Extension(
         "plad/libplad/libplad_module.cpp",
         "plad/libplad/plad.cpp",
     ],
+    libraries=[
+        "boost_python310",
+    ],
 )
 
 setuptools.setup(

@@ -5,6 +5,7 @@ RUN set -x \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       g++ \
+      libboost-python-dev \
       python3-pip \
       python3-dev \
  && apt-get clean
