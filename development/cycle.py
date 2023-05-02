@@ -27,9 +27,9 @@ def main():
     # Use as a standalone command-line tool
     subprocess.run(["plad", "generate", "classification-domain", "3", "2", "-"], check=True)
     # Use as an executable Python module
-    subprocess.run(["python3", "-m", "plad", "generate", "classification-domain", "3", "2"], check=True)
+    subprocess.run(["python3", "-m", "plad", "generate", "classification-domain", "7", "3"], check=True)
     # Use as a Python package
-    subprocess.run(["python3", "-c", "import io; import plad; buf = io.StringIO(); plad.Domain().dump(buf); print(buf.getvalue())"], check=True)
+    subprocess.run(["python3", "-c", "import io; import plad; buf = io.StringIO(); plad.Domain(4, 5).dump(buf); print(buf.getvalue())"], check=True)
     # Use as a C++ library
     source = textwrap.dedent("""
         #include <plad.hpp>
@@ -37,7 +37,7 @@ def main():
         #include <iostream>
 
         int main() {
-            plad::Domain().dump(std::cout);
+            plad::Domain(3, 2).dump(std::cout);
             std::cout << std::endl;
         }
     """)

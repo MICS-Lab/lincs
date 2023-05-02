@@ -6,8 +6,9 @@ RUN set -x \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       g++ \
       libboost-python-dev \
-      python3-pip \
+      libyaml-cpp-dev \
       python3-dev \
+      python3-pip \
  && apt-get clean
 
 # User

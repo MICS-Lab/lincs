@@ -133,7 +133,7 @@ def classification_domain(
     output_domain,
     random_seed
 ):
-    domain = plad.Domain()
+    domain = plad.Domain(criteria_count, categories_count)
     domain.dump(output_domain)
     output_domain.write("\n")
 

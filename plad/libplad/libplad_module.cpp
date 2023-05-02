@@ -33,7 +33,7 @@ namespace {
 }  // namespace
 
 BOOST_PYTHON_MODULE(libplad) {
-  bp::class_<plad::Domain>("Domain")
+  bp::class_<plad::Domain>("Domain", bp::init<int, int>())
     .def("dump", &dump_domain)
   ;
 }
