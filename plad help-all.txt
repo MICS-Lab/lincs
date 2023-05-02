@@ -13,18 +13,7 @@ Commands:
   classification-accuracy  Compute a classification accuracy.
   classify                 Classify alternatives.
   generate                 Generate synthetic data.
-  hello                    Say hello.
   learn                    Learn a model.
-
-plad hello
-==========
-
-Usage: plad hello [OPTIONS] NAME
-
-  Say hello.
-
-Options:
-  --help  Show this message and exit.
 
 plad generate
 =============

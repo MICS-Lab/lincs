@@ -1,4 +1,5 @@
 from __future__ import annotations
+import shutil
 
 import subprocess
 import os
@@ -11,19 +12,24 @@ def main():
 
     subprocess.run([f"pip3", "install", "-r", "requirements.txt"], stdout=subprocess.DEVNULL, check=True)
 
+    # Install plad
+    ##############
+
+    shutil.rmtree("build", ignore_errors=True)
+    shutil.rmtree("plad.egg-info", ignore_errors=True)
+    subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+
     # With plad installed
     #####################
-
-    subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
 
     os.chdir(os.path.expanduser("~"))
 
     # Use as a standalone command-line tool
-    subprocess.run(["plad", "hello", "World"], check=True)
+    subprocess.run(["plad", "generate", "classification-domain", "3", "2", "-"], check=True)
     # Use as an executable Python module
-    subprocess.run(["python3", "-m", "plad", "hello", "World"], check=True)
+    subprocess.run(["python3", "-m", "plad", "generate", "classification-domain", "3", "2", "-"], check=True)
     # Use as a Python package
-    subprocess.run(["python3", "-c", "import plad; print(plad.hello('World'))"], check=True)
+    subprocess.run(["python3", "-c", "import io; import plad; buf = io.StringIO(); plad.Domain().dump(buf); print(buf.getvalue())"], check=True)
     # Use as a C++ library
     source = textwrap.dedent("""
         #include <plad.hpp>
@@ -31,7 +37,8 @@ def main():
         #include <iostream>
 
         int main() {
-            std::cout << plad::hello("World") << std::endl;
+            plad::Domain().dump(std::cout);
+            std::cout << std::endl;
         }
     """)
     subprocess.run(

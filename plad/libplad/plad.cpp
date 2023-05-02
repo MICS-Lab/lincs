@@ -3,8 +3,8 @@
 
 namespace plad {
 
-std::string hello(const std::string& name) {
-    return "Hello, " + name + "!";
+void Domain::dump(std::ostream& os) const {
+  os << "Domain";
 }
 
 }  // namespace plad

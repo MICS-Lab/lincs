@@ -93,15 +93,6 @@ def help_all():
     walk([], main)
 
 
-# @todo Remove all "hello" things when we have our first actual command
-@main.command(
-    help="Say hello.",
-)
-@click.argument("name")
-def hello(name: str):
-    print(plad.hello(name))
-
-
 @main.group(
     help="Generate synthetic data.",
 )
@@ -142,7 +133,9 @@ def classification_domain(
     output_domain,
     random_seed
 ):
-    pass
+    domain = plad.Domain()
+    domain.dump(output_domain)
+    output_domain.write("\n")
 
 
 @generate.command(
