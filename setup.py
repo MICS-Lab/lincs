@@ -18,6 +18,7 @@ libplad = setuptools.Extension(
     ],
     libraries=[
         "boost_python310",
+        "python3.10",  # Make the Python module usable as a C++ shared library without -lpython3.10 (still linked, but implicitly)
     ],
 )
 

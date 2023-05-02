@@ -39,7 +39,7 @@ def main():
             "g++",
             "-x", "c++", "-",
             "-I/home/user/.local/lib/python3.10/site-packages/plad/libplad",
-            "-L/home/user/.local/lib/python3.10/site-packages", "-lplad.cpython-310-x86_64-linux-gnu", "-lpython3.10", "-lboost_python310",
+            "-L/home/user/.local/lib/python3.10/site-packages", "-lplad.cpython-310-x86_64-linux-gnu",
         ],
         check=True,
         input=source, universal_newlines=True,
