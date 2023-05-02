@@ -149,14 +149,12 @@ def classification_domain(
 )
 @click.argument(
     "domain",
-    # help="The *classification domain* file to generate a model for.",
     type=click.File(mode="r"),
 )
 @click.argument(
     "output-model",
     type=click.File(mode="w"),
     default="-",
-    # show_default=True,
 )
 @click.option(
     "--random-seed",
@@ -166,7 +164,7 @@ def classification_domain(
 @options_tree(
     "model-type",
     dict(
-        help="The type of classification model to learn.",
+        help="The type of classification model to generate.",
         type=click.Choice(["mrsort"]),
         default="mrsort",
         show_default=True,
@@ -307,7 +305,7 @@ def learn():
     "model-type",
     dict(
         help="The type of classification model to learn.",
-        type=click.Choice(["mrsort", "ucncs"]),
+        type=click.Choice(["mrsort"]),
     ),
     {
         "ucncs": [],

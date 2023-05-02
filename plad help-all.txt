@@ -63,8 +63,8 @@ Usage: plad generate classification-model [OPTIONS] DOMAIN [OUTPUT_MODEL]
 
 Options:
   --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
-  --model-type [mrsort]           The type of classification model to learn.
-                                  [default: mrsort]
+  --model-type [mrsort]           The type of classification model to
+                                  generate.  [default: mrsort]
   --mrsort.fixed-threshold FLOAT RANGE
                                   Use this pre-determined threshold instead of
                                   a pseudo-random one.
@@ -143,7 +143,7 @@ Options:
                                   generator used by these strategies.
                                   
                                   *  [x>=0]
-  --model-type [mrsort|ucncs]     The type of classification model to learn.
+  --model-type [mrsort]           The type of classification model to learn.
   --mrsort.strategy [weights-profiles-breed]
                                   The top-level strategy to use to learn the
                                   MRSort model. See (@todo Add link to doc)
