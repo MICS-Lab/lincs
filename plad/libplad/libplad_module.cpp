@@ -16,7 +16,7 @@ namespace {
 class PythonOutputDevice : public boost::iostreams::sink {
   public:
 
-  explicit PythonOutputDevice(boost::python::object out_file_) : out_file(out_file_) {}
+  explicit PythonOutputDevice(bp::object out_file_) : out_file(out_file_) {}
 
   std::streamsize write(const char* s, std::streamsize n) {
     out_file.attr("write")(std::string(s, n));
@@ -24,7 +24,7 @@ class PythonOutputDevice : public boost::iostreams::sink {
   }
 
   private:
-  boost::python::object out_file;
+  bp::object out_file;
 };
 
 void dump_domain(const plad::Domain& domain, bp::object& out_file) {
@@ -35,7 +35,7 @@ void dump_domain(const plad::Domain& domain, bp::object& out_file) {
 class PythonInputDevice : public boost::iostreams::source {
   public:
 
-  explicit PythonInputDevice(boost::python::object in_file_) : in_file(in_file_) {}
+  explicit PythonInputDevice(bp::object in_file_) : in_file(in_file_) {}
 
   std::streamsize read(char* s, std::streamsize n) {
     std::string str = bp::extract<std::string>(in_file.attr("read")(n));
@@ -44,7 +44,7 @@ class PythonInputDevice : public boost::iostreams::source {
   }
 
   private:
-  boost::python::object in_file;
+  bp::object in_file;
 };
 
 plad::Domain load_domain(bp::object& in_file) {
@@ -52,10 +52,57 @@ plad::Domain load_domain(bp::object& in_file) {
   return plad::Domain::load(in_stream);
 }
 
+// https://stackoverflow.com/a/15940413/905845
+struct iterable_converter {
+  template <typename Container>
+  iterable_converter& from_python() {
+    bp::converter::registry::push_back(
+      &iterable_converter::convertible,
+      &iterable_converter::construct<Container>,
+      bp::type_id<Container>());
+
+    return *this;
+  }
+
+  static void* convertible(PyObject* object) {
+    return PyObject_GetIter(object) ? object : NULL;
+  }
+
+  template <typename Container>
+  static void construct(
+    PyObject* object,
+    bp::converter::rvalue_from_python_stage1_data* data
+  ) {
+    bp::handle<> handle(bp::borrowed(object));
+
+    typedef bp::converter::rvalue_from_python_storage<Container> storage_type;
+    void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
+
+    typedef bp::stl_input_iterator<typename Container::value_type> iterator;
+
+    new (storage) Container(iterator(bp::object(handle)), iterator());
+    data->convertible = storage;
+  }
+};
+
 }  // namespace
 
 BOOST_PYTHON_MODULE(libplad) {
-  bp::class_<plad::Domain>("Domain", bp::init<int, int>())
+  iterable_converter()
+    .from_python<std::vector<plad::Domain::Category>>()
+    .from_python<std::vector<plad::Domain::Criterion>>()
+  ;
+
+  bp::class_<plad::Domain::Criterion>("Criterion", bp::init<std::string>())
+    .def_readwrite("name", &plad::Domain::Criterion::name)
+    // .def_readwrite("type", &plad::Domain::Criterion::type)
+  ;
+
+  bp::class_<plad::Domain::Category>("Category", bp::init<std::string>())
+    .def_readwrite("name", &plad::Domain::Category::name)
+  ;
+
+  bp::class_<plad::Domain>("Domain", bp::init<std::vector<plad::Domain::Criterion>, std::vector<plad::Domain::Category>>())
     .def("dump", &dump_domain)
   ;
 

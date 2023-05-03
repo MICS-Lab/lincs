@@ -1,1 +1,1 @@
-from libplad import Domain, load_domain
+from libplad import Criterion, Category, Domain, load_domain
