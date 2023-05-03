@@ -11,10 +11,15 @@ struct Domain {
 
     enum class ValueType {
       real,
+      // @todo Add integer
+      // @todo Add enumerated
     } value_type;
 
     enum class CategoryCorrelation {
       growing,
+      // @todo Add decreasing
+      // @todo Add single-peaked
+      // @todo Add single-valleyed
     } category_correlation;
 
     // @todo Remove these constructors:

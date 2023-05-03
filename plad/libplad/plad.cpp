@@ -35,6 +35,7 @@ struct convert<Domain::Criterion> {
 
   static bool decode(const Node& node, Domain::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
+    // @todo Handle error where value_type category_correlation does not properly convert back to enum
     criterion.value_type = magic_enum::enum_cast<Domain::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
     criterion.category_correlation = magic_enum::enum_cast<Domain::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
 
@@ -68,6 +69,8 @@ void Domain::dump(std::ostream& os) const {
   YAML::Emitter out;
 
   out << YAML::BeginMap
+      << YAML::Key << "kind" << YAML::Value << "classification-domain"
+      << YAML::Key << "format_version" << YAML::Value << 1
       << YAML::Key << "criteria" << YAML::Value << criteria
       << YAML::Key << "categories" << YAML::Value << categories
       << YAML::EndMap;
@@ -77,6 +80,9 @@ void Domain::dump(std::ostream& os) const {
 
 Domain Domain::load(std::istream& is) {
   YAML::Node domain = YAML::Load(is);
+
+  assert(domain["kind"].as<std::string>() == "classification-domain");
+  assert(domain["format_version"].as<int>() == 1);
 
   return Domain(
     domain["criteria"].as<std::vector<Criterion>>(),
