@@ -65,6 +65,12 @@ def main():
                 ),
             )
 
+            criterion = domain.criteria[0]
+            print(criterion.name, criterion.value_type, criterion.category_correlation)
+            print(domain.categories[0].name)
+            domain.categories[0].name = "Terrible"
+            domain.categories[1].name = "Ok, I guess"
+
             buf = io.StringIO()
             domain.dump(buf)
             print(buf.getvalue())

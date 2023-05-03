@@ -5,6 +5,7 @@
 #include <Python.h>
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 
@@ -112,7 +113,15 @@ BOOST_PYTHON_MODULE(libplad) {
     .def_readwrite("name", &plad::Domain::Category::name)
   ;
 
+  bp::class_<std::vector<plad::Domain::Category>>("categories_vector")
+    .def(bp::vector_indexing_suite<std::vector<plad::Domain::Category>>())
+  ;
+  bp::class_<std::vector<plad::Domain::Criterion>>("criteria_vector")
+    .def(bp::vector_indexing_suite<std::vector<plad::Domain::Criterion>>())
+  ;
   bp::class_<plad::Domain>("Domain", bp::init<std::vector<plad::Domain::Criterion>, std::vector<plad::Domain::Category>>())
+    .def_readwrite("criteria", &plad::Domain::criteria)
+    .def_readwrite("categories", &plad::Domain::categories)
     .def("dump", &dump_domain)
   ;
 
