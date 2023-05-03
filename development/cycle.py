@@ -41,18 +41,31 @@ def main():
     # Use as an executable Python module
     subprocess.run(["python3", "-m", "plad", "generate", "classification-domain", "4", "3"], check=True)
     # Use as a Python package
-    subprocess.run(["python3", "-c", "import io; import plad; buf = io.StringIO(); plad.Domain([plad.Criterion('Physics grade'), plad.Criterion('Literature grade')], (plad.Category('Bad'), plad.Category('Good'))).dump(buf); print(buf.getvalue())"], check=True)
+    subprocess.run(
+        ["python3"],
+        check=True,
+        input=textwrap.dedent("""
+            import io
+            import plad
+
+            domain = plad.Domain(
+                [
+                    plad.Criterion('Physics grade', plad.ValueType.real),
+                    plad.Criterion('Literature grade', plad.ValueType.real),
+                ],
+                (
+                    plad.Category('Bad'),
+                    plad.Category('Good'),
+                ),
+            )
+
+            buf = io.StringIO()
+            domain.dump(buf)
+            print(buf.getvalue())
+        """),
+        universal_newlines=True,
+    )
     # Use as a C++ library
-    source = textwrap.dedent("""
-        #include <plad.hpp>
-
-        #include <iostream>
-
-        int main() {
-            plad::Domain({{"Literature grade"}, {"Physics grade"}}, {{"Fail"}, {"Pass"}}).dump(std::cout);
-            std::cout << std::endl;
-        }
-    """)
     subprocess.run(
         [
             "g++",
@@ -61,7 +74,28 @@ def main():
             "-L/home/user/.local/lib/python3.10/site-packages", "-lplad.cpython-310-x86_64-linux-gnu",
         ],
         check=True,
-        input=source, universal_newlines=True,
+        input=textwrap.dedent("""
+            #include <plad.hpp>
+
+            #include <iostream>
+
+            int main() {
+                plad::Domain domain(
+                    {
+                        {"Literature grade", plad::Domain::Criterion::ValueType::real},
+                        {"Physics grade", plad::Domain::Criterion::ValueType::real},
+                    },
+                    {
+                        {"Fail"},
+                        {"Pass"},
+                    }
+                );
+
+                domain.dump(std::cout);
+                std::cout << std::endl;
+            }
+        """),
+        universal_newlines=True,
     )
     subprocess.run(["./a.out"], check=True, env={"LD_LIBRARY_PATH": "/home/user/.local/lib/python3.10/site-packages"})
     with open("/wd/plad help-all.txt", "w") as f:

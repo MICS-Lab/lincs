@@ -7,18 +7,18 @@ namespace plad {
 
 class Domain {
  public:
-  // enum class ValueType {
-  //   real,
-  // };
-
   struct Criterion {
+    enum class ValueType {
+      real,
+    };
+
     std::string name;
-    // ValueType type;
+    ValueType value_type;
 
     // @todo Remove these constructors:
     // The struct is usable without them in C++, and they were added only to allow using bp::init in the Python module
     Criterion() {}
-    Criterion(const std::string& name_): name(name_)/*, type(ValueType::real)*/ {}
+    Criterion(const std::string& name_, ValueType value_type_): name(name_), value_type(value_type_) {}
   };
 
   struct Category {

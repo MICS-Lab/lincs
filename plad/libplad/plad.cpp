@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include <magic_enum.hpp>
 #include <yaml-cpp/yaml.h>
 
 
@@ -34,7 +35,7 @@ struct convert<Domain::Criterion> {
 
   static bool decode(const Node& node, Domain::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
-    // criterion.type = Domain::ValueType::real;  // @todo Use magic_enum::enum_cast
+    criterion.value_type = magic_enum::enum_cast<Domain::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
 
     return true;
   }
@@ -52,18 +53,16 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Category& category) 
   return out;
 }
 
-// YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::ValueType& value_type) {
-//   // @todo Remove assert and use magic_enum.hpp to get string of name
-//   assert(value_type == Domain::ValueType::real);
-//   out << "real";
+YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Criterion::ValueType& value_type) {
+  out << std::string(magic_enum::enum_name(value_type));
 
-//   return out;
-// }
+  return out;
+}
 
 YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Criterion& criterion) {
   out << YAML::BeginMap
       << YAML::Key << "name" << YAML::Value << criterion.name
-      // << YAML::Key << "type" << YAML::Value << criterion.type
+      << YAML::Key << "value_type" << YAML::Value << criterion.value_type
       << YAML::EndMap;
 
   return out;

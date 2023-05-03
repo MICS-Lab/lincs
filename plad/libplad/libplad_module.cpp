@@ -93,9 +93,13 @@ BOOST_PYTHON_MODULE(libplad) {
     .from_python<std::vector<plad::Domain::Criterion>>()
   ;
 
-  bp::class_<plad::Domain::Criterion>("Criterion", bp::init<std::string>())
+  bp::enum_<plad::Domain::Criterion::ValueType>("ValueType")
+    .value("real", plad::Domain::Criterion::ValueType::real)
+  ;
+
+  bp::class_<plad::Domain::Criterion>("Criterion", bp::init<std::string, plad::Domain::Criterion::ValueType>())
     .def_readwrite("name", &plad::Domain::Criterion::name)
-    // .def_readwrite("type", &plad::Domain::Criterion::type)
+    .def_readwrite("value_type", &plad::Domain::Criterion::value_type)
   ;
 
   bp::class_<plad::Domain::Category>("Category", bp::init<std::string>())
