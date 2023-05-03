@@ -7,17 +7,15 @@ namespace plad {
 
 struct Domain {
   struct Criterion {
+    std::string name;
+
     enum class ValueType {
       real,
-    };
+    } value_type;
 
     enum class CategoryCorrelation {
       growing,
-    };
-
-    std::string name;
-    ValueType value_type;
-    CategoryCorrelation category_correlation;
+    } category_correlation;
 
     // @todo Remove these constructors:
     // The struct is usable without them in C++, and they were added only to allow using bp::init in the Python module
@@ -31,6 +29,8 @@ struct Domain {
     }
   };
 
+  std::vector<Criterion> criteria;
+
   struct Category {
     std::string name;
 
@@ -42,13 +42,13 @@ struct Domain {
     bool operator==(const Category& other) const { return name == other.name; }
   };
 
+  std::vector<Category> categories;
+
   Domain(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
 
   void dump(std::ostream&) const;
   static Domain load(std::istream&);
 
-  std::vector<Criterion> criteria;
-  std::vector<Category> categories;
 };
 
 }  // namespace plad
