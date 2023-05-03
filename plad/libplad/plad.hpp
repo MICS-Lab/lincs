@@ -49,6 +49,8 @@ struct Domain {
 
   std::vector<Category> categories;
 
+  // @todo Remove these constructors (see Criterion)
+  Domain() {}
   Domain(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
 
   void dump(std::ostream&) const;

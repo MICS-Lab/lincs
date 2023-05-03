@@ -14,7 +14,8 @@ template<>
 struct convert<Domain::Category> {
   static Node encode(const Domain::Category& category) {
     Node node;
-    assert(false);
+    node["name"] = category.name;
+
     return node;
   }
 
@@ -29,7 +30,10 @@ template<>
 struct convert<Domain::Criterion> {
   static Node encode(const Domain::Criterion& criterion) {
     Node node;
-    assert(false);
+    node["name"] = criterion.name;
+    node["value_type"] = std::string(magic_enum::enum_name(criterion.value_type));
+    node["category_correlation"] = std::string(magic_enum::enum_name(criterion.category_correlation));
+
     return node;
   }
 
@@ -43,51 +47,39 @@ struct convert<Domain::Criterion> {
   }
 };
 
+template<>
+struct convert<Domain> {
+  static Node encode(const Domain& domain) {
+    Node node;
+    node["kind"] = "classification-domain";
+    node["format_version"] = 1;
+    node["criteria"] = domain.criteria;
+    node["categories"] = domain.categories;
+
+    return node;
+  }
+
+  static bool decode(const Node& node, Domain& domain) {
+    assert(node["kind"].as<std::string>() == "classification-domain");
+    assert(node["format_version"].as<int>() == 1);
+
+    domain.criteria = node["criteria"].as<std::vector<Domain::Criterion>>();
+    domain.categories = node["categories"].as<std::vector<Domain::Category>>();
+
+    return true;
+  }
+};
+
 }  // namespace YAML
 
 namespace plad {
 
-YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Category& category) {
-  out << YAML::BeginMap
-      << YAML::Key << "name" << YAML::Value << category.name
-      << YAML::EndMap;
-
-  return out;
-}
-
-YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Criterion& criterion) {
-  out << YAML::BeginMap
-      << YAML::Key << "name" << YAML::Value << criterion.name
-      << YAML::Key << "value_type" << YAML::Value << std::string(magic_enum::enum_name(criterion.value_type))
-      << YAML::Key << "category_correlation" << YAML::Value << std::string(magic_enum::enum_name(criterion.category_correlation))
-      << YAML::EndMap;
-
-  return out;
-}
-
 void Domain::dump(std::ostream& os) const {
-  YAML::Emitter out;
-
-  out << YAML::BeginMap
-      << YAML::Key << "kind" << YAML::Value << "classification-domain"
-      << YAML::Key << "format_version" << YAML::Value << 1
-      << YAML::Key << "criteria" << YAML::Value << criteria
-      << YAML::Key << "categories" << YAML::Value << categories
-      << YAML::EndMap;
-
-  os << out.c_str();
+  os << YAML::Node(*this);
 }
 
 Domain Domain::load(std::istream& is) {
-  YAML::Node domain = YAML::Load(is);
-
-  assert(domain["kind"].as<std::string>() == "classification-domain");
-  assert(domain["format_version"].as<int>() == 1);
-
-  return Domain(
-    domain["criteria"].as<std::vector<Criterion>>(),
-    domain["categories"].as<std::vector<Category>>()
-  );
+  return YAML::Load(is).as<Domain>();
 }
 
 }  // namespace plad
