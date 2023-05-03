@@ -1,1 +1,1 @@
-from libplad import ValueType, Criterion, Category, Domain, load_domain
+from libplad import ValueType, CategoryCorrelation, Criterion, Category, Domain, load_domain

@@ -93,13 +93,19 @@ BOOST_PYTHON_MODULE(libplad) {
     .from_python<std::vector<plad::Domain::Criterion>>()
   ;
 
+  // @todo Use magic_enum to automate the declaration of enum values
   bp::enum_<plad::Domain::Criterion::ValueType>("ValueType")
     .value("real", plad::Domain::Criterion::ValueType::real)
   ;
 
-  bp::class_<plad::Domain::Criterion>("Criterion", bp::init<std::string, plad::Domain::Criterion::ValueType>())
+  bp::enum_<plad::Domain::Criterion::CategoryCorrelation>("CategoryCorrelation")
+    .value("growing", plad::Domain::Criterion::CategoryCorrelation::growing)
+  ;
+
+  bp::class_<plad::Domain::Criterion>("Criterion", bp::init<std::string, plad::Domain::Criterion::ValueType, plad::Domain::Criterion::CategoryCorrelation>())
     .def_readwrite("name", &plad::Domain::Criterion::name)
     .def_readwrite("value_type", &plad::Domain::Criterion::value_type)
+    .def_readwrite("category_correlation", &plad::Domain::Criterion::category_correlation)
   ;
 
   bp::class_<plad::Domain::Category>("Category", bp::init<std::string>())

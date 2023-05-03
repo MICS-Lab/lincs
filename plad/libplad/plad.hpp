@@ -12,13 +12,18 @@ class Domain {
       real,
     };
 
+    enum class CategoryCorrelation {
+      growing,
+    };
+
     std::string name;
     ValueType value_type;
+    CategoryCorrelation category_correlation;
 
     // @todo Remove these constructors:
     // The struct is usable without them in C++, and they were added only to allow using bp::init in the Python module
     Criterion() {}
-    Criterion(const std::string& name_, ValueType value_type_): name(name_), value_type(value_type_) {}
+    Criterion(const std::string& name_, ValueType value_type_, CategoryCorrelation category_correlation_): name(name_), value_type(value_type_), category_correlation(category_correlation_) {}
   };
 
   struct Category {

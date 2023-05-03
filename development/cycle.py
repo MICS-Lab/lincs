@@ -48,10 +48,16 @@ def main():
             import io
             import plad
 
+            criterion = plad.Criterion('Physic grade', plad.ValueType.real, plad.CategoryCorrelation.growing)
+            print(criterion.name, criterion.value_type, criterion.category_correlation)
+            criterion.name = 'Physics grade'
+            criterion.value_type = plad.ValueType.real
+            criterion.category_correlation = plad.CategoryCorrelation.growing
+
             domain = plad.Domain(
                 [
-                    plad.Criterion('Physics grade', plad.ValueType.real),
-                    plad.Criterion('Literature grade', plad.ValueType.real),
+                    criterion,
+                    plad.Criterion('Literature grade', plad.ValueType.real, plad.CategoryCorrelation.growing),
                 ],
                 (
                     plad.Category('Bad'),
@@ -82,8 +88,8 @@ def main():
             int main() {
                 plad::Domain domain(
                     {
-                        {"Literature grade", plad::Domain::Criterion::ValueType::real},
-                        {"Physics grade", plad::Domain::Criterion::ValueType::real},
+                        {"Literature grade", plad::Domain::Criterion::ValueType::real, plad::Domain::Criterion::CategoryCorrelation::growing},
+                        {"Physics grade", plad::Domain::Criterion::ValueType::real, plad::Domain::Criterion::CategoryCorrelation::growing},
                     },
                     {
                         {"Fail"},

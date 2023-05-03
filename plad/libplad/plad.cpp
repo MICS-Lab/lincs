@@ -36,6 +36,7 @@ struct convert<Domain::Criterion> {
   static bool decode(const Node& node, Domain::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
     criterion.value_type = magic_enum::enum_cast<Domain::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
+    criterion.category_correlation = magic_enum::enum_cast<Domain::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
 
     return true;
   }
@@ -53,16 +54,11 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Category& category) 
   return out;
 }
 
-YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Criterion::ValueType& value_type) {
-  out << std::string(magic_enum::enum_name(value_type));
-
-  return out;
-}
-
 YAML::Emitter& operator<<(YAML::Emitter& out, const Domain::Criterion& criterion) {
   out << YAML::BeginMap
       << YAML::Key << "name" << YAML::Value << criterion.name
-      << YAML::Key << "value_type" << YAML::Value << criterion.value_type
+      << YAML::Key << "value_type" << YAML::Value << std::string(magic_enum::enum_name(criterion.value_type))
+      << YAML::Key << "category_correlation" << YAML::Value << std::string(magic_enum::enum_name(criterion.category_correlation))
       << YAML::EndMap;
 
   return out;
