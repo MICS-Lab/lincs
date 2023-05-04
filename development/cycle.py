@@ -26,14 +26,14 @@ def main():
 
     print("Use as a standalone command-line tool")
     domain = subprocess.run(
-        ["lincs", "generate", "classification-domain", "3", "2", "-"],
+        ["lincs", "generate", "classification-domain", "3", "2"],
         check=True,
         stdout=subprocess.PIPE,
         universal_newlines=True,
     ).stdout.strip()
     print(domain)
     subprocess.run(
-        ["lincs", "generate", "classification-model", "-", "-"],
+        ["lincs", "generate", "classification-model", "-"],
         check=True,
         input=domain,
         universal_newlines=True,

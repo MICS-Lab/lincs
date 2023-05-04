@@ -1,5 +1,7 @@
 from __future__ import annotations
+import random
 import subprocess
+import sys
 
 import click
 
@@ -105,8 +107,6 @@ def generate():
         Generate a synthetic classification domain.
 
         The generated domain has CRITERIA_COUNT criteria and CATEGORIES_COUNT categories.
-
-        The generated *classification domain* file is written to OUTPUT_DOMAIN, which defaults to - to write to the standard output.
     """,
 )
 @click.argument(
@@ -117,15 +117,17 @@ def generate():
     "categories-count",
     type=click.IntRange(min=1),
 )
-@click.argument(
-    "output-domain",
+@click.option(
+    "--output-domain",
     type=click.File(mode="w"),
     default="-",
+    help="Write generated domain to this file instead of standard output.",
 )
 @click.option(
     "--random-seed",
     help="The random seed to use.",
     type=click.IntRange(min=0),
+    default=random.randrange(2**30),
 )
 def classification_domain(
     criteria_count,
@@ -133,12 +135,12 @@ def classification_domain(
     output_domain,
     random_seed
 ):
-    domain = lincs.Domain(
-        [lincs.Criterion(f"Criterion n°{i}", lincs.ValueType.real, lincs.CategoryCorrelation.growing) for i in range(criteria_count)],
-        [lincs.Category(f"Category n°{i}") for i in range(categories_count)],
+    domain = lincs.generate_domain(
+        criteria_count,
+        categories_count,
+        random_seed,
     )
     domain.dump(output_domain)
-    output_domain.write("\n")
 
 
 @generate.command(
@@ -146,23 +148,23 @@ def classification_domain(
         Generate a synthetic classification model.
 
         DOMAIN is a *classification domain* file describing the domain to generate a model for.
-
-        The generated *classification model* file is written to OUTPUT_MODEL, which defaults to - to write to the standard output.
     """,
 )
 @click.argument(
     "domain",
     type=click.File(mode="r"),
 )
-@click.argument(
-    "output-model",
+@click.option(
+    "--output-model",
     type=click.File(mode="w"),
     default="-",
+    help="Write generated model to this file instead of standard output.",
 )
 @click.option(
     "--random-seed",
     help="The random seed to use.",
     type=click.IntRange(min=0),
+    default=random.randrange(2**30),
 )
 @options_tree(
     "model-type",
@@ -195,6 +197,13 @@ def classification_model(
     mrsort__fixed_threshold,
 ):
     domain = lincs.load_domain(domain)
+    assert model_type == "mrsort"
+    model = lincs.generate_mrsort_model(
+        domain,
+        # fixed_threshold=mrsort__fixed_threshold,
+        random_seed,
+    )
+    model.dump(output_model)
 
 
 @generate.command(
@@ -203,8 +212,6 @@ def classification_model(
 
         DOMAIN is a *classification domain* file describing the domain to generate alternatives for.
         MODEL is a *classification model* file for that domain describing the model to use to classify the generated alternatives.
-
-        The generated *classified alternatives* file is written to OUTPUT_CLASSIFIED_ALTERNATIVES, which defaults to - to write to the standard output.
     """,
 )
 @click.argument(
@@ -219,10 +226,11 @@ def classification_model(
     "alternatives-count",
     type=click.IntRange(min=1),
 )
-@click.argument(
-    "output-classified-alternatives",
+@click.option(
+    "--output-classified-alternatives",
     type=click.File(mode="w"),
     default="-",
+    help="Write generated classified alternatives to this file instead of standard output.",
 )
 @click.option(
     "--max-imbalance",
@@ -235,6 +243,7 @@ def classification_model(
     "--random-seed",
     help="The random seed to use.",
     type=click.IntRange(min=0),
+    default=random.randrange(2**30),
 )
 def classified_alternatives(
     domain,
@@ -245,6 +254,15 @@ def classified_alternatives(
     random_seed,
 ):
     domain = lincs.load_domain(domain)
+    model = lincs.load_model(domain, model)
+    alternatives = lincs.generate_alternatives(
+        domain,
+        model,
+        alternatives_count,
+        # max_imbalance=max_imbalance,
+        random_seed,
+    )
+    alternatives.dump(output_classified_alternatives)
 
 
 @main.group(

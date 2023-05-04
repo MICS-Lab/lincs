@@ -111,6 +111,30 @@ Domain Domain::load(std::istream& is) {
   );
 }
 
+Domain Domain::generate(unsigned criteria_count, unsigned categories_count, unsigned random_seed) {
+  // There is nothing random yet. There will be when other value types and category correlations are added.
+
+  std::vector<Criterion> criteria;
+  criteria.reserve(criteria_count);
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    criteria.push_back(Criterion{
+      "Criterion " + std::to_string(criterion_index + 1),
+      Criterion::ValueType::real,
+      Criterion::CategoryCorrelation::growing,
+    });
+  }
+
+  std::vector<Category> categories;
+  categories.reserve(categories_count);
+  for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
+    categories.push_back(Category{
+      "Category " + std::to_string(category_index + 1),
+    });
+  }
+
+  return Domain{criteria, categories};
+}
+
 void Model::dump(std::ostream& os) const {
   YAML::Node node;
   node["kind"] = "classification-model";
@@ -127,6 +151,26 @@ Model Model::load(Domain* domain, std::istream& is) {
   assert(node["format_version"].as<int>() == 1);
 
   return Model(domain, node["boundaries"].as<std::vector<Boundary>>());
+}
+
+Model Model::generate_mrsort(Domain* domain, unsigned random_seed) {
+  // @todo Actually randomize!
+
+  SufficientCoalitions coalitions{
+    SufficientCoalitions::Kind::weights,
+    std::vector<float>(domain->criteria.size(), 0.4f),
+  };
+
+  std::vector<Boundary> boundaries;
+  boundaries.reserve(domain->categories.size() - 1);
+  for (unsigned category_index = 0; category_index != domain->categories.size() - 1; ++category_index) {
+    boundaries.push_back(Boundary{
+      std::vector<float>(domain->criteria.size(), (category_index + 1.f) / domain->categories.size()),
+      coalitions,
+    });
+  }
+
+  return Model(domain, boundaries);
 }
 
 void AlternativesSet::dump(std::ostream& os) const {
@@ -168,6 +212,25 @@ AlternativesSet AlternativesSet::load(Domain* domain, std::istream& is) {
     if (category != "") {
       alternative.category = category;
     }
+    alternatives.push_back(alternative);
+  }
+
+  return AlternativesSet{domain, alternatives};
+}
+
+AlternativesSet AlternativesSet::generate(Domain* domain, Model* model, unsigned alternatives_count, unsigned random_seed) {
+  // @todo Actually randomize!
+
+  std::vector<Alternative> alternatives;
+  alternatives.reserve(alternatives_count);
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    Alternative alternative;
+    alternative.name = "Alternative " + std::to_string(alternative_index + 1);
+    alternative.profile.reserve(domain->criteria.size());
+    for (unsigned criterion_index = 0; criterion_index != domain->criteria.size(); ++criterion_index) {
+      alternative.profile.push_back(0.5f);
+    }
+    alternative.category = domain->categories[0].name;
     alternatives.push_back(alternative);
   }
 

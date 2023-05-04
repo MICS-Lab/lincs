@@ -34,34 +34,32 @@ lincs generate classification-domain
 ====================================
 
 Usage: lincs generate classification-domain [OPTIONS] CRITERIA_COUNT
-                                            CATEGORIES_COUNT [OUTPUT_DOMAIN]
+                                            CATEGORIES_COUNT
 
   Generate a synthetic classification domain.
 
   The generated domain has CRITERIA_COUNT criteria and CATEGORIES_COUNT
   categories.
 
-  The generated *classification domain* file is written to OUTPUT_DOMAIN,
-  which defaults to - to write to the standard output.
-
 Options:
+  --output-domain FILENAME     Write generated domain to this file instead of
+                               standard output.
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
   --help                       Show this message and exit.
 
 lincs generate classification-model
 ===================================
 
-Usage: lincs generate classification-model [OPTIONS] DOMAIN [OUTPUT_MODEL]
+Usage: lincs generate classification-model [OPTIONS] DOMAIN
 
   Generate a synthetic classification model.
 
   DOMAIN is a *classification domain* file describing the domain to generate a
   model for.
 
-  The generated *classification model* file is written to OUTPUT_MODEL, which
-  defaults to - to write to the standard output.
-
 Options:
+  --output-model FILENAME         Write generated model to this file instead
+                                  of standard output.
   --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
   --model-type [mrsort]           The type of classification model to
                                   generate.  [default: mrsort]
@@ -80,7 +78,6 @@ lincs generate classified-alternatives
 
 Usage: lincs generate classified-alternatives [OPTIONS] DOMAIN MODEL
                                               ALTERNATIVES_COUNT
-                                              [OUTPUT_CLASSIFIED_ALTERNATIVES]
 
   Generate synthetic classified alternatives.
 
@@ -88,14 +85,13 @@ Usage: lincs generate classified-alternatives [OPTIONS] DOMAIN MODEL
   alternatives for. MODEL is a *classification model* file for that domain
   describing the model to use to classify the generated alternatives.
 
-  The generated *classified alternatives* file is written to
-  OUTPUT_CLASSIFIED_ALTERNATIVES, which defaults to - to write to the standard
-  output.
-
 Options:
-  --max-imbalance FLOAT RANGE  @todo Define.  [0.0<=x<=1.0]
-  --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
-  --help                       Show this message and exit.
+  --output-classified-alternatives FILENAME
+                                  Write generated classified alternatives to
+                                  this file instead of standard output.
+  --max-imbalance FLOAT RANGE     @todo Define.  [0.0<=x<=1.0]
+  --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
+  --help                          Show this message and exit.
 
 lincs learn
 ===========

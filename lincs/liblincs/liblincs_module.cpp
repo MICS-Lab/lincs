@@ -153,7 +153,10 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("categories", &lincs::Domain::categories)
     .def("dump", &dump_domain)
   ;
+  // @todo Make these 'staticmethod's of AlternativesSet. Same for other load and generate functions.
   bp::def("load_domain", &load_domain);
+  // @todo Make random_seed a keyword-only argument. Same for other generate functions.
+  bp::def("generate_domain", &lincs::Domain::generate);
 
   bp::class_<lincs::Model::SufficientCoalitions>("SufficientCoalitions", bp::init<lincs::Model::SufficientCoalitions::Kind, std::vector<float>>())
     .def_readwrite("kind", &lincs::Model::SufficientCoalitions::kind)
@@ -170,6 +173,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("dump", &dump_model)
   ;
   bp::def("load_model", &load_model);
+  bp::def("generate_mrsort_model", &lincs::Model::generate_mrsort);
 
   bp::class_<lincs::Alternative>("Alternative", bp::init<std::string, std::vector<float>, std::string>())
     .def_readwrite("name", &lincs::Alternative::name)
@@ -181,5 +185,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("alternatives", &lincs::AlternativesSet::alternatives)
     .def("dump", &dump_alternatives)
   ;
+  // @todo Make up our mind regarding classified vs. unclassified alternatives
   bp::def("load_alternatives", &load_alternatives);
+  bp::def("generate_alternatives", &lincs::AlternativesSet::generate);
 }

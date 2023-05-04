@@ -55,6 +55,8 @@ struct Domain {
 
   void dump(std::ostream&) const;
   static Domain load(std::istream&);
+
+  static Domain generate(unsigned criteria_count, unsigned categories_count, unsigned random_seed);
 };
 
 struct Model {
@@ -88,6 +90,8 @@ struct Model {
 
   void dump(std::ostream&) const;
   static Model load(Domain*, std::istream&);
+
+  static Model generate_mrsort(Domain*, unsigned random_seed);
 };
 
 struct Alternative {
@@ -103,11 +107,13 @@ struct AlternativesSet {
   Domain* domain;
   std::vector<Alternative> alternatives;
 
+  AlternativesSet() {}
+  AlternativesSet(Domain* domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
+
   void dump(std::ostream&) const;
   static AlternativesSet load(Domain*, std::istream&);
 
-  AlternativesSet() {}
-  AlternativesSet(Domain* domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
+  static AlternativesSet generate(Domain*, Model*, unsigned alternatives_count, unsigned random_seed);
 };
 
 }  // namespace lincs
