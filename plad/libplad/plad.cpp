@@ -96,7 +96,7 @@ void Domain::dump(std::ostream& os) const {
   node["criteria"] = criteria;
   node["categories"] = categories;
 
-  os << node;
+  os << node << '\n';
 }
 
 Domain Domain::load(std::istream& is) {
@@ -117,7 +117,7 @@ void Model::dump(std::ostream& os) const {
   node["format_version"] = 1;
   node["boundaries"] = boundaries;
 
-  os << node;
+  os << node << '\n';
 }
 
 Model Model::load(Domain* domain, std::istream& is) {

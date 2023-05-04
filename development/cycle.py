@@ -77,11 +77,10 @@ def main():
 
             buf = io.StringIO()
             domain.dump(buf)
-            print(buf.getvalue())
+            print(buf.getvalue().rstrip())
 
             model = plad.Model(domain, [plad.Boundary([10.,10.], plad.SufficientCoalitions(plad.SufficientCoalitionsKind.weights, [0.4, 0.7]))])
             model.dump(sys.stdout)
-            print()
         """),
         universal_newlines=True,
     )
@@ -115,7 +114,6 @@ def main():
                 };
 
                 domain.dump(std::cout);
-                std::cout << std::endl;
 
                 plad::Model model{&domain, {{{10.f, 10.f}, {plad::Model::SufficientCoalitions::Kind::weights, {0.4f, 0.7f}}}}};
                 {
@@ -126,7 +124,6 @@ def main():
                     plad::Model model2 = plad::Model::load(&domain, iss);
 
                     model2.dump(std::cout);
-                    std::cout << std::endl;
                 }
 
                 plad::AlternativesSet alternatives{&domain, {{"Alice", {11.f, 12.f}, "Pass"}, {"Bob", {9.f, 11.f}, "Fail"}}};
