@@ -94,6 +94,41 @@ def help_all():
 
     walk([], main)
 
+    for obj_name in sorted(dir(lincs)):
+        if obj_name.startswith("_"):
+            continue
+
+        obj = getattr(lincs, obj_name)
+        print(f"lincs.{obj_name}")
+        print("=" * len(f"lincs.{obj_name}"))
+        print()
+        if obj.__doc__:
+            print(obj.__doc__)
+            print()
+        if isinstance(obj, type):
+            for attr_name in sorted(dir(obj)):
+                if attr_name.startswith("_"):
+                    continue
+                if (
+                    obj_name in {"CategoryCorrelation", "SufficientCoalitionsKind", "ValueType"}
+                    and
+                    attr_name in {"as_integer_ratio", "bit_count", "bit_length", "conjugate", "denominator", "from_bytes", "imag", "numerator", "to_bytes", "attr_name", "name", "names", "values"}
+                ):
+                    continue
+                if (
+                    obj_name in {"CategoryCorrelation", "SufficientCoalitionsKind"}
+                    and
+                    attr_name in {"real"}
+                ):
+                    continue
+                print(f"{attr_name}")
+                print("-" * len(attr_name))
+                print()
+                doc = getattr(obj, attr_name).__doc__
+                if doc:
+                    print(doc)
+                    print()
+
 
 @main.group(
     help="Generate synthetic data.",
@@ -138,7 +173,7 @@ def classification_domain(
     domain = lincs.generate_domain(
         criteria_count,
         categories_count,
-        random_seed,
+        random_seed=random_seed,
     )
     domain.dump(output_domain)
 
@@ -201,7 +236,7 @@ def classification_model(
     model = lincs.generate_mrsort_model(
         domain,
         # fixed_threshold=mrsort__fixed_threshold,
-        random_seed,
+        random_seed=random_seed,
     )
     model.dump(output_model)
 
@@ -260,7 +295,7 @@ def classified_alternatives(
         model,
         alternatives_count,
         # max_imbalance=max_imbalance,
-        random_seed,
+        random_seed=random_seed,
     )
     alternatives.dump(output_classified_alternatives)
 

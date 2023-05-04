@@ -32,7 +32,7 @@ It's organized using sub-commands, the first one being `generate`, to generate s
 
     lincs generate classification-domain 4 3 --output-domain domain.yaml
     lincs generate classification-model domain.yaml --output-model model.yaml
-    lincs generate classified-alternatives domain.yaml model.yaml 10 --output-alternatives alternatives.yaml
+    lincs generate classified-alternatives domain.yaml model.yaml 10 --output-classified-alternatives alternatives.csv
 
 And have a look at the generated files.
 Their format is documented in the reference (@todo add link to the reference).

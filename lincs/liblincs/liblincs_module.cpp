@@ -149,12 +149,27 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<lincs::Domain>("Domain", bp::init<std::vector<lincs::Domain::Criterion>, std::vector<lincs::Domain::Category>>())
     .def_readwrite("criteria", &lincs::Domain::criteria)
     .def_readwrite("categories", &lincs::Domain::categories)
-    .def("dump", &dump_domain)
+    .def(
+      "dump",
+      &dump_domain,
+      (bp::arg("self"), "out"),
+      "Dump the domain to the provided `.write()`-supporting file-like object, in YAML format."
+    )
   ;
   // @todo Make these 'staticmethod's of AlternativesSet. Same for other load and generate functions.
-  bp::def("load_domain", &load_domain);
+  bp::def(
+    "load_domain",
+    &load_domain,
+    (bp::arg("in")),
+    "Load a domain from the provided `.read()`-supporting file-like object, in YAML format."
+  );
   // @todo Make random_seed a keyword-only argument. Same for other generate functions.
-  bp::def("generate_domain", &lincs::Domain::generate);
+  bp::def(
+    "generate_domain",
+    &lincs::Domain::generate,
+    (bp::arg("criteria_count"), "categories_count", "random_seed"),
+    "Generate a domain with `criteria_count` criteria and `categories_count` categories."
+  );
 
   bp::class_<lincs::Model::SufficientCoalitions>("SufficientCoalitions", bp::init<lincs::Model::SufficientCoalitions::Kind, std::vector<float>>())
     .def_readwrite("kind", &lincs::Model::SufficientCoalitions::kind)
@@ -168,10 +183,25 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<lincs::Model>("Model", bp::init<lincs::Domain*, const std::vector<lincs::Model::Boundary>&>())
     .def_readwrite("boundaries", &lincs::Model::boundaries)
-    .def("dump", &dump_model)
+    .def(
+      "dump",
+      &dump_model,
+      (bp::arg("self"), "out"),
+      "Dump the model to the provided `.write()`-supporting file-like object, in YAML format."
+    )
   ;
-  bp::def("load_model", &load_model);
-  bp::def("generate_mrsort_model", &lincs::Model::generate_mrsort);
+  bp::def(
+    "load_model",
+    &load_model,
+    (bp::arg("domain"), "in"),
+    "Load a model for the provided `domain`, from the provided `.read()`-supporting file-like object, in YAML format."
+  );
+  bp::def(
+    "generate_mrsort_model",
+    &lincs::Model::generate_mrsort,
+    (bp::arg("domain"), "random_seed"),
+    "Generate an MR-Sort model for the provided `domain`."
+  );
 
   bp::class_<lincs::Alternative>("Alternative", bp::init<std::string, std::vector<float>, std::string>())
     .def_readwrite("name", &lincs::Alternative::name)
@@ -181,9 +211,24 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<lincs::AlternativesSet>("AlternativesSet", bp::init<lincs::Domain*, const std::vector<lincs::Alternative>&>())
     .def_readwrite("alternatives", &lincs::AlternativesSet::alternatives)
-    .def("dump", &dump_alternatives)
+    .def(
+      "dump",
+      &dump_alternatives,
+      (bp::arg("self"), "out"),
+      "Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format."
+    )
   ;
   // @todo Make up our mind regarding classified vs. unclassified alternatives
-  bp::def("load_alternatives", &load_alternatives);
-  bp::def("generate_alternatives", &lincs::AlternativesSet::generate);
+  bp::def(
+    "load_alternatives",
+    &load_alternatives,
+    (bp::arg("domain"), "in"),
+    "Load a set of classified alternatives from the provided `.read()`-supporting file-like object, in CSV format."
+  );
+  bp::def(
+    "generate_alternatives",
+    &lincs::AlternativesSet::generate,
+    (bp::arg("domain"), "model", "alternatives_count", "random_seed"),
+    "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`."
+  );
 }

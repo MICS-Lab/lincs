@@ -280,3 +280,183 @@ Usage: lincs classification-accuracy [OPTIONS] DOMAIN MODEL TESTING_SET
 Options:
   --help  Show this message and exit.
 
+lincs.Alternative
+=================
+
+category
+--------
+
+name
+----
+
+profile
+-------
+
+lincs.AlternativesSet
+=====================
+
+alternatives
+------------
+
+dump
+----
+
+
+dump( (AlternativesSet)self, (object)out) -> None :
+    Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format.
+
+    C++ signature :
+        void dump(lincs::AlternativesSet,boost::python::api::object {lvalue})
+
+lincs.Boundary
+==============
+
+profile
+-------
+
+sufficient_coalitions
+---------------------
+
+lincs.Category
+==============
+
+name
+----
+
+lincs.CategoryCorrelation
+=========================
+
+growing
+-------
+
+lincs.Criterion
+===============
+
+category_correlation
+--------------------
+
+name
+----
+
+value_type
+----------
+
+lincs.Domain
+============
+
+categories
+----------
+
+criteria
+--------
+
+dump
+----
+
+
+dump( (Domain)self, (object)out) -> None :
+    Dump the domain to the provided `.write()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        void dump(lincs::Domain,boost::python::api::object {lvalue})
+
+lincs.Model
+===========
+
+boundaries
+----------
+
+dump
+----
+
+
+dump( (Model)self, (object)out) -> None :
+    Dump the model to the provided `.write()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        void dump(lincs::Model,boost::python::api::object {lvalue})
+
+lincs.SufficientCoalitions
+==========================
+
+criterion_weights
+-----------------
+
+kind
+----
+
+lincs.SufficientCoalitionsKind
+==============================
+
+weights
+-------
+
+lincs.ValueType
+===============
+
+real
+----
+
+lincs.command_line_interface
+============================
+
+lincs.generate_alternatives
+===========================
+
+
+generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (int)random_seed) -> AlternativesSet :
+    Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`.
+
+    C++ signature :
+        lincs::AlternativesSet generate_alternatives(lincs::Domain*,lincs::Model*,unsigned int,unsigned int)
+
+lincs.generate_domain
+=====================
+
+
+generate_domain( (int)criteria_count, (int)categories_count, (int)random_seed) -> Domain :
+    Generate a domain with `criteria_count` criteria and `categories_count` categories.
+
+    C++ signature :
+        lincs::Domain generate_domain(unsigned int,unsigned int,unsigned int)
+
+lincs.generate_mrsort_model
+===========================
+
+
+generate_mrsort_model( (Domain)domain, (int)random_seed) -> Model :
+    Generate an MR-Sort model for the provided `domain`.
+
+    C++ signature :
+        lincs::Model generate_mrsort_model(lincs::Domain*,unsigned int)
+
+lincs.load_alternatives
+=======================
+
+
+load_alternatives( (Domain)domain, (object)in) -> AlternativesSet :
+    Load a set of classified alternatives from the provided `.read()`-supporting file-like object, in CSV format.
+
+    C++ signature :
+        lincs::AlternativesSet load_alternatives(lincs::Domain*,boost::python::api::object {lvalue})
+
+lincs.load_domain
+=================
+
+
+load_domain( (object)in) -> Domain :
+    Load a domain from the provided `.read()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        lincs::Domain load_domain(boost::python::api::object {lvalue})
+
+lincs.load_model
+================
+
+
+load_model( (Domain)domain, (object)in) -> Model :
+    Load a model for the provided `domain`, from the provided `.read()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        lincs::Model load_model(lincs::Domain*,boost::python::api::object {lvalue})
+
