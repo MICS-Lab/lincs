@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include <magic_enum.hpp>
+#include <rapidcsv.h>
 #include <yaml-cpp/yaml.h>
 
 
@@ -126,6 +127,51 @@ Model Model::load(Domain* domain, std::istream& is) {
   assert(node["format_version"].as<int>() == 1);
 
   return Model(domain, node["boundaries"].as<std::vector<Boundary>>());
+}
+
+void AlternativesSet::dump(std::ostream& os) const {
+  rapidcsv::Document doc;
+
+  doc.SetColumnName(0, "name");
+  for (unsigned criterion_index = 0; criterion_index != domain->criteria.size(); ++criterion_index) {
+    doc.SetColumnName(criterion_index + 1, domain->criteria[criterion_index].name);
+  }
+  doc.SetColumnName(domain->criteria.size() + 1, "category");
+
+  for (unsigned alternative_index = 0; alternative_index != alternatives.size(); ++alternative_index) {
+    const Alternative& alternative = alternatives[alternative_index];
+    doc.SetCell<std::string>(0, alternative_index, alternative.name);
+    for (unsigned criterion_index = 0; criterion_index != alternative.profile.size(); ++criterion_index) {
+      doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index]);
+    }
+    if (alternative.category) {
+      doc.SetCell<std::string>(domain->criteria.size() + 1, alternative_index, *alternative.category);
+    }
+  }
+
+  doc.Save(os);
+}
+
+AlternativesSet AlternativesSet::load(Domain* domain, std::istream& is) {
+  rapidcsv::Document doc(is);
+
+  std::vector<Alternative> alternatives;
+  alternatives.reserve(doc.GetRowCount());
+  for (unsigned row_index = 0; row_index != doc.GetRowCount(); ++row_index) {
+    Alternative alternative;
+    alternative.name = doc.GetCell<std::string>("name", row_index);
+    alternative.profile.reserve(domain->criteria.size());
+    for (unsigned criterion_index = 0; criterion_index != domain->criteria.size(); ++criterion_index) {
+      alternative.profile.push_back(doc.GetCell<float>(domain->criteria[criterion_index].name, row_index));
+    }
+    std::string category = doc.GetCell<std::string>("category", row_index);
+    if (category != "") {
+      alternative.category = category;
+    }
+    alternatives.push_back(alternative);
+  }
+
+  return AlternativesSet{domain, alternatives};
 }
 
 }  // namespace plad

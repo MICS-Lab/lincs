@@ -18,6 +18,11 @@ RUN set -x \
  && cd /usr/local/include \
  && wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
 
+# RapidCSV
+RUN set -x \
+ && cd /usr/local/include \
+ && wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
+
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home

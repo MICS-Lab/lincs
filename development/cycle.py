@@ -103,7 +103,7 @@ def main():
             #include <sstream>
 
             int main() {
-                plad::Domain domain(
+                plad::Domain domain{
                     {
                         {"Literature grade", plad::Domain::Criterion::ValueType::real, plad::Domain::Criterion::CategoryCorrelation::growing},
                         {"Physics grade", plad::Domain::Criterion::ValueType::real, plad::Domain::Criterion::CategoryCorrelation::growing},
@@ -112,20 +112,33 @@ def main():
                         {"Fail"},
                         {"Pass"},
                     }
-                );
+                };
 
                 domain.dump(std::cout);
                 std::cout << std::endl;
 
-                plad::Model model(&domain, {{{10.f, 10.f}, {plad::Model::SufficientCoalitions::Kind::weights, {0.4f, 0.7f}}}});
-                std::ostringstream oss;
-                model.dump(oss);
-                std::cout << oss.str() << std::endl;
-                std::istringstream iss(oss.str());
-                plad::Model model2 = plad::Model::load(&domain, iss);
+                plad::Model model{&domain, {{{10.f, 10.f}, {plad::Model::SufficientCoalitions::Kind::weights, {0.4f, 0.7f}}}}};
+                {
+                    std::ostringstream oss;
+                    model.dump(oss);
+                    std::cout << oss.str() << std::endl;
+                    std::istringstream iss(oss.str());
+                    plad::Model model2 = plad::Model::load(&domain, iss);
 
-                model2.dump(std::cout);
-                std::cout << std::endl;
+                    model2.dump(std::cout);
+                    std::cout << std::endl;
+                }
+
+                plad::AlternativesSet alternatives{&domain, {{"Alice", {11.f, 12.f}, "Pass"}, {"Bob", {9.f, 11.f}, "Fail"}}};
+                {
+                    std::ostringstream oss;
+                    alternatives.dump(oss);
+                    std::cout << oss.str();
+                    std::istringstream iss(oss.str());
+                    plad::AlternativesSet alternatives2 = plad::AlternativesSet::load(&domain, iss);
+
+                    alternatives2.dump(std::cout);
+                }
             }
         """),
         universal_newlines=True,

@@ -1,4 +1,4 @@
-#include <any>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -88,6 +88,20 @@ struct Model {
 
   void dump(std::ostream&) const;
   static Model load(Domain*, std::istream&);
+};
+
+struct Alternative {
+  std::string name;
+  std::vector<float> profile;
+  std::optional<std::string> category;
+};
+
+struct AlternativesSet {
+  Domain* domain;
+  std::vector<Alternative> alternatives;
+
+  void dump(std::ostream&) const;
+  static AlternativesSet load(Domain*, std::istream&);
 };
 
 }  // namespace plad
