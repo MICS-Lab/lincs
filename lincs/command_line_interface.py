@@ -3,7 +3,7 @@ import subprocess
 
 import click
 
-import plad
+import lincs
 
 
 def options_tree(name, kwds, dependents):
@@ -64,7 +64,7 @@ def options_tree(name, kwds, dependents):
 
 @click.group(
     help="""
-        plad (plad learns and decides) is a set of tools for training and using MCDA models.
+        lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for training and using MCDA models.
     """,
 )
 def main():
@@ -79,11 +79,11 @@ def help_all():
         if command.hidden:
             return
 
-        title = f"plad {' '.join(prefix)}".rstrip()
+        title = f"lincs {' '.join(prefix)}".rstrip()
         print(title)
         print("=" * len(title))
         print(flush=True)
-        subprocess.run(["plad"] + prefix + ["--help"], check=True)
+        subprocess.run(["lincs"] + prefix + ["--help"], check=True)
         print()
 
         if isinstance(command, click.Group):
@@ -133,9 +133,9 @@ def classification_domain(
     output_domain,
     random_seed
 ):
-    domain = plad.Domain(
-        [plad.Criterion(f"Criterion n°{i}", plad.ValueType.real, plad.CategoryCorrelation.growing) for i in range(criteria_count)],
-        [plad.Category(f"Category n°{i}") for i in range(categories_count)],
+    domain = lincs.Domain(
+        [lincs.Criterion(f"Criterion n°{i}", lincs.ValueType.real, lincs.CategoryCorrelation.growing) for i in range(criteria_count)],
+        [lincs.Category(f"Category n°{i}") for i in range(categories_count)],
     )
     domain.dump(output_domain)
     output_domain.write("\n")
@@ -194,7 +194,7 @@ def classification_model(
     model_type,
     mrsort__fixed_threshold,
 ):
-    domain = plad.load_domain(domain)
+    domain = lincs.load_domain(domain)
 
 
 @generate.command(
@@ -244,7 +244,7 @@ def classified_alternatives(
     output_classified_alternatives,
     random_seed,
 ):
-    domain = plad.load_domain(domain)
+    domain = lincs.load_domain(domain)
 
 
 @main.group(

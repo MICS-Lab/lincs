@@ -1,10 +1,10 @@
-plad
-====
+lincs
+=====
 
-Usage: plad [OPTIONS] COMMAND [ARGS]...
+Usage: lincs [OPTIONS] COMMAND [ARGS]...
 
-  plad (plad learns and decides) is a set of tools for training and using MCDA
-  models.
+  lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for
+  training and using MCDA models.
 
 Options:
   --help  Show this message and exit.
@@ -15,10 +15,10 @@ Commands:
   generate                 Generate synthetic data.
   learn                    Learn a model.
 
-plad generate
-=============
+lincs generate
+==============
 
-Usage: plad generate [OPTIONS] COMMAND [ARGS]...
+Usage: lincs generate [OPTIONS] COMMAND [ARGS]...
 
   Generate synthetic data.
 
@@ -30,11 +30,11 @@ Commands:
   classification-model     Generate a synthetic classification model.
   classified-alternatives  Generate synthetic classified alternatives.
 
-plad generate classification-domain
-===================================
+lincs generate classification-domain
+====================================
 
-Usage: plad generate classification-domain [OPTIONS] CRITERIA_COUNT
-                                           CATEGORIES_COUNT [OUTPUT_DOMAIN]
+Usage: lincs generate classification-domain [OPTIONS] CRITERIA_COUNT
+                                            CATEGORIES_COUNT [OUTPUT_DOMAIN]
 
   Generate a synthetic classification domain.
 
@@ -48,10 +48,10 @@ Options:
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
   --help                       Show this message and exit.
 
-plad generate classification-model
-==================================
+lincs generate classification-model
+===================================
 
-Usage: plad generate classification-model [OPTIONS] DOMAIN [OUTPUT_MODEL]
+Usage: lincs generate classification-model [OPTIONS] DOMAIN [OUTPUT_MODEL]
 
   Generate a synthetic classification model.
 
@@ -75,12 +75,12 @@ Options:
                                   *  [0.0<=x<=1.0]
   --help                          Show this message and exit.
 
-plad generate classified-alternatives
-=====================================
+lincs generate classified-alternatives
+======================================
 
-Usage: plad generate classified-alternatives [OPTIONS] DOMAIN MODEL
-                                             ALTERNATIVES_COUNT
-                                             [OUTPUT_CLASSIFIED_ALTERNATIVES]
+Usage: lincs generate classified-alternatives [OPTIONS] DOMAIN MODEL
+                                              ALTERNATIVES_COUNT
+                                              [OUTPUT_CLASSIFIED_ALTERNATIVES]
 
   Generate synthetic classified alternatives.
 
@@ -97,10 +97,10 @@ Options:
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
   --help                       Show this message and exit.
 
-plad learn
-==========
+lincs learn
+===========
 
-Usage: plad learn [OPTIONS] COMMAND [ARGS]...
+Usage: lincs learn [OPTIONS] COMMAND [ARGS]...
 
   Learn a model.
 
@@ -110,11 +110,11 @@ Options:
 Commands:
   classification-model  Learn a classification model.
 
-plad learn classification-model
-===============================
+lincs learn classification-model
+================================
 
-Usage: plad learn classification-model [OPTIONS] DOMAIN LEARNING_SET
-                                       [OUTPUT_MODEL]
+Usage: lincs learn classification-model [OPTIONS] DOMAIN LEARNING_SET
+                                        [OUTPUT_MODEL]
 
   Learn a classification model.
 
@@ -248,11 +248,11 @@ Options:
                                   *  [default: 0.5; 0.0<=x<=1.0]
   --help                          Show this message and exit.
 
-plad classify
-=============
+lincs classify
+==============
 
-Usage: plad classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
-                     [OUTPUT_CLASSIFIED_ALTERNATIVES]
+Usage: lincs classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
+                      [OUTPUT_CLASSIFIED_ALTERNATIVES]
 
   Classify alternatives.
 
@@ -267,10 +267,10 @@ Usage: plad classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
 Options:
   --help  Show this message and exit.
 
-plad classification-accuracy
-============================
+lincs classification-accuracy
+=============================
 
-Usage: plad classification-accuracy [OPTIONS] DOMAIN MODEL TESTING_SET
+Usage: lincs classification-accuracy [OPTIONS] DOMAIN MODEL TESTING_SET
 
   Compute a classification accuracy.
 

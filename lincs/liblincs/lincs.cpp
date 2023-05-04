@@ -1,4 +1,4 @@
-#include "plad.hpp"
+#include "lincs.hpp"
 
 #include <cassert>
 
@@ -9,8 +9,8 @@
 
 namespace YAML {
 
-using plad::Domain;
-using plad::Model;
+using lincs::Domain;
+using lincs::Model;
 
 template<>
 struct convert<Domain::Category> {
@@ -87,7 +87,7 @@ struct convert<Model::Boundary> {
 
 }  // namespace YAML
 
-namespace plad {
+namespace lincs {
 
 void Domain::dump(std::ostream& os) const {
   YAML::Node node;
@@ -174,4 +174,4 @@ AlternativesSet AlternativesSet::load(Domain* domain, std::istream& is) {
   return AlternativesSet{domain, alternatives};
 }
 
-}  // namespace plad
+}  // namespace lincs

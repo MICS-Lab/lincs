@@ -1,2 +1,2 @@
 include requirements.txt
-include plad/libplad/plad.hpp
+include lincs/liblincs/lincs.hpp

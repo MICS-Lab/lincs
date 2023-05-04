@@ -4,7 +4,7 @@
 #include <vector>
 
 
-namespace plad {
+namespace lincs {
 
 struct Domain {
   struct Criterion {
@@ -110,4 +110,4 @@ struct AlternativesSet {
   AlternativesSet(Domain* domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
 };
 
-}  // namespace plad
+}  // namespace lincs
