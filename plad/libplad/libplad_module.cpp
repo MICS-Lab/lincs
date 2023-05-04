@@ -8,6 +8,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
+#include <magic_enum.hpp>
 
 
 namespace bp = boost::python;
@@ -88,20 +89,24 @@ struct iterable_converter {
 
 }  // namespace
 
+template <typename T>
+void auto_enum(const std::string& name) {
+  auto e = bp::enum_<T>(name.c_str());
+  for(T value : magic_enum::enum_values<T>()) {
+    e.value(std::string(magic_enum::enum_name(value)).c_str(), value);
+  }
+}
+
 BOOST_PYTHON_MODULE(libplad) {
   iterable_converter()
     .from_python<std::vector<plad::Domain::Category>>()
     .from_python<std::vector<plad::Domain::Criterion>>()
   ;
 
-  // @todo Use magic_enum to automate the declaration of enum values
-  bp::enum_<plad::Domain::Criterion::ValueType>("ValueType")
-    .value("real", plad::Domain::Criterion::ValueType::real)
-  ;
-
-  bp::enum_<plad::Domain::Criterion::CategoryCorrelation>("CategoryCorrelation")
-    .value("growing", plad::Domain::Criterion::CategoryCorrelation::growing)
-  ;
+  // @todo Decide wether we nest types or not, use the same nesting in Python and C++
+  auto_enum<plad::Domain::Criterion::ValueType>("ValueType");
+  auto_enum<plad::Domain::Criterion::CategoryCorrelation>("CategoryCorrelation");
+  auto_enum<plad::Model::SufficientCoalitions::Kind>("SufficientCoalitionsKind");
 
   bp::class_<plad::Domain::Criterion>("Criterion", bp::init<std::string, plad::Domain::Criterion::ValueType, plad::Domain::Criterion::CategoryCorrelation>())
     .def_readwrite("name", &plad::Domain::Criterion::name)
