@@ -39,6 +39,11 @@ void dump_model(const plad::Model& model, bp::object& out_file) {
   model.dump(out_stream);
 }
 
+void dump_alternatives(const plad::AlternativesSet& alternatives, bp::object& out_file) {
+  boost::iostreams::stream<PythonOutputDevice> out_stream(out_file);
+  alternatives.dump(out_stream);
+}
+
 class PythonInputDevice : public boost::iostreams::source {
   public:
 
@@ -62,6 +67,11 @@ plad::Domain load_domain(bp::object& in_file) {
 plad::Model load_model(plad::Domain* domain, bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
   return plad::Model::load(domain, in_stream);
+}
+
+plad::AlternativesSet load_alternatives(plad::Domain* domain, bp::object& in_file) {
+  boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
+  return plad::AlternativesSet::load(domain, in_stream);
 }
 
 // https://stackoverflow.com/a/15940413/905845
@@ -114,6 +124,7 @@ BOOST_PYTHON_MODULE(libplad) {
     .from_python<std::vector<plad::Domain::Criterion>>()
     .from_python<std::vector<plad::Model::Boundary>>()
     .from_python<std::vector<plad::Model::SufficientCoalitions>>()
+    .from_python<std::vector<plad::Alternative>>()
   ;
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
@@ -159,4 +170,16 @@ BOOST_PYTHON_MODULE(libplad) {
     .def("dump", &dump_model)
   ;
   bp::def("load_model", &load_model);
+
+  bp::class_<plad::Alternative>("Alternative", bp::init<std::string, std::vector<float>, std::string>())
+    .def_readwrite("name", &plad::Alternative::name)
+    .def_readwrite("profile", &plad::Alternative::profile)
+    .def_readwrite("category", &plad::Alternative::category)
+  ;
+
+  bp::class_<plad::AlternativesSet>("AlternativesSet", bp::init<plad::Domain*, const std::vector<plad::Alternative>&>())
+    .def_readwrite("alternatives", &plad::AlternativesSet::alternatives)
+    .def("dump", &dump_alternatives)
+  ;
+  bp::def("load_alternatives", &load_alternatives);
 }

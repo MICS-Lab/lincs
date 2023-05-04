@@ -94,6 +94,9 @@ struct Alternative {
   std::string name;
   std::vector<float> profile;
   std::optional<std::string> category;
+
+  Alternative() {}
+  Alternative(const std::string& name_, const std::vector<float>& profile_, const std::optional<std::string>& category_): name(name_), profile(profile_), category(category_) {}
 };
 
 struct AlternativesSet {
@@ -102,6 +105,9 @@ struct AlternativesSet {
 
   void dump(std::ostream&) const;
   static AlternativesSet load(Domain*, std::istream&);
+
+  AlternativesSet() {}
+  AlternativesSet(Domain* domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
 };
 
 }  // namespace plad

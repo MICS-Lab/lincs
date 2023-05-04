@@ -81,6 +81,9 @@ def main():
 
             model = plad.Model(domain, [plad.Boundary([10.,10.], plad.SufficientCoalitions(plad.SufficientCoalitionsKind.weights, [0.4, 0.7]))])
             model.dump(sys.stdout)
+
+            alternatives = plad.AlternativesSet(domain, [plad.Alternative('Alice', [11., 12.], 'Good'), plad.Alternative('Bob', [9., 11.], 'Bad')])
+            alternatives.dump(sys.stdout)
         """),
         universal_newlines=True,
     )
