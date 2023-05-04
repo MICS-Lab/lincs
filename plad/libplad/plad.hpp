@@ -1,3 +1,4 @@
+#include <any>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -20,6 +21,7 @@ struct Domain {
       // @todo Add decreasing
       // @todo Add single-peaked
       // @todo Add single-valleyed
+      // @todo Add unknown
     } category_correlation;
 
     // @todo Remove these constructors:
@@ -49,13 +51,37 @@ struct Domain {
 
   std::vector<Category> categories;
 
-  // @todo Remove these constructors (see Criterion)
-  Domain() {}
   Domain(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
 
   void dump(std::ostream&) const;
   static Domain load(std::istream&);
+};
 
+struct Model {
+  Domain* domain;
+
+  struct SufficientCoalitions {
+    // Sufficient coalitions form an https://en.wikipedia.org/wiki/Upper_set in the set of parts of the set of criteria.
+    // This upset can be defined:
+    enum class Kind {
+      weights,  // by the weights of the criteria
+      // @todo Add upset_roots,  // explicitly by its roots
+    } kind;
+
+    std::vector<float> criterion_weights;
+  };
+
+  struct Boundary {
+    std::vector<std::any> profile;  // [criterion_index], element types correspond to the value_type of the criterion
+    SufficientCoalitions sufficient_coalitions;
+  };
+
+  std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1
+
+  Model(Domain* domain_, const std::vector<Boundary> boundaries_) : domain(domain_), boundaries(boundaries_) {}
+
+  void dump(std::ostream&) const;
+  static Model load(Domain*, std::istream&);
 };
 
 }  // namespace plad

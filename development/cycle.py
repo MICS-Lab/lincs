@@ -24,7 +24,7 @@ def main():
 
     os.chdir(os.path.expanduser("~"))
 
-    # Use as a standalone command-line tool
+    print("Use as a standalone command-line tool")
     domain = subprocess.run(
         ["plad", "generate", "classification-domain", "3", "2", "-"],
         check=True,
@@ -38,12 +38,15 @@ def main():
         input=domain,
         universal_newlines=True,
     )
-    # Use as an executable Python module
+    print()
+    print("Use as an executable Python module")
     subprocess.run(["python3", "-m", "plad", "generate", "classification-domain", "4", "3"], check=True)
-    # Use as a Python package
+    print()
+    print("Use as a Python package")
     subprocess.run(
         ["python3"],
         check=True,
+        # @todo Reduce this example, turn its tests into unit tests
         input=textwrap.dedent("""
             import io
             import plad
@@ -77,7 +80,8 @@ def main():
         """),
         universal_newlines=True,
     )
-    # Use as a C++ library
+    print()
+    print("Use as a C++ library")
     subprocess.run(
         [
             "g++",
@@ -86,10 +90,12 @@ def main():
             "-L/home/user/.local/lib/python3.10/site-packages", "-lplad.cpython-310-x86_64-linux-gnu",
         ],
         check=True,
+        # @todo Reduce this example, turn its tests into unit tests
         input=textwrap.dedent("""
             #include <plad.hpp>
 
             #include <iostream>
+            #include <sstream>
 
             int main() {
                 plad::Domain domain(
@@ -105,11 +111,22 @@ def main():
 
                 domain.dump(std::cout);
                 std::cout << std::endl;
+
+                plad::Model model(&domain, {{{10.f, 10.f}, {plad::Model::SufficientCoalitions::Kind::weights, {0.4f, 0.7f}}}});
+                std::ostringstream oss;
+                model.dump(oss);
+                std::cout << oss.str() << std::endl;
+                std::istringstream iss(oss.str());
+                plad::Model model2 = plad::Model::load(&domain, iss);
+
+                model2.dump(std::cout);
+                std::cout << std::endl;
             }
         """),
         universal_newlines=True,
     )
     subprocess.run(["./a.out"], check=True, env={"LD_LIBRARY_PATH": "/home/user/.local/lib/python3.10/site-packages"})
+
     with open("/wd/plad help-all.txt", "w") as f:
         subprocess.run(["plad", "help-all"], stdout=f, check=True)
 

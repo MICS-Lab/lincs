@@ -9,6 +9,7 @@
 namespace YAML {
 
 using plad::Domain;
+using plad::Model;
 
 template<>
 struct convert<Domain::Category> {
@@ -48,23 +49,43 @@ struct convert<Domain::Criterion> {
 };
 
 template<>
-struct convert<Domain> {
-  static Node encode(const Domain& domain) {
+struct convert<Model::SufficientCoalitions> {
+  static Node encode(const Model::SufficientCoalitions& coalitions) {
     Node node;
-    node["kind"] = "classification-domain";
-    node["format_version"] = 1;
-    node["criteria"] = domain.criteria;
-    node["categories"] = domain.categories;
+    node["kind"] = std::string(magic_enum::enum_name(coalitions.kind));
+    node["criterion_weights"] = coalitions.criterion_weights;
 
     return node;
   }
 
-  static bool decode(const Node& node, Domain& domain) {
-    assert(node["kind"].as<std::string>() == "classification-domain");
-    assert(node["format_version"].as<int>() == 1);
+  static bool decode(const Node& node, Model::SufficientCoalitions& coalitions) {
+    coalitions.kind = magic_enum::enum_cast<Model::SufficientCoalitions::Kind>(node["kind"].as<std::string>()).value();
+    coalitions.criterion_weights = node["criterion_weights"].as<std::vector<float>>();
 
-    domain.criteria = node["criteria"].as<std::vector<Domain::Criterion>>();
-    domain.categories = node["categories"].as<std::vector<Domain::Category>>();
+    return true;
+  }
+};
+
+template<>
+struct convert<Model::Boundary> {
+  static Node encode(const Model::Boundary& boundary) {
+    Node node;
+    for (const std::any& performance : boundary.profile) {
+      // @todo Perform the correct 'any_cast<...>' based on the criterion's value_type.
+      // This will probably forbid using the YAML::convert idiom because it does not allow injection of any context.
+      node["profile"].push_back(std::any_cast<float>(performance));
+    }
+    node["sufficient_coalitions"] = boundary.sufficient_coalitions;
+
+    return node;
+  }
+
+  static bool decode(const Node& node, Model::Boundary& boundary) {
+    for (const Node& performance : node["profile"]) {
+      // @todo Perform the correct 'as<...>' based on the criterion's value_type.
+      boundary.profile.push_back(performance.as<float>());
+    }
+    boundary.sufficient_coalitions = node["sufficient_coalitions"].as<Model::SufficientCoalitions>();
 
     return true;
   }
@@ -75,11 +96,43 @@ struct convert<Domain> {
 namespace plad {
 
 void Domain::dump(std::ostream& os) const {
-  os << YAML::Node(*this);
+  YAML::Node node;
+  node["kind"] = "classification-domain";
+  node["format_version"] = 1;
+  node["criteria"] = criteria;
+  node["categories"] = categories;
+
+  os << node;
 }
 
 Domain Domain::load(std::istream& is) {
-  return YAML::Load(is).as<Domain>();
+  YAML::Node node = YAML::Load(is);
+
+  assert(node["kind"].as<std::string>() == "classification-domain");
+  assert(node["format_version"].as<int>() == 1);
+
+  return Domain(
+    node["criteria"].as<std::vector<Criterion>>(),
+    node["categories"].as<std::vector<Category>>()
+  );
+}
+
+void Model::dump(std::ostream& os) const {
+  YAML::Node node;
+  node["kind"] = "classification-model";
+  node["format_version"] = 1;
+  node["boundaries"] = boundaries;
+
+  os << node;
+}
+
+Model Model::load(Domain* domain, std::istream& is) {
+  YAML::Node node = YAML::Load(is);
+
+  assert(node["kind"].as<std::string>() == "classification-model");
+  assert(node["format_version"].as<int>() == 1);
+
+  return Model(domain, node["boundaries"].as<std::vector<Boundary>>());
 }
 
 }  // namespace plad
