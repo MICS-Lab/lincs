@@ -1,7 +1,7 @@
 import setuptools
 
 
-version = "0.1.0"
+version = "0.1.3-dev"
 
 with open("README.md") as f:
     long_description = f.read()
@@ -32,7 +32,6 @@ setuptools.setup(
     url="https://github.com/jacquev6/lincs",
     author="Vincent Jacques",
     author_email="vincent@vincent-jacques.net",
-    license="MIT",
     install_requires=install_requires,
     packages=setuptools.find_packages(),
     include_package_data=True,
@@ -42,4 +41,15 @@ setuptools.setup(
         ],
     },
     ext_modules=[liblincs],
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        # Note: no license classifier yet
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: C++",
+        "Programming Language :: Python :: 3 :: Only",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
 )
