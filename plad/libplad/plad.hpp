@@ -69,16 +69,22 @@ struct Model {
     } kind;
 
     std::vector<float> criterion_weights;
+
+    SufficientCoalitions() {};
+    SufficientCoalitions(Kind kind_, const std::vector<float>& criterion_weights_): kind(kind_), criterion_weights(criterion_weights_) {}
   };
 
   struct Boundary {
-    std::vector<std::any> profile;  // [criterion_index], element types correspond to the value_type of the criterion
+    std::vector<float> profile;
     SufficientCoalitions sufficient_coalitions;
+
+    Boundary() {};
+    Boundary(const std::vector<float>& profile_, const SufficientCoalitions& sufficient_coalitions_): profile(profile_), sufficient_coalitions(sufficient_coalitions_) {}
   };
 
   std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1
 
-  Model(Domain* domain_, const std::vector<Boundary> boundaries_) : domain(domain_), boundaries(boundaries_) {}
+  Model(Domain* domain_, const std::vector<Boundary>& boundaries_) : domain(domain_), boundaries(boundaries_) {}
 
   void dump(std::ostream&) const;
   static Model load(Domain*, std::istream&);

@@ -70,21 +70,14 @@ template<>
 struct convert<Model::Boundary> {
   static Node encode(const Model::Boundary& boundary) {
     Node node;
-    for (const std::any& performance : boundary.profile) {
-      // @todo Perform the correct 'any_cast<...>' based on the criterion's value_type.
-      // This will probably forbid using the YAML::convert idiom because it does not allow injection of any context.
-      node["profile"].push_back(std::any_cast<float>(performance));
-    }
+    node["profile"] = boundary.profile;
     node["sufficient_coalitions"] = boundary.sufficient_coalitions;
 
     return node;
   }
 
   static bool decode(const Node& node, Model::Boundary& boundary) {
-    for (const Node& performance : node["profile"]) {
-      // @todo Perform the correct 'as<...>' based on the criterion's value_type.
-      boundary.profile.push_back(performance.as<float>());
-    }
+    boundary.profile = node["profile"].as<std::vector<float>>();
     boundary.sufficient_coalitions = node["sufficient_coalitions"].as<Model::SufficientCoalitions>();
 
     return true;

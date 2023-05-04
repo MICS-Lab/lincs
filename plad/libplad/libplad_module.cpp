@@ -34,6 +34,11 @@ void dump_domain(const plad::Domain& domain, bp::object& out_file) {
   domain.dump(out_stream);
 }
 
+void dump_model(const plad::Model& model, bp::object& out_file) {
+  boost::iostreams::stream<PythonOutputDevice> out_stream(out_file);
+  model.dump(out_stream);
+}
+
 class PythonInputDevice : public boost::iostreams::source {
   public:
 
@@ -52,6 +57,11 @@ class PythonInputDevice : public boost::iostreams::source {
 plad::Domain load_domain(bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
   return plad::Domain::load(in_stream);
+}
+
+plad::Model load_model(plad::Domain* domain, bp::object& in_file) {
+  boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
+  return plad::Model::load(domain, in_stream);
 }
 
 // https://stackoverflow.com/a/15940413/905845
@@ -99,8 +109,11 @@ void auto_enum(const std::string& name) {
 
 BOOST_PYTHON_MODULE(libplad) {
   iterable_converter()
+    .from_python<std::vector<float>>()
     .from_python<std::vector<plad::Domain::Category>>()
     .from_python<std::vector<plad::Domain::Criterion>>()
+    .from_python<std::vector<plad::Model::Boundary>>()
+    .from_python<std::vector<plad::Model::SufficientCoalitions>>()
   ;
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
@@ -129,6 +142,21 @@ BOOST_PYTHON_MODULE(libplad) {
     .def_readwrite("categories", &plad::Domain::categories)
     .def("dump", &dump_domain)
   ;
-
   bp::def("load_domain", &load_domain);
+
+  bp::class_<plad::Model::SufficientCoalitions>("SufficientCoalitions", bp::init<plad::Model::SufficientCoalitions::Kind, std::vector<float>>())
+    .def_readwrite("kind", &plad::Model::SufficientCoalitions::kind)
+    .def_readwrite("criterion_weights", &plad::Model::SufficientCoalitions::criterion_weights)
+  ;
+
+  bp::class_<plad::Model::Boundary>("Boundary", bp::init<std::vector<float>, plad::Model::SufficientCoalitions>())
+    .def_readwrite("profile", &plad::Model::Boundary::profile)
+    .def_readwrite("sufficient_coalitions", &plad::Model::Boundary::sufficient_coalitions)
+  ;
+
+  bp::class_<plad::Model>("Model", bp::init<plad::Domain*, const std::vector<plad::Model::Boundary>&>())
+    .def_readwrite("boundaries", &plad::Model::boundaries)
+    .def("dump", &dump_model)
+  ;
+  bp::def("load_model", &load_model);
 }

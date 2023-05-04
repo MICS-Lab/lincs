@@ -49,6 +49,7 @@ def main():
         # @todo Reduce this example, turn its tests into unit tests
         input=textwrap.dedent("""
             import io
+            import sys
             import plad
 
             criterion = plad.Criterion('Physic grade', plad.ValueType.real, plad.CategoryCorrelation.growing)
@@ -77,6 +78,10 @@ def main():
             buf = io.StringIO()
             domain.dump(buf)
             print(buf.getvalue())
+
+            model = plad.Model(domain, [plad.Boundary([10.,10.], plad.SufficientCoalitions(plad.SufficientCoalitionsKind.weights, [0.4, 0.7]))])
+            model.dump(sys.stdout)
+            print()
         """),
         universal_newlines=True,
     )
