@@ -12,10 +12,18 @@ def main():
     # With lincs not installed
     ##########################
 
+    print("Making integration tests from README.md")
+    print("=======================================")
+    print(flush=True)
+
     make_example_integration_test_from_readme()
 
     # Install lincs
     ###############
+
+    print("Installing *lincs*")
+    print("==================")
+    print(flush=True)
 
     # Next line costs ~15s per cycle, but seems necessary because the package is not always rebuilt when C++ parts change.
     # Feel free to comment it out if you only modify Python parts.
@@ -66,11 +74,14 @@ def make_example_integration_test_from_readme():
 
 
 def run_integration_tests():
+    print("Running integration tests")
+    print("=========================")
+    print()
     ok = True
     for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
         test_name = test_file_name[18:-7]
         print(test_name)
-        print("=" * len(test_name), flush=True)
+        print("-" * len(test_name), flush=True)
         try:
             subprocess.run(
                 ["bash", "run.sh"],

@@ -13,6 +13,7 @@ Commands:
   classification-accuracy  Compute a classification accuracy.
   classify                 Classify alternatives.
   generate                 Generate synthetic data.
+  visualize
 
 lincs generate
 ==============
@@ -91,6 +92,26 @@ Options:
   --max-imbalance FLOAT RANGE     @todo Define.  [0.0<=x<=1.0]
   --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
   --help                          Show this message and exit.
+
+lincs visualize
+===============
+
+Usage: lincs visualize [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  model
+
+lincs visualize model
+=====================
+
+Usage: lincs visualize model [OPTIONS] DOMAIN MODEL OUTPUT
+
+Options:
+  --alternatives FILENAME
+  --help                   Show this message and exit.
 
 lincs classify
 ==============
@@ -315,4 +336,7 @@ load_model( (Domain)domain, (object)in) -> Model :
 
     C++ signature :
         lincs::Model load_model(lincs::Domain,boost::python::api::object {lvalue})
+
+lincs.visualization
+===================
 

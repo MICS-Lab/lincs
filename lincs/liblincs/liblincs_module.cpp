@@ -175,11 +175,16 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("criterion_weights", &lincs::Model::SufficientCoalitions::criterion_weights)
   ;
 
+  bp::class_<std::vector<float>>("floats_vector")
+    .def(bp::vector_indexing_suite<std::vector<float>>())
+  ;
   bp::class_<lincs::Model::Boundary>("Boundary", bp::init<std::vector<float>, lincs::Model::SufficientCoalitions>())
     .def_readwrite("profile", &lincs::Model::Boundary::profile)
     .def_readwrite("sufficient_coalitions", &lincs::Model::Boundary::sufficient_coalitions)
   ;
-
+  bp::class_<std::vector<lincs::Model::Boundary>>("boundaries_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Model::Boundary>>())
+  ;
   bp::class_<lincs::Model>("Model", bp::init<const lincs::Domain&, const std::vector<lincs::Model::Boundary>&>())
     .def_readwrite("boundaries", &lincs::Model::boundaries)
     .def(

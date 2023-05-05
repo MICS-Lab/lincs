@@ -6,6 +6,7 @@ import sys
 import click
 
 import lincs
+import lincs.visualization
 
 
 def options_tree(name, kwds, dependents):
@@ -298,6 +299,41 @@ def classified_alternatives(
         random_seed=random_seed,
     )
     alternatives.dump(output_classified_alternatives)
+
+
+@main.group()
+def visualize():
+    pass
+
+
+@visualize.command()
+@click.argument(
+    "domain",
+    type=click.File(mode="r"),
+)
+@click.argument(
+    "model",
+    type=click.File(mode="r"),
+)
+@click.option(
+    "--alternatives",
+    type=click.File(mode="r"),
+)
+@click.argument(
+    "output",
+    type=click.File(mode="wb"),
+)
+def model(
+    domain,
+    model,
+    alternatives,
+    output,
+):
+    domain = lincs.load_domain(domain)
+    model = lincs.load_model(domain, model)
+    if alternatives is not None:
+        alternatives = lincs.load_alternatives(domain, alternatives)
+    lincs.visualization.visualize_model(domain, model, alternatives, output)
 
 
 @main.group(

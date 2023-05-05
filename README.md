@@ -52,6 +52,7 @@ The command-line interface is the easiest way to get started with *lincs*, start
       classification-accuracy  Compute a classification accuracy.
       classify                 Classify alternatives.
       generate                 Generate synthetic data.
+      visualize
 <!-- STOP -->
 
 It's organized using sub-commands, the first one being `generate`, to generate synthetic pseudo-random data.
@@ -98,7 +99,7 @@ The generated `domain.yml` should look like:
     diff expected-domain.yml domain.yml
 --><!-- STOP -->
 
-Then a classification model (@todo Link to concepts and file formats):
+Then generate a classification model (@todo Link to concepts and file formats):
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs generate classification-model domain.yml --output-model model.yml
@@ -141,7 +142,20 @@ It should look like:
     diff expected-model.yml model.yml
 --><!-- STOP -->
 
-And finally a set of classified alternatives (@todo Link to concepts and file formats):
+You can visualize it using:
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs visualize model domain.yml model.yml model.png
+<!-- STOP -->
+<!-- EXTEND command-line-example/run.sh --><!--
+    cp model.png ../../..
+--><!-- STOP -->
+
+It should output something like:
+
+![Model visualization](model.png)
+
+And finally generate a set of classified alternatives (@todo Link to concepts and file formats):
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs generate classified-alternatives domain.yml model.yml 10 --output-classified-alternatives learning-set.csv
@@ -167,6 +181,25 @@ It should look like:
 <!-- EXTEND command-line-example/run.sh --><!--
     diff expected-learning-set.csv learning-set.csv
 --><!-- STOP -->
+
+You can visualize it using:
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs visualize model domain.yml model.yml --alternatives learning-set.csv alternatives.png
+<!-- STOP -->
+<!-- EXTEND command-line-example/run.sh --><!--
+    cp alternatives.png ../../..
+--><!-- STOP -->
+
+It should output something like:
+
+![Alternatives visualization](alternatives.png)
+
+@todo Improve how this graph looks:
+
+- display categories as stacked solid colors
+- display alternatives in a color that matches their assigned category
+- remove the legend, place names (categories and alternatives) directly on the graph
 
 You now have a (synthetic) learning set.
 You can use it to train a new model:

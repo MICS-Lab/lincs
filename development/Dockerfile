@@ -32,6 +32,11 @@ RUN pip3 install \
       semver \
       twine
 
+# Python packages again, to speed-up development cycle
+RUN pip3 install \
+      click \
+      matplotlib
+
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home

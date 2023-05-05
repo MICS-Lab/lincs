@@ -82,6 +82,8 @@ struct Model {
 
     Boundary() {};
     Boundary(const std::vector<float>& profile_, const SufficientCoalitions& sufficient_coalitions_): profile(profile_), sufficient_coalitions(sufficient_coalitions_) {}
+
+    bool operator==(const Boundary& other) const { return profile == other.profile && sufficient_coalitions.kind == other.sufficient_coalitions.kind && sufficient_coalitions.criterion_weights == other.sufficient_coalitions.criterion_weights; }
   };
 
   std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1
