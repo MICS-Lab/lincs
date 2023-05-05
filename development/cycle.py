@@ -17,6 +17,8 @@ def main():
     # Install lincs
     ###############
 
+    # Next line costs ~15s per cycle, but seems necessary because the package is not always rebuilt when C++ parts change.
+    # Feel free to comment it out if you only modify Python parts.
     shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("lincs.egg-info", ignore_errors=True)
     subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
