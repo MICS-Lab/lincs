@@ -1,6 +1,7 @@
 #include "lincs.hpp"
 
 #include <cassert>
+#include <random>
 
 #include <magic_enum.hpp>
 #include <rapidcsv.h>
@@ -154,20 +155,64 @@ Model Model::load(Domain* domain, std::istream& is) {
 }
 
 Model Model::generate_mrsort(Domain* domain, unsigned random_seed) {
-  // @todo Actually randomize!
+  const unsigned categories_count = domain->categories.size();
+  const unsigned criteria_count = domain->criteria.size();
+  std::mt19937 gen(random_seed);
+
+  // Profile can take any values. We arbitrarily generate them uniformly
+  std::uniform_real_distribution<float> values_distribution(0.01f, 0.99f);
+  // (Values clamped strictly inside ']0, 1[' to make it easier to generate balanced learning sets)
+  std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
+  for (uint crit_index = 0; crit_index != criteria_count; ++crit_index) {
+    // Profiles must be ordered on each criterion, so we generate a random column...
+    std::vector<float> column(categories_count - 1);
+    std::generate(
+      column.begin(), column.end(),
+      [&values_distribution, &gen]() { return values_distribution(gen); });
+    // ... sort it...
+    std::sort(column.begin(), column.end());
+    // ... and assign that column across all profiles.
+    for (uint profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
+      profiles[profile_index][crit_index] = column[profile_index];
+    }
+  }
+
+  // Weights are a bit trickier.
+  // We first generate partial sums of weights...
+  std::uniform_real_distribution<float> partial_sums_distribution(0.0f, 1.f);
+  std::vector<float> partial_sums(criteria_count + 1);
+  partial_sums[0] = 0;  // First partial sum is zero
+  std::generate(
+    std::next(partial_sums.begin()), std::prev(partial_sums.end()),
+    [&partial_sums_distribution, &gen]() { return partial_sums_distribution(gen); });
+  partial_sums[criteria_count] = 1;  // Last partial sum is one
+  // ... sort them...
+  std::sort(partial_sums.begin(), partial_sums.end());
+  // ... and use consecutive differences as (normalized) weights
+  std::vector<float> normalized_weights(criteria_count);
+  std::transform(
+    partial_sums.begin(), std::prev(partial_sums.end()),
+    std::next(partial_sums.begin()),
+    normalized_weights.begin(),
+    [](float left, float right) { return right - left; });
+  // We then generate an arbitrary threshold.
+  const float threshold = std::uniform_real_distribution<float>(0.0f, 1.f)(gen);
+  // Finally, we denormalize weights
+  std::vector<float> denormalized_weights(criteria_count);
+  std::transform(
+    normalized_weights.begin(), normalized_weights.end(),
+    denormalized_weights.begin(),
+    [threshold](float w) { return w / threshold; });
 
   SufficientCoalitions coalitions{
     SufficientCoalitions::Kind::weights,
-    std::vector<float>(domain->criteria.size(), 0.4f),
+    denormalized_weights,
   };
 
   std::vector<Boundary> boundaries;
-  boundaries.reserve(domain->categories.size() - 1);
-  for (unsigned category_index = 0; category_index != domain->categories.size() - 1; ++category_index) {
-    boundaries.push_back(Boundary{
-      std::vector<float>(domain->criteria.size(), (category_index + 1.f) / domain->categories.size()),
-      coalitions,
-    });
+  boundaries.reserve(categories_count - 1);
+  for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
+    boundaries.push_back(Boundary{profiles[category_index], coalitions});
   }
 
   return Model(domain, boundaries);
@@ -223,34 +268,72 @@ Alternatives Alternatives::load(Domain* domain, std::istream& is) {
 }
 
 Alternatives Alternatives::generate(Domain* domain, Model* model, unsigned alternatives_count, unsigned random_seed) {
-  // @todo Actually randomize!
+  const unsigned criteria_count = domain->criteria.size();
+  std::mt19937 gen(random_seed);
 
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
-  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-    Alternative alternative;
-    alternative.name = "Alternative " + std::to_string(alternative_index + 1);
-    alternative.profile.reserve(domain->criteria.size());
-    for (unsigned criterion_index = 0; criterion_index != domain->criteria.size(); ++criterion_index) {
-      alternative.profile.push_back(0.5f);
-    }
-    alternative.category = domain->categories[0].name;
-    alternatives.push_back(alternative);
+
+  // We don't do anything to ensure homogeneous repartition amongst categories.
+  // We just generate random profiles uniformly in [0, 1]
+  std::uniform_real_distribution<float> values_distribution(0.0f, 1.0f);
+
+  for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+    std::vector<float> criteria_values(criteria_count);
+    std::generate(
+      criteria_values.begin(), criteria_values.end(),
+      [&values_distribution, &gen]() { return values_distribution(gen); });
+
+    alternatives.push_back(Alternative{
+      "Alternative " + std::to_string(alt_index + 1),
+      criteria_values,
+      std::nullopt,
+    });
   }
 
-  return Alternatives{domain, alternatives};
+  Alternatives alts{domain, alternatives};
+  classify_alternatives(domain, model, &alts);
+
+  return alts;
 }
 
 ClassificationResult classify_alternatives(Domain* domain, Model* model, Alternatives* alternatives) {
-  // @todo Implement
+  assert(model->domain == domain);
+  assert(alternatives->domain == domain);
 
-  const unsigned changed = std::min(5ul, alternatives->alternatives.size());
+  const unsigned criteria_count = domain->criteria.size();
+  const unsigned categories_count = domain->categories.size();
 
-  for (unsigned i = 0; i != changed; ++i) {
-    alternatives->alternatives[i].category = domain->categories[1].name;
+  ClassificationResult result{0, 0};
+
+  for (auto& alternative: alternatives->alternatives) {
+    uint category_index;
+    for (category_index = categories_count - 1; category_index != 0; --category_index) {
+      const auto& boundary = model->boundaries[category_index - 1];
+      assert(boundary.sufficient_coalitions.kind == SufficientCoalitions::Kind::weights);
+      float weight_at_or_above_profile = 0;
+      for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+        const float alternative_value = alternative.profile[criterion_index];
+        const float profile_value = boundary.profile[criterion_index];
+        if (alternative_value >= profile_value) {
+          weight_at_or_above_profile += boundary.sufficient_coalitions.criterion_weights[criterion_index];
+        }
+      }
+      if (weight_at_or_above_profile >= 1.f) {
+        break;
+      }
+    }
+
+    const std::string& category = domain->categories[category_index].name;
+    if (alternative.category == category) {
+      ++result.unchanged;
+    } else {
+      alternative.category = category;
+      ++result.changed;
+    }
   }
 
-  return {alternatives->alternatives.size() - changed, changed};
+  return result;
 }
 
 }  // namespace lincs

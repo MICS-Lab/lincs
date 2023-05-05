@@ -102,6 +102,7 @@ Then a classification model (@todo Link to concepts and file formats):
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs generate classification-model domain.yml --output-model model.yml
+<!-- APPEND-TO-LAST-LINE --random-seed 41 -->
 <!-- STOP -->
 
 It should look like:
@@ -111,29 +112,29 @@ It should look like:
     format_version: 1
     boundaries:
       - profile:
-          - 0.333333343
-          - 0.333333343
-          - 0.333333343
-          - 0.333333343
+          - 0.255905151
+          - 0.0551739037
+          - 0.162252158
+          - 0.0526000932
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.400000006
-            - 0.400000006
-            - 0.400000006
-            - 0.400000006
+            - 0.147771254
+            - 0.618687689
+            - 0.406786472
+            - 0.0960085914
       - profile:
-          - 0.666666687
-          - 0.666666687
-          - 0.666666687
-          - 0.666666687
+          - 0.676961303
+          - 0.324553937
+          - 0.673279881
+          - 0.598555863
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.400000006
-            - 0.400000006
-            - 0.400000006
-            - 0.400000006
+            - 0.147771254
+            - 0.618687689
+            - 0.406786472
+            - 0.0960085914
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
@@ -144,22 +145,23 @@ And finally a set of classified alternatives (@todo Link to concepts and file fo
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs generate classified-alternatives domain.yml model.yml 10 --output-classified-alternatives learning-set.csv
+<!-- APPEND-TO-LAST-LINE --random-seed 42 -->
 <!-- STOP -->
 
 It should look like:
 
 <!-- START command-line-example/expected-learning-set.csv -->
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
-    "Alternative 1",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 2",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 3",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 4",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 5",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 6",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 7",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 8",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 9",0.5,0.5,0.5,0.5,"Category 1"
-    "Alternative 10",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Category 3"
+    "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Category 2"
+    "Alternative 3",0.156018645,0.445832759,0.15599452,0.0999749228,"Category 1"
+    "Alternative 4",0.0580836125,0.4592489,0.866176128,0.333708614,"Category 3"
+    "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Category 2"
+    "Alternative 6",0.0205844995,0.0564115755,0.969909847,0.721998751,"Category 2"
+    "Alternative 7",0.832442641,0.938552737,0.212339118,0.000778764719,"Category 2"
+    "Alternative 8",0.181824967,0.99221158,0.183404505,0.61748153,"Category 2"
+    "Alternative 9",0.304242253,0.611653149,0.524756432,0.00706630852,"Category 2"
+    "Alternative 10",0.431945026,0.0230624285,0.291229129,0.524774671,"Category 1"
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
@@ -182,6 +184,7 @@ First, generate a testing set:
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs generate classified-alternatives domain.yml model.yml 100 --output-classified-alternatives testing-set.csv
+<!-- APPEND-TO-LAST-LINE --random-seed 43 -->
 <!-- STOP -->
 
 And ask the trained model to classify it:
@@ -199,23 +202,8 @@ There are a few differences between the original testing set and the reclassifie
 
 That command should show a few alternatives that are not classified the same way by the original and the trained model:
 
-<!-- START command-line-example/expected-classification-diff.txt -->
-    2,6c2,6
-    < "Alternative 1",0.5,0.5,0.5,0.5,"Category 1"
-    < "Alternative 2",0.5,0.5,0.5,0.5,"Category 1"
-    < "Alternative 3",0.5,0.5,0.5,0.5,"Category 1"
-    < "Alternative 4",0.5,0.5,0.5,0.5,"Category 1"
-    < "Alternative 5",0.5,0.5,0.5,0.5,"Category 1"
-    ---
-    > "Alternative 1",0.5,0.5,0.5,0.5,"Category 2"
-    > "Alternative 2",0.5,0.5,0.5,0.5,"Category 2"
-    > "Alternative 3",0.5,0.5,0.5,0.5,"Category 2"
-    > "Alternative 4",0.5,0.5,0.5,0.5,"Category 2"
-    > "Alternative 5",0.5,0.5,0.5,0.5,"Category 2"
-<!-- STOP -->
-
 <!-- EXTEND command-line-example/run.sh --><!--
-    diff expected-classification-diff.txt classification-diff.txt
+    diff <(true) classification-diff.txt
 --><!-- STOP -->
 
 You can also measure the classification accuracy of the trained model on that testing set:
@@ -228,7 +216,7 @@ You can also measure the classification accuracy of the trained model on that te
 It should be close to 100%:
 
 <!-- START command-line-example/expected-classification-accuracy.txt -->
-    95/100
+    100/100
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
