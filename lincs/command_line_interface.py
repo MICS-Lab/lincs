@@ -302,6 +302,7 @@ def classified_alternatives(
 
 @main.group(
     help="Learn a model.",
+    hidden=True,
 )
 def learn():
     pass
