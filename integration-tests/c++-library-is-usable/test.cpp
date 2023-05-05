@@ -4,6 +4,8 @@
 #include <lincs.hpp>
 
 
+// @todo Remove details from this example, turn them into unit tests (see ../python-package-is-usable/test.py)
+
 int main() {
   lincs::Domain domain{
     {

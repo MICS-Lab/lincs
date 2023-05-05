@@ -163,7 +163,6 @@ BOOST_PYTHON_MODULE(liblincs) {
     (bp::arg("in")),
     "Load a domain from the provided `.read()`-supporting file-like object, in YAML format."
   );
-  // @todo Make random_seed a keyword-only argument. Same for other generate functions.
   bp::def(
     "generate_domain",
     &lincs::Domain::generate,
