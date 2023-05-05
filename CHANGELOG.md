@@ -1,3 +1,7 @@
+# Version 0.2.1
+
+- Fix images on the PyPI website
+
 # Version 0.2.0
 
 - Implement generation of pseudo-random synthetic data
