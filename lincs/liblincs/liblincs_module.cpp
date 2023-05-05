@@ -208,7 +208,9 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("profile", &lincs::Alternative::profile)
     .def_readwrite("category", &lincs::Alternative::category)
   ;
-
+  bp::class_<std::vector<lincs::Alternative>>("alternatives_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>())
+  ;
   bp::class_<lincs::Alternatives>("Alternatives", bp::init<lincs::Domain*, const std::vector<lincs::Alternative>&>())
     .def_readwrite("alternatives", &lincs::Alternatives::alternatives)
     .def(

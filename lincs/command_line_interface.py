@@ -510,8 +510,6 @@ def classification_model(
         DOMAIN is a *classification domain* file.
         MODEL is a *classification model* file for that domain.
         ALTERNATIVES is an *unclassified alternatives* file for that domain.
-
-        The *classified alternatives* file is written to OUTPUT_CLASSIFIED_ALTERNATIVES, which defaults to - to write to standard output.
     """,
 )
 @click.argument(
@@ -526,10 +524,11 @@ def classification_model(
     "alternatives",
     type=click.File(mode="r"),
 )
-@click.argument(
-    "output-classified-alternatives",
+@click.option(
+    "--output-classified-alternatives",
     type=click.File(mode="w"),
     default="-",
+    help="Write classified alternatives to this file instead of standard output.",
 )
 def classify(
     domain,
@@ -537,7 +536,11 @@ def classify(
     alternatives,
     output_classified_alternatives,
 ):
-    pass
+    domain = lincs.load_domain(domain)
+    model = lincs.load_model(domain, model)
+    alternatives = lincs.load_alternatives(domain, alternatives)
+    lincs.classify_alternatives(domain, model, alternatives)
+    alternatives.dump(output_classified_alternatives)
 
 
 @main.command(

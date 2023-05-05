@@ -42,7 +42,7 @@ def make_example_integration_test_from_readme():
             assert current_file_name
             current_file_name = None
         if current_file_name:
-            m = re.fullmatch(r"<!-- APPEND-TO-LAST-LINE (.+) -->", line)
+            m = re.fullmatch(r"<!-- APPEND-TO-LAST-LINE( .+) -->", line)
             if m:
                 assert files[current_file_name]
                 files[current_file_name][-1] += m.group(1)

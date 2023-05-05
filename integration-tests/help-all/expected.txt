@@ -96,7 +96,6 @@ lincs classify
 ==============
 
 Usage: lincs classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
-                      [OUTPUT_CLASSIFIED_ALTERNATIVES]
 
   Classify alternatives.
 
@@ -104,12 +103,11 @@ Usage: lincs classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
   file for that domain. ALTERNATIVES is an *unclassified alternatives* file
   for that domain.
 
-  The *classified alternatives* file is written to
-  OUTPUT_CLASSIFIED_ALTERNATIVES, which defaults to - to write to standard
-  output.
-
 Options:
-  --help  Show this message and exit.
+  --output-classified-alternatives FILENAME
+                                  Write classified alternatives to this file
+                                  instead of standard output.
+  --help                          Show this message and exit.
 
 lincs classification-accuracy
 =============================

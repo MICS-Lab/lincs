@@ -197,7 +197,11 @@ void Alternatives::dump(std::ostream& os) const {
 }
 
 Alternatives Alternatives::load(Domain* domain, std::istream& is) {
-  rapidcsv::Document doc(is);
+  // I don't know why constructing the rapidcsv::Document directly from 'is' sometimes results in an empty document.
+  // So, read the whole stream into a string and construct the document from that.
+  std::string s(std::istreambuf_iterator<char>(is), {});
+  std::istringstream iss(s);
+  rapidcsv::Document doc(iss);
 
   std::vector<Alternative> alternatives;
   alternatives.reserve(doc.GetRowCount());
@@ -239,9 +243,14 @@ Alternatives Alternatives::generate(Domain* domain, Model* model, unsigned alter
 
 ClassificationResult classify_alternatives(Domain* domain, Model* model, Alternatives* alternatives) {
   // @todo Implement
-  ClassificationResult result{95, 5};
 
-  return result;
+  const unsigned changed = std::min(5ul, alternatives->alternatives.size());
+
+  for (unsigned i = 0; i != changed; ++i) {
+    alternatives->alternatives[i].category = domain->categories[1].name;
+  }
+
+  return {alternatives->alternatives.size() - changed, changed};
 }
 
 }  // namespace lincs

@@ -101,6 +101,8 @@ struct Alternative {
 
   Alternative() {}
   Alternative(const std::string& name_, const std::vector<float>& profile_, const std::optional<std::string>& category_): name(name_), profile(profile_), category(category_) {}
+
+  bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category == other.category; }
 };
 
 struct Alternatives {

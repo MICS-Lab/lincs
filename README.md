@@ -176,7 +176,7 @@ You can use it to train a new model:
 <!-- STOP -->
 
 If the training is effective, the resulting trained model should be close to the original (synthetic) one.
-To measure how close a trained model is to the original one, you can use the `classification-accuracy` sub-command on a testing set.
+To see how close a trained model is to the original one, you can reclassify a testing set.
 
 First, generate a testing set:
 
@@ -184,7 +184,41 @@ First, generate a testing set:
     lincs generate classified-alternatives domain.yml model.yml 100 --output-classified-alternatives testing-set.csv
 <!-- STOP -->
 
-Then measure the classification accuracy of the trained model:
+And ask the trained model to classify it:
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs classify domain.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
+<!-- STOP -->
+
+There are a few differences between the original testing set and the reclassified one:
+
+<!-- EXTEND command-line-example/run.sh -->
+    diff testing-set.csv reclassified-testing-set.csv
+<!-- APPEND-TO-LAST-LINE >classification-diff.txt || true -->
+<!-- STOP -->
+
+That command should show a few alternatives that are not classified the same way by the original and the trained model:
+
+<!-- START command-line-example/expected-classification-diff.txt -->
+    2,6c2,6
+    < "Alternative 1",0.5,0.5,0.5,0.5,"Category 1"
+    < "Alternative 2",0.5,0.5,0.5,0.5,"Category 1"
+    < "Alternative 3",0.5,0.5,0.5,0.5,"Category 1"
+    < "Alternative 4",0.5,0.5,0.5,0.5,"Category 1"
+    < "Alternative 5",0.5,0.5,0.5,0.5,"Category 1"
+    ---
+    > "Alternative 1",0.5,0.5,0.5,0.5,"Category 2"
+    > "Alternative 2",0.5,0.5,0.5,0.5,"Category 2"
+    > "Alternative 3",0.5,0.5,0.5,0.5,"Category 2"
+    > "Alternative 4",0.5,0.5,0.5,0.5,"Category 2"
+    > "Alternative 5",0.5,0.5,0.5,0.5,"Category 2"
+<!-- STOP -->
+
+<!-- EXTEND command-line-example/run.sh --><!--
+    diff expected-classification-diff.txt classification-diff.txt
+--><!-- STOP -->
+
+You can also measure the classification accuracy of the trained model on that testing set:
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs classification-accuracy domain.yml trained-model.yml testing-set.csv
