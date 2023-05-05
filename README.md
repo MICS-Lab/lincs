@@ -138,6 +138,8 @@ It should look like:
             - 0.0960085914
 <!-- STOP -->
 
+@todo Use YAML anchors and references to avoid repeating the same sufficient coalitions in all profiles
+
 <!-- EXTEND command-line-example/run.sh --><!--
     diff expected-model.yml model.yml
 --><!-- STOP -->
