@@ -1,0 +1,41 @@
+kind: classification-domain
+format_version: 1
+criteria:
+  - name: Literature grade
+    value_type: real
+    category_correlation: growing
+  - name: Physics grade
+    value_type: real
+    category_correlation: growing
+categories:
+  - name: Fail
+  - name: Pass
+kind: classification-model
+format_version: 1
+boundaries:
+  - profile:
+      - 10
+      - 10
+    sufficient_coalitions:
+      kind: weights
+      criterion_weights:
+        - 0.400000006
+        - 0.699999988
+
+kind: classification-model
+format_version: 1
+boundaries:
+  - profile:
+      - 10
+      - 10
+    sufficient_coalitions:
+      kind: weights
+      criterion_weights:
+        - 0.400000006
+        - 0.699999988
+name,"Literature grade","Physics grade",category
+Alice,11,12,Pass
+Bob,9,11,Fail
+name,"Literature grade","Physics grade",category
+Alice,11,12,Pass
+Bob,9,11,Fail

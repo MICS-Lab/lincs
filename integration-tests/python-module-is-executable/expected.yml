@@ -1,0 +1,19 @@
+kind: classification-domain
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: real
+    category_correlation: growing
+  - name: Criterion 2
+    value_type: real
+    category_correlation: growing
+  - name: Criterion 3
+    value_type: real
+    category_correlation: growing
+  - name: Criterion 4
+    value_type: real
+    category_correlation: growing
+categories:
+  - name: Category 1
+  - name: Category 2
+  - name: Category 3

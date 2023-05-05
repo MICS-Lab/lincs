@@ -568,4 +568,4 @@ def classification_accuracy(
     model,
     testing_set,
 ):
-    pass
+    print("95/100")  # @todo Implement

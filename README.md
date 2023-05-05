@@ -27,15 +27,181 @@ Note that we *do* plan to build binary wheel distributions when the project matu
 
 ## Start using *lincs*' command-line interface
 
-The command-line interface is the easiest way to get started with *lincs*, starting with `lincs --help`.
+The command-line interface is the easiest way to get started with *lincs*, starting with `lincs --help`, which should output something like:
+
+<!-- START help/run.sh --><!--
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
+
+    lincs --help >actual-help.txt
+    diff expected-help.txt actual-help.txt
+--><!-- STOP -->
+
+<!-- START help/expected-help.txt -->
+    Usage: lincs [OPTIONS] COMMAND [ARGS]...
+
+      lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for
+      training and using MCDA models.
+
+    Options:
+      --help  Show this message and exit.
+
+    Commands:
+      classification-accuracy  Compute a classification accuracy.
+      classify                 Classify alternatives.
+      generate                 Generate synthetic data.
+<!-- STOP -->
+
 It's organized using sub-commands, the first one being `generate`, to generate synthetic pseudo-random data.
 
-    lincs generate classification-domain 4 3 --output-domain domain.yaml
-    lincs generate classification-model domain.yaml --output-model model.yaml
-    lincs generate classified-alternatives domain.yaml model.yaml 10 --output-classified-alternatives alternatives.csv
+<!-- START command-line-example/run.sh --><!--
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
 
-And have a look at the generated files.
-Their format is documented in the reference (@todo add link to the reference).
+--><!-- STOP -->
+
+Generate a classification domain with 4 criteria and 3 categories (@todo Link to concepts and file formats):
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs generate classification-domain 4 3 --output-domain domain.yml
+<!-- STOP -->
+
+The generated `domain.yml` should look like:
+
+<!-- START command-line-example/expected-domain.yml -->
+    kind: classification-domain
+    format_version: 1
+    criteria:
+      - name: Criterion 1
+        value_type: real
+        category_correlation: growing
+      - name: Criterion 2
+        value_type: real
+        category_correlation: growing
+      - name: Criterion 3
+        value_type: real
+        category_correlation: growing
+      - name: Criterion 4
+        value_type: real
+        category_correlation: growing
+    categories:
+      - name: Category 1
+      - name: Category 2
+      - name: Category 3
+<!-- STOP -->
+
+<!-- EXTEND command-line-example/run.sh --><!--
+    diff expected-domain.yml domain.yml
+--><!-- STOP -->
+
+Then a classification model (@todo Link to concepts and file formats):
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs generate classification-model domain.yml --output-model model.yml
+<!-- STOP -->
+
+It should look like:
+
+<!-- START command-line-example/expected-model.yml -->
+    kind: classification-model
+    format_version: 1
+    boundaries:
+      - profile:
+          - 0.333333343
+          - 0.333333343
+          - 0.333333343
+          - 0.333333343
+        sufficient_coalitions:
+          kind: weights
+          criterion_weights:
+            - 0.400000006
+            - 0.400000006
+            - 0.400000006
+            - 0.400000006
+      - profile:
+          - 0.666666687
+          - 0.666666687
+          - 0.666666687
+          - 0.666666687
+        sufficient_coalitions:
+          kind: weights
+          criterion_weights:
+            - 0.400000006
+            - 0.400000006
+            - 0.400000006
+            - 0.400000006
+<!-- STOP -->
+
+<!-- EXTEND command-line-example/run.sh --><!--
+    diff expected-model.yml model.yml
+--><!-- STOP -->
+
+And finally a set of classified alternatives (@todo Link to concepts and file formats):
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs generate classified-alternatives domain.yml model.yml 10 --output-classified-alternatives learning-set.csv
+<!-- STOP -->
+
+It should look like:
+
+<!-- START command-line-example/expected-learning-set.csv -->
+    name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
+    "Alternative 1",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 2",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 3",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 4",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 5",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 6",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 7",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 8",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 9",0.5,0.5,0.5,0.5,"Category 1"
+    "Alternative 10",0.5,0.5,0.5,0.5,"Category 1"
+<!-- STOP -->
+
+<!-- EXTEND command-line-example/run.sh --><!--
+    diff expected-learning-set.csv learning-set.csv
+--><!-- STOP -->
+
+You now have a (synthetic) learning set.
+You can use it to train a new model:
+
+<!-- EXTEND command-line-example/run.sh -->
+    # @todo Use `lincs train` when it exists.
+    # For now we just do:
+    cp model.yml trained-model.yml
+<!-- STOP -->
+
+If the training is effective, the resulting trained model should be close to the original (synthetic) one.
+To measure how close a trained model is to the original one, you can use the `classification-accuracy` sub-command on a testing set.
+
+First, generate a testing set:
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs generate classified-alternatives domain.yml model.yml 100 --output-classified-alternatives testing-set.csv
+<!-- STOP -->
+
+Then measure the classification accuracy of the trained model:
+
+<!-- EXTEND command-line-example/run.sh -->
+    lincs classification-accuracy domain.yml trained-model.yml testing-set.csv
+<!-- APPEND-TO-LAST-LINE >classification-accuracy.txt -->
+<!-- STOP -->
+
+It should be close to 100%:
+
+<!-- START command-line-example/expected-classification-accuracy.txt -->
+    95/100
+<!-- STOP -->
+
+<!-- EXTEND command-line-example/run.sh --><!--
+    diff expected-classification-accuracy.txt classification-accuracy.txt
+--><!-- STOP -->
+
+Once you're comfortable with the tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.
 
 # User guide
 

@@ -1,4 +1,6 @@
 from __future__ import annotations
+import glob
+import re
 import shutil
 
 import subprocess
@@ -7,10 +9,10 @@ import textwrap
 
 
 def main():
-    # With lincs NOT installed
+    # With lincs not installed
     ##########################
 
-    subprocess.run([f"pip3", "install", "-r", "requirements.txt"], stdout=subprocess.DEVNULL, check=True)
+    make_example_integration_test_from_readme()
 
     # Install lincs
     ###############
@@ -22,131 +24,63 @@ def main():
     # With lincs installed
     ######################
 
-    os.chdir(os.path.expanduser("~"))
+    run_integration_tests()
 
-    print("Use as a standalone command-line tool")
-    domain = subprocess.run(
-        ["lincs", "generate", "classification-domain", "3", "2"],
-        check=True,
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    ).stdout.strip()
-    print(domain)
-    subprocess.run(
-        ["lincs", "generate", "classification-model", "-"],
-        check=True,
-        input=domain,
-        universal_newlines=True,
-    )
-    print()
-    print("Use as an executable Python module")
-    subprocess.run(["python3", "-m", "lincs", "generate", "classification-domain", "4", "3"], check=True)
-    print()
-    print("Use as a Python package")
-    subprocess.run(
-        ["python3"],
-        check=True,
-        # @todo Reduce this example, turn its tests into unit tests
-        input=textwrap.dedent("""
-            import io
-            import sys
-            import lincs
 
-            criterion = lincs.Criterion('Physic grade', lincs.ValueType.real, lincs.CategoryCorrelation.growing)
-            print(criterion.name, criterion.value_type, criterion.category_correlation)
-            criterion.name = 'Physics grade'
-            criterion.value_type = lincs.ValueType.real
-            criterion.category_correlation = lincs.CategoryCorrelation.growing
+def make_example_integration_test_from_readme():
+    with open("README.md") as f:
+        lines = f.readlines()
 
-            domain = lincs.Domain(
-                [
-                    criterion,
-                    lincs.Criterion('Literature grade', lincs.ValueType.real, lincs.CategoryCorrelation.growing),
-                ],
-                (
-                    lincs.Category('Bad'),
-                    lincs.Category('Good'),
-                ),
+    files = {}
+    current_file_name = None
+    for line in lines:
+        line = line.rstrip()
+        m = re.fullmatch(r"(?:-->)?<!-- STOP -->", line)
+        if m:
+            assert current_file_name
+            current_file_name = None
+        if current_file_name:
+            m = re.fullmatch(r"<!-- APPEND-TO-LAST-LINE (.+) -->", line)
+            if m:
+                assert files[current_file_name]
+                files[current_file_name][-1] += m.group(1)
+            else:
+                files[current_file_name].append(line)
+        m = re.fullmatch(r"<!-- (START|EXTEND) (.+) -->(?:<!--)?", line)
+        if m:
+            current_file_name = m.group(2)
+            if m.group(1) == "START":
+                files[current_file_name] = []
+    assert current_file_name is None, current_file_name
+
+    shutil.rmtree("integration-tests/readme", ignore_errors=True)
+    for file_name, file_contents in files.items():
+        file_path = os.path.join("integration-tests", "readme", file_name)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w") as f:
+            f.write(textwrap.dedent("\n".join(file_contents)) + "\n")
+    with open("integration-tests/readme/.gitignore", "w") as f:
+        f.write("*\n")
+
+
+def run_integration_tests():
+    ok = True
+    for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
+        test_name = test_file_name[18:-7]
+        print(test_name)
+        print("=" * len(test_name), flush=True)
+        try:
+            subprocess.run(
+                ["bash", "run.sh"],
+                cwd=os.path.dirname(test_file_name),
+                check=True,
             )
-
-            criterion = domain.criteria[0]
-            print(criterion.name, criterion.value_type, criterion.category_correlation)
-            print(domain.categories[0].name)
-            domain.categories[0].name = "Terrible"
-            domain.categories[1].name = "Ok, I guess"
-
-            buf = io.StringIO()
-            domain.dump(buf)
-            print(buf.getvalue().rstrip())
-
-            model = lincs.Model(domain, [lincs.Boundary([10.,10.], lincs.SufficientCoalitions(lincs.SufficientCoalitionsKind.weights, [0.4, 0.7]))])
-            model.dump(sys.stdout)
-
-            alternatives = lincs.AlternativesSet(domain, [lincs.Alternative('Alice', [11., 12.], 'Good'), lincs.Alternative('Bob', [9., 11.], 'Bad')])
-            alternatives.dump(sys.stdout)
-        """),
-        universal_newlines=True,
-    )
-    print()
-    print("Use as a C++ library")
-    subprocess.run(
-        [
-            "g++",
-            "-x", "c++", "-",
-            "-I/home/user/.local/lib/python3.10/site-packages/lincs/liblincs",
-            "-L/home/user/.local/lib/python3.10/site-packages", "-llincs.cpython-310-x86_64-linux-gnu",
-        ],
-        check=True,
-        # @todo Reduce this example, turn its tests into unit tests
-        input=textwrap.dedent("""
-            #include <lincs.hpp>
-
-            #include <iostream>
-            #include <sstream>
-
-            int main() {
-                lincs::Domain domain{
-                    {
-                        {"Literature grade", lincs::Domain::Criterion::ValueType::real, lincs::Domain::Criterion::CategoryCorrelation::growing},
-                        {"Physics grade", lincs::Domain::Criterion::ValueType::real, lincs::Domain::Criterion::CategoryCorrelation::growing},
-                    },
-                    {
-                        {"Fail"},
-                        {"Pass"},
-                    }
-                };
-
-                domain.dump(std::cout);
-
-                lincs::Model model{&domain, {{{10.f, 10.f}, {lincs::Model::SufficientCoalitions::Kind::weights, {0.4f, 0.7f}}}}};
-                {
-                    std::ostringstream oss;
-                    model.dump(oss);
-                    std::cout << oss.str() << std::endl;
-                    std::istringstream iss(oss.str());
-                    lincs::Model model2 = lincs::Model::load(&domain, iss);
-
-                    model2.dump(std::cout);
-                }
-
-                lincs::AlternativesSet alternatives{&domain, {{"Alice", {11.f, 12.f}, "Pass"}, {"Bob", {9.f, 11.f}, "Fail"}}};
-                {
-                    std::ostringstream oss;
-                    alternatives.dump(oss);
-                    std::cout << oss.str();
-                    std::istringstream iss(oss.str());
-                    lincs::AlternativesSet alternatives2 = lincs::AlternativesSet::load(&domain, iss);
-
-                    alternatives2.dump(std::cout);
-                }
-            }
-        """),
-        universal_newlines=True,
-    )
-    subprocess.run(["./a.out"], check=True, env={"LD_LIBRARY_PATH": "/home/user/.local/lib/python3.10/site-packages"})
-
-    with open("/wd/lincs-help-all.txt", "w") as f:
-        subprocess.run(["lincs", "help-all"], stdout=f, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"{test_name}: FAILED")
+            ok = False
+        else:
+            print()
+    return ok
 
 
 if __name__ == "__main__":
