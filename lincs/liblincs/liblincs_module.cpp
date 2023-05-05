@@ -37,7 +37,7 @@ void dump_model(const lincs::Model& model, bp::object& out_file) {
   model.dump(out_stream);
 }
 
-void dump_alternatives(const lincs::AlternativesSet& alternatives, bp::object& out_file) {
+void dump_alternatives(const lincs::Alternatives& alternatives, bp::object& out_file) {
   boost::iostreams::stream<PythonOutputDevice> out_stream(out_file);
   alternatives.dump(out_stream);
 }
@@ -67,9 +67,9 @@ lincs::Model load_model(lincs::Domain* domain, bp::object& in_file) {
   return lincs::Model::load(domain, in_stream);
 }
 
-lincs::AlternativesSet load_alternatives(lincs::Domain* domain, bp::object& in_file) {
+lincs::Alternatives load_alternatives(lincs::Domain* domain, bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
-  return lincs::AlternativesSet::load(domain, in_stream);
+  return lincs::Alternatives::load(domain, in_stream);
 }
 
 // https://stackoverflow.com/a/15940413/905845
@@ -156,7 +156,7 @@ BOOST_PYTHON_MODULE(liblincs) {
       "Dump the domain to the provided `.write()`-supporting file-like object, in YAML format."
     )
   ;
-  // @todo Make these 'staticmethod's of AlternativesSet. Same for other load and generate functions.
+  // @todo Make these 'staticmethod's of Alternatives. Same for other load and generate functions.
   bp::def(
     "load_domain",
     &load_domain,
@@ -209,8 +209,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("category", &lincs::Alternative::category)
   ;
 
-  bp::class_<lincs::AlternativesSet>("AlternativesSet", bp::init<lincs::Domain*, const std::vector<lincs::Alternative>&>())
-    .def_readwrite("alternatives", &lincs::AlternativesSet::alternatives)
+  bp::class_<lincs::Alternatives>("Alternatives", bp::init<lincs::Domain*, const std::vector<lincs::Alternative>&>())
+    .def_readwrite("alternatives", &lincs::Alternatives::alternatives)
     .def(
       "dump",
       &dump_alternatives,
@@ -218,16 +218,15 @@ BOOST_PYTHON_MODULE(liblincs) {
       "Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format."
     )
   ;
-  // @todo Make up our mind regarding classified vs. unclassified alternatives
   bp::def(
     "load_alternatives",
     &load_alternatives,
     (bp::arg("domain"), "in"),
-    "Load a set of classified alternatives from the provided `.read()`-supporting file-like object, in CSV format."
+    "Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format."
   );
   bp::def(
     "generate_alternatives",
-    &lincs::AlternativesSet::generate,
+    &lincs::Alternatives::generate,
     (bp::arg("domain"), "model", "alternatives_count", "random_seed"),
     "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`."
   );

@@ -140,8 +140,8 @@ name
 profile
 -------
 
-lincs.AlternativesSet
-=====================
+lincs.Alternatives
+==================
 
 alternatives
 ------------
@@ -150,11 +150,11 @@ dump
 ----
 
 
-dump( (AlternativesSet)self, (object)out) -> None :
+dump( (Alternatives)self, (object)out) -> None :
     Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format.
 
     C++ signature :
-        void dump(lincs::AlternativesSet,boost::python::api::object {lvalue})
+        void dump(lincs::Alternatives,boost::python::api::object {lvalue})
 
 lincs.Boundary
 ==============
@@ -252,11 +252,11 @@ lincs.generate_alternatives
 ===========================
 
 
-generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (int)random_seed) -> AlternativesSet :
+generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (int)random_seed) -> Alternatives :
     Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`.
 
     C++ signature :
-        lincs::AlternativesSet generate_alternatives(lincs::Domain*,lincs::Model*,unsigned int,unsigned int)
+        lincs::Alternatives generate_alternatives(lincs::Domain*,lincs::Model*,unsigned int,unsigned int)
 
 lincs.generate_domain
 =====================
@@ -282,11 +282,11 @@ lincs.load_alternatives
 =======================
 
 
-load_alternatives( (Domain)domain, (object)in) -> AlternativesSet :
-    Load a set of classified alternatives from the provided `.read()`-supporting file-like object, in CSV format.
+load_alternatives( (Domain)domain, (object)in) -> Alternatives :
+    Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format.
 
     C++ signature :
-        lincs::AlternativesSet load_alternatives(lincs::Domain*,boost::python::api::object {lvalue})
+        lincs::Alternatives load_alternatives(lincs::Domain*,boost::python::api::object {lvalue})
 
 lincs.load_domain
 =================

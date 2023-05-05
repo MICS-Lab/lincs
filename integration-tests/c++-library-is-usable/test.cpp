@@ -29,13 +29,13 @@ int main() {
     model2.dump(std::cout);
   }
 
-  lincs::AlternativesSet alternatives{&domain, {{"Alice", {11.f, 12.f}, "Pass"}, {"Bob", {9.f, 11.f}, "Fail"}}};
+  lincs::Alternatives alternatives{&domain, {{"Alice", {11.f, 12.f}, "Pass"}, {"Bob", {9.f, 11.f}, "Fail"}}};
   {
     std::ostringstream oss;
     alternatives.dump(oss);
     std::cout << oss.str();
     std::istringstream iss(oss.str());
-    lincs::AlternativesSet alternatives2 = lincs::AlternativesSet::load(&domain, iss);
+    lincs::Alternatives alternatives2 = lincs::Alternatives::load(&domain, iss);
 
     alternatives2.dump(std::cout);
   }

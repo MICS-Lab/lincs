@@ -38,5 +38,5 @@ print(buf.getvalue().rstrip())
 model = lincs.Model(domain, [lincs.Boundary([10.,10.], lincs.SufficientCoalitions(lincs.SufficientCoalitionsKind.weights, [0.4, 0.7]))])
 model.dump(sys.stdout)
 
-alternatives = lincs.AlternativesSet(domain, [lincs.Alternative("Alice", [11., 12.], "Good"), lincs.Alternative("Bob", [9., 11.], "Bad")])
+alternatives = lincs.Alternatives(domain, [lincs.Alternative("Alice", [11., 12.], "Good"), lincs.Alternative("Bob", [9., 11.], "Bad")])
 alternatives.dump(sys.stdout)

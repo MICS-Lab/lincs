@@ -173,7 +173,7 @@ Model Model::generate_mrsort(Domain* domain, unsigned random_seed) {
   return Model(domain, boundaries);
 }
 
-void AlternativesSet::dump(std::ostream& os) const {
+void Alternatives::dump(std::ostream& os) const {
   rapidcsv::Document doc;
 
   doc.SetColumnName(0, "name");
@@ -196,7 +196,7 @@ void AlternativesSet::dump(std::ostream& os) const {
   doc.Save(os);
 }
 
-AlternativesSet AlternativesSet::load(Domain* domain, std::istream& is) {
+Alternatives Alternatives::load(Domain* domain, std::istream& is) {
   rapidcsv::Document doc(is);
 
   std::vector<Alternative> alternatives;
@@ -215,10 +215,10 @@ AlternativesSet AlternativesSet::load(Domain* domain, std::istream& is) {
     alternatives.push_back(alternative);
   }
 
-  return AlternativesSet{domain, alternatives};
+  return Alternatives{domain, alternatives};
 }
 
-AlternativesSet AlternativesSet::generate(Domain* domain, Model* model, unsigned alternatives_count, unsigned random_seed) {
+Alternatives Alternatives::generate(Domain* domain, Model* model, unsigned alternatives_count, unsigned random_seed) {
   // @todo Actually randomize!
 
   std::vector<Alternative> alternatives;
@@ -234,7 +234,8 @@ AlternativesSet AlternativesSet::generate(Domain* domain, Model* model, unsigned
     alternatives.push_back(alternative);
   }
 
-  return AlternativesSet{domain, alternatives};
+  return Alternatives{domain, alternatives};
+}
 }
 
 }  // namespace lincs
