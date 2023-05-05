@@ -60,7 +60,7 @@ struct Domain {
 };
 
 struct Model {
-  Domain* domain;
+  const Domain& domain;
 
   struct SufficientCoalitions {
     // Sufficient coalitions form an https://en.wikipedia.org/wiki/Upper_set in the set of parts of the set of criteria.
@@ -86,12 +86,12 @@ struct Model {
 
   std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1
 
-  Model(Domain* domain_, const std::vector<Boundary>& boundaries_) : domain(domain_), boundaries(boundaries_) {}
+  Model(const Domain& domain_, const std::vector<Boundary>& boundaries_) : domain(domain_), boundaries(boundaries_) {}
 
   void dump(std::ostream&) const;
-  static Model load(Domain*, std::istream&);
+  static Model load(const Domain&, std::istream&);
 
-  static Model generate_mrsort(Domain*, unsigned random_seed);
+  static Model generate_mrsort(const Domain&, unsigned random_seed);
 };
 
 struct Alternative {
@@ -106,16 +106,15 @@ struct Alternative {
 };
 
 struct Alternatives {
-  Domain* domain;
+  const Domain& domain;
   std::vector<Alternative> alternatives;
 
-  Alternatives() {}
-  Alternatives(Domain* domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
+  Alternatives(const Domain& domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
 
   void dump(std::ostream&) const;
-  static Alternatives load(Domain*, std::istream&);
+  static Alternatives load(const Domain&, std::istream&);
 
-  static Alternatives generate(Domain*, Model*, unsigned alternatives_count, unsigned random_seed);
+  static Alternatives generate(const Domain&, const Model&, unsigned alternatives_count, unsigned random_seed);
 };
 
 struct ClassificationResult {
@@ -123,6 +122,6 @@ struct ClassificationResult {
   unsigned changed;
 };
 
-ClassificationResult classify_alternatives(Domain*, Model*, Alternatives*);
+ClassificationResult classify_alternatives(const Domain&, const Model&, Alternatives*);
 
 }  // namespace lincs

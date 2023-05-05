@@ -62,12 +62,12 @@ lincs::Domain load_domain(bp::object& in_file) {
   return lincs::Domain::load(in_stream);
 }
 
-lincs::Model load_model(lincs::Domain* domain, bp::object& in_file) {
+lincs::Model load_model(const lincs::Domain& domain, bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
   return lincs::Model::load(domain, in_stream);
 }
 
-lincs::Alternatives load_alternatives(lincs::Domain* domain, bp::object& in_file) {
+lincs::Alternatives load_alternatives(const lincs::Domain& domain, bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
   return lincs::Alternatives::load(domain, in_stream);
 }
@@ -180,7 +180,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("sufficient_coalitions", &lincs::Model::Boundary::sufficient_coalitions)
   ;
 
-  bp::class_<lincs::Model>("Model", bp::init<lincs::Domain*, const std::vector<lincs::Model::Boundary>&>())
+  bp::class_<lincs::Model>("Model", bp::init<const lincs::Domain&, const std::vector<lincs::Model::Boundary>&>())
     .def_readwrite("boundaries", &lincs::Model::boundaries)
     .def(
       "dump",
@@ -210,7 +210,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<std::vector<lincs::Alternative>>("alternatives_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>())
   ;
-  bp::class_<lincs::Alternatives>("Alternatives", bp::init<lincs::Domain*, const std::vector<lincs::Alternative>&>())
+  bp::class_<lincs::Alternatives>("Alternatives", bp::init<const lincs::Domain&, const std::vector<lincs::Alternative>&>())
     .def_readwrite("alternatives", &lincs::Alternatives::alternatives)
     .def(
       "dump",

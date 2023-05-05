@@ -112,7 +112,7 @@ Domain Domain::load(std::istream& is) {
   );
 }
 
-Domain Domain::generate(unsigned criteria_count, unsigned categories_count, unsigned random_seed) {
+Domain Domain::generate(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
   // There is nothing random yet. There will be when other value types and category correlations are added.
 
   std::vector<Criterion> criteria;
@@ -145,7 +145,7 @@ void Model::dump(std::ostream& os) const {
   os << node << '\n';
 }
 
-Model Model::load(Domain* domain, std::istream& is) {
+Model Model::load(const Domain& domain, std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
   assert(node["kind"].as<std::string>() == "classification-model");
@@ -154,9 +154,10 @@ Model Model::load(Domain* domain, std::istream& is) {
   return Model(domain, node["boundaries"].as<std::vector<Boundary>>());
 }
 
-Model Model::generate_mrsort(Domain* domain, unsigned random_seed) {
-  const unsigned categories_count = domain->categories.size();
-  const unsigned criteria_count = domain->criteria.size();
+Model Model::generate_mrsort(const Domain& domain, const unsigned random_seed) {
+  const unsigned categories_count = domain.categories.size();
+  const unsigned criteria_count = domain.criteria.size();
+
   std::mt19937 gen(random_seed);
 
   // Profile can take any values. We arbitrarily generate them uniformly
@@ -219,29 +220,34 @@ Model Model::generate_mrsort(Domain* domain, unsigned random_seed) {
 }
 
 void Alternatives::dump(std::ostream& os) const {
+  const unsigned criteria_count = domain.criteria.size();
+  const unsigned alternatives_count = alternatives.size();
+
   rapidcsv::Document doc;
 
   doc.SetColumnName(0, "name");
-  for (unsigned criterion_index = 0; criterion_index != domain->criteria.size(); ++criterion_index) {
-    doc.SetColumnName(criterion_index + 1, domain->criteria[criterion_index].name);
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    doc.SetColumnName(criterion_index + 1, domain.criteria[criterion_index].name);
   }
-  doc.SetColumnName(domain->criteria.size() + 1, "category");
+  doc.SetColumnName(criteria_count + 1, "category");
 
-  for (unsigned alternative_index = 0; alternative_index != alternatives.size(); ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const Alternative& alternative = alternatives[alternative_index];
     doc.SetCell<std::string>(0, alternative_index, alternative.name);
-    for (unsigned criterion_index = 0; criterion_index != alternative.profile.size(); ++criterion_index) {
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index]);
     }
     if (alternative.category) {
-      doc.SetCell<std::string>(domain->criteria.size() + 1, alternative_index, *alternative.category);
+      doc.SetCell<std::string>(criteria_count + 1, alternative_index, *alternative.category);
     }
   }
 
   doc.Save(os);
 }
 
-Alternatives Alternatives::load(Domain* domain, std::istream& is) {
+Alternatives Alternatives::load(const Domain& domain, std::istream& is) {
+  const unsigned criteria_count = domain.criteria.size();
+
   // I don't know why constructing the rapidcsv::Document directly from 'is' sometimes results in an empty document.
   // So, read the whole stream into a string and construct the document from that.
   std::string s(std::istreambuf_iterator<char>(is), {});
@@ -249,13 +255,14 @@ Alternatives Alternatives::load(Domain* domain, std::istream& is) {
   rapidcsv::Document doc(iss);
 
   std::vector<Alternative> alternatives;
-  alternatives.reserve(doc.GetRowCount());
-  for (unsigned row_index = 0; row_index != doc.GetRowCount(); ++row_index) {
+  const unsigned alternatives_count = doc.GetRowCount();
+  alternatives.reserve(alternatives_count);
+  for (unsigned row_index = 0; row_index != alternatives_count; ++row_index) {
     Alternative alternative;
     alternative.name = doc.GetCell<std::string>("name", row_index);
-    alternative.profile.reserve(domain->criteria.size());
-    for (unsigned criterion_index = 0; criterion_index != domain->criteria.size(); ++criterion_index) {
-      alternative.profile.push_back(doc.GetCell<float>(domain->criteria[criterion_index].name, row_index));
+    alternative.profile.reserve(criteria_count);
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      alternative.profile.push_back(doc.GetCell<float>(domain.criteria[criterion_index].name, row_index));
     }
     std::string category = doc.GetCell<std::string>("category", row_index);
     if (category != "") {
@@ -267,8 +274,8 @@ Alternatives Alternatives::load(Domain* domain, std::istream& is) {
   return Alternatives{domain, alternatives};
 }
 
-Alternatives Alternatives::generate(Domain* domain, Model* model, unsigned alternatives_count, unsigned random_seed) {
-  const unsigned criteria_count = domain->criteria.size();
+Alternatives Alternatives::generate(const Domain& domain, const Model& model, const unsigned alternatives_count, const unsigned random_seed) {
+  const unsigned criteria_count = domain.criteria.size();
   std::mt19937 gen(random_seed);
 
   std::vector<Alternative> alternatives;
@@ -297,19 +304,19 @@ Alternatives Alternatives::generate(Domain* domain, Model* model, unsigned alter
   return alts;
 }
 
-ClassificationResult classify_alternatives(Domain* domain, Model* model, Alternatives* alternatives) {
-  assert(model->domain == domain);
-  assert(alternatives->domain == domain);
+ClassificationResult classify_alternatives(const Domain& domain, const Model& model, Alternatives* alternatives) {
+  assert(&model.domain == &domain);
+  assert(&alternatives.domain == &domain);
 
-  const unsigned criteria_count = domain->criteria.size();
-  const unsigned categories_count = domain->categories.size();
+  const unsigned criteria_count = domain.criteria.size();
+  const unsigned categories_count = domain.categories.size();
 
   ClassificationResult result{0, 0};
 
   for (auto& alternative: alternatives->alternatives) {
     uint category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
-      const auto& boundary = model->boundaries[category_index - 1];
+      const auto& boundary = model.boundaries[category_index - 1];
       assert(boundary.sufficient_coalitions.kind == SufficientCoalitions::Kind::weights);
       float weight_at_or_above_profile = 0;
       for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -324,7 +331,7 @@ ClassificationResult classify_alternatives(Domain* domain, Model* model, Alterna
       }
     }
 
-    const std::string& category = domain->categories[category_index].name;
+    const std::string& category = domain.categories[category_index].name;
     if (alternative.category == category) {
       ++result.unchanged;
     } else {

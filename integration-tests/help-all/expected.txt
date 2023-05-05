@@ -251,7 +251,7 @@ classify_alternatives( (Domain)domain, (Model)model, (Alternatives)alternatives)
     Classify the provided `alternatives` according to the provided `model`.
 
     C++ signature :
-        lincs::ClassificationResult classify_alternatives(lincs::Domain*,lincs::Model*,lincs::Alternatives*)
+        lincs::ClassificationResult classify_alternatives(lincs::Domain,lincs::Model,lincs::Alternatives*)
 
 lincs.command_line_interface
 ============================
@@ -264,7 +264,7 @@ generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (i
     Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`.
 
     C++ signature :
-        lincs::Alternatives generate_alternatives(lincs::Domain*,lincs::Model*,unsigned int,unsigned int)
+        lincs::Alternatives generate_alternatives(lincs::Domain,lincs::Model,unsigned int,unsigned int)
 
 lincs.generate_domain
 =====================
@@ -284,7 +284,7 @@ generate_mrsort_model( (Domain)domain, (int)random_seed) -> Model :
     Generate an MR-Sort model for the provided `domain`.
 
     C++ signature :
-        lincs::Model generate_mrsort_model(lincs::Domain*,unsigned int)
+        lincs::Model generate_mrsort_model(lincs::Domain,unsigned int)
 
 lincs.load_alternatives
 =======================
@@ -294,7 +294,7 @@ load_alternatives( (Domain)domain, (object)in) -> Alternatives :
     Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format.
 
     C++ signature :
-        lincs::Alternatives load_alternatives(lincs::Domain*,boost::python::api::object {lvalue})
+        lincs::Alternatives load_alternatives(lincs::Domain,boost::python::api::object {lvalue})
 
 lincs.load_domain
 =================
@@ -314,5 +314,5 @@ load_model( (Domain)domain, (object)in) -> Model :
     Load a model for the provided `domain`, from the provided `.read()`-supporting file-like object, in YAML format.
 
     C++ signature :
-        lincs::Model load_model(lincs::Domain*,boost::python::api::object {lvalue})
+        lincs::Model load_model(lincs::Domain,boost::python::api::object {lvalue})
 
