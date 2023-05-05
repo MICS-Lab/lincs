@@ -116,4 +116,11 @@ struct Alternatives {
   static Alternatives generate(Domain*, Model*, unsigned alternatives_count, unsigned random_seed);
 };
 
+struct ClassificationResult {
+  unsigned unchanged;
+  unsigned changed;
+};
+
+ClassificationResult classify_alternatives(Domain*, Model*, Alternatives*);
+
 }  // namespace lincs

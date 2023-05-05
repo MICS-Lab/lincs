@@ -230,4 +230,15 @@ BOOST_PYTHON_MODULE(liblincs) {
     (bp::arg("domain"), "model", "alternatives_count", "random_seed"),
     "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`."
   );
+
+  bp::class_<lincs::ClassificationResult>("ClassificationResult", bp::no_init)
+    .def_readonly("changed", &lincs::ClassificationResult::changed)
+    .def_readonly("unchanged", &lincs::ClassificationResult::unchanged)
+  ;
+  bp::def(
+    "classify_alternatives",
+    &lincs::classify_alternatives,
+    (bp::arg("domain"), "model", "alternatives"),
+    "Classify the provided `alternatives` according to the provided `model`."
+  );
 }

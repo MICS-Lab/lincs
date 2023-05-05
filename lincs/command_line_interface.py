@@ -568,4 +568,8 @@ def classification_accuracy(
     model,
     testing_set,
 ):
-    print("95/100")  # @todo Implement
+    domain = lincs.load_domain(domain)
+    model = lincs.load_model(domain, model)
+    testing_set = lincs.load_alternatives(domain, testing_set)
+    result = lincs.classify_alternatives(domain, model, testing_set)
+    print(f"{result.unchanged}/{result.changed + result.unchanged}")

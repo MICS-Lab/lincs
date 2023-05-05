@@ -236,6 +236,12 @@ Alternatives Alternatives::generate(Domain* domain, Model* model, unsigned alter
 
   return Alternatives{domain, alternatives};
 }
+
+ClassificationResult classify_alternatives(Domain* domain, Model* model, Alternatives* alternatives) {
+  // @todo Implement
+  ClassificationResult result{95, 5};
+
+  return result;
 }
 
 }  // namespace lincs

@@ -245,6 +245,16 @@ lincs.ValueType
 real
 ----
 
+lincs.classify_alternatives
+===========================
+
+
+classify_alternatives( (Domain)domain, (Model)model, (Alternatives)alternatives) -> ClassificationResult :
+    Classify the provided `alternatives` according to the provided `model`.
+
+    C++ signature :
+        lincs::ClassificationResult classify_alternatives(lincs::Domain*,lincs::Model*,lincs::Alternatives*)
+
 lincs.command_line_interface
 ============================
 
