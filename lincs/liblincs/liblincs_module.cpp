@@ -245,7 +245,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::def(
     "generate_mrsort_model",
     &lincs::Model::generate_mrsort,
-    (bp::arg("domain"), "random_seed"),
+    (bp::arg("domain"), "random_seed", bp::arg("fixed_weights_sum")=std::optional<float>()),
     "Generate an MR-Sort model for the provided `domain`."
   );
 

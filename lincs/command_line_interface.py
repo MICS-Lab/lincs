@@ -213,10 +213,10 @@ def classification_domain(
     {
         "mrsort": [
             (
-                "fixed-threshold",
+                "fixed-weights-sum",
                 dict(
-                    help="Use this pre-determined threshold instead of a pseudo-random one.",
-                    type=click.FloatRange(min=0.0, max=1.0),
+                    help="Make sure weights add up to this pre-determined value instead of a pseudo-random one.",
+                    type=click.FloatRange(min=1.0),
                     default=None,
                     show_default=True,
                 ),
@@ -230,14 +230,14 @@ def classification_model(
     output_model,
     random_seed,
     model_type,
-    mrsort__fixed_threshold,
+    mrsort__fixed_weights_sum,
 ):
     domain = lincs.load_domain(domain)
     assert model_type == "mrsort"
     model = lincs.generate_mrsort_model(
         domain,
-        # fixed_threshold=mrsort__fixed_threshold,
         random_seed=random_seed,
+        fixed_weights_sum=mrsort__fixed_weights_sum,
     )
     model.dump(output_model)
 

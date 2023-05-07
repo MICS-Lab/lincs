@@ -94,7 +94,7 @@ struct Model {
   void dump(std::ostream&) const;
   static Model load(const Domain&, std::istream&);
 
-  static Model generate_mrsort(const Domain&, unsigned random_seed);
+  static Model generate_mrsort(const Domain&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
 };
 
 struct Alternative {

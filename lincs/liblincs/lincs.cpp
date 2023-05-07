@@ -154,7 +154,7 @@ Model Model::load(const Domain& domain, std::istream& is) {
   return Model(domain, node["boundaries"].as<std::vector<Boundary>>());
 }
 
-Model Model::generate_mrsort(const Domain& domain, const unsigned random_seed) {
+Model Model::generate_mrsort(const Domain& domain, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
   const unsigned categories_count = domain.categories.size();
   const unsigned criteria_count = domain.criteria.size();
 
@@ -196,14 +196,14 @@ Model Model::generate_mrsort(const Domain& domain, const unsigned random_seed) {
     std::next(partial_sums.begin()),
     normalized_weights.begin(),
     [](float left, float right) { return right - left; });
-  // We then generate an arbitrary threshold.
-  const float threshold = std::uniform_real_distribution<float>(0.0f, 1.f)(gen);
-  // Finally, we denormalize weights
+  // Finally, we denormalize weights so that they add up to a pseudo-random value not less than 1
+  assert(!fixed_weights_sum || *fixed_weights_sum >= 1);
+  const float weights_sum = fixed_weights_sum ? *fixed_weights_sum : 1.f / std::uniform_real_distribution<float>(0.f, 1.f)(gen);
   std::vector<float> denormalized_weights(criteria_count);
   std::transform(
     normalized_weights.begin(), normalized_weights.end(),
     denormalized_weights.begin(),
-    [threshold](float w) { return w / threshold; });
+    [weights_sum](float w) { return w * weights_sum; });
 
   SufficientCoalitions coalitions{
     SufficientCoalitions::Kind::weights,

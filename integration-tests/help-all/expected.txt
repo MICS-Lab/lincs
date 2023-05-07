@@ -63,14 +63,15 @@ Options:
   --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
   --model-type [mrsort]           The type of classification model to
                                   generate.  [default: mrsort]
-  --mrsort.fixed-threshold FLOAT RANGE
-                                  Use this pre-determined threshold instead of
-                                  a pseudo-random one.
+  --mrsort.fixed-weights-sum FLOAT RANGE
+                                  Make sure weights add up to this pre-
+                                  determined value instead of a pseudo-random
+                                  one.
                                   
                                   Only valid if:
                                    - '--model-type' is 'mrsort'
                                   
-                                  *  [0.0<=x<=1.0]
+                                  *  [x>=1.0]
   --help                          Show this message and exit.
 
 lincs generate classified-alternatives
@@ -304,11 +305,11 @@ lincs.generate_mrsort_model
 ===========================
 
 
-generate_mrsort_model( (Domain)domain, (int)random_seed) -> Model :
+generate_mrsort_model( (Domain)domain, (int)random_seed [, (object)fixed_weights_sum=None]) -> Model :
     Generate an MR-Sort model for the provided `domain`.
 
     C++ signature :
-        lincs::Model generate_mrsort_model(lincs::Domain,unsigned int)
+        lincs::Model generate_mrsort_model(lincs::Domain,unsigned int [,std::optional<float>=None])
 
 lincs.load_alternatives
 =======================
