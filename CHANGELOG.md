@@ -1,3 +1,8 @@
+# Version 0.2.2
+
+- Add options: `generate model --mrsort.fixed-weights-sum` and `generate classified-alternatives --max-imbalance`
+(could have been à minor release instead of a patch)
+
 # Version 0.2.1
 
 - Fix images on the PyPI website
