@@ -270,10 +270,9 @@ def classification_model(
 )
 @click.option(
     "--max-imbalance",
-    help="@todo Define.",
-    type=click.FloatRange(min=0.0, max=1.0),
+    type=click.FloatRange(min=0.0, max=1.0, max_open=True),
     default=None,
-    show_default=True,
+    help="Ensure that categories are balanced, by forcing their size to differ from the perfectly balanced size by at most this fraction.",
 )
 @click.option(
     "--random-seed",
@@ -285,8 +284,8 @@ def classified_alternatives(
     domain,
     model,
     alternatives_count,
-    max_imbalance,
     output_classified_alternatives,
+    max_imbalance,
     random_seed,
 ):
     domain = lincs.load_domain(domain)
@@ -295,8 +294,8 @@ def classified_alternatives(
         domain,
         model,
         alternatives_count,
-        # max_imbalance=max_imbalance,
         random_seed=random_seed,
+        max_imbalance=max_imbalance,
     )
     alternatives.dump(output_classified_alternatives)
 

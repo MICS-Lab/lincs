@@ -89,7 +89,10 @@ Options:
   --output-classified-alternatives FILENAME
                                   Write generated classified alternatives to
                                   this file instead of standard output.
-  --max-imbalance FLOAT RANGE     @todo Define.  [0.0<=x<=1.0]
+  --max-imbalance FLOAT RANGE     Ensure that categories are balanced, by
+                                  forcing their size to differ from the
+                                  perfectly balanced size by at most this
+                                  fraction.  [0.0<=x<1.0]
   --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
   --help                          Show this message and exit.
 
@@ -281,11 +284,11 @@ lincs.generate_alternatives
 ===========================
 
 
-generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (int)random_seed) -> Alternatives :
+generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (int)random_seed [, (object)max_imbalance=None]) -> Alternatives :
     Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`.
 
     C++ signature :
-        lincs::Alternatives generate_alternatives(lincs::Domain,lincs::Model,unsigned int,unsigned int)
+        lincs::Alternatives generate_alternatives(lincs::Domain,lincs::Model,unsigned int,unsigned int [,std::optional<float>=None])
 
 lincs.generate_domain
 =====================

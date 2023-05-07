@@ -274,9 +274,13 @@ Alternatives Alternatives::load(const Domain& domain, std::istream& is) {
   return Alternatives{domain, alternatives};
 }
 
-Alternatives Alternatives::generate(const Domain& domain, const Model& model, const unsigned alternatives_count, const unsigned random_seed) {
+Alternatives generate_uniform_alternatives(
+  const Domain& domain,
+  const Model& model,
+  const unsigned alternatives_count,
+  std::mt19937& gen
+) {
   const unsigned criteria_count = domain.criteria.size();
-  std::mt19937 gen(random_seed);
 
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
@@ -302,6 +306,136 @@ Alternatives Alternatives::generate(const Domain& domain, const Model& model, co
   classify_alternatives(domain, model, &alts);
 
   return alts;
+}
+
+unsigned min_category_size(const unsigned alternatives_count, const unsigned categories_count, const float max_imbalance) {
+  assert(max_imbalance >= 0);
+  assert(max_imbalance <= 1);
+
+  return std::floor(alternatives_count * (1 - max_imbalance) / categories_count);
+}
+
+unsigned max_category_size(const unsigned alternatives_count, const unsigned categories_count, const float max_imbalance) {
+  assert(max_imbalance >= 0);
+  assert(max_imbalance <= 1);
+
+  return std::ceil(alternatives_count * (1 + max_imbalance) / categories_count);
+}
+
+Alternatives generate_balanced_alternatives(
+  const Domain& domain,
+  const Model& model,
+  const unsigned alternatives_count,
+  const float max_imbalance,
+  std::mt19937& gen
+) {
+  assert(max_imbalance >= 0);
+  assert(max_imbalance <= 1);
+
+  const unsigned categories_count = domain.categories.size();
+
+  // These parameters are somewhat arbitrary and not really critical,
+  // but changing there values *does* change the generated set, because of the two-steps process below:
+  // the same alternatives are generated in the same order, but they treated differently here.
+
+  // How long to insist before accepting failure when we can't find any alternative for a given category
+  const int max_iterations_with_no_effect_with_empty_category = 100;
+
+  // How long to insist before accepting failure when we have found at least one alternative for each category
+  const int max_iterations_with_no_effect_with_all_categories_populated = 1'000;
+
+  // Size ratio to call 'uniform_learning_set'. Small values imply calling it more, and large values
+  // imply discarding more alternatives
+  const int multiplier = 10;
+
+  const unsigned min_size = min_category_size(alternatives_count, categories_count, max_imbalance);
+  const unsigned max_size = max_category_size(alternatives_count, categories_count, max_imbalance);
+
+  std::vector<Alternative> alternatives;
+  alternatives.reserve(alternatives_count);
+  std::map<std::string, unsigned> histogram;
+  for (const auto& category : domain.categories) {
+    histogram[category.name] = 0;
+  }
+
+  int max_iterations_with_no_effect = max_iterations_with_no_effect_with_empty_category;
+
+  // Step 1: fill all categories to exactly the min size
+  // (skip if min size is zero)
+  int iterations_with_no_effect = 0;
+  while (min_size > 0) {
+    ++iterations_with_no_effect;
+
+    Alternatives candidates = generate_uniform_alternatives(domain, model, multiplier * alternatives_count, gen);
+
+    for (const auto& candidate : candidates.alternatives) {
+      assert(candidate.category);
+      const std::string& category = *candidate.category;
+      if (histogram[category] < min_size) {
+        alternatives.push_back(candidate);
+        ++histogram[category];
+        iterations_with_no_effect = 0;
+      }
+    }
+
+    if (std::all_of(histogram.begin(), histogram.end(), [min_size](const auto it) { return it.second >= min_size; })) {
+      // Success
+      break;
+    }
+
+    if (std::all_of(histogram.begin(), histogram.end(), [](const auto it) { return it.second > 0; })) {
+      max_iterations_with_no_effect = max_iterations_with_no_effect_with_all_categories_populated;
+    }
+
+    if (iterations_with_no_effect > max_iterations_with_no_effect) {
+      throw BalancedAlternativesGenerationException(histogram);
+    }
+  }
+
+  // Step 2: reach target size, keeping all categories below or at the max size
+  iterations_with_no_effect = 0;
+  while (true) {
+    ++iterations_with_no_effect;
+
+    Alternatives candidates = generate_uniform_alternatives(domain, model, multiplier * alternatives_count, gen);
+
+    for (const auto& candidate : candidates.alternatives) {
+      assert(candidate.category);
+      const std::string& category = *candidate.category;
+      if (histogram[category] < max_size) {
+        alternatives.push_back(candidate);
+        ++histogram[category];
+        iterations_with_no_effect = 0;
+      }
+
+      if (alternatives.size() == alternatives_count) {
+        assert(std::all_of(
+          histogram.begin(), histogram.end(),
+          [min_size, max_size](const auto it) { return it.second >= min_size && it.second <= max_size; }));
+        return Alternatives(domain, alternatives);
+      }
+    }
+
+    if (iterations_with_no_effect > max_iterations_with_no_effect) {
+      throw BalancedAlternativesGenerationException(histogram);
+    }
+  }
+}
+
+Alternatives Alternatives::generate(
+  const Domain& domain,
+  const Model& model,
+  const unsigned alternatives_count,
+  const unsigned random_seed,
+  const std::optional<float> max_imbalance
+) {
+  std::mt19937 gen(random_seed);
+
+  if (max_imbalance) {
+    return generate_balanced_alternatives(domain, model, alternatives_count, *max_imbalance, gen);
+  } else {
+    return generate_uniform_alternatives(domain, model, alternatives_count, gen);
+  }
 }
 
 ClassificationResult classify_alternatives(const Domain& domain, const Model& model, Alternatives* alternatives) {

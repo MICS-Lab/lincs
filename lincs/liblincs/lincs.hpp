@@ -1,3 +1,4 @@
+#include <map>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -107,6 +108,17 @@ struct Alternative {
   bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category == other.category; }
 };
 
+class BalancedAlternativesGenerationException : public std::exception {
+ public:
+  explicit BalancedAlternativesGenerationException(const std::map<std::string, unsigned>& histogram_) : histogram(histogram_) {}
+
+  const char* what() const noexcept override {
+    return "Unable to generate balanced alternatives. Try increasing the allowed imbalance, or use a more lenient model?";
+  }
+
+  std::map<std::string, unsigned> histogram;
+};
+
 struct Alternatives {
   const Domain& domain;
   std::vector<Alternative> alternatives;
@@ -116,7 +128,13 @@ struct Alternatives {
   void dump(std::ostream&) const;
   static Alternatives load(const Domain&, std::istream&);
 
-  static Alternatives generate(const Domain&, const Model&, unsigned alternatives_count, unsigned random_seed);
+  static Alternatives generate(
+    const Domain&,
+    const Model&,
+    unsigned alternatives_count,
+    unsigned random_seed,
+    std::optional<float> max_imbalance = std::nullopt
+  );
 };
 
 struct ClassificationResult {

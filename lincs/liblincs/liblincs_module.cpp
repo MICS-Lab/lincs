@@ -72,6 +72,10 @@ lincs::Alternatives load_alternatives(const lincs::Domain& domain, bp::object& i
   return lincs::Alternatives::load(domain, in_stream);
 }
 
+// @todo Thoroughly review all conversions between Python and C++ types.
+// - read Boost.Python doc in details and understand the contract
+// - homogenize converters (some were copy-pasted from SO answers and even ChatGPT)
+// - double-check if/when we need to increment reference counts on Python objects
 // https://stackoverflow.com/a/15940413/905845
 struct iterable_converter {
   template <typename Container>
@@ -105,6 +109,42 @@ struct iterable_converter {
   }
 };
 
+template<typename T>
+struct std_optional_converter {
+  static PyObject* convert(const std::optional<T>& value) {
+    if (value) {
+      return bp::incref(bp::object(*value).ptr());
+    } else {
+      return bp::incref(bp::object().ptr());
+    }
+  }
+
+  static void* convertible(PyObject* obj) {
+    if (obj == Py_None) {
+      return new std::optional<T>();
+    } else if (PyNumber_Check(obj)) {
+      return new std::optional<T>(bp::extract<T>(obj));
+    } else {
+      return nullptr;
+    }
+  }
+
+  static void construct(PyObject* obj, bp::converter::rvalue_from_python_stage1_data* data) {
+    void* storage = reinterpret_cast<bp::converter::rvalue_from_python_storage<std::optional<T>>*>(data)->storage.bytes;
+    new (storage) std::optional<T>(*reinterpret_cast<std::optional<T>*>(convertible(obj)));
+    data->convertible = storage;
+  }
+
+  static void enroll() {
+    bp::to_python_converter<std::optional<T>, std_optional_converter<T>>();
+    bp::converter::registry::push_back(
+      &std_optional_converter<T>::convertible,
+      &std_optional_converter<T>::construct,
+      bp::type_id<std::optional<T>>()
+    );
+  }
+};
+
 }  // namespace
 
 template <typename T>
@@ -124,6 +164,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     .from_python<std::vector<lincs::Model::SufficientCoalitions>>()
     .from_python<std::vector<lincs::Alternative>>()
   ;
+
+  std_optional_converter<float>::enroll();
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
   auto_enum<lincs::Domain::Criterion::ValueType>("ValueType");
@@ -233,7 +275,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::def(
     "generate_alternatives",
     &lincs::Alternatives::generate,
-    (bp::arg("domain"), "model", "alternatives_count", "random_seed"),
+    (bp::arg("domain"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
     "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`."
   );
 
