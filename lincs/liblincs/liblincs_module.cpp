@@ -9,6 +9,7 @@
 #include <magic_enum.hpp>
 
 
+// @todo Consider using pybind11, which advertises itself as an evolved and simplified version of Boost.Python
 namespace bp = boost::python;
 
 namespace {
