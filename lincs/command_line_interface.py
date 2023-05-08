@@ -85,8 +85,8 @@ def help_all():
         title = f"lincs {' '.join(prefix)}".rstrip()
         print(title)
         print("=" * len(title))
-        print(flush=True)
-        subprocess.run(["lincs"] + prefix + ["--help"], check=True)
+        print()
+        print(command.get_help(ctx=click.Context(info_name=" ".join(["lincs"] + prefix), command=command)))
         print()
 
         if isinstance(command, click.Group):
