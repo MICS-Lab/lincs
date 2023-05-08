@@ -6,7 +6,7 @@ version = "0.2.3-dev"
 with open("README.md") as f:
     long_description = f.read()
 for image in ["model", "alternatives"]:
-    long_description = long_description.replace(f"{image}.png", f"https://github.com/jacquev6/lincs/raw/v{version}/{image}.png")
+    long_description = long_description.replace(f"]({image}.png)", f"](https://github.com/jacquev6/lincs/raw/v{version}/{image}.png)")
 
 with open("requirements.txt") as f:
     install_requires = f.readlines()
