@@ -2,6 +2,34 @@
 
 Note that *lincs* is not licensed yet, so you don't have any rights besides reading it for now.
 
+# Contributors and previous work
+
+*lincs* is developed by the [MICS](https://mics.centralesupelec.fr/) research team at [CentraleSupélec](https://www.centralesupelec.fr/).
+
+Its main authors are (alphabetical order):
+- [Laurent Cabaret](http://perso.ecp.fr/~cabaretl/) (performance optimization)
+- [Vincent Jacques](https://vincent-jacques.net) (engineering)
+- [Vincent Mousseau](https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D) (domain expertise and project leadership)
+
+It's based on work by:
+- [Olivier Sobrie](http://olivier.sobrie.be/) ("Weights and Profiles" heuristic, developed in his [Ph.D thesis](http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf), and [implemented in Python](https://github.com/oso/pymcda))
+- Emma Dixneuf, Thibault Monsel and Thomas Vindard ([C++ implementation of Sobrie's heuristic](https://github.com/Mostah/fastPL/))
+
+# Project goals
+
+## Provide MCDA tools usable out of the box
+
+You should be able to use *lincs* without being a specialist of MCDA and/or NCS models.
+Just follow the [Get started](#get-started) section below.
+
+## Provide a base for developing new MCDA algorithms
+
+*lincs* is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
+@todo Write doc about that use case.
+
+*linc* also provides a benchmark framework to compare algorithms (@todo Write and document).
+This should make it easier to understand the relative strengths and weaknesses of each algorithm.
+
 # Get started
 
 ## Install
