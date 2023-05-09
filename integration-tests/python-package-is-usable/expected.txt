@@ -1,6 +1,3 @@
-Physic grade real growing
-Physics grade real growing
-Bad
 kind: classification-domain
 format_version: 1
 criteria:
@@ -11,8 +8,8 @@ criteria:
     value_type: real
     category_correlation: growing
 categories:
-  - name: Terrible
-  - name: Ok, I guess
+  - name: Bad
+  - name: Good
 kind: classification-model
 format_version: 1
 boundaries:

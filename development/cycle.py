@@ -1,5 +1,6 @@
 from __future__ import annotations
 import glob
+import multiprocessing
 import re
 import shutil
 
@@ -11,6 +12,25 @@ import textwrap
 def main():
     # With lincs not installed
     ##########################
+
+    print("Building extension module in debug mode")
+    print("=======================================")
+    print(flush=True)
+
+    subprocess.run(
+        [
+            f"python3", "setup.py", "build_ext",
+            "--inplace", "--debug",
+            "--parallel", str(multiprocessing.cpu_count() - 1),
+        ],
+        check=True,
+    )
+
+    print("Running Python unit tests")
+    print("=========================")
+    print(flush=True)
+
+    run_python_tests()
 
     print("Making integration tests from README.md")
     print("=======================================")
@@ -35,6 +55,17 @@ def main():
     ######################
 
     run_integration_tests()
+
+
+def run_python_tests():
+    subprocess.run(
+        [
+            "python3", "-m", "unittest", "discover",
+            "--pattern", "*.py",
+            "--start-directory", "lincs", "--top-level-directory", ".",
+        ],
+        check=True,
+    )
 
 
 def make_example_integration_test_from_readme():
