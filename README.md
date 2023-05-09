@@ -12,7 +12,7 @@ Its main authors are (alphabetical order):
 - [Vincent Mousseau](https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D) (domain expertise and project leadership)
 
 It's based on work by:
-- [Olivier Sobrie](http://olivier.sobrie.be/) ("Weights and Profiles" heuristic, developed in his [Ph.D thesis](http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf), and [implemented in Python](https://github.com/oso/pymcda))
+- [Olivier Sobrie](http://olivier.sobrie.be/) (The "weights, profiles, breed" learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his [Ph.D thesis](http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf), and [implemented in Python](https://github.com/oso/pymcda))
 - Emma Dixneuf, Thibault Monsel and Thomas Vindard ([C++ implementation of Sobrie's heuristic](https://github.com/Mostah/fastPL/))
 
 # Project goals
@@ -80,6 +80,7 @@ The command-line interface is the easiest way to get started with *lincs*, start
       classification-accuracy  Compute a classification accuracy.
       classify                 Classify alternatives.
       generate                 Generate synthetic data.
+      learn                    Learn a model.
       visualize                Make graphs from data.
 <!-- STOP -->
 
@@ -235,9 +236,7 @@ You now have a (synthetic) learning set.
 You can use it to train a new model:
 
 <!-- EXTEND command-line-example/run.sh -->
-    # @todo Use `lincs train` when it exists.
-    # For now we just do:
-    cp model.yml trained-model.yml
+    lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
 <!-- STOP -->
 
 If the training is effective, the resulting trained model should be close to the original (synthetic) one.

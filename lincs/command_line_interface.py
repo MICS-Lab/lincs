@@ -348,7 +348,6 @@ def classification_model(
 
 @main.group(
     help="Learn a model.",
-    hidden=True,
 )
 def learn():
     pass
@@ -361,8 +360,6 @@ def learn():
         DOMAIN is a *classification domain* file describing the domain to learn a model for.
         LEARNING_SET is a *classified alternatives* file for that domain.
         It's used as a source of truth to learn the model.
-
-        The learned *classification model* file is written to OUTPUT_MODEL, which defaults to - to write to the standard output.
     """,
 )
 @click.argument(
@@ -374,41 +371,18 @@ def learn():
     type=click.File(mode="r"),
 )
 @click.option(
-    "--target-accuracy",
-    help="The target accuracy to reach on the learning set.\n\n*",
-    type=click.FloatRange(min=0.0, max=1.0),
-    default=1.0,
-    show_default=True,
-)
-@click.option(
-    "--max-duration-seconds",
-    help="The maximum duration of the learning process in seconds.\n\n*",
-    type=click.FloatRange(min=0),
-    default=None,
-    show_default=True,
-)
-@click.argument(
-    "output-model",
+    "--output-model",
     type=click.File(mode="w"),
     default="-",
-)
-@click.option(
-    "--random-seed",
-    help="""
-        The random seed to use.
-
-        Some learning strategies are deterministic, pseudo-random processes.
-        This seed is used to initialize the pseudo-random number generator used by these strategies.
-
-        *
-    """,
-    type=click.IntRange(min=0),
+    help="Write the learned classification model to this file instead of standard output.",
 )
 @options_tree(
     "model-type",
     dict(
         help="The type of classification model to learn.",
         type=click.Choice(["mrsort"]),
+        default="mrsort",
+        show_default=True,
     ),
     {
         "ucncs": [],
@@ -423,6 +397,16 @@ def learn():
                 ),
                 {
                     "weights-profiles-breed": [
+                        (
+                            "target-accuracy",
+                            dict(
+                                help="The target accuracy to reach on the learning set.",
+                                type=click.FloatRange(min=0.0, max=1.0),
+                                default=1.0,
+                                show_default=True,
+                            ),
+                            {},
+                        ),
                         (
                             "max-iterations",
                             dict(
@@ -487,10 +471,19 @@ def learn():
                             {
                                 "accuracy-heuristic": [
                                     (
+                                        "random-seed",
+                                        dict(
+                                            help="The random seed to use for this heuristic.",
+                                            type=click.IntRange(min=0),
+                                            default=random.randrange(2**30),
+                                        ),
+                                        {},
+                                    ),
+                                    (
                                         "processor",
                                         dict(
                                             help="The processor to use to improve the profiles of the MRSort models.",
-                                            type=click.Choice(["cpu", "gpu"]),
+                                            type=click.Choice(["cpu"]),
                                             default="cpu",
                                             show_default=True,
                                         ),
@@ -531,22 +524,39 @@ def learn():
 def classification_model(
     domain,
     learning_set,
-    target_accuracy,
-    max_duration_seconds,
     output_model,
     model_type,
     mrsort__strategy,
+    mrsort__weights_profiles_breed__target_accuracy,
     mrsort__weights_profiles_breed__max_iterations,
     mrsort__weights_profiles_breed__models_count,
     mrsort__weights_profiles_breed__initialization_strategy,
     mrsort__weights_profiles_breed__weights_strategy,
     mrsort__weights_profiles_breed__linear_program__solver,
     mrsort__weights_profiles_breed__profiles_strategy,
+    mrsort__weights_profiles_breed__accuracy_heuristic__random_seed,
     mrsort__weights_profiles_breed__accuracy_heuristic__processor,
     mrsort__weights_profiles_breed__breed_strategy,
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
 ):
-    pass
+    domain = lincs.load_domain(domain)
+    learning_set = lincs.load_alternatives(domain, learning_set)
+    assert model_type == "mrsort"
+    assert mrsort__strategy == "weights-profiles-breed"
+    assert mrsort__weights_profiles_breed__target_accuracy == 1
+    assert mrsort__weights_profiles_breed__max_iterations is None
+    assert mrsort__weights_profiles_breed__models_count == 9
+    assert mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion"
+    assert mrsort__weights_profiles_breed__weights_strategy == "linear-program"
+    assert mrsort__weights_profiles_breed__linear_program__solver == "glop"
+    assert mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic"
+    assert mrsort__weights_profiles_breed__accuracy_heuristic__random_seed is not None
+    assert mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu"
+    assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
+    assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
+
+    with open("model.yml") as f:
+        output_model.write(f.read())
 
 
 @main.command(
