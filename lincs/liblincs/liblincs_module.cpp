@@ -78,6 +78,7 @@ lincs::Alternatives load_alternatives(const lincs::Domain& domain, bp::object& i
 // - homogenize converters (some were copy-pasted from SO answers and even ChatGPT)
 // - double-check if/when we need to increment reference counts on Python objects
 // https://stackoverflow.com/a/15940413/905845
+// https://misspent.wordpress.com/2009/09/27/how-to-write-boost-python-converters/
 struct iterable_converter {
   template <typename Container>
   iterable_converter& from_python() {
