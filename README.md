@@ -236,10 +236,49 @@ You now have a (synthetic) learning set.
 You can use it to train a new model:
 
 <!-- EXTEND command-line-example/run.sh -->
+    # @todo Rename the command to `train`?
     lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
+<!-- APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 44 -->
 <!-- STOP -->
 
-If the training is effective, the resulting trained model should be close to the original (synthetic) one.
+The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain,
+but the trained model is numerically different because information was lost in the process:
+
+<!-- START command-line-example/expected-trained-model.yml -->
+    kind: classification-model
+    format_version: 1
+    boundaries:
+      - profile:
+          - 0.230314642
+          - 0.0496565141
+          - 0.146026939
+          - 0.0473400839
+        sufficient_coalitions:
+          kind: weights
+          criterion_weights:
+            - 0.147771254
+            - 0.618687689
+            - 0.406786472
+            - 0.0960085914
+      - profile:
+          - 0.676961303
+          - 0.324553937
+          - 0.673279881
+          - 0.598555863
+        sufficient_coalitions:
+          kind: weights
+          criterion_weights:
+            - 0.147771254
+            - 0.618687689
+            - 0.406786472
+            - 0.0960085914
+<!-- STOP -->
+
+<!-- EXTEND command-line-example/run.sh --><!--
+    diff expected-trained-model.yml trained-model.yml
+--><!-- STOP -->
+
+If the training is effective, the resulting trained model should behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
 First, generate a testing set:
@@ -264,8 +303,19 @@ There are a few differences between the original testing set and the reclassifie
 
 That command should show a few alternatives that are not classified the same way by the original and the trained model:
 
+<!-- START command-line-example/expected-classification-diff.txt -->
+    81c81
+    < "Alternative 80",0.479505032,0.542357743,0.159137502,0.227083206,"Category 1"
+    ---
+    > "Alternative 80",0.479505032,0.542357743,0.159137502,0.227083206,"Category 2"
+    97c97
+    < "Alternative 96",0.601059437,0.581712008,0.160034612,0.854760826,"Category 1"
+    ---
+    > "Alternative 96",0.601059437,0.581712008,0.160034612,0.854760826,"Category 2"
+<!-- STOP -->
+
 <!-- EXTEND command-line-example/run.sh --><!--
-    diff <(true) classification-diff.txt
+    diff expected-classification-diff.txt classification-diff.txt
 --><!-- STOP -->
 
 You can also measure the classification accuracy of the trained model on that testing set:
@@ -278,7 +328,7 @@ You can also measure the classification accuracy of the trained model on that te
 It should be close to 100%:
 
 <!-- START command-line-example/expected-classification-accuracy.txt -->
-    100/100
+    98/100
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--

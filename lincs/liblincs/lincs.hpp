@@ -144,4 +144,13 @@ struct ClassificationResult {
 
 ClassificationResult classify_alternatives(const Domain&, const Model&, Alternatives*);
 
+struct MrSortLearning {
+  const Domain& domain;
+  const Alternatives& alternatives;
+
+  MrSortLearning(const Domain& domain_, const Alternatives& alternatives_): domain(domain_), alternatives(alternatives_) {}
+
+  Model perform();
+};
+
 }  // namespace lincs

@@ -291,4 +291,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     (bp::arg("domain"), "model", "alternatives"),
     "Classify the provided `alternatives` according to the provided `model`."
   );
+
+  bp::class_<lincs::MrSortLearning>("MrSortLearning", bp::init<const lincs::Domain&, const lincs::Alternatives&>())
+    .def("perform", &lincs::MrSortLearning::perform)
+  ;
 }

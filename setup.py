@@ -25,6 +25,7 @@ liblincs = setuptools.Extension(
         "lincs/liblincs/classification.cpp",
         "lincs/liblincs/generation.cpp",
         "lincs/liblincs/io.cpp",
+        "lincs/liblincs/learning.cpp",
     ],
     libraries=[
         "boost_python310",

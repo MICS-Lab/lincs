@@ -555,8 +555,9 @@ def classification_model(
     assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
     assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
 
-    with open("model.yml") as f:
-        output_model.write(f.read())
+    learning = lincs.MrSortLearning(domain, learning_set)
+    model = learning.perform()
+    model.dump(output_model)
 
 
 @main.command(
