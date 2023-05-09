@@ -10,51 +10,88 @@ import textwrap
 
 
 def main():
-    # With lincs not installed
-    ##########################
+    try:
+        os.rename("build-debug", "build")
+    except FileNotFoundError:
+        pass
+    try:
+        # With lincs not installed
+        ##########################
 
-    print("Building extension module in debug mode")
-    print("=======================================")
-    print(flush=True)
+        print("Building extension module in debug mode")
+        print("=======================================")
+        print(flush=True)
 
-    subprocess.run(
-        [
-            f"python3", "setup.py", "build_ext",
-            "--inplace", "--debug",
-            "--parallel", str(multiprocessing.cpu_count() - 1),
-        ],
-        check=True,
-    )
+        subprocess.run(
+            [
+                f"python3", "setup.py", "build_ext",
+                "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
+                "--parallel", str(multiprocessing.cpu_count() - 1),
+            ],
+            check=True,
+        )
 
-    print("Running Python unit tests")
-    print("=========================")
-    print(flush=True)
+        print("Running C++ unit tests")
+        print("======================")
+        print(flush=True)
 
-    run_python_tests()
+        subprocess.run(
+            [
+                "g++",
+                "-L.", "-llincs.cpython-310-x86_64-linux-gnu",  # Contains the `main` function
+                "-o", "/tmp/lincs-tests",
+            ],
+            check=True,
+        )
 
-    print("Making integration tests from README.md")
-    print("=======================================")
-    print(flush=True)
+        subprocess.run(
+            [
+                "/tmp/lincs-tests",
+            ],
+            check=True,
+            env=dict(os.environ, LD_LIBRARY_PATH="."),
+        )
 
-    make_example_integration_test_from_readme()
+        print()
+        print("Running Python unit tests")
+        print("=========================")
+        print(flush=True)
 
-    # Install lincs
-    ###############
+        run_python_tests()
 
-    print("Installing *lincs*")
-    print("==================")
-    print(flush=True)
+        print()
+        print("Making integration tests from README.md")
+        print("=======================================")
+        print(flush=True)
 
-    # Next line costs ~15s per cycle, but seems necessary because the package is not always rebuilt when C++ parts change.
-    # Feel free to comment it out if you only modify Python parts.
-    shutil.rmtree("build", ignore_errors=True)
-    shutil.rmtree("lincs.egg-info", ignore_errors=True)
-    subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+        make_example_integration_test_from_readme()
+    finally:
+        os.rename("build", "build-debug")
 
-    # With lincs installed
-    ######################
+    try:
+        os.rename("build-release", "build")
+    except FileNotFoundError:
+        pass
+    try:
+        # Install lincs
+        ###############
 
-    run_integration_tests()
+        print("Installing *lincs*")
+        print("==================")
+        print(flush=True)
+
+        # Next line costs ~15s per cycle, but is necessary because the package is not rebuilt when only C++ headers change.
+        # Feel free to comment it out if you only modify Python parts.
+        shutil.rmtree("build", ignore_errors=True)
+        shutil.rmtree("lincs.egg-info", ignore_errors=True)
+        subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+
+        # With lincs installed
+        ######################
+
+        run_integration_tests()
+    finally:
+        os.rename("build", "build-release")
 
 
 def run_python_tests():

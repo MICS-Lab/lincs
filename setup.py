@@ -32,6 +32,7 @@ liblincs = setuptools.Extension(
         "python3.10",  # Make the Python module usable as a C++ shared library without -lpython3.10 (still linked, but implicitly)
         "yaml-cpp",
     ],
+    define_macros=[("DOCTEST_CONFIG_DISABLE", None)],
 )
 
 setuptools.setup(

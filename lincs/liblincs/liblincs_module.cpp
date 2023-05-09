@@ -6,6 +6,10 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
+#ifndef DOCTEST_CONFIG_DISABLE
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#endif
+#include <doctest.h>
 #include <magic_enum.hpp>
 
 

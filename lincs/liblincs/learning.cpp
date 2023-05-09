@@ -1,5 +1,6 @@
 #include "lincs.hpp"
 
+
 namespace lincs {
 
 Model MrSortLearning::perform() {

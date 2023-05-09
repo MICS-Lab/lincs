@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include <doctest.h>
 #include <magic_enum.hpp>
 #include <rapidcsv.h>
 #include <yaml-cpp/yaml.h>
@@ -109,6 +110,20 @@ Domain Domain::load(std::istream& is) {
     node["criteria"].as<std::vector<Criterion>>(),
     node["categories"].as<std::vector<Category>>()
   );
+}
+
+TEST_CASE("dumping then loading domain preserves data") {
+  Domain domain{
+    {{"Criterion 1", Domain::Criterion::ValueType::real, Domain::Criterion::CategoryCorrelation::growing}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::stringstream ss;
+  domain.dump(ss);
+
+  Domain domain2 = Domain::load(ss);
+  CHECK(domain2.criteria == domain.criteria);
+  CHECK(domain2.categories == domain.categories);
 }
 
 void Model::dump(std::ostream& os) const {

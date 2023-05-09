@@ -6,8 +6,8 @@
 namespace lincs {
 
 ClassificationResult classify_alternatives(const Domain& domain, const Model& model, Alternatives* alternatives) {
-  assert(&model.domain == &domain);
-  assert(&alternatives.domain == &domain);
+  assert(&(model.domain) == &domain);
+  assert(&(alternatives->domain) == &domain);
 
   const unsigned criteria_count = domain.criteria.size();
   const unsigned categories_count = domain.categories.size();
@@ -18,7 +18,7 @@ ClassificationResult classify_alternatives(const Domain& domain, const Model& mo
     uint category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
       const auto& boundary = model.boundaries[category_index - 1];
-      assert(boundary.sufficient_coalitions.kind == SufficientCoalitions::Kind::weights);
+      assert(boundary.sufficient_coalitions.kind == Model::SufficientCoalitions::Kind::weights);
       float weight_at_or_above_profile = 0;
       for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];

@@ -37,6 +37,11 @@ RUN pip3 install \
       click \
       matplotlib
 
+# Doctest
+RUN set -x \
+ && cd /usr/local/include \
+ && wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
+
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home
