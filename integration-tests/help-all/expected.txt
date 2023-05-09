@@ -13,7 +13,7 @@ Commands:
   classification-accuracy  Compute a classification accuracy.
   classify                 Classify alternatives.
   generate                 Generate synthetic data.
-  visualize
+  visualize                Make graphs from data.
 
 lincs generate
 ==============
@@ -102,19 +102,28 @@ lincs visualize
 
 Usage: lincs visualize [OPTIONS] COMMAND [ARGS]...
 
+  Make graphs from data.
+
 Options:
   --help  Show this message and exit.
 
 Commands:
-  model
+  classification-model  Visualize a classification model.
 
-lincs visualize model
-=====================
+lincs visualize classification-model
+====================================
 
-Usage: lincs visualize model [OPTIONS] DOMAIN MODEL OUTPUT
+Usage: lincs visualize classification-model [OPTIONS] DOMAIN MODEL OUTPUT
+
+  Visualize a classification model.
+
+  DOMAIN is a *classification domain* file. MODEL is a *classification model*
+  file for that domain describing the model to visualize. The generated image
+  is written to the OUTPUT file in PNG format.
 
 Options:
-  --alternatives FILENAME
+  --alternatives FILENAME  Add the alternatives from this *classified
+                           alternatives* file to the visualization.
   --help                   Show this message and exit.
 
 lincs classify

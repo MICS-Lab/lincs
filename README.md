@@ -80,7 +80,7 @@ The command-line interface is the easiest way to get started with *lincs*, start
       classification-accuracy  Compute a classification accuracy.
       classify                 Classify alternatives.
       generate                 Generate synthetic data.
-      visualize
+      visualize                Make graphs from data.
 <!-- STOP -->
 
 It's organized using sub-commands, the first one being `generate`, to generate synthetic pseudo-random data.
@@ -175,7 +175,7 @@ It should look like:
 You can visualize it using:
 
 <!-- EXTEND command-line-example/run.sh -->
-    lincs visualize model domain.yml model.yml model.png
+    lincs visualize classification-model domain.yml model.yml model.png
 <!-- STOP -->
 <!-- EXTEND command-line-example/run.sh --><!--
     cp model.png ../../..
@@ -215,7 +215,7 @@ It should look like:
 You can visualize it using:
 
 <!-- EXTEND command-line-example/run.sh -->
-    lincs visualize model domain.yml model.yml --alternatives learning-set.csv alternatives.png
+    lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv alternatives.png
 <!-- STOP -->
 <!-- EXTEND command-line-example/run.sh --><!--
     cp alternatives.png ../../..

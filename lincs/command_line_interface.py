@@ -300,12 +300,22 @@ def classified_alternatives(
     alternatives.dump(output_classified_alternatives)
 
 
-@main.group()
+@main.group(
+    help="Make graphs from data.",
+)
 def visualize():
     pass
 
 
-@visualize.command()
+@visualize.command(
+    help="""
+        Visualize a classification model.
+
+        DOMAIN is a *classification domain* file.
+        MODEL is a *classification model* file for that domain describing the model to visualize.
+        The generated image is written to the OUTPUT file in PNG format.
+    """,
+)
 @click.argument(
     "domain",
     type=click.File(mode="r"),
@@ -317,12 +327,13 @@ def visualize():
 @click.option(
     "--alternatives",
     type=click.File(mode="r"),
+    help="Add the alternatives from this *classified alternatives* file to the visualization.",
 )
 @click.argument(
     "output",
     type=click.File(mode="wb"),
 )
-def model(
+def classification_model(
     domain,
     model,
     alternatives,
