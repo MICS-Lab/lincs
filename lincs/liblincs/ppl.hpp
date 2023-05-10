@@ -87,8 +87,8 @@ struct LearningSet {
 
 #include <lov-e.hpp>
 
-#include "io.hpp"
-#include "uint.hpp"
+// Commented during copy-paste from PPL: #include "io.hpp"
+// Commented during copy-paste from PPL: #include "uint.hpp"
 
 
 namespace ppl {
@@ -254,7 +254,7 @@ class Models {
 #ifndef OBSERVE_HPP_
 #define OBSERVE_HPP_
 
-#include "problem.hpp"
+// Commented during copy-paste from PPL: #include "problem.hpp"
 
 
 namespace ppl {
@@ -278,7 +278,7 @@ class LearningObserver {
 #include <memory>
 #include <vector>
 
-#include "problem.hpp"
+// Commented during copy-paste from PPL: #include "problem.hpp"
 
 
 namespace ppl {
@@ -413,7 +413,7 @@ class ProbabilityWeightedGenerator {
 
 #include <memory>
 
-#include "problem.hpp"
+// Commented during copy-paste from PPL: #include "problem.hpp"
 
 
 namespace ppl {
@@ -439,10 +439,10 @@ class ProfilesImprovementStrategy {
 
 #include <memory>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
-#include "../improve-profiles.hpp"
-#include "../randomness.hpp"
+// Commented during copy-paste from PPL: #include "../improve-profiles.hpp"
+// Commented during copy-paste from PPL: #include "../randomness.hpp"
 
 
 namespace ppl {
@@ -476,7 +476,7 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStra
 
 #include <memory>
 
-#include "problem.hpp"
+// Commented during copy-paste from PPL: #include "problem.hpp"
 
 
 namespace ppl {
@@ -497,7 +497,7 @@ class WeightsOptimizationStrategy {
 #ifndef TERMINATE_HPP_
 #define TERMINATE_HPP_
 
-#include "uint.hpp"
+// Commented during copy-paste from PPL: #include "uint.hpp"
 
 
 namespace ppl {
@@ -521,11 +521,11 @@ class TerminationStrategy {
 #include <memory>
 #include <vector>
 
-#include "improve-profiles.hpp"
-#include "initialize-profiles.hpp"
-#include "observe.hpp"
-#include "optimize-weights.hpp"
-#include "terminate.hpp"
+// Commented during copy-paste from PPL: #include "improve-profiles.hpp"
+// Commented during copy-paste from PPL: #include "initialize-profiles.hpp"
+// Commented during copy-paste from PPL: #include "observe.hpp"
+// Commented during copy-paste from PPL: #include "optimize-weights.hpp"
+// Commented during copy-paste from PPL: #include "terminate.hpp"
 
 
 namespace ppl {

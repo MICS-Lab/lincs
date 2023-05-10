@@ -2,7 +2,7 @@
 #line 1 "io.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "io.hpp"
+// Commented during copy-paste from PPL: #include "io.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -10,7 +10,7 @@
 #include <utility>
 #include <sstream>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
 
 namespace {
@@ -37,7 +37,7 @@ Model::Model(
 }
 
 std::optional<std::string> Model::validate() const {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   // Valid counts
   if (criteria_count < 1) return "fewer than 1 criteria";
@@ -186,7 +186,7 @@ float encode_weights(const std::vector<float>& denormalized_weights, std::ostrea
 }  // namespace
 
 void Model::save_to(std::ostream& s) const {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   s << criteria_count << std::endl;
   s << categories_count << std::endl;
@@ -204,7 +204,7 @@ void Model::save_to(std::ostream& s) const {
 }
 
 Model Model::load_from(std::istream& s) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   uint criteria_count;
   s >> criteria_count;
@@ -263,7 +263,7 @@ Model Model::load_from(std::istream& s) {
 }
 
 Model Model::make_homogeneous(uint criteria_count, float weights_sum, uint categories_count) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   std::vector<std::vector<float>> profiles;
   profiles.reserve(categories_count - 1);
@@ -296,7 +296,7 @@ LearningSet::LearningSet(
 }
 
 std::optional<std::string> LearningSet::validate() const {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   // Valid counts
   if (criteria_count < 1) return "fewer than 1 criteria";
@@ -341,7 +341,7 @@ std::optional<std::string> LearningSet::validate() const {
 }
 
 void LearningSet::save_to(std::ostream& s) const {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   s << criteria_count << std::endl;
   s << categories_count << std::endl;
@@ -358,7 +358,7 @@ void LearningSet::save_to(std::ostream& s) const {
 }
 
 LearningSet LearningSet::load_from(std::istream& s) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   uint criteria_count;
   s >> criteria_count;
@@ -386,15 +386,15 @@ LearningSet LearningSet::load_from(std::istream& s) {
 #line 1 "problem.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "problem.hpp"
+// Commented during copy-paste from PPL: #include "problem.hpp"
 
 #include <algorithm>
 #include <set>
 #include <utility>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
-#include "io.hpp"
+// Commented during copy-paste from PPL: #include "io.hpp"
 
 
 namespace ppl {
@@ -415,7 +415,7 @@ Domain<Space>::Domain(
 
 template<>
 std::shared_ptr<Domain<Host>> Domain<Host>::make(const io::LearningSet& learning_set) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   assert(learning_set.is_valid());
 
@@ -453,7 +453,7 @@ DomainView<Space> Domain<Space>::get_view() const {
 }
 
 template class Domain<Host>;
-template class Domain<Device>;
+// Commented during copy-paste from PPL: template class Domain<Device>;
 
 template<typename Space>
 Models<Space>::Models(
@@ -471,7 +471,7 @@ Models<Space>::Models(
 
 template<>
 std::shared_ptr<Models<Host>> Models<Host>::make(std::shared_ptr<Domain<Host>> domain, const uint models_count) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   DomainView<Host> domain_view = domain->get_view();
 
@@ -494,7 +494,7 @@ std::shared_ptr<Models<Host>> Models<Host>::make(
   std::shared_ptr<Domain<Host>> domain,
   const std::vector<io::Model>& models
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   const uint models_count = models.size();
   auto r = make(domain, models_count);
@@ -521,7 +521,7 @@ std::shared_ptr<Models<Host>> Models<Host>::make(
 
 template<>
 io::Model Models<Host>::unmake_one(uint model_index) const {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   ModelsView view = get_view();
 
@@ -544,7 +544,7 @@ io::Model Models<Host>::unmake_one(uint model_index) const {
 
 template<>
 std::vector<io::Model> Models<Host>::unmake() const {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   ModelsView<Host> view = get_view();
 
@@ -571,7 +571,7 @@ ModelsView<Space> Models<Space>::get_view() const {
 }
 
 template class Models<Host>;
-template class Models<Device>;
+// Commented during copy-paste from PPL: template class Models<Device>;
 
 }  // namespace ppl
 #line 1 "assign.hpp"
@@ -580,12 +580,12 @@ template class Models<Device>;
 #ifndef ASSIGN_HPP_
 #define ASSIGN_HPP_
 
-#include "problem.hpp"
+// Commented during copy-paste from PPL: #include "problem.hpp"
 
 
 namespace ppl {
 
-__host__ __device__
+// Commented during copy-paste from PPL: __host__ __device__
 uint get_assignment(const ModelsView<Anywhere>&, uint model_index, uint alternative_index);
 uint get_assignment(const Models<Host>&, uint model_index, uint alternative_index);
 
@@ -593,7 +593,7 @@ uint get_assignment(const Models<Host>&, uint model_index, uint alternative_inde
 // (To get the accuracy described in the thesis, it should be divided by `models.domain.alternatives_count`)
 uint get_accuracy(const Models<Host>&, uint model_index);
 // @todo Remove: this is used only by tests
-uint get_accuracy(const Models<Device>&, uint model_index);
+// Commented during copy-paste from PPL: uint get_accuracy(const Models<Device>&, uint model_index);
 
 }  // namespace ppl
 
@@ -601,15 +601,15 @@ uint get_accuracy(const Models<Device>&, uint model_index);
 #line 1 "assign.cu"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "assign.hpp"
+// Commented during copy-paste from PPL: #include "assign.hpp"
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 #include <lov-e.hpp>
 
 
 namespace ppl {
 
-__host__ __device__
+// Commented during copy-paste from PPL: __host__ __device__
 uint get_assignment(const ModelsView<Anywhere>& models, const uint model_index, const uint alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
@@ -640,7 +640,7 @@ uint get_assignment(const Models<Host>& models, const uint model_index, const ui
   return get_assignment(models.get_view(), model_index, alternative_index);
 }
 
-__host__ __device__
+// Commented during copy-paste from PPL: __host__ __device__
 bool is_correctly_assigned(
     const ModelsView<Anywhere>& models,
     const uint model_index,
@@ -670,34 +670,36 @@ typedef GridFactory1D<512> grid;
 
 }  // namespace
 
-__global__ void get_accuracy__kernel(ModelsView<Anywhere> models, const uint model_index, uint* const accuracy) {
-  const uint alt_index = grid::x();
+/* Commented during copy-paste from PPL: __global__ */ void get_accuracy__kernel(ModelsView<Anywhere> models, const uint model_index, uint* const accuracy) {
+  const uint alt_index = /* Commented during copy-paste from PPL: grid::x() */ 0;
   assert(alt_index < models.domain.learning_alternatives_count + grid::blockDim.x);
 
   if (alt_index < models.domain.learning_alternatives_count) {
     if (is_correctly_assigned(models, model_index, alt_index)) {
-      atomicInc(accuracy, models.domain.learning_alternatives_count);
+      // Commented during copy-paste from PPL: atomicInc(accuracy, models.domain.learning_alternatives_count);
     }
   }
 }
 
+/* Commented during copy-paste from PPL:
 uint get_accuracy(const Models<Device>& models, const uint model_index) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   uint* device_accuracy = Device::alloc<uint>(1);
-  cudaMemset(device_accuracy, 0, sizeof(uint));
-  check_last_cuda_error_no_sync();
+  // Commented during copy-paste from PPL: cudaMemset(device_accuracy, 0, sizeof(uint));
+  // Commented during copy-paste from PPL: check_last_cuda_error_no_sync();
 
   ModelsView<Anywhere> models_view = models.get_view();
   Grid grid = grid::make(models_view.domain.learning_alternatives_count);
-  get_accuracy__kernel<<<LOVE_CONFIG(grid)>>>(models_view, model_index, device_accuracy);
-  check_last_cuda_error_sync_device();
+  // Commented during copy-paste from PPL: get_accuracy__kernel<<<LOVE_CONFIG(grid)>>>(models_view, model_index, device_accuracy);
+  // Commented during copy-paste from PPL: check_last_cuda_error_sync_device();
 
   uint host_accuracy;
   From<Device>::To<Host>::copy(1, device_accuracy, &host_accuracy);  // NOLINT(build/include_what_you_use)
   Device::free(device_accuracy);
   return host_accuracy;
 }
+*/
 
 }  // namespace ppl
 #line 1 "observe/report-progress.hpp"
@@ -709,7 +711,7 @@ uint get_accuracy(const Models<Device>& models, const uint model_index) {
 
 #include <iostream>
 
-#include "../observe.hpp"
+// Commented during copy-paste from PPL: #include "../observe.hpp"
 
 namespace ppl {
 
@@ -732,7 +734,7 @@ class ReportProgress : public LearningObserver {
 
 #include <iostream>
 
-#include "../observe.hpp"
+// Commented during copy-paste from PPL: #include "../observe.hpp"
 
 
 namespace ppl {
@@ -753,9 +755,9 @@ class DumpIntermediateModels : public LearningObserver {
 #line 1 "observe/dump-intermediate-models.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "dump-intermediate-models.hpp"
+// Commented during copy-paste from PPL: #include "dump-intermediate-models.hpp"
 
-#include "../assign.hpp"
+// Commented during copy-paste from PPL: #include "../assign.hpp"
 
 
 namespace ppl {
@@ -809,8 +811,8 @@ void DumpIntermediateModels::after_main_iteration(int iteration_index, int, cons
 #include <memory>
 #include <vector>
 
-#include "../initialize-profiles.hpp"
-#include "../randomness.hpp"
+// Commented during copy-paste from PPL: #include "../initialize-profiles.hpp"
+// Commented during copy-paste from PPL: #include "../randomness.hpp"
 
 
 namespace ppl {
@@ -849,12 +851,12 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
 #line 1 "initialize-profiles/max-power-per-criterion.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "max-power-per-criterion.hpp"
+// Commented during copy-paste from PPL: #include "max-power-per-criterion.hpp"
 
 #include <algorithm>
 #include <map>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
 
 namespace ppl {
@@ -864,7 +866,7 @@ std::map<float, double> get_candidate_probabilities(
   uint crit_index,
   uint profile_index
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   std::vector<float> values_below;
   // The size used for 'reserve' is a few times larger than the actual final size,
@@ -910,7 +912,7 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
   const Random& random,
   const Models<Host>& models) :
     _random(random) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   ModelsView<Host> models_view = models.get_view();
 
@@ -932,7 +934,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
   std::vector<uint>::const_iterator model_indexes_begin,
   const std::vector<uint>::const_iterator model_indexes_end
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   ModelsView<Host> models_view = models->get_view();
 
@@ -974,7 +976,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
 #ifndef IMPROVE_PROFILES_DESIRABILITY_HPP_
 #define IMPROVE_PROFILES_DESIRABILITY_HPP_
 
-#include "../problem.hpp"
+// Commented during copy-paste from PPL: #include "../problem.hpp"
 
 
 namespace ppl {
@@ -990,7 +992,7 @@ struct Desirability {
   uint r = 0;
   uint t = 0;
 
-  __host__ __device__
+  // Commented during copy-paste from PPL: __host__ __device__
   float value() const {
     if (v + w + t + q + r == 0) {
       return zero_value;
@@ -1000,7 +1002,7 @@ struct Desirability {
   }
 };
 
-__host__ __device__
+// Commented during copy-paste from PPL: __host__ __device__
 void update_move_desirability(
   const ModelsView<Anywhere>& models,
   const uint model_index,
@@ -1038,14 +1040,14 @@ inline void Device::memset<ppl::Desirability>(const std::size_t n, const char v,
 #line 1 "improve-profiles/desirability.cu"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "desirability.hpp"
+// Commented during copy-paste from PPL: #include "desirability.hpp"
 
-#include "../assign.hpp"
+// Commented during copy-paste from PPL: #include "../assign.hpp"
 
 
 namespace ppl {
 
-__host__ __device__
+// Commented during copy-paste from PPL: __host__ __device__
 void increment(
     uint* i,
     uint
@@ -1054,13 +1056,13 @@ void increment(
     #endif
 ) {
   #ifdef __CUDA_ARCH__
-  atomicInc(i, max);
+  // Commented during copy-paste from PPL: atomicInc(i, max);
   #else
   ++*i;
   #endif
 }
 
-__host__ __device__
+// Commented during copy-paste from PPL: __host__ __device__
 void update_move_desirability(
   const ModelsView<Anywhere>& models,
   const uint model_index,
@@ -1189,10 +1191,10 @@ void update_move_desirability(
 
 #include <memory>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
-#include "../improve-profiles.hpp"
-#include "../randomness.hpp"
+// Commented during copy-paste from PPL: #include "../improve-profiles.hpp"
+// Commented during copy-paste from PPL: #include "../randomness.hpp"
 
 
 namespace ppl {
@@ -1216,17 +1218,17 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
 #line 1 "improve-profiles/accuracy-heuristic-cpu.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "accuracy-heuristic-cpu.hpp"
+// Commented during copy-paste from PPL: #include "accuracy-heuristic-cpu.hpp"
 
 #include <algorithm>
 #include <utility>
 #include <cassert>
 #include <random>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
-#include "../assign.hpp"
-#include "desirability.hpp"
+// Commented during copy-paste from PPL: #include "../assign.hpp"
+// Commented during copy-paste from PPL: #include "desirability.hpp"
 
 namespace ppl {
 
@@ -1256,7 +1258,7 @@ void improve_model_profile(
   const uint profile_index,
   const uint criterion_index
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   // WARNING: We're assuming all criteria have values in [0, 1]
   // @todo Can we relax this assumption?
@@ -1312,7 +1314,7 @@ void improve_model_profile(
   const uint profile_index,
   ArrayView1D<Anywhere, const uint> criterion_indexes
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
@@ -1336,7 +1338,7 @@ void shuffle(const Random& random, ArrayView1D<Anywhere, T> m) {
 }
 
 void improve_model_profiles(const Random& random, const ModelsView<Host>& models, const uint model_index) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   Array1D<Host, uint> criterion_indexes(models.domain.criteria_count, uninitialized);
   // Not worth parallelizing because models.domain.criteria_count is typically small
@@ -1355,7 +1357,7 @@ void improve_model_profiles(const Random& random, const ModelsView<Host>& models
 }  // namespace
 
 void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models<Host>> models) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   auto models_view = models->get_view();
 
@@ -1375,7 +1377,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr
 #include <memory>
 #include <vector>
 
-#include "../optimize-weights.hpp"
+// Commented during copy-paste from PPL: #include "../optimize-weights.hpp"
 
 
 namespace ppl {
@@ -1398,7 +1400,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
 #line 1 "optimize-weights/glop.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "glop.hpp"
+// Commented during copy-paste from PPL: #include "glop.hpp"
 
 #include <ortools/glop/lp_solver.h>
 
@@ -1406,7 +1408,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
 #include <vector>
 #include <memory>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
 
 namespace ppl {
@@ -1427,7 +1429,7 @@ std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_internal_linear_pr
   const ModelsView<Host>& models,
   uint model_index
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   auto lp = std::make_shared<OptimizeWeightsUsingGlop::LinearProgram>();
 
@@ -1486,7 +1488,7 @@ std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_internal_linear_pr
 
 std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_program(
     const float epsilon, const ModelsView<Host>& models, uint model_index) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   auto lp = make_internal_linear_program(epsilon, models, model_index);
 
@@ -1511,13 +1513,13 @@ std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_pro
 
 std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
     const float epsilon, std::shared_ptr<Models<Host>> models_, uint model_index) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   return make_verbose_linear_program(epsilon, models_->get_view(), model_index)->program;
 }
 
 auto solve_linear_program(std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> lp) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   operations_research::glop::LPSolver solver;
   operations_research::glop::GlopParameters parameters;
@@ -1532,7 +1534,7 @@ auto solve_linear_program(std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgra
 }
 
 void optimize_weights(const ModelsView<Host>& models, uint model_index) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   auto lp = make_internal_linear_program(1e-6, models, model_index);
   auto values = solve_linear_program(lp);
@@ -1543,7 +1545,7 @@ void optimize_weights(const ModelsView<Host>& models, uint model_index) {
 }
 
 void optimize_weights(const ModelsView<Host>& models) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   #pragma omp parallel for
   for (uint model_index = 0; model_index != models.models_count; ++model_index) {
@@ -1552,7 +1554,7 @@ void optimize_weights(const ModelsView<Host>& models) {
 }
 
 void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models<Host>> models) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   ppl::optimize_weights(models->get_view());
 }
@@ -1569,7 +1571,7 @@ void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models<Host>> mo
 #include <memory>
 #include <vector>
 
-#include "../optimize-weights.hpp"
+// Commented during copy-paste from PPL: #include "../optimize-weights.hpp"
 
 
 namespace ppl {
@@ -1612,12 +1614,12 @@ class OptimizeWeightsUsingGlopAndReusingPrograms : public WeightsOptimizationStr
 #line 1 "optimize-weights/glop-reuse.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "glop-reuse.hpp"
+// Commented during copy-paste from PPL: #include "glop-reuse.hpp"
 
 #include <string>
 #include <vector>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
 
 namespace ppl {
@@ -1752,7 +1754,7 @@ OptimizeWeightsUsingGlopAndReusingPrograms::OptimizeWeightsUsingGlopAndReusingPr
 ) :
     _linear_programs(models.get_view().models_count),
     _solvers(models.get_view().models_count) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   #pragma omp parallel for
   for (auto& lp : _linear_programs) {
@@ -1768,7 +1770,7 @@ OptimizeWeightsUsingGlopAndReusingPrograms::OptimizeWeightsUsingGlopAndReusingPr
 }
 
 void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(std::shared_ptr<Models<Host>> models) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   auto models_view = models->get_view();
 
@@ -1795,7 +1797,7 @@ void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(std::shared_pt
 #ifndef TERMINATE_ACCURACY_HPP_
 #define TERMINATE_ACCURACY_HPP_
 
-#include "../terminate.hpp"
+// Commented during copy-paste from PPL: #include "../terminate.hpp"
 
 
 namespace ppl {
@@ -1822,7 +1824,7 @@ class TerminateAtAccuracy : public TerminationStrategy {
 #ifndef TERMINATE_ITERATIONS_HPP_
 #define TERMINATE_ITERATIONS_HPP_
 
-#include "../terminate.hpp"
+// Commented during copy-paste from PPL: #include "../terminate.hpp"
 
 
 namespace ppl {
@@ -1851,7 +1853,7 @@ class TerminateAfterIterations : public TerminationStrategy {
 
 #include <chrono>  // NOLINT(build/c++11)
 
-#include "../terminate.hpp"
+// Commented during copy-paste from PPL: #include "../terminate.hpp"
 
 
 namespace ppl {
@@ -1883,7 +1885,7 @@ class TerminateAfterDuration : public TerminationStrategy {
 #include <memory>
 #include <vector>
 
-#include "../terminate.hpp"
+// Commented during copy-paste from PPL: #include "../terminate.hpp"
 
 
 namespace ppl {
@@ -1938,21 +1940,21 @@ void ensure_median_and_max(RandomIt begin, RandomIt end, Compare comp) {
 #line 1 "learning.cpp"
 // Copyright 2021-2022 Vincent Jacques
 
-#include "learning.hpp"
+// Commented during copy-paste from PPL: #include "learning.hpp"
 
 #include <algorithm>
 #include <numeric>
 
-#include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
 
-#include "assign.hpp"
-#include "median-and-max.hpp"
+// Commented during copy-paste from PPL: #include "assign.hpp"
+// Commented during copy-paste from PPL: #include "median-and-max.hpp"
 
 
 namespace ppl {
 
 std::vector<uint> partition_models_by_accuracy(const uint models_count, const Models<Host>& models) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   std::vector<uint> accuracies(models_count, 0);
   for (uint model_index = 0; model_index != models_count; ++model_index) {
@@ -1978,7 +1980,7 @@ LearningResult perform_learning(
   std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
   std::shared_ptr<TerminationStrategy> termination_strategy
 ) {
-  CHRONE();
+  // Commented during copy-paste from PPL: CHRONE();
 
   const uint models_count = models->get_view().models_count;
 
@@ -2022,25 +2024,25 @@ LearningResult perform_learning(
 #include <fstream>
 #include <iostream>
 
-#include <chrones.hpp>
-#include <CLI11.hpp>
+// Commented during copy-paste from PPL: #include <chrones.hpp>
+// Commented during copy-paste from PPL: #include <CLI11.hpp>
 #include <magic_enum.hpp>
 
-#include "../library/improve-profiles/accuracy-heuristic-cpu.hpp"
-#include "../library/improve-profiles/accuracy-heuristic-gpu.hpp"
-#include "../library/initialize-profiles/max-power-per-criterion.hpp"
-#include "../library/learning.hpp"
-#include "../library/observe/dump-intermediate-models.hpp"
-#include "../library/observe/report-progress.hpp"
-#include "../library/optimize-weights/glop.hpp"
-#include "../library/optimize-weights/glop-reuse.hpp"
-#include "../library/terminate/accuracy.hpp"
-#include "../library/terminate/any.hpp"
-#include "../library/terminate/duration.hpp"
-#include "../library/terminate/iterations.hpp"
+// Commented during copy-paste from PPL: #include "../library/improve-profiles/accuracy-heuristic-cpu.hpp"
+// Commented during copy-paste from PPL: #include "../library/improve-profiles/accuracy-heuristic-gpu.hpp"
+// Commented during copy-paste from PPL: #include "../library/initialize-profiles/max-power-per-criterion.hpp"
+// Commented during copy-paste from PPL: #include "../library/learning.hpp"
+// Commented during copy-paste from PPL: #include "../library/observe/dump-intermediate-models.hpp"
+// Commented during copy-paste from PPL: #include "../library/observe/report-progress.hpp"
+// Commented during copy-paste from PPL: #include "../library/optimize-weights/glop.hpp"
+// Commented during copy-paste from PPL: #include "../library/optimize-weights/glop-reuse.hpp"
+// Commented during copy-paste from PPL: #include "../library/terminate/accuracy.hpp"
+// Commented during copy-paste from PPL: #include "../library/terminate/any.hpp"
+// Commented during copy-paste from PPL: #include "../library/terminate/duration.hpp"
+// Commented during copy-paste from PPL: #include "../library/terminate/iterations.hpp"
 
 
-CHRONABLE("learn")
+// Commented during copy-paste from PPL: CHRONABLE("learn")
 
 std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
   const bool quiet,
@@ -2099,12 +2101,13 @@ std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_stra
 ) {
   switch (strategy) {
     case ProfilesImprovementStrategy::heuristic:
-      if (use_gpu) {
-        return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(
-          random, models->clone_to<Device>(domain->clone_to<Device>()));
-      } else {
+      // Commented during copy-paste from PPL:
+      // if (use_gpu) {
+      //   return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(
+      //     random, models->clone_to<Device>(domain->clone_to<Device>()));
+      // } else {
         return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
-      }
+      // }
   }
   throw std::runtime_error("Unknown profiles improvement strategy");
 }
