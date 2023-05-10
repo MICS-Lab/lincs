@@ -30,19 +30,14 @@ namespace ppl::io {
 
 struct Model {
   Model(
-    unsigned criteria_count,
-    unsigned categories_count,
-    const std::vector<std::vector<float>>& profiles,
-    // @todo Add min/max values for each criterion.
-    // Then remove (everywhere) the assumption that these values are 0 and 1.
-    const std::vector<float>& weights);
-
-  std::optional<std::string> validate() const;
-  bool is_valid() const { return !validate(); }
-
-  void save_to(std::ostream&) const;
-  static Model load_from(std::istream&);
-  static Model make_homogeneous(unsigned criteria_count, float weights_sum, unsigned categories_count);
+    unsigned criteria_count_,
+    unsigned categories_count_,
+    const std::vector<std::vector<float>>& profiles_,
+    const std::vector<float>& weights_) :
+      criteria_count(criteria_count_),
+      categories_count(categories_count_),
+      profiles(profiles_),
+      weights(weights_) {};
 
   const unsigned criteria_count;
   const unsigned categories_count;
@@ -52,25 +47,25 @@ struct Model {
 
 struct ClassifiedAlternative {
   ClassifiedAlternative(
-    const std::vector<float>& criteria_values,
-    unsigned assigned_category);
+    const std::vector<float>& criteria_values_,
+    unsigned assigned_category_) :
+      criteria_values(criteria_values_),
+      assigned_category(assigned_category_) {}
 
   const std::vector<float> criteria_values;
-  unsigned assigned_category;  // @todo Fix this inconsistency: everything but that is const in this module
+  unsigned assigned_category;
 };
 
 struct LearningSet {
   LearningSet(
-    unsigned criteria_count,
-    unsigned categories_count,
-    unsigned alternatives_count,
-    const std::vector<ClassifiedAlternative>& alternatives);
-
-  std::optional<std::string> validate() const;
-  bool is_valid() const { return !validate(); }
-
-  void save_to(std::ostream&) const;
-  static LearningSet load_from(std::istream&);
+    unsigned criteria_count_,
+    unsigned categories_count_,
+    unsigned alternatives_count_,
+    const std::vector<ClassifiedAlternative>& alternatives_) :
+      criteria_count(criteria_count_),
+      categories_count(categories_count_),
+      alternatives_count(alternatives_count_),
+      alternatives(alternatives_) {}
 
   const unsigned criteria_count;
   const unsigned categories_count;
@@ -78,504 +73,59 @@ struct LearningSet {
   std::vector<ClassifiedAlternative> alternatives;
 };
 
-void check_valid(const std::string& type_name, const std::optional<std::string>& error) {
-  if (error) {
-    std::cerr << "Error during " << type_name << " validation: " << *error << std::endl;
-    exit(1);
-  }
-}
-
-Model::Model(
-  const unsigned criteria_count_,
-  const unsigned categories_count_,
-  const std::vector<std::vector<float>>& profiles_,
-  const std::vector<float>& weights_) :
-    criteria_count(criteria_count_),
-    categories_count(categories_count_),
-    profiles(profiles_),
-    weights(weights_) {
-  check_valid("model", validate());
-}
-
-std::optional<std::string> Model::validate() const {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  // Valid counts
-  if (criteria_count < 1) return "fewer than 1 criteria";
-
-  if (categories_count < 2) return "fewer than 2 categories";
-
-  // Consistent sizes
-  if (profiles.size() != categories_count - 1) return "inconsistent number of profiles";
-
-  if (std::any_of(
-    profiles.begin(), profiles.end(),
-    [this](const std::vector<float>& profile) { return profile.size() != criteria_count; }
-  )) return "inconsistent profile length";
-
-  if (weights.size() != criteria_count) return "inconsistent number of weights";
-
-  // Positive weights...
-  if (std::any_of(
-    weights.begin(), weights.end(),
-    [](float w) { return w < 0; }
-  )) return "negative weight";
-  // ... with at least one non-zero weight
-  if (std::all_of(
-    weights.begin(), weights.end(),
-    [](float w) { return w == 0; }
-  )) return "all weights are zero";
-
-  // Profiles between 0...
-  if (std::any_of(
-    profiles.front().begin(), profiles.front().end(),
-    [](const float v) { return v < 0; }
-  )) return "profile below 0.0";
-  // ... and 1
-  if (std::any_of(
-    profiles.back().begin(), profiles.back().end(),
-    [](const float v) { return v > 1; }
-  )) return "profile above 1.0";
-
-  // Profiles ordered on each criterion, with at least one criterion with different values
-  for (unsigned profile_index = 0; profile_index != categories_count - 2; ++profile_index) {
-    bool at_least_one_strictly_above = false;
-    for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
-      const float lower_value = profiles[profile_index][crit_index];
-      const float higher_value = profiles[profile_index + 1][crit_index];
-      if (higher_value > lower_value) {
-        at_least_one_strictly_above = true;
-      } else if (higher_value < lower_value) {
-        return "pair of unordered profiles";
-      }
-    }
-    if (!at_least_one_strictly_above) return "pair of equal profiles";
-  }
-
-  return std::nullopt;
-}
-
-namespace {
-
-template<typename T>
-struct space_separated {
-  space_separated(T begin_, const T& end_) : begin(begin_), end(end_) {}
-
-  T begin;
-  const T end;
-};
-
-template<typename T>
-std::ostream& operator<<(std::ostream& s, space_separated<T> v) {
-  if (v.begin != v.end) {
-    s << *v.begin;
-    while (++v.begin != v.end) {
-      s << " " << *v.begin;
-    }
-  }
-  return s;
-}
-
-template<typename T>
-std::istream& operator>>(std::istream& s, space_separated<T> v) {
-  if (v.begin != v.end) {
-    s >> *v.begin;
-    while (++v.begin != v.end) {
-      s >> *v.begin;
-    }
-  }
-  return s;
-}
-
-std::string encode_floats(float f1, float f2) {
-  std::ostringstream oss;
-  oss << f1 << ":" << std::hexfloat << f2;
-  return oss.str();
-}
-
-std::string encode_float(float f) {
-  return encode_floats(f, f);
-}
-
-std::pair<float, float> decode_floats(const std::string& s) {
-  std::istringstream iss(s);
-  float f1;
-  char c = 0;
-  std::string s2;
-  float f2 = std::nan("");
-  // Not using hexfloat here: see https://stackoverflow.com/a/42617165/905845
-  iss >> f1 >> c >> s2;
-  if (c == ':') {
-    f2 = std::strtof(s2.c_str(), NULL);
-  }
-  return std::make_pair(f1, f2);
-}
-
-float decode_float(const std::string& s) {
-  const auto [f1, f2] = decode_floats(s);
-
-  if (encode_float(f2) == s) {
-    return f2;
-  } else {
-    return f1;
-  }
-}
-
-float encode_weights(const std::vector<float>& denormalized_weights, std::ostream& s) {
-  const int criteria_count = denormalized_weights.size();
-
-  float weights_sum = std::accumulate(denormalized_weights.begin(), denormalized_weights.end(), 0.f);
-  if (weights_sum == 0) weights_sum = 1;  // Don't crash, just output a model with weights set to zeros
-
-  std::vector<float> normalized_weights(criteria_count);
-  std::transform(
-    denormalized_weights.begin(), denormalized_weights.end(),
-    normalized_weights.begin(),
-    [weights_sum](float w) { return w / weights_sum; });
-
-  std::vector<std::string> encoded_weights(criteria_count);
-  std::transform(
-    normalized_weights.begin(), normalized_weights.end(),
-    denormalized_weights.begin(),
-    encoded_weights.begin(),
-    encode_floats);
-  s << space_separated(encoded_weights.begin(), encoded_weights.end());
-
-  return 1 / weights_sum;
-}
-
-}  // namespace
-
-void Model::save_to(std::ostream& s) const {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  s << criteria_count << std::endl;
-  s << categories_count << std::endl;
-
-  const float threshold = encode_weights(weights, s);
-  s << std::endl;
-  s << threshold << std::endl;  // No need to encode_float:
-  // threshold from file is not used if hex-encoded non-normalized weights are used
-
-  for (auto profile : profiles) {
-    std::vector<std::string> encoded_profile(criteria_count);
-    std::transform(profile.begin(), profile.end(), encoded_profile.begin(), encode_float);
-    s << space_separated(encoded_profile.begin(), encoded_profile.end()) << std::endl;
-  }
-}
-
-Model Model::load_from(std::istream& s) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  unsigned criteria_count;
-  s >> criteria_count;
-
-  unsigned categories_count;
-  s >> categories_count;
-
-  std::string encoded_weights_s;
-  std::getline(s, encoded_weights_s);  // Skip the end of previous line
-  std::getline(s, encoded_weights_s);
-
-  float threshold;
-  s >> threshold;
-
-  std::vector<float> denormalized_weights(criteria_count);
-  {
-    std::vector<float> normalized_weights(criteria_count);
-
-    std::istringstream iss(encoded_weights_s);
-
-    std::vector<std::string> encoded_weights(criteria_count);
-    iss >> space_separated(encoded_weights.begin(), encoded_weights.end());
-
-    std::vector<std::pair<float, float>> decoded_weights(criteria_count);
-    std::transform(encoded_weights.begin(), encoded_weights.end(), decoded_weights.begin(), decode_floats);
-
-    std::transform(
-      decoded_weights.begin(), decoded_weights.end(),
-      normalized_weights.begin(),
-      [](std::pair<float, float> p) { return p.first; });
-
-    std::transform(
-      decoded_weights.begin(), decoded_weights.end(),
-      denormalized_weights.begin(),
-      [](std::pair<float, float> p) { return p.second; });
-
-    std::ostringstream reencoded_weights;
-    encode_weights(denormalized_weights, reencoded_weights);
-
-    if (reencoded_weights.str() != encoded_weights_s) {
-      std::transform(
-        normalized_weights.begin(), normalized_weights.end(),
-        denormalized_weights.begin(),
-        [threshold](float w) { return w / threshold; });
-    }
-  }
-
-  std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
-  for (auto& profile : profiles) {
-    std::vector<std::string> encoded_profile(criteria_count);
-    s >> space_separated(encoded_profile.begin(), encoded_profile.end());
-    std::transform(encoded_profile.begin(), encoded_profile.end(), profile.begin(), decode_float);
-  }
-
-  return Model(criteria_count, categories_count, profiles, denormalized_weights);
-}
-
-Model Model::make_homogeneous(unsigned criteria_count, float weights_sum, unsigned categories_count) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  std::vector<std::vector<float>> profiles;
-  profiles.reserve(categories_count - 1);
-  for (unsigned profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
-    const float value = static_cast<float>(profile_index + 1) / categories_count;
-    profiles.push_back(std::vector<float>(criteria_count, value));
-  }
-
-  std::vector<float> weights(criteria_count, weights_sum / criteria_count);
-
-  return Model(criteria_count, categories_count, profiles, weights);
-}
-
-ClassifiedAlternative::ClassifiedAlternative(
-  const std::vector<float>& criteria_values_,
-  const unsigned assigned_category_):
-    criteria_values(criteria_values_),  // @todo Rename 'performances'
-    assigned_category(assigned_category_) {}
-
-LearningSet::LearningSet(
-  const unsigned criteria_count_,
-  const unsigned categories_count_,
-  const unsigned alternatives_count_,
-  const std::vector<ClassifiedAlternative>& alternatives_) :
-    criteria_count(criteria_count_),
-    categories_count(categories_count_),
-    alternatives_count(alternatives_count_),
-    alternatives(alternatives_) {
-  check_valid("learning set", validate());
-}
-
-std::optional<std::string> LearningSet::validate() const {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  // Valid counts
-  if (criteria_count < 1) return "fewer than 1 criteria";
-
-  if (categories_count < 2) return "fewer than 2 categories";
-
-  if (alternatives_count < 1) return "fewer than 1 alternatives";
-
-  // Consistent sizes
-  if (alternatives.size() != alternatives_count) return "inconsistent number of alternatives";
-
-  if (std::any_of(
-    alternatives.begin(), alternatives.end(),
-    [this](const ClassifiedAlternative& alt) { return alt.criteria_values.size() != criteria_count; }
-  )) return "inconsistent alternative length";
-
-  // Performances between zero and one
-  if (std::any_of(
-    alternatives.begin(), alternatives.end(),
-    [](const ClassifiedAlternative& alt) {
-      return std::any_of(
-        alt.criteria_values.begin(), alt.criteria_values.end(),
-        [](const float performance) { return performance < 0; });
-    }
-  )) return "performance below 0.0";
-  if (std::any_of(
-    alternatives.begin(), alternatives.end(),
-    [](const ClassifiedAlternative& alt) {
-      return std::any_of(
-        alt.criteria_values.begin(), alt.criteria_values.end(),
-        [](const float performance) { return performance > 1; });
-    }
-  )) return "performance above 1.0";
-
-  // Assignment less than categories_count
-  if (std::any_of(
-    alternatives.begin(), alternatives.end(),
-    [this](const ClassifiedAlternative& alt) { return alt.assigned_category >= categories_count; }
-  )) return "assigned category too large";
-
-  return std::nullopt;
-}
-
-void LearningSet::save_to(std::ostream& s) const {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  s << criteria_count << std::endl;
-  s << categories_count << std::endl;
-  s << alternatives_count << std::endl;
-  for (auto alternative : alternatives) {
-    std::vector<std::string> encoded_values(criteria_count);
-    std::transform(
-      alternative.criteria_values.begin(), alternative.criteria_values.end(),
-      encoded_values.begin(),
-      encode_float);
-    s << space_separated(encoded_values.begin(), encoded_values.end())
-      << " " << alternative.assigned_category << std::endl;
-  }
-}
-
-LearningSet LearningSet::load_from(std::istream& s) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  unsigned criteria_count;
-  s >> criteria_count;
-  unsigned categories_count;
-  s >> categories_count;
-  unsigned alternatives_count;
-  s >> alternatives_count;
-
-  std::vector<ClassifiedAlternative> alternatives;
-  alternatives.reserve(alternatives_count);
-  for (unsigned alt_index = 0; alt_index != alternatives_count; ++alt_index) {
-    std::vector<std::string> encoded_values(criteria_count);
-    s >> space_separated(encoded_values.begin(), encoded_values.end());
-    std::vector<float> criteria_values(criteria_count);
-    std::transform(encoded_values.begin(), encoded_values.end(), criteria_values.begin(), decode_float);
-    unsigned assigned_category;
-    s >> assigned_category;
-    alternatives.push_back(ClassifiedAlternative(criteria_values, assigned_category));
-  }
-
-  return LearningSet(criteria_count, categories_count, alternatives_count, alternatives);
-}
-
 }  // namespace ppl::io
 
 namespace ppl {
 
-/*
-The constants of the problem, i.e. the sizes of the domain, and the learning set.
-
-@todo Split Domain and DomainView class into Domain proper (sizes, labels, etc.) and LearningSet (classified alternatives)
-*/
-template<typename Space>
 struct DomainView {
   const unsigned categories_count;
   const unsigned criteria_count;
   const unsigned learning_alternatives_count;
-
-  ArrayView2D<Space, const float> learning_alternatives;
-  // First index: index of criterion, from `0` to `criteria_count - 1`
-  // Second index: index of alternative, from `0` to `learning_alternatives_count - 1`
-  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
-  // @todo Investigate if this weird index order is actually improving performance
-  // Values are pre-normalized on each criterion so that the possible values are from `0.0` to `1.0`.
-  // @todo Can we relax this assumption?
-  //  - going from `-infinity` to `+infinity` might be possible
-  //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
-  //  - to handle criterion where a lower value is better, we'd need to store an additional boolean indicator
-
-  ArrayView1D<Space, const unsigned> learning_assignments;
-  // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
-  // Possible values: from `0` to `categories_count - 1`
-
-  template<typename S = Space, typename = std::enable_if_t<!std::is_same_v<S, Anywhere>>>
-  operator const DomainView<Anywhere>&() const {
-    return *reinterpret_cast<const DomainView<Anywhere>*>(this);
-  }
+  ArrayView2D<Host, const float> learning_alternatives;
+  ArrayView1D<Host, const unsigned> learning_assignments;
 };
 
-template<typename Space>
 class Domain {
  public:
   static std::shared_ptr<Domain> make(const io::LearningSet&);
 
-  template<typename OtherSpace> friend class Domain;
-
-  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  std::shared_ptr<Domain<OtherSpace>> clone_to() const {
-    return std::make_shared<Domain<OtherSpace>>(
-      typename Domain<OtherSpace>::Privacy(),
-      _categories_count,
-      _criteria_count,
-      _learning_alternatives_count,
-      _learning_alternatives.template clone_to<OtherSpace>(),
-      _learning_assignments.template clone_to<OtherSpace>());
-  }
-
  public:
-  DomainView<Space> get_view() const;
-
-  // Constructor has to be public for std::make_shared, but we want to make it unaccessible to external code,
-  // so we make that constructor require a private structure.
+  DomainView get_view() const;
  private:
   struct Privacy {};
 
  public:
-  Domain(Privacy, unsigned, unsigned, unsigned, Array2D<Space, float>&&, Array1D<Space, unsigned>&&);
+  Domain(Privacy, unsigned, unsigned, unsigned, Array2D<Host, float>&&, Array1D<Host, unsigned>&&);
 
  private:
   unsigned _categories_count;
   unsigned _criteria_count;
   unsigned _learning_alternatives_count;
-  Array2D<Space, float> _learning_alternatives;
-  Array1D<Space, unsigned> _learning_assignments;
+  Array2D<Host, float> _learning_alternatives;
+  Array1D<Host, unsigned> _learning_assignments;
 };
 
-/*
-The variables of the problem: the models being trained
-*/
-template<typename Space>
 struct ModelsView {
-  DomainView<Space> domain;
+  DomainView domain;
 
   const unsigned models_count;
 
-  const ArrayView1D<Space, unsigned> initialization_iteration_indexes;
-  // Index: index of model, from `0` to `models_count - 1`
-
-  const ArrayView2D<Space, float> weights;
-  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
-  // Second index: index of model, from `0` to `models_count - 1`
-  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
-  // @todo Investigate if this weird index order is actually improving performance
-  // Compared to their description in the thesis, weights are denormalized:
-  // - their sum is not constrained to be 1
-  // - we don't store the threshold; we assume it's always 1
-  // - this approach corresponds to dividing the weights and threshold as defined in the thesis by the threshold
-  // - it simplifies the implementation because it removes the sum constraint and the threshold variables
-
-  const ArrayView3D<Space, float> profiles;
-  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
-  // Second index: index of category below profile, from `0` to `domain.categories_count - 2`
-  // Third index: index of model, from `0` to `models_count - 1`
-  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
-  // @todo Investigate if this weird index order is actually improving performance
-
-  template<typename S = Space, typename = std::enable_if_t<!std::is_same_v<S, Anywhere>>>
-  operator const ModelsView<Anywhere>&() const {
-    return *reinterpret_cast<const ModelsView<Anywhere>*>(this);
-  }
+  const ArrayView1D<Host, unsigned> initialization_iteration_indexes;
+  const ArrayView2D<Host, float> weights;
+  const ArrayView3D<Host, float> profiles;
 };
-template<typename Space>
+
 class Models {
  public:
-  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, const std::vector<io::Model>&);
-  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, unsigned models_count);
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain>, const std::vector<io::Model>&);
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain>, unsigned models_count);
 
   io::Model unmake_one(unsigned model_index) const;
   std::vector<io::Model> unmake() const;
 
-  template<typename OtherSpace> friend class Models;
-
-  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  std::shared_ptr<Models<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
-    return std::make_shared<Models<OtherSpace>>(
-      typename Models<OtherSpace>::Privacy(),
-      other_domain,
-      _models_count,
-      _initialization_iteration_indexes.template clone_to<OtherSpace>(),
-      _weights.template clone_to<OtherSpace>(),
-      _profiles.template clone_to<OtherSpace>());
-  }
-
  public:
-  std::shared_ptr<Domain<Space>> get_domain() { return _domain; }
-  ModelsView<Space> get_view() const;  // @todo Remove const
+  std::shared_ptr<Domain> get_domain() { return _domain; }
+  ModelsView get_view() const;  // @todo Remove const
 
  private:
   struct Privacy {};
@@ -583,25 +133,25 @@ class Models {
  public:
   Models(
     Privacy,
-    std::shared_ptr<Domain<Space>>,
+    std::shared_ptr<Domain>,
     unsigned,
-    Array1D<Space, unsigned>&&,
-    Array2D<Space, float>&&,
-    Array3D<Space, float>&&);
+    Array1D<Host, unsigned>&&,
+    Array2D<Host, float>&&,
+    Array3D<Host, float>&&);
 
  private:
-  std::shared_ptr<Domain<Space>> _domain;
+  std::shared_ptr<Domain> _domain;
   unsigned _models_count;
-  Array1D<Space, unsigned> _initialization_iteration_indexes;
-  Array2D<Space, float> _weights;
-  Array3D<Space, float> _profiles;
+  Array1D<Host, unsigned> _initialization_iteration_indexes;
+  Array2D<Host, float> _weights;
+  Array3D<Host, float> _profiles;
 };
 
 class LearningObserver {
  public:
   virtual ~LearningObserver() {}
 
-  virtual void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) = 0;
+  virtual void after_main_iteration(int iteration_index, int best_accuracy, const Models& models) = 0;
 };
 
 class ProfilesInitializationStrategy {
@@ -609,7 +159,7 @@ class ProfilesInitializationStrategy {
   virtual ~ProfilesInitializationStrategy() {}
 
   virtual void initialize_profiles(
-    std::shared_ptr<Models<Host>> models,
+    std::shared_ptr<Models> models,
     unsigned iteration_index,
     std::vector<unsigned>::const_iterator model_indexes_begin,
     std::vector<unsigned>::const_iterator model_indexes_end) = 0;
@@ -708,36 +258,14 @@ class ProbabilityWeightedGenerator {
 class ProfilesImprovementStrategy {
  public:
   virtual ~ProfilesImprovementStrategy() {}
-
-  // @todo Accept a plain pointer instead of a shared_ptr
-  // We don't do memory management here and should not force it on the caller
-  // Make sure to apply the same change to all other places appropriate
-  virtual void improve_profiles(std::shared_ptr<Models<Host>>) = 0;
-};
-
-/*
-Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/document
-*/
-class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStrategy {
- public:
-  ImproveProfilesWithAccuracyHeuristicOnGpu(
-      const Random& random,
-      std::shared_ptr<Models<Device>> device_models) :
-    _random(random),
-    _device_models(device_models) {}
-
-  void improve_profiles(std::shared_ptr<Models<Host>>) override;
-
- private:
-  const Random& _random;
-  std::shared_ptr<Models<Device>> _device_models;
+  virtual void improve_profiles(std::shared_ptr<Models>) = 0;
 };
 
 class WeightsOptimizationStrategy {
  public:
   virtual ~WeightsOptimizationStrategy() {}
 
-  virtual void optimize_weights(std::shared_ptr<Models<Host>>) = 0;
+  virtual void optimize_weights(std::shared_ptr<Models>) = 0;
 };
 
 class TerminationStrategy {
@@ -758,7 +286,7 @@ struct LearningResult {
 const unsigned default_models_count = 9;
 
 LearningResult perform_learning(
-  std::shared_ptr<Models<Host>> host_models,
+  std::shared_ptr<Models> host_models,
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
@@ -766,26 +294,20 @@ LearningResult perform_learning(
   std::shared_ptr<TerminationStrategy> termination_strategy
 );
 
-template<typename Space>
-Domain<Space>::Domain(
+Domain::Domain(
   Privacy,
   const unsigned categories_count,
   const unsigned criteria_count,
   const unsigned learning_alternatives_count,
-  Array2D<Space, float>&& learning_alternatives,
-  Array1D<Space, unsigned>&& learning_assignments) :
+  Array2D<Host, float>&& learning_alternatives,
+  Array1D<Host, unsigned>&& learning_assignments) :
     _categories_count(categories_count),
     _criteria_count(criteria_count),
     _learning_alternatives_count(learning_alternatives_count),
     _learning_alternatives(std::move(learning_alternatives)),
     _learning_assignments(std::move(learning_assignments)) {}
 
-template<>
-std::shared_ptr<Domain<Host>> Domain<Host>::make(const io::LearningSet& learning_set) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  assert(learning_set.is_valid());
-
+std::shared_ptr<Domain> Domain::make(const io::LearningSet& learning_set) {
   Array2D<Host, float> alternatives(learning_set.criteria_count, learning_set.alternatives_count, uninitialized);
   Array1D<Host, unsigned> assignments(learning_set.alternatives_count, uninitialized);
 
@@ -799,7 +321,7 @@ std::shared_ptr<Domain<Host>> Domain<Host>::make(const io::LearningSet& learning
     assignments[alt_index] = alt.assigned_category;
   }
 
-  return std::make_shared<Domain<Host>>(
+  return std::make_shared<Domain>(
     Privacy(),
     learning_set.categories_count,
     learning_set.criteria_count,
@@ -808,39 +330,31 @@ std::shared_ptr<Domain<Host>> Domain<Host>::make(const io::LearningSet& learning
     std::move(assignments));
 }
 
-template<typename Space>
-DomainView<Space> Domain<Space>::get_view() const {
+DomainView Domain::get_view() const {
   return {
     _categories_count,
     _criteria_count,
     _learning_alternatives_count,
-    ArrayView2D<Space, const float>(_learning_alternatives),
-    ArrayView1D<Space, const unsigned>(_learning_assignments),
+    ArrayView2D<Host, const float>(_learning_alternatives),
+    ArrayView1D<Host, const unsigned>(_learning_assignments),
   };
 }
 
-template class Domain<Host>;
-// Commented during copy-paste from PPL: template class Domain<Device>;
-
-template<typename Space>
-Models<Space>::Models(
+Models::Models(
   Privacy,
-  std::shared_ptr<Domain<Space>> domain,
+  std::shared_ptr<Domain> domain,
   const unsigned models_count,
-  Array1D<Space, unsigned>&& initialization_iteration_indexes,
-  Array2D<Space, float>&& weights,
-  Array3D<Space, float>&& profiles) :
+  Array1D<Host, unsigned>&& initialization_iteration_indexes,
+  Array2D<Host, float>&& weights,
+  Array3D<Host, float>&& profiles) :
     _domain(domain),
     _models_count(models_count),
     _initialization_iteration_indexes(std::move(initialization_iteration_indexes)),
     _weights(std::move(weights)),
     _profiles(std::move(profiles)) {}
 
-template<>
-std::shared_ptr<Models<Host>> Models<Host>::make(std::shared_ptr<Domain<Host>> domain, const unsigned models_count) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  DomainView<Host> domain_view = domain->get_view();
+std::shared_ptr<Models> Models::make(std::shared_ptr<Domain> domain, const unsigned models_count) {
+  DomainView domain_view = domain->get_view();
 
   Array1D<Host, unsigned> initialization_iteration_indexes(models_count, uninitialized);
   Array2D<Host, float> weights(domain_view.criteria_count, models_count, uninitialized);
@@ -856,20 +370,16 @@ std::shared_ptr<Models<Host>> Models<Host>::make(std::shared_ptr<Domain<Host>> d
     std::move(profiles));
 }
 
-template<>
-std::shared_ptr<Models<Host>> Models<Host>::make(
-  std::shared_ptr<Domain<Host>> domain,
+std::shared_ptr<Models> Models::make(
+  std::shared_ptr<Domain> domain,
   const std::vector<io::Model>& models
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   const unsigned models_count = models.size();
   auto r = make(domain, models_count);
   auto view = r->get_view();
 
   for (unsigned model_index = 0; model_index != models_count; ++model_index) {
     const io::Model& model = models[model_index];
-    assert(model.is_valid());
 
     for (unsigned crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
       view.weights[crit_index][model_index] = model.weights[crit_index];
@@ -886,10 +396,7 @@ std::shared_ptr<Models<Host>> Models<Host>::make(
   return r;
 }
 
-template<>
-io::Model Models<Host>::unmake_one(unsigned model_index) const {
-  // Commented during copy-paste from PPL: CHRONE();
-
+io::Model Models::unmake_one(unsigned model_index) const {
   ModelsView view = get_view();
 
   std::vector<std::vector<float>> profiles(view.domain.categories_count - 1);
@@ -909,11 +416,8 @@ io::Model Models<Host>::unmake_one(unsigned model_index) const {
   return io::Model(view.domain.criteria_count, view.domain.categories_count, profiles, weights);
 }
 
-template<>
-std::vector<io::Model> Models<Host>::unmake() const {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  ModelsView<Host> view = get_view();
+std::vector<io::Model> Models::unmake() const {
+  ModelsView view = get_view();
 
   std::vector<io::Model> models;
 
@@ -925,8 +429,7 @@ std::vector<io::Model> Models<Host>::unmake() const {
   return models;
 }
 
-template<typename Space>
-ModelsView<Space> Models<Space>::get_view() const {
+ModelsView Models::get_view() const {
   DomainView domain = _domain->get_view();
   return {
     domain,
@@ -937,21 +440,13 @@ ModelsView<Space> Models<Space>::get_view() const {
   };
 }
 
-template class Models<Host>;
-// Commented during copy-paste from PPL: template class Models<Device>;
-
-// Commented during copy-paste from PPL: __host__ __device__
-unsigned get_assignment(const ModelsView<Anywhere>&, unsigned model_index, unsigned alternative_index);
-unsigned get_assignment(const Models<Host>&, unsigned model_index, unsigned alternative_index);
+unsigned get_assignment(const Models&, unsigned model_index, unsigned alternative_index);
 
 // Accuracy is returned as an integer between `0` and `models.domain.alternatives_count`.
 // (To get the accuracy described in the thesis, it should be divided by `models.domain.alternatives_count`)
-unsigned get_accuracy(const Models<Host>&, unsigned model_index);
-// @todo Remove: this is used only by tests
-// Commented during copy-paste from PPL: unsigned get_accuracy(const Models<Device>&, unsigned model_index);
+unsigned get_accuracy(const Models&, unsigned model_index);
 
-// Commented during copy-paste from PPL: __host__ __device__
-unsigned get_assignment(const ModelsView<Anywhere>& models, const unsigned model_index, const unsigned alternative_index) {
+unsigned get_assignment(const ModelsView& models, const unsigned model_index, const unsigned alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   assert(model_index < models.models_count);
@@ -977,13 +472,12 @@ unsigned get_assignment(const ModelsView<Anywhere>& models, const unsigned model
   return 0;
 }
 
-unsigned get_assignment(const Models<Host>& models, const unsigned model_index, const unsigned alternative_index) {
+unsigned get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index) {
   return get_assignment(models.get_view(), model_index, alternative_index);
 }
 
-// Commented during copy-paste from PPL: __host__ __device__
 bool is_correctly_assigned(
-    const ModelsView<Anywhere>& models,
+    const ModelsView& models,
     const unsigned model_index,
     const unsigned alternative_index) {
   const unsigned expected_assignment = models.domain.learning_assignments[alternative_index];
@@ -992,10 +486,10 @@ bool is_correctly_assigned(
   return actual_assignment == expected_assignment;
 }
 
-unsigned get_accuracy(const Models<Host>& models, const unsigned model_index) {
+unsigned get_accuracy(const Models& models, const unsigned model_index) {
   unsigned accuracy = 0;
 
-  ModelsView<Anywhere> models_view = models.get_view();
+  ModelsView models_view = models.get_view();
   for (unsigned alt_index = 0; alt_index != models_view.domain.learning_alternatives_count; ++alt_index) {
     if (is_correctly_assigned(models_view, model_index, alt_index)) {
       ++accuracy;
@@ -1011,40 +505,9 @@ typedef GridFactory1D<512> grid;
 
 }  // namespace
 
-/* Commented during copy-paste from PPL: __global__ */ void get_accuracy__kernel(ModelsView<Anywhere> models, const unsigned model_index, unsigned* const accuracy) {
-  const unsigned alt_index = /* Commented during copy-paste from PPL: grid::x() */ 0;
-  assert(alt_index < models.domain.learning_alternatives_count + grid::blockDim.x);
-
-  if (alt_index < models.domain.learning_alternatives_count) {
-    if (is_correctly_assigned(models, model_index, alt_index)) {
-      // Commented during copy-paste from PPL: atomicInc(accuracy, models.domain.learning_alternatives_count);
-    }
-  }
-}
-
-/* Commented during copy-paste from PPL:
-unsigned get_accuracy(const Models<Device>& models, const unsigned model_index) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  unsigned* device_accuracy = Device::alloc<unsigned>(1);
-  // Commented during copy-paste from PPL: cudaMemset(device_accuracy, 0, sizeof(unsigned));
-  // Commented during copy-paste from PPL: check_last_cuda_error_no_sync();
-
-  ModelsView<Anywhere> models_view = models.get_view();
-  Grid grid = grid::make(models_view.domain.learning_alternatives_count);
-  // Commented during copy-paste from PPL: get_accuracy__kernel<<<LOVE_CONFIG(grid)>>>(models_view, model_index, device_accuracy);
-  // Commented during copy-paste from PPL: check_last_cuda_error_sync_device();
-
-  unsigned host_accuracy;
-  From<Device>::To<Host>::copy(1, device_accuracy, &host_accuracy);  // NOLINT(build/include_what_you_use)
-  Device::free(device_accuracy);
-  return host_accuracy;
-}
-*/
-
 class ReportProgress : public LearningObserver {
  public:
-  void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) override {
+  void after_main_iteration(int iteration_index, int best_accuracy, const Models& models) override {
     std::cerr << "After iteration n°" << iteration_index << ": best accuracy = " <<
       best_accuracy << "/" << models.get_view().domain.learning_alternatives_count << std::endl;
   }
@@ -1054,7 +517,7 @@ class DumpIntermediateModels : public LearningObserver {
  public:
   explicit DumpIntermediateModels(std::ostream& stream_);
 
-  void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>&) override;
+  void after_main_iteration(int iteration_index, int best_accuracy, const Models&) override;
 
  private:
   std::ostream& stream;
@@ -1066,7 +529,7 @@ DumpIntermediateModels::DumpIntermediateModels(std::ostream& stream_) :
   stream << "iterations:" << std::endl;
 }
 
-void DumpIntermediateModels::after_main_iteration(int iteration_index, int, const Models<Host>& models) {
+void DumpIntermediateModels::after_main_iteration(int iteration_index, int, const Models& models) {
   stream
     << "  - iteration_index: " << iteration_index << "\n"
     << "    models:\n";
@@ -1104,10 +567,10 @@ Implement 3.3.2 of https://tel.archives-ouvertes.fr/tel-01370555/document
 */
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public ProfilesInitializationStrategy {
  public:
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const Random&, const Models<Host>&);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const Random&, const Models&);
 
   void initialize_profiles(
-    std::shared_ptr<Models<Host>>,
+    std::shared_ptr<Models>,
     unsigned iteration_index,
     std::vector<unsigned>::const_iterator model_indexes_begin,
     std::vector<unsigned>::const_iterator model_indexes_end) override;
@@ -1121,19 +584,17 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
 // public ProfilesInitializationStrategy {
 //  public:
 //   void initialize_profiles(
-//     Models<Host>* models,
+//     Models* models,
 //     unsigned iteration_index,
 //     std::vector<unsigned>::const_iterator model_indexes_begin,
 //     std::vector<unsigned>::const_iterator model_indexes_end) override;
 // };
 
 std::map<float, double> get_candidate_probabilities(
-  const DomainView<Host>& domain,
+  const DomainView& domain,
   unsigned crit_index,
   unsigned profile_index
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   std::vector<float> values_below;
   // The size used for 'reserve' is a few times larger than the actual final size,
   // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
@@ -1176,11 +637,9 @@ std::map<float, double> get_candidate_probabilities(
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
   const Random& random,
-  const Models<Host>& models) :
+  const Models& models) :
     _random(random) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  ModelsView<Host> models_view = models.get_view();
+  ModelsView models_view = models.get_view();
 
   _generators.reserve(models_view.domain.categories_count - 1);
 
@@ -1195,14 +654,12 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
 }
 
 void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  std::shared_ptr<Models<Host>> models,
+  std::shared_ptr<Models> models,
   const unsigned iteration_index,
   std::vector<unsigned>::const_iterator model_indexes_begin,
   const std::vector<unsigned>::const_iterator model_indexes_end
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
-  ModelsView<Host> models_view = models->get_view();
+  ModelsView models_view = models->get_view();
 
   // Embarrassingly parallel
   for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
@@ -1246,7 +703,6 @@ struct Desirability {
   unsigned r = 0;
   unsigned t = 0;
 
-  // Commented during copy-paste from PPL: __host__ __device__
   float value() const {
     if (v + w + t + q + r == 0) {
       return zero_value;
@@ -1256,9 +712,8 @@ struct Desirability {
   }
 };
 
-// Commented during copy-paste from PPL: __host__ __device__
 void update_move_desirability(
-  const ModelsView<Anywhere>& models,
+  const ModelsView& models,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -1267,24 +722,8 @@ void update_move_desirability(
   Desirability* desirability
 );
 
-// Commented during copy-paste from PPL: __host__ __device__
-void increment(
-    unsigned* i,
-    unsigned
-    #ifdef __CUDA_ARCH__
-    max
-    #endif
-) {
-  #ifdef __CUDA_ARCH__
-  // Commented during copy-paste from PPL: atomicInc(i, max);
-  #else
-  ++*i;
-  #endif
-}
-
-// Commented during copy-paste from PPL: __host__ __device__
 void update_move_desirability(
-  const ModelsView<Anywhere>& models,
+  const ModelsView& models,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -1328,7 +767,7 @@ void update_move_desirability(
       && destination > value
       && value >= current_position
       && weight_at_or_above_profile - weight < 1) {
-        increment(&(desirability->v), models.domain.learning_alternatives_count);
+        ++desirability->v;
     }
     if (
       learning_assignment == profile_index
@@ -1336,7 +775,7 @@ void update_move_desirability(
       && destination > value
       && value >= current_position
       && weight_at_or_above_profile - weight >= 1) {
-        increment(&(desirability->w), models.domain.learning_alternatives_count);
+        ++desirability->w;
     }
     if (
       learning_assignment == profile_index + 1
@@ -1344,21 +783,21 @@ void update_move_desirability(
       && destination > value
       && value >= current_position
       && weight_at_or_above_profile - weight < 1) {
-        increment(&(desirability->q), models.domain.learning_alternatives_count);
+        ++desirability->q;
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
       && destination > value
       && value >= current_position) {
-        increment(&(desirability->r), models.domain.learning_alternatives_count);
+        ++desirability->r;
     }
     if (
       learning_assignment < profile_index
       && model_assignment > profile_index
       && destination > value
       && value >= current_position) {
-        increment(&(desirability->t), models.domain.learning_alternatives_count);
+        ++desirability->t;
     }
   } else {
     if (
@@ -1367,7 +806,7 @@ void update_move_desirability(
       && destination < value
       && value < current_position
       && weight_at_or_above_profile + weight >= 1) {
-        increment(&(desirability->v), models.domain.learning_alternatives_count);
+        ++desirability->v;
     }
     if (
       learning_assignment == profile_index + 1
@@ -1375,7 +814,7 @@ void update_move_desirability(
       && destination < value
       && value < current_position
       && weight_at_or_above_profile + weight < 1) {
-        increment(&(desirability->w), models.domain.learning_alternatives_count);
+        ++desirability->w;
     }
     if (
       learning_assignment == profile_index
@@ -1383,21 +822,21 @@ void update_move_desirability(
       && destination < value
       && value < current_position
       && weight_at_or_above_profile + weight >= 1) {
-        increment(&(desirability->q), models.domain.learning_alternatives_count);
+        ++desirability->q;
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
       && destination <= value
       && value < current_position) {
-        increment(&(desirability->r), models.domain.learning_alternatives_count);
+        ++desirability->r;
     }
     if (
       learning_assignment > profile_index + 1
       && model_assignment < profile_index + 1
       && destination < value
       && value <= current_position) {
-        increment(&(desirability->t), models.domain.learning_alternatives_count);
+        ++desirability->t;
     }
   }
 }
@@ -1409,7 +848,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
  public:
   explicit ImproveProfilesWithAccuracyHeuristicOnCpu(const Random& random) : _random(random) {}
 
-  void improve_profiles(std::shared_ptr<Models<Host>>) override;
+  void improve_profiles(std::shared_ptr<Models>) override;
 
  private:
   const Random& _random;
@@ -1418,7 +857,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
 namespace {
 
 Desirability compute_move_desirability(
-  const ModelsView<Host>& models,
+  const ModelsView& models,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -1436,13 +875,11 @@ Desirability compute_move_desirability(
 
 void improve_model_profile(
   const Random& random,
-  ModelsView<Host> models,
+  ModelsView models,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   // WARNING: We're assuming all criteria have values in [0, 1]
   // @todo Can we relax this assumption?
   // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
@@ -1492,13 +929,11 @@ void improve_model_profile(
 
 void improve_model_profile(
   const Random& random,
-  ModelsView<Host> models,
+  ModelsView models,
   const unsigned model_index,
   const unsigned profile_index,
-  ArrayView1D<Anywhere, const unsigned> criterion_indexes
+  ArrayView1D<Host, const unsigned> criterion_indexes
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
@@ -1514,15 +949,13 @@ void swap(T& a, T& b) {
 }
 
 template<typename T>
-void shuffle(const Random& random, ArrayView1D<Anywhere, T> m) {
+void shuffle(const Random& random, ArrayView1D<Host, T> m) {
   for (unsigned i = 0; i != m.s0(); ++i) {
     swap(m[i], m[random.uniform_int(0, m.s0())]);
   }
 }
 
-void improve_model_profiles(const Random& random, const ModelsView<Host>& models, const unsigned model_index) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+void improve_model_profiles(const Random& random, const ModelsView& models, const unsigned model_index) {
   Array1D<Host, unsigned> criterion_indexes(models.domain.criteria_count, uninitialized);
   // Not worth parallelizing because models.domain.criteria_count is typically small
   for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
@@ -1539,9 +972,7 @@ void improve_model_profiles(const Random& random, const ModelsView<Host>& models
 
 }  // namespace
 
-void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models<Host>> models) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models> models) {
   auto models_view = models->get_view();
 
   #pragma omp parallel for
@@ -1559,7 +990,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
   struct LinearProgram;
 
  public:
-  void optimize_weights(std::shared_ptr<Models<Host>>) override;
+  void optimize_weights(std::shared_ptr<Models>) override;
 };
 
 namespace glp = operations_research::glop;
@@ -1575,11 +1006,9 @@ struct OptimizeWeightsUsingGlop::LinearProgram {
 
 std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_internal_linear_program(
   const float epsilon,
-  const ModelsView<Host>& models,
+  const ModelsView& models,
   unsigned model_index
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   auto lp = std::make_shared<OptimizeWeightsUsingGlop::LinearProgram>();
 
   lp->program = std::make_shared<glp::LinearProgram>();
@@ -1636,9 +1065,7 @@ std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_internal_linear_pr
 }
 
 std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_program(
-    const float epsilon, const ModelsView<Host>& models, unsigned model_index) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+    const float epsilon, const ModelsView& models, unsigned model_index) {
   auto lp = make_internal_linear_program(epsilon, models, model_index);
 
   assert(lp->weight_variables.size() == models.domain.criteria_count);
@@ -1661,15 +1088,11 @@ std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_pro
 }
 
 std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
-    const float epsilon, std::shared_ptr<Models<Host>> models_, unsigned model_index) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+    const float epsilon, std::shared_ptr<Models> models_, unsigned model_index) {
   return make_verbose_linear_program(epsilon, models_->get_view(), model_index)->program;
 }
 
 auto solve_linear_program(std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> lp) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   operations_research::glop::LPSolver solver;
   operations_research::glop::GlopParameters parameters;
   parameters.set_provide_strong_optimal_guarantee(true);
@@ -1682,9 +1105,7 @@ auto solve_linear_program(std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgra
   return values;
 }
 
-void optimize_weights(const ModelsView<Host>& models, unsigned model_index) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+void optimize_weights(const ModelsView& models, unsigned model_index) {
   auto lp = make_internal_linear_program(1e-6, models, model_index);
   auto values = solve_linear_program(lp);
 
@@ -1693,18 +1114,14 @@ void optimize_weights(const ModelsView<Host>& models, unsigned model_index) {
   }
 }
 
-void optimize_weights(const ModelsView<Host>& models) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+void optimize_weights(const ModelsView& models) {
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
     optimize_weights(models, model_index);
   }
 }
 
-void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models<Host>> models) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models> models) {
   ppl::optimize_weights(models->get_view());
 }
 
@@ -1715,10 +1132,10 @@ to try and benefit from the reuse optimization in GLOP.
 */
 class OptimizeWeightsUsingGlopAndReusingPrograms : public WeightsOptimizationStrategy {
  public:
-  explicit OptimizeWeightsUsingGlopAndReusingPrograms(const Models<Host>&);
+  explicit OptimizeWeightsUsingGlopAndReusingPrograms(const Models&);
 
  public:
-  void optimize_weights(std::shared_ptr<Models<Host>>) override;
+  void optimize_weights(std::shared_ptr<Models>) override;
 
  public:
   struct LinearProgram {
@@ -1745,7 +1162,7 @@ namespace glp = operations_research::glop;
 void structure_linear_program(
   OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp,
   const float epsilon,
-  const ModelsView<Host>& models
+  const ModelsView& models
 ) {
   lp->weight_variables.reserve(models.domain.criteria_count);
   for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
@@ -1787,7 +1204,7 @@ void structure_linear_program(
 
 void label_linear_program(
   OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp,
-  const ModelsView<Host>& models
+  const ModelsView& models
 ) {
   assert(lp->weight_variables.size() == models.domain.criteria_count);
   for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
@@ -1808,7 +1225,7 @@ void label_linear_program(
 
 void update_linear_program(
   OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram* lp,
-  const ModelsView<Host>& models,
+  const ModelsView& models,
   const unsigned model_index
 ) {
   assert(lp->weight_variables.size() == models.domain.criteria_count);
@@ -1852,7 +1269,7 @@ void update_linear_program(
 }
 
 std::shared_ptr<glp::LinearProgram> make_verbose_linear_program_reuse(
-    const float epsilon, std::shared_ptr<Models<Host>> models, unsigned model_index) {
+    const float epsilon, std::shared_ptr<Models> models, unsigned model_index) {
   auto models_view = models->get_view();
 
   OptimizeWeightsUsingGlopAndReusingPrograms::LinearProgram lp;
@@ -1866,12 +1283,10 @@ std::shared_ptr<glp::LinearProgram> make_verbose_linear_program_reuse(
 }
 
 OptimizeWeightsUsingGlopAndReusingPrograms::OptimizeWeightsUsingGlopAndReusingPrograms(
-  const ppl::Models<Host>& models
+  const ppl::Models& models
 ) :
     _linear_programs(models.get_view().models_count),
     _solvers(models.get_view().models_count) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   #pragma omp parallel for
   for (auto& lp : _linear_programs) {
     structure_linear_program(&lp, 1e-6, models.get_view());
@@ -1885,9 +1300,7 @@ OptimizeWeightsUsingGlopAndReusingPrograms::OptimizeWeightsUsingGlopAndReusingPr
   }
 }
 
-void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(std::shared_ptr<Models<Host>> models) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(std::shared_ptr<Models> models) {
   auto models_view = models->get_view();
 
   #pragma omp parallel for
@@ -1966,28 +1379,6 @@ class TerminateOnAny : public TerminationStrategy {
   std::vector<std::shared_ptr<TerminationStrategy>> _strategies;
 };
 
-}  // namespace ppl
-
-template<>
-inline ppl::Desirability* Host::alloc<ppl::Desirability>(const std::size_t n) {
-  return Host::force_alloc<ppl::Desirability>(n);
-}
-
-template<>
-inline void Host::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
-  Host::force_memset<ppl::Desirability>(n, v, p);
-}
-
-template<>
-inline ppl::Desirability* Device::alloc<ppl::Desirability>(const std::size_t n) {
-  return Device::force_alloc<ppl::Desirability>(n);
-}
-
-template<>
-inline void Device::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
-  Device::force_memset<ppl::Desirability>(n, v, p);
-}
-
 /*
 Ensure that the median and maximum values of the range [begin, end[ are
 in the correct positions (middle and last).
@@ -2004,11 +1395,7 @@ void ensure_median_and_max(RandomIt begin, RandomIt end, Compare comp) {
   std::nth_element(begin, begin + len / 2, begin + len - 1, comp);
 }
 
-namespace ppl {
-
-std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, const Models<Host>& models) {
-  // Commented during copy-paste from PPL: CHRONE();
-
+std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, const Models& models) {
   std::vector<unsigned> accuracies(models_count, 0);
   for (unsigned model_index = 0; model_index != models_count; ++model_index) {
     accuracies[model_index] = get_accuracy(models, model_index);
@@ -2026,15 +1413,13 @@ std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, 
 }
 
 LearningResult perform_learning(
-  std::shared_ptr<Models<Host>> models,
+  std::shared_ptr<Models> models,
   std::vector<std::shared_ptr<LearningObserver>> observers,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
   std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
   std::shared_ptr<TerminationStrategy> termination_strategy
 ) {
-  // Commented during copy-paste from PPL: CHRONE();
-
   const unsigned models_count = models->get_view().models_count;
 
   std::vector<unsigned> model_indexes(models_count, 0);
@@ -2070,7 +1455,25 @@ LearningResult perform_learning(
 
 }  // namespace ppl
 
-// Commented during copy-paste from PPL: CHRONABLE("learn")
+template<>
+inline ppl::Desirability* Host::alloc<ppl::Desirability>(const std::size_t n) {
+  return Host::force_alloc<ppl::Desirability>(n);
+}
+
+template<>
+inline void Host::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
+  Host::force_memset<ppl::Desirability>(n, v, p);
+}
+
+template<>
+inline ppl::Desirability* Device::alloc<ppl::Desirability>(const std::size_t n) {
+  return Device::force_alloc<ppl::Desirability>(n);
+}
+
+template<>
+inline void Device::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
+  Device::force_memset<ppl::Desirability>(n, v, p);
+}
 
 std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
   const bool quiet,
@@ -2091,7 +1494,7 @@ std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
 
 std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
   const ppl::Random& random,
-  const ppl::Models<Host>& models
+  const ppl::Models& models
 ) {
   // @todo Complete with other strategies
   return std::make_shared<ppl::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(
@@ -2105,7 +1508,7 @@ enum class WeightsOptimizationStrategy {
 
 std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy(
   WeightsOptimizationStrategy strategy,
-  const ppl::Models<Host>& host_models
+  const ppl::Models& host_models
 ) {
   switch (strategy) {
     case WeightsOptimizationStrategy::glop:
@@ -2124,18 +1527,12 @@ std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_stra
   ProfilesImprovementStrategy strategy,
   const bool use_gpu,
   const ppl::Random& random,
-  std::shared_ptr<ppl::Domain<Host>> domain,
-  std::shared_ptr<ppl::Models<Host>> models
+  std::shared_ptr<ppl::Domain> domain,
+  std::shared_ptr<ppl::Models> models
 ) {
   switch (strategy) {
     case ProfilesImprovementStrategy::heuristic:
-      // Commented during copy-paste from PPL:
-      // if (use_gpu) {
-      //   return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnGpu>(
-      //     random, models->clone_to<Device>(domain->clone_to<Device>()));
-      // } else {
-        return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
-      // }
+      return std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random);
   }
   throw std::runtime_error("Unknown profiles improvement strategy");
 }
@@ -2167,12 +1564,6 @@ std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
   }
 }
 
-namespace ppl {
-
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(std::shared_ptr<Models<Host>> host_models) {}
-
-}  // namespace ppl
-
 std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
   const bool quiet,
   std::optional<std::ofstream>& intermediate_models_file
@@ -2180,20 +1571,20 @@ std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
 
 std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
   const ppl::Random& random,
-  const ppl::Models<Host>& models
+  const ppl::Models& models
 );
 
 std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_strategy(
   WeightsOptimizationStrategy strategy,
-  const ppl::Models<Host>& host_models
+  const ppl::Models& host_models
 );
 
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
   ProfilesImprovementStrategy strategy,
   const bool use_gpu,
   const ppl::Random& random,
-  std::shared_ptr<ppl::Domain<Host>> domain,
-  std::shared_ptr<ppl::Models<Host>> models
+  std::shared_ptr<ppl::Domain> domain,
+  std::shared_ptr<ppl::Models> models
 );
 
 std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
@@ -2244,8 +1635,8 @@ Model MrSortLearning_::perform() {
   const std::optional<std::chrono::seconds> max_duration;
 
   ppl::Random random(random_seed);
-  auto ppl_host_domain = ppl::Domain<Host>::make(ppl_learning_set);
-  auto ppl_host_models = ppl::Models<Host>::make(ppl_host_domain, models_count);
+  auto ppl_host_domain = ppl::Domain::make(ppl_learning_set);
+  auto ppl_host_models = ppl::Models::make(ppl_host_domain, models_count);
   auto ppl_result = ppl::perform_learning(
     ppl_host_models,
     make_observers(quiet, intermediate_models_file),
