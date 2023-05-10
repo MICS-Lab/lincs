@@ -24,6 +24,8 @@
 #include <ortools/glop/lp_solver.h>
 
 
+namespace glp = operations_research::glop;
+
 namespace lincs {
 
 namespace io {
@@ -335,13 +337,6 @@ class TerminationStrategy {
   virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
 };
 
-struct LearningResult {
-  LearningResult(io::Model model, unsigned accuracy) : best_model(model), best_model_accuracy(accuracy) {}
-
-  io::Model best_model;
-  unsigned best_model_accuracy;
-};
-
 const unsigned default_models_count = 9;
 
 unsigned get_assignment(const ModelsView& models, const unsigned model_index, const unsigned alternative_index) {
@@ -395,354 +390,113 @@ unsigned get_accuracy(const Models& models, const unsigned model_index) {
 
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public ProfilesInitializationStrategy {
  public:
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const Random&, const Models&);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
+    const Random& random,
+    const Models& models) :
+      _random(random) {
+    ModelsView models_view = models.get_view();
 
+    _generators.reserve(models_view.domain.categories_count - 1);
+
+    for (unsigned crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
+      _generators.push_back(std::vector<ProbabilityWeightedGenerator<float>>());
+      _generators.back().reserve(models_view.domain.criteria_count);
+      for (unsigned profile_index = 0; profile_index != models_view.domain.categories_count - 1; ++profile_index) {
+        _generators.back().push_back(ProbabilityWeightedGenerator<float>::make(
+          get_candidate_probabilities(models_view.domain, crit_index, profile_index)));
+      }
+    }
+  }
+
+ private:
+  std::map<float, double> get_candidate_probabilities(
+    const DomainView& domain,
+    unsigned crit_index,
+    unsigned profile_index
+  ) {
+    std::vector<float> values_below;
+    // The size used for 'reserve' is a few times larger than the actual final size,
+    // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
+    // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
+    values_below.reserve(domain.learning_alternatives_count);
+    std::vector<float> values_above;
+    values_above.reserve(domain.learning_alternatives_count);
+    // This loop could/should be done once outside this function
+    for (unsigned alt_index = 0; alt_index != domain.learning_alternatives_count; ++alt_index) {
+      const float value = domain.learning_alternatives[crit_index][alt_index];
+      const unsigned assignment = domain.learning_assignments[alt_index];
+      if (assignment == profile_index) {
+        values_below.push_back(value);
+      } else if (assignment == profile_index + 1) {
+        values_above.push_back(value);
+      }
+    }
+
+    std::map<float, double> candidate_probabilities;
+
+    for (auto candidates : { values_below, values_above }) {
+      for (auto candidate : candidates) {
+        if (candidate_probabilities.find(candidate) != candidate_probabilities.end()) {
+          // Candidate value has already been evaluated (because it appears several times)
+          continue;
+        }
+
+        unsigned correctly_classified_count = 0;
+        // @todo Could we somehow sort 'values_below' and 'values_above' and walk the values only once?
+        // (Transforming this O(n²) loop in O(n*log n) + O(n))
+        for (auto value : values_below) if (value < candidate) ++correctly_classified_count;
+        for (auto value : values_above) if (value >= candidate) ++correctly_classified_count;
+        candidate_probabilities[candidate] = static_cast<double>(correctly_classified_count) / candidates.size();
+      }
+    }
+
+    return candidate_probabilities;
+  }
+
+ public:
   void initialize_profiles(
-    std::shared_ptr<Models>,
-    unsigned iteration_index,
+    std::shared_ptr<Models> models,
+    const unsigned iteration_index,
     std::vector<unsigned>::const_iterator model_indexes_begin,
-    std::vector<unsigned>::const_iterator model_indexes_end) override;
+    const std::vector<unsigned>::const_iterator model_indexes_end
+  ) override {
+    ModelsView models_view = models->get_view();
+
+    // Embarrassingly parallel
+    for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
+      const unsigned model_index = *model_indexes_begin;
+
+      models_view.initialization_iteration_indexes[model_index] = iteration_index;
+
+      // Embarrassingly parallel
+      for (unsigned crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
+        // Not parallel because of the profiles ordering constraint
+        for (unsigned category_index = models_view.domain.categories_count - 1; category_index != 0; --category_index) {
+          const unsigned profile_index = category_index - 1;
+          float value = _generators[crit_index][profile_index](_random.urbg());
+
+          if (profile_index != models_view.domain.categories_count - 2) {
+            value = std::min(value, models_view.profiles[crit_index][profile_index + 1][model_index]);
+          }
+          // @todo Add a unit test that triggers the following assertion
+          // (This will require removing the code to enforce the order of profiles above)
+          // Then restore the code to enforce the order of profiles
+          // Note, this assertion does not protect us from initializing a model with two identical profiles.
+          // Is it really that bad?
+          assert(
+            profile_index == models_view.domain.categories_count - 2
+            || models_view.profiles[crit_index][profile_index + 1][model_index] >= value);
+
+          models_view.profiles[crit_index][profile_index][model_index] = value;
+        }
+      }
+    }
+  }
 
  private:
   const Random& _random;
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> _generators;
 };
-
-std::map<float, double> get_candidate_probabilities(
-  const DomainView& domain,
-  unsigned crit_index,
-  unsigned profile_index
-) {
-  std::vector<float> values_below;
-  // The size used for 'reserve' is a few times larger than the actual final size,
-  // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
-  // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
-  values_below.reserve(domain.learning_alternatives_count);
-  std::vector<float> values_above;
-  values_above.reserve(domain.learning_alternatives_count);
-  // This loop could/should be done once outside this function
-  for (unsigned alt_index = 0; alt_index != domain.learning_alternatives_count; ++alt_index) {
-    const float value = domain.learning_alternatives[crit_index][alt_index];
-    const unsigned assignment = domain.learning_assignments[alt_index];
-    if (assignment == profile_index) {
-      values_below.push_back(value);
-    } else if (assignment == profile_index + 1) {
-      values_above.push_back(value);
-    }
-  }
-
-  std::map<float, double> candidate_probabilities;
-
-  for (auto candidates : { values_below, values_above }) {
-    for (auto candidate : candidates) {
-      if (candidate_probabilities.find(candidate) != candidate_probabilities.end()) {
-        // Candidate value has already been evaluated (because it appears several times)
-        continue;
-      }
-
-      unsigned correctly_classified_count = 0;
-      // @todo Could we somehow sort 'values_below' and 'values_above' and walk the values only once?
-      // (Transforming this O(n²) loop in O(n*log n) + O(n))
-      for (auto value : values_below) if (value < candidate) ++correctly_classified_count;
-      for (auto value : values_above) if (value >= candidate) ++correctly_classified_count;
-      candidate_probabilities[candidate] = static_cast<double>(correctly_classified_count) / candidates.size();
-    }
-  }
-
-  return candidate_probabilities;
-}
-
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
-  const Random& random,
-  const Models& models) :
-    _random(random) {
-  ModelsView models_view = models.get_view();
-
-  _generators.reserve(models_view.domain.categories_count - 1);
-
-  for (unsigned crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
-    _generators.push_back(std::vector<ProbabilityWeightedGenerator<float>>());
-    _generators.back().reserve(models_view.domain.criteria_count);
-    for (unsigned profile_index = 0; profile_index != models_view.domain.categories_count - 1; ++profile_index) {
-      _generators.back().push_back(ProbabilityWeightedGenerator<float>::make(
-        get_candidate_probabilities(models_view.domain, crit_index, profile_index)));
-    }
-  }
-}
-
-void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  std::shared_ptr<Models> models,
-  const unsigned iteration_index,
-  std::vector<unsigned>::const_iterator model_indexes_begin,
-  const std::vector<unsigned>::const_iterator model_indexes_end
-) {
-  ModelsView models_view = models->get_view();
-
-  // Embarrassingly parallel
-  for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
-    const unsigned model_index = *model_indexes_begin;
-
-    models_view.initialization_iteration_indexes[model_index] = iteration_index;
-
-    // Embarrassingly parallel
-    for (unsigned crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
-      // Not parallel because of the profiles ordering constraint
-      for (unsigned category_index = models_view.domain.categories_count - 1; category_index != 0; --category_index) {
-        const unsigned profile_index = category_index - 1;
-        float value = _generators[crit_index][profile_index](_random.urbg());
-
-        if (profile_index != models_view.domain.categories_count - 2) {
-          value = std::min(value, models_view.profiles[crit_index][profile_index + 1][model_index]);
-        }
-        // @todo Add a unit test that triggers the following assertion
-        // (This will require removing the code to enforce the order of profiles above)
-        // Then restore the code to enforce the order of profiles
-        // Note, this assertion does not protect us from initializing a model with two identical profiles.
-        // Is it really that bad?
-        assert(
-          profile_index == models_view.domain.categories_count - 2
-          || models_view.profiles[crit_index][profile_index + 1][model_index] >= value);
-
-        models_view.profiles[crit_index][profile_index][model_index] = value;
-      }
-    }
-  }
-}
-
-struct Desirability {
-  // Value for moves with no impact.
-  // @todo Verify with Vincent Mousseau that this is the correct value.
-  static constexpr float zero_value = 0;
-
-  unsigned v = 0;
-  unsigned w = 0;
-  unsigned q = 0;
-  unsigned r = 0;
-  unsigned t = 0;
-
-  float value() const {
-    if (v + w + t + q + r == 0) {
-      return zero_value;
-    } else {
-      return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
-    }
-  }
-};
-
-void update_move_desirability(
-  const ModelsView& models,
-  const unsigned model_index,
-  const unsigned profile_index,
-  const unsigned criterion_index,
-  const float destination,
-  const unsigned alt_index,
-  Desirability* desirability
-) {
-  const float current_position = models.profiles[criterion_index][profile_index][model_index];
-  const float weight = models.weights[criterion_index][model_index];
-
-  const float value = models.domain.learning_alternatives[criterion_index][alt_index];
-  const unsigned learning_assignment = models.domain.learning_assignments[alt_index];
-  const unsigned model_assignment = get_assignment(models, model_index, alt_index);
-
-  // @todo Factorize with get_assignment
-  float weight_at_or_above_profile = 0;
-  for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
-    const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
-    const float profile_value = models.profiles[crit_index][profile_index][model_index];
-    if (alternative_value >= profile_value) {
-      weight_at_or_above_profile += models.weights[crit_index][model_index];
-    }
-  }
-
-  // These imbricated conditionals could be factorized, but this form has the benefit
-  // of being a direct translation of the top of page 78 of Sobrie's thesis.
-  // Correspondance:
-  // - learning_assignment: bottom index of A*
-  // - model_assignment: top index of A*
-  // - profile_index: h
-  // - destination: b_j +/- \delta
-  // - current_position: b_j
-  // - value: a_j
-  // - weight_at_or_above_profile: \sigma
-  // - weight: w_j
-  // - 1: \lambda
-  if (destination > current_position) {
-    if (
-      learning_assignment == profile_index
-      && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight < 1) {
-        ++desirability->v;
-    }
-    if (
-      learning_assignment == profile_index
-      && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight >= 1) {
-        ++desirability->w;
-    }
-    if (
-      learning_assignment == profile_index + 1
-      && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight < 1) {
-        ++desirability->q;
-    }
-    if (
-      learning_assignment == profile_index + 1
-      && model_assignment == profile_index
-      && destination > value
-      && value >= current_position) {
-        ++desirability->r;
-    }
-    if (
-      learning_assignment < profile_index
-      && model_assignment > profile_index
-      && destination > value
-      && value >= current_position) {
-        ++desirability->t;
-    }
-  } else {
-    if (
-      learning_assignment == profile_index + 1
-      && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight >= 1) {
-        ++desirability->v;
-    }
-    if (
-      learning_assignment == profile_index + 1
-      && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight < 1) {
-        ++desirability->w;
-    }
-    if (
-      learning_assignment == profile_index
-      && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight >= 1) {
-        ++desirability->q;
-    }
-    if (
-      learning_assignment == profile_index
-      && model_assignment == profile_index + 1
-      && destination <= value
-      && value < current_position) {
-        ++desirability->r;
-    }
-    if (
-      learning_assignment > profile_index + 1
-      && model_assignment < profile_index + 1
-      && destination < value
-      && value <= current_position) {
-        ++desirability->t;
-    }
-  }
-}
-
-class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStrategy {
- public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(const Random& random) : _random(random) {}
-
-  void improve_profiles(std::shared_ptr<Models>) override;
-
- private:
-  const Random& _random;
-};
-
-Desirability compute_move_desirability(
-  const ModelsView& models,
-  const unsigned model_index,
-  const unsigned profile_index,
-  const unsigned criterion_index,
-  const float destination
-) {
-  Desirability d;
-
-  for (unsigned alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
-    update_move_desirability(
-      models, model_index, profile_index, criterion_index, destination, alt_index, &d);
-  }
-
-  return d;
-}
-
-void improve_model_profile(
-  const Random& random,
-  ModelsView models,
-  const unsigned model_index,
-  const unsigned profile_index,
-  const unsigned criterion_index
-) {
-  // WARNING: We're assuming all criteria have values in [0, 1]
-  // @todo Can we relax this assumption?
-  // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
-  const float lowest_destination =
-    profile_index == 0 ? 0. :
-    models.profiles[criterion_index][profile_index - 1][model_index];
-  const float highest_destination =
-    profile_index == models.domain.categories_count - 2 ? 1. :
-    models.profiles[criterion_index][profile_index + 1][model_index];
-
-  float best_destination = models.profiles[criterion_index][profile_index][model_index];
-  float best_desirability = Desirability().value();
-
-  if (lowest_destination == highest_destination) {
-    assert(best_destination == lowest_destination);
-    return;
-  }
-
-  // Not sure about this part: we're considering an arbitrary number of possible moves as described in
-  // Mousseau's prez-mics-2018(8).pdf, but:
-  //  - this is wasteful when there are fewer alternatives in the interval
-  //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
-  // @todo Ask Vincent Mousseau about the following:
-  // We could consider only a finite set of values for b_j described as follows:
-  // - sort all the 'a_j's
-  // - compute all midpoints between two successive 'a_j'
-  // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
-  // Then instead of taking a random values in [lowest_destination, highest_destination],
-  // we'd take a random subset of the intersection of these midpoints with that interval.
-  for (unsigned n = 0; n < 64; ++n) {
-    // Map (embarrassingly parallel)
-    const float destination = random.uniform_float(lowest_destination, highest_destination);
-    const float desirability = compute_move_desirability(
-      models, model_index, profile_index, criterion_index, destination).value();
-    // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
-    if (desirability > best_desirability) {
-      best_desirability = desirability;
-      best_destination = destination;
-    }
-  }
-
-  // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
-  if (random.uniform_float(0, 1) <= best_desirability) {
-    models.profiles[criterion_index][profile_index][model_index] = best_destination;
-  }
-}
-
-void improve_model_profile(
-  const Random& random,
-  ModelsView models,
-  const unsigned model_index,
-  const unsigned profile_index,
-  ArrayView1D<Host, const unsigned> criterion_indexes
-) {
-  // Not parallel because iteration N+1 relies on side effect in iteration N
-  // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
-    improve_model_profile(random, models, model_index, profile_index, criterion_indexes[crit_idx_idx]);
-  }
-}
 
 template<typename T>
 void swap(T& a, T& b) {
@@ -758,169 +512,368 @@ void shuffle(const Random& random, ArrayView1D<Host, T> m) {
   }
 }
 
-void improve_model_profiles(const Random& random, const ModelsView& models, const unsigned model_index) {
-  Array1D<Host, unsigned> criterion_indexes(models.domain.criteria_count, uninitialized);
-  // Not worth parallelizing because models.domain.criteria_count is typically small
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
-    criterion_indexes[crit_idx_idx] = crit_idx_idx;
+class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy {
+ public:
+  explicit ImproveProfilesWithAccuracyHeuristic(const Random& random) : _random(random) {}
+
+ private:
+  struct Desirability {
+    // Value for moves with no impact.
+    // @todo Verify with Vincent Mousseau that this is the correct value.
+    static constexpr float zero_value = 0;
+
+    unsigned v = 0;
+    unsigned w = 0;
+    unsigned q = 0;
+    unsigned r = 0;
+    unsigned t = 0;
+
+    float value() const {
+      if (v + w + t + q + r == 0) {
+        return zero_value;
+      } else {
+        return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
+      }
+    }
+  };
+
+  void update_move_desirability(
+    const ModelsView& models,
+    const unsigned model_index,
+    const unsigned profile_index,
+    const unsigned criterion_index,
+    const float destination,
+    const unsigned alt_index,
+    Desirability* desirability
+  ) {
+    const float current_position = models.profiles[criterion_index][profile_index][model_index];
+    const float weight = models.weights[criterion_index][model_index];
+
+    const float value = models.domain.learning_alternatives[criterion_index][alt_index];
+    const unsigned learning_assignment = models.domain.learning_assignments[alt_index];
+    const unsigned model_assignment = get_assignment(models, model_index, alt_index);
+
+    // @todo Factorize with get_assignment
+    float weight_at_or_above_profile = 0;
+    for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+      const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
+      const float profile_value = models.profiles[crit_index][profile_index][model_index];
+      if (alternative_value >= profile_value) {
+        weight_at_or_above_profile += models.weights[crit_index][model_index];
+      }
+    }
+
+    // These imbricated conditionals could be factorized, but this form has the benefit
+    // of being a direct translation of the top of page 78 of Sobrie's thesis.
+    // Correspondance:
+    // - learning_assignment: bottom index of A*
+    // - model_assignment: top index of A*
+    // - profile_index: h
+    // - destination: b_j +/- \delta
+    // - current_position: b_j
+    // - value: a_j
+    // - weight_at_or_above_profile: \sigma
+    // - weight: w_j
+    // - 1: \lambda
+    if (destination > current_position) {
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index + 1
+        && destination > value
+        && value >= current_position
+        && weight_at_or_above_profile - weight < 1) {
+          ++desirability->v;
+      }
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index + 1
+        && destination > value
+        && value >= current_position
+        && weight_at_or_above_profile - weight >= 1) {
+          ++desirability->w;
+      }
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index + 1
+        && destination > value
+        && value >= current_position
+        && weight_at_or_above_profile - weight < 1) {
+          ++desirability->q;
+      }
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index
+        && destination > value
+        && value >= current_position) {
+          ++desirability->r;
+      }
+      if (
+        learning_assignment < profile_index
+        && model_assignment > profile_index
+        && destination > value
+        && value >= current_position) {
+          ++desirability->t;
+      }
+    } else {
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index
+        && destination < value
+        && value < current_position
+        && weight_at_or_above_profile + weight >= 1) {
+          ++desirability->v;
+      }
+      if (
+        learning_assignment == profile_index + 1
+        && model_assignment == profile_index
+        && destination < value
+        && value < current_position
+        && weight_at_or_above_profile + weight < 1) {
+          ++desirability->w;
+      }
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index
+        && destination < value
+        && value < current_position
+        && weight_at_or_above_profile + weight >= 1) {
+          ++desirability->q;
+      }
+      if (
+        learning_assignment == profile_index
+        && model_assignment == profile_index + 1
+        && destination <= value
+        && value < current_position) {
+          ++desirability->r;
+      }
+      if (
+        learning_assignment > profile_index + 1
+        && model_assignment < profile_index + 1
+        && destination < value
+        && value <= current_position) {
+          ++desirability->t;
+      }
+    }
   }
 
-  // Not parallel because iteration N+1 relies on side effect in iteration N
-  // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned profile_index = 0; profile_index != models.domain.categories_count - 1; ++profile_index) {
-    shuffle<unsigned>(random, ref(criterion_indexes));
-    improve_model_profile(random, models, model_index, profile_index, criterion_indexes);
-  }
-}
+  Desirability compute_move_desirability(
+    const ModelsView& models,
+    const unsigned model_index,
+    const unsigned profile_index,
+    const unsigned criterion_index,
+    const float destination
+  ) {
+    Desirability d;
 
-void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr<Models> models) {
-  auto models_view = models->get_view();
+    for (unsigned alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
+      update_move_desirability(
+        models, model_index, profile_index, criterion_index, destination, alt_index, &d);
+    }
 
-  #pragma omp parallel for
-  for (unsigned model_index = 0; model_index != models_view.models_count; ++model_index) {
-    improve_model_profiles(_random, models_view, model_index);
+    return d;
   }
-}
+
+  void improve_model_profile(
+    const Random& random,
+    ModelsView models,
+    const unsigned model_index,
+    const unsigned profile_index,
+    const unsigned criterion_index
+  ) {
+    // WARNING: We're assuming all criteria have values in [0, 1]
+    // @todo Can we relax this assumption?
+    // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
+    const float lowest_destination =
+      profile_index == 0 ? 0. :
+      models.profiles[criterion_index][profile_index - 1][model_index];
+    const float highest_destination =
+      profile_index == models.domain.categories_count - 2 ? 1. :
+      models.profiles[criterion_index][profile_index + 1][model_index];
+
+    float best_destination = models.profiles[criterion_index][profile_index][model_index];
+    float best_desirability = Desirability().value();
+
+    if (lowest_destination == highest_destination) {
+      assert(best_destination == lowest_destination);
+      return;
+    }
+
+    // Not sure about this part: we're considering an arbitrary number of possible moves as described in
+    // Mousseau's prez-mics-2018(8).pdf, but:
+    //  - this is wasteful when there are fewer alternatives in the interval
+    //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
+    // @todo Ask Vincent Mousseau about the following:
+    // We could consider only a finite set of values for b_j described as follows:
+    // - sort all the 'a_j's
+    // - compute all midpoints between two successive 'a_j'
+    // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
+    // Then instead of taking a random values in [lowest_destination, highest_destination],
+    // we'd take a random subset of the intersection of these midpoints with that interval.
+    for (unsigned n = 0; n < 64; ++n) {
+      // Map (embarrassingly parallel)
+      const float destination = random.uniform_float(lowest_destination, highest_destination);
+      const float desirability = compute_move_desirability(
+        models, model_index, profile_index, criterion_index, destination).value();
+      // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
+      if (desirability > best_desirability) {
+        best_desirability = desirability;
+        best_destination = destination;
+      }
+    }
+
+    // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
+    if (random.uniform_float(0, 1) <= best_desirability) {
+      models.profiles[criterion_index][profile_index][model_index] = best_destination;
+    }
+  }
+
+  void improve_model_profile(
+    const Random& random,
+    ModelsView models,
+    const unsigned model_index,
+    const unsigned profile_index,
+    ArrayView1D<Host, const unsigned> criterion_indexes
+  ) {
+    // Not parallel because iteration N+1 relies on side effect in iteration N
+    // (We could challenge this aspect of the algorithm described by Sobrie)
+    for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
+      improve_model_profile(random, models, model_index, profile_index, criterion_indexes[crit_idx_idx]);
+    }
+  }
+
+  void improve_model_profiles(const Random& random, const ModelsView& models, const unsigned model_index) {
+    Array1D<Host, unsigned> criterion_indexes(models.domain.criteria_count, uninitialized);
+    // Not worth parallelizing because models.domain.criteria_count is typically small
+    for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
+      criterion_indexes[crit_idx_idx] = crit_idx_idx;
+    }
+
+    // Not parallel because iteration N+1 relies on side effect in iteration N
+    // (We could challenge this aspect of the algorithm described by Sobrie)
+    for (unsigned profile_index = 0; profile_index != models.domain.categories_count - 1; ++profile_index) {
+      shuffle<unsigned>(random, ref(criterion_indexes));
+      improve_model_profile(random, models, model_index, profile_index, criterion_indexes);
+    }
+  }
+
+ public:
+  void improve_profiles(std::shared_ptr<Models> models) override {
+    auto models_view = models->get_view();
+
+    #pragma omp parallel for
+    for (unsigned model_index = 0; model_index != models_view.models_count; ++model_index) {
+      improve_model_profiles(_random, models_view, model_index);
+    }
+  }
+
+ private:
+  const Random& _random;
+};
 
 class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
- public:
-  struct LinearProgram;
+  struct LinearProgram {
+    std::shared_ptr<glp::LinearProgram> program;
+    std::vector<glp::ColIndex> weight_variables;
+    std::vector<glp::ColIndex> x_variables;
+    std::vector<glp::ColIndex> xp_variables;
+    std::vector<glp::ColIndex> y_variables;
+    std::vector<glp::ColIndex> yp_variables;
+  };
 
- public:
-  void optimize_weights(std::shared_ptr<Models>) override;
-};
+  std::shared_ptr<LinearProgram> make_internal_linear_program(
+    const float epsilon,
+    const ModelsView& models,
+    unsigned model_index
+  ) {
+    auto lp = std::make_shared<LinearProgram>();
 
-namespace glp = operations_research::glop;
+    lp->program = std::make_shared<glp::LinearProgram>();
+    lp->weight_variables.reserve(models.domain.criteria_count);
+    for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+      lp->weight_variables.push_back(lp->program->CreateNewVariable());
+    }
 
-struct OptimizeWeightsUsingGlop::LinearProgram {
-  std::shared_ptr<glp::LinearProgram> program;
-  std::vector<glp::ColIndex> weight_variables;
-  std::vector<glp::ColIndex> x_variables;
-  std::vector<glp::ColIndex> xp_variables;
-  std::vector<glp::ColIndex> y_variables;
-  std::vector<glp::ColIndex> yp_variables;
-};
+    lp->x_variables.reserve(models.domain.learning_alternatives_count);
+    lp->xp_variables.reserve(models.domain.learning_alternatives_count);
+    lp->y_variables.reserve(models.domain.learning_alternatives_count);
+    lp->yp_variables.reserve(models.domain.learning_alternatives_count);
+    for (unsigned alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
+      lp->x_variables.push_back(lp->program->CreateNewVariable());
+      lp->xp_variables.push_back(lp->program->CreateNewVariable());
+      lp->y_variables.push_back(lp->program->CreateNewVariable());
+      lp->yp_variables.push_back(lp->program->CreateNewVariable());
 
-std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_internal_linear_program(
-  const float epsilon,
-  const ModelsView& models,
-  unsigned model_index
-) {
-  auto lp = std::make_shared<OptimizeWeightsUsingGlop::LinearProgram>();
+      lp->program->SetObjectiveCoefficient(lp->xp_variables.back(), 1);
+      lp->program->SetObjectiveCoefficient(lp->yp_variables.back(), 1);
 
-  lp->program = std::make_shared<glp::LinearProgram>();
-  lp->weight_variables.reserve(models.domain.criteria_count);
-  for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
-    lp->weight_variables.push_back(lp->program->CreateNewVariable());
-  }
+      const unsigned category_index = models.domain.learning_assignments[alt_index];
 
-  lp->x_variables.reserve(models.domain.learning_alternatives_count);
-  lp->xp_variables.reserve(models.domain.learning_alternatives_count);
-  lp->y_variables.reserve(models.domain.learning_alternatives_count);
-  lp->yp_variables.reserve(models.domain.learning_alternatives_count);
-  for (unsigned alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
-    lp->x_variables.push_back(lp->program->CreateNewVariable());
-    lp->xp_variables.push_back(lp->program->CreateNewVariable());
-    lp->y_variables.push_back(lp->program->CreateNewVariable());
-    lp->yp_variables.push_back(lp->program->CreateNewVariable());
+      if (category_index != 0) {
+        glp::RowIndex c = lp->program->CreateNewConstraint();
+        lp->program->SetConstraintBounds(c, 1, 1);
+        lp->program->SetCoefficient(c, lp->x_variables.back(), -1);
+        lp->program->SetCoefficient(c, lp->xp_variables.back(), 1);
+        for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+          const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
+          const float profile_value = models.profiles[crit_index][category_index - 1][model_index];
+          if (alternative_value >= profile_value) {
+            lp->program->SetCoefficient(c, lp->weight_variables[crit_index], 1);
+          }
+        }
+      }
 
-    lp->program->SetObjectiveCoefficient(lp->xp_variables.back(), 1);
-    lp->program->SetObjectiveCoefficient(lp->yp_variables.back(), 1);
-
-    const unsigned category_index = models.domain.learning_assignments[alt_index];
-
-    if (category_index != 0) {
-      glp::RowIndex c = lp->program->CreateNewConstraint();
-      lp->program->SetConstraintBounds(c, 1, 1);
-      lp->program->SetCoefficient(c, lp->x_variables.back(), -1);
-      lp->program->SetCoefficient(c, lp->xp_variables.back(), 1);
-      for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
-        const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
-        const float profile_value = models.profiles[crit_index][category_index - 1][model_index];
-        if (alternative_value >= profile_value) {
-          lp->program->SetCoefficient(c, lp->weight_variables[crit_index], 1);
+      if (category_index != models.domain.categories_count - 1) {
+        glp::RowIndex c = lp->program->CreateNewConstraint();
+        lp->program->SetConstraintBounds(c, 1 - epsilon, 1 - epsilon);
+        lp->program->SetCoefficient(c, lp->y_variables.back(), 1);
+        lp->program->SetCoefficient(c, lp->yp_variables.back(), -1);
+        for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+          const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
+          const float profile_value = models.profiles[crit_index][category_index][model_index];
+          if (alternative_value >= profile_value) {
+            lp->program->SetCoefficient(c, lp->weight_variables[crit_index], 1);
+          }
         }
       }
     }
 
-    if (category_index != models.domain.categories_count - 1) {
-      glp::RowIndex c = lp->program->CreateNewConstraint();
-      lp->program->SetConstraintBounds(c, 1 - epsilon, 1 - epsilon);
-      lp->program->SetCoefficient(c, lp->y_variables.back(), 1);
-      lp->program->SetCoefficient(c, lp->yp_variables.back(), -1);
-      for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
-        const float alternative_value = models.domain.learning_alternatives[crit_index][alt_index];
-        const float profile_value = models.profiles[crit_index][category_index][model_index];
-        if (alternative_value >= profile_value) {
-          lp->program->SetCoefficient(c, lp->weight_variables[crit_index], 1);
-        }
-      }
+    return lp;
+  }
+
+  auto solve_linear_program(std::shared_ptr<LinearProgram> lp) {
+    operations_research::glop::LPSolver solver;
+    operations_research::glop::GlopParameters parameters;
+    parameters.set_provide_strong_optimal_guarantee(true);
+    solver.SetParameters(parameters);
+
+    auto status = solver.Solve(*lp->program);
+    assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
+    auto values = solver.variable_values();
+
+    return values;
+  }
+
+  void optimize_weights(const ModelsView& models, unsigned model_index) {
+    auto lp = make_internal_linear_program(1e-6, models, model_index);
+    auto values = solve_linear_program(lp);
+
+    for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
+      models.weights[crit_index][model_index] = values[lp->weight_variables[crit_index]];
     }
   }
 
-  return lp;
-}
-
-std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> make_verbose_linear_program(
-    const float epsilon, const ModelsView& models, unsigned model_index) {
-  auto lp = make_internal_linear_program(epsilon, models, model_index);
-
-  assert(lp->weight_variables.size() == models.domain.criteria_count);
-  for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
-    lp->program->SetVariableName(lp->weight_variables[crit_index], "w_" + std::to_string(crit_index));
+  void optimize_weights(const ModelsView& models) {
+    #pragma omp parallel for
+    for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
+      optimize_weights(models, model_index);
+    }
   }
 
-  assert(lp->x_variables.size() == models.domain.learning_alternatives_count);
-  assert(lp->xp_variables.size() == models.domain.learning_alternatives_count);
-  assert(lp->y_variables.size() == models.domain.learning_alternatives_count);
-  assert(lp->yp_variables.size() == models.domain.learning_alternatives_count);
-  for (unsigned alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
-    lp->program->SetVariableName(lp->x_variables[alt_index], "x_" + std::to_string(alt_index));
-    lp->program->SetVariableName(lp->xp_variables[alt_index], "x'_" + std::to_string(alt_index));
-    lp->program->SetVariableName(lp->y_variables[alt_index], "y_" + std::to_string(alt_index));
-    lp->program->SetVariableName(lp->yp_variables[alt_index], "y'_" + std::to_string(alt_index));
-  }
-
-  return lp;
-}
-
-std::shared_ptr<glp::LinearProgram> make_verbose_linear_program(
-    const float epsilon, std::shared_ptr<Models> models_, unsigned model_index) {
-  return make_verbose_linear_program(epsilon, models_->get_view(), model_index)->program;
-}
-
-auto solve_linear_program(std::shared_ptr<OptimizeWeightsUsingGlop::LinearProgram> lp) {
-  operations_research::glop::LPSolver solver;
-  operations_research::glop::GlopParameters parameters;
-  parameters.set_provide_strong_optimal_guarantee(true);
-  solver.SetParameters(parameters);
-
-  auto status = solver.Solve(*lp->program);
-  assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
-  auto values = solver.variable_values();
-
-  return values;
-}
-
-void optimize_weights(const ModelsView& models, unsigned model_index) {
-  auto lp = make_internal_linear_program(1e-6, models, model_index);
-  auto values = solve_linear_program(lp);
-
-  for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
-    models.weights[crit_index][model_index] = values[lp->weight_variables[crit_index]];
-  }
-}
-
-void optimize_weights_(const ModelsView& models) {
-  #pragma omp parallel for
-  for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
-    optimize_weights(models, model_index);
-  }
-}
-
-void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models> models) {
-  optimize_weights_(models->get_view());
-}
+ public:
+  void optimize_weights(std::shared_ptr<Models> models) override {
+    optimize_weights(models->get_view());
+  };
+};
 
 class TerminateAtAccuracy : public TerminationStrategy {
  public:
@@ -968,7 +921,7 @@ std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, 
   return model_indexes;
 }
 
-LearningResult perform_learning(
+io::Model perform_learning(
   std::shared_ptr<Models> models,
   std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
   std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
@@ -1001,7 +954,7 @@ LearningResult perform_learning(
     best_accuracy = get_accuracy(*models, model_indexes.back());
   }
 
-  return LearningResult(models->unmake_one(model_indexes.back()), best_accuracy);
+  return models->unmake_one(model_indexes.back());
 }
 
 struct MrSortLearning_ {
@@ -1035,13 +988,12 @@ Model MrSortLearning_::perform() {
   Random random(44);
   auto ppl_host_domain = Domain_::make(ppl_learning_set);
   auto ppl_host_models = Models::make(ppl_host_domain, default_models_count);
-  auto ppl_result = perform_learning(
+  io::Model ppl_model = perform_learning(
     ppl_host_models,
     std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *ppl_host_models),
     std::make_shared<OptimizeWeightsUsingGlop>(),
-    std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(random),
+    std::make_shared<ImproveProfilesWithAccuracyHeuristic>(random),
     std::make_shared<TerminateAtAccuracy>(learning_set.alternatives.size()));
-  io::Model ppl_model = ppl_result.best_model;
 
   Model::SufficientCoalitions coalitions{
     Model::SufficientCoalitions::Kind::weights,
