@@ -10,6 +10,7 @@ import textwrap
 
 
 def main():
+    # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
     try:
         os.rename("build-debug", "build")
     except FileNotFoundError:
@@ -21,7 +22,6 @@ def main():
         print("Building extension module in debug mode")
         print("=======================================")
         print(flush=True)
-
         subprocess.run(
             [
                 f"python3", "setup.py", "build_ext",
@@ -34,7 +34,6 @@ def main():
         print("Running C++ unit tests")
         print("======================")
         print(flush=True)
-
         subprocess.run(
             [
                 "g++",
@@ -43,7 +42,6 @@ def main():
             ],
             check=True,
         )
-
         subprocess.run(
             [
                 "/tmp/lincs-tests",
@@ -51,15 +49,14 @@ def main():
             check=True,
             env=dict(os.environ, LD_LIBRARY_PATH="."),
         )
-
         print()
+
         print("Running Python unit tests")
         print("=========================")
         print(flush=True)
-
         run_python_tests()
-
         print()
+
         print("Making integration tests from README.md")
         print("=======================================")
         print(flush=True)
@@ -79,7 +76,6 @@ def main():
         print("Installing *lincs*")
         print("==================")
         print(flush=True)
-
         # Next line costs ~15s per cycle, but is necessary because the package is not rebuilt when only C++ headers change.
         # Feel free to comment it out if you only modify Python parts.
         shutil.rmtree("build", ignore_errors=True)

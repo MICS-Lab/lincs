@@ -34,20 +34,85 @@ This should make it easier to understand the relative strengths and weaknesses o
 
 ## Install
 
-First, you need to install a few dependencies:
+First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier):
 
+<!-- START install/dependencies.sh -->
+    # System packages
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
-    # @todo Add OR-tools
-    # @todo Add CUDA (with a note that it's only for an include file)
+
+    # CUDA
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+    sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /'
+    sudo apt-get update
+    sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
+
+    # OR-tools
+    wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+    tar xf or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+    sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include
+    sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib
+    sudo ldconfig
+    rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+
+    # Header-only libraries
     cd /usr/local/include
     sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
     sudo wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
     sudo wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
     sudo wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
+<!-- STOP -->
+
+<!-- START install/Dockerfile-pre --><!--
+    FROM ubuntu:22.04
+
+    RUN apt-get update
+
+    RUN DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+          sudo wget python3-pip dirmngr gpg-agent software-properties-common
+
+    RUN useradd user --create-home
+    RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/user
+    USER user
+    ENV PATH=$PATH:/home/user/.local/bin
+    WORKDIR /home/user
+--><!-- STOP -->
+
+<!-- START install/Dockerfile-post --><!--
+    WORKDIR /home/user
+    # Speed-up build when requirements don't change
+    ADD project/requirements.txt .
+    RUN pip3 install -r requirements.txt
+    ADD --chown=user project /home/user/lincs
+    RUN pip3 install ./lincs
+--><!-- STOP -->
+
+<!-- START install/run.sh --><!--
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
+
+    # Transform the dependencies.sh file into a Dockerfile to benefit from the Docker build cache
+    (
+      cat Dockerfile-pre
+      echo
+      cat dependencies.sh \
+      | grep -v -e '^#' -e '^$' \
+      | sed 's/^/RUN /' \
+      | sed 's/^RUN cd/WORKDIR/'
+      echo
+      cat Dockerfile-post
+    ) >Dockerfile
+
+    mkdir project
+    cp -r ../../../{lincs,requirements.txt,setup.py} project
+    touch project/README.md  # No need for the actual readme, so don't bust the Docker cache
+
+    docker build . --tag lincs-development--install --quiet >/dev/null
+    docker run --rm lincs-development--install lincs --help >/dev/null
+--><!-- STOP -->
 
 Finally, *lincs* is available on the [Python Package Index](https://pypi.org/project/lincs/), so `pip install lincs` should finalize the install.
-
-Note that we *do* plan to build binary wheel distributions when the project matures to make installation easier.
 
 ## Concepts and files
 

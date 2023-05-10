@@ -6,6 +6,7 @@ RUN set -x \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       ca-certificates \
       dirmngr \
+      docker.io \
       g++ \
       git \
       gpg-agent \
@@ -73,5 +74,8 @@ RUN pip3 install \
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home
+ARG DOCKER_GID
+RUN groupadd hostdocker --gid $DOCKER_GID
+RUN adduser user hostdocker
 USER user
 ENV PATH=/home/user/.local/bin:$PATH
