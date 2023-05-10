@@ -24,7 +24,9 @@
 #include <ortools/glop/lp_solver.h>
 
 
-namespace ppl::io {
+namespace lincs {
+
+namespace io {
 
 // Classes for easy input/output of domain objects
 
@@ -73,9 +75,7 @@ struct LearningSet {
   std::vector<ClassifiedAlternative> alternatives;
 };
 
-}  // namespace ppl::io
-
-namespace ppl {
+}  // namespace io
 
 class Random {
  public:
@@ -172,9 +172,9 @@ struct DomainView {
   ArrayView1D<Host, const unsigned> learning_assignments;
 };
 
-class Domain {
+class Domain_ {
  public:
-  static std::shared_ptr<Domain> make(const io::LearningSet& learning_set) {
+  static std::shared_ptr<Domain_> make(const io::LearningSet& learning_set) {
     Array2D<Host, float> alternatives(learning_set.criteria_count, learning_set.alternatives_count, uninitialized);
     Array1D<Host, unsigned> assignments(learning_set.alternatives_count, uninitialized);
 
@@ -188,7 +188,7 @@ class Domain {
       assignments[alt_index] = alt.assigned_category;
     }
 
-    return std::make_shared<Domain>(
+    return std::make_shared<Domain_>(
       learning_set.categories_count,
       learning_set.criteria_count,
       learning_set.alternatives_count,
@@ -208,7 +208,7 @@ class Domain {
   }
 
  public:
-  Domain(unsigned categories_count, unsigned criteria_count, unsigned learning_alternatives_count, Array2D<Host, float>&& learning_alternatives, Array1D<Host, unsigned>&& learning_assignments) :
+  Domain_(unsigned categories_count, unsigned criteria_count, unsigned learning_alternatives_count, Array2D<Host, float>&& learning_alternatives, Array1D<Host, unsigned>&& learning_assignments) :
     _categories_count(categories_count),
     _criteria_count(criteria_count),
     _learning_alternatives_count(learning_alternatives_count),
@@ -235,7 +235,7 @@ struct ModelsView {
 
 class Models {
  public:
-  static std::shared_ptr<Models> make(std::shared_ptr<Domain> domain, const unsigned models_count) {
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain_> domain, const unsigned models_count) {
     DomainView domain_view = domain->get_view();
 
     Array1D<Host, unsigned> initialization_iteration_indexes(models_count, uninitialized);
@@ -285,7 +285,7 @@ class Models {
 
  public:
   Models(
-    std::shared_ptr<Domain> domain,
+    std::shared_ptr<Domain_> domain,
     const unsigned models_count,
     Array1D<Host, unsigned>&& initialization_iteration_indexes,
     Array2D<Host, float>&& weights,
@@ -297,7 +297,7 @@ class Models {
       _profiles(std::move(profiles)) {}
 
  private:
-  std::shared_ptr<Domain> _domain;
+  std::shared_ptr<Domain_> _domain;
   unsigned _models_count;
   Array1D<Host, unsigned> _initialization_iteration_indexes;
   Array2D<Host, float> _weights;
@@ -342,7 +342,6 @@ struct LearningResult {
   unsigned best_model_accuracy;
 };
 
-// @todo Find a good default value. How?
 const unsigned default_models_count = 9;
 
 unsigned get_assignment(const ModelsView& models, const unsigned model_index, const unsigned alternative_index) {
@@ -912,7 +911,7 @@ void optimize_weights(const ModelsView& models, unsigned model_index) {
   }
 }
 
-void optimize_weights(const ModelsView& models) {
+void optimize_weights_(const ModelsView& models) {
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
     optimize_weights(models, model_index);
@@ -920,7 +919,7 @@ void optimize_weights(const ModelsView& models) {
 }
 
 void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models> models) {
-  ppl::optimize_weights(models->get_view());
+  optimize_weights_(models->get_view());
 }
 
 class TerminateAtAccuracy : public TerminationStrategy {
@@ -934,53 +933,6 @@ class TerminateAtAccuracy : public TerminationStrategy {
 
  private:
   unsigned _target_accuracy;
-};
-
-class TerminateAfterIterations : public TerminationStrategy {
- public:
-  explicit TerminateAfterIterations(unsigned max_iterations) :
-    _max_iterations(max_iterations) {}
-
-  bool terminate(unsigned iteration_index, unsigned /*best_accuracy*/) override {
-    return iteration_index >= _max_iterations;
-  }
-
- private:
-  unsigned _max_iterations;
-};
-
-class TerminateAfterDuration : public TerminationStrategy {
-  typedef std::chrono::steady_clock clock;
-
- public:
-  explicit TerminateAfterDuration(typename clock::duration max_duration) :
-    _max_time(clock::now() + max_duration) {}
-
-  bool terminate(unsigned /*iteration_index*/, unsigned /*best_accuracy*/) override {
-    return clock::now() >= _max_time;
-  }
-
- private:
-  typename clock::time_point _max_time;
-};
-
-class TerminateOnAny : public TerminationStrategy {
- public:
-  explicit TerminateOnAny(std::vector<std::shared_ptr<TerminationStrategy>> strategies) :
-    _strategies(strategies) {}
-
-  bool terminate(unsigned iteration_index, unsigned best_accuracy) override {
-    for (auto strategy : _strategies) {
-      if (strategy->terminate(iteration_index, best_accuracy)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
- private:
-  std::vector<std::shared_ptr<TerminationStrategy>> _strategies;
 };
 
 /*
@@ -1052,30 +1004,6 @@ LearningResult perform_learning(
   return LearningResult(models->unmake_one(model_indexes.back()), best_accuracy);
 }
 
-}  // namespace ppl
-
-template<>
-inline ppl::Desirability* Host::alloc<ppl::Desirability>(const std::size_t n) {
-  return Host::force_alloc<ppl::Desirability>(n);
-}
-
-template<>
-inline void Host::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
-  Host::force_memset<ppl::Desirability>(n, v, p);
-}
-
-template<>
-inline ppl::Desirability* Device::alloc<ppl::Desirability>(const std::size_t n) {
-  return Device::force_alloc<ppl::Desirability>(n);
-}
-
-template<>
-inline void Device::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
-  Device::force_memset<ppl::Desirability>(n, v, p);
-}
-
-namespace lincs {
-
 struct MrSortLearning_ {
   const Domain& domain;
   const Alternatives& learning_set;
@@ -1089,7 +1017,7 @@ Model MrSortLearning_::perform() {
     category_indexes[category.name] = category_indexes.size();
   }
 
-  std::vector<ppl::io::ClassifiedAlternative> ppl_alternatives;
+  std::vector<io::ClassifiedAlternative> ppl_alternatives;
   for (const auto& alt : learning_set.alternatives) {
     ppl_alternatives.emplace_back(
       alt.profile,
@@ -1097,23 +1025,23 @@ Model MrSortLearning_::perform() {
     );
   }
   ppl_alternatives.reserve(learning_set.alternatives.size());
-  ppl::io::LearningSet ppl_learning_set(
+  io::LearningSet ppl_learning_set(
     domain.criteria.size(),
     domain.categories.size(),
     ppl_alternatives.size(),
     ppl_alternatives
   );
 
-  ppl::Random random(44);
-  auto ppl_host_domain = ppl::Domain::make(ppl_learning_set);
-  auto ppl_host_models = ppl::Models::make(ppl_host_domain, ppl::default_models_count);
-  auto ppl_result = ppl::perform_learning(
+  Random random(44);
+  auto ppl_host_domain = Domain_::make(ppl_learning_set);
+  auto ppl_host_models = Models::make(ppl_host_domain, default_models_count);
+  auto ppl_result = perform_learning(
     ppl_host_models,
-    std::make_shared<ppl::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *ppl_host_models),
-    std::make_shared<ppl::OptimizeWeightsUsingGlop>(),
-    std::make_shared<ppl::ImproveProfilesWithAccuracyHeuristicOnCpu>(random),
-    std::make_shared<ppl::TerminateAtAccuracy>(learning_set.alternatives.size()));
-  ppl::io::Model ppl_model = ppl_result.best_model;
+    std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *ppl_host_models),
+    std::make_shared<OptimizeWeightsUsingGlop>(),
+    std::make_shared<ImproveProfilesWithAccuracyHeuristicOnCpu>(random),
+    std::make_shared<TerminateAtAccuracy>(learning_set.alternatives.size()));
+  io::Model ppl_model = ppl_result.best_model;
 
   Model::SufficientCoalitions coalitions{
     Model::SufficientCoalitions::Kind::weights,
