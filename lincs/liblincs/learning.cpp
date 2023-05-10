@@ -3,6 +3,8 @@
 #include <fstream>
 #include <chrono>
 
+#include <doctest.h>
+
 #include "ppl.hpp"
 
 namespace ppl {
@@ -101,19 +103,32 @@ Model MrSortLearning::perform() {
   };
   std::vector<Model::Boundary> boundaries;
   boundaries.reserve(domain.categories.size() - 1);
-  assert(ppl_model.profiles.size() == boundaries.size());
+  assert(ppl_model.profiles.size() == domain.categories.size() - 1);
   for (const auto& profile: ppl_model.profiles) {
     boundaries.emplace_back(profile, coalitions);
   }
   return Model{domain, boundaries};
+}
 
-  // // @todo Implement
-  // Model model = Model::generate_mrsort(domain, 41);
-  // const unsigned criteria_count = model.boundaries[0].profile.size();
-  // for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-  //   model.boundaries[0].profile[criterion_index] *= 0.9;
-  // }
-  // return model;
+TEST_CASE("Basic MR-Sort learning") {
+  Domain domain = Domain::generate(3, 2, 41);
+  Model model = Model::generate_mrsort(domain, 42);
+  Alternatives learning_set = Alternatives::generate(domain, model, 100, 43);
+
+  Model learned_model = MrSortLearning{domain, learning_set}.perform();
+
+  {
+    ClassificationResult result = classify_alternatives(domain, learned_model, &learning_set);
+    CHECK(result.changed == 0);
+    CHECK(result.unchanged == 100);
+  }
+
+  {
+    Alternatives testing_set = Alternatives::generate(domain, model, 1000, 43);
+    ClassificationResult result = classify_alternatives(domain, learned_model, &testing_set);
+    CHECK(result.changed == 3);
+    CHECK(result.unchanged == 997);
+  }
 }
 
 }  // namespace lincs
