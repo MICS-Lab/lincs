@@ -78,450 +78,12 @@ struct LearningSet {
   std::vector<ClassifiedAlternative> alternatives;
 };
 
-}  // namespace ppl::io
-
-#ifndef PROBLEM_HPP_
-#define PROBLEM_HPP_
-
-
-
-
-
-namespace ppl {
-
-/*
-The constants of the problem, i.e. the sizes of the domain, and the learning set.
-
-@todo Split Domain and DomainView class into Domain proper (sizes, labels, etc.) and LearningSet (classified alternatives)
-*/
-template<typename Space>
-struct DomainView {
-  const unsigned categories_count;
-  const unsigned criteria_count;
-  const unsigned learning_alternatives_count;
-
-  ArrayView2D<Space, const float> learning_alternatives;
-  // First index: index of criterion, from `0` to `criteria_count - 1`
-  // Second index: index of alternative, from `0` to `learning_alternatives_count - 1`
-  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
-  // @todo Investigate if this weird index order is actually improving performance
-  // Values are pre-normalized on each criterion so that the possible values are from `0.0` to `1.0`.
-  // @todo Can we relax this assumption?
-  //  - going from `-infinity` to `+infinity` might be possible
-  //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
-  //  - to handle criterion where a lower value is better, we'd need to store an additional boolean indicator
-
-  ArrayView1D<Space, const unsigned> learning_assignments;
-  // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
-  // Possible values: from `0` to `categories_count - 1`
-
-  template<typename S = Space, typename = std::enable_if_t<!std::is_same_v<S, Anywhere>>>
-  operator const DomainView<Anywhere>&() const {
-    return *reinterpret_cast<const DomainView<Anywhere>*>(this);
-  }
-};
-
-template<typename Space>
-class Domain {
- public:
-  static std::shared_ptr<Domain> make(const io::LearningSet&);
-
-  template<typename OtherSpace> friend class Domain;
-
-  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  std::shared_ptr<Domain<OtherSpace>> clone_to() const {
-    return std::make_shared<Domain<OtherSpace>>(
-      typename Domain<OtherSpace>::Privacy(),
-      _categories_count,
-      _criteria_count,
-      _learning_alternatives_count,
-      _learning_alternatives.template clone_to<OtherSpace>(),
-      _learning_assignments.template clone_to<OtherSpace>());
-  }
-
- public:
-  DomainView<Space> get_view() const;
-
-  // Constructor has to be public for std::make_shared, but we want to make it unaccessible to external code,
-  // so we make that constructor require a private structure.
- private:
-  struct Privacy {};
-
- public:
-  Domain(Privacy, unsigned, unsigned, unsigned, Array2D<Space, float>&&, Array1D<Space, unsigned>&&);
-
- private:
-  unsigned _categories_count;
-  unsigned _criteria_count;
-  unsigned _learning_alternatives_count;
-  Array2D<Space, float> _learning_alternatives;
-  Array1D<Space, unsigned> _learning_assignments;
-};
-
-/*
-The variables of the problem: the models being trained
-*/
-template<typename Space>
-struct ModelsView {
-  DomainView<Space> domain;
-
-  const unsigned models_count;
-
-  const ArrayView1D<Space, unsigned> initialization_iteration_indexes;
-  // Index: index of model, from `0` to `models_count - 1`
-
-  const ArrayView2D<Space, float> weights;
-  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
-  // Second index: index of model, from `0` to `models_count - 1`
-  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
-  // @todo Investigate if this weird index order is actually improving performance
-  // Compared to their description in the thesis, weights are denormalized:
-  // - their sum is not constrained to be 1
-  // - we don't store the threshold; we assume it's always 1
-  // - this approach corresponds to dividing the weights and threshold as defined in the thesis by the threshold
-  // - it simplifies the implementation because it removes the sum constraint and the threshold variables
-
-  const ArrayView3D<Space, float> profiles;
-  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
-  // Second index: index of category below profile, from `0` to `domain.categories_count - 2`
-  // Third index: index of model, from `0` to `models_count - 1`
-  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
-  // @todo Investigate if this weird index order is actually improving performance
-
-  template<typename S = Space, typename = std::enable_if_t<!std::is_same_v<S, Anywhere>>>
-  operator const ModelsView<Anywhere>&() const {
-    return *reinterpret_cast<const ModelsView<Anywhere>*>(this);
-  }
-};
-
-
-template<typename Space>
-class Models {
- public:
-  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, const std::vector<io::Model>&);
-  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, unsigned models_count);
-
-  io::Model unmake_one(unsigned model_index) const;
-  std::vector<io::Model> unmake() const;
-
-  template<typename OtherSpace> friend class Models;
-
-  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
-  std::shared_ptr<Models<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
-    return std::make_shared<Models<OtherSpace>>(
-      typename Models<OtherSpace>::Privacy(),
-      other_domain,
-      _models_count,
-      _initialization_iteration_indexes.template clone_to<OtherSpace>(),
-      _weights.template clone_to<OtherSpace>(),
-      _profiles.template clone_to<OtherSpace>());
-  }
-
- public:
-  std::shared_ptr<Domain<Space>> get_domain() { return _domain; }
-  ModelsView<Space> get_view() const;  // @todo Remove const
-
- private:
-  struct Privacy {};
-
- public:
-  Models(
-    Privacy,
-    std::shared_ptr<Domain<Space>>,
-    unsigned,
-    Array1D<Space, unsigned>&&,
-    Array2D<Space, float>&&,
-    Array3D<Space, float>&&);
-
- private:
-  std::shared_ptr<Domain<Space>> _domain;
-  unsigned _models_count;
-  Array1D<Space, unsigned> _initialization_iteration_indexes;
-  Array2D<Space, float> _weights;
-  Array3D<Space, float> _profiles;
-};
-
-}  // namespace ppl
-
-#endif  // PROBLEM_HPP_
-
-#ifndef OBSERVE_HPP_
-#define OBSERVE_HPP_
-
-
-
-namespace ppl {
-
-class LearningObserver {
- public:
-  virtual ~LearningObserver() {}
-
-  virtual void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) = 0;
-};
-
-}  // namespace ppl
-
-#endif  // OBSERVE_HPP_
-
-#ifndef INITIALIZE_PROFILES_HPP_
-#define INITIALIZE_PROFILES_HPP_
-
-
-
-
-namespace ppl {
-
-class ProfilesInitializationStrategy {
- public:
-  virtual ~ProfilesInitializationStrategy() {}
-
-  virtual void initialize_profiles(
-    std::shared_ptr<Models<Host>> models,
-    unsigned iteration_index,
-    std::vector<unsigned>::const_iterator model_indexes_begin,
-    std::vector<unsigned>::const_iterator model_indexes_end) = 0;
-};
-
-}  // namespace ppl
-
-#endif  // INITIALIZE_PROFILES_HPP_
-
-#ifndef RANDOMNESS_HPP_
-#define RANDOMNESS_HPP_
-
-
-
-
-
-/*
-A source of randomness.
-*/
-class Random {
- public:
-  explicit Random(int seed) : _gen(omp_get_max_threads()) {
-    #pragma omp parallel
-    {
-      urbg().seed(seed * (omp_get_thread_num() + 1));
-    }
-  }
-
-  // Non-copyable
-  Random(const Random&) = delete;
-  Random& operator=(const Random&) = delete;
-  // Could be made movable if needed
-  Random(Random&&) = delete;
-  Random& operator=(Random&&) = delete;
-
-  float uniform_float(const float min, const float max) const {
-    float v = max;
-
-    do {
-      v = std::uniform_real_distribution<float>(min, max)(urbg());
-    } while (v == max);
-
-    return v;
-  }
-
-  unsigned uniform_int(const unsigned min, const unsigned max) const {
-    return std::uniform_int_distribution<unsigned int>(min, max - 1)(urbg());
-  }
-
-  std::mt19937& urbg() const {
-    const unsigned thread_index = omp_get_thread_num();
-    assert(thread_index < _gen.size());
-    return _gen[thread_index];
-  }
-
- private:
-  mutable std::vector<std::mt19937> _gen;
-};
-
-/*
-Pick random values from a finite set with given probabilities
-(a discrete distribution with arbitrary values).
-*/
-template<typename T>
-class ProbabilityWeightedGenerator {
-  ProbabilityWeightedGenerator(const std::vector<T>& values, const std::vector<double>& probabilities) :
-    _values(values),
-    _distribution(probabilities.begin(), probabilities.end())
-  {}
-
- public:
-  static ProbabilityWeightedGenerator make(std::map<T, double> value_probabilities) {
-    std::vector<T> values;
-    values.reserve(value_probabilities.size());
-    std::vector<double> probabilities;
-    probabilities.reserve(value_probabilities.size());
-    for (auto value_probability : value_probabilities) {
-      values.push_back(value_probability.first);
-      probabilities.push_back(value_probability.second);
-    }
-    return ProbabilityWeightedGenerator(values, probabilities);
-  }
-
-  std::map<T, double> get_value_probabilities() {
-    std::map<T, double> value_probabilities;
-    auto probabilities = _distribution.probabilities();
-    const unsigned size = _values.size();
-    assert(probabilities.size() == size);
-    for (unsigned i = 0; i != size; ++i) {
-      value_probabilities[_values[i]] = probabilities[i];
-    }
-    return value_probabilities;
-  }
-
-  template<typename Generator>
-  T operator()(Generator& gen) const {  // NOLINT(runtime/references)
-    const unsigned index = _distribution(gen);
-    assert(index < _values.size());
-    return _values[index];
-  }
-
- private:
-  std::vector<T> _values;
-  mutable std::discrete_distribution<unsigned> _distribution;
-};
-
-
-#endif  // RANDOMNESS_HPP_
-
-#ifndef IMPROVE_PROFILES_HPP_
-#define IMPROVE_PROFILES_HPP_
-
-
-
-
-namespace ppl {
-
-class ProfilesImprovementStrategy {
- public:
-  virtual ~ProfilesImprovementStrategy() {}
-
-  // @todo Accept a plain pointer instead of a shared_ptr
-  // We don't do memory management here and should not force it on the caller
-  // Make sure to apply the same change to all other places appropriate
-  virtual void improve_profiles(std::shared_ptr<Models<Host>>) = 0;
-};
-
-}  // namespace ppl
-
-#endif  // IMPROVE_PROFILES_HPP_
-
-#ifndef IMPROVE_PROFILES_ACCURACY_HEURISTIC_GPU_HPP_
-#define IMPROVE_PROFILES_ACCURACY_HEURISTIC_GPU_HPP_
-
-
-
-
-
-namespace ppl {
-
-/*
-Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/document
-*/
-class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStrategy {
- public:
-  ImproveProfilesWithAccuracyHeuristicOnGpu(
-      const Random& random,
-      std::shared_ptr<Models<Device>> device_models) :
-    _random(random),
-    _device_models(device_models) {}
-
-  void improve_profiles(std::shared_ptr<Models<Host>>) override;
-
- private:
-  const Random& _random;
-  std::shared_ptr<Models<Device>> _device_models;
-};
-
-}  // namespace ppl
-
-#endif  // IMPROVE_PROFILES_ACCURACY_HEURISTIC_GPU_HPP_
-
-#ifndef OPTIMIZE_WEIGHTS_HPP_
-#define OPTIMIZE_WEIGHTS_HPP_
-
-
-
-
-namespace ppl {
-
-class WeightsOptimizationStrategy {
- public:
-  virtual ~WeightsOptimizationStrategy() {}
-
-  virtual void optimize_weights(std::shared_ptr<Models<Host>>) = 0;
-};
-
-}  // namespace ppl
-
-#endif  // OPTIMIZE_WEIGHTS_HPP_
-
-#ifndef TERMINATE_HPP_
-#define TERMINATE_HPP_
-
-
-
-namespace ppl {
-
-class TerminationStrategy {
- public:
-  virtual ~TerminationStrategy() {}
-
-  virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
-};
-
-}  // namespace ppl
-
-#endif  // TERMINATE_HPP_
-
-#ifndef LEARNING_HPP_
-#define LEARNING_HPP_
-
-
-
-
-namespace ppl {
-
-struct LearningResult {
-  LearningResult(io::Model model, unsigned accuracy) : best_model(model), best_model_accuracy(accuracy) {}
-
-  io::Model best_model;
-  unsigned best_model_accuracy;
-};
-
-// @todo Find a good default value. How?
-const unsigned default_models_count = 9;
-
-LearningResult perform_learning(
-  std::shared_ptr<Models<Host>> host_models,
-  std::vector<std::shared_ptr<LearningObserver>> observers,
-  std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
-  std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
-  std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
-  std::shared_ptr<TerminationStrategy> termination_strategy
-);
-
-}  // namespace ppl
-
-#endif  // LEARNING_HPP_
-
-
-
-
-
-
-namespace {
-  void check_valid(const std::string& type_name, const std::optional<std::string>& error) {
-    if (error) {
-      std::cerr << "Error during " << type_name << " validation: " << *error << std::endl;
-      exit(1);
-    }
+void check_valid(const std::string& type_name, const std::optional<std::string>& error) {
+  if (error) {
+    std::cerr << "Error during " << type_name << " validation: " << *error << std::endl;
+    exit(1);
   }
 }
-
-namespace ppl::io {
 
 Model::Model(
   const unsigned criteria_count_,
@@ -883,12 +445,326 @@ LearningSet LearningSet::load_from(std::istream& s) {
 
 }  // namespace ppl::io
 
-
-
-
-
-
 namespace ppl {
+
+/*
+The constants of the problem, i.e. the sizes of the domain, and the learning set.
+
+@todo Split Domain and DomainView class into Domain proper (sizes, labels, etc.) and LearningSet (classified alternatives)
+*/
+template<typename Space>
+struct DomainView {
+  const unsigned categories_count;
+  const unsigned criteria_count;
+  const unsigned learning_alternatives_count;
+
+  ArrayView2D<Space, const float> learning_alternatives;
+  // First index: index of criterion, from `0` to `criteria_count - 1`
+  // Second index: index of alternative, from `0` to `learning_alternatives_count - 1`
+  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
+  // @todo Investigate if this weird index order is actually improving performance
+  // Values are pre-normalized on each criterion so that the possible values are from `0.0` to `1.0`.
+  // @todo Can we relax this assumption?
+  //  - going from `-infinity` to `+infinity` might be possible
+  //  - or we can extract the smallest and greatest value of each criterion on all the alternatives
+  //  - to handle criterion where a lower value is better, we'd need to store an additional boolean indicator
+
+  ArrayView1D<Space, const unsigned> learning_assignments;
+  // Index: index of alternative, from `0` to `learning_alternatives_count - 1`
+  // Possible values: from `0` to `categories_count - 1`
+
+  template<typename S = Space, typename = std::enable_if_t<!std::is_same_v<S, Anywhere>>>
+  operator const DomainView<Anywhere>&() const {
+    return *reinterpret_cast<const DomainView<Anywhere>*>(this);
+  }
+};
+
+template<typename Space>
+class Domain {
+ public:
+  static std::shared_ptr<Domain> make(const io::LearningSet&);
+
+  template<typename OtherSpace> friend class Domain;
+
+  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
+  std::shared_ptr<Domain<OtherSpace>> clone_to() const {
+    return std::make_shared<Domain<OtherSpace>>(
+      typename Domain<OtherSpace>::Privacy(),
+      _categories_count,
+      _criteria_count,
+      _learning_alternatives_count,
+      _learning_alternatives.template clone_to<OtherSpace>(),
+      _learning_assignments.template clone_to<OtherSpace>());
+  }
+
+ public:
+  DomainView<Space> get_view() const;
+
+  // Constructor has to be public for std::make_shared, but we want to make it unaccessible to external code,
+  // so we make that constructor require a private structure.
+ private:
+  struct Privacy {};
+
+ public:
+  Domain(Privacy, unsigned, unsigned, unsigned, Array2D<Space, float>&&, Array1D<Space, unsigned>&&);
+
+ private:
+  unsigned _categories_count;
+  unsigned _criteria_count;
+  unsigned _learning_alternatives_count;
+  Array2D<Space, float> _learning_alternatives;
+  Array1D<Space, unsigned> _learning_assignments;
+};
+
+/*
+The variables of the problem: the models being trained
+*/
+template<typename Space>
+struct ModelsView {
+  DomainView<Space> domain;
+
+  const unsigned models_count;
+
+  const ArrayView1D<Space, unsigned> initialization_iteration_indexes;
+  // Index: index of model, from `0` to `models_count - 1`
+
+  const ArrayView2D<Space, float> weights;
+  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
+  // Second index: index of model, from `0` to `models_count - 1`
+  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
+  // @todo Investigate if this weird index order is actually improving performance
+  // Compared to their description in the thesis, weights are denormalized:
+  // - their sum is not constrained to be 1
+  // - we don't store the threshold; we assume it's always 1
+  // - this approach corresponds to dividing the weights and threshold as defined in the thesis by the threshold
+  // - it simplifies the implementation because it removes the sum constraint and the threshold variables
+
+  const ArrayView3D<Space, float> profiles;
+  // First index: index of criterion, from `0` to `domain.criteria_count - 1`
+  // Second index: index of category below profile, from `0` to `domain.categories_count - 2`
+  // Third index: index of model, from `0` to `models_count - 1`
+  // (Warning: this might seem reversed and counter-intuitive for some mindsets)
+  // @todo Investigate if this weird index order is actually improving performance
+
+  template<typename S = Space, typename = std::enable_if_t<!std::is_same_v<S, Anywhere>>>
+  operator const ModelsView<Anywhere>&() const {
+    return *reinterpret_cast<const ModelsView<Anywhere>*>(this);
+  }
+};
+template<typename Space>
+class Models {
+ public:
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, const std::vector<io::Model>&);
+  static std::shared_ptr<Models> make(std::shared_ptr<Domain<Space>>, unsigned models_count);
+
+  io::Model unmake_one(unsigned model_index) const;
+  std::vector<io::Model> unmake() const;
+
+  template<typename OtherSpace> friend class Models;
+
+  template<typename OtherSpace, typename = std::enable_if_t<!std::is_same_v<OtherSpace, Space>>>
+  std::shared_ptr<Models<OtherSpace>> clone_to(std::shared_ptr<Domain<OtherSpace>> other_domain) const {
+    return std::make_shared<Models<OtherSpace>>(
+      typename Models<OtherSpace>::Privacy(),
+      other_domain,
+      _models_count,
+      _initialization_iteration_indexes.template clone_to<OtherSpace>(),
+      _weights.template clone_to<OtherSpace>(),
+      _profiles.template clone_to<OtherSpace>());
+  }
+
+ public:
+  std::shared_ptr<Domain<Space>> get_domain() { return _domain; }
+  ModelsView<Space> get_view() const;  // @todo Remove const
+
+ private:
+  struct Privacy {};
+
+ public:
+  Models(
+    Privacy,
+    std::shared_ptr<Domain<Space>>,
+    unsigned,
+    Array1D<Space, unsigned>&&,
+    Array2D<Space, float>&&,
+    Array3D<Space, float>&&);
+
+ private:
+  std::shared_ptr<Domain<Space>> _domain;
+  unsigned _models_count;
+  Array1D<Space, unsigned> _initialization_iteration_indexes;
+  Array2D<Space, float> _weights;
+  Array3D<Space, float> _profiles;
+};
+
+class LearningObserver {
+ public:
+  virtual ~LearningObserver() {}
+
+  virtual void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) = 0;
+};
+
+class ProfilesInitializationStrategy {
+ public:
+  virtual ~ProfilesInitializationStrategy() {}
+
+  virtual void initialize_profiles(
+    std::shared_ptr<Models<Host>> models,
+    unsigned iteration_index,
+    std::vector<unsigned>::const_iterator model_indexes_begin,
+    std::vector<unsigned>::const_iterator model_indexes_end) = 0;
+};
+
+/*
+A source of randomness.
+*/
+class Random {
+ public:
+  explicit Random(int seed) : _gen(omp_get_max_threads()) {
+    #pragma omp parallel
+    {
+      urbg().seed(seed * (omp_get_thread_num() + 1));
+    }
+  }
+
+  // Non-copyable
+  Random(const Random&) = delete;
+  Random& operator=(const Random&) = delete;
+  // Could be made movable if needed
+  Random(Random&&) = delete;
+  Random& operator=(Random&&) = delete;
+
+  float uniform_float(const float min, const float max) const {
+    float v = max;
+
+    do {
+      v = std::uniform_real_distribution<float>(min, max)(urbg());
+    } while (v == max);
+
+    return v;
+  }
+
+  unsigned uniform_int(const unsigned min, const unsigned max) const {
+    return std::uniform_int_distribution<unsigned int>(min, max - 1)(urbg());
+  }
+
+  std::mt19937& urbg() const {
+    const unsigned thread_index = omp_get_thread_num();
+    assert(thread_index < _gen.size());
+    return _gen[thread_index];
+  }
+
+ private:
+  mutable std::vector<std::mt19937> _gen;
+};
+
+/*
+Pick random values from a finite set with given probabilities
+(a discrete distribution with arbitrary values).
+*/
+template<typename T>
+class ProbabilityWeightedGenerator {
+  ProbabilityWeightedGenerator(const std::vector<T>& values, const std::vector<double>& probabilities) :
+    _values(values),
+    _distribution(probabilities.begin(), probabilities.end())
+  {}
+
+ public:
+  static ProbabilityWeightedGenerator make(std::map<T, double> value_probabilities) {
+    std::vector<T> values;
+    values.reserve(value_probabilities.size());
+    std::vector<double> probabilities;
+    probabilities.reserve(value_probabilities.size());
+    for (auto value_probability : value_probabilities) {
+      values.push_back(value_probability.first);
+      probabilities.push_back(value_probability.second);
+    }
+    return ProbabilityWeightedGenerator(values, probabilities);
+  }
+
+  std::map<T, double> get_value_probabilities() {
+    std::map<T, double> value_probabilities;
+    auto probabilities = _distribution.probabilities();
+    const unsigned size = _values.size();
+    assert(probabilities.size() == size);
+    for (unsigned i = 0; i != size; ++i) {
+      value_probabilities[_values[i]] = probabilities[i];
+    }
+    return value_probabilities;
+  }
+
+  template<typename Generator>
+  T operator()(Generator& gen) const {  // NOLINT(runtime/references)
+    const unsigned index = _distribution(gen);
+    assert(index < _values.size());
+    return _values[index];
+  }
+
+ private:
+  std::vector<T> _values;
+  mutable std::discrete_distribution<unsigned> _distribution;
+};
+
+class ProfilesImprovementStrategy {
+ public:
+  virtual ~ProfilesImprovementStrategy() {}
+
+  // @todo Accept a plain pointer instead of a shared_ptr
+  // We don't do memory management here and should not force it on the caller
+  // Make sure to apply the same change to all other places appropriate
+  virtual void improve_profiles(std::shared_ptr<Models<Host>>) = 0;
+};
+
+/*
+Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/document
+*/
+class ImproveProfilesWithAccuracyHeuristicOnGpu : public ProfilesImprovementStrategy {
+ public:
+  ImproveProfilesWithAccuracyHeuristicOnGpu(
+      const Random& random,
+      std::shared_ptr<Models<Device>> device_models) :
+    _random(random),
+    _device_models(device_models) {}
+
+  void improve_profiles(std::shared_ptr<Models<Host>>) override;
+
+ private:
+  const Random& _random;
+  std::shared_ptr<Models<Device>> _device_models;
+};
+
+class WeightsOptimizationStrategy {
+ public:
+  virtual ~WeightsOptimizationStrategy() {}
+
+  virtual void optimize_weights(std::shared_ptr<Models<Host>>) = 0;
+};
+
+class TerminationStrategy {
+ public:
+  virtual ~TerminationStrategy() {}
+
+  virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
+};
+
+struct LearningResult {
+  LearningResult(io::Model model, unsigned accuracy) : best_model(model), best_model_accuracy(accuracy) {}
+
+  io::Model best_model;
+  unsigned best_model_accuracy;
+};
+
+// @todo Find a good default value. How?
+const unsigned default_models_count = 9;
+
+LearningResult perform_learning(
+  std::shared_ptr<Models<Host>> host_models,
+  std::vector<std::shared_ptr<LearningObserver>> observers,
+  std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
+  std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
+  std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
+  std::shared_ptr<TerminationStrategy> termination_strategy
+);
 
 template<typename Space>
 Domain<Space>::Domain(
@@ -1064,15 +940,6 @@ ModelsView<Space> Models<Space>::get_view() const {
 template class Models<Host>;
 // Commented during copy-paste from PPL: template class Models<Device>;
 
-}  // namespace ppl
-
-#ifndef ASSIGN_HPP_
-#define ASSIGN_HPP_
-
-
-
-namespace ppl {
-
 // Commented during copy-paste from PPL: __host__ __device__
 unsigned get_assignment(const ModelsView<Anywhere>&, unsigned model_index, unsigned alternative_index);
 unsigned get_assignment(const Models<Host>&, unsigned model_index, unsigned alternative_index);
@@ -1082,15 +949,6 @@ unsigned get_assignment(const Models<Host>&, unsigned model_index, unsigned alte
 unsigned get_accuracy(const Models<Host>&, unsigned model_index);
 // @todo Remove: this is used only by tests
 // Commented during copy-paste from PPL: unsigned get_accuracy(const Models<Device>&, unsigned model_index);
-
-}  // namespace ppl
-
-#endif  // ASSIGN_HPP_
-
-
-
-
-namespace ppl {
 
 // Commented during copy-paste from PPL: __host__ __device__
 unsigned get_assignment(const ModelsView<Anywhere>& models, const unsigned model_index, const unsigned alternative_index) {
@@ -1184,16 +1042,6 @@ unsigned get_accuracy(const Models<Device>& models, const unsigned model_index) 
 }
 */
 
-}  // namespace ppl
-
-#ifndef OBSERVE_REPORT_PROGRESS_HPP_
-#define OBSERVE_REPORT_PROGRESS_HPP_
-
-
-
-
-namespace ppl {
-
 class ReportProgress : public LearningObserver {
  public:
   void after_main_iteration(int iteration_index, int best_accuracy, const Models<Host>& models) override {
@@ -1201,18 +1049,6 @@ class ReportProgress : public LearningObserver {
       best_accuracy << "/" << models.get_view().domain.learning_alternatives_count << std::endl;
   }
 };
-
-}  // namespace ppl
-
-#endif  // OBSERVE_REPORT_PROGRESS_HPP_
-
-#ifndef OBSERVE_DUMP_INTERMEDIATE_MODELS_HPP_
-#define OBSERVE_DUMP_INTERMEDIATE_MODELS_HPP_
-
-
-
-
-namespace ppl {
 
 class DumpIntermediateModels : public LearningObserver {
  public:
@@ -1223,15 +1059,6 @@ class DumpIntermediateModels : public LearningObserver {
  private:
   std::ostream& stream;
 };
-
-}  // namespace ppl
-
-#endif  // OBSERVE_DUMP_INTERMEDIATE_MODELS_HPP_
-
-
-
-
-namespace ppl {
 
 DumpIntermediateModels::DumpIntermediateModels(std::ostream& stream_) :
     stream(stream_) {
@@ -1272,16 +1099,6 @@ void DumpIntermediateModels::after_main_iteration(int iteration_index, int, cons
   stream << std::flush;
 }
 
-}  // namespace ppl
-
-#ifndef INITIALIZE_PROFILES_MAX_POWER_PER_CRITERION_HPP_
-#define INITIALIZE_PROFILES_MAX_POWER_PER_CRITERION_HPP_
-
-
-
-
-namespace ppl {
-
 /*
 Implement 3.3.2 of https://tel.archives-ouvertes.fr/tel-01370555/document
 */
@@ -1309,16 +1126,6 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
 //     std::vector<unsigned>::const_iterator model_indexes_begin,
 //     std::vector<unsigned>::const_iterator model_indexes_end) override;
 // };
-
-}  // namespace ppl
-
-#endif  // INITIALIZE_PROFILES_MAX_POWER_PER_CRITERION_HPP_
-
-
-
-
-
-namespace ppl {
 
 std::map<float, double> get_candidate_probabilities(
   const DomainView<Host>& domain,
@@ -1428,15 +1235,6 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
   }
 }
 
-}  // namespace ppl
-
-#ifndef IMPROVE_PROFILES_DESIRABILITY_HPP_
-#define IMPROVE_PROFILES_DESIRABILITY_HPP_
-
-
-
-namespace ppl {
-
 struct Desirability {
   // Value for moves with no impact.
   // @todo Verify with Vincent Mousseau that this is the correct value.
@@ -1468,36 +1266,6 @@ void update_move_desirability(
   const unsigned alt_index,
   Desirability* desirability
 );
-
-}  // namespace ppl
-
-
-template<>
-inline ppl::Desirability* Host::alloc<ppl::Desirability>(const std::size_t n) {
-  return Host::force_alloc<ppl::Desirability>(n);
-}
-
-template<>
-inline void Host::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
-  Host::force_memset<ppl::Desirability>(n, v, p);
-}
-
-template<>
-inline ppl::Desirability* Device::alloc<ppl::Desirability>(const std::size_t n) {
-  return Device::force_alloc<ppl::Desirability>(n);
-}
-
-template<>
-inline void Device::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
-  Device::force_memset<ppl::Desirability>(n, v, p);
-}
-
-#endif  // IMPROVE_PROFILES_DESIRABILITY_HPP_
-
-
-
-
-namespace ppl {
 
 // Commented during copy-paste from PPL: __host__ __device__
 void increment(
@@ -1634,17 +1402,6 @@ void update_move_desirability(
   }
 }
 
-}  // namespace ppl
-
-#ifndef IMPROVE_PROFILES_ACCURACY_HEURISTIC_CPU_HPP_
-#define IMPROVE_PROFILES_ACCURACY_HEURISTIC_CPU_HPP_
-
-
-
-
-
-namespace ppl {
-
 /*
 Implement 3.3.4 (variant 2) of https://tel.archives-ouvertes.fr/tel-01370555/document
 */
@@ -1657,16 +1414,6 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public ProfilesImprovementStra
  private:
   const Random& _random;
 };
-
-}  // namespace ppl
-
-#endif  // IMPROVE_PROFILES_ACCURACY_HEURISTIC_CPU_HPP_
-
-
-
-
-
-namespace ppl {
 
 namespace {
 
@@ -1803,16 +1550,6 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(std::shared_ptr
   }
 }
 
-}  // namespace ppl
-
-#ifndef OPTIMIZE_WEIGHTS_GLOP_HPP_
-#define OPTIMIZE_WEIGHTS_GLOP_HPP_
-
-
-
-
-namespace ppl {
-
 /*
 Implement 3.3.3 of https://tel.archives-ouvertes.fr/tel-01370555/document
 using GLOP to solve the linear program.
@@ -1824,17 +1561,6 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
  public:
   void optimize_weights(std::shared_ptr<Models<Host>>) override;
 };
-
-}  // namespace ppl
-
-#endif  // OPTIMIZE_WEIGHTS_GLOP_HPP_
-
-
-
-
-
-
-namespace ppl {
 
 namespace glp = operations_research::glop;
 
@@ -1982,17 +1708,6 @@ void OptimizeWeightsUsingGlop::optimize_weights(std::shared_ptr<Models<Host>> mo
   ppl::optimize_weights(models->get_view());
 }
 
-}  // namespace ppl
-
-#ifndef OPTIMIZE_WEIGHTS_GLOP_REUSE_HPP_
-#define OPTIMIZE_WEIGHTS_GLOP_REUSE_HPP_
-
-
-
-
-
-namespace ppl {
-
 /*
 Implement 3.3.3 of https://tel.archives-ouvertes.fr/tel-01370555/document
 using GLOP to solve the linear program, reusing the linear programs and solvers
@@ -2024,16 +1739,6 @@ class OptimizeWeightsUsingGlopAndReusingPrograms : public WeightsOptimizationStr
   std::vector<LinearProgram> _linear_programs;
   std::vector<operations_research::glop::LPSolver> _solvers;
 };
-
-}  // namespace ppl
-
-#endif  // OPTIMIZE_WEIGHTS_GLOP_REUSE_HPP_
-
-
-
-
-
-namespace ppl {
 
 namespace glp = operations_research::glop;
 
@@ -2201,15 +1906,6 @@ void OptimizeWeightsUsingGlopAndReusingPrograms::optimize_weights(std::shared_pt
   }
 }
 
-}  // namespace ppl
-
-#ifndef TERMINATE_ACCURACY_HPP_
-#define TERMINATE_ACCURACY_HPP_
-
-
-
-namespace ppl {
-
 class TerminateAtAccuracy : public TerminationStrategy {
  public:
   explicit TerminateAtAccuracy(unsigned target_accuracy) :
@@ -2223,17 +1919,6 @@ class TerminateAtAccuracy : public TerminationStrategy {
   unsigned _target_accuracy;
 };
 
-}  // namespace ppl
-
-#endif  // TERMINATE_ACCURACY_HPP_
-
-#ifndef TERMINATE_ITERATIONS_HPP_
-#define TERMINATE_ITERATIONS_HPP_
-
-
-
-namespace ppl {
-
 class TerminateAfterIterations : public TerminationStrategy {
  public:
   explicit TerminateAfterIterations(unsigned max_iterations) :
@@ -2246,18 +1931,6 @@ class TerminateAfterIterations : public TerminationStrategy {
  private:
   unsigned _max_iterations;
 };
-
-}  // namespace ppl
-
-#endif  // TERMINATE_ITERATIONS_HPP_
-
-#ifndef TERMINATE_DURATION_HPP_
-#define TERMINATE_DURATION_HPP_
-
-
-
-
-namespace ppl {
 
 class TerminateAfterDuration : public TerminationStrategy {
   typedef std::chrono::steady_clock clock;
@@ -2273,18 +1946,6 @@ class TerminateAfterDuration : public TerminationStrategy {
  private:
   typename clock::time_point _max_time;
 };
-
-}  // namespace ppl
-
-#endif  // TERMINATE_DURATION_HPP_
-
-#ifndef TERMINATE_ANY_HPP_
-#define TERMINATE_ANY_HPP_
-
-
-
-
-namespace ppl {
 
 class TerminateOnAny : public TerminationStrategy {
  public:
@@ -2307,11 +1968,25 @@ class TerminateOnAny : public TerminationStrategy {
 
 }  // namespace ppl
 
-#endif  // TERMINATE_ANY_HPP_
+template<>
+inline ppl::Desirability* Host::alloc<ppl::Desirability>(const std::size_t n) {
+  return Host::force_alloc<ppl::Desirability>(n);
+}
 
-#ifndef MEDIAN_AND_MAX_HPP_
-#define MEDIAN_AND_MAX_HPP_
+template<>
+inline void Host::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
+  Host::force_memset<ppl::Desirability>(n, v, p);
+}
 
+template<>
+inline ppl::Desirability* Device::alloc<ppl::Desirability>(const std::size_t n) {
+  return Device::force_alloc<ppl::Desirability>(n);
+}
+
+template<>
+inline void Device::memset<ppl::Desirability>(const std::size_t n, const char v, ppl::Desirability* const p) {
+  Device::force_memset<ppl::Desirability>(n, v, p);
+}
 
 /*
 Ensure that the median and maximum values of the range [begin, end[ are
@@ -2328,13 +2003,6 @@ void ensure_median_and_max(RandomIt begin, RandomIt end, Compare comp) {
   // Ensure median, not touching max
   std::nth_element(begin, begin + len / 2, begin + len - 1, comp);
 }
-
-#endif  // MEDIAN_AND_MAX_HPP_
-
-
-
-
-
 
 namespace ppl {
 
@@ -2402,10 +2070,6 @@ LearningResult perform_learning(
 
 }  // namespace ppl
 
-
-
-
-
 // Commented during copy-paste from PPL: CHRONABLE("learn")
 
 std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
@@ -2426,7 +2090,7 @@ std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
 }
 
 std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
-  const Random& random,
+  const ppl::Random& random,
   const ppl::Models<Host>& models
 ) {
   // @todo Complete with other strategies
@@ -2459,7 +2123,7 @@ enum class ProfilesImprovementStrategy {
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
   ProfilesImprovementStrategy strategy,
   const bool use_gpu,
-  const Random& random,
+  const ppl::Random& random,
   std::shared_ptr<ppl::Domain<Host>> domain,
   std::shared_ptr<ppl::Models<Host>> models
 ) {
@@ -2515,7 +2179,7 @@ std::vector<std::shared_ptr<ppl::LearningObserver>> make_observers(
 );
 
 std::shared_ptr<ppl::ProfilesInitializationStrategy> make_profiles_initialization_strategy(
-  const Random& random,
+  const ppl::Random& random,
   const ppl::Models<Host>& models
 );
 
@@ -2527,7 +2191,7 @@ std::shared_ptr<ppl::WeightsOptimizationStrategy> make_weights_optimization_stra
 std::shared_ptr<ppl::ProfilesImprovementStrategy> make_profiles_improvement_strategy(
   ProfilesImprovementStrategy strategy,
   const bool use_gpu,
-  const Random& random,
+  const ppl::Random& random,
   std::shared_ptr<ppl::Domain<Host>> domain,
   std::shared_ptr<ppl::Models<Host>> models
 );
@@ -2579,7 +2243,7 @@ Model MrSortLearning_::perform() {
   const std::optional<unsigned> max_iterations;
   const std::optional<std::chrono::seconds> max_duration;
 
-  Random random(random_seed);
+  ppl::Random random(random_seed);
   auto ppl_host_domain = ppl::Domain<Host>::make(ppl_learning_set);
   auto ppl_host_models = ppl::Models<Host>::make(ppl_host_domain, models_count);
   auto ppl_result = ppl::perform_learning(
