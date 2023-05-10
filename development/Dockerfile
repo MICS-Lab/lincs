@@ -5,6 +5,7 @@ RUN set -x \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       ca-certificates \
+      ccache \
       dirmngr \
       docker.io \
       g++ \
@@ -78,4 +79,8 @@ ARG DOCKER_GID
 RUN groupadd hostdocker --gid $DOCKER_GID
 RUN adduser user hostdocker
 USER user
+RUN mkdir -p /home/user/.local/bin
 ENV PATH=/home/user/.local/bin:$PATH
+
+# CCache
+RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc

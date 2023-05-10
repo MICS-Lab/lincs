@@ -11,83 +11,75 @@ import textwrap
 
 def main():
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
-    try:
-        os.rename("build-debug", "build")
-    except FileNotFoundError:
-        pass
-    try:
-        # With lincs not installed
-        ##########################
 
-        print("Building extension module in debug mode")
-        print("=======================================")
-        print(flush=True)
-        subprocess.run(
-            [
-                f"python3", "setup.py", "build_ext",
-                "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
-                "--parallel", str(multiprocessing.cpu_count() - 1),
-            ],
-            check=True,
-        )
+    shutil.rmtree("build", ignore_errors=True)
 
-        print("Running C++ unit tests")
-        print("======================")
-        print(flush=True)
-        subprocess.run(
-            [
-                "g++",
-                "-L.", "-llincs.cpython-310-x86_64-linux-gnu",  # Contains the `main` function
-                "-o", "/tmp/lincs-tests",
-            ],
-            check=True,
-        )
-        subprocess.run(
-            [
-                "/tmp/lincs-tests",
-            ],
-            check=True,
-            env=dict(os.environ, LD_LIBRARY_PATH="."),
-        )
-        print()
+    # With lincs not installed
+    ##########################
 
-        print("Running Python unit tests")
-        print("=========================")
-        print(flush=True)
-        run_python_tests()
-        print()
+    print("Building extension module in debug mode")
+    print("=======================================")
+    print(flush=True)
+    subprocess.run(
+        [
+            f"python3", "setup.py", "build_ext",
+            "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
+            "--parallel", str(multiprocessing.cpu_count() - 1),
+        ],
+        check=True,
+    )
+    print()
 
-        print("Making integration tests from README.md")
-        print("=======================================")
-        print(flush=True)
+    print("Running C++ unit tests")
+    print("======================")
+    print(flush=True)
+    subprocess.run(
+        [
+            "g++",
+            "-L.", "-llincs.cpython-310-x86_64-linux-gnu",  # Contains the `main` function
+            "-o", "/tmp/lincs-tests",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "/tmp/lincs-tests",
+        ],
+        check=True,
+        env=dict(os.environ, LD_LIBRARY_PATH="."),
+    )
+    print()
 
-        make_example_integration_test_from_readme()
-    finally:
-        os.rename("build", "build-debug")
+    print("Running Python unit tests")
+    print("=========================")
+    print(flush=True)
+    run_python_tests()
+    print()
 
-    try:
-        os.rename("build-release", "build")
-    except FileNotFoundError:
-        pass
-    try:
-        # Install lincs
-        ###############
+    print("Making integration tests from README.md")
+    print("=======================================")
+    print(flush=True)
 
-        print("Installing *lincs*")
-        print("==================")
-        print(flush=True)
-        # Next line costs ~15s per cycle, but is necessary because the package is not rebuilt when only C++ headers change.
-        # Feel free to comment it out if you only modify Python parts.
-        shutil.rmtree("build", ignore_errors=True)
-        shutil.rmtree("lincs.egg-info", ignore_errors=True)
-        subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+    make_example_integration_test_from_readme()
 
-        # With lincs installed
-        ######################
+    # Install lincs
+    ###############
 
-        run_integration_tests()
-    finally:
-        os.rename("build", "build-release")
+    shutil.rmtree("build", ignore_errors=True)
+
+    print("Installing *lincs*")
+    print("==================")
+    print(flush=True)
+    # Next line costs ~15s per cycle, but is necessary because the package is not rebuilt when only C++ headers change.
+    # Feel free to comment it out if you only modify Python parts.
+    # shutil.rmtree("build", ignore_errors=True)
+    shutil.rmtree("lincs.egg-info", ignore_errors=True)
+    subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+
+    # With lincs installed
+    ######################
+
+    run_integration_tests()
 
 
 def run_python_tests():

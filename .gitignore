@@ -1,5 +1,4 @@
-/build-debug/
-/build-release/
+/build/
 /lincs.egg-info/
 /dist/
 __pycache__/
