@@ -37,9 +37,13 @@ This should make it easier to understand the relative strengths and weaknesses o
 First, you need to install a few dependencies:
 
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
+    # @todo Add OR-tools
+    # @todo Add CUDA (with a note that it's only for an include file)
     cd /usr/local/include
     sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
     sudo wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
+    sudo wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
+    sudo wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
 
 Finally, *lincs* is available on the [Python Package Index](https://pypi.org/project/lincs/), so `pip install lincs` should finalize the install.
 
@@ -249,29 +253,29 @@ but the trained model is numerically different because information was lost in t
     format_version: 1
     boundaries:
       - profile:
-          - 0.230314642
-          - 0.0496565141
-          - 0.146026939
-          - 0.0473400839
+          - 0.0205844995
+          - 0.025119191
+          - 0.183235198
+          - 0.336772412
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.147771254
-            - 0.618687689
-            - 0.406786472
-            - 0.0960085914
+            - 0
+            - 1.01327896e-06
+            - 0.999998987
+            - 0
       - profile:
-          - 0.676961303
-          - 0.324553937
-          - 0.673279881
-          - 0.598555863
+          - 0.0237614904
+          - 0.431064457
+          - 0.708072603
+          - 0.596850157
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.147771254
-            - 0.618687689
-            - 0.406786472
-            - 0.0960085914
+            - 0
+            - 1.01327896e-06
+            - 0.999998987
+            - 0
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
@@ -304,14 +308,56 @@ There are a few differences between the original testing set and the reclassifie
 That command should show a few alternatives that are not classified the same way by the original and the trained model:
 
 <!-- START command-line-example/expected-classification-diff.txt -->
-    81c81
-    < "Alternative 80",0.479505032,0.542357743,0.159137502,0.227083206,"Category 1"
+    5c5
+    < "Alternative 4",0.66609019,0.0450528637,0.541162193,0.612132132,"Category 1"
     ---
-    > "Alternative 80",0.479505032,0.542357743,0.159137502,0.227083206,"Category 2"
-    97c97
-    < "Alternative 96",0.601059437,0.581712008,0.160034612,0.854760826,"Category 1"
+    > "Alternative 4",0.66609019,0.0450528637,0.541162193,0.612132132,"Category 2"
+    11c11
+    < "Alternative 10",0.0766626969,0.415868759,0.843224704,0.65300566,"Category 3"
     ---
-    > "Alternative 96",0.601059437,0.581712008,0.160034612,0.854760826,"Category 2"
+    > "Alternative 10",0.0766626969,0.415868759,0.843224704,0.65300566,"Category 2"
+    19c19
+    < "Alternative 18",0.978204131,0.396694243,0.908662736,0.874302804,"Category 3"
+    ---
+    > "Alternative 18",0.978204131,0.396694243,0.908662736,0.874302804,"Category 2"
+    21c21
+    < "Alternative 20",0.104018949,0.118452221,0.180914596,0.937555075,"Category 2"
+    ---
+    > "Alternative 20",0.104018949,0.118452221,0.180914596,0.937555075,"Category 1"
+    30c30
+    < "Alternative 29",0.670145154,0.436539501,0.70471561,0.775865197,"Category 3"
+    ---
+    > "Alternative 29",0.670145154,0.436539501,0.70471561,0.775865197,"Category 2"
+    55c55
+    < "Alternative 54",0.941554248,0.385999501,0.776895344,0.0133778816,"Category 3"
+    ---
+    > "Alternative 54",0.941554248,0.385999501,0.776895344,0.0133778816,"Category 2"
+    62c62
+    < "Alternative 61",0.644370496,0.045737762,0.204706222,0.241902217,"Category 1"
+    ---
+    > "Alternative 61",0.644370496,0.045737762,0.204706222,0.241902217,"Category 2"
+    65c65
+    < "Alternative 64",0.969255507,0.575699627,0.700975716,0.418971717,"Category 3"
+    ---
+    > "Alternative 64",0.969255507,0.575699627,0.700975716,0.418971717,"Category 2"
+    75c75
+    < "Alternative 74",0.508400917,0.0257728491,0.331851721,0.881912589,"Category 1"
+    ---
+    > "Alternative 74",0.508400917,0.0257728491,0.331851721,0.881912589,"Category 2"
+    82c82
+    < "Alternative 81",0.952283025,0.75682044,0.166070178,0.381708086,"Category 2"
+    ---
+    > "Alternative 81",0.952283025,0.75682044,0.166070178,0.381708086,"Category 1"
+    95,96c95,96
+    < "Alternative 94",0.350305974,0.0394307449,0.502436459,0.493587255,"Category 1"
+    < "Alternative 95",0.703539133,0.752842247,0.171627671,0.723626018,"Category 2"
+    ---
+    > "Alternative 94",0.350305974,0.0394307449,0.502436459,0.493587255,"Category 2"
+    > "Alternative 95",0.703539133,0.752842247,0.171627671,0.723626018,"Category 1"
+    98c98
+    < "Alternative 97",0.826578379,0.0424774401,0.332701623,0.678165853,"Category 1"
+    ---
+    > "Alternative 97",0.826578379,0.0424774401,0.332701623,0.678165853,"Category 2"
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
@@ -328,7 +374,7 @@ You can also measure the classification accuracy of the trained model on that te
 It should be close to 100%:
 
 <!-- START command-line-example/expected-classification-accuracy.txt -->
-    98/100
+    87/100
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
