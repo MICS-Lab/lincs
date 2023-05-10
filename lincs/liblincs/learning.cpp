@@ -91,11 +91,9 @@ class Domain {
 
  public:
   DomainView get_view() const;
- private:
-  struct Privacy {};
 
  public:
-  Domain(Privacy, unsigned, unsigned, unsigned, Array2D<Host, float>&&, Array1D<Host, unsigned>&&);
+  Domain(unsigned, unsigned, unsigned, Array2D<Host, float>&&, Array1D<Host, unsigned>&&);
 
  private:
   unsigned _categories_count;
@@ -121,18 +119,13 @@ class Models {
   static std::shared_ptr<Models> make(std::shared_ptr<Domain>, unsigned models_count);
 
   io::Model unmake_one(unsigned model_index) const;
-  std::vector<io::Model> unmake() const;
 
  public:
   std::shared_ptr<Domain> get_domain() { return _domain; }
   ModelsView get_view() const;  // @todo Remove const
 
- private:
-  struct Privacy {};
-
  public:
   Models(
-    Privacy,
     std::shared_ptr<Domain>,
     unsigned,
     Array1D<Host, unsigned>&&,
@@ -165,9 +158,6 @@ class ProfilesInitializationStrategy {
     std::vector<unsigned>::const_iterator model_indexes_end) = 0;
 };
 
-/*
-A source of randomness.
-*/
 class Random {
  public:
   explicit Random(int seed) : _gen(omp_get_max_threads()) {
@@ -295,7 +285,6 @@ LearningResult perform_learning(
 );
 
 Domain::Domain(
-  Privacy,
   const unsigned categories_count,
   const unsigned criteria_count,
   const unsigned learning_alternatives_count,
@@ -322,7 +311,6 @@ std::shared_ptr<Domain> Domain::make(const io::LearningSet& learning_set) {
   }
 
   return std::make_shared<Domain>(
-    Privacy(),
     learning_set.categories_count,
     learning_set.criteria_count,
     learning_set.alternatives_count,
@@ -341,7 +329,6 @@ DomainView Domain::get_view() const {
 }
 
 Models::Models(
-  Privacy,
   std::shared_ptr<Domain> domain,
   const unsigned models_count,
   Array1D<Host, unsigned>&& initialization_iteration_indexes,
@@ -362,7 +349,6 @@ std::shared_ptr<Models> Models::make(std::shared_ptr<Domain> domain, const unsig
     domain_view.criteria_count, (domain_view.categories_count - 1), models_count, uninitialized);
 
   return std::make_shared<Models>(
-    Privacy(),
     domain,
     models_count,
     std::move(initialization_iteration_indexes),
@@ -414,19 +400,6 @@ io::Model Models::unmake_one(unsigned model_index) const {
   }
 
   return io::Model(view.domain.criteria_count, view.domain.categories_count, profiles, weights);
-}
-
-std::vector<io::Model> Models::unmake() const {
-  ModelsView view = get_view();
-
-  std::vector<io::Model> models;
-
-  models.reserve(view.models_count);
-  for (unsigned model_index = 0; model_index != _models_count; ++model_index) {
-    models.push_back(unmake_one(model_index));
-  }
-
-  return models;
 }
 
 ModelsView Models::get_view() const {
