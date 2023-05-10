@@ -70,9 +70,6 @@ def main():
     print("Installing *lincs*")
     print("==================")
     print(flush=True)
-    # Next line costs ~15s per cycle, but is necessary because the package is not rebuilt when only C++ headers change.
-    # Feel free to comment it out if you only modify Python parts.
-    # shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("lincs.egg-info", ignore_errors=True)
     subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
 
