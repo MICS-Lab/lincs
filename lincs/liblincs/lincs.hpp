@@ -146,9 +146,9 @@ ClassificationResult classify_alternatives(const Domain&, const Model&, Alternat
 
 struct MrSortLearning {
   const Domain& domain;
-  const Alternatives& alternatives;
+  const Alternatives& learning_set;
 
-  MrSortLearning(const Domain& domain_, const Alternatives& alternatives_): domain(domain_), alternatives(alternatives_) {}
+  MrSortLearning(const Domain& domain_, const Alternatives& learning_set_): domain(domain_), learning_set(learning_set_) {}
 
   Model perform();
 };

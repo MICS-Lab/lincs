@@ -26,13 +26,18 @@ liblincs = setuptools.Extension(
         "lincs/liblincs/generation.cpp",
         "lincs/liblincs/io.cpp",
         "lincs/liblincs/learning.cpp",
+        "lincs/liblincs/ppl.cpp",
     ],
     libraries=[
         "boost_python310",
+        "ortools",
         "python3.10",  # Make the Python module usable as a C++ shared library without -lpython3.10 (still linked, but implicitly)
         "yaml-cpp",
     ],
     define_macros=[("DOCTEST_CONFIG_DISABLE", None)],
+    include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
+    extra_compile_args=["-fopenmp"],
+    extra_link_args=["-fopenmp"],
 )
 
 setuptools.setup(
