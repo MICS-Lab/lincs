@@ -53,7 +53,14 @@ std::shared_ptr<ppl::TerminationStrategy> make_termination_strategy(
 
 namespace lincs {
 
-Model MrSortLearning::perform() {
+struct MrSortLearning_ {
+  const Domain& domain;
+  const Alternatives& learning_set;
+
+  Model perform();
+};
+
+Model MrSortLearning_::perform() {
   std::map<std::string, unsigned> category_indexes;
   for (const auto& category: domain.categories) {
     category_indexes[category.name] = category_indexes.size();
@@ -108,6 +115,13 @@ Model MrSortLearning::perform() {
     boundaries.emplace_back(profile, coalitions);
   }
   return Model{domain, boundaries};
+}
+
+Model MrSortLearning::perform() {
+  return MrSortLearning_{
+    domain,
+    learning_set,
+  }.perform();
 }
 
 TEST_CASE("Basic MR-Sort learning") {
