@@ -117,100 +117,167 @@ class ProbabilityWeightedGenerator {
   mutable std::discrete_distribution<unsigned> _distribution;
 };
 
-struct Models {
-  unsigned categories_count;
-  unsigned criteria_count;
-  unsigned learning_alternatives_count;
-  Array2D<Host, float> learning_alternatives;
-  Array1D<Host, unsigned> learning_assignments;
-  unsigned models_count;
-  Array1D<Host, unsigned> initialization_iteration_indexes;
-  Array2D<Host, float> weights;
-  Array3D<Host, float> profiles;
-};
+struct WeightsProfilesBreedMrSortLearning {
+  struct Models {
+    unsigned categories_count;
+    unsigned criteria_count;
+    unsigned learning_alternatives_count;
+    Array2D<Host, float> learning_alternatives;
+    Array1D<Host, unsigned> learning_assignments;
+    unsigned models_count;
+    Array1D<Host, unsigned> initialization_iteration_indexes;
+    Array2D<Host, float> weights;
+    Array3D<Host, float> profiles;
+  };
 
-class ProfilesInitializationStrategy {
- public:
-  virtual ~ProfilesInitializationStrategy() {}
+  Models& models;
 
-  virtual void initialize_profiles(
-    Models& models,
-    unsigned iteration_index,
-    std::vector<unsigned>::const_iterator model_indexes_begin,
-    std::vector<unsigned>::const_iterator model_indexes_end) = 0;
-};
+  static unsigned get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index) {
+    // @todo Evaluate if it's worth storing and updating the models' assignments
+    // (instead of recomputing them here)
+    assert(model_index < models.models_count);
+    assert(alternative_index < models.learning_alternatives_count);
 
-class ProfilesImprovementStrategy {
- public:
-  virtual ~ProfilesImprovementStrategy() {}
-  virtual void improve_profiles(Models&) = 0;
-};
+    // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
+    // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
+    // phase keeping the maximum 'category_index' that passes the weight threshold.
+    for (unsigned category_index = models.categories_count - 1; category_index != 0; --category_index) {
+      const unsigned profile_index = category_index - 1;
+      float weight_at_or_above_profile = 0;
+      for (unsigned crit_index = 0; crit_index != models.criteria_count; ++crit_index) {
+        const float alternative_value = models.learning_alternatives[crit_index][alternative_index];
+        const float profile_value = models.profiles[crit_index][profile_index][model_index];
+        if (alternative_value >= profile_value) {
+          weight_at_or_above_profile += models.weights[crit_index][model_index];
+        }
+      }
+      if (weight_at_or_above_profile >= 1) {
+        return category_index;
+      }
+    }
+    return 0;
+  }
 
-class WeightsOptimizationStrategy {
- public:
-  virtual ~WeightsOptimizationStrategy() {}
+  class ProfilesInitializationStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
 
-  virtual void optimize_weights(Models&) = 0;
-};
+    virtual ~ProfilesInitializationStrategy() {}
 
-class TerminationStrategy {
- public:
-  virtual ~TerminationStrategy() {}
+    virtual void initialize_profiles(
+      Models& models,
+      unsigned iteration_index,
+      std::vector<unsigned>::const_iterator model_indexes_begin,
+      std::vector<unsigned>::const_iterator model_indexes_end) = 0;
+  };
 
-  virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
+  ProfilesInitializationStrategy& profiles_initialization_strategy;
+
+  class WeightsOptimizationStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~WeightsOptimizationStrategy() {}
+
+    virtual void optimize_weights(Models&) = 0;
+  };
+
+  WeightsOptimizationStrategy& weights_optimization_strategy;
+
+  class ProfilesImprovementStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~ProfilesImprovementStrategy() {}
+
+    virtual void improve_profiles(Models&) = 0;
+  };
+
+  ProfilesImprovementStrategy& profiles_improvement_strategy;
+
+  class TerminationStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~TerminationStrategy() {}
+
+    virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
+  };
+
+  TerminationStrategy& termination_strategy;
+
+  unsigned perform() {
+    std::vector<unsigned> model_indexes(models.models_count, 0);
+    std::iota(model_indexes.begin(), model_indexes.end(), 0);
+    profiles_initialization_strategy.initialize_profiles(
+      models,
+      0,
+      model_indexes.begin(), model_indexes.end());
+
+    unsigned best_accuracy = 0;
+
+    for (int iteration_index = 0; !termination_strategy.terminate(iteration_index, best_accuracy); ++iteration_index) {
+      if (iteration_index != 0) {
+        profiles_initialization_strategy.initialize_profiles(
+          models,
+          iteration_index,
+          model_indexes.begin(), model_indexes.begin() + models.models_count / 2);
+      }
+
+      weights_optimization_strategy.optimize_weights(models);
+      profiles_improvement_strategy.improve_profiles(models);
+
+      auto p = partition_models_by_accuracy();
+      model_indexes = std::move(p.first);
+      best_accuracy = p.second;
+    }
+
+    return model_indexes.back();
+  }
+
+ private:
+  std::pair<std::vector<unsigned>, unsigned> partition_models_by_accuracy() {
+    std::vector<unsigned> accuracies(models.models_count, 0);
+    for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
+      accuracies[model_index] = get_accuracy(model_index);
+    }
+
+    std::vector<unsigned> model_indexes(models.models_count, 0);
+    std::iota(model_indexes.begin(), model_indexes.end(), 0);
+    ensure_median_and_max(
+      model_indexes.begin(), model_indexes.end(),
+      [&accuracies](unsigned left_model_index, unsigned right_model_index) {
+        return accuracies[left_model_index] < accuracies[right_model_index];
+      });
+
+    return std::make_pair(model_indexes, accuracies[model_indexes.back()]);
+  }
+
+  unsigned get_accuracy(const unsigned model_index) {
+    unsigned accuracy = 0;
+
+    for (unsigned alt_index = 0; alt_index != models.learning_alternatives_count; ++alt_index) {
+      if (is_correctly_assigned(model_index, alt_index)) {
+        ++accuracy;
+      }
+    }
+
+    return accuracy;
+  }
+
+  bool is_correctly_assigned(
+      const unsigned model_index,
+      const unsigned alternative_index) {
+    const unsigned expected_assignment = models.learning_assignments[alternative_index];
+    const unsigned actual_assignment = get_assignment(models, model_index, alternative_index);
+
+    return actual_assignment == expected_assignment;
+  }
 };
 
 const unsigned default_models_count = 9;
 
-unsigned get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index) {
-  // @todo Evaluate if it's worth storing and updating the models' assignments
-  // (instead of recomputing them here)
-  assert(model_index < models.models_count);
-  assert(alternative_index < models.learning_alternatives_count);
-
-  // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
-  // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
-  // phase keeping the maximum 'category_index' that passes the weight threshold.
-  for (unsigned category_index = models.categories_count - 1; category_index != 0; --category_index) {
-    const unsigned profile_index = category_index - 1;
-    float weight_at_or_above_profile = 0;
-    for (unsigned crit_index = 0; crit_index != models.criteria_count; ++crit_index) {
-      const float alternative_value = models.learning_alternatives[crit_index][alternative_index];
-      const float profile_value = models.profiles[crit_index][profile_index][model_index];
-      if (alternative_value >= profile_value) {
-        weight_at_or_above_profile += models.weights[crit_index][model_index];
-      }
-    }
-    if (weight_at_or_above_profile >= 1) {
-      return category_index;
-    }
-  }
-  return 0;
-}
-
-bool is_correctly_assigned(
-    const Models& models,
-    const unsigned model_index,
-    const unsigned alternative_index) {
-  const unsigned expected_assignment = models.learning_assignments[alternative_index];
-  const unsigned actual_assignment = get_assignment(models, model_index, alternative_index);
-
-  return actual_assignment == expected_assignment;
-}
-
-unsigned get_accuracy(const Models& models, const unsigned model_index) {
-  unsigned accuracy = 0;
-
-  for (unsigned alt_index = 0; alt_index != models.learning_alternatives_count; ++alt_index) {
-    if (is_correctly_assigned(models, model_index, alt_index)) {
-      ++accuracy;
-    }
-  }
-
-  return accuracy;
-}
-
-class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public ProfilesInitializationStrategy {
+class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
  public:
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(
     const Random& random,
@@ -316,21 +383,7 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> _generators;
 };
 
-template<typename T>
-void swap(T& a, T& b) {
-  T c = a;
-  a = b;
-  b = c;
-}
-
-template<typename T>
-void shuffle(const Random& random, ArrayView1D<Host, T> m) {
-  for (unsigned i = 0; i != m.s0(); ++i) {
-    swap(m[i], m[random.uniform_int(0, m.s0())]);
-  }
-}
-
-class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy {
+class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
  public:
   explicit ImproveProfilesWithAccuracyHeuristic(const Random& random) : _random(random) {}
 
@@ -369,7 +422,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
 
     const float value = models.learning_alternatives[criterion_index][alt_index];
     const unsigned learning_assignment = models.learning_assignments[alt_index];
-    const unsigned model_assignment = get_assignment(models, model_index, alt_index);
+    const unsigned model_assignment = WeightsProfilesBreedMrSortLearning::get_assignment(models, model_index, alt_index);
 
     // @todo Factorize with get_assignment
     float weight_at_or_above_profile = 0;
@@ -574,6 +627,13 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
     }
   }
 
+  template<typename T>
+  void shuffle(const Random& random, ArrayView1D<Host, T> m) {
+    for (unsigned i = 0; i != m.s0(); ++i) {
+      std::swap(m[i], m[random.uniform_int(0, m.s0())]);
+    }
+  }
+
  public:
   void improve_profiles(Models& models) override {
     #pragma omp parallel for
@@ -586,7 +646,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
   const Random& _random;
 };
 
-class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
+class OptimizeWeightsUsingGlop : public WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {
   struct LinearProgram {
     std::shared_ptr<glp::LinearProgram> program;
     std::vector<glp::ColIndex> weight_variables;
@@ -687,7 +747,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
   };
 };
 
-class TerminateAtAccuracy : public TerminationStrategy {
+class TerminateAtAccuracy : public WeightsProfilesBreedMrSortLearning::TerminationStrategy {
  public:
   explicit TerminateAtAccuracy(unsigned target_accuracy) :
     _target_accuracy(target_accuracy) {}
@@ -699,59 +759,6 @@ class TerminateAtAccuracy : public TerminationStrategy {
  private:
   unsigned _target_accuracy;
 };
-
-std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, const Models& models) {
-  std::vector<unsigned> accuracies(models_count, 0);
-  for (unsigned model_index = 0; model_index != models_count; ++model_index) {
-    accuracies[model_index] = get_accuracy(models, model_index);
-  }
-
-  std::vector<unsigned> model_indexes(models_count, 0);
-  std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  ensure_median_and_max(
-    model_indexes.begin(), model_indexes.end(),
-    [&accuracies](unsigned left_model_index, unsigned right_model_index) {
-      return accuracies[left_model_index] < accuracies[right_model_index];
-    });
-
-  return model_indexes;
-}
-
-unsigned perform_learning(
-  Models& models,
-  ProfilesInitializationStrategy& profiles_initialization_strategy,
-  WeightsOptimizationStrategy& weights_optimization_strategy,
-  ProfilesImprovementStrategy& profiles_improvement_strategy,
-  TerminationStrategy& termination_strategy
-) {
-  const unsigned models_count = models.models_count;
-
-  std::vector<unsigned> model_indexes(models_count, 0);
-  std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  profiles_initialization_strategy.initialize_profiles(
-    models,
-    0,
-    model_indexes.begin(), model_indexes.end());
-
-  unsigned best_accuracy = 0;
-
-  for (int iteration_index = 0; !termination_strategy.terminate(iteration_index, best_accuracy); ++iteration_index) {
-    if (iteration_index != 0) {
-      profiles_initialization_strategy.initialize_profiles(
-        models,
-        iteration_index,
-        model_indexes.begin(), model_indexes.begin() + models_count / 2);
-    }
-
-    weights_optimization_strategy.optimize_weights(models);
-    profiles_improvement_strategy.improve_profiles(models);
-
-    model_indexes = partition_models_by_accuracy(models_count, models);
-    best_accuracy = get_accuracy(models, model_indexes.back());
-  }
-
-  return model_indexes.back();
-}
 
 struct MrSortLearning_ {
   const Domain& domain;
@@ -788,7 +795,7 @@ Model MrSortLearning_::perform() {
   Array2D<Host, float> weights(criteria_count, models_count, uninitialized);
   Array3D<Host, float> profiles(criteria_count, (categories_count - 1), models_count, uninitialized);
 
-  Models models{
+  WeightsProfilesBreedMrSortLearning::Models models{
     categories_count,
     criteria_count,
     alternatives_count,
@@ -806,12 +813,14 @@ Model MrSortLearning_::perform() {
   ImproveProfilesWithAccuracyHeuristic profiles_improvement_strategy(random);
   TerminateAtAccuracy termination_strategy(alternatives_count);
 
-  const unsigned best_model_index = perform_learning(
+  WeightsProfilesBreedMrSortLearning learning_strategy{
     models,
     profiles_initialization_strategy,
     weights_optimization_strategy,
     profiles_improvement_strategy,
-    termination_strategy);
+    termination_strategy,
+  };
+  const unsigned best_model_index = learning_strategy.perform();
 
   {
     std::vector<float> weights;
