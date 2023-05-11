@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def visualize_model(domain, model, alternatives, out):
+def visualize_model(domain, model, alternatives, alternatives_count, out):
     fig, ax = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
 
     xs = [criterion.name for criterion in domain.criteria]
@@ -10,7 +10,7 @@ def visualize_model(domain, model, alternatives, out):
         ax.plot(xs, list(boundary.profile), "o-", label=label)
 
     if alternatives:
-        for alternative in alternatives.alternatives:
+        for alternative in alternatives.alternatives[:alternatives_count]:
             ax.plot(xs, list(alternative.profile), "o--", label=alternative.name)
 
     ax.legend()

@@ -330,6 +330,11 @@ def visualize():
     type=click.File(mode="r"),
     help="Add the alternatives from this *classified alternatives* file to the visualization.",
 )
+@click.option(
+    "--alternatives-count",
+    type=int,
+    help="Add only this number of alternatives.",
+)
 @click.argument(
     "output",
     type=click.File(mode="wb"),
@@ -338,13 +343,14 @@ def classification_model(
     domain,
     model,
     alternatives,
+    alternatives_count,
     output,
 ):
     domain = lincs.load_domain(domain)
     model = lincs.load_model(domain, model)
     if alternatives is not None:
         alternatives = lincs.load_alternatives(domain, alternatives)
-    lincs.visualization.visualize_model(domain, model, alternatives, output)
+    lincs.visualization.visualize_model(domain, model, alternatives, alternatives_count, output)
 
 
 @main.group(

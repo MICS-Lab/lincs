@@ -123,9 +123,10 @@ Usage: lincs visualize classification-model [OPTIONS] DOMAIN MODEL OUTPUT
   is written to the OUTPUT file in PNG format.
 
 Options:
-  --alternatives FILENAME  Add the alternatives from this *classified
-                           alternatives* file to the visualization.
-  --help                   Show this message and exit.
+  --alternatives FILENAME       Add the alternatives from this *classified
+                                alternatives* file to the visualization.
+  --alternatives-count INTEGER  Add only this number of alternatives.
+  --help                        Show this message and exit.
 
 lincs learn
 ===========

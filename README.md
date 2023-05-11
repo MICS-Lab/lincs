@@ -167,6 +167,7 @@ Generate a classification domain with 4 criteria and 3 categories (@todo Link to
 
 <!-- EXTEND command-line-example/run.sh -->
     lincs generate classification-domain 4 3 --output-domain domain.yml
+<!-- APPEND-TO-LAST-LINE --random-seed 40 -->
 <!-- STOP -->
 
 The generated `domain.yml` should look like:
@@ -258,11 +259,11 @@ It should output something like:
 And finally generate a set of classified alternatives (@todo Link to concepts and file formats):
 
 <!-- EXTEND command-line-example/run.sh -->
-    lincs generate classified-alternatives domain.yml model.yml 10 --output-classified-alternatives learning-set.csv
+    lincs generate classified-alternatives domain.yml model.yml 1000 --output-classified-alternatives learning-set.csv
 <!-- APPEND-TO-LAST-LINE --random-seed 42 -->
 <!-- STOP -->
 
-It should look like:
+It should start with something like this, and contain 1000 alternatives:
 
 <!-- START command-line-example/expected-learning-set.csv -->
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
@@ -271,21 +272,16 @@ It should look like:
     "Alternative 3",0.156018645,0.445832759,0.15599452,0.0999749228,"Category 1"
     "Alternative 4",0.0580836125,0.4592489,0.866176128,0.333708614,"Category 3"
     "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Category 2"
-    "Alternative 6",0.0205844995,0.0564115755,0.969909847,0.721998751,"Category 2"
-    "Alternative 7",0.832442641,0.938552737,0.212339118,0.000778764719,"Category 2"
-    "Alternative 8",0.181824967,0.99221158,0.183404505,0.61748153,"Category 2"
-    "Alternative 9",0.304242253,0.611653149,0.524756432,0.00706630852,"Category 2"
-    "Alternative 10",0.431945026,0.0230624285,0.291229129,0.524774671,"Category 1"
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
-    diff expected-learning-set.csv learning-set.csv
+    diff expected-learning-set.csv <(head -n 6 learning-set.csv)
 --><!-- STOP -->
 
-You can visualize it using:
+You can visualize its first five alternatives using:
 
 <!-- EXTEND command-line-example/run.sh -->
-    lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv alternatives.png
+    lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
 <!-- STOP -->
 <!-- EXTEND command-line-example/run.sh --><!--
     cp alternatives.png ../../..
@@ -307,7 +303,7 @@ You can use it to train a new model:
 <!-- EXTEND command-line-example/run.sh -->
     # @todo Rename the command to `train`?
     lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
-<!-- APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 44 -->
+<!-- APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 -->
 <!-- STOP -->
 
 The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain,
@@ -318,28 +314,28 @@ but the trained model is numerically different because information was lost in t
     format_version: 1
     boundaries:
       - profile:
-          - 0.222505912
-          - 0.0326468721
-          - 0.183235198
-          - 0.139134333
+          - 0.00751833664
+          - 0.0549556538
+          - 0.162616938
+          - 0.193127945
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0
-            - 1.01327896e-06
-            - 0.999998987
+            - 0.499998987
+            - 0.5
+            - 0.5
             - 0
       - profile:
-          - 0.37454012
-          - 0.440971017
-          - 0.708072603
-          - 0.313625544
+          - 0.0340298451
+          - 0.324480206
+          - 0.672487617
+          - 0.427051842
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0
-            - 1.01327896e-06
-            - 0.999998987
+            - 0.499998987
+            - 0.5
+            - 0.5
             - 0
 <!-- STOP -->
 
@@ -353,8 +349,8 @@ To see how close a trained model is to the original one, you can reclassify a te
 First, generate a testing set:
 
 <!-- EXTEND command-line-example/run.sh -->
-    lincs generate classified-alternatives domain.yml model.yml 100 --output-classified-alternatives testing-set.csv
-<!-- APPEND-TO-LAST-LINE --random-seed 43 -->
+    lincs generate classified-alternatives domain.yml model.yml 10000 --output-classified-alternatives testing-set.csv
+<!-- APPEND-TO-LAST-LINE --random-seed 44 -->
 <!-- STOP -->
 
 And ask the trained model to classify it:
@@ -373,52 +369,30 @@ There are a few differences between the original testing set and the reclassifie
 That command should show a few alternatives that are not classified the same way by the original and the trained model:
 
 <!-- START command-line-example/expected-classification-diff.txt -->
-    5c5
-    < "Alternative 4",0.66609019,0.0450528637,0.541162193,0.612132132,"Category 1"
+    2595c2595
+    < "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 2"
     ---
-    > "Alternative 4",0.66609019,0.0450528637,0.541162193,0.612132132,"Category 2"
-    11c11
-    < "Alternative 10",0.0766626969,0.415868759,0.843224704,0.65300566,"Category 3"
+    > "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 1"
+    5000c5000
+    < "Alternative 4999",0.074135974,0.496049821,0.672853291,0.782560945,"Category 2"
     ---
-    > "Alternative 10",0.0766626969,0.415868759,0.843224704,0.65300566,"Category 2"
-    19c19
-    < "Alternative 18",0.978204131,0.396694243,0.908662736,0.874302804,"Category 3"
+    > "Alternative 4999",0.074135974,0.496049821,0.672853291,0.782560945,"Category 3"
+    5346c5346
+    < "Alternative 5345",0.815349102,0.580399215,0.162403136,0.995580792,"Category 2"
     ---
-    > "Alternative 18",0.978204131,0.396694243,0.908662736,0.874302804,"Category 2"
-    21c21
-    < "Alternative 20",0.104018949,0.118452221,0.180914596,0.937555075,"Category 2"
+    > "Alternative 5345",0.815349102,0.580399215,0.162403136,0.995580792,"Category 1"
+    9639c9639
+    < "Alternative 9638",0.939305425,0.0550933145,0.247014269,0.265170485,"Category 1"
     ---
-    > "Alternative 20",0.104018949,0.118452221,0.180914596,0.937555075,"Category 1"
-    30c30
-    < "Alternative 29",0.670145154,0.436539501,0.70471561,0.775865197,"Category 3"
+    > "Alternative 9638",0.939305425,0.0550933145,0.247014269,0.265170485,"Category 2"
+    9689c9689
+    < "Alternative 9688",0.940304875,0.885046899,0.162586793,0.515185535,"Category 2"
     ---
-    > "Alternative 29",0.670145154,0.436539501,0.70471561,0.775865197,"Category 2"
-    55c55
-    < "Alternative 54",0.941554248,0.385999501,0.776895344,0.0133778816,"Category 3"
+    > "Alternative 9688",0.940304875,0.885046899,0.162586793,0.515185535,"Category 1"
+    9934c9934
+    < "Alternative 9933",0.705289483,0.11529737,0.162508503,0.0438248962,"Category 2"
     ---
-    > "Alternative 54",0.941554248,0.385999501,0.776895344,0.0133778816,"Category 2"
-    62c62
-    < "Alternative 61",0.644370496,0.045737762,0.204706222,0.241902217,"Category 1"
-    ---
-    > "Alternative 61",0.644370496,0.045737762,0.204706222,0.241902217,"Category 2"
-    65c65
-    < "Alternative 64",0.969255507,0.575699627,0.700975716,0.418971717,"Category 3"
-    ---
-    > "Alternative 64",0.969255507,0.575699627,0.700975716,0.418971717,"Category 2"
-    82c82
-    < "Alternative 81",0.952283025,0.75682044,0.166070178,0.381708086,"Category 2"
-    ---
-    > "Alternative 81",0.952283025,0.75682044,0.166070178,0.381708086,"Category 1"
-    95,96c95,96
-    < "Alternative 94",0.350305974,0.0394307449,0.502436459,0.493587255,"Category 1"
-    < "Alternative 95",0.703539133,0.752842247,0.171627671,0.723626018,"Category 2"
-    ---
-    > "Alternative 94",0.350305974,0.0394307449,0.502436459,0.493587255,"Category 2"
-    > "Alternative 95",0.703539133,0.752842247,0.171627671,0.723626018,"Category 1"
-    98c98
-    < "Alternative 97",0.826578379,0.0424774401,0.332701623,0.678165853,"Category 1"
-    ---
-    > "Alternative 97",0.826578379,0.0424774401,0.332701623,0.678165853,"Category 2"
+    > "Alternative 9933",0.705289483,0.11529737,0.162508503,0.0438248962,"Category 1"
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
@@ -435,7 +409,7 @@ You can also measure the classification accuracy of the trained model on that te
 It should be close to 100%:
 
 <!-- START command-line-example/expected-classification-accuracy.txt -->
-    88/100
+    9994/10000
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--
