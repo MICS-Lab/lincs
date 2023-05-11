@@ -143,11 +143,93 @@ struct ClassificationResult {
 
 ClassificationResult classify_alternatives(const Domain&, const Model&, Alternatives*);
 
+struct WeightsProfilesBreedMrSortLearning {
+  static const unsigned default_models_count = 9;
+
+  struct Models;
+
+  Models& models;
+
+  static unsigned get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index);
+
+  class ProfilesInitializationStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~ProfilesInitializationStrategy() {}
+
+    virtual void initialize_profiles(
+      std::vector<unsigned>::const_iterator model_indexes_begin,
+      std::vector<unsigned>::const_iterator model_indexes_end) = 0;
+  };
+
+  ProfilesInitializationStrategy& profiles_initialization_strategy;
+
+  class WeightsOptimizationStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~WeightsOptimizationStrategy() {}
+
+    virtual void optimize_weights() = 0;
+  };
+
+  WeightsOptimizationStrategy& weights_optimization_strategy;
+
+  class ProfilesImprovementStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~ProfilesImprovementStrategy() {}
+
+    virtual void improve_profiles() = 0;
+  };
+
+  ProfilesImprovementStrategy& profiles_improvement_strategy;
+
+  class TerminationStrategy {
+   public:
+    typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+    virtual ~TerminationStrategy() {}
+
+    virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
+  };
+
+  TerminationStrategy& termination_strategy;
+
+  Model perform();
+
+ private:
+  std::pair<std::vector<unsigned>, unsigned> partition_models_by_accuracy();
+
+  unsigned get_accuracy(const unsigned model_index);
+
+  bool is_correctly_assigned(
+      const unsigned model_index,
+      const unsigned alternative_index);
+};
+
+class TerminateAtAccuracy : public WeightsProfilesBreedMrSortLearning::TerminationStrategy {
+ public:
+  explicit TerminateAtAccuracy(unsigned target_accuracy) : _target_accuracy(target_accuracy) {}
+
+  bool terminate(unsigned, unsigned) override;
+
+ private:
+  unsigned _target_accuracy;
+};
+
 struct MrSortLearning {
   const Domain& domain;
   const Alternatives& learning_set;
+  WeightsProfilesBreedMrSortLearning::TerminationStrategy& termination_strategy;
 
-  MrSortLearning(const Domain& domain_, const Alternatives& learning_set_): domain(domain_), learning_set(learning_set_) {}
+  MrSortLearning(
+    const Domain& domain_,
+    const Alternatives& learning_set_,
+    WeightsProfilesBreedMrSortLearning::TerminationStrategy& termination_strategy_
+  ): domain(domain_), learning_set(learning_set_), termination_strategy(termination_strategy_) {}
 
   Model perform();
 };

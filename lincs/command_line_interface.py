@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 import random
 import subprocess
 import sys
@@ -541,21 +542,24 @@ def classification_model(
 ):
     domain = lincs.load_domain(domain)
     learning_set = lincs.load_alternatives(domain, learning_set)
-    assert model_type == "mrsort"
-    assert mrsort__strategy == "weights-profiles-breed"
-    assert mrsort__weights_profiles_breed__target_accuracy == 1
-    assert mrsort__weights_profiles_breed__max_iterations is None
-    assert mrsort__weights_profiles_breed__models_count == 9
-    assert mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion"
-    assert mrsort__weights_profiles_breed__weights_strategy == "linear-program"
-    assert mrsort__weights_profiles_breed__linear_program__solver == "glop"
-    assert mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic"
-    assert mrsort__weights_profiles_breed__accuracy_heuristic__random_seed is not None
-    assert mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu"
-    assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
-    assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
 
-    learning = lincs.MrSortLearning(domain, learning_set)
+    if model_type == "mrsort":
+        if mrsort__strategy == "weights-profiles-breed":
+            assert mrsort__weights_profiles_breed__max_iterations is None
+            termination_strategy = lincs.TerminateAtAccuracy(math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)))
+
+            assert mrsort__weights_profiles_breed__models_count == 9
+            assert mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion"
+            assert mrsort__weights_profiles_breed__weights_strategy == "linear-program"
+            assert mrsort__weights_profiles_breed__linear_program__solver == "glop"
+            assert mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic"
+            assert mrsort__weights_profiles_breed__accuracy_heuristic__random_seed is not None
+            assert mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu"
+            assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
+            assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
+
+            learning = lincs.MrSortLearning(domain, learning_set, termination_strategy)
+
     model = learning.perform()
     model.dump(output_model)
 

@@ -174,3 +174,21 @@ class AlternativesTestCase(unittest.TestCase):
         )
         self.assertEqual(len(alternatives.alternatives), 1)
         self.assertEqual(len(alternatives.alternatives[0].profile), 3)
+
+
+class MrSortLearningTestCase(unittest.TestCase):
+    def test_basic_mrsort_learning(self):
+        domain = generate_domain(3, 2, 41)
+        model = generate_mrsort_model(domain, 42)
+        learning_set = generate_alternatives(domain, model, 100, 43)
+
+        learned_model = MrSortLearning(domain, learning_set, TerminateAtAccuracy(len(learning_set.alternatives))).perform()
+
+        result = classify_alternatives(domain, learned_model, learning_set)
+        self.assertEqual(result.changed, 0)
+        self.assertEqual(result.unchanged, 100)
+
+        testing_set = generate_alternatives(domain, model, 1000, 43)
+        result = classify_alternatives(domain, learned_model, testing_set)
+        self.assertEqual(result.changed, 6)
+        self.assertEqual(result.unchanged, 994)

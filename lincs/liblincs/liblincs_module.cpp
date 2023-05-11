@@ -297,7 +297,14 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Classify the provided `alternatives` according to the provided `model`."
   );
 
-  bp::class_<lincs::MrSortLearning>("MrSortLearning", bp::init<const lincs::Domain&, const lincs::Alternatives&>())
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, boost::noncopyable>("TerminationStrategy", bp::no_init);
+
+  bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>("TerminateAtAccuracy", bp::init<unsigned>());
+
+  bp::class_<lincs::MrSortLearning>(
+    "MrSortLearning",
+    bp::init<const lincs::Domain&, const lincs::Alternatives&, lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy&>()
+  )
     .def("perform", &lincs::MrSortLearning::perform)
   ;
 }
