@@ -31,54 +31,6 @@ namespace glp = operations_research::glop;
 
 namespace lincs {
 
-unsigned uniform_int_(std::mt19937& urbg, const unsigned min, const unsigned max) {
-  return std::uniform_int_distribution<unsigned int>(min, max - 1)(urbg);
-}
-
-float uniform_float_(std::mt19937& urbg, const float min, const float max) {
-  float v = max;
-
-  do {
-    v = std::uniform_real_distribution<float>(min, max)(urbg);
-  } while (v == max);
-
-  return v;
-}
-
-class Random {
- public:
-  explicit Random(int seed) : _gen(omp_get_max_threads()) {
-    #pragma omp parallel
-    {
-      urbg().seed(seed * (omp_get_thread_num() + 1));
-    }
-  }
-
-  // Non-copyable
-  Random(const Random&) = delete;
-  Random& operator=(const Random&) = delete;
-  // Could be made movable if needed
-  Random(Random&&) = delete;
-  Random& operator=(Random&&) = delete;
-
-  float uniform_float(const float min, const float max) const {
-    return uniform_float_(urbg(), min, max);
-  }
-
-  unsigned uniform_int(const unsigned min, const unsigned max) const {
-    return uniform_int_(urbg(), min, max);
-  }
-
-  std::mt19937& urbg() const {
-    const unsigned thread_index = omp_get_thread_num();
-    assert(thread_index < _gen.size());
-    return _gen[thread_index];
-  }
-
- private:
-  mutable std::vector<std::mt19937> _gen;
-};
-
 /*
 Pick random values from a finite set with given probabilities
 (a discrete distribution with arbitrary values).
@@ -350,7 +302,7 @@ struct WeightsProfilesBreedMrSortLearning {
 
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
  public:
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(Models& models_, const Random& random_) : models(models_), random(random_) {
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(Models& models_) : models(models_) {
     generators.reserve(models.categories_count - 1);
 
     for (unsigned criterion_index = 0; criterion_index != models.criteria_count; ++criterion_index) {
@@ -421,7 +373,7 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
         // Not parallel because of the profiles ordering constraint
         for (unsigned category_index = models.categories_count - 1; category_index != 0; --category_index) {
           const unsigned profile_index = category_index - 1;
-          float value = generators[criterion_index][profile_index](random.urbg());
+          float value = generators[criterion_index][profile_index](models.urbgs[0]);
 
           if (profile_index != models.categories_count - 2) {
             value = std::min(value, models.profiles[criterion_index][profile_index + 1][model_index]);
@@ -443,13 +395,12 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
 
  private:
   Models& models;
-  const Random& random;
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> generators;
 };
 
 class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristic(Models& models_, const Random& random_) : models(models_), random(random_) {}
+  explicit ImproveProfilesWithAccuracyHeuristic(Models& models_) : models(models_) {}
 
  private:
   struct Desirability {
@@ -644,7 +595,14 @@ class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLe
     // we'd take a random subset of the intersection of these midpoints with that interval.
     for (unsigned n = 0; n < 64; ++n) {
       // Map (embarrassingly parallel)
-      const float destination = random.uniform_float(lowest_destination, highest_destination);
+      float destination = highest_destination;
+      // By specification, std::uniform_real_distribution should never return its highest value,
+      // but "most existing implementations have a bug where they may occasionally" return it,
+      // so we work around that bug by calling it again until it doesn't.
+      // Ref: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+      while (destination == highest_destination) {
+        destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(models.urbgs[model_index]);
+      }
       const float desirability = compute_move_desirability(
         models, model_index, profile_index, criterion_index, destination).value();
       // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
@@ -655,7 +613,7 @@ class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLe
     }
 
     // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
-    if (random.uniform_float(0, 1) <= best_desirability) {
+    if (std::uniform_real_distribution<float>(0, 1)(models.urbgs[model_index]) <= best_desirability) {
       models.profiles[criterion_index][profile_index][model_index] = best_destination;
     }
   }
@@ -682,15 +640,15 @@ class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLe
     // Not parallel because iteration N+1 relies on side effect in iteration N
     // (We could challenge this aspect of the algorithm described by Sobrie)
     for (unsigned profile_index = 0; profile_index != models.categories_count - 1; ++profile_index) {
-      shuffle<unsigned>(ref(criterion_indexes));
+      shuffle<unsigned>(model_index, ref(criterion_indexes));
       improve_model_profile(model_index, profile_index, criterion_indexes);
     }
   }
 
   template<typename T>
-  void shuffle(ArrayView1D<Host, T> m) {
+  void shuffle(const unsigned model_index, ArrayView1D<Host, T> m) {
     for (unsigned i = 0; i != m.s0(); ++i) {
-      std::swap(m[i], m[random.uniform_int(0, m.s0())]);
+      std::swap(m[i], m[std::uniform_int_distribution<unsigned int>(0, m.s0() - 1)(models.urbgs[model_index])]);
     }
   }
 
@@ -704,7 +662,6 @@ class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLe
 
  private:
   Models& models;
-  const Random& random;
 };
 
 class OptimizeWeightsUsingGlop : public WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {
@@ -833,10 +790,9 @@ Model MrSortLearning::perform() {
   auto models = WeightsProfilesBreedMrSortLearning::Models::make(
     domain, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, random_seed);
 
-  Random random(random_seed);
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(models, random);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(models);
   OptimizeWeightsUsingGlop weights_optimization_strategy(models);
-  ImproveProfilesWithAccuracyHeuristic profiles_improvement_strategy(models, random);
+  ImproveProfilesWithAccuracyHeuristic profiles_improvement_strategy(models);
   TerminateAtAccuracy termination_strategy(learning_set.alternatives.size());
 
   WeightsProfilesBreedMrSortLearning learning{
