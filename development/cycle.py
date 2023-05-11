@@ -146,7 +146,8 @@ def run_integration_tests():
             ok = False
         else:
             print()
-    return ok
+    if not ok:
+        exit(1)
 
 
 if __name__ == "__main__":
