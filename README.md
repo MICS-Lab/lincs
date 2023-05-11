@@ -318,10 +318,10 @@ but the trained model is numerically different because information was lost in t
     format_version: 1
     boundaries:
       - profile:
-          - 0.0205844995
-          - 0.025119191
+          - 0.222505912
+          - 0.0326468721
           - 0.183235198
-          - 0.336772412
+          - 0.139134333
         sufficient_coalitions:
           kind: weights
           criterion_weights:
@@ -330,10 +330,10 @@ but the trained model is numerically different because information was lost in t
             - 0.999998987
             - 0
       - profile:
-          - 0.0237614904
-          - 0.431064457
+          - 0.37454012
+          - 0.440971017
           - 0.708072603
-          - 0.596850157
+          - 0.313625544
         sufficient_coalitions:
           kind: weights
           criterion_weights:
@@ -405,10 +405,6 @@ That command should show a few alternatives that are not classified the same way
     < "Alternative 64",0.969255507,0.575699627,0.700975716,0.418971717,"Category 3"
     ---
     > "Alternative 64",0.969255507,0.575699627,0.700975716,0.418971717,"Category 2"
-    75c75
-    < "Alternative 74",0.508400917,0.0257728491,0.331851721,0.881912589,"Category 1"
-    ---
-    > "Alternative 74",0.508400917,0.0257728491,0.331851721,0.881912589,"Category 2"
     82c82
     < "Alternative 81",0.952283025,0.75682044,0.166070178,0.381708086,"Category 2"
     ---
@@ -439,7 +435,7 @@ You can also measure the classification accuracy of the trained model on that te
 It should be close to 100%:
 
 <!-- START command-line-example/expected-classification-accuracy.txt -->
-    87/100
+    88/100
 <!-- STOP -->
 
 <!-- EXTEND command-line-example/run.sh --><!--

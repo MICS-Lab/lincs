@@ -373,7 +373,7 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
         // Not parallel because of the profiles ordering constraint
         for (unsigned category_index = models.categories_count - 1; category_index != 0; --category_index) {
           const unsigned profile_index = category_index - 1;
-          float value = generators[criterion_index][profile_index](models.urbgs[0]);
+          float value = generators[criterion_index][profile_index](models.urbgs[model_index]);
 
           if (profile_index != models.categories_count - 2) {
             value = std::min(value, models.profiles[criterion_index][profile_index + 1][model_index]);
@@ -822,8 +822,8 @@ TEST_CASE("Basic MR-Sort learning") {
   {
     Alternatives testing_set = Alternatives::generate(domain, model, 1000, 43);
     ClassificationResult result = classify_alternatives(domain, learned_model, &testing_set);
-    CHECK(result.changed == 3);
-    CHECK(result.unchanged == 997);
+    CHECK(result.changed == 6);
+    CHECK(result.unchanged == 994);
   }
 }
 
