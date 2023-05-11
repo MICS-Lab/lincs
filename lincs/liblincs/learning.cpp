@@ -263,14 +263,14 @@ class ProfilesInitializationStrategy {
 class ProfilesImprovementStrategy {
  public:
   virtual ~ProfilesImprovementStrategy() {}
-  virtual void improve_profiles(std::shared_ptr<Models>) = 0;
+  virtual void improve_profiles(Models&) = 0;
 };
 
 class WeightsOptimizationStrategy {
  public:
   virtual ~WeightsOptimizationStrategy() {}
 
-  virtual void optimize_weights(std::shared_ptr<Models>) = 0;
+  virtual void optimize_weights(Models&) = 0;
 };
 
 class TerminationStrategy {
@@ -695,10 +695,10 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
   }
 
  public:
-  void improve_profiles(std::shared_ptr<Models> models) override {
+  void improve_profiles(Models& models) override {
     #pragma omp parallel for
-    for (unsigned model_index = 0; model_index != models->models_count; ++model_index) {
-      improve_model_profiles(_random, *models, model_index);
+    for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
+      improve_model_profiles(_random, models, model_index);
     }
   }
 
@@ -798,16 +798,12 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
     }
   }
 
-  void optimize_weights(const Models& models) {
+ public:
+  void optimize_weights(Models& models) override {
     #pragma omp parallel for
     for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
       optimize_weights(models, model_index);
     }
-  }
-
- public:
-  void optimize_weights(std::shared_ptr<Models> models) override {
-    optimize_weights(*models);
   };
 };
 
@@ -842,39 +838,39 @@ std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, 
 }
 
 io::Model perform_learning(
-  std::shared_ptr<Models> models,
-  std::shared_ptr<ProfilesInitializationStrategy> profiles_initialization_strategy,
-  std::shared_ptr<WeightsOptimizationStrategy> weights_optimization_strategy,
-  std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
-  std::shared_ptr<TerminationStrategy> termination_strategy
+  Models& models,
+  ProfilesInitializationStrategy& profiles_initialization_strategy,
+  WeightsOptimizationStrategy& weights_optimization_strategy,
+  ProfilesImprovementStrategy& profiles_improvement_strategy,
+  TerminationStrategy& termination_strategy
 ) {
-  const unsigned models_count = models->models_count;
+  const unsigned models_count = models.models_count;
 
   std::vector<unsigned> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  profiles_initialization_strategy->initialize_profiles(
-    *models,
+  profiles_initialization_strategy.initialize_profiles(
+    models,
     0,
     model_indexes.begin(), model_indexes.end());
 
   unsigned best_accuracy = 0;
 
-  for (int iteration_index = 0; !termination_strategy->terminate(iteration_index, best_accuracy); ++iteration_index) {
+  for (int iteration_index = 0; !termination_strategy.terminate(iteration_index, best_accuracy); ++iteration_index) {
     if (iteration_index != 0) {
-      profiles_initialization_strategy->initialize_profiles(
-        *models,
+      profiles_initialization_strategy.initialize_profiles(
+        models,
         iteration_index,
         model_indexes.begin(), model_indexes.begin() + models_count / 2);
     }
 
-    weights_optimization_strategy->optimize_weights(models);
-    profiles_improvement_strategy->improve_profiles(models);
+    weights_optimization_strategy.optimize_weights(models);
+    profiles_improvement_strategy.improve_profiles(models);
 
-    model_indexes = partition_models_by_accuracy(models_count, *models);
-    best_accuracy = get_accuracy(*models, model_indexes.back());
+    model_indexes = partition_models_by_accuracy(models_count, models);
+    best_accuracy = get_accuracy(models, model_indexes.back());
   }
 
-  return models->unmake_one(model_indexes.back());
+  return models.unmake_one(model_indexes.back());
 }
 
 struct MrSortLearning_ {
@@ -906,13 +902,18 @@ Model MrSortLearning_::perform() {
   );
 
   Random random(44);
-  auto ppl_host_models = Models::make(ppl_learning_set, default_models_count);
+  auto ppl_models = Models::make(ppl_learning_set, default_models_count);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(random, *ppl_models);
+  OptimizeWeightsUsingGlop weights_optimization_strategy;
+  ImproveProfilesWithAccuracyHeuristic profiles_improvement_strategy(random);
+  TerminateAtAccuracy termination_strategy(learning_set.alternatives.size());
+
   io::Model ppl_model = perform_learning(
-    ppl_host_models,
-    std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *ppl_host_models),
-    std::make_shared<OptimizeWeightsUsingGlop>(),
-    std::make_shared<ImproveProfilesWithAccuracyHeuristic>(random),
-    std::make_shared<TerminateAtAccuracy>(learning_set.alternatives.size()));
+    *ppl_models,
+    profiles_initialization_strategy,
+    weights_optimization_strategy,
+    profiles_improvement_strategy,
+    termination_strategy);
 
   Model::SufficientCoalitions coalitions{
     Model::SufficientCoalitions::Kind::weights,
