@@ -26,6 +26,7 @@ liblincs = setuptools.Extension(
         "lincs/liblincs/generation.cpp",
         "lincs/liblincs/io.cpp",
         "lincs/liblincs/learning.cpp",
+        "lincs/liblincs/median-and-max.cpp",
     ],
     libraries=[
         "boost_python310",
