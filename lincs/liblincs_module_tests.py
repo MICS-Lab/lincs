@@ -193,3 +193,32 @@ class MrSortLearningTestCase(unittest.TestCase):
         result = classify_alternatives(domain, learned_model, testing_set)
         self.assertEqual(result.changed, 6)
         self.assertEqual(result.unchanged, 994)
+
+    def test_python_termination_strategy(self):
+        domain = generate_domain(3, 2, 41)
+        model = generate_mrsort_model(domain, 42)
+        learning_set = generate_alternatives(domain, model, 100, 43)
+
+        class MyTerminationStrategy(TerminationStrategy):
+            def __init__(self):
+                super().__init__()
+                self.accuracies = []
+
+            def terminate(self, iteration_index, best_accuracy):
+                assert iteration_index == len(self.accuracies)
+                self.accuracies.append(best_accuracy)
+                return best_accuracy >= 100
+
+        termination_strategy = MyTerminationStrategy()
+        learned_model = MrSortLearning(domain, learning_set, termination_strategy).perform()
+
+        self.assertEqual(termination_strategy.accuracies, [0, 100])
+
+        result = classify_alternatives(domain, learned_model, learning_set)
+        self.assertEqual(result.changed, 0)
+        self.assertEqual(result.unchanged, 100)
+
+        testing_set = generate_alternatives(domain, model, 1000, 43)
+        result = classify_alternatives(domain, learned_model, testing_set)
+        self.assertEqual(result.changed, 6)
+        self.assertEqual(result.unchanged, 994)

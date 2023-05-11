@@ -297,9 +297,17 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Classify the provided `alternatives` according to the provided `model`."
   );
 
-  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, boost::noncopyable>("TerminationStrategy", bp::no_init);
+  struct TerminationStrategyWrap : lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, bp::wrapper<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy> {
+    bool terminate(unsigned a, unsigned b) override {
+      return this->get_override("terminate")(a, b);
+    }
+  };
 
-  bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>("TerminateAtAccuracy", bp::init<unsigned>());
+  bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
+      .def("terminate", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy::terminate));
+
+  bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>("TerminateAtAccuracy", bp::init<unsigned>())
+      .def("terminate", &lincs::TerminateAtAccuracy::terminate);
 
   bp::class_<lincs::MrSortLearning>(
     "MrSortLearning",
