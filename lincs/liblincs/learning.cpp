@@ -30,57 +30,6 @@ namespace glp = operations_research::glop;
 
 namespace lincs {
 
-namespace io {
-
-// Classes for easy input/output of domain objects
-
-struct Model {
-  Model(
-    unsigned criteria_count_,
-    unsigned categories_count_,
-    const std::vector<std::vector<float>>& profiles_,
-    const std::vector<float>& weights_) :
-      criteria_count(criteria_count_),
-      categories_count(categories_count_),
-      profiles(profiles_),
-      weights(weights_) {};
-
-  const unsigned criteria_count;
-  const unsigned categories_count;
-  std::vector<std::vector<float>> profiles;
-  std::vector<float> weights;
-};
-
-struct ClassifiedAlternative {
-  ClassifiedAlternative(
-    const std::vector<float>& criteria_values_,
-    unsigned assigned_category_) :
-      criteria_values(criteria_values_),
-      assigned_category(assigned_category_) {}
-
-  const std::vector<float> criteria_values;
-  unsigned assigned_category;
-};
-
-struct LearningSet {
-  LearningSet(
-    unsigned criteria_count_,
-    unsigned categories_count_,
-    unsigned alternatives_count_,
-    const std::vector<ClassifiedAlternative>& alternatives_) :
-      criteria_count(criteria_count_),
-      categories_count(categories_count_),
-      alternatives_count(alternatives_count_),
-      alternatives(alternatives_) {}
-
-  const unsigned criteria_count;
-  const unsigned categories_count;
-  const unsigned alternatives_count;
-  std::vector<ClassifiedAlternative> alternatives;
-};
-
-}  // namespace io
-
 class Random {
  public:
   explicit Random(int seed) : _gen(omp_get_max_threads()) {
@@ -169,75 +118,6 @@ class ProbabilityWeightedGenerator {
 };
 
 struct Models {
-  static std::shared_ptr<Models> make(const io::LearningSet& learning_set, const unsigned models_count) {
-    Array2D<Host, float> alternatives(learning_set.criteria_count, learning_set.alternatives_count, uninitialized);
-    Array1D<Host, unsigned> assignments(learning_set.alternatives_count, uninitialized);
-
-    for (unsigned alt_index = 0; alt_index != learning_set.alternatives_count; ++alt_index) {
-      const io::ClassifiedAlternative& alt = learning_set.alternatives[alt_index];
-
-      for (unsigned crit_index = 0; crit_index != learning_set.criteria_count; ++crit_index) {
-        alternatives[crit_index][alt_index] = alt.criteria_values[crit_index];
-      }
-
-      assignments[alt_index] = alt.assigned_category;
-    }
-
-    Array1D<Host, unsigned> initialization_iteration_indexes(models_count, uninitialized);
-    Array2D<Host, float> weights(learning_set.criteria_count, models_count, uninitialized);
-    Array3D<Host, float> profiles(
-      learning_set.criteria_count, (learning_set.categories_count - 1), models_count, uninitialized);
-
-    return std::make_shared<Models>(
-      learning_set.categories_count,
-      learning_set.criteria_count,
-      learning_set.alternatives_count,
-      std::move(alternatives),
-      std::move(assignments),
-      models_count,
-      std::move(initialization_iteration_indexes),
-      std::move(weights),
-      std::move(profiles));
-  }
-
-  io::Model unmake_one(unsigned model_index) const {
-    std::vector<std::vector<float>> model_profiles(categories_count - 1);
-    for (unsigned cat_index = 0; cat_index != categories_count - 1; ++cat_index) {
-      model_profiles[cat_index].reserve(criteria_count);
-      for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
-        model_profiles[cat_index].push_back(profiles[crit_index][cat_index][model_index]);
-      }
-    }
-
-    std::vector<float> model_weights;
-    model_weights.reserve(criteria_count);
-    for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
-      model_weights.push_back(weights[crit_index][model_index]);
-    }
-
-    return io::Model(criteria_count, categories_count, model_profiles, model_weights);
-  }
-
-  Models(
-    unsigned categories_count_,
-    unsigned criteria_count_,
-    unsigned learning_alternatives_count_,
-    Array2D<Host, float>&& learning_alternatives_,
-    Array1D<Host, unsigned>&& learning_assignments_,
-    const unsigned models_count_,
-    Array1D<Host, unsigned>&& initialization_iteration_indexes_,
-    Array2D<Host, float>&& weights_,
-    Array3D<Host, float>&& profiles_) :
-      categories_count(categories_count_),
-      criteria_count(criteria_count_),
-      learning_alternatives_count(learning_alternatives_count_),
-      learning_alternatives(std::move(learning_alternatives_)),
-      learning_assignments(std::move(learning_assignments_)),
-      models_count(models_count_),
-      initialization_iteration_indexes(std::move(initialization_iteration_indexes_)),
-      weights(std::move(weights_)),
-      profiles(std::move(profiles_)) {}
-
   unsigned categories_count;
   unsigned criteria_count;
   unsigned learning_alternatives_count;
@@ -837,7 +717,7 @@ std::vector<unsigned> partition_models_by_accuracy(const unsigned models_count, 
   return model_indexes;
 }
 
-io::Model perform_learning(
+unsigned perform_learning(
   Models& models,
   ProfilesInitializationStrategy& profiles_initialization_strategy,
   WeightsOptimizationStrategy& weights_optimization_strategy,
@@ -870,7 +750,7 @@ io::Model perform_learning(
     best_accuracy = get_accuracy(models, model_indexes.back());
   }
 
-  return models.unmake_one(model_indexes.back());
+  return model_indexes.back();
 }
 
 struct MrSortLearning_ {
@@ -886,46 +766,74 @@ Model MrSortLearning_::perform() {
     category_indexes[category.name] = category_indexes.size();
   }
 
-  std::vector<io::ClassifiedAlternative> ppl_alternatives;
-  for (const auto& alt : learning_set.alternatives) {
-    ppl_alternatives.emplace_back(
-      alt.profile,
-      category_indexes[*alt.category]
-    );
+  const unsigned criteria_count = domain.criteria.size();
+  const unsigned categories_count = domain.categories.size();
+  const unsigned alternatives_count = learning_set.alternatives.size();
+  const unsigned models_count = default_models_count;
+
+  Array2D<Host, float> alternatives(criteria_count, alternatives_count, uninitialized);
+  Array1D<Host, unsigned> assignments(alternatives_count, uninitialized);
+
+  for (unsigned alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+    const Alternative& alt = learning_set.alternatives[alt_index];
+
+    for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
+      alternatives[crit_index][alt_index] = alt.profile[crit_index];
+    }
+
+    assignments[alt_index] = category_indexes[*alt.category];
   }
-  ppl_alternatives.reserve(learning_set.alternatives.size());
-  io::LearningSet ppl_learning_set(
-    domain.criteria.size(),
-    domain.categories.size(),
-    ppl_alternatives.size(),
-    ppl_alternatives
-  );
+
+  Array1D<Host, unsigned> initialization_iteration_indexes(models_count, uninitialized);
+  Array2D<Host, float> weights(criteria_count, models_count, uninitialized);
+  Array3D<Host, float> profiles(criteria_count, (categories_count - 1), models_count, uninitialized);
+
+  Models models{
+    categories_count,
+    criteria_count,
+    alternatives_count,
+    std::move(alternatives),
+    std::move(assignments),
+    models_count,
+    std::move(initialization_iteration_indexes),
+    std::move(weights),
+    std::move(profiles),
+  };
 
   Random random(44);
-  auto ppl_models = Models::make(ppl_learning_set, default_models_count);
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(random, *ppl_models);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(random, models);
   OptimizeWeightsUsingGlop weights_optimization_strategy;
   ImproveProfilesWithAccuracyHeuristic profiles_improvement_strategy(random);
-  TerminateAtAccuracy termination_strategy(learning_set.alternatives.size());
+  TerminateAtAccuracy termination_strategy(alternatives_count);
 
-  io::Model ppl_model = perform_learning(
-    *ppl_models,
+  const unsigned best_model_index = perform_learning(
+    models,
     profiles_initialization_strategy,
     weights_optimization_strategy,
     profiles_improvement_strategy,
     termination_strategy);
 
-  Model::SufficientCoalitions coalitions{
-    Model::SufficientCoalitions::Kind::weights,
-    ppl_model.weights,
-  };
-  std::vector<Model::Boundary> boundaries;
-  boundaries.reserve(domain.categories.size() - 1);
-  assert(ppl_model.profiles.size() == domain.categories.size() - 1);
-  for (const auto& profile: ppl_model.profiles) {
-    boundaries.emplace_back(profile, coalitions);
+  {
+    std::vector<float> weights;
+    weights.reserve(domain.criteria.size());
+    for (unsigned crit_index = 0; crit_index != domain.criteria.size(); ++crit_index) {
+      weights.push_back(models.weights[crit_index][best_model_index]);
+    }
+    Model::SufficientCoalitions coalitions{Model::SufficientCoalitions::Kind::weights, weights};
+
+    std::vector<Model::Boundary> boundaries;
+    boundaries.reserve(domain.categories.size() - 1);
+    for (unsigned cat_index = 0; cat_index != domain.categories.size() - 1; ++cat_index) {
+      std::vector<float> profile;
+      profile.reserve(domain.criteria.size());
+      for (unsigned crit_index = 0; crit_index != domain.criteria.size(); ++crit_index) {
+        profile.push_back(models.profiles[crit_index][cat_index][best_model_index]);
+      }
+      boundaries.emplace_back(profile, coalitions);
+    }
+
+    return Model{domain, boundaries};
   }
-  return Model{domain, boundaries};
 }
 
 Model MrSortLearning::perform() {
