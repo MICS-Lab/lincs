@@ -5,4 +5,4 @@ from liblincs import ProfilesInitializationStrategy, InitializeProfilesForProbab
 from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop
 from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristic
 from liblincs import TerminationStrategy, TerminateAtAccuracy
-from liblincs import make_models, MrSortLearning
+from liblincs import make_models, WeightsProfilesBreedMrSortLearning

@@ -564,7 +564,7 @@ def classification_model(
             assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
             assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
 
-            learning = lincs.MrSortLearning(
+            learning = lincs.WeightsProfilesBreedMrSortLearning(
                 models,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,

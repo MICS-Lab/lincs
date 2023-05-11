@@ -188,7 +188,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristic(models)
-        learned_model = MrSortLearning(
+        learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
             weights_optimization_strategy,
@@ -225,7 +225,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristic(models)
-        learned_model = MrSortLearning(
+        learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
             weights_optimization_strategy,

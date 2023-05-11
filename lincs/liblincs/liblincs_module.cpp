@@ -359,8 +359,8 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::def("make_models", &make_models, bp::return_value_policy<bp::manage_new_object>());
 
-  bp::class_<lincs::MrSortLearning>(
-    "MrSortLearning",
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning>(
+    "WeightsProfilesBreedMrSortLearning",
     bp::init<
       lincs::WeightsProfilesBreedMrSortLearning::Models&,
       lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy&,
@@ -369,6 +369,6 @@ BOOST_PYTHON_MODULE(liblincs) {
       lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy&
     >()
   )
-    .def("perform", &lincs::MrSortLearning::perform)
+    .def("perform", &lincs::WeightsProfilesBreedMrSortLearning::perform)
   ;
 }

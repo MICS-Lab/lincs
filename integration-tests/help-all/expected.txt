@@ -432,18 +432,6 @@ dump( (Model)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Model,boost::python::api::object {lvalue})
 
-lincs.MrSortLearning
-====================
-
-perform
--------
-
-
-perform( (MrSortLearning)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::MrSortLearning {lvalue})
-
 lincs.OptimizeWeightsUsingGlop
 ==============================
 
@@ -556,6 +544,18 @@ optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
 
     C++ signature :
         void optimize_weights(lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue})
+
+lincs.WeightsProfilesBreedMrSortLearning
+========================================
+
+perform
+-------
+
+
+perform( (WeightsProfilesBreedMrSortLearning)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::WeightsProfilesBreedMrSortLearning {lvalue})
 
 lincs.classify_alternatives
 ===========================
