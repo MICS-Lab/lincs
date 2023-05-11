@@ -23,6 +23,7 @@ class DomainTestCase(unittest.TestCase):
 
     def test_init_one_criterion(self):
         domain = Domain([Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)], [])
+        self.assertEqual(len(domain.criteria), 1)
         self.assertEqual(domain.criteria[0].name, "Criterion name")
         self.assertEqual(domain.criteria[0].value_type, ValueType.real)
         self.assertEqual(domain.criteria[0].category_correlation, CategoryCorrelation.growing)
