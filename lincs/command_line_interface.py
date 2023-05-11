@@ -109,7 +109,7 @@ def help_all():
             print()
         if isinstance(obj, type):
             for attr_name in sorted(dir(obj)):
-                if attr_name.startswith("_"):
+                if attr_name.startswith("_"):  # @todo Include __init__ and some other dunders
                     continue
                 if (
                     obj_name in {"CategoryCorrelation", "SufficientCoalitionsKind", "ValueType"}
