@@ -17,13 +17,14 @@
 #include <utility>
 #include <vector>
 
-#include <doctest.h>
 #include <lov-e.hpp>
 #include <magic_enum.hpp>
 #include <omp.h>
 #include <ortools/glop/lp_solver.h>
 
 #include "median-and-max.hpp"
+
+#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
 namespace glp = operations_research::glop;
