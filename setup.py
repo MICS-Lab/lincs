@@ -27,6 +27,7 @@ liblincs = setuptools.Extension(
         "lincs/liblincs/io.cpp",
         "lincs/liblincs/learning.cpp",
         "lincs/liblincs/median-and-max.cpp",
+        "lincs/liblincs/randomness-utils.cpp",
     ],
     libraries=[
         "boost_python310",

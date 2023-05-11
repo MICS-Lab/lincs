@@ -23,6 +23,7 @@
 #include <ortools/glop/lp_solver.h>
 
 #include "median-and-max.hpp"
+#include "randomness-utils.hpp"
 
 #include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
@@ -30,53 +31,6 @@
 namespace glp = operations_research::glop;
 
 namespace lincs {
-
-/*
-Pick random values from a finite set with given probabilities
-(a discrete distribution with arbitrary values).
-*/
-template<typename T>
-class ProbabilityWeightedGenerator {
-  ProbabilityWeightedGenerator(const std::vector<T>& values, const std::vector<double>& probabilities) :
-    _values(values),
-    _distribution(probabilities.begin(), probabilities.end())
-  {}
-
- public:
-  static ProbabilityWeightedGenerator make(std::map<T, double> value_probabilities) {
-    std::vector<T> values;
-    values.reserve(value_probabilities.size());
-    std::vector<double> probabilities;
-    probabilities.reserve(value_probabilities.size());
-    for (auto value_probability : value_probabilities) {
-      values.push_back(value_probability.first);
-      probabilities.push_back(value_probability.second);
-    }
-    return ProbabilityWeightedGenerator(values, probabilities);
-  }
-
-  std::map<T, double> get_value_probabilities() {
-    std::map<T, double> value_probabilities;
-    auto probabilities = _distribution.probabilities();
-    const unsigned size = _values.size();
-    assert(probabilities.size() == size);
-    for (unsigned i = 0; i != size; ++i) {
-      value_probabilities[_values[i]] = probabilities[i];
-    }
-    return value_probabilities;
-  }
-
-  template<typename Generator>
-  T operator()(Generator& gen) const {  // NOLINT(runtime/references)
-    const unsigned index = _distribution(gen);
-    assert(index < _values.size());
-    return _values[index];
-  }
-
- private:
-  std::vector<T> _values;
-  mutable std::discrete_distribution<unsigned> _distribution;
-};
 
 struct WeightsProfilesBreedMrSortLearning {
   static const unsigned default_models_count = 9;
@@ -303,14 +257,10 @@ struct WeightsProfilesBreedMrSortLearning {
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
  public:
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(Models& models_) : models(models_) {
-    generators.reserve(models.categories_count - 1);
-
     for (unsigned criterion_index = 0; criterion_index != models.criteria_count; ++criterion_index) {
-      generators.push_back(std::vector<ProbabilityWeightedGenerator<float>>());
-      generators.back().reserve(models.criteria_count);
+      generators.emplace_back();
       for (unsigned profile_index = 0; profile_index != models.categories_count - 1; ++profile_index) {
-        generators.back().push_back(ProbabilityWeightedGenerator<float>::make(
-          get_candidate_probabilities(criterion_index, profile_index)));
+        generators.back().emplace_back(get_candidate_probabilities(criterion_index, profile_index));
       }
     }
   }
