@@ -298,8 +298,8 @@ BOOST_PYTHON_MODULE(liblincs) {
   );
 
   struct TerminationStrategyWrap : lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, bp::wrapper<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy> {
-    bool terminate(unsigned a, unsigned b) override {
-      return this->get_override("terminate")(a, b);
+    bool terminate(unsigned iteration_index, unsigned best_accuracy) override {
+      return this->get_override("terminate")(iteration_index, best_accuracy);
     }
   };
 
