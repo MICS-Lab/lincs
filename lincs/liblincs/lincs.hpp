@@ -1,7 +1,13 @@
 #include <map>
+#include <memory>
 #include <optional>
+#include <random>
 #include <string>
 #include <vector>
+
+#include <lov-e.hpp>
+
+#include "randomness-utils.hpp"
 
 
 namespace lincs {
@@ -210,6 +216,132 @@ struct WeightsProfilesBreedMrSortLearning {
       const unsigned alternative_index);
 };
 
+struct WeightsProfilesBreedMrSortLearning::Models {
+  const Domain& domain;
+  unsigned categories_count;
+  unsigned criteria_count;
+  unsigned learning_alternatives_count;
+  Array2D<Host, float> learning_alternatives;
+  Array1D<Host, unsigned> learning_assignments;
+  unsigned models_count;
+  Array2D<Host, float> weights;
+  Array3D<Host, float> profiles;
+  std::vector<std::mt19937> urbgs;
+
+  static Models make(const Domain& domain, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
+
+  Model get_model(const unsigned model_index) const;
+};
+
+class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
+ public:
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(Models& models_);
+
+ private:
+  std::map<float, double> get_candidate_probabilities(
+    unsigned criterion_index,
+    unsigned profile_index
+  );
+
+ public:
+  void initialize_profiles(
+    std::vector<unsigned>::const_iterator model_indexes_begin,
+    const std::vector<unsigned>::const_iterator model_indexes_end
+  ) override;
+
+ private:
+  Models& models;
+  std::vector<std::vector<ProbabilityWeightedGenerator<float>>> generators;
+};
+
+class ImproveProfilesWithAccuracyHeuristic : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
+ public:
+  explicit ImproveProfilesWithAccuracyHeuristic(Models& models_) : models(models_) {}
+
+ private:
+  struct Desirability {
+    // Value for moves with no impact.
+    // @todo Verify with Vincent Mousseau that this is the correct value.
+    static constexpr float zero_value = 0;
+
+    unsigned v = 0;
+    unsigned w = 0;
+    unsigned q = 0;
+    unsigned r = 0;
+    unsigned t = 0;
+
+    float value() const;
+  };
+
+  void update_move_desirability(
+    const Models& models,
+    const unsigned model_index,
+    const unsigned profile_index,
+    const unsigned criterion_index,
+    const float destination,
+    const unsigned alternative_index,
+    Desirability* desirability
+  );
+
+  Desirability compute_move_desirability(
+    const Models& models,
+    const unsigned model_index,
+    const unsigned profile_index,
+    const unsigned criterion_index,
+    const float destination
+  );
+
+  void improve_model_profile(
+    const unsigned model_index,
+    const unsigned profile_index,
+    const unsigned criterion_index
+  );
+
+  void improve_model_profile(
+    const unsigned model_index,
+    const unsigned profile_index,
+    ArrayView1D<Host, const unsigned> criterion_indexes
+  );
+
+  void improve_model_profiles(const unsigned model_index);
+
+  template<typename T>
+  void shuffle(const unsigned model_index, ArrayView1D<Host, T> m) {
+    for (unsigned i = 0; i != m.s0(); ++i) {
+      std::swap(m[i], m[std::uniform_int_distribution<unsigned int>(0, m.s0() - 1)(models.urbgs[model_index])]);
+    }
+  }
+
+ public:
+  void improve_profiles() override;
+
+ private:
+  Models& models;
+};
+
+class OptimizeWeightsUsingGlop : public WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {
+ public:
+  OptimizeWeightsUsingGlop(Models& models_) : models(models_) {}
+
+ private:
+  struct LinearProgram;
+
+  std::shared_ptr<LinearProgram> make_internal_linear_program(
+    const float epsilon,
+    unsigned model_index
+  );
+
+  auto solve_linear_program(std::shared_ptr<LinearProgram> lp);
+
+  void optimize_model_weights(unsigned model_index);
+
+ public:
+  void optimize_weights() override;
+
+ private:
+  Models& models;
+};
+
 class TerminateAtAccuracy : public WeightsProfilesBreedMrSortLearning::TerminationStrategy {
  public:
   explicit TerminateAtAccuracy(unsigned target_accuracy) : _target_accuracy(target_accuracy) {}
@@ -221,15 +353,24 @@ class TerminateAtAccuracy : public WeightsProfilesBreedMrSortLearning::Terminati
 };
 
 struct MrSortLearning {
-  const Domain& domain;
-  const Alternatives& learning_set;
+  WeightsProfilesBreedMrSortLearning::Models& models;
+  WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy& profiles_initialization_strategy;
+  WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy& weights_optimization_strategy;
+  WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy& profiles_improvement_strategy;
   WeightsProfilesBreedMrSortLearning::TerminationStrategy& termination_strategy;
 
   MrSortLearning(
-    const Domain& domain_,
-    const Alternatives& learning_set_,
+    WeightsProfilesBreedMrSortLearning::Models& models_,
+    WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy& profiles_initialization_strategy_,
+    WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy& weights_optimization_strategy_,
+    WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy& profiles_improvement_strategy_,
     WeightsProfilesBreedMrSortLearning::TerminationStrategy& termination_strategy_
-  ): domain(domain_), learning_set(learning_set_), termination_strategy(termination_strategy_) {}
+  ) :
+    models(models_),
+    profiles_initialization_strategy(profiles_initialization_strategy_),
+    weights_optimization_strategy(weights_optimization_strategy_),
+    profiles_improvement_strategy(profiles_improvement_strategy_),
+    termination_strategy(termination_strategy_) {}
 
   Model perform();
 };

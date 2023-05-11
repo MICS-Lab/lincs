@@ -183,7 +183,18 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_model(domain, 42)
         learning_set = generate_alternatives(domain, model, 100, 43)
 
-        learned_model = MrSortLearning(domain, learning_set, TerminateAtAccuracy(len(learning_set.alternatives))).perform()
+        models = make_models(domain, learning_set, 9, 44)
+        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
+        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
+        weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristic(models)
+        learned_model = MrSortLearning(
+            models,
+            profiles_initialization_strategy,
+            weights_optimization_strategy,
+            profiles_improvement_strategy,
+            termination_strategy,
+        ).perform()
 
         result = classify_alternatives(domain, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
@@ -209,8 +220,18 @@ class MrSortLearningTestCase(unittest.TestCase):
                 self.accuracies.append(best_accuracy)
                 return best_accuracy >= 100
 
+        models = make_models(domain, learning_set, 9, 44)
         termination_strategy = MyTerminationStrategy()
-        learned_model = MrSortLearning(domain, learning_set, termination_strategy).perform()
+        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
+        weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristic(models)
+        learned_model = MrSortLearning(
+            models,
+            profiles_initialization_strategy,
+            weights_optimization_strategy,
+            profiles_improvement_strategy,
+            termination_strategy,
+        ).perform()
 
         self.assertEqual(termination_strategy.accuracies, [0, 100])
 

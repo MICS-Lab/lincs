@@ -545,20 +545,32 @@ def classification_model(
 
     if model_type == "mrsort":
         if mrsort__strategy == "weights-profiles-breed":
+            models = lincs.make_models(domain, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+
             assert mrsort__weights_profiles_breed__max_iterations is None
             termination_strategy = lincs.TerminateAtAccuracy(math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)))
 
-            assert mrsort__weights_profiles_breed__models_count == 9
-            assert mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion"
-            assert mrsort__weights_profiles_breed__weights_strategy == "linear-program"
-            assert mrsort__weights_profiles_breed__linear_program__solver == "glop"
-            assert mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic"
-            assert mrsort__weights_profiles_breed__accuracy_heuristic__random_seed is not None
-            assert mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu"
+            if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
+                profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
+
+            if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
+                if mrsort__weights_profiles_breed__linear_program__solver == "glop":
+                    weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(models)
+
+            if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
+                if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
+                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristic(models)
+
             assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
             assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
 
-            learning = lincs.MrSortLearning(domain, learning_set, termination_strategy)
+            learning = lincs.MrSortLearning(
+                models,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                termination_strategy,
+            )
 
     model = learning.perform()
     model.dump(output_model)

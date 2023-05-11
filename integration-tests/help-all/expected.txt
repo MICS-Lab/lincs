@@ -392,6 +392,30 @@ dump( (Domain)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Domain,boost::python::api::object {lvalue})
 
+lincs.ImproveProfilesWithAccuracyHeuristic
+==========================================
+
+improve_profiles
+----------------
+
+
+improve_profiles( (ImproveProfilesWithAccuracyHeuristic)arg1) -> None :
+
+    C++ signature :
+        void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristic {lvalue})
+
+lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
+==============================================================================
+
+initialize_profiles
+-------------------
+
+
+initialize_profiles( (InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion)arg1, (object)arg2, (object)arg3) -> None :
+
+    C++ signature :
+        void initialize_profiles(lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
+
 lincs.Model
 ===========
 
@@ -420,6 +444,52 @@ perform( (MrSortLearning)arg1) -> Model :
     C++ signature :
         lincs::Model perform(lincs::MrSortLearning {lvalue})
 
+lincs.OptimizeWeightsUsingGlop
+==============================
+
+optimize_weights
+----------------
+
+
+optimize_weights( (OptimizeWeightsUsingGlop)arg1) -> None :
+
+    C++ signature :
+        void optimize_weights(lincs::OptimizeWeightsUsingGlop {lvalue})
+
+lincs.ProfilesImprovementStrategy
+=================================
+
+improve_profiles
+----------------
+
+
+improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
+
+    C++ signature :
+        void improve_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue})
+
+improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
+
+    C++ signature :
+        void improve_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue})
+
+lincs.ProfilesInitializationStrategy
+====================================
+
+initialize_profiles
+-------------------
+
+
+initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object)arg3) -> None :
+
+    C++ signature :
+        void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
+
+initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object)arg3) -> None :
+
+    C++ signature :
+        void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
+
 lincs.SufficientCoalitions
 ==========================
 
@@ -438,14 +508,54 @@ weights
 lincs.TerminateAtAccuracy
 =========================
 
+terminate
+---------
+
+
+terminate( (TerminateAtAccuracy)arg1, (int)arg2, (int)arg3) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::TerminateAtAccuracy {lvalue},unsigned int,unsigned int)
+
 lincs.TerminationStrategy
 =========================
+
+terminate
+---------
+
+
+terminate( (TerminationStrategy)arg1, (int)arg2, (int)arg3) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue},unsigned int,unsigned int)
+
+terminate( (TerminationStrategy)arg1, (int)arg2, (int)arg3) -> None :
+
+    C++ signature :
+        void terminate(init_module_liblincs()::TerminationStrategyWrap {lvalue},unsigned int,unsigned int)
 
 lincs.ValueType
 ===============
 
 real
 ----
+
+lincs.WeightsOptimizationStrategy
+=================================
+
+optimize_weights
+----------------
+
+
+optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
+
+    C++ signature :
+        void optimize_weights(lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue})
+
+optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
+
+    C++ signature :
+        void optimize_weights(lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue})
 
 lincs.classify_alternatives
 ===========================
@@ -519,6 +629,15 @@ load_model( (Domain)domain, (object)in) -> Model :
 
     C++ signature :
         lincs::Model load_model(lincs::Domain,boost::python::api::object {lvalue})
+
+lincs.make_models
+=================
+
+
+make_models( (Domain)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> Models :
+
+    C++ signature :
+        lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(lincs::Domain,lincs::Alternatives,unsigned int,unsigned int)
 
 lincs.visualization
 ===================

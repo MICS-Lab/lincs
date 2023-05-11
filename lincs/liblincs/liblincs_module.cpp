@@ -152,6 +152,16 @@ struct std_optional_converter {
   }
 };
 
+lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(
+  const lincs::Domain& domain,
+  const lincs::Alternatives& learning_set,
+  const unsigned models_count,
+  const unsigned random_seed
+) {
+  return new lincs::WeightsProfilesBreedMrSortLearning::Models(std::move(
+    lincs::WeightsProfilesBreedMrSortLearning::Models::make(domain, learning_set, models_count, random_seed)));
+}
+
 }  // namespace
 
 template <typename T>
@@ -297,6 +307,42 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Classify the provided `alternatives` according to the provided `model`."
   );
 
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy, boost::noncopyable>("ProfilesInitializationStrategy", bp::no_init)
+    .def("initialize_profiles", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy::initialize_profiles));
+
+  bp::class_<
+    lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion,
+    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy>
+  >(
+    "InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion",
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+  )
+    .def("initialize_profiles", &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles);
+
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy, boost::noncopyable>("WeightsOptimizationStrategy", bp::no_init)
+    .def("optimize_weights", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy::optimize_weights));
+
+  bp::class_<
+    lincs::OptimizeWeightsUsingGlop,
+    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy>
+  >(
+    "OptimizeWeightsUsingGlop",
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+  )
+    .def("optimize_weights", &lincs::OptimizeWeightsUsingGlop::optimize_weights);
+
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy, boost::noncopyable>("ProfilesImprovementStrategy", bp::no_init)
+    .def("improve_profiles", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy::improve_profiles));
+
+  bp::class_<
+    lincs::ImproveProfilesWithAccuracyHeuristic,
+    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>
+  >(
+    "ImproveProfilesWithAccuracyHeuristic",
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+  )
+    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristic::improve_profiles);
+
   struct TerminationStrategyWrap : lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, bp::wrapper<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy> {
     bool terminate(unsigned iteration_index, unsigned best_accuracy) override {
       return this->get_override("terminate")(iteration_index, best_accuracy);
@@ -304,14 +350,24 @@ BOOST_PYTHON_MODULE(liblincs) {
   };
 
   bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
-      .def("terminate", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy::terminate));
+    .def("terminate", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy::terminate));
 
   bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>("TerminateAtAccuracy", bp::init<unsigned>())
-      .def("terminate", &lincs::TerminateAtAccuracy::terminate);
+    .def("terminate", &lincs::TerminateAtAccuracy::terminate);
+
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::Models, boost::noncopyable>("Models", bp::no_init);
+
+  bp::def("make_models", &make_models, bp::return_value_policy<bp::manage_new_object>());
 
   bp::class_<lincs::MrSortLearning>(
     "MrSortLearning",
-    bp::init<const lincs::Domain&, const lincs::Alternatives&, lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy&>()
+    bp::init<
+      lincs::WeightsProfilesBreedMrSortLearning::Models&,
+      lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy&,
+      lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy&,
+      lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy&,
+      lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy&
+    >()
   )
     .def("perform", &lincs::MrSortLearning::perform)
   ;
