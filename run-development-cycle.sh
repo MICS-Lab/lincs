@@ -4,6 +4,7 @@ set -o errexit
 cd "$(dirname "${BASH_SOURCE[0]}")/"
 
 
+# @todo Use the actual GID of the docker group
 docker build --build-arg UID=$(id -u) --build-arg DOCKER_GID=121 development --tag lincs-development
 
 docker run \

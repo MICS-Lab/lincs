@@ -1,3 +1,8 @@
+
+# Version 0.3.0
+
+- Implement learning an MR-Sort model using Sobrie's heuristic on CPU
+
 # Version 0.2.2
 
 - Add options: `generate model --mrsort.fixed-weights-sum` and `generate classified-alternatives --max-imbalance`
