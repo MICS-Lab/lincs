@@ -168,14 +168,6 @@ class ProbabilityWeightedGenerator {
   mutable std::discrete_distribution<unsigned> _distribution;
 };
 
-struct DomainView {
-  const unsigned categories_count;
-  const unsigned criteria_count;
-  const unsigned learning_alternatives_count;
-  ArrayView2D<Host, const float> learning_alternatives;
-  ArrayView1D<Host, const unsigned> learning_assignments;
-};
-
 class Domain_ {
  public:
   static std::shared_ptr<Domain_> make(const io::LearningSet& learning_set) {
@@ -201,51 +193,33 @@ class Domain_ {
   }
 
  public:
-  DomainView get_view() const {
-    return {
-      _categories_count,
-      _criteria_count,
-      _learning_alternatives_count,
-      ArrayView2D<Host, const float>(_learning_alternatives),
-      ArrayView1D<Host, const unsigned>(_learning_assignments),
-    };
-  }
+  Domain_(
+    unsigned categories_count_,
+    unsigned criteria_count_,
+    unsigned learning_alternatives_count_,
+    Array2D<Host, float>&& learning_alternatives_,
+    Array1D<Host, unsigned>&& learning_assignments_) :
+      categories_count(categories_count_),
+      criteria_count(criteria_count_),
+      learning_alternatives_count(learning_alternatives_count_),
+      learning_alternatives(std::move(learning_alternatives_)),
+      learning_assignments(std::move(learning_assignments_)) {}
 
  public:
-  Domain_(unsigned categories_count, unsigned criteria_count, unsigned learning_alternatives_count, Array2D<Host, float>&& learning_alternatives, Array1D<Host, unsigned>&& learning_assignments) :
-    _categories_count(categories_count),
-    _criteria_count(criteria_count),
-    _learning_alternatives_count(learning_alternatives_count),
-    _learning_alternatives(std::move(learning_alternatives)),
-    _learning_assignments(std::move(learning_assignments)) {}
-
- private:
-  unsigned _categories_count;
-  unsigned _criteria_count;
-  unsigned _learning_alternatives_count;
-  Array2D<Host, float> _learning_alternatives;
-  Array1D<Host, unsigned> _learning_assignments;
-};
-
-struct ModelsView {
-  DomainView domain;
-
-  const unsigned models_count;
-
-  const ArrayView1D<Host, unsigned> initialization_iteration_indexes;
-  const ArrayView2D<Host, float> weights;
-  const ArrayView3D<Host, float> profiles;
+  unsigned categories_count;
+  unsigned criteria_count;
+  unsigned learning_alternatives_count;
+  Array2D<Host, float> learning_alternatives;
+  Array1D<Host, unsigned> learning_assignments;
 };
 
 class Models {
  public:
-  static std::shared_ptr<Models> make(std::shared_ptr<Domain_> domain, const unsigned models_count) {
-    DomainView domain_view = domain->get_view();
-
+  static std::shared_ptr<Models> make(Domain_& domain, const unsigned models_count) {
     Array1D<Host, unsigned> initialization_iteration_indexes(models_count, uninitialized);
-    Array2D<Host, float> weights(domain_view.criteria_count, models_count, uninitialized);
+    Array2D<Host, float> weights(domain.criteria_count, models_count, uninitialized);
     Array3D<Host, float> profiles(
-      domain_view.criteria_count, (domain_view.categories_count - 1), models_count, uninitialized);
+      domain.criteria_count, (domain.categories_count - 1), models_count, uninitialized);
 
     return std::make_shared<Models>(
       domain,
@@ -256,56 +230,42 @@ class Models {
   }
 
   io::Model unmake_one(unsigned model_index) const {
-    ModelsView view = get_view();
-
-    std::vector<std::vector<float>> profiles(view.domain.categories_count - 1);
-    for (unsigned cat_index = 0; cat_index != view.domain.categories_count - 1; ++cat_index) {
-      profiles[cat_index].reserve(view.domain.criteria_count);
-      for (unsigned crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
-        profiles[cat_index].push_back(view.profiles[crit_index][cat_index][model_index]);
+    std::vector<std::vector<float>> model_profiles(domain.categories_count - 1);
+    for (unsigned cat_index = 0; cat_index != domain.categories_count - 1; ++cat_index) {
+      model_profiles[cat_index].reserve(domain.criteria_count);
+      for (unsigned crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
+        model_profiles[cat_index].push_back(profiles[crit_index][cat_index][model_index]);
       }
     }
 
-    std::vector<float> weights;
-    weights.reserve(view.domain.criteria_count);
-    for (unsigned crit_index = 0; crit_index != view.domain.criteria_count; ++crit_index) {
-      weights.push_back(view.weights[crit_index][model_index]);
+    std::vector<float> model_weights;
+    model_weights.reserve(domain.criteria_count);
+    for (unsigned crit_index = 0; crit_index != domain.criteria_count; ++crit_index) {
+      model_weights.push_back(weights[crit_index][model_index]);
     }
 
-    return io::Model(view.domain.criteria_count, view.domain.categories_count, profiles, weights);
-  }
-
- public:
-  ModelsView get_view() const {
-    DomainView domain = _domain->get_view();
-    return {
-      domain,
-      _models_count,
-      ref(_initialization_iteration_indexes),
-      ref(_weights),
-      ref(_profiles),
-    };
+    return io::Model(domain.criteria_count, domain.categories_count, model_profiles, model_weights);
   }
 
  public:
   Models(
-    std::shared_ptr<Domain_> domain,
-    const unsigned models_count,
-    Array1D<Host, unsigned>&& initialization_iteration_indexes,
-    Array2D<Host, float>&& weights,
-    Array3D<Host, float>&& profiles) :
-      _domain(domain),
-      _models_count(models_count),
-      _initialization_iteration_indexes(std::move(initialization_iteration_indexes)),
-      _weights(std::move(weights)),
-      _profiles(std::move(profiles)) {}
+    Domain_& domain_,
+    const unsigned models_count_,
+    Array1D<Host, unsigned>&& initialization_iteration_indexes_,
+    Array2D<Host, float>&& weights_,
+    Array3D<Host, float>&& profiles_) :
+      domain(domain_),
+      models_count(models_count_),
+      initialization_iteration_indexes(std::move(initialization_iteration_indexes_)),
+      weights(std::move(weights_)),
+      profiles(std::move(profiles_)) {}
 
- private:
-  std::shared_ptr<Domain_> _domain;
-  unsigned _models_count;
-  Array1D<Host, unsigned> _initialization_iteration_indexes;
-  Array2D<Host, float> _weights;
-  Array3D<Host, float> _profiles;
+ public:
+  Domain_& domain;
+  unsigned models_count;
+  Array1D<Host, unsigned> initialization_iteration_indexes;
+  Array2D<Host, float> weights;
+  Array3D<Host, float> profiles;
 };
 
 class ProfilesInitializationStrategy {
@@ -341,7 +301,7 @@ class TerminationStrategy {
 
 const unsigned default_models_count = 9;
 
-unsigned get_assignment(const ModelsView& models, const unsigned model_index, const unsigned alternative_index) {
+unsigned get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   assert(model_index < models.models_count);
@@ -368,7 +328,7 @@ unsigned get_assignment(const ModelsView& models, const unsigned model_index, co
 }
 
 bool is_correctly_assigned(
-    const ModelsView& models,
+    const Models& models,
     const unsigned model_index,
     const unsigned alternative_index) {
   const unsigned expected_assignment = models.domain.learning_assignments[alternative_index];
@@ -380,9 +340,8 @@ bool is_correctly_assigned(
 unsigned get_accuracy(const Models& models, const unsigned model_index) {
   unsigned accuracy = 0;
 
-  ModelsView models_view = models.get_view();
-  for (unsigned alt_index = 0; alt_index != models_view.domain.learning_alternatives_count; ++alt_index) {
-    if (is_correctly_assigned(models_view, model_index, alt_index)) {
+  for (unsigned alt_index = 0; alt_index != models.domain.learning_alternatives_count; ++alt_index) {
+    if (is_correctly_assigned(models, model_index, alt_index)) {
       ++accuracy;
     }
   }
@@ -396,23 +355,21 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
     const Random& random,
     const Models& models) :
       _random(random) {
-    ModelsView models_view = models.get_view();
+    _generators.reserve(models.domain.categories_count - 1);
 
-    _generators.reserve(models_view.domain.categories_count - 1);
-
-    for (unsigned crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
+    for (unsigned crit_index = 0; crit_index != models.domain.criteria_count; ++crit_index) {
       _generators.push_back(std::vector<ProbabilityWeightedGenerator<float>>());
-      _generators.back().reserve(models_view.domain.criteria_count);
-      for (unsigned profile_index = 0; profile_index != models_view.domain.categories_count - 1; ++profile_index) {
+      _generators.back().reserve(models.domain.criteria_count);
+      for (unsigned profile_index = 0; profile_index != models.domain.categories_count - 1; ++profile_index) {
         _generators.back().push_back(ProbabilityWeightedGenerator<float>::make(
-          get_candidate_probabilities(models_view.domain, crit_index, profile_index)));
+          get_candidate_probabilities(models.domain, crit_index, profile_index)));
       }
     }
   }
 
  private:
   std::map<float, double> get_candidate_probabilities(
-    const DomainView& domain,
+    const Domain_& domain,
     unsigned crit_index,
     unsigned profile_index
   ) {
@@ -462,23 +419,21 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
     std::vector<unsigned>::const_iterator model_indexes_begin,
     const std::vector<unsigned>::const_iterator model_indexes_end
   ) override {
-    ModelsView models_view = models->get_view();
-
     // Embarrassingly parallel
     for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
       const unsigned model_index = *model_indexes_begin;
 
-      models_view.initialization_iteration_indexes[model_index] = iteration_index;
+      models->initialization_iteration_indexes[model_index] = iteration_index;
 
       // Embarrassingly parallel
-      for (unsigned crit_index = 0; crit_index != models_view.domain.criteria_count; ++crit_index) {
+      for (unsigned crit_index = 0; crit_index != models->domain.criteria_count; ++crit_index) {
         // Not parallel because of the profiles ordering constraint
-        for (unsigned category_index = models_view.domain.categories_count - 1; category_index != 0; --category_index) {
+        for (unsigned category_index = models->domain.categories_count - 1; category_index != 0; --category_index) {
           const unsigned profile_index = category_index - 1;
           float value = _generators[crit_index][profile_index](_random.urbg());
 
-          if (profile_index != models_view.domain.categories_count - 2) {
-            value = std::min(value, models_view.profiles[crit_index][profile_index + 1][model_index]);
+          if (profile_index != models->domain.categories_count - 2) {
+            value = std::min(value, models->profiles[crit_index][profile_index + 1][model_index]);
           }
           // @todo Add a unit test that triggers the following assertion
           // (This will require removing the code to enforce the order of profiles above)
@@ -486,10 +441,10 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
           // Note, this assertion does not protect us from initializing a model with two identical profiles.
           // Is it really that bad?
           assert(
-            profile_index == models_view.domain.categories_count - 2
-            || models_view.profiles[crit_index][profile_index + 1][model_index] >= value);
+            profile_index == models->domain.categories_count - 2
+            || models->profiles[crit_index][profile_index + 1][model_index] >= value);
 
-          models_view.profiles[crit_index][profile_index][model_index] = value;
+          models->profiles[crit_index][profile_index][model_index] = value;
         }
       }
     }
@@ -540,7 +495,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
   };
 
   void update_move_desirability(
-    const ModelsView& models,
+    const Models& models,
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,
@@ -659,7 +614,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
   }
 
   Desirability compute_move_desirability(
-    const ModelsView& models,
+    const Models& models,
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,
@@ -677,7 +632,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
 
   void improve_model_profile(
     const Random& random,
-    ModelsView models,
+    Models& models,
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index
@@ -731,7 +686,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
 
   void improve_model_profile(
     const Random& random,
-    ModelsView models,
+    Models& models,
     const unsigned model_index,
     const unsigned profile_index,
     ArrayView1D<Host, const unsigned> criterion_indexes
@@ -743,7 +698,7 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
     }
   }
 
-  void improve_model_profiles(const Random& random, const ModelsView& models, const unsigned model_index) {
+  void improve_model_profiles(const Random& random, Models& models, const unsigned model_index) {
     Array1D<Host, unsigned> criterion_indexes(models.domain.criteria_count, uninitialized);
     // Not worth parallelizing because models.domain.criteria_count is typically small
     for (unsigned crit_idx_idx = 0; crit_idx_idx != models.domain.criteria_count; ++crit_idx_idx) {
@@ -760,11 +715,9 @@ class ImproveProfilesWithAccuracyHeuristic : public ProfilesImprovementStrategy 
 
  public:
   void improve_profiles(std::shared_ptr<Models> models) override {
-    auto models_view = models->get_view();
-
     #pragma omp parallel for
-    for (unsigned model_index = 0; model_index != models_view.models_count; ++model_index) {
-      improve_model_profiles(_random, models_view, model_index);
+    for (unsigned model_index = 0; model_index != models->models_count; ++model_index) {
+      improve_model_profiles(_random, *models, model_index);
     }
   }
 
@@ -784,7 +737,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
 
   std::shared_ptr<LinearProgram> make_internal_linear_program(
     const float epsilon,
-    const ModelsView& models,
+    const Models& models,
     unsigned model_index
   ) {
     auto lp = std::make_shared<LinearProgram>();
@@ -855,7 +808,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
     return values;
   }
 
-  void optimize_weights(const ModelsView& models, unsigned model_index) {
+  void optimize_weights(const Models& models, unsigned model_index) {
     auto lp = make_internal_linear_program(1e-6, models, model_index);
     auto values = solve_linear_program(lp);
 
@@ -864,7 +817,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
     }
   }
 
-  void optimize_weights(const ModelsView& models) {
+  void optimize_weights(const Models& models) {
     #pragma omp parallel for
     for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
       optimize_weights(models, model_index);
@@ -873,7 +826,7 @@ class OptimizeWeightsUsingGlop : public WeightsOptimizationStrategy {
 
  public:
   void optimize_weights(std::shared_ptr<Models> models) override {
-    optimize_weights(models->get_view());
+    optimize_weights(*models);
   };
 };
 
@@ -914,7 +867,7 @@ io::Model perform_learning(
   std::shared_ptr<ProfilesImprovementStrategy> profiles_improvement_strategy,
   std::shared_ptr<TerminationStrategy> termination_strategy
 ) {
-  const unsigned models_count = models->get_view().models_count;
+  const unsigned models_count = models->models_count;
 
   std::vector<unsigned> model_indexes(models_count, 0);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
@@ -973,7 +926,7 @@ Model MrSortLearning_::perform() {
 
   Random random(44);
   auto ppl_host_domain = Domain_::make(ppl_learning_set);
-  auto ppl_host_models = Models::make(ppl_host_domain, default_models_count);
+  auto ppl_host_models = Models::make(*ppl_host_domain, default_models_count);
   io::Model ppl_model = perform_learning(
     ppl_host_models,
     std::make_shared<InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion>(random, *ppl_host_models),
