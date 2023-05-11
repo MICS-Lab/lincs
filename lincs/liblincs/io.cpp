@@ -2,10 +2,11 @@
 
 #include <cassert>
 
-#include <doctest.h>
 #include <magic_enum.hpp>
 #include <rapidcsv.h>
 #include <yaml-cpp/yaml.h>
+
+#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
 namespace YAML {

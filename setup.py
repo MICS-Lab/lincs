@@ -16,8 +16,6 @@ with open("requirements.txt") as f:
 # it should make it easier to compile CUDA code using nvcc and to run C++ unit tests during build.
 # Note that pybind11 comes with an example of building using scikit-build.
 # (see also https://www.benjack.io/hybrid-python/c-packages-revisited/)
-# @todo Run unit tests for the Python and C++ parts of the code
-# See https://github.com/doctest/doctest for C++ (compare to GoogleTest)
 liblincs = setuptools.Extension(
     "liblincs",
     sources=[
