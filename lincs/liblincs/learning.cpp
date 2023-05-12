@@ -1,9 +1,11 @@
-#include "lincs.hpp"
+#include "learning.hpp"
 
 #include <magic_enum.hpp>
 #include <omp.h>
 #include <ortools/glop/lp_solver.h>
 
+#include "classification.hpp"  // Only for tests
+#include "generation.hpp"  // Only for tests
 #include "median-and-max.hpp"
 
 #include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
