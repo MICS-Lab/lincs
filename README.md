@@ -4,6 +4,8 @@
 
 Note that *lincs* is not licensed yet, so you don't have any rights besides reading it for now.
 
+Questions? Remarks? Bugs? Want to contribute? Open [an issue](https://github.com/MICS-Lab/lincs/issues) or [a discussion](https://github.com/MICS-Lab/lincs/discussions)!
+
 # Contributors and previous work
 
 *lincs* is developed by the [MICS](https://mics.centralesupelec.fr/) research team at [CentraleSupélec](https://www.centralesupelec.fr/).

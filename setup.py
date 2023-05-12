@@ -9,7 +9,7 @@ version = "0.3.2-dev"
 with open("README.md") as f:
     long_description = f.read()
 for image in ["model", "alternatives"]:
-    long_description = long_description.replace(f"]({image}.png)", f"](https://github.com/jacquev6/lincs/raw/v{version}/{image}.png)")
+    long_description = long_description.replace(f"]({image}.png)", f"](https://github.com/MICS-Lab/lincs/raw/v{version}/{image}.png)")
 
 with open("requirements.txt") as f:
     install_requires = f.readlines()
@@ -40,7 +40,7 @@ setuptools.setup(
     description="MCDA algorithms",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/jacquev6/lincs",
+    url="https://github.com/MICS-Lab/lincs",
     author="Vincent Jacques",
     author_email="vincent@vincent-jacques.net",
     install_requires=install_requires,
