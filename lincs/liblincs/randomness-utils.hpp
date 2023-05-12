@@ -1,3 +1,6 @@
+#ifndef LINCS__RANDOMNESS_UTILS_HPP
+#define LINCS__RANDOMNESS_UTILS_HPP
+
 #include <cassert>
 #include <map>
 #include <random>
@@ -46,3 +49,5 @@ class ProbabilityWeightedGenerator {
   std::vector<T> values;
   mutable std::discrete_distribution<unsigned> distribution;
 };
+
+#endif  // LINCS__RANDOMNESS_UTILS_HPP

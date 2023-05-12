@@ -1,3 +1,6 @@
+#ifndef LINCS__MEDIAN_AND_MAX_HPP
+#define LINCS__MEDIAN_AND_MAX_HPP
+
 #include <algorithm>
 
 /*
@@ -15,3 +18,5 @@ void ensure_median_and_max(RandomIt begin, RandomIt end, Compare comp) {
   // Ensure median, not touching max
   std::nth_element(begin, begin + len / 2, begin + len - 1, comp);
 }
+
+#endif  // LINCS__MEDIAN_AND_MAX_HPP
