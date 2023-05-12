@@ -39,7 +39,7 @@ liblincs = setuptools.Extension(
 setuptools.setup(
     name="lincs",
     version=version,
-    description="MCDA algorithms",
+    description="Learn and Infer Non Compensatory Sortings",
     license="LGPLv3",
     long_description=long_description,
     long_description_content_type="text/markdown",
