@@ -1,5 +1,5 @@
-#ifndef LINCS_CLASSIFICATION_HPP
-#define LINCS_CLASSIFICATION_HPP
+#ifndef LINCS__CLASSIFICATION_HPP
+#define LINCS__CLASSIFICATION_HPP
 
 #include "io.hpp"
 
@@ -15,4 +15,4 @@ ClassificationResult classify_alternatives(const Domain&, const Model&, Alternat
 
 }  // namespace lincs
 
-#endif  // LINCS_CLASSIFICATION_HPP
+#endif  // LINCS__CLASSIFICATION_HPP

@@ -1,5 +1,5 @@
-#ifndef LINCS_LINCS_HPP
-#define LINCS_LINCS_HPP
+#ifndef LINCS__LINCS_HPP
+#define LINCS__LINCS_HPP
 
 #include "classification.hpp"
 #include "generation.hpp"
@@ -7,4 +7,4 @@
 #include "learning.hpp"
 #include "randomness-utils.hpp"
 
-#endif  // LINCS_LINCS_HPP
+#endif  // LINCS__LINCS_HPP

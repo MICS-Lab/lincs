@@ -1,5 +1,5 @@
-#ifndef LIBLINCS_IO_HPP
-#define LIBLINCS_IO_HPP
+#ifndef LINCS__IO_HPP
+#define LINCS__IO_HPP
 
 #include <iostream>
 #include <optional>
@@ -120,4 +120,4 @@ struct Alternatives {
 
 }  // namespace lincs
 
-#endif  // LIBLINCS_IO_HPP
+#endif  // LINCS__IO_HPP

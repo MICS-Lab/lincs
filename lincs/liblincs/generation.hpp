@@ -1,5 +1,5 @@
-#ifndef LINCS_GENERATION_HPP
-#define LINCS_GENERATION_HPP
+#ifndef LINCS__GENERATION_HPP
+#define LINCS__GENERATION_HPP
 
 #include <map>
 
@@ -33,4 +33,4 @@ Alternatives generate_alternatives(
 
 } // namespace lincs
 
-#endif // LINCS_GENERATION_HPP
+#endif  // LINCS__GENERATION_HPP

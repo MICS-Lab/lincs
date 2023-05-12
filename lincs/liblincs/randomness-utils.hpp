@@ -1,5 +1,5 @@
-#ifndef LINCS_RANDOMNESS_UTILS_HPP
-#define LINCS_RANDOMNESS_UTILS_HPP
+#ifndef LINCS__RANDOMNESS_UTILS_HPP
+#define LINCS__RANDOMNESS_UTILS_HPP
 
 #include <cassert>
 #include <map>
@@ -50,4 +50,4 @@ class ProbabilityWeightedGenerator {
   mutable std::discrete_distribution<unsigned> distribution;
 };
 
-#endif // LINCS_RANDOMNESS_UTILS_HPP
+#endif  // LINCS__RANDOMNESS_UTILS_HPP
