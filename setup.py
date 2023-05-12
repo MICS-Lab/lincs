@@ -10,6 +10,8 @@ with open("README.md") as f:
     long_description = f.read()
 for image in ["model", "alternatives"]:
     long_description = long_description.replace(f"]({image}.png)", f"](https://github.com/MICS-Lab/lincs/raw/v{version}/{image}.png)")
+for file in ["COPYING", "COPYING.LESSER"]:
+    long_description = long_description.replace(f"]({file})", f"](https://github.com/MICS-Lab/lincs/blob/v{version}/{file})")
 
 with open("requirements.txt") as f:
     install_requires = f.readlines()
