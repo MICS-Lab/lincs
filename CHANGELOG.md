@@ -1,5 +1,9 @@
 <!-- Copyright 2023 Vincent Jacques -->
 
+# Version 0.3.3
+
+- Fix Python package description
+
 # Version 0.3.2
 
 - License (LGPLv3)
