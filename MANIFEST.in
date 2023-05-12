@@ -1,3 +1,2 @@
 include requirements.txt
-include lincs/liblincs/lincs.hpp
-include lincs/liblincs/randomness-utils.hpp
+recursive-include lincs/liblincs *.hpp *.cpp

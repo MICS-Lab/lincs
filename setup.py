@@ -1,3 +1,4 @@
+import glob
 import setuptools
 
 
@@ -18,15 +19,7 @@ with open("requirements.txt") as f:
 # (see also https://www.benjack.io/hybrid-python/c-packages-revisited/)
 liblincs = setuptools.Extension(
     "liblincs",
-    sources=[
-        "lincs/liblincs/liblincs_module.cpp",
-        "lincs/liblincs/classification.cpp",
-        "lincs/liblincs/generation.cpp",
-        "lincs/liblincs/io.cpp",
-        "lincs/liblincs/learning.cpp",
-        "lincs/liblincs/median-and-max.cpp",
-        "lincs/liblincs/randomness-utils.cpp",
-    ],
+    sources=glob.glob("lincs/liblincs/**/*.cpp", recursive=True),
     libraries=[
         "boost_python310",
         "ortools",
