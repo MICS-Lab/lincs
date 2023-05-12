@@ -1,4 +1,4 @@
-#include "lincs.hpp"
+#include "io.hpp"
 
 #include <cassert>
 

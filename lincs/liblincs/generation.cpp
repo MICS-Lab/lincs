@@ -1,8 +1,10 @@
-#include "lincs.hpp"
+#include "generation.hpp"
 
 #include <algorithm>
 #include <cassert>
 #include <random>
+
+#include "classification.hpp"
 
 
 namespace lincs {
