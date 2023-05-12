@@ -38,6 +38,7 @@ setuptools.setup(
     name="lincs",
     version=version,
     description="MCDA algorithms",
+    license="LGPLv3",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MICS-Lab/lincs",
@@ -57,7 +58,7 @@ setuptools.setup(
         "Environment :: Console",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-        # Note: no license classifier yet
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: C++",
         "Programming Language :: Python :: 3 :: Only",

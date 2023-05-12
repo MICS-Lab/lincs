@@ -2,7 +2,9 @@
 
 *lincs* is a collection of MCDA algorithms, usable as a C++ library, a Python package and a command-line utility.
 
-Note that *lincs* is not licensed yet, so you don't have any rights besides reading it for now.
+*lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files [COPYING](COPYING) and [COPYING.LESSER](COPYING.LESSER).
+
+@todo (When we have a paper to actually cite) Add a note asking academics to kindly cite our work.
 
 Questions? Remarks? Bugs? Want to contribute? Open [an issue](https://github.com/MICS-Lab/lincs/issues) or [a discussion](https://github.com/MICS-Lab/lincs/discussions)!
 
