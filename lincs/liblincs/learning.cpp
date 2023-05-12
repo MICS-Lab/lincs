@@ -597,9 +597,9 @@ bool TerminateAtAccuracy::terminate(unsigned /*iteration_index*/, unsigned best_
 }
 
 TEST_CASE("Basic MR-Sort learning") {
-  Domain domain = Domain::generate(3, 2, 41);
-  Model model = Model::generate_mrsort(domain, 42);
-  Alternatives learning_set = Alternatives::generate(domain, model, 100, 43);
+  Domain domain = generate_domain(3, 2, 41);
+  Model model = generate_mrsort_model(domain, 42);
+  Alternatives learning_set = generate_alternatives(domain, model, 100, 43);
 
   const unsigned random_seed = 44;
   auto models = WeightsProfilesBreedMrSortLearning::Models::make(
@@ -625,7 +625,7 @@ TEST_CASE("Basic MR-Sort learning") {
   }
 
   {
-    Alternatives testing_set = Alternatives::generate(domain, model, 1000, 43);
+    Alternatives testing_set = generate_alternatives(domain, model, 1000, 43);
     ClassificationResult result = classify_alternatives(domain, learned_model, &testing_set);
     CHECK(result.changed == 6);
     CHECK(result.unchanged == 994);

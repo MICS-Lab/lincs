@@ -224,7 +224,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   );
   bp::def(
     "generate_domain",
-    &lincs::Domain::generate,
+    &lincs::generate_domain,
     (bp::arg("criteria_count"), "categories_count", "random_seed"),
     "Generate a domain with `criteria_count` criteria and `categories_count` categories."
   );
@@ -261,7 +261,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   );
   bp::def(
     "generate_mrsort_model",
-    &lincs::Model::generate_mrsort,
+    &lincs::generate_mrsort_model,
     (bp::arg("domain"), "random_seed", bp::arg("fixed_weights_sum")=std::optional<float>()),
     "Generate an MR-Sort model for the provided `domain`."
   );
@@ -291,7 +291,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   );
   bp::def(
     "generate_alternatives",
-    &lincs::Alternatives::generate,
+    &lincs::generate_alternatives,
     (bp::arg("domain"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
     "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`."
   );

@@ -62,7 +62,6 @@ struct Domain {
   void dump(std::ostream&) const;
   static Domain load(std::istream&);
 
-  static Domain generate(unsigned criteria_count, unsigned categories_count, unsigned random_seed);
 };
 
 struct Model {
@@ -99,7 +98,6 @@ struct Model {
   void dump(std::ostream&) const;
   static Model load(const Domain&, std::istream&);
 
-  static Model generate_mrsort(const Domain&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
 };
 
 struct Alternative {
@@ -113,6 +111,20 @@ struct Alternative {
   bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category == other.category; }
 };
 
+struct Alternatives {
+  const Domain& domain;
+  std::vector<Alternative> alternatives;
+
+  Alternatives(const Domain& domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
+
+  void dump(std::ostream&) const;
+  static Alternatives load(const Domain&, std::istream&);
+};
+
+Domain generate_domain(unsigned criteria_count, unsigned categories_count, unsigned random_seed);
+
+Model generate_mrsort_model(const Domain&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
+
 class BalancedAlternativesGenerationException : public std::exception {
  public:
   explicit BalancedAlternativesGenerationException(const std::map<std::string, unsigned>& histogram_) : histogram(histogram_) {}
@@ -124,23 +136,13 @@ class BalancedAlternativesGenerationException : public std::exception {
   std::map<std::string, unsigned> histogram;
 };
 
-struct Alternatives {
-  const Domain& domain;
-  std::vector<Alternative> alternatives;
-
-  Alternatives(const Domain& domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
-
-  void dump(std::ostream&) const;
-  static Alternatives load(const Domain&, std::istream&);
-
-  static Alternatives generate(
-    const Domain&,
-    const Model&,
-    unsigned alternatives_count,
-    unsigned random_seed,
-    std::optional<float> max_imbalance = std::nullopt
-  );
-};
+Alternatives generate_alternatives(
+  const Domain&,
+  const Model&,
+  unsigned alternatives_count,
+  unsigned random_seed,
+  std::optional<float> max_imbalance = std::nullopt
+);
 
 struct ClassificationResult {
   unsigned unchanged;

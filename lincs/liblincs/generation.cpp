@@ -7,31 +7,31 @@
 
 namespace lincs {
 
-Domain Domain::generate(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
+Domain generate_domain(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
   // There is nothing random yet. There will be when other value types and category correlations are added.
 
-  std::vector<Criterion> criteria;
+  std::vector<Domain::Criterion> criteria;
   criteria.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    criteria.push_back(Criterion{
+    criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
-      Criterion::ValueType::real,
-      Criterion::CategoryCorrelation::growing,
-    });
+      Domain::Criterion::ValueType::real,
+      Domain::Criterion::CategoryCorrelation::growing
+    );
   }
 
-  std::vector<Category> categories;
+  std::vector<Domain::Category> categories;
   categories.reserve(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
-    categories.push_back(Category{
-      "Category " + std::to_string(category_index + 1),
-    });
+    categories.emplace_back(
+      "Category " + std::to_string(category_index + 1)
+    );
   }
 
   return Domain{criteria, categories};
 }
 
-Model Model::generate_mrsort(const Domain& domain, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
+Model generate_mrsort_model(const Domain& domain, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
   const unsigned categories_count = domain.categories.size();
   const unsigned criteria_count = domain.criteria.size();
 
@@ -82,15 +82,15 @@ Model Model::generate_mrsort(const Domain& domain, const unsigned random_seed, c
     denormalized_weights.begin(),
     [weights_sum](float w) { return w * weights_sum; });
 
-  SufficientCoalitions coalitions{
-    SufficientCoalitions::Kind::weights,
+  Model::SufficientCoalitions coalitions{
+    Model::SufficientCoalitions::Kind::weights,
     denormalized_weights,
   };
 
-  std::vector<Boundary> boundaries;
+  std::vector<Model::Boundary> boundaries;
   boundaries.reserve(categories_count - 1);
   for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
-    boundaries.push_back(Boundary{profiles[category_index], coalitions});
+    boundaries.emplace_back(profiles[category_index], coalitions);
   }
 
   return Model(domain, boundaries);
@@ -244,7 +244,7 @@ Alternatives generate_balanced_alternatives(
   }
 }
 
-Alternatives Alternatives::generate(
+Alternatives generate_alternatives(
   const Domain& domain,
   const Model& model,
   const unsigned alternatives_count,
