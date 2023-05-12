@@ -1,3 +1,5 @@
+# Copyright 2023 Vincent Jacques
+
 from __future__ import annotations
 import glob
 import multiprocessing

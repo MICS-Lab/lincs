@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #include "alternatives.hpp"
 
 #include <rapidcsv.h>

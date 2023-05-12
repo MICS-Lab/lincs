@@ -1,3 +1,5 @@
+# Copyright 2023 Vincent Jacques
+
 set -o errexit
 set -o nounset
 set -o pipefail

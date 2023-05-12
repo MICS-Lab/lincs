@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #include "randomness-utils.hpp"
 
 #include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers

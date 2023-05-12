@@ -1,3 +1,5 @@
+# Copyright 2023 Vincent Jacques
+
 FROM ubuntu:22.04
 
 # System packages

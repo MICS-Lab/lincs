@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #include "weights-profiles-breed-mrsort.hpp"
 
 #include <map>

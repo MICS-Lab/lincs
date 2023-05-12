@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #include "glop.hpp"
 
 #include <ortools/glop/lp_solver.h>

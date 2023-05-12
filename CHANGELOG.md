@@ -1,3 +1,5 @@
+<!-- Copyright 2023 Vincent Jacques -->
+
 # Version 0.3.1
 
 - Fix installation (missing C++ header file)

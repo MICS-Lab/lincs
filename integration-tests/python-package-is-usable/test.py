@@ -1,3 +1,5 @@
+# Copyright 2023 Vincent Jacques
+
 import io
 import sys
 

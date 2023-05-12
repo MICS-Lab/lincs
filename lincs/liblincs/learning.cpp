@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #include "learning.hpp"
 
 #include "classification.hpp"  // Only for tests

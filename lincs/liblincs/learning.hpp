@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #ifndef LINCS__LEARNING_HPP
 #define LINCS__LEARNING_HPP
 

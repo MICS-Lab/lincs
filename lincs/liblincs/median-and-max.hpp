@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #ifndef LINCS__MEDIAN_AND_MAX_HPP
 #define LINCS__MEDIAN_AND_MAX_HPP
 

@@ -1,3 +1,5 @@
+# Copyright 2023 Vincent Jacques
+
 import glob
 import setuptools
 

@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #include "probabilistic-maximal-discrimination-power-per-criterion.hpp"
 
 

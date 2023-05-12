@@ -1,2 +1,4 @@
+# Copyright 2023 Vincent Jacques
+
 click~=8.1
 matplotlib~=3.7

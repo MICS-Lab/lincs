@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright 2023 Vincent Jacques
 
 set -o errexit
 cd "$(dirname "${BASH_SOURCE[0]}")/"

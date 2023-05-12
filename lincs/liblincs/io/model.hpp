@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #ifndef LINCS__IO__MODEL_HPP
 #define LINCS__IO__MODEL_HPP
 

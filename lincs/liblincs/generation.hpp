@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #ifndef LINCS__GENERATION_HPP
 #define LINCS__GENERATION_HPP
 

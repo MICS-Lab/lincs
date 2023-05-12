@@ -1,3 +1,5 @@
+// Copyright 2023 Vincent Jacques
+
 #ifndef LINCS__RANDOMNESS_UTILS_HPP
 #define LINCS__RANDOMNESS_UTILS_HPP
 
