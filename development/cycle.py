@@ -64,6 +64,21 @@ def main():
 
     make_example_integration_test_from_readme()
 
+    print("Building Sphinx documentation")
+    print("=============================")
+    print(flush=True)
+
+    shutil.rmtree("docs", ignore_errors=True)
+    subprocess.run(
+        [
+            "sphinx-build",
+            "-b", "html",
+            "--jobs", str(multiprocessing.cpu_count() - 1),
+            "docs-source", "docs",
+        ],
+        check=True,
+    )
+
     # Install lincs
     ###############
 
