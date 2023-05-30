@@ -13,9 +13,10 @@ Questions? Remarks? Bugs? Want to contribute? Open [an issue](https://github.com
 *lincs* is developed by the [MICS](https://mics.centralesupelec.fr/) research team at [CentraleSupélec](https://www.centralesupelec.fr/).
 
 Its main authors are (alphabetical order):
-- [Laurent Cabaret](http://perso.ecp.fr/~cabaretl/) (performance optimization)
+- [Laurent Cabaret](https://cabaretl.pages.centralesupelec.fr/) (performance optimization)
 - [Vincent Jacques](https://vincent-jacques.net) (engineering)
-- [Vincent Mousseau](https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D) (domain expertise and project leadership)
+- [Vincent Mousseau](https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D) (domain expertise)
+- [Wassila Ouerdane](https://wassilaouerdane.github.io/) (domain expertise)
 
 It's based on work by:
 - [Olivier Sobrie](http://olivier.sobrie.be/) (The "weights, profiles, breed" learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his [Ph.D thesis](http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf), and [implemented in Python](https://github.com/oso/pymcda))
