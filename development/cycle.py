@@ -72,11 +72,11 @@ def main(with_docs, without_install):
         print("Building Sphinx documentation")
         print("=============================")
         print(flush=True)
-
         build_sphinx_documentation()
+        print()
     else:
-        subprocess.run(["git", "checkout", "--", "docs"], check=True)
-        subprocess.run(["git", "clean", "-fd", "docs"], check=True)
+        subprocess.run(["git", "checkout", "--", "docs"], check=True, capture_output=True)
+        subprocess.run(["git", "clean", "-fd", "docs"], check=True, capture_output=True)
 
     if without_install:
         return
@@ -110,8 +110,10 @@ def run_python_tests():
 
 
 def make_example_integration_test_from_doc():
-    with open("README.rst") as f:
-        lines = f.readlines()
+    lines = []
+    for file_name in ["README.rst"] + glob.glob("doc-sources/*.rst"):
+        with open(file_name) as f:
+            lines += f.readlines()
 
     files = {}
     current_file_name = None
@@ -140,16 +142,16 @@ def make_example_integration_test_from_doc():
                 files[current_file_name] = []
     assert current_file_name is None, current_file_name
 
-    shutil.rmtree("integration-tests/readme", ignore_errors=True)
+    shutil.rmtree("integration-tests/from-documentation", ignore_errors=True)
     for file_name, file_contents in files.items():
-        file_path = os.path.join("integration-tests", "readme", file_name)
+        file_path = os.path.join("integration-tests", "from-documentation", file_name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         # print(file_path, file_contents)
         while file_contents[-1] == "":
             file_contents.pop()
         with open(file_path, "w") as f:
             f.write(textwrap.dedent("\n".join(file_contents)) + "\n")
-    with open("integration-tests/readme/.gitignore", "w") as f:
+    with open("integration-tests/from-documentation/.gitignore", "w") as f:
         f.write("*\n")
 
 
@@ -158,8 +160,7 @@ def build_sphinx_documentation():
         original_content = f.read()
 
     content = original_content
-    for image in ["model", "alternatives"]:
-        content = content.replace(f".. image:: {image}.png", f".. image:: ../{image}.png")
+    content = re.sub(r"`(.*) <https://mics-lab.github.io/lincs/(.*)\.html>`_", r":doc:`\1 <\2>`", content)
 
     with open("README.rst", "w") as f:
         f.write(content)
