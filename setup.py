@@ -6,12 +6,12 @@ import setuptools
 
 version = "0.3.4-dev"
 
-with open("README.md") as f:
+with open("README.rst") as f:
     long_description = f.read()
 for image in ["model", "alternatives"]:
-    long_description = long_description.replace(f"]({image}.png)", f"](https://github.com/MICS-Lab/lincs/raw/v{version}/{image}.png)")
+    long_description = long_description.replace(f".. image:: {image}.png", f".. image:: https://github.com/MICS-Lab/lincs/raw/v{version}/{image}.png")
 for file in ["COPYING", "COPYING.LESSER"]:
-    long_description = long_description.replace(f"]({file})", f"](https://github.com/MICS-Lab/lincs/blob/v{version}/{file})")
+    long_description = long_description.replace(f" <{file}>`_", f" <https://github.com/MICS-Lab/lincs/blob/v{version}/{file}>`_")
 
 with open("requirements.txt") as f:
     install_requires = f.readlines()
@@ -42,7 +42,7 @@ setuptools.setup(
     description="Learn and Infer Non Compensatory Sortings",
     license="LGPLv3",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/MICS-Lab/lincs",
     author="Vincent Jacques",
     author_email="vincent@vincent-jacques.net",

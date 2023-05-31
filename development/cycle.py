@@ -68,16 +68,7 @@ def main():
     print("=============================")
     print(flush=True)
 
-    shutil.rmtree("docs", ignore_errors=True)
-    subprocess.run(
-        [
-            "sphinx-build",
-            "-b", "html",
-            "--jobs", str(multiprocessing.cpu_count() - 1),
-            "docs-source", "docs",
-        ],
-        check=True,
-    )
+    build_spinx_documentation()
 
     # Install lincs
     ###############
@@ -108,25 +99,30 @@ def run_python_tests():
 
 
 def make_example_integration_test_from_readme():
-    with open("README.md") as f:
+    with open("README.rst") as f:
         lines = f.readlines()
 
     files = {}
     current_file_name = None
     for line in lines:
         line = line.rstrip()
-        m = re.fullmatch(r"(?:-->)?<!-- STOP -->", line)
+        m = re.fullmatch(r".. STOP", line)
         if m:
             assert current_file_name
             current_file_name = None
         if current_file_name:
-            m = re.fullmatch(r"<!-- APPEND-TO-LAST-LINE( .+) -->", line)
+            m = re.fullmatch(r".. APPEND-TO-LAST-LINE( .+)", line)
             if m:
                 assert files[current_file_name]
-                files[current_file_name][-1] += m.group(1)
-            else:
+                last_line_index = -1
+                while files[current_file_name][last_line_index] == "":
+                    last_line_index -= 1
+                files[current_file_name][last_line_index] += m.group(1)
+            elif line.startswith("    "):
                 files[current_file_name].append(line)
-        m = re.fullmatch(r"<!-- (START|EXTEND) (.+) -->(?:<!--)?", line)
+            elif line == "" and files[current_file_name]:
+                files[current_file_name].append("")
+        m = re.fullmatch(r".. (START|EXTEND) (.+)", line)
         if m:
             current_file_name = m.group(2)
             if m.group(1) == "START":
@@ -137,10 +133,39 @@ def make_example_integration_test_from_readme():
     for file_name, file_contents in files.items():
         file_path = os.path.join("integration-tests", "readme", file_name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        # print(file_path, file_contents)
+        while file_contents[-1] == "":
+            file_contents.pop()
         with open(file_path, "w") as f:
             f.write(textwrap.dedent("\n".join(file_contents)) + "\n")
     with open("integration-tests/readme/.gitignore", "w") as f:
         f.write("*\n")
+
+
+def build_spinx_documentation():
+    with open("README.rst") as f:
+        original_content = f.read()
+
+    content = original_content
+    for image in ["model", "alternatives"]:
+        content = content.replace(f".. image:: {image}.png", f".. image:: ../{image}.png")
+
+    with open("README.rst", "w") as f:
+        f.write(content)
+
+    shutil.rmtree("docs", ignore_errors=True)
+    subprocess.run(
+        [
+            "sphinx-build",
+            "-b", "html",
+            "--jobs", str(multiprocessing.cpu_count() - 1),
+            "docs-source", "docs",
+        ],
+        check=True,
+    )
+
+    with open("README.rst", "w") as f:
+        f.write(original_content)
 
 
 def run_integration_tests():

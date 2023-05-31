@@ -1,7 +1,7 @@
 *lincs*
 =======
 
-Soon.
+.. include:: ../README.rst
 
 .. toctree::
    :maxdepth: 2

@@ -1,35 +1,49 @@
-<!-- Copyright 2023 Vincent Jacques -->
+.. Copyright 2023 Vincent Jacques
+
+.. WARNING, this README is rendered to HTML in several places
+    - on GitHub (https://github.com/mics-lab/lincs/)
+    - on PyPI after publication of the package (https://pypi.org/project/lincs/)
+    - on GitHub Pages (https://mics-lab.github.io/lincs/)
+    So when you change it, take care to check all those places.
 
 *lincs* is a collection of MCDA algorithms, usable as a C++ library, a Python package and a command-line utility.
 
-*lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files [COPYING](COPYING) and [COPYING.LESSER](COPYING.LESSER).
+*lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files `COPYING <COPYING>`_ and `COPYING.LESSER <COPYING.LESSER>`_.
 
 @todo (When we have a paper to actually cite) Add a note asking academics to kindly cite our work.
 
-Questions? Remarks? Bugs? Want to contribute? Open [an issue](https://github.com/MICS-Lab/lincs/issues) or [a discussion](https://github.com/MICS-Lab/lincs/discussions)!
+Questions? Remarks? Bugs? Want to contribute? Open `an issue <https://github.com/MICS-Lab/lincs/issues>`_ or `a discussion <https://github.com/MICS-Lab/lincs/discussions>`_!
 
-# Contributors and previous work
 
-*lincs* is developed by the [MICS](https://mics.centralesupelec.fr/) research team at [CentraleSupélec](https://www.centralesupelec.fr/).
+Contributors and previous work
+==============================
+
+*lincs* is developed by the `MICS <https://mics.centralesupelec.fr/>`_ research team at `CentraleSupélec <https://www.centralesupelec.fr/>`_.
 
 Its main authors are (alphabetical order):
-- [Laurent Cabaret](https://cabaretl.pages.centralesupelec.fr/) (performance optimization)
-- [Vincent Jacques](https://vincent-jacques.net) (engineering)
-- [Vincent Mousseau](https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D) (domain expertise)
-- [Wassila Ouerdane](https://wassilaouerdane.github.io/) (domain expertise)
+
+- `Laurent Cabaret <https://cabaretl.pages.centralesupelec.fr/>`_ (performance optimization)
+- `Vincent Jacques <https://vincent-jacques.net>`_ (engineering)
+- `Vincent Mousseau <https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D>`_ (domain expertise)
+- `Wassila Ouerdane <https://wassilaouerdane.github.io/>`_ (domain expertise)
 
 It's based on work by:
-- [Olivier Sobrie](http://olivier.sobrie.be/) (The "weights, profiles, breed" learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his [Ph.D thesis](http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf), and [implemented in Python](https://github.com/oso/pymcda))
-- Emma Dixneuf, Thibault Monsel and Thomas Vindard ([C++ implementation of Sobrie's heuristic](https://github.com/Mostah/fastPL/))
 
-# Project goals
+- `Olivier Sobrie <http://olivier.sobrie.be/>`_ (The "weights, profiles, breed" learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his `Ph.D thesis <http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf>`_, and `implemented in Python <https://github.com/oso/pymcda>`_)
+- Emma Dixneuf, Thibault Monsel and Thomas Vindard (`C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_)
 
-## Provide MCDA tools usable out of the box
+
+Project goals
+=============
+
+Provide MCDA tools usable out of the box
+----------------------------------------
 
 You should be able to use *lincs* without being a specialist of MCDA and/or NCS models.
-Just follow the [Get started](#get-started) section below.
+Just follow the `Get started <#get-started>`_ section below.
 
-## Provide a base for developing new MCDA algorithms
+Provide a base for developing new MCDA algorithms
+-------------------------------------------------
 
 *lincs* is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
 @todo Write doc about that use case.
@@ -37,13 +51,19 @@ Just follow the [Get started](#get-started) section below.
 *linc* also provides a benchmark framework to compare algorithms (@todo Write and document).
 This should make it easier to understand the relative strengths and weaknesses of each algorithm.
 
-# Get started
 
-## Install
+Get started
+===========
 
-First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier):
+Install
+-------
 
-<!-- START install/dependencies.sh -->
+.. highlight:: text
+
+.. START install/dependencies.sh
+
+First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier)::
+
     # System packages
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
 
@@ -67,9 +87,10 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
     sudo wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
     sudo wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
-<!-- STOP -->
 
-<!-- START install/Dockerfile-pre --><!--
+.. STOP
+
+.. START install/Dockerfile-pre
     FROM ubuntu:22.04
 
     RUN apt-get update
@@ -82,18 +103,20 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     USER user
     ENV PATH=$PATH:/home/user/.local/bin
     WORKDIR /home/user
---><!-- STOP -->
 
-<!-- START install/Dockerfile-post --><!--
+.. STOP
+
+.. START install/Dockerfile-post
     WORKDIR /home/user
     # Speed-up build when requirements don't change
     ADD project/requirements.txt .
     RUN pip3 install -r requirements.txt
     ADD --chown=user project /home/user/lincs
     RUN pip3 install ./lincs
---><!-- STOP -->
 
-<!-- START install/run.sh --><!--
+.. STOP
+
+.. START install/run.sh
     set -o errexit
     set -o nounset
     set -o pipefail
@@ -113,15 +136,17 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
 
     mkdir project
     cp -r ../../../{lincs,requirements.txt,setup.py} project
-    touch project/README.md  # No need for the actual readme, so don't bust the Docker cache
+    touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
 
     docker build . --tag lincs-development--install --quiet >/dev/null
     docker run --rm lincs-development--install lincs --help >/dev/null
---><!-- STOP -->
 
-Finally, *lincs* is available on the [Python Package Index](https://pypi.org/project/lincs/), so `pip install lincs` should finalize the install.
+.. STOP
 
-## Concepts and files
+Finally, *lincs* is available on the `Python Package Index <https://pypi.org/project/lincs/>`_, so ``pip install lincs`` should finalize the install.
+
+Concepts and files
+------------------
 
 *lincs* is based on the following concepts:
 
@@ -129,11 +154,10 @@ Finally, *lincs* is available on the [Python Package Index](https://pypi.org/pro
 - a "model" is used to actually assign a category to each alternative, based on the values of the criteria for that alternative;
 - a "classified alternative" is an alternative, with its category.
 
-## Start using *lincs*' command-line interface
+Start using *lincs*' command-line interface
+-------------------------------------------
 
-The command-line interface is the easiest way to get started with *lincs*, starting with `lincs --help`, which should output something like:
-
-<!-- START help/run.sh --><!--
+.. START help/run.sh
     set -o errexit
     set -o nounset
     set -o pipefail
@@ -141,9 +165,12 @@ The command-line interface is the easiest way to get started with *lincs*, start
 
     lincs --help >actual-help.txt
     diff expected-help.txt actual-help.txt
---><!-- STOP -->
+.. STOP
 
-<!-- START help/expected-help.txt -->
+.. START help/expected-help.txt
+
+The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like::
+
     Usage: lincs [OPTIONS] COMMAND [ARGS]...
 
       lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for
@@ -158,28 +185,31 @@ The command-line interface is the easiest way to get started with *lincs*, start
       generate                 Generate synthetic data.
       learn                    Learn a model.
       visualize                Make graphs from data.
-<!-- STOP -->
 
-It's organized using sub-commands, the first one being `generate`, to generate synthetic pseudo-random data.
+.. STOP
 
-<!-- START command-line-example/run.sh --><!--
+It's organized using sub-commands, the first one being ``generate``, to generate synthetic pseudo-random data.
+
+.. START command-line-example/run.sh
     set -o errexit
     set -o nounset
     set -o pipefail
     trap 'echo "Error on line $LINENO"' ERR
+.. STOP
 
---><!-- STOP -->
+.. EXTEND command-line-example/run.sh
 
-Generate a classification domain with 4 criteria and 3 categories (@todo Link to concepts and file formats):
+Generate a classification domain with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
 
-<!-- EXTEND command-line-example/run.sh -->
     lincs generate classification-domain 4 3 --output-domain domain.yml
-<!-- APPEND-TO-LAST-LINE --random-seed 40 -->
-<!-- STOP -->
 
-The generated `domain.yml` should look like:
+.. APPEND-TO-LAST-LINE --random-seed 40
+.. STOP
 
-<!-- START command-line-example/expected-domain.yml -->
+.. START command-line-example/expected-domain.yml
+
+The generated ``domain.yml`` should look like::
+
     kind: classification-domain
     format_version: 1
     criteria:
@@ -199,22 +229,26 @@ The generated `domain.yml` should look like:
       - name: Category 1
       - name: Category 2
       - name: Category 3
-<!-- STOP -->
 
-<!-- EXTEND command-line-example/run.sh --><!--
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     diff expected-domain.yml domain.yml
---><!-- STOP -->
+.. STOP
 
-Then generate a classification model (@todo Link to concepts and file formats):
+.. EXTEND command-line-example/run.sh
 
-<!-- EXTEND command-line-example/run.sh -->
+Then generate a classification model (@todo Link to concepts and file formats)::
+
     lincs generate classification-model domain.yml --output-model model.yml
-<!-- APPEND-TO-LAST-LINE --random-seed 41 -->
-<!-- STOP -->
 
-It should look like:
+.. APPEND-TO-LAST-LINE --random-seed 41
+.. STOP
 
-<!-- START command-line-example/expected-model.yml -->
+.. START command-line-example/expected-model.yml
+
+It should look like::
+
     kind: classification-model
     format_version: 1
     boundaries:
@@ -242,61 +276,77 @@ It should look like:
             - 0.618687689
             - 0.406786472
             - 0.0960085914
-<!-- STOP -->
+
+.. STOP
 
 @todo Use YAML anchors and references to avoid repeating the same sufficient coalitions in all profiles
 
-<!-- EXTEND command-line-example/run.sh --><!--
+.. EXTEND command-line-example/run.sh
     diff expected-model.yml model.yml
---><!-- STOP -->
+.. STOP
 
-You can visualize it using:
+.. EXTEND command-line-example/run.sh
 
-<!-- EXTEND command-line-example/run.sh -->
+You can visualize it using::
+
     lincs visualize classification-model domain.yml model.yml model.png
-<!-- STOP -->
-<!-- EXTEND command-line-example/run.sh --><!--
+
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     cp model.png ../../..
---><!-- STOP -->
+.. STOP
 
 It should output something like:
 
-![Model visualization](model.png)
+.. image:: model.png
+    :alt: Model visualization
+    :align: center
 
-And finally generate a set of classified alternatives (@todo Link to concepts and file formats):
+.. EXTEND command-line-example/run.sh
 
-<!-- EXTEND command-line-example/run.sh -->
+And finally generate a set of classified alternatives (@todo Link to concepts and file formats)::
+
     lincs generate classified-alternatives domain.yml model.yml 1000 --output-classified-alternatives learning-set.csv
-<!-- APPEND-TO-LAST-LINE --random-seed 42 -->
-<!-- STOP -->
 
-It should start with something like this, and contain 1000 alternatives:
+.. APPEND-TO-LAST-LINE --random-seed 42
+.. STOP
 
-<!-- START command-line-example/expected-learning-set.csv -->
+.. START command-line-example/expected-learning-set.csv
+
+It should start with something like this, and contain 1000 alternatives::
+
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
     "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Category 3"
     "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Category 2"
     "Alternative 3",0.156018645,0.445832759,0.15599452,0.0999749228,"Category 1"
     "Alternative 4",0.0580836125,0.4592489,0.866176128,0.333708614,"Category 3"
     "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Category 2"
-<!-- STOP -->
 
-<!-- EXTEND command-line-example/run.sh --><!--
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     diff expected-learning-set.csv <(head -n 6 learning-set.csv)
---><!-- STOP -->
+.. STOP
 
-You can visualize its first five alternatives using:
 
-<!-- EXTEND command-line-example/run.sh -->
+.. EXTEND command-line-example/run.sh
+
+You can visualize its first five alternatives using::
+
     lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
-<!-- STOP -->
-<!-- EXTEND command-line-example/run.sh --><!--
+
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     cp alternatives.png ../../..
---><!-- STOP -->
+.. STOP
 
 It should output something like:
 
-![Alternatives visualization](alternatives.png)
+.. image:: alternatives.png
+    :alt: Alternatives visualization
+    :align: center
 
 @todo Improve how this graph looks:
 
@@ -305,18 +355,22 @@ It should output something like:
 - remove the legend, place names (categories and alternatives) directly on the graph
 
 You now have a (synthetic) learning set.
-You can use it to train a new model:
 
-<!-- EXTEND command-line-example/run.sh -->
+.. EXTEND command-line-example/run.sh
+
+You can use it to train a new model::
+
     # @todo Rename the command to `train`?
     lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
-<!-- APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 -->
-<!-- STOP -->
+
+.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
+.. STOP
+
+.. START command-line-example/expected-trained-model.yml
 
 The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain,
-but the trained model is numerically different because information was lost in the process:
+but the trained model is numerically different because information was lost in the process::
 
-<!-- START command-line-example/expected-trained-model.yml -->
     kind: classification-model
     format_version: 1
     boundaries:
@@ -344,38 +398,50 @@ but the trained model is numerically different because information was lost in t
             - 0.5
             - 0.5
             - 0
-<!-- STOP -->
 
-<!-- EXTEND command-line-example/run.sh --><!--
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     diff expected-trained-model.yml trained-model.yml
---><!-- STOP -->
+.. STOP
 
 If the training is effective, the resulting trained model should behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
-First, generate a testing set:
 
-<!-- EXTEND command-line-example/run.sh -->
+.. EXTEND command-line-example/run.sh
+
+First, generate a testing set::
+
     lincs generate classified-alternatives domain.yml model.yml 10000 --output-classified-alternatives testing-set.csv
-<!-- APPEND-TO-LAST-LINE --random-seed 44 -->
-<!-- STOP -->
 
-And ask the trained model to classify it:
+.. APPEND-TO-LAST-LINE --random-seed 44
+.. STOP
 
-<!-- EXTEND command-line-example/run.sh -->
+
+.. EXTEND command-line-example/run.sh
+
+And ask the trained model to classify it::
+
     lincs classify domain.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
-<!-- STOP -->
 
-There are a few differences between the original testing set and the reclassified one:
+.. STOP
 
-<!-- EXTEND command-line-example/run.sh -->
+
+.. EXTEND command-line-example/run.sh
+
+There are a few differences between the original testing set and the reclassified one::
+
     diff testing-set.csv reclassified-testing-set.csv
-<!-- APPEND-TO-LAST-LINE >classification-diff.txt || true -->
-<!-- STOP -->
 
-That command should show a few alternatives that are not classified the same way by the original and the trained model:
+.. APPEND-TO-LAST-LINE >classification-diff.txt || true
+.. STOP
 
-<!-- START command-line-example/expected-classification-diff.txt -->
+
+.. START command-line-example/expected-classification-diff.txt
+
+That command should show a few alternatives that are not classified the same way by the original and the trained model::
+
     2595c2595
     < "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 2"
     ---
@@ -400,51 +466,63 @@ That command should show a few alternatives that are not classified the same way
     < "Alternative 9933",0.705289483,0.11529737,0.162508503,0.0438248962,"Category 2"
     ---
     > "Alternative 9933",0.705289483,0.11529737,0.162508503,0.0438248962,"Category 1"
-<!-- STOP -->
 
-<!-- EXTEND command-line-example/run.sh --><!--
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     diff expected-classification-diff.txt classification-diff.txt
---><!-- STOP -->
+.. STOP
 
-You can also measure the classification accuracy of the trained model on that testing set:
 
-<!-- EXTEND command-line-example/run.sh -->
+.. EXTEND command-line-example/run.sh
+
+You can also measure the classification accuracy of the trained model on that testing set::
+
     lincs classification-accuracy domain.yml trained-model.yml testing-set.csv
-<!-- APPEND-TO-LAST-LINE >classification-accuracy.txt -->
-<!-- STOP -->
 
-It should be close to 100%:
+.. APPEND-TO-LAST-LINE >classification-accuracy.txt
+.. STOP
 
-<!-- START command-line-example/expected-classification-accuracy.txt -->
+.. START command-line-example/expected-classification-accuracy.txt
+
+It should be close to 100%::
+
     9994/10000
-<!-- STOP -->
 
-<!-- EXTEND command-line-example/run.sh --><!--
+.. STOP
+
+.. EXTEND command-line-example/run.sh
     diff expected-classification-accuracy.txt classification-accuracy.txt
---><!-- STOP -->
+.. STOP
 
 Once you're comfortable with the tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.
 
-# User guide
+
+User guide
+==========
 
 @todo Write the user guide.
 
-# Reference
+
+Reference
+=========
 
 @todo Generate a reference documentation using Sphinx:
+
 - Python using autodoc
 - C++ using Doxygen+Breath
 - CLI using https://sphinx-click.readthedocs.io/en/latest/
 - YAML file formats using JSON Schema and https://sphinx-jsonschema.readthedocs.io/en/latest/
 
-# Develop *lincs* itself
 
-Run `./run-development-cycle.sh`.
+Develop *lincs* itself
+======================
 
-<!-- Or:
+Run ``./run-development-cycle.sh``.
+
+.. Or:
     docker run --rm -it -v $PWD:/wd --workdir /wd lincs-development
-After changes in C++:
-    pip install --user --no-build-isolation --editable .
-Then test whatever:
-    lincs --help
--->
+    After changes in C++:
+        pip install --user --no-build-isolation --editable .
+    Then test whatever:
+        lincs --help
