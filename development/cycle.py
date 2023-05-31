@@ -3,15 +3,19 @@
 from __future__ import annotations
 import glob
 import multiprocessing
+import os
 import re
 import shutil
-
 import subprocess
-import os
 import textwrap
 
+import click
 
-def main():
+
+@click.command()
+@click.option("--with-docs", is_flag=True, help="Build the documentation")
+@click.option("--without-install", is_flag=True, help="Stop before installing the package")
+def main(with_docs, without_install):
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
 
     shutil.rmtree("build", ignore_errors=True)
@@ -58,17 +62,24 @@ def main():
     run_python_tests()
     print()
 
-    print("Making integration tests from README.md")
-    print("=======================================")
+    print("Making integration tests from documentation")
+    print("===========================================")
     print(flush=True)
 
-    make_example_integration_test_from_readme()
+    make_example_integration_test_from_doc()
 
-    print("Building Sphinx documentation")
-    print("=============================")
-    print(flush=True)
+    if with_docs:
+        print("Building Sphinx documentation")
+        print("=============================")
+        print(flush=True)
 
-    build_spinx_documentation()
+        build_sphinx_documentation()
+    else:
+        subprocess.run(["git", "checkout", "--", "docs"], check=True)
+        subprocess.run(["git", "clean", "-fd", "docs"], check=True)
+
+    if without_install:
+        return
 
     # Install lincs
     ###############
@@ -98,7 +109,7 @@ def run_python_tests():
     )
 
 
-def make_example_integration_test_from_readme():
+def make_example_integration_test_from_doc():
     with open("README.rst") as f:
         lines = f.readlines()
 
@@ -142,7 +153,7 @@ def make_example_integration_test_from_readme():
         f.write("*\n")
 
 
-def build_spinx_documentation():
+def build_sphinx_documentation():
     with open("README.rst") as f:
         original_content = f.read()
 
@@ -159,7 +170,7 @@ def build_spinx_documentation():
             "sphinx-build",
             "-b", "html",
             "--jobs", str(multiprocessing.cpu_count() - 1),
-            "docs-source", "docs",
+            "doc-sources", "docs",
         ],
         check=True,
     )

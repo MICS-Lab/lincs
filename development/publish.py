@@ -9,12 +9,15 @@ import sys
 
 import semver
 
+from cycle import build_sphinx_documentation
+
 
 def main(args):
     assert len(args) == 2
     check_cleanliness()
     new_version = bump_version(args[1])
     update_changelog(new_version)
+    build_sphinx_documentation()
     publish_to_pypi(new_version)
     prepare_next_version(new_version)
 
@@ -66,8 +69,6 @@ def bump_version(part):
 
 
 def update_changelog(new_version):
-    # @todo(later) Fix order of changelog: put recent versions first
-
     tags = subprocess.run(
         ["git", "tag"],
         stdout=subprocess.PIPE, universal_newlines=True,
@@ -85,12 +86,27 @@ def update_changelog(new_version):
         check=True,
     ).stdout.splitlines()
 
-    with open("CHANGELOG.md", "a") as f:
-        f.write(f"\n# Version {new_version}\n\n")
-        for line in log_lines:
-            f.write(f"- {line.split(' ', 1)[1]}\n")
+    with open("doc-sources/changelog.rst") as f:
+        lines = [line.rstrip() for line in f.readlines()]
 
-    input("Please edit CHANGELOG.md then press enter to proceed, Ctrl+C to cancel.")
+        header_length = 6
+
+        title = f"Version {new_version}"
+        lines = lines[:header_length] + [
+            title,
+            "=" * len(title),
+            ""
+        ] + [
+            f"- {log_line.split(' ', 1)[1]}"
+            for log_line in log_lines
+        ] + [
+            ""
+        ] + lines[header_length:]
+
+    with open("doc-sources/changelog.rst", "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+    input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
 
 
 def publish_to_pypi(new_version):
@@ -104,7 +120,7 @@ def publish_to_pypi(new_version):
     subprocess.run(["twine", "check"] + glob.glob("dist/*.tar.gz"), check=True)
     subprocess.run(["twine", "upload"] + glob.glob("dist/*.tar.gz"), check=True)
 
-    subprocess.run(["git", "add", "setup.py", "CHANGELOG.md"], check=True)
+    subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)
     subprocess.run(["git", "tag", f"v{new_version}"], check=True)
     subprocess.run(["git", "push", f"--tags"], check=True)
