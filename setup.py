@@ -4,7 +4,7 @@ import glob
 import setuptools
 
 
-version = "0.3.4-dev"
+version = "0.3.4"
 
 with open("README.rst") as f:
     long_description = f.read()

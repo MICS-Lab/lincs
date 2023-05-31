@@ -1,5 +1,9 @@
 <!-- Copyright 2023 Vincent Jacques -->
 
+# Version 0.3.4
+
+Documentation improvements only.
+
 # Version 0.3.3
 
 - Fix Python package description
