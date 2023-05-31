@@ -58,7 +58,7 @@ Get started
 Install
 -------
 
-.. highlight:: text
+.. highlight:: shell
 
 .. START install/dependencies.sh
 
@@ -169,6 +169,8 @@ Start using *lincs*' command-line interface
 
 .. START help/expected-help.txt
 
+.. highlight:: text
+
 The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like::
 
     Usage: lincs [OPTIONS] COMMAND [ARGS]...
@@ -197,6 +199,8 @@ It's organized using sub-commands, the first one being ``generate``, to generate
     trap 'echo "Error on line $LINENO"' ERR
 .. STOP
 
+.. highlight:: shell
+
 .. EXTEND command-line-example/run.sh
 
 Generate a classification domain with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
@@ -205,6 +209,8 @@ Generate a classification domain with 4 criteria and 3 categories (@todo Link to
 
 .. APPEND-TO-LAST-LINE --random-seed 40
 .. STOP
+
+.. highlight:: yaml
 
 .. START command-line-example/expected-domain.yml
 
@@ -236,6 +242,8 @@ The generated ``domain.yml`` should look like::
     diff expected-domain.yml domain.yml
 .. STOP
 
+.. highlight:: shell
+
 .. EXTEND command-line-example/run.sh
 
 Then generate a classification model (@todo Link to concepts and file formats)::
@@ -244,6 +252,8 @@ Then generate a classification model (@todo Link to concepts and file formats)::
 
 .. APPEND-TO-LAST-LINE --random-seed 41
 .. STOP
+
+.. highlight:: yaml
 
 .. START command-line-example/expected-model.yml
 
@@ -285,6 +295,8 @@ It should look like::
     diff expected-model.yml model.yml
 .. STOP
 
+.. highlight:: shell
+
 .. EXTEND command-line-example/run.sh
 
 You can visualize it using::
@@ -312,6 +324,8 @@ And finally generate a set of classified alternatives (@todo Link to concepts an
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
 
+.. highlight:: text
+
 .. START command-line-example/expected-learning-set.csv
 
 It should start with something like this, and contain 1000 alternatives::
@@ -329,6 +343,7 @@ It should start with something like this, and contain 1000 alternatives::
     diff expected-learning-set.csv <(head -n 6 learning-set.csv)
 .. STOP
 
+.. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
@@ -356,6 +371,8 @@ It should output something like:
 
 You now have a (synthetic) learning set.
 
+.. highlight:: shell
+
 .. EXTEND command-line-example/run.sh
 
 You can use it to train a new model::
@@ -365,6 +382,8 @@ You can use it to train a new model::
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
 .. STOP
+
+.. highlight:: yaml
 
 .. START command-line-example/expected-trained-model.yml
 
@@ -408,6 +427,7 @@ but the trained model is numerically different because information was lost in t
 If the training is effective, the resulting trained model should behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
+.. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
@@ -418,6 +438,7 @@ First, generate a testing set::
 .. APPEND-TO-LAST-LINE --random-seed 44
 .. STOP
 
+.. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
@@ -427,6 +448,7 @@ And ask the trained model to classify it::
 
 .. STOP
 
+.. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
@@ -437,6 +459,7 @@ There are a few differences between the original testing set and the reclassifie
 .. APPEND-TO-LAST-LINE >classification-diff.txt || true
 .. STOP
 
+.. highlight:: diff
 
 .. START command-line-example/expected-classification-diff.txt
 
@@ -473,6 +496,7 @@ That command should show a few alternatives that are not classified the same way
     diff expected-classification-diff.txt classification-diff.txt
 .. STOP
 
+.. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
@@ -484,6 +508,8 @@ You can also measure the classification accuracy of the trained model on that te
 .. STOP
 
 .. START command-line-example/expected-classification-accuracy.txt
+
+.. highlight:: text
 
 It should be close to 100%::
 

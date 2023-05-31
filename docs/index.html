@@ -72,29 +72,29 @@ This should make it easier to understand the relative strengths and weaknesses o
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h2>
 <p>First, you need to install a few dependencies (&#64;todo build binary wheel distributions to make installation easier):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># System packages
-sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># System packages</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>--yes<span class="w"> </span>g++<span class="w"> </span>libboost-python-dev<span class="w"> </span>python3-dev<span class="w"> </span>libyaml-cpp-dev
 
-# CUDA
-sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
-sudo add-apt-repository &#39;deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /&#39;
-sudo apt-get update
-sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
+<span class="c1"># CUDA</span>
+sudo<span class="w"> </span>apt-key<span class="w"> </span>adv<span class="w"> </span>--fetch-keys<span class="w"> </span>https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+sudo<span class="w"> </span>add-apt-repository<span class="w"> </span><span class="s1">&#39;deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /&#39;</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>--yes<span class="w"> </span>cuda-cudart-dev-12-1<span class="w"> </span>cuda-nvcc-12-1
 
-# OR-tools
-wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
-tar xf or-tools_ubuntu-20.04_v8.2.8710.tar.gz
-sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include
-sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib
-sudo ldconfig
-rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+<span class="c1"># OR-tools</span>
+wget<span class="w"> </span>https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+tar<span class="w"> </span>xf<span class="w"> </span>or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+sudo<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/*<span class="w"> </span>/usr/local/include
+sudo<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so<span class="w"> </span>/usr/local/lib
+sudo<span class="w"> </span>ldconfig
+rm<span class="w"> </span>-r<span class="w"> </span>or-tools_Ubuntu-20.04-64bit_v8.2.8710<span class="w"> </span>or-tools_ubuntu-20.04_v8.2.8710.tar.gz
 
-# Header-only libraries
-cd /usr/local/include
-sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
-sudo wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
-sudo wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
-sudo wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
+<span class="c1"># Header-only libraries</span>
+<span class="nb">cd</span><span class="w"> </span>/usr/local/include
+sudo<span class="w"> </span>wget<span class="w"> </span>https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
+sudo<span class="w"> </span>wget<span class="w"> </span>https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
+sudo<span class="w"> </span>wget<span class="w"> </span>https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
+sudo<span class="w"> </span>wget<span class="w"> </span>https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
 </pre></div>
 </div>
 <p>Finally, <em>lincs</em> is available on the <a class="reference external" href="https://pypi.org/project/lincs/">Python Package Index</a>, so <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lincs</span></code> should finalize the install.</p>
@@ -129,74 +129,74 @@ Commands:
 </div>
 <p>It’s organized using sub-commands, the first one being <code class="docutils literal notranslate"><span class="pre">generate</span></code>, to generate synthetic pseudo-random data.</p>
 <p>Generate a classification domain with 4 criteria and 3 categories (&#64;todo Link to concepts and file formats):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs generate classification-domain 4 3 --output-domain domain.yml
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-domain<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span><span class="w"> </span>--output-domain<span class="w"> </span>domain.yml
 </pre></div>
 </div>
 <p>The generated <code class="docutils literal notranslate"><span class="pre">domain.yml</span></code> should look like:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>kind: classification-domain
-format_version: 1
-criteria:
-  - name: Criterion 1
-    value_type: real
-    category_correlation: growing
-  - name: Criterion 2
-    value_type: real
-    category_correlation: growing
-  - name: Criterion 3
-    value_type: real
-    category_correlation: growing
-  - name: Criterion 4
-    value_type: real
-    category_correlation: growing
-categories:
-  - name: Category 1
-  - name: Category 2
-  - name: Category 3
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-domain</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">criteria</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 1</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">category_correlation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">growing</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 2</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">category_correlation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">growing</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 3</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">category_correlation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">growing</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 4</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">category_correlation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">growing</span>
+<span class="nt">categories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Category 1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Category 2</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Category 3</span>
 </pre></div>
 </div>
 <p>Then generate a classification model (&#64;todo Link to concepts and file formats):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs generate classification-model domain.yml --output-model model.yml
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-model<span class="w"> </span>domain.yml<span class="w"> </span>--output-model<span class="w"> </span>model.yml
 </pre></div>
 </div>
 <p>It should look like:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>kind: classification-model
-format_version: 1
-boundaries:
-  - profile:
-      - 0.255905151
-      - 0.0551739037
-      - 0.162252158
-      - 0.0526000932
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights:
-        - 0.147771254
-        - 0.618687689
-        - 0.406786472
-        - 0.0960085914
-  - profile:
-      - 0.676961303
-      - 0.324553937
-      - 0.673279881
-      - 0.598555863
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights:
-        - 0.147771254
-        - 0.618687689
-        - 0.406786472
-        - 0.0960085914
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">boundaries</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.255905151</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0551739037</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.162252158</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0526000932</span>
+<span class="w">    </span><span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">      </span><span class="nt">criterion_weights</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.147771254</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.618687689</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.406786472</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0960085914</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.676961303</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.324553937</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.673279881</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.598555863</span>
+<span class="w">    </span><span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">      </span><span class="nt">criterion_weights</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.147771254</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.618687689</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.406786472</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0960085914</span>
 </pre></div>
 </div>
 <p>&#64;todo Use YAML anchors and references to avoid repeating the same sufficient coalitions in all profiles</p>
 <p>You can visualize it using:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs visualize classification-model domain.yml model.yml model.png
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span>classification-model<span class="w"> </span>domain.yml<span class="w"> </span>model.yml<span class="w"> </span>model.png
 </pre></div>
 </div>
 <p>It should output something like:</p>
 <img alt="Model visualization" class="align-center" src="_images/model.png" />
 <p>And finally generate a set of classified alternatives (&#64;todo Link to concepts and file formats):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs generate classified-alternatives domain.yml model.yml 1000 --output-classified-alternatives learning-set.csv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classified-alternatives<span class="w"> </span>domain.yml<span class="w"> </span>model.yml<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--output-classified-alternatives<span class="w"> </span>learning-set.csv
 </pre></div>
 </div>
 <p>It should start with something like this, and contain 1000 alternatives:</p>
@@ -209,7 +209,7 @@ boundaries:
 </pre></div>
 </div>
 <p>You can visualize its first five alternatives using:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span>classification-model<span class="w"> </span>domain.yml<span class="w"> </span>model.yml<span class="w"> </span>--alternatives<span class="w"> </span>learning-set.csv<span class="w"> </span>--alternatives-count<span class="w"> </span><span class="m">5</span><span class="w"> </span>alternatives.png
 </pre></div>
 </div>
 <p>It should output something like:</p>
@@ -222,84 +222,84 @@ boundaries:
 </ul>
 <p>You now have a (synthetic) learning set.</p>
 <p>You can use it to train a new model:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># @todo Rename the command to `train`?
-lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># @todo Rename the command to `train`?</span>
+lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>domain.yml<span class="w"> </span>learning-set.csv<span class="w"> </span>--output-model<span class="w"> </span>trained-model.yml
 </pre></div>
 </div>
 <p>The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain,
 but the trained model is numerically different because information was lost in the process:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>kind: classification-model
-format_version: 1
-boundaries:
-  - profile:
-      - 0.00751833664
-      - 0.0549556538
-      - 0.162616938
-      - 0.193127945
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights:
-        - 0.499998987
-        - 0.5
-        - 0.5
-        - 0
-  - profile:
-      - 0.0340298451
-      - 0.324480206
-      - 0.672487617
-      - 0.427051842
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights:
-        - 0.499998987
-        - 0.5
-        - 0.5
-        - 0
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">boundaries</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.00751833664</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0549556538</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.162616938</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.193127945</span>
+<span class="w">    </span><span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">      </span><span class="nt">criterion_weights</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.499998987</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0340298451</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.324480206</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.672487617</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.427051842</span>
+<span class="w">    </span><span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">      </span><span class="nt">criterion_weights</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.499998987</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 </pre></div>
 </div>
 <p>If the training is effective, the resulting trained model should behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.</p>
 <p>First, generate a testing set:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs generate classified-alternatives domain.yml model.yml 10000 --output-classified-alternatives testing-set.csv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classified-alternatives<span class="w"> </span>domain.yml<span class="w"> </span>model.yml<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--output-classified-alternatives<span class="w"> </span>testing-set.csv
 </pre></div>
 </div>
 <p>And ask the trained model to classify it:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs classify domain.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>classify<span class="w"> </span>domain.yml<span class="w"> </span>trained-model.yml<span class="w"> </span>testing-set.csv<span class="w"> </span>--output-classified-alternatives<span class="w"> </span>reclassified-testing-set.csv
 </pre></div>
 </div>
 <p>There are a few differences between the original testing set and the reclassified one:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>diff testing-set.csv reclassified-testing-set.csv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>diff<span class="w"> </span>testing-set.csv<span class="w"> </span>reclassified-testing-set.csv
 </pre></div>
 </div>
 <p>That command should show a few alternatives that are not classified the same way by the original and the trained model:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2595c2595
-&lt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Category 2&quot;
----
-&gt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Category 1&quot;
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>2595c2595
+<span class="gd">&lt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Category 1&quot;</span>
 5000c5000
-&lt; &quot;Alternative 4999&quot;,0.074135974,0.496049821,0.672853291,0.782560945,&quot;Category 2&quot;
----
-&gt; &quot;Alternative 4999&quot;,0.074135974,0.496049821,0.672853291,0.782560945,&quot;Category 3&quot;
+<span class="gd">&lt; &quot;Alternative 4999&quot;,0.074135974,0.496049821,0.672853291,0.782560945,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 4999&quot;,0.074135974,0.496049821,0.672853291,0.782560945,&quot;Category 3&quot;</span>
 5346c5346
-&lt; &quot;Alternative 5345&quot;,0.815349102,0.580399215,0.162403136,0.995580792,&quot;Category 2&quot;
----
-&gt; &quot;Alternative 5345&quot;,0.815349102,0.580399215,0.162403136,0.995580792,&quot;Category 1&quot;
+<span class="gd">&lt; &quot;Alternative 5345&quot;,0.815349102,0.580399215,0.162403136,0.995580792,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 5345&quot;,0.815349102,0.580399215,0.162403136,0.995580792,&quot;Category 1&quot;</span>
 9639c9639
-&lt; &quot;Alternative 9638&quot;,0.939305425,0.0550933145,0.247014269,0.265170485,&quot;Category 1&quot;
----
-&gt; &quot;Alternative 9638&quot;,0.939305425,0.0550933145,0.247014269,0.265170485,&quot;Category 2&quot;
+<span class="gd">&lt; &quot;Alternative 9638&quot;,0.939305425,0.0550933145,0.247014269,0.265170485,&quot;Category 1&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 9638&quot;,0.939305425,0.0550933145,0.247014269,0.265170485,&quot;Category 2&quot;</span>
 9689c9689
-&lt; &quot;Alternative 9688&quot;,0.940304875,0.885046899,0.162586793,0.515185535,&quot;Category 2&quot;
----
-&gt; &quot;Alternative 9688&quot;,0.940304875,0.885046899,0.162586793,0.515185535,&quot;Category 1&quot;
+<span class="gd">&lt; &quot;Alternative 9688&quot;,0.940304875,0.885046899,0.162586793,0.515185535,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 9688&quot;,0.940304875,0.885046899,0.162586793,0.515185535,&quot;Category 1&quot;</span>
 9934c9934
-&lt; &quot;Alternative 9933&quot;,0.705289483,0.11529737,0.162508503,0.0438248962,&quot;Category 2&quot;
----
-&gt; &quot;Alternative 9933&quot;,0.705289483,0.11529737,0.162508503,0.0438248962,&quot;Category 1&quot;
+<span class="gd">&lt; &quot;Alternative 9933&quot;,0.705289483,0.11529737,0.162508503,0.0438248962,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 9933&quot;,0.705289483,0.11529737,0.162508503,0.0438248962,&quot;Category 1&quot;</span>
 </pre></div>
 </div>
 <p>You can also measure the classification accuracy of the trained model on that testing set:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lincs classification-accuracy domain.yml trained-model.yml testing-set.csv
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>classification-accuracy<span class="w"> </span>domain.yml<span class="w"> </span>trained-model.yml<span class="w"> </span>testing-set.csv
 </pre></div>
 </div>
 <p>It should be close to 100%:</p>
