@@ -15,8 +15,7 @@ def main(args):
     check_cleanliness()
     new_version = bump_version(args[1])
     update_changelog(new_version)
-    make_publication_commit(new_version)
-    publish_to_pypi()
+    publish_to_pypi(new_version)
     prepare_next_version(new_version)
 
 
@@ -94,21 +93,21 @@ def update_changelog(new_version):
     input("Please edit CHANGELOG.md then press enter to proceed, Ctrl+C to cancel.")
 
 
-def make_publication_commit(new_version):
+def publish_to_pypi(new_version):
+    shutil.rmtree("dist", ignore_errors=True)
+    shutil.rmtree("build", ignore_errors=True)
+    shutil.rmtree("lincs.egg-info", ignore_errors=True)
+
+    # @todo Create a manylinux wheel and upload it (https://stackoverflow.com/a/59586096/905845)
+    # Remove --sdist, upload the produced wheels as well as the produced tar.gz sdist.
+    subprocess.run(["python3", "-m", "build", "--sdist"], check=True)
+    subprocess.run(["twine", "check"] + glob.glob("dist/*.tar.gz"), check=True)
+    subprocess.run(["twine", "upload"] + glob.glob("dist/*.tar.gz"), check=True)
+
     subprocess.run(["git", "add", "setup.py", "CHANGELOG.md"], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)
     subprocess.run(["git", "tag", f"v{new_version}"], check=True)
     subprocess.run(["git", "push", f"--tags"], check=True)
-
-
-def publish_to_pypi():
-    shutil.rmtree("dist", ignore_errors=True)
-    shutil.rmtree("build", ignore_errors=True)
-    shutil.rmtree("lincs.egg-info", ignore_errors=True)
-    # @todo Create a manylinux wheel and upload it (https://stackoverflow.com/a/59586096/905845)
-    # Remove --sdist, upload the produced wheels as well as the produced tar.gz sdist.
-    subprocess.run(["python3", "-m", "build", "--sdist"])
-    subprocess.run(["twine", "upload"] + glob.glob("dist/*.tar.gz"))
 
 
 def prepare_next_version(new_version):

@@ -4,7 +4,7 @@ import glob
 import setuptools
 
 
-version = "0.3.5-dev"
+version = "0.3.5"
 
 with open("README.rst") as f:
     long_description = f.read()
@@ -12,6 +12,8 @@ for image in ["model", "alternatives"]:
     long_description = long_description.replace(f".. image:: {image}.png", f".. image:: https://github.com/MICS-Lab/lincs/raw/v{version}/{image}.png")
 for file in ["COPYING", "COPYING.LESSER"]:
     long_description = long_description.replace(f" <{file}>`_", f" <https://github.com/MICS-Lab/lincs/blob/v{version}/{file}>`_")
+for lang in ["yaml", "shell", "text", "diff"]:
+    long_description = long_description.replace(f".. highlight:: {lang}", "")
 
 with open("requirements.txt") as f:
     install_requires = f.readlines()

@@ -1,6 +1,6 @@
 <!-- Copyright 2023 Vincent Jacques -->
 
-# Version 0.3.4
+# Versions 0.3.4 to 0.3.5
 
 Documentation improvements only.
 
