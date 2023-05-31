@@ -5,6 +5,7 @@
    :hidden:
 
    self
+   conceptual-overview
    get-started
    user-guide
    reference

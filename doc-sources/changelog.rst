@@ -4,7 +4,7 @@
 Changelog
 =========
 
-Versions 0.3.4 to 0.3.6
+Versions 0.3.4 to 0.3.7
 =======================
 
 - Improve documentation
