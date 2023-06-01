@@ -131,7 +131,7 @@ struct std_optional_converter {
   static void* convertible(PyObject* obj) {
     if (obj == Py_None) {
       return new std::optional<T>();
-    } else if (PyNumber_Check(obj)) {
+    } else if (PyNumber_Check(obj) || PyUnicode_Check(obj)) {
       return new std::optional<T>(bp::extract<T>(obj));
     } else {
       return nullptr;
@@ -164,6 +164,14 @@ lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(
     lincs::WeightsProfilesBreedMrSortLearning::Models::make(domain, learning_set, models_count, random_seed)));
 }
 
+std::optional<std::string> get_alternative_category(const lincs::Alternative& alt) {
+  return alt.category;
+}
+
+void set_alternative_category(lincs::Alternative& alt, std::optional<std::string> category) {
+  alt.category = category;
+}
+
 }  // namespace
 
 template <typename T>
@@ -185,6 +193,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   ;
 
   std_optional_converter<float>::enroll();
+  std_optional_converter<std::string>::enroll();
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
   auto_enum<lincs::Domain::Criterion::ValueType>("ValueType");
@@ -268,10 +277,15 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate an MR-Sort model for the provided `domain`."
   );
 
-  bp::class_<lincs::Alternative>("Alternative", bp::init<std::string, std::vector<float>, std::string>())
+  bp::class_<lincs::Alternative>(
+    "Alternative",
+    bp::init<std::string, std::vector<float>, std::optional<std::string>>(
+      (bp::arg("name"), "profile", (bp::arg("category")=std::optional<std::string>()))
+    )
+  )
     .def_readwrite("name", &lincs::Alternative::name)
     .def_readwrite("profile", &lincs::Alternative::profile)
-    .def_readwrite("category", &lincs::Alternative::category)
+    .add_property("category", &get_alternative_category, &set_alternative_category)
   ;
   bp::class_<std::vector<lincs::Alternative>>("alternatives_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>())

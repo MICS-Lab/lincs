@@ -172,11 +172,24 @@ class AlternativesTestCase(unittest.TestCase):
         alternatives = Alternatives(
             domain,
             [
-                Alternative("Alternative name", [5., 5., 5], "Category 1"),
+                Alternative("First alternative", [5., 5., 5], "Category 1"),
+                Alternative("Second alternative", [1., 2., 3.], None),
+                Alternative("Third alternative", [2., 4., 6.]),
             ],
         )
-        self.assertEqual(len(alternatives.alternatives), 1)
-        self.assertEqual(len(alternatives.alternatives[0].profile), 3)
+        self.assertEqual(len(alternatives.alternatives), 3)
+
+        self.assertEqual(alternatives.alternatives[0].name, "First alternative")
+        self.assertEqual(list(alternatives.alternatives[0].profile), [5., 5., 5.])
+        self.assertEqual(alternatives.alternatives[0].category, "Category 1")
+
+        self.assertEqual(alternatives.alternatives[1].name, "Second alternative")
+        self.assertEqual(list(alternatives.alternatives[1].profile), [1., 2., 3.])
+        self.assertIsNone(alternatives.alternatives[1].category)
+
+        self.assertEqual(alternatives.alternatives[2].name, "Third alternative")
+        self.assertEqual(list(alternatives.alternatives[2].profile), [2., 4., 6.])
+        self.assertIsNone(alternatives.alternatives[2].category)
 
 
 class MrSortLearningTestCase(unittest.TestCase):
