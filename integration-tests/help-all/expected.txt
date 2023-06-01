@@ -316,6 +316,15 @@ Options:
 lincs.Alternative
 =================
 
+__init__
+--------
+
+
+__init__( (object)arg1, (str)name, (floats_vector)profile [, (object)category=None]) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,std::vector<float, std::allocator<float> > [,std::optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >=None])
+
 category
 --------
 
@@ -327,6 +336,15 @@ profile
 
 lincs.Alternatives
 ==================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Domain)arg2, (alternatives_vector)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Domain,std::vector<lincs::Alternative, std::allocator<lincs::Alternative> >)
 
 alternatives
 ------------
@@ -344,6 +362,15 @@ dump( (Alternatives)self, (object)out) -> None :
 lincs.Boundary
 ==============
 
+__init__
+--------
+
+
+__init__( (object)arg1, (floats_vector)arg2, (SufficientCoalitions)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::vector<float, std::allocator<float> >,lincs::Model::SufficientCoalitions)
+
 profile
 -------
 
@@ -353,17 +380,40 @@ sufficient_coalitions
 lincs.Category
 ==============
 
+__init__
+--------
+
+
+__init__( (object)arg1, (str)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
+
 name
 ----
 
 lincs.CategoryCorrelation
 =========================
 
+__init__
+--------
+
+Initialize self.  See help(type(self)) for accurate signature.
+
 growing
 -------
 
 lincs.Criterion
 ===============
+
+__init__
+--------
+
+
+__init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Domain::Criterion::ValueType,lincs::Domain::Criterion::CategoryCorrelation)
 
 category_correlation
 --------------------
@@ -376,6 +426,15 @@ value_type
 
 lincs.Domain
 ============
+
+__init__
+--------
+
+
+__init__( (object)arg1, (criteria_vector)arg2, (categories_vector)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::vector<lincs::Domain::Criterion, std::allocator<lincs::Domain::Criterion> >,std::vector<lincs::Domain::Category, std::allocator<lincs::Domain::Category> >)
 
 categories
 ----------
@@ -396,6 +455,15 @@ dump( (Domain)self, (object)out) -> None :
 lincs.ImproveProfilesWithAccuracyHeuristic
 ==========================================
 
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+
 improve_profiles
 ----------------
 
@@ -408,6 +476,15 @@ improve_profiles( (ImproveProfilesWithAccuracyHeuristic)arg1) -> None :
 lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 ==============================================================================
 
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+
 initialize_profiles
 -------------------
 
@@ -419,6 +496,15 @@ initialize_profiles( (InitializeProfilesForProbabilisticMaximalDiscriminationPow
 
 lincs.Model
 ===========
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Domain)arg2, (boundaries_vector)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Domain,std::vector<lincs::Model::Boundary, std::allocator<lincs::Model::Boundary> >)
 
 boundaries
 ----------
@@ -436,6 +522,15 @@ dump( (Model)self, (object)out) -> None :
 lincs.OptimizeWeightsUsingGlop
 ==============================
 
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+
 optimize_weights
 ----------------
 
@@ -447,6 +542,13 @@ optimize_weights( (OptimizeWeightsUsingGlop)arg1) -> None :
 
 lincs.ProfilesImprovementStrategy
 =================================
+
+__init__
+--------
+
+Raises an exception
+This class cannot be instantiated from Python
+
 
 improve_profiles
 ----------------
@@ -465,6 +567,13 @@ improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
 lincs.ProfilesInitializationStrategy
 ====================================
 
+__init__
+--------
+
+Raises an exception
+This class cannot be instantiated from Python
+
+
 initialize_profiles
 -------------------
 
@@ -482,6 +591,15 @@ initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object
 lincs.SufficientCoalitions
 ==========================
 
+__init__
+--------
+
+
+__init__( (object)arg1, (SufficientCoalitionsKind)arg2, (floats_vector)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Model::SufficientCoalitions::Kind,std::vector<float, std::allocator<float> >)
+
 criterion_weights
 -----------------
 
@@ -491,11 +609,25 @@ kind
 lincs.SufficientCoalitionsKind
 ==============================
 
+__init__
+--------
+
+Initialize self.  See help(type(self)) for accurate signature.
+
 weights
 -------
 
 lincs.TerminateAtAccuracy
 =========================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (int)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,unsigned int)
 
 terminate
 ---------
@@ -508,6 +640,15 @@ terminate( (TerminateAtAccuracy)arg1, (int)arg2, (int)arg3) -> bool :
 
 lincs.TerminationStrategy
 =========================
+
+__init__
+--------
+
+
+__init__( (object)arg1) -> None :
+
+    C++ signature :
+        void __init__(_object*)
 
 terminate
 ---------
@@ -526,11 +667,23 @@ terminate( (TerminationStrategy)arg1, (int)arg2, (int)arg3) -> None :
 lincs.ValueType
 ===============
 
+__init__
+--------
+
+Initialize self.  See help(type(self)) for accurate signature.
+
 real
 ----
 
 lincs.WeightsOptimizationStrategy
 =================================
+
+__init__
+--------
+
+Raises an exception
+This class cannot be instantiated from Python
+
 
 optimize_weights
 ----------------
@@ -548,6 +701,15 @@ optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
 
 lincs.WeightsProfilesBreedMrSortLearning
 ========================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (TerminationStrategy)arg6) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
 
 perform
 -------
