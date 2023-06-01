@@ -5,6 +5,7 @@
 
 #include "learning/weights-profiles-breed-mrsort.hpp"
 #include "learning/weights-profiles-breed-mrsort/improve-profiles/accuracy-heuristic-on-cpu.hpp"
+#include "learning/weights-profiles-breed-mrsort/improve-profiles/accuracy-heuristic-on-gpu.hpp"
 #include "learning/weights-profiles-breed-mrsort/initialize-profiles/probabilistic-maximal-discrimination-power-per-criterion.hpp"
 #include "learning/weights-profiles-breed-mrsort/optimize-weights/glop.hpp"
 #include "learning/weights-profiles-breed-mrsort/terminate/at-accuracy.hpp"

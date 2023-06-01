@@ -5,6 +5,6 @@ from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, M
 from liblincs import Alternative, Alternatives, load_alternatives, generate_alternatives, classify_alternatives
 from liblincs import ProfilesInitializationStrategy, InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop
-from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristicOnCpu
+from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
 from liblincs import TerminationStrategy, TerminateAtAccuracy
 from liblincs import make_models, WeightsProfilesBreedMrSortLearning
