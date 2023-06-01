@@ -13,10 +13,28 @@ import click
 
 
 @click.command()
-@click.option("--with-docs", is_flag=True, help="Build the documentation")
-@click.option("--without-install", is_flag=True, help="Stop before installing the package")
-@click.option("--skip-long", is_flag=True, help="Skip long tests")
-def main(with_docs, without_install, skip_long):
+@click.option(
+    "--with-docs", is_flag=True,
+    help=textwrap.dedent("""\
+        Build the documentation.
+        The built documentation is published at https://mics-lab.github.io/lincs/ using GitHub Pages.
+        So, it should only be pushed to GitHub when a new version of the package is published.
+        Use this option to see the impact of your changes on the documentation, but do not commit them.
+    """)
+)
+@click.option(
+    "--skip-long", is_flag=True,
+    help="Skip long tests. We all know what it is to be in a hurry. But please run the full development cycle at least once before submitting your changes.",
+)
+@click.option(
+    "--stop-after-unit", is_flag=True,
+    help=textwrap.dedent("""\
+        Stop before installing the package.
+        For when you're even more in a hurry.
+        Or when you've changed the dependencies in the Dockerfile but not yet in the "Getting started" guide.
+    """),
+)
+def main(with_docs, skip_long, stop_after_unit):
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
 
     shutil.rmtree("build", ignore_errors=True)
@@ -63,15 +81,14 @@ def main(with_docs, without_install, skip_long):
     run_python_tests()
     print()
 
-    print("Making integration tests from documentation")
-    print("===========================================")
-    print(flush=True)
-
-    make_example_integration_test_from_doc()
-
-    if without_install:
+    if stop_after_unit:
         pass
     else:
+        print("Making integration tests from documentation")
+        print("===========================================")
+        print(flush=True)
+
+        make_example_integration_test_from_doc()
         # Install lincs
         ###############
 

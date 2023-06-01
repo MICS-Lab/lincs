@@ -3,19 +3,20 @@
 from __future__ import annotations
 import glob
 import shutil
-
 import subprocess
 import sys
 
+import click
 import semver
 
 from cycle import build_sphinx_documentation
 
 
-def main(args):
-    assert len(args) == 2
+@click.command()
+@click.argument("level", type=click.Choice(["patch", "minor", "major"]))
+def main(level):
     check_cleanliness()
-    new_version = bump_version(args[1])
+    new_version = bump_version(level)
     update_changelog(new_version)
     build_sphinx_documentation()
     publish_to_pypi(new_version)
@@ -37,7 +38,7 @@ def check_cleanliness():
         input("WARNING: Some changes are staged but not committed. They will be included in the publication commit. Press enter to proceed, Ctrl+C to cancel.")
 
 
-def bump_version(part):
+def bump_version(level):
     with open("setup.py") as f:
         setup_lines = f.readlines()
     for line in setup_lines:
@@ -48,11 +49,11 @@ def bump_version(part):
     assert dev_version.build is None
 
     print("Development version:", dev_version)
-    if part == "patch":
+    if level == "patch":
         new_version = dev_version.replace(prerelease=None)
-    elif part == "minor":
+    elif level == "minor":
         new_version = dev_version.bump_minor()
-    elif part == "major":
+    elif level == "major":
         new_version = dev_version.bump_major()
     else:
         assert False
