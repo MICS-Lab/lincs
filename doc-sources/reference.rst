@@ -15,6 +15,10 @@ Reference
 File formats
 ============
 
+*lincs* uses text-based (YAML and CSV) file formats.
+The same formats are used for synthetic and real-world data.
+The same formats are used when the ``lincs`` command lines outputs to actual files or to its standard output.
+
 .. _ref-file-domain:
 
 The domain file
