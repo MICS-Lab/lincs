@@ -69,6 +69,25 @@ def main(with_docs, without_install, skip_long):
 
     make_example_integration_test_from_doc()
 
+    if without_install:
+        pass
+    else:
+        # Install lincs
+        ###############
+
+        shutil.rmtree("build", ignore_errors=True)
+
+        print("Installing *lincs*")
+        print("==================")
+        print(flush=True)
+        shutil.rmtree("lincs.egg-info", ignore_errors=True)
+        subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+
+        # With lincs installed
+        ######################
+
+        run_integration_tests(skip_long=skip_long)
+
     if with_docs:
         print("Building Sphinx documentation")
         print("=============================")
@@ -78,25 +97,6 @@ def main(with_docs, without_install, skip_long):
     else:
         subprocess.run(["git", "checkout", "--", "docs"], check=True, capture_output=True)
         subprocess.run(["git", "clean", "-fd", "docs"], check=True, capture_output=True)
-
-    if without_install:
-        return
-
-    # Install lincs
-    ###############
-
-    shutil.rmtree("build", ignore_errors=True)
-
-    print("Installing *lincs*")
-    print("==================")
-    print(flush=True)
-    shutil.rmtree("lincs.egg-info", ignore_errors=True)
-    subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
-
-    # With lincs installed
-    ######################
-
-    run_integration_tests(skip_long=skip_long)
 
 
 def run_python_tests():
