@@ -4,6 +4,8 @@
 Contributor guide
 =================
 
+@todo Write
+
 Run ``./run-development-cycle.sh``.
 
 .. Or:

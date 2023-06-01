@@ -1,6 +1,10 @@
+.. Copyright 2023 Vincent Jacques
+
 ===================
 Conceptual overview
 ===================
+
+@todo Write
 
 
 Concepts and files
