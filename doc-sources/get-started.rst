@@ -68,6 +68,9 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
 
 .. STOP
 
+.. START install/is-long
+.. STOP
+
 .. START install/run.sh
     set -o errexit
     set -o nounset

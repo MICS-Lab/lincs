@@ -15,7 +15,8 @@ import click
 @click.command()
 @click.option("--with-docs", is_flag=True, help="Build the documentation")
 @click.option("--without-install", is_flag=True, help="Stop before installing the package")
-def main(with_docs, without_install):
+@click.option("--skip-long", is_flag=True, help="Skip long tests")
+def main(with_docs, without_install, skip_long):
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
 
     shutil.rmtree("build", ignore_errors=True)
@@ -95,7 +96,7 @@ def main(with_docs, without_install):
     # With lincs installed
     ######################
 
-    run_integration_tests()
+    run_integration_tests(skip_long=skip_long)
 
 
 def run_python_tests():
@@ -146,8 +147,7 @@ def make_example_integration_test_from_doc():
     for file_name, file_contents in files.items():
         file_path = os.path.join("integration-tests", "from-documentation", file_name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        # print(file_path, file_contents)
-        while file_contents[-1] == "":
+        while file_contents and file_contents[-1] == "":
             file_contents.pop()
         with open(file_path, "w") as f:
             f.write(textwrap.dedent("\n".join(file_contents)) + "\n")
@@ -180,7 +180,7 @@ def build_sphinx_documentation():
         f.write(original_content)
 
 
-def run_integration_tests():
+def run_integration_tests(skip_long):
     print("Running integration tests")
     print("=========================")
     print()
@@ -189,6 +189,12 @@ def run_integration_tests():
         test_name = test_file_name[18:-7]
         print(test_name)
         print("-" * len(test_name), flush=True)
+
+        if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):
+            print(f"{test_name}: SKIPPED")
+            print(flush=True)
+            continue
+
         try:
             subprocess.run(
                 ["bash", "run.sh"],
