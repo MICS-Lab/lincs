@@ -202,7 +202,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
-        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristic(models)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
@@ -239,7 +239,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         termination_strategy = MyTerminationStrategy()
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
-        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristic(models)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,

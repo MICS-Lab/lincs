@@ -21,7 +21,7 @@ TEST_CASE("Basic MR-Sort learning") {
 
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(models);
   OptimizeWeightsUsingGlop weights_optimization_strategy(models);
-  ImproveProfilesWithAccuracyHeuristic profiles_improvement_strategy(models);
+  ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy(models);
   TerminateAtAccuracy termination_strategy(learning_set.alternatives.size());
 
   Model learned_model = WeightsProfilesBreedMrSortLearning(

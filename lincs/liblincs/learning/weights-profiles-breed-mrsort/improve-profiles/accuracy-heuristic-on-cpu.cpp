@@ -1,18 +1,18 @@
 // Copyright 2023 Vincent Jacques
 
-#include "accuracy-heuristic.hpp"
+#include "accuracy-heuristic-on-cpu.hpp"
 
 
 namespace lincs {
 
-void ImproveProfilesWithAccuracyHeuristic::improve_profiles() {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles() {
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
     improve_model_profiles(model_index);
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristic::improve_model_profiles(const unsigned model_index) {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profiles(const unsigned model_index) {
   Array1D<Host, unsigned> criterion_indexes(models.criteria_count, uninitialized);
   // Not worth parallelizing because models.criteria_count is typically small
   for (unsigned crit_idx_idx = 0; crit_idx_idx != models.criteria_count; ++crit_idx_idx) {
@@ -27,7 +27,7 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profiles(const unsigned
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned model_index,
   const unsigned profile_index,
   ArrayView1D<Host, const unsigned> criterion_indexes
@@ -39,7 +39,7 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index
@@ -98,7 +98,7 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
   }
 }
 
-ImproveProfilesWithAccuracyHeuristic::Desirability ImproveProfilesWithAccuracyHeuristic::compute_move_desirability(
+ImproveProfilesWithAccuracyHeuristicOnCpu::Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirability(
   const Models& models,
   const unsigned model_index,
   const unsigned profile_index,
@@ -115,7 +115,7 @@ ImproveProfilesWithAccuracyHeuristic::Desirability ImproveProfilesWithAccuracyHe
   return d;
 }
 
-void ImproveProfilesWithAccuracyHeuristic::update_move_desirability(
+void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const Models& models,
   const unsigned model_index,
   const unsigned profile_index,
@@ -234,7 +234,7 @@ void ImproveProfilesWithAccuracyHeuristic::update_move_desirability(
   }
 }
 
-float ImproveProfilesWithAccuracyHeuristic::Desirability::value() const {
+float ImproveProfilesWithAccuracyHeuristicOnCpu::Desirability::value() const {
   if (v + w + t + q + r == 0) {
     return zero_value;
   } else {

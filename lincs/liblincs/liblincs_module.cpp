@@ -351,13 +351,13 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("improve_profiles", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy::improve_profiles));
 
   bp::class_<
-    lincs::ImproveProfilesWithAccuracyHeuristic,
+    lincs::ImproveProfilesWithAccuracyHeuristicOnCpu,
     bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>
   >(
-    "ImproveProfilesWithAccuracyHeuristic",
+    "ImproveProfilesWithAccuracyHeuristicOnCpu",
     bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
   )
-    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristic::improve_profiles);
+    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles);
 
   struct TerminationStrategyWrap : lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, bp::wrapper<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy> {
     bool terminate(unsigned iteration_index, unsigned best_accuracy) override {

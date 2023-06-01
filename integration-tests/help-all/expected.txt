@@ -452,8 +452,8 @@ dump( (Domain)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Domain,boost::python::api::object {lvalue})
 
-lincs.ImproveProfilesWithAccuracyHeuristic
-==========================================
+lincs.ImproveProfilesWithAccuracyHeuristicOnCpu
+===============================================
 
 __init__
 --------
@@ -468,10 +468,10 @@ improve_profiles
 ----------------
 
 
-improve_profiles( (ImproveProfilesWithAccuracyHeuristic)arg1) -> None :
+improve_profiles( (ImproveProfilesWithAccuracyHeuristicOnCpu)arg1) -> None :
 
     C++ signature :
-        void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristic {lvalue})
+        void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristicOnCpu {lvalue})
 
 lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 ==============================================================================
