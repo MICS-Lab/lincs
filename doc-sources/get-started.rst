@@ -310,11 +310,7 @@ It should output something like:
     :alt: Alternatives visualization
     :align: center
 
-@todo Improve how this graph looks:
-
-- display categories as stacked solid colors
-- display alternatives in a color that matches their assigned category
-- remove the legend, place names (categories and alternatives) directly on the graph
+@todo Remove the legend, place names (categories and alternatives) directly on the graph
 
 You now have a (synthetic) learning set.
 
