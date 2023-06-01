@@ -8,3 +8,5 @@ Before you read this document, we strongly recommend you to read the :doc:`conce
 
 
 @todo Write
+
+@todo Talk about strategies (from a user perspective) and the structure of command-line options for strategies

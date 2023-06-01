@@ -89,6 +89,7 @@ def main(with_docs, skip_long, stop_after_unit):
         print(flush=True)
 
         make_example_integration_test_from_doc()
+
         # Install lincs
         ###############
 
