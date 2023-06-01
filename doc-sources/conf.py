@@ -6,6 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
+import sys
+
+
 project = "lincs"
 copyright = "Copyright 2023 Vincent Jacques"
 author = "Vincent Jacques"
@@ -34,3 +38,9 @@ html_static_path = ["_static"]
 # No Jekyll
 
 extensions.append("sphinx.ext.githubpages")
+
+# Click
+
+os.environ["LINCS_GENERATING_SPHINX_DOC"] = "1"
+extensions.append("sphinx_click")
+sys.path.insert(0, os.path.abspath(".."))  # To find module 'lincs' before it's installed

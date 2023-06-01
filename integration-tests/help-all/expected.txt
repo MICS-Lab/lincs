@@ -70,9 +70,9 @@ Options:
                                   one.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
+                                  - '--model-type' is 'mrsort'
                                   
-                                  *  [x>=1.0]
+                                     [x>=1.0]
   --help                          Show this message and exit.
 
 lincs generate classified-alternatives
@@ -163,48 +163,48 @@ Options:
                                   for details about the available strategies.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
+                                  - '--model-type' is 'mrsort'
                                   
-                                  *  [default: weights-profiles-breed]
+                                     [default: weights-profiles-breed]
   --mrsort.weights-profiles-breed.target-accuracy FLOAT RANGE
                                   The target accuracy to reach on the learning
                                   set.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [default: 1.0; 0.0<=x<=1.0]
+                                     [default: 1.0; 0.0<=x<=1.0]
   --mrsort.weights-profiles-breed.max-iterations INTEGER RANGE
                                   The maximum number of iterations to use to
                                   learn the MRSort model.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [x>=1]
+                                     [x>=1]
   --mrsort.weights-profiles-breed.models-count INTEGER RANGE
                                   The number of temporary MRSort models to
                                   train. The result of the learning will be
                                   the most accurate of those models.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [default: 9; x>=1]
+                                     [default: 9; x>=1]
   --mrsort.weights-profiles-breed.initialization-strategy [maximize-discrimination-per-criterion]
                                   The strategy to use to initialize the MRSort
                                   models. See (@todo Add link to doc) for
                                   details about the available strategies.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [default: maximize-discrimination-per-
-                                  criterion]
+                                     [default: maximize-discrimination-per-
+                                     criterion]
   --mrsort.weights-profiles-breed.weights-strategy [linear-program]
                                   The strategy to use to improve the weights
                                   of the MRSort models. See (@todo Add link to
@@ -212,21 +212,21 @@ Options:
                                   strategies.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [default: linear-program]
+                                     [default: linear-program]
   --mrsort.weights-profiles-breed.linear-program.solver [glop]
                                   The solver to use to solve the linear
                                   programs. See (@todo Add link to doc) for
                                   details of available solvers.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
-                                   - '--mrsort.weights-profiles-breed.weights-strategy' is 'linear-program'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--mrsort.weights-profiles-breed.weights-strategy' is 'linear-program'
                                   
-                                  *  [default: glop]
+                                     [default: glop]
   --mrsort.weights-profiles-breed.profiles-strategy [accuracy-heuristic]
                                   The strategy to use to improve the profiles
                                   of the MRSort models. See (@todo Add link to
@@ -234,49 +234,49 @@ Options:
                                   strategies.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [default: accuracy-heuristic]
+                                     [default: accuracy-heuristic]
   --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed INTEGER RANGE
                                   The random seed to use for this heuristic.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
-                                   - '--mrsort.weights-profiles-breed.profiles-strategy' is 'accuracy-heuristic'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--mrsort.weights-profiles-breed.profiles-strategy' is 'accuracy-heuristic'
                                   
-                                  *  [x>=0]
+                                     [x>=0]
   --mrsort.weights-profiles-breed.accuracy-heuristic.processor [cpu]
                                   The processor to use to improve the profiles
                                   of the MRSort models.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
-                                   - '--mrsort.weights-profiles-breed.profiles-strategy' is 'accuracy-heuristic'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--mrsort.weights-profiles-breed.profiles-strategy' is 'accuracy-heuristic'
                                   
-                                  *  [default: cpu]
+                                     [default: cpu]
   --mrsort.weights-profiles-breed.breed-strategy [reinitialize-least-accurate]
                                   The strategy to use to breed the MRSort
                                   models. See (@todo Add link to doc) for
                                   details about the available strategies.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
-                                  *  [default: reinitialize-least-accurate]
+                                     [default: reinitialize-least-accurate]
   --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion FLOAT RANGE
                                   The portion of the least accurate MRSort
                                   models to reinitialize.
                                   
                                   Only valid if:
-                                   - '--model-type' is 'mrsort'
-                                   - '--mrsort.strategy' is 'weights-profiles-breed'
-                                   - '--mrsort.weights-profiles-breed.breed-strategy' is 'reinitialize-least-accurate'
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  - '--mrsort.weights-profiles-breed.breed-strategy' is 'reinitialize-least-accurate'
                                   
-                                  *  [default: 0.5; 0.0<=x<=1.0]
+                                     [default: 0.5; 0.0<=x<=1.0]
   --help                          Show this message and exit.
 
 lincs classify

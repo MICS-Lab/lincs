@@ -35,3 +35,12 @@ The model file
 --------------
 
 @todo Write (or generate from a JSON Schema?)
+
+.. _ref-cli:
+
+Command-line interface
+======================
+
+.. click:: lincs.command_line_interface:main
+   :prog: lincs
+   :nested: full

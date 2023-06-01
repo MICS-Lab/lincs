@@ -68,6 +68,7 @@ RUN pip3 install \
       build \
       semver \
       sphinx \
+      sphinx-click \
       twine
 
 # Python packages again, to speed-up development cycle

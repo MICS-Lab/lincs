@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import math
+import os
 import random
 import subprocess
 import sys
@@ -18,6 +19,7 @@ def options_tree(name, kwds, dependents):
     Options down the tree are only valid if the options up the tree are set to specific values.
     Think of them as sub-options of the previous ones.
     """
+
     def decorator(command):
         def walk(
             option_name_prefix_,
@@ -28,10 +30,19 @@ def options_tree(name, kwds, dependents):
             dependents_,
         ):
             if conditions_:
-                conditions__ = "\n\n\b\nOnly valid if:\n"
+                # \b prevents rewrapping of the paragraph by Click
+                # (https://click.palletsprojects.com/en/8.1.x/api/#click.wrap_text)
+                conditions__ = f"\n\n\b\nOnly valid if:\n"
+                if os.environ.get("LINCS_GENERATING_SPHINX_DOC") == "1":
+                    conditions__ += "\n"
+                    quote = "``"
+                else:
+                    quote = "'"
                 for (k, v) in conditions_:
-                    conditions__ += f" - '{k}' is '{v}'\n"
-                conditions__ += "\n\n*"
+                    conditions__ += f"- {quote}{k}{quote} is {quote}{v}{quote}\n"
+                # This non-blocking space ensures Click does not put the default
+                # value on the same line as the last condition
+                conditions__ += f"\n\n "
 
             for value__, dependents__ in dependents_.items():
                 for name___, kwds___, dependents___ in reversed(dependents__):
