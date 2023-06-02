@@ -503,7 +503,7 @@ def learn():
                                         "processor",
                                         dict(
                                             help="The processor to use to improve the profiles of the MRSort models.",
-                                            type=click.Choice(["cpu"]),
+                                            type=click.Choice(["cpu", "gpu"]),
                                             default="cpu",
                                             show_default=True,
                                         ),
@@ -578,7 +578,10 @@ def classification_model(
 
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
-                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristic(models)
+                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(models)
+                elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
+                    gpu_models = lincs.make_gpu_models(models)
+                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(models, gpu_models)
 
             assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
             assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5

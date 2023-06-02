@@ -164,6 +164,13 @@ lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(
     lincs::WeightsProfilesBreedMrSortLearning::Models::make(domain, learning_set, models_count, random_seed)));
 }
 
+lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels* make_gpu_models(
+  const lincs::WeightsProfilesBreedMrSortLearning::Models& models
+) {
+  return new lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels(std::move(
+    lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(models)));
+}
+
 std::optional<std::string> get_alternative_category(const lincs::Alternative& alt) {
   return alt.category;
 }
@@ -351,13 +358,22 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("improve_profiles", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy::improve_profiles));
 
   bp::class_<
-    lincs::ImproveProfilesWithAccuracyHeuristic,
+    lincs::ImproveProfilesWithAccuracyHeuristicOnCpu,
     bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>
   >(
-    "ImproveProfilesWithAccuracyHeuristic",
+    "ImproveProfilesWithAccuracyHeuristicOnCpu",
     bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
   )
-    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristic::improve_profiles);
+    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles);
+
+  bp::class_<
+    lincs::ImproveProfilesWithAccuracyHeuristicOnGpu,
+    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>
+  >(
+    "ImproveProfilesWithAccuracyHeuristicOnGpu",
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&, lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels&>()
+  )
+    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles);
 
   struct TerminationStrategyWrap : lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, bp::wrapper<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy> {
     bool terminate(unsigned iteration_index, unsigned best_accuracy) override {
@@ -372,8 +388,10 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("terminate", &lincs::TerminateAtAccuracy::terminate);
 
   bp::class_<lincs::WeightsProfilesBreedMrSortLearning::Models, boost::noncopyable>("Models", bp::no_init);
-
   bp::def("make_models", &make_models, bp::return_value_policy<bp::manage_new_object>());
+
+  bp::class_<lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels, boost::noncopyable>("GpuModels", bp::no_init);
+  bp::def("make_gpu_models", &make_gpu_models, bp::return_value_policy<bp::manage_new_object>());
 
   bp::class_<lincs::WeightsProfilesBreedMrSortLearning>(
     "WeightsProfilesBreedMrSortLearning",

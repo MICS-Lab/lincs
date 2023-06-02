@@ -84,7 +84,8 @@ RUN groupadd hostdocker --gid $DOCKER_GID
 RUN adduser user hostdocker
 USER user
 RUN mkdir -p /home/user/.local/bin
-ENV PATH=/home/user/.local/bin:$PATH
+ENV PATH=/home/user/.local/bin:$PATH:/usr/local/cuda-12.1/bin
 
 # CCache
 RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc
+RUN ln -s $(which ccache) /home/user/.local/bin/nvcc

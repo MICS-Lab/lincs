@@ -247,7 +247,7 @@ Options:
                                   - '--mrsort.weights-profiles-breed.profiles-strategy' is 'accuracy-heuristic'
                                   
                                      [x>=0]
-  --mrsort.weights-profiles-breed.accuracy-heuristic.processor [cpu]
+  --mrsort.weights-profiles-breed.accuracy-heuristic.processor [cpu|gpu]
                                   The processor to use to improve the profiles
                                   of the MRSort models.
                                   
@@ -452,8 +452,8 @@ dump( (Domain)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Domain,boost::python::api::object {lvalue})
 
-lincs.ImproveProfilesWithAccuracyHeuristic
-==========================================
+lincs.ImproveProfilesWithAccuracyHeuristicOnCpu
+===============================================
 
 __init__
 --------
@@ -468,10 +468,31 @@ improve_profiles
 ----------------
 
 
-improve_profiles( (ImproveProfilesWithAccuracyHeuristic)arg1) -> None :
+improve_profiles( (ImproveProfilesWithAccuracyHeuristicOnCpu)arg1) -> None :
 
     C++ signature :
-        void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristic {lvalue})
+        void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristicOnCpu {lvalue})
+
+lincs.ImproveProfilesWithAccuracyHeuristicOnGpu
+===============================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2, (GpuModels)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {lvalue})
+
+improve_profiles
+----------------
+
+
+improve_profiles( (ImproveProfilesWithAccuracyHeuristicOnGpu)arg1) -> None :
+
+    C++ signature :
+        void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristicOnGpu {lvalue})
 
 lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 ==============================================================================
@@ -792,6 +813,15 @@ load_model( (Domain)domain, (object)in) -> Model :
 
     C++ signature :
         lincs::Model load_model(lincs::Domain,boost::python::api::object {lvalue})
+
+lincs.make_gpu_models
+=====================
+
+
+make_gpu_models( (Models)arg1) -> GpuModels :
+
+    C++ signature :
+        lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels* make_gpu_models(lincs::WeightsProfilesBreedMrSortLearning::Models)
 
 lincs.make_models
 =================

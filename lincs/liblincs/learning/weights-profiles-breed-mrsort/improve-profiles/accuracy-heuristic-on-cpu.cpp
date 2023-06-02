@@ -1,18 +1,19 @@
 // Copyright 2023 Vincent Jacques
 
-#include "accuracy-heuristic.hpp"
+#include "accuracy-heuristic-on-cpu.hpp"
+#include "../../../randomness-utils.hpp"
 
 
 namespace lincs {
 
-void ImproveProfilesWithAccuracyHeuristic::improve_profiles() {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles() {
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
     improve_model_profiles(model_index);
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristic::improve_model_profiles(const unsigned model_index) {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profiles(const unsigned model_index) {
   Array1D<Host, unsigned> criterion_indexes(models.criteria_count, uninitialized);
   // Not worth parallelizing because models.criteria_count is typically small
   for (unsigned crit_idx_idx = 0; crit_idx_idx != models.criteria_count; ++crit_idx_idx) {
@@ -22,12 +23,12 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profiles(const unsigned
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned profile_index = 0; profile_index != models.categories_count - 1; ++profile_index) {
-    shuffle<unsigned>(model_index, ref(criterion_indexes));
+    shuffle(models.urbgs[model_index], ref(criterion_indexes));
     improve_model_profile(model_index, profile_index, criterion_indexes);
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned model_index,
   const unsigned profile_index,
   ArrayView1D<Host, const unsigned> criterion_indexes
@@ -39,7 +40,7 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
   }
 }
 
-void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index
@@ -84,7 +85,7 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
       destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(models.urbgs[model_index]);
     }
     const float desirability = compute_move_desirability(
-      models, model_index, profile_index, criterion_index, destination).value();
+      model_index, profile_index, criterion_index, destination).value();
     // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
     if (desirability > best_desirability) {
       best_desirability = desirability;
@@ -98,8 +99,7 @@ void ImproveProfilesWithAccuracyHeuristic::improve_model_profile(
   }
 }
 
-ImproveProfilesWithAccuracyHeuristic::Desirability ImproveProfilesWithAccuracyHeuristic::compute_move_desirability(
-  const Models& models,
+Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirability(
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -109,14 +109,13 @@ ImproveProfilesWithAccuracyHeuristic::Desirability ImproveProfilesWithAccuracyHe
 
   for (unsigned alternative_index = 0; alternative_index != models.learning_alternatives_count; ++alternative_index) {
     update_move_desirability(
-      models, model_index, profile_index, criterion_index, destination, alternative_index, &d);
+      model_index, profile_index, criterion_index, destination, alternative_index, &d);
   }
 
   return d;
 }
 
-void ImproveProfilesWithAccuracyHeuristic::update_move_desirability(
-  const Models& models,
+void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -231,14 +230,6 @@ void ImproveProfilesWithAccuracyHeuristic::update_move_desirability(
       && value <= current_position) {
         ++desirability->t;
     }
-  }
-}
-
-float ImproveProfilesWithAccuracyHeuristic::Desirability::value() const {
-  if (v + w + t + q + r == 0) {
-    return zero_value;
-  } else {
-    return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
   }
 }
 

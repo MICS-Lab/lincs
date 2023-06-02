@@ -24,6 +24,7 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /'
     sudo apt-get update
     sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
+    export PATH=/usr/local/cuda-12.1/bin:$PATH
 
     # OR-tools
     wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
@@ -84,7 +85,8 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
       cat dependencies.sh \
       | grep -v -e '^#' -e '^$' \
       | sed 's/^/RUN /' \
-      | sed 's/^RUN cd/WORKDIR/'
+      | sed 's/^RUN cd/WORKDIR/' \
+      | sed 's/^RUN export/ENV/'
       echo
       cat Dockerfile-post
     ) >Dockerfile
@@ -462,6 +464,19 @@ It should be close to 100%::
 
 .. EXTEND command-line-example/run.sh
     diff expected-classification-accuracy.txt classification-accuracy.txt
+.. STOP
+
+.. EXTEND command-line-example/run.sh
+
+If you have a CUDA-compatible GPU and its drivers correctly installed, you can try another strategy to learn the model using it::
+
+    lincs learn classification-model domain.yml learning-set.csv --output-model gpu-trained-model.yml --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
+
+.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
+.. STOP
+
+.. EXTEND command-line-example/run.sh
+    diff expected-trained-model.yml gpu-trained-model.yml
 .. STOP
 
 
