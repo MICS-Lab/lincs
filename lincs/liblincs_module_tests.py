@@ -194,9 +194,9 @@ class AlternativesTestCase(unittest.TestCase):
 
 class MrSortLearningTestCase(unittest.TestCase):
     def test_basic_mrsort_learning(self):
-        domain = generate_domain(3, 2, 41)
+        domain = generate_domain(5, 3, 41)
         model = generate_mrsort_model(domain, 42)
-        learning_set = generate_alternatives(domain, model, 100, 43)
+        learning_set = generate_alternatives(domain, model, 200, 43)
 
         models = make_models(domain, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
@@ -213,17 +213,17 @@ class MrSortLearningTestCase(unittest.TestCase):
 
         result = classify_alternatives(domain, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
-        self.assertEqual(result.unchanged, 100)
+        self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(domain, model, 1000, 43)
+        testing_set = generate_alternatives(domain, model, 1000, 44)
         result = classify_alternatives(domain, learned_model, testing_set)
-        self.assertEqual(result.changed, 6)
-        self.assertEqual(result.unchanged, 994)
+        self.assertEqual(result.changed, 29)
+        self.assertEqual(result.unchanged, 971)
 
     def test_python_termination_strategy(self):
-        domain = generate_domain(3, 2, 41)
+        domain = generate_domain(5, 3, 41)
         model = generate_mrsort_model(domain, 42)
-        learning_set = generate_alternatives(domain, model, 100, 43)
+        learning_set = generate_alternatives(domain, model, 200, 43)
 
         class MyTerminationStrategy(TerminationStrategy):
             def __init__(self):
@@ -233,7 +233,7 @@ class MrSortLearningTestCase(unittest.TestCase):
             def terminate(self, iteration_index, best_accuracy):
                 assert iteration_index == len(self.accuracies)
                 self.accuracies.append(best_accuracy)
-                return best_accuracy >= 100
+                return best_accuracy > 176
 
         models = make_models(domain, learning_set, 9, 44)
         termination_strategy = MyTerminationStrategy()
@@ -248,21 +248,21 @@ class MrSortLearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
-        self.assertEqual(termination_strategy.accuracies, [0, 100])
+        self.assertEqual(termination_strategy.accuracies, [0, 176, 186])
 
         result = classify_alternatives(domain, learned_model, learning_set)
-        self.assertEqual(result.changed, 0)
-        self.assertEqual(result.unchanged, 100)
+        self.assertEqual(result.changed, 14)
+        self.assertEqual(result.unchanged, 186)
 
-        testing_set = generate_alternatives(domain, model, 1000, 43)
+        testing_set = generate_alternatives(domain, model, 1000, 44)
         result = classify_alternatives(domain, learned_model, testing_set)
-        self.assertEqual(result.changed, 6)
-        self.assertEqual(result.unchanged, 994)
+        self.assertEqual(result.changed, 96)
+        self.assertEqual(result.unchanged, 904)
 
     def test_gpu_mrsort_learning(self):
-        domain = generate_domain(3, 2, 41)
+        domain = generate_domain(5, 3, 41)
         model = generate_mrsort_model(domain, 42)
-        learning_set = generate_alternatives(domain, model, 100, 43)
+        learning_set = generate_alternatives(domain, model, 200, 43)
 
         models = make_models(domain, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
@@ -280,9 +280,9 @@ class MrSortLearningTestCase(unittest.TestCase):
 
         result = classify_alternatives(domain, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
-        self.assertEqual(result.unchanged, 100)
+        self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(domain, model, 1000, 43)
+        testing_set = generate_alternatives(domain, model, 1000, 44)
         result = classify_alternatives(domain, learned_model, testing_set)
-        self.assertEqual(result.changed, 6)
-        self.assertEqual(result.unchanged, 994)
+        self.assertEqual(result.changed, 29)
+        self.assertEqual(result.unchanged, 971)

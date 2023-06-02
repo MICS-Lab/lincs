@@ -11,9 +11,9 @@
 namespace lincs {
 
 TEST_CASE("Basic MR-Sort learning") {
-  Domain domain = generate_domain(3, 2, 41);
+  Domain domain = generate_domain(5, 3, 41);
   Model model = generate_mrsort_model(domain, 42);
-  Alternatives learning_set = generate_alternatives(domain, model, 100, 43);
+  Alternatives learning_set = generate_alternatives(domain, model, 200, 43);
 
   const unsigned random_seed = 44;
   auto models = WeightsProfilesBreedMrSortLearning::Models::make(
@@ -35,14 +35,51 @@ TEST_CASE("Basic MR-Sort learning") {
   {
     ClassificationResult result = classify_alternatives(domain, learned_model, &learning_set);
     CHECK(result.changed == 0);
-    CHECK(result.unchanged == 100);
+    CHECK(result.unchanged == 200);
   }
 
   {
-    Alternatives testing_set = generate_alternatives(domain, model, 1000, 43);
+    Alternatives testing_set = generate_alternatives(domain, model, 1000, 44);
     ClassificationResult result = classify_alternatives(domain, learned_model, &testing_set);
-    CHECK(result.changed == 6);
-    CHECK(result.unchanged == 994);
+    CHECK(result.changed == 29);
+    CHECK(result.unchanged == 971);
+  }
+}
+
+TEST_CASE("GPU MR-Sort learning") {
+  Domain domain = generate_domain(5, 3, 41);
+  Model model = generate_mrsort_model(domain, 42);
+  Alternatives learning_set = generate_alternatives(domain, model, 200, 43);
+
+  const unsigned random_seed = 44;
+  auto host_models = WeightsProfilesBreedMrSortLearning::Models::make(
+    domain, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, random_seed);
+  auto gpu_models = ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(host_models);
+
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy(host_models);
+  OptimizeWeightsUsingGlop weights_optimization_strategy(host_models);
+  ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy(host_models, gpu_models);
+  TerminateAtAccuracy termination_strategy(learning_set.alternatives.size());
+
+  Model learned_model = WeightsProfilesBreedMrSortLearning(
+    host_models,
+    profiles_initialization_strategy,
+    weights_optimization_strategy,
+    profiles_improvement_strategy,
+    termination_strategy
+  ).perform();
+
+  {
+    ClassificationResult result = classify_alternatives(domain, learned_model, &learning_set);
+    CHECK(result.changed == 0);
+    CHECK(result.unchanged == 200);
+  }
+
+  {
+    Alternatives testing_set = generate_alternatives(domain, model, 1000, 44);
+    ClassificationResult result = classify_alternatives(domain, learned_model, &testing_set);
+    CHECK(result.changed == 29);
+    CHECK(result.unchanged == 971);
   }
 }
 
