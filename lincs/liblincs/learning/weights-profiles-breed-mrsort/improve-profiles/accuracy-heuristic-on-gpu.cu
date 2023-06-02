@@ -11,21 +11,17 @@ typedef GridFactory2D<256, 4> grid;
 
 __device__
 unsigned get_assignment(
-  const unsigned categories_count,  // @todo Remove, use size getters instead
-  const unsigned criteria_count,  // @todo Remove, use size getters instead
-  const unsigned learning_alternatives_count,  // @todo Remove, use size getters instead
   const ArrayView2D<Device, const float> learning_alternatives,
-  const ArrayView1D<Device, const unsigned> learning_assignments,
-  const unsigned models_count,  // @todo Remove, use size getters instead
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
   const unsigned alternative_index
 ) {
+  const unsigned criteria_count = learning_alternatives.s1();
+  const unsigned categories_count = profiles.s1() + 1;
+
   // @todo Evaluate if it's worth storing and updating the gpu_models' assignments
   // (instead of recomputing them here)
-  assert(model_index < models_count);
-  assert(alternative_index < learning_alternatives_count);
 
   // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
   // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
@@ -49,12 +45,8 @@ unsigned get_assignment(
 
 __device__
 void update_move_desirability(
-  const unsigned categories_count,  // @todo Remove, use size getters instead
-  const unsigned criteria_count,  // @todo Remove, use size getters instead
-  const unsigned learning_alternatives_count,  // @todo Remove, use size getters instead
   const ArrayView2D<Device, const float> learning_alternatives,
   const ArrayView1D<Device, const unsigned> learning_assignments,
-  const unsigned models_count,  // @todo Remove, use size getters instead
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
@@ -64,18 +56,16 @@ void update_move_desirability(
   const unsigned alternative_index,
   lincs::Desirability* desirability
 ) {
+  const unsigned learning_alternatives_count = learning_alternatives.s0();
+  const unsigned criteria_count = learning_alternatives.s1();
+
   const float current_position = profiles[criterion_index][profile_index][model_index];
   const float weight = weights[criterion_index][model_index];
 
   const float value = learning_alternatives[criterion_index][alternative_index];
   const unsigned learning_assignment = learning_assignments[alternative_index];
   const unsigned model_assignment = get_assignment(
-    categories_count,
-    criteria_count,
-    learning_alternatives_count,
     learning_alternatives,
-    learning_assignments,
-    models_count,
     weights,
     profiles,
     model_index,
@@ -185,13 +175,10 @@ void update_move_desirability(
 }
 
 // @todo investigate how sharing preliminary computations done in all threads could improve perf
-__global__ void compute_move_desirabilities__kernel(
-  const unsigned categories_count,  // @todo Remove, use size getters instead
-  const unsigned criteria_count,  // @todo Remove, use size getters instead
-  const unsigned learning_alternatives_count,  // @todo Remove, use size getters instead
+__global__
+void compute_move_desirabilities__kernel(
   const ArrayView2D<Device, const float> learning_alternatives,
   const ArrayView1D<Device, const unsigned> learning_assignments,
-  const unsigned models_count,  // @todo Remove, use size getters instead
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
   const uint model_index,
@@ -201,19 +188,15 @@ __global__ void compute_move_desirabilities__kernel(
   ArrayView1D<Device, lincs::Desirability> desirabilities
 ) {
   const uint alt_index = grid::x();
-  assert(alt_index < learning_alternatives_count + grid::blockDim.x);
+  assert(alt_index < learning_alternatives.s0() + grid::blockDim.x);
   const uint destination_index = grid::y();
   assert(destination_index < destinations.s0() + grid::blockDim.y);
 
   // Map (embarrassingly parallel)
-  if (alt_index < learning_alternatives_count && destination_index < destinations.s0()) {
+  if (alt_index < learning_alternatives.s0() && destination_index < destinations.s0()) {
     update_move_desirability(
-      categories_count,
-      criteria_count,
-      learning_alternatives_count,
       learning_alternatives,
       learning_assignments,
-      models_count,
       weights,
       profiles,
       model_index,
@@ -225,7 +208,8 @@ __global__ void compute_move_desirabilities__kernel(
   }
 }
 
-__global__ void apply_best_move__kernel(
+__global__
+void apply_best_move__kernel(
   const ArrayView3D<Device, float> profiles,
   const uint model_index,
   const uint profile_index,
@@ -238,7 +222,7 @@ __global__ void apply_best_move__kernel(
   // Could maybe be parallelized using divide and conquer? Or atomic compare-and-swap?
   float best_destination = destinations[0];
   float best_desirability = desirabilities[0].value();
-  for (uint destination_index = 1; destination_index < 64; ++destination_index) {
+  for (uint destination_index = 1; destination_index < destinations.s0(); ++destination_index) {
     const float destination = destinations[destination_index];
     const float desirability = desirabilities[destination_index].value();
 
@@ -357,12 +341,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   Array1D<Device, float> device_destinations = host_destinations.clone_to<Device>();
   Grid grid = grid::make(gpu_models.learning_alternatives_count, destinations_count);
   compute_move_desirabilities__kernel<<<LOVE_CONFIG(grid)>>>(
-    gpu_models.categories_count,
-    gpu_models.criteria_count,
-    gpu_models.learning_alternatives_count,
     gpu_models.learning_alternatives,
     gpu_models.learning_assignments,
-    gpu_models.models_count,
     gpu_models.weights,
     gpu_models.profiles,
     model_index,

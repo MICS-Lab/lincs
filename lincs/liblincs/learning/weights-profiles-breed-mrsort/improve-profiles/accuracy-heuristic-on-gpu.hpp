@@ -35,7 +35,7 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
 
  private:
   Models& host_models;
-  GpuModels& gpu_models;  // @todo Rename device_models?
+  GpuModels& gpu_models;
 };
 
 struct ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {
