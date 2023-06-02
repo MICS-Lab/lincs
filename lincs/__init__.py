@@ -7,4 +7,4 @@ from liblincs import ProfilesInitializationStrategy, InitializeProfilesForProbab
 from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop
 from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
 from liblincs import TerminationStrategy, TerminateAtAccuracy
-from liblincs import make_models, WeightsProfilesBreedMrSortLearning
+from liblincs import make_models, make_gpu_models, WeightsProfilesBreedMrSortLearning

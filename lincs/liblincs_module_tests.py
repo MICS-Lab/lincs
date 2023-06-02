@@ -268,7 +268,8 @@ class MrSortLearningTestCase(unittest.TestCase):
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
-        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnGpu(models)
+        gpu_models = make_gpu_models(models)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnGpu(models, gpu_models)
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,

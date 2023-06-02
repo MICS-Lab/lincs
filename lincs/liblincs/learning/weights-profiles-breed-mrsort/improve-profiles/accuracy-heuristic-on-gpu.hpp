@@ -10,7 +10,10 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& models_) : models(models_), d(new Array1D<Device, float>(32, uninitialized)) {}
+  struct GpuModels;
+
+ public:
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& models_, GpuModels& gpu_models_) : models(models_), gpu_models(gpu_models_) {}
 
  public:
   void improve_profiles() override;
@@ -71,7 +74,13 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
 
  private:
   Models& models;
-  Array1D<Device, float>* d;  // @todo Remove (Was added to prove we can actually use the GPU, before implementing the algorithm *on* the GPU)
+  GpuModels& gpu_models;
+};
+
+struct ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {
+  Array1D<Device, float> whatever;
+
+  static GpuModels make(const Models&);
 };
 
 }  // namespace lincs

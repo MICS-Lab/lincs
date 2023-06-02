@@ -480,10 +480,10 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2) -> None :
+__init__( (object)arg1, (Models)arg2, (GpuModels)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {lvalue})
 
 improve_profiles
 ----------------
@@ -813,6 +813,15 @@ load_model( (Domain)domain, (object)in) -> Model :
 
     C++ signature :
         lincs::Model load_model(lincs::Domain,boost::python::api::object {lvalue})
+
+lincs.make_gpu_models
+=====================
+
+
+make_gpu_models( (Models)arg1) -> GpuModels :
+
+    C++ signature :
+        lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels* make_gpu_models(lincs::WeightsProfilesBreedMrSortLearning::Models)
 
 lincs.make_models
 =================

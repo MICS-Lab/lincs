@@ -5,6 +5,12 @@
 
 namespace lincs {
 
+ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(const Models& models) {
+  return {
+    Array1D<Device, float>(1024, uninitialized),
+  };
+}
+
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
