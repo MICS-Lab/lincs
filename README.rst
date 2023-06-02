@@ -50,9 +50,9 @@ Provide a base for developing new MCDA algorithms
 -------------------------------------------------
 
 *lincs* is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
-@todo Write doc about that use case.
+See our `contributor guide <https://mics-lab.github.io/lincs/contributor-guide.html>`_ for more details.
 
-*lincs* also provides a benchmark framework to compare algorithms (@todo Write and document).
+*lincs* also provides a benchmark framework to compare algorithms (@todo Implement and document).
 This should make it easier to understand the relative strengths and weaknesses of each algorithm.
 
 
