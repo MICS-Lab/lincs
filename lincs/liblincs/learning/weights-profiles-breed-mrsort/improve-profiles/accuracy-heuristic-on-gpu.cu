@@ -181,15 +181,15 @@ void compute_move_desirabilities__kernel(
   const ArrayView1D<Device, const unsigned> learning_assignments,
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
-  const uint model_index,
-  const uint profile_index,
-  const uint criterion_index,
+  const unsigned model_index,
+  const unsigned profile_index,
+  const unsigned criterion_index,
   const ArrayView1D<Device, const float> destinations,
   ArrayView1D<Device, lincs::Desirability> desirabilities
 ) {
-  const uint alt_index = grid::x();
+  const unsigned alt_index = grid::x();
   assert(alt_index < learning_alternatives.s0() + grid::blockDim.x);
-  const uint destination_index = grid::y();
+  const unsigned destination_index = grid::y();
   assert(destination_index < destinations.s0() + grid::blockDim.y);
 
   // Map (embarrassingly parallel)
@@ -211,9 +211,9 @@ void compute_move_desirabilities__kernel(
 __global__
 void apply_best_move__kernel(
   const ArrayView3D<Device, float> profiles,
-  const uint model_index,
-  const uint profile_index,
-  const uint criterion_index,
+  const unsigned model_index,
+  const unsigned profile_index,
+  const unsigned criterion_index,
   const ArrayView1D<Device, const float> destinations,
   const ArrayView1D<Device, const lincs::Desirability> desirabilities,
   const float desirability_threshold
@@ -222,7 +222,7 @@ void apply_best_move__kernel(
   // Could maybe be parallelized using divide and conquer? Or atomic compare-and-swap?
   float best_destination = destinations[0];
   float best_desirability = desirabilities[0].value();
-  for (uint destination_index = 1; destination_index < destinations.s0(); ++destination_index) {
+  for (unsigned destination_index = 1; destination_index < destinations.s0(); ++destination_index) {
     const float destination = destinations[destination_index];
     const float desirability = desirabilities[destination_index].value();
 
@@ -319,10 +319,10 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     return;
   }
 
-  const uint destinations_count = 64;
+  const unsigned destinations_count = 64;
 
   Array1D<Host, float> host_destinations(destinations_count, uninitialized);
-  for (uint destination_index = 0; destination_index != destinations_count; ++destination_index) {
+  for (unsigned destination_index = 0; destination_index != destinations_count; ++destination_index) {
     float destination = highest_destination;
     // By specification, std::uniform_real_distribution should never return its highest value,
     // but "most existing implementations have a bug where they may occasionally" return it,

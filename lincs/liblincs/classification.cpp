@@ -17,12 +17,12 @@ ClassificationResult classify_alternatives(const Domain& domain, const Model& mo
   ClassificationResult result{0, 0};
 
   for (auto& alternative: alternatives->alternatives) {
-    uint category_index;
+    unsigned category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
       const auto& boundary = model.boundaries[category_index - 1];
       assert(boundary.sufficient_coalitions.kind == Model::SufficientCoalitions::Kind::weights);
       float weight_at_or_above_profile = 0;
-      for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
         const float profile_value = boundary.profile[criterion_index];
         if (alternative_value >= profile_value) {

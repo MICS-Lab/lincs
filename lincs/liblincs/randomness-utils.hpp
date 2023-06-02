@@ -55,7 +55,7 @@ class ProbabilityWeightedGenerator {
 template<typename T>
 void shuffle(std::mt19937& urbg, T m) {
   for (unsigned i = 0; i != m.s0(); ++i) {
-    std::swap(m[i], m[std::uniform_int_distribution<unsigned int>(0, m.s0() - 1)(urbg)]);
+    std::swap(m[i], m[std::uniform_int_distribution<unsigned>(0, m.s0() - 1)(urbg)]);
   }
 }
 

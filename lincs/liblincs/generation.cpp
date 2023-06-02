@@ -45,7 +45,7 @@ Model generate_mrsort_model(const Domain& domain, const unsigned random_seed, co
   std::uniform_real_distribution<float> values_distribution(0.01f, 0.99f);
   // (Values clamped strictly inside ']0, 1[' to make it easier to generate balanced learning sets)
   std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
-  for (uint crit_index = 0; crit_index != criteria_count; ++crit_index) {
+  for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
     // Profiles must be ordered on each criterion, so we generate a random column...
     std::vector<float> column(categories_count - 1);
     std::generate(
@@ -54,7 +54,7 @@ Model generate_mrsort_model(const Domain& domain, const unsigned random_seed, co
     // ... sort it...
     std::sort(column.begin(), column.end());
     // ... and assign that column across all profiles.
-    for (uint profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
+    for (unsigned profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
       profiles[profile_index][crit_index] = column[profile_index];
     }
   }
@@ -115,7 +115,7 @@ Alternatives generate_uniform_alternatives(
   // We just generate random profiles uniformly in [0, 1]
   std::uniform_real_distribution<float> values_distribution(0.0f, 1.0f);
 
-  for (uint alt_index = 0; alt_index != alternatives_count; ++alt_index) {
+  for (unsigned alt_index = 0; alt_index != alternatives_count; ++alt_index) {
     std::vector<float> criteria_values(criteria_count);
     std::generate(
       criteria_values.begin(), criteria_values.end(),
