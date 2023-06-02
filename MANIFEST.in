@@ -1,4 +1,4 @@
 # Copyright 2023 Vincent Jacques
 
 include requirements.txt
-recursive-include lincs/liblincs *.hpp *.cpp
+recursive-include lincs/liblincs *.hpp *.cpp *.cu
