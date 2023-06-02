@@ -45,7 +45,6 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public WeightsProfilesBreedMrS
   );
 
   Desirability compute_move_desirability(
-    const Models& models,
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,
@@ -53,7 +52,6 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public WeightsProfilesBreedMrS
   );
 
   void update_move_desirability(
-    const Models& models,
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,

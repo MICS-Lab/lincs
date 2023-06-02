@@ -84,7 +84,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
       destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(models.urbgs[model_index]);
     }
     const float desirability = compute_move_desirability(
-      models, model_index, profile_index, criterion_index, destination).value();
+      model_index, profile_index, criterion_index, destination).value();
     // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
     if (desirability > best_desirability) {
       best_desirability = desirability;
@@ -99,7 +99,6 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
 }
 
 ImproveProfilesWithAccuracyHeuristicOnCpu::Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirability(
-  const Models& models,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -109,14 +108,13 @@ ImproveProfilesWithAccuracyHeuristicOnCpu::Desirability ImproveProfilesWithAccur
 
   for (unsigned alternative_index = 0; alternative_index != models.learning_alternatives_count; ++alternative_index) {
     update_move_desirability(
-      models, model_index, profile_index, criterion_index, destination, alternative_index, &d);
+      model_index, profile_index, criterion_index, destination, alternative_index, &d);
   }
 
   return d;
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
-  const Models& models,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
