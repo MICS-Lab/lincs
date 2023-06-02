@@ -3,126 +3,77 @@
 #include "accuracy-heuristic-on-gpu.hpp"
 
 
-namespace lincs {
+namespace {
 
-ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(const Models& models) {
-  return {
-    Array1D<Device, float>(1024, uninitialized),
-  };
-}
+typedef GridFactory2D<256, 4> grid;
 
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
-  #pragma omp parallel for
-  for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
-    improve_model_profiles(model_index);
-  }
-}
+struct Desirability {
+  static constexpr float zero_value = 0;
 
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {
-  Array1D<Host, unsigned> criterion_indexes(models.criteria_count, uninitialized);
-  // Not worth parallelizing because models.criteria_count is typically small
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != models.criteria_count; ++crit_idx_idx) {
-    criterion_indexes[crit_idx_idx] = crit_idx_idx;
-  }
+  unsigned v = 0;
+  unsigned w = 0;
+  unsigned q = 0;
+  unsigned r = 0;
+  unsigned t = 0;
 
-  // Not parallel because iteration N+1 relies on side effect in iteration N
-  // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned profile_index = 0; profile_index != models.categories_count - 1; ++profile_index) {
-    shuffle<unsigned>(model_index, ref(criterion_indexes));
-    improve_model_profile(model_index, profile_index, criterion_indexes);
-  }
-}
-
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
-  const unsigned model_index,
-  const unsigned profile_index,
-  ArrayView1D<Host, const unsigned> criterion_indexes
-) {
-  // Not parallel because iteration N+1 relies on side effect in iteration N
-  // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != models.criteria_count; ++crit_idx_idx) {
-    improve_model_profile(model_index, profile_index, criterion_indexes[crit_idx_idx]);
-  }
-}
-
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
-  const unsigned model_index,
-  const unsigned profile_index,
-  const unsigned criterion_index
-) {
-  // WARNING: We're assuming all criteria have values in [0, 1]
-  // @todo Can we relax this assumption?
-  // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
-  const float lowest_destination =
-    profile_index == 0 ? 0. :
-    models.profiles[criterion_index][profile_index - 1][model_index];
-  const float highest_destination =
-    profile_index == models.categories_count - 2 ? 1. :
-    models.profiles[criterion_index][profile_index + 1][model_index];
-
-  float best_destination = models.profiles[criterion_index][profile_index][model_index];
-  float best_desirability = Desirability().value();
-
-  if (lowest_destination == highest_destination) {
-    assert(best_destination == lowest_destination);
-    return;
-  }
-
-  // Not sure about this part: we're considering an arbitrary number of possible moves as described in
-  // Mousseau's prez-mics-2018(8).pdf, but:
-  //  - this is wasteful when there are fewer alternatives in the interval
-  //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
-  // @todo Ask Vincent Mousseau about the following:
-  // We could consider only a finite set of values for b_j described as follows:
-  // - sort all the 'a_j's
-  // - compute all midpoints between two successive 'a_j'
-  // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
-  // Then instead of taking a random values in [lowest_destination, highest_destination],
-  // we'd take a random subset of the intersection of these midpoints with that interval.
-  for (unsigned n = 0; n < 64; ++n) {
-    // Map (embarrassingly parallel)
-    float destination = highest_destination;
-    // By specification, std::uniform_real_distribution should never return its highest value,
-    // but "most existing implementations have a bug where they may occasionally" return it,
-    // so we work around that bug by calling it again until it doesn't.
-    // Ref: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
-    while (destination == highest_destination) {
-      destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(models.urbgs[model_index]);
-    }
-    const float desirability = compute_move_desirability(
-      models, model_index, profile_index, criterion_index, destination).value();
-    // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
-    if (desirability > best_desirability) {
-      best_desirability = desirability;
-      best_destination = destination;
+  __device__
+  float value() const {
+    if (v + w + t + q + r == 0) {
+      return zero_value;
+    } else {
+      return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
     }
   }
+};
 
-  // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
-  if (std::uniform_real_distribution<float>(0, 1)(models.urbgs[model_index]) <= best_desirability) {
-    models.profiles[criterion_index][profile_index][model_index] = best_destination;
-  }
-}
-
-ImproveProfilesWithAccuracyHeuristicOnGpu::Desirability ImproveProfilesWithAccuracyHeuristicOnGpu::compute_move_desirability(
-  const Models& models,
+__device__
+unsigned get_assignment(
+  const unsigned categories_count,  // @todo Remove, use size getters instead
+  const unsigned criteria_count,  // @todo Remove, use size getters instead
+  const unsigned learning_alternatives_count,  // @todo Remove, use size getters instead
+  const ArrayView2D<Device, const float> learning_alternatives,
+  const ArrayView1D<Device, const unsigned> learning_assignments,
+  const unsigned models_count,  // @todo Remove, use size getters instead
+  const ArrayView2D<Device, const float> weights,
+  const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
-  const unsigned profile_index,
-  const unsigned criterion_index,
-  const float destination
+  const unsigned alternative_index
 ) {
-  Desirability d;
+  // @todo Evaluate if it's worth storing and updating the gpu_models' assignments
+  // (instead of recomputing them here)
+  assert(model_index < models_count);
+  assert(alternative_index < learning_alternatives_count);
 
-  for (unsigned alternative_index = 0; alternative_index != models.learning_alternatives_count; ++alternative_index) {
-    update_move_desirability(
-      models, model_index, profile_index, criterion_index, destination, alternative_index, &d);
+  // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
+  // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
+  // phase keeping the maximum 'category_index' that passes the weight threshold.
+  for (unsigned category_index = categories_count - 1; category_index != 0; --category_index) {
+    const unsigned profile_index = category_index - 1;
+    float weight_at_or_above_profile = 0;
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      const float alternative_value = learning_alternatives[criterion_index][alternative_index];
+      const float profile_value = profiles[criterion_index][profile_index][model_index];
+      if (alternative_value >= profile_value) {
+        weight_at_or_above_profile += weights[criterion_index][model_index];
+      }
+    }
+    if (weight_at_or_above_profile >= 1) {
+      return category_index;
+    }
   }
-
-  return d;
+  return 0;
 }
 
-void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
-  const Models& models,
+__device__
+void update_move_desirability(
+  const unsigned categories_count,  // @todo Remove, use size getters instead
+  const unsigned criteria_count,  // @todo Remove, use size getters instead
+  const unsigned learning_alternatives_count,  // @todo Remove, use size getters instead
+  const ArrayView2D<Device, const float> learning_alternatives,
+  const ArrayView1D<Device, const unsigned> learning_assignments,
+  const unsigned models_count,  // @todo Remove, use size getters instead
+  const ArrayView2D<Device, const float> weights,
+  const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -130,20 +81,30 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
   const unsigned alternative_index,
   Desirability* desirability
 ) {
-  const float current_position = models.profiles[criterion_index][profile_index][model_index];
-  const float weight = models.weights[criterion_index][model_index];
+  const float current_position = profiles[criterion_index][profile_index][model_index];
+  const float weight = weights[criterion_index][model_index];
 
-  const float value = models.learning_alternatives[criterion_index][alternative_index];
-  const unsigned learning_assignment = models.learning_assignments[alternative_index];
-  const unsigned model_assignment = WeightsProfilesBreedMrSortLearning::get_assignment(models, model_index, alternative_index);
+  const float value = learning_alternatives[criterion_index][alternative_index];
+  const unsigned learning_assignment = learning_assignments[alternative_index];
+  const unsigned model_assignment = get_assignment(
+    categories_count,
+    criteria_count,
+    learning_alternatives_count,
+    learning_alternatives,
+    learning_assignments,
+    models_count,
+    weights,
+    profiles,
+    model_index,
+    alternative_index);
 
   // @todo Factorize with get_assignment
   float weight_at_or_above_profile = 0;
-  for (unsigned criterion_index = 0; criterion_index != models.criteria_count; ++criterion_index) {
-    const float alternative_value = models.learning_alternatives[criterion_index][alternative_index];
-    const float profile_value = models.profiles[criterion_index][profile_index][model_index];
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    const float alternative_value = learning_alternatives[criterion_index][alternative_index];
+    const float profile_value = profiles[criterion_index][profile_index][model_index];
     if (alternative_value >= profile_value) {
-      weight_at_or_above_profile += models.weights[criterion_index][model_index];
+      weight_at_or_above_profile += weights[criterion_index][model_index];
     }
   }
 
@@ -166,7 +127,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
       && destination > value
       && value >= current_position
       && weight_at_or_above_profile - weight < 1) {
-        ++desirability->v;
+        atomicInc(&desirability->v, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index
@@ -174,7 +135,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
       && destination > value
       && value >= current_position
       && weight_at_or_above_profile - weight >= 1) {
-        ++desirability->w;
+        atomicInc(&desirability->w, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index + 1
@@ -182,21 +143,21 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
       && destination > value
       && value >= current_position
       && weight_at_or_above_profile - weight < 1) {
-        ++desirability->q;
+        atomicInc(&desirability->q, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
       && destination > value
       && value >= current_position) {
-        ++desirability->r;
+        atomicInc(&desirability->r, learning_alternatives_count);
     }
     if (
       learning_assignment < profile_index
       && model_assignment > profile_index
       && destination > value
       && value >= current_position) {
-        ++desirability->t;
+        atomicInc(&desirability->t, learning_alternatives_count);
     }
   } else {
     if (
@@ -205,7 +166,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
       && destination < value
       && value < current_position
       && weight_at_or_above_profile + weight >= 1) {
-        ++desirability->v;
+        atomicInc(&desirability->v, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index + 1
@@ -213,7 +174,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
       && destination < value
       && value < current_position
       && weight_at_or_above_profile + weight < 1) {
-        ++desirability->w;
+        atomicInc(&desirability->w, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index
@@ -221,31 +182,246 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::update_move_desirability(
       && destination < value
       && value < current_position
       && weight_at_or_above_profile + weight >= 1) {
-        ++desirability->q;
+        atomicInc(&desirability->q, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
       && destination <= value
       && value < current_position) {
-        ++desirability->r;
+        atomicInc(&desirability->r, learning_alternatives_count);
     }
     if (
       learning_assignment > profile_index + 1
       && model_assignment < profile_index + 1
       && destination < value
       && value <= current_position) {
-        ++desirability->t;
+        atomicInc(&desirability->t, learning_alternatives_count);
     }
   }
 }
 
-float ImproveProfilesWithAccuracyHeuristicOnGpu::Desirability::value() const {
-  if (v + w + t + q + r == 0) {
-    return zero_value;
-  } else {
-    return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
+// @todo investigate how sharing preliminary computations done in all threads could improve perf
+__global__ void compute_move_desirabilities__kernel(
+  const unsigned categories_count,  // @todo Remove, use size getters instead
+  const unsigned criteria_count,  // @todo Remove, use size getters instead
+  const unsigned learning_alternatives_count,  // @todo Remove, use size getters instead
+  const ArrayView2D<Device, const float> learning_alternatives,
+  const ArrayView1D<Device, const unsigned> learning_assignments,
+  const unsigned models_count,  // @todo Remove, use size getters instead
+  const ArrayView2D<Device, const float> weights,
+  const ArrayView3D<Device, const float> profiles,
+  const uint model_index,
+  const uint profile_index,
+  const uint criterion_index,
+  const ArrayView1D<Device, const float> destinations,
+  ArrayView1D<Device, Desirability> desirabilities
+) {
+  const uint alt_index = grid::x();
+  assert(alt_index < learning_alternatives_count + grid::blockDim.x);
+  const uint destination_index = grid::y();
+  assert(destination_index < destinations.s0() + grid::blockDim.y);
+
+  // Map (embarrassingly parallel)
+  if (alt_index < learning_alternatives_count && destination_index < destinations.s0()) {
+    update_move_desirability(
+      categories_count,
+      criteria_count,
+      learning_alternatives_count,
+      learning_alternatives,
+      learning_assignments,
+      models_count,
+      weights,
+      profiles,
+      model_index,
+      profile_index,
+      criterion_index,
+      destinations[destination_index],
+      alt_index,
+      &desirabilities[destination_index]);
   }
+}
+
+
+__global__ void apply_best_move__kernel(
+  const ArrayView3D<Device, float> profiles,
+  const uint model_index,
+  const uint profile_index,
+  const uint criterion_index,
+  const ArrayView1D<Device, const float> destinations,
+  const ArrayView1D<Device, const Desirability> desirabilities,
+  const float desirability_threshold
+) {
+  // Single-key reduce
+  // Could maybe be parallelized using divide and conquer? Or atomic compare-and-swap?
+  float best_destination = destinations[0];
+  float best_desirability = desirabilities[0].value();
+  for (uint destination_index = 1; destination_index < 64; ++destination_index) {
+    const float destination = destinations[destination_index];
+    const float desirability = desirabilities[destination_index].value();
+
+    if (desirability > best_desirability) {
+      best_desirability = desirability;
+      best_destination = destination;
+    }
+  }
+
+  if (best_desirability >= desirability_threshold) {
+    profiles[criterion_index][profile_index][model_index] = best_destination;
+  }
+}
+
+}  // namespace
+
+template<>
+Desirability* Host::alloc<Desirability>(const std::size_t n) {
+  return Host::force_alloc<Desirability>(n);
+}
+
+template<>
+void Host::memset<Desirability>(const std::size_t n, const char v, Desirability* const p) {
+  Host::force_memset<Desirability>(n, v, p);
+}
+
+template<>
+Desirability* Device::alloc<Desirability>(const std::size_t n) {
+  return Device::force_alloc<Desirability>(n);
+}
+
+template<>
+void Device::memset<Desirability>(const std::size_t n, const char v, Desirability* const p) {
+  Device::force_memset<Desirability>(n, v, p);
+}
+
+namespace lincs {
+
+ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(const Models& models) {
+  Array2D<Device, float> weights(models.criteria_count, models.models_count, uninitialized);
+  Array3D<Device, float> profiles(models.criteria_count, (models.categories_count - 1), models.models_count, uninitialized);
+
+  return {
+    models.categories_count,  // @todo Remove: sizes are stored in arrays
+    models.criteria_count,  // @todo Remove: sizes are stored in arrays
+    models.learning_alternatives_count,  // @todo Remove: sizes are stored in arrays
+    models.learning_alternatives.template clone_to<Device>(),
+    models.learning_assignments.template clone_to<Device>(),
+    models.models_count,  // @todo Remove: sizes are stored in arrays
+    std::move(weights),
+    std::move(profiles),
+  };
+}
+
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
+  // Get optimized weights
+  copy(host_models.weights, ref(gpu_models.weights));
+  // Get (re-)initialized profiles
+  copy(host_models.profiles, ref(gpu_models.profiles));
+
+  #pragma omp parallel for
+  for (unsigned model_index = 0; model_index != gpu_models.models_count; ++model_index) {
+    improve_model_profiles(model_index);
+  }
+
+  // Set improved profiles
+  copy(gpu_models.profiles, ref(host_models.profiles));
+}
+
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {
+  Array1D<Host, unsigned> criterion_indexes(gpu_models.criteria_count, uninitialized);
+  // Not worth parallelizing because models.criteria_count is typically small
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != gpu_models.criteria_count; ++crit_idx_idx) {
+    criterion_indexes[crit_idx_idx] = crit_idx_idx;
+  }
+
+  // Not parallel because iteration N+1 relies on side effect in iteration N
+  // (We could challenge this aspect of the algorithm described by Sobrie)
+  for (unsigned profile_index = 0; profile_index != gpu_models.categories_count - 1; ++profile_index) {
+    shuffle<unsigned>(model_index, ref(criterion_indexes));
+    improve_model_profile(model_index, profile_index, criterion_indexes);
+  }
+}
+
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
+  const unsigned model_index,
+  const unsigned profile_index,
+  const ArrayView1D<Host, const unsigned> criterion_indexes
+) {
+  // Not parallel because iteration N+1 relies on side effect in iteration N
+  // (We could challenge this aspect of the algorithm described by Sobrie)
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != gpu_models.criteria_count; ++crit_idx_idx) {
+    improve_model_profile(model_index, profile_index, criterion_indexes[crit_idx_idx]);
+  }
+}
+
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
+  const unsigned model_index,
+  const unsigned profile_index,
+  const unsigned criterion_index
+) {
+  // WARNING: We're assuming all criteria have values in [0, 1]
+  // @todo Can we relax this assumption?
+  // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
+  const float lowest_destination =
+    profile_index == 0 ? 0. :
+    host_models.profiles[criterion_index][profile_index - 1][model_index];
+  const float highest_destination =
+    profile_index == host_models.categories_count - 2 ? 1. :
+    host_models.profiles[criterion_index][profile_index + 1][model_index];
+
+  if (lowest_destination == highest_destination) {
+    assert(host_models.profiles[criterion_index][profile_index][model_index] == lowest_destination);
+    return;
+  }
+
+  const uint destinations_count = 64;
+
+  Array1D<Host, float> host_destinations(destinations_count, uninitialized);
+  for (uint destination_index = 0; destination_index != destinations_count; ++destination_index) {
+    float destination = highest_destination;
+    // By specification, std::uniform_real_distribution should never return its highest value,
+    // but "most existing implementations have a bug where they may occasionally" return it,
+    // so we work around that bug by calling it again until it doesn't.
+    // Ref: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+    while (destination == highest_destination) {
+      destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(host_models.urbgs[model_index]);
+    }
+    host_destinations[destination_index] = destination;
+  }
+
+  // @todo Allocate these chunks of device memory just once, in GpuModels
+  // (device memory allocation is orders of magnitude more costly than host memory allocation because
+  // malloc/free cleverly keep track of available chunks of memory, but cudaMalloc/cudaFree really release the memory)
+  Array1D<Device, Desirability> device_desirabilities(destinations_count, zeroed);
+  Array1D<Device, float> device_destinations = host_destinations.clone_to<Device>();
+  Grid grid = grid::make(gpu_models.learning_alternatives_count, destinations_count);
+  compute_move_desirabilities__kernel<<<LOVE_CONFIG(grid)>>>(
+    gpu_models.categories_count,
+    gpu_models.criteria_count,
+    gpu_models.learning_alternatives_count,
+    gpu_models.learning_alternatives,
+    gpu_models.learning_assignments,
+    gpu_models.models_count,
+    gpu_models.weights,
+    gpu_models.profiles,
+    model_index,
+    profile_index,
+    criterion_index,
+    device_destinations,
+    ref(device_desirabilities));
+  check_last_cuda_error_sync_stream(cudaStreamDefault);
+
+  apply_best_move__kernel<<<1, 1>>>(
+    ref(gpu_models.profiles),
+    model_index,
+    profile_index,
+    criterion_index,
+    device_destinations,
+    device_desirabilities,
+    std::uniform_real_distribution<float>(0, 1)(host_models.urbgs[model_index]));
+  check_last_cuda_error_sync_stream(cudaStreamDefault);
+
+  // @todo Double-check and document why we don't need [model_index] here
+  copy(gpu_models.profiles[criterion_index][profile_index], host_models.profiles[criterion_index][profile_index]);
 }
 
 }  // namespace lincs

@@ -13,26 +13,12 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
   struct GpuModels;
 
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& models_, GpuModels& gpu_models_) : models(models_), gpu_models(gpu_models_) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& host_models_, GpuModels& gpu_models_) : host_models(host_models_), gpu_models(gpu_models_) {}
 
  public:
   void improve_profiles() override;
 
  private:
-  struct Desirability {
-    // Value for moves with no impact.
-    // @todo Verify with Vincent Mousseau that this is the correct value.
-    static constexpr float zero_value = 0;
-
-    unsigned v = 0;
-    unsigned w = 0;
-    unsigned q = 0;
-    unsigned r = 0;
-    unsigned t = 0;
-
-    float value() const;
-  };
-
   void improve_model_profiles(const unsigned model_index);
 
   void improve_model_profile(
@@ -47,38 +33,32 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
     const unsigned criterion_index
   );
 
-  Desirability compute_move_desirability(
-    const Models& models,
+  unsigned get_assignment(
     const unsigned model_index,
-    const unsigned profile_index,
-    const unsigned criterion_index,
-    const float destination
-  );
-
-  void update_move_desirability(
-    const Models& models,
-    const unsigned model_index,
-    const unsigned profile_index,
-    const unsigned criterion_index,
-    const float destination,
-    const unsigned alternative_index,
-    Desirability* desirability
+    const unsigned alternative_index
   );
 
   template<typename T>
   void shuffle(const unsigned model_index, ArrayView1D<Host, T> m) {
     for (unsigned i = 0; i != m.s0(); ++i) {
-      std::swap(m[i], m[std::uniform_int_distribution<unsigned int>(0, m.s0() - 1)(models.urbgs[model_index])]);
+      std::swap(m[i], m[std::uniform_int_distribution<unsigned int>(0, m.s0() - 1)(host_models.urbgs[model_index])]);
     }
   }
 
  private:
-  Models& models;
-  GpuModels& gpu_models;
+  Models& host_models;
+  GpuModels& gpu_models;  // @todo Rename device_models?
 };
 
 struct ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {
-  Array1D<Device, float> whatever;
+  unsigned categories_count;
+  unsigned criteria_count;
+  unsigned learning_alternatives_count;
+  Array2D<Device, float> learning_alternatives;
+  Array1D<Device, unsigned> learning_assignments;
+  unsigned models_count;
+  Array2D<Device, float> weights;
+  Array3D<Device, float> profiles;
 
   static GpuModels make(const Models&);
 };
