@@ -33,18 +33,6 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
     const unsigned criterion_index
   );
 
-  unsigned get_assignment(
-    const unsigned model_index,
-    const unsigned alternative_index
-  );
-
-  template<typename T>
-  void shuffle(const unsigned model_index, ArrayView1D<Host, T> m) {
-    for (unsigned i = 0; i != m.s0(); ++i) {
-      std::swap(m[i], m[std::uniform_int_distribution<unsigned int>(0, m.s0() - 1)(host_models.urbgs[model_index])]);
-    }
-  }
-
  private:
   Models& host_models;
   GpuModels& gpu_models;  // @todo Rename device_models?

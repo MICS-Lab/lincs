@@ -1,30 +1,13 @@
 // Copyright 2023 Vincent Jacques
 
 #include "accuracy-heuristic-on-gpu.hpp"
+#include "accuracy-heuristic/desirability.hpp"
+#include "../../../randomness-utils.hpp"
 
 
 namespace {
 
 typedef GridFactory2D<256, 4> grid;
-
-struct Desirability {
-  static constexpr float zero_value = 0;
-
-  unsigned v = 0;
-  unsigned w = 0;
-  unsigned q = 0;
-  unsigned r = 0;
-  unsigned t = 0;
-
-  __device__
-  float value() const {
-    if (v + w + t + q + r == 0) {
-      return zero_value;
-    } else {
-      return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
-    }
-  }
-};
 
 __device__
 unsigned get_assignment(
@@ -79,7 +62,7 @@ void update_move_desirability(
   const unsigned criterion_index,
   const float destination,
   const unsigned alternative_index,
-  Desirability* desirability
+  lincs::Desirability* desirability
 ) {
   const float current_position = profiles[criterion_index][profile_index][model_index];
   const float weight = weights[criterion_index][model_index];
@@ -215,7 +198,7 @@ __global__ void compute_move_desirabilities__kernel(
   const uint profile_index,
   const uint criterion_index,
   const ArrayView1D<Device, const float> destinations,
-  ArrayView1D<Device, Desirability> desirabilities
+  ArrayView1D<Device, lincs::Desirability> desirabilities
 ) {
   const uint alt_index = grid::x();
   assert(alt_index < learning_alternatives_count + grid::blockDim.x);
@@ -242,14 +225,13 @@ __global__ void compute_move_desirabilities__kernel(
   }
 }
 
-
 __global__ void apply_best_move__kernel(
   const ArrayView3D<Device, float> profiles,
   const uint model_index,
   const uint profile_index,
   const uint criterion_index,
   const ArrayView1D<Device, const float> destinations,
-  const ArrayView1D<Device, const Desirability> desirabilities,
+  const ArrayView1D<Device, const lincs::Desirability> desirabilities,
   const float desirability_threshold
 ) {
   // Single-key reduce
@@ -272,26 +254,6 @@ __global__ void apply_best_move__kernel(
 }
 
 }  // namespace
-
-template<>
-Desirability* Host::alloc<Desirability>(const std::size_t n) {
-  return Host::force_alloc<Desirability>(n);
-}
-
-template<>
-void Host::memset<Desirability>(const std::size_t n, const char v, Desirability* const p) {
-  Host::force_memset<Desirability>(n, v, p);
-}
-
-template<>
-Desirability* Device::alloc<Desirability>(const std::size_t n) {
-  return Device::force_alloc<Desirability>(n);
-}
-
-template<>
-void Device::memset<Desirability>(const std::size_t n, const char v, Desirability* const p) {
-  Device::force_memset<Desirability>(n, v, p);
-}
 
 namespace lincs {
 
@@ -336,7 +298,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const uns
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned profile_index = 0; profile_index != gpu_models.categories_count - 1; ++profile_index) {
-    shuffle<unsigned>(model_index, ref(criterion_indexes));
+    shuffle(host_models.urbgs[model_index], ref(criterion_indexes));
     improve_model_profile(model_index, profile_index, criterion_indexes);
   }
 }

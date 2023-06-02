@@ -1,6 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
 #include "accuracy-heuristic-on-cpu.hpp"
+#include "../../../randomness-utils.hpp"
 
 
 namespace lincs {
@@ -22,7 +23,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profiles(const uns
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned profile_index = 0; profile_index != models.categories_count - 1; ++profile_index) {
-    shuffle<unsigned>(model_index, ref(criterion_indexes));
+    shuffle(models.urbgs[model_index], ref(criterion_indexes));
     improve_model_profile(model_index, profile_index, criterion_indexes);
   }
 }
@@ -98,7 +99,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   }
 }
 
-ImproveProfilesWithAccuracyHeuristicOnCpu::Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirability(
+Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirability(
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
@@ -229,14 +230,6 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && value <= current_position) {
         ++desirability->t;
     }
-  }
-}
-
-float ImproveProfilesWithAccuracyHeuristicOnCpu::Desirability::value() const {
-  if (v + w + t + q + r == 0) {
-    return zero_value;
-  } else {
-    return (2 * v + w + 0.1 * t) / (v + w + t + 5 * q + r);
   }
 }
 
