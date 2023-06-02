@@ -4,6 +4,7 @@
 #define LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP
 
 #include "../../weights-profiles-breed-mrsort.hpp"
+#include "accuracy-heuristic/desirability.hpp"
 
 
 namespace lincs {
@@ -36,6 +37,8 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
  private:
   Models& host_models;
   GpuModels& gpu_models;
+
+  static const unsigned destinations_count = 64;
 };
 
 struct ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {
@@ -47,6 +50,9 @@ struct ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {
   unsigned models_count;
   Array2D<Device, float> weights;
   Array3D<Device, float> profiles;
+
+  Array2D<Device, Desirability> desirabilities;
+  Array2D<Device, float> destinations;
 
   static GpuModels make(const Models&);
 };

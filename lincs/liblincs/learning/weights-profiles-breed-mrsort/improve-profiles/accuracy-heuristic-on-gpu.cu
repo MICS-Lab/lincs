@@ -1,7 +1,6 @@
 // Copyright 2023 Vincent Jacques
 
 #include "accuracy-heuristic-on-gpu.hpp"
-#include "accuracy-heuristic/desirability.hpp"
 #include "../../../randomness-utils.hpp"
 
 
@@ -242,18 +241,17 @@ void apply_best_move__kernel(
 namespace lincs {
 
 ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(const Models& models) {
-  Array2D<Device, float> weights(models.criteria_count, models.models_count, uninitialized);
-  Array3D<Device, float> profiles(models.criteria_count, (models.categories_count - 1), models.models_count, uninitialized);
-
   return {
-    models.categories_count,  // @todo Remove: sizes are stored in arrays
-    models.criteria_count,  // @todo Remove: sizes are stored in arrays
-    models.learning_alternatives_count,  // @todo Remove: sizes are stored in arrays
+    models.categories_count,
+    models.criteria_count,
+    models.learning_alternatives_count,
     models.learning_alternatives.template clone_to<Device>(),
     models.learning_assignments.template clone_to<Device>(),
-    models.models_count,  // @todo Remove: sizes are stored in arrays
-    std::move(weights),
-    std::move(profiles),
+    models.models_count,
+    Array2D<Device, float>(models.criteria_count, models.models_count, uninitialized),
+    Array3D<Device, float>(models.criteria_count, (models.categories_count - 1), models.models_count, uninitialized),
+    Array2D<Device, Desirability>(models.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::destinations_count, uninitialized),
+    Array2D<Device, float>(models.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::destinations_count, uninitialized),
   };
 }
 
@@ -319,8 +317,6 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     return;
   }
 
-  const unsigned destinations_count = 64;
-
   Array1D<Host, float> host_destinations(destinations_count, uninitialized);
   for (unsigned destination_index = 0; destination_index != destinations_count; ++destination_index) {
     float destination = highest_destination;
@@ -334,11 +330,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     host_destinations[destination_index] = destination;
   }
 
-  // @todo Allocate these chunks of device memory just once, in GpuModels
-  // (device memory allocation is orders of magnitude more costly than host memory allocation because
-  // malloc/free cleverly keep track of available chunks of memory, but cudaMalloc/cudaFree really release the memory)
-  Array1D<Device, Desirability> device_desirabilities(destinations_count, zeroed);
-  Array1D<Device, float> device_destinations = host_destinations.clone_to<Device>();
+  copy(host_destinations, ref(gpu_models.destinations[model_index]));
+  gpu_models.desirabilities[model_index].fill_with_zeros();
   Grid grid = grid::make(gpu_models.learning_alternatives_count, destinations_count);
   compute_move_desirabilities__kernel<<<LOVE_CONFIG(grid)>>>(
     gpu_models.learning_alternatives,
@@ -348,8 +341,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     model_index,
     profile_index,
     criterion_index,
-    device_destinations,
-    ref(device_desirabilities));
+    gpu_models.destinations[model_index],
+    ref(gpu_models.desirabilities[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
   apply_best_move__kernel<<<1, 1>>>(
@@ -357,8 +350,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     model_index,
     profile_index,
     criterion_index,
-    device_destinations,
-    device_desirabilities,
+    gpu_models.destinations[model_index],
+    gpu_models.desirabilities[model_index],
     std::uniform_real_distribution<float>(0, 1)(host_models.urbgs[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
