@@ -559,7 +559,7 @@ optimize_weights
 optimize_weights( (OptimizeWeightsUsingGlop)arg1) -> None :
 
     C++ signature :
-        void optimize_weights(lincs::OptimizeWeightsUsingGlop {lvalue})
+        void optimize_weights(lincs::OptimizeWeightsUsingLinearProgram<lincs::GlopLinearProgram> {lvalue})
 
 lincs.ProfilesImprovementStrategy
 =================================

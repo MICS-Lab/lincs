@@ -1,0 +1,63 @@
+// Copyright 2023 Vincent Jacques
+
+#ifndef LINCS__LINEAR_PROGRAMMING__GLOP_HPP
+#define LINCS__LINEAR_PROGRAMMING__GLOP_HPP
+
+#include <ortools/glop/lp_solver.h>
+
+
+namespace lincs {
+
+class GlopLinearProgram {
+ public:
+  typedef operations_research::glop::ColIndex variable_type;
+  variable_type create_variable() {
+    return program.CreateNewVariable();
+  }
+
+  void mark_all_variables_created() {}
+
+  void set_objective_coefficient(variable_type variable, float coefficient) {
+    program.SetObjectiveCoefficient(variable, coefficient);
+  }
+
+  struct Constraint {
+    Constraint(operations_research::glop::LinearProgram& program_) : program(program_), index(program_.CreateNewConstraint()) {}
+
+    void set_bounds(float lower_bound, float upper_bound) {
+      program.SetConstraintBounds(index, lower_bound, upper_bound);
+    }
+
+    void set_coefficient(variable_type variable, float coefficient) {
+      program.SetCoefficient(index, variable, coefficient);
+    }
+
+   private:
+    operations_research::glop::LinearProgram& program;
+    operations_research::glop::RowIndex index;
+  };
+
+  Constraint create_constraint() {
+    return Constraint(program);
+  }
+
+  auto solve() {
+    operations_research::glop::LPSolver solver;
+    operations_research::glop::GlopParameters parameters;
+    parameters.set_provide_strong_optimal_guarantee(true);
+    solver.SetParameters(parameters);
+
+    auto status = solver.Solve(program);
+    assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
+    auto values = solver.variable_values();
+
+    return values;
+  }
+
+ private:
+  operations_research::glop::LinearProgram program;
+};
+
+}  // namespace lincs
+
+#endif  // LINCS__LINEAR_PROGRAMMING__GLOP_HPP
