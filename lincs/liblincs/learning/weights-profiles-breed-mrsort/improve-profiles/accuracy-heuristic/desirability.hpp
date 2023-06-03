@@ -55,4 +55,4 @@ void Device::memset<lincs::Desirability>(const std::size_t n, const char v, linc
   Device::force_memset<lincs::Desirability>(n, v, p);
 }
 
-#endif // LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC__DESIRABILITY_HPP
+#endif  // LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC__DESIRABILITY_HPP
