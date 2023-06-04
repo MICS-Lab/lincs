@@ -82,6 +82,16 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     cd valijson-1.0.1
     ./bundle.sh yaml_cpp | sudo tee /usr/local/include/valijson_yamlcpp_bundled.hpp
 
+    # Minisat
+    wget https://github.com/niklasso/minisat/archive/37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz
+    tar xzf 37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz
+    cd minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543
+    sed -i minisat/core/SolverTypes.h -e 's/friend Lit mkLit(Var var, bool sign = false);/friend Lit mkLit(Var var, bool sign);/'
+    sed -i minisat/core/SolverTypes.h -e 's/inline  Lit  mkLit     (Var var, bool sign)/inline  Lit  mkLit     (Var var, bool sign = false)/'
+    make config prefix=/usr/local
+    sudo make install
+    sudo ldconfig
+
     # Header-only libraries
     cd /usr/local/include
     sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp

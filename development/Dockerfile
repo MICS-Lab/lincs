@@ -100,6 +100,19 @@ RUN pip3 install \
       click \
       matplotlib
 
+# Minisat
+RUN set -x \
+ && wget https://github.com/niklasso/minisat/archive/37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz \
+ && tar xzf 37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz \
+ && cd minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543 \
+ `# Patch to compile with modern versions of g++` \
+ && sed -i minisat/core/SolverTypes.h \
+      -e 's/friend Lit mkLit(Var var, bool sign = false);/friend Lit mkLit(Var var, bool sign);/' \
+      -e 's/inline  Lit  mkLit     (Var var, bool sign)/inline  Lit  mkLit     (Var var, bool sign = false)/' \
+ && make config prefix=/usr/local \
+ && make install \
+ && ldconfig
+
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home
