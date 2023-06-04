@@ -8,9 +8,9 @@ Get started
 Get *lincs*
 ===========
 
-You have two options: use the Docker image or an actual system install.
+You have two options: use the Docker image or actually install *lincs* on your system.
 We recommend the Docker image for now, as it's easier to get started with,
-but the actual install is totally viable on Ubuntu 22.04 if you wish.
+but the actual install is viable on Ubuntu 22.04 if you wish.
 We plan to publish binary wheels on PyPI for popular platforms to make system install easier in the future.
 @todo Support other operating systems than Ubuntu 22.04
 
@@ -46,7 +46,7 @@ For now, *lincs* only runs on Ubuntu 22.04 and we highly recommend you don't was
 
 .. START install/dependencies.sh
 
-First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier)::
+First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier. SOON because this is getting really cumbersome)::
 
     # System packages
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
@@ -65,6 +65,16 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib
     sudo ldconfig
     rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+
+    # Alglib
+    wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz
+    tar xf alglib-4.00.0.cpp.gpl.tgz
+    cd alglib-cpp/src
+    for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done
+    ar rcs libalglib.a *.o
+    sudo mkdir /usr/local/include/alglib
+    sudo cp -r *.h /usr/local/include/alglib
+    sudo cp -r libalglib.a /usr/local/lib
 
     # Header-only libraries
     cd /usr/local/include

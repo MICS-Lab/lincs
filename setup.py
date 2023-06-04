@@ -58,6 +58,7 @@ liblincs = setuptools.Extension(
         "python3.10",  # Make the Python module usable as a C++ shared library without -lpython3.10 (still linked, but implicitly)
         "yaml-cpp",
         "cudart",
+        "alglib",
     ],
     define_macros=[("DOCTEST_CONFIG_DISABLE", None)],
     include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],

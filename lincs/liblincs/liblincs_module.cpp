@@ -354,6 +354,15 @@ BOOST_PYTHON_MODULE(liblincs) {
   )
     .def("optimize_weights", &lincs::OptimizeWeightsUsingGlop::optimize_weights);
 
+  bp::class_<
+    lincs::OptimizeWeightsUsingAlglib,
+    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy>
+  >(
+    "OptimizeWeightsUsingAlglib",
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+  )
+    .def("optimize_weights", &lincs::OptimizeWeightsUsingAlglib::optimize_weights);
+
   bp::class_<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy, boost::noncopyable>("ProfilesImprovementStrategy", bp::no_init)
     .def("improve_profiles", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy::improve_profiles));
 

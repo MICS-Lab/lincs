@@ -30,6 +30,18 @@ RUN set -x \
  && rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
 
 RUN set -x \
+ && wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz \
+ && tar xf alglib-4.00.0.cpp.gpl.tgz \
+ && cd alglib-cpp/src \
+ && for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done \
+ && ar rcs libalglib.a *.o \
+ && mkdir /usr/local/include/alglib \
+ && cp -r *.h /usr/local/include/alglib \
+ && cp -r libalglib.a /usr/local/lib \
+ && cd ../.. \
+ && rm -r alglib-cpp alglib-4.00.0.cpp.gpl.tgz
+
+RUN set -x \
  && cd /usr/local/include \
  && wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp \
  && wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h \

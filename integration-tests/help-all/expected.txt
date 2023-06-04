@@ -216,7 +216,7 @@ Options:
                                   - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
                                      [default: linear-program]
-  --mrsort.weights-profiles-breed.linear-program.solver [glop]
+  --mrsort.weights-profiles-breed.linear-program.solver [glop|alglib]
                                   The solver to use to solve the linear
                                   programs. See (@todo Add link to doc) for
                                   details of available solvers.
@@ -511,6 +511,27 @@ dump( (Model)self, (object)out) -> None :
 
     C++ signature :
         void dump(lincs::Model,boost::python::api::object {lvalue})
+
+lincs.OptimizeWeightsUsingAlglib
+================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+
+optimize_weights
+----------------
+
+
+optimize_weights( (OptimizeWeightsUsingAlglib)arg1) -> None :
+
+    C++ signature :
+        void optimize_weights(lincs::OptimizeWeightsUsingLinearProgram<lincs::AlglibLinearProgram> {lvalue})
 
 lincs.OptimizeWeightsUsingGlop
 ==============================

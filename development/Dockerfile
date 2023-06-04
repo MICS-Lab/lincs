@@ -64,6 +64,19 @@ RUN set -x \
  && cd /usr/local/include \
  && wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
 
+# Alglib
+RUN set -x \
+ && wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz \
+ && tar xf alglib-4.00.0.cpp.gpl.tgz \
+ && cd alglib-cpp/src \
+ && for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done \
+ && ar rcs libalglib.a *.o \
+ && mkdir /usr/local/include/alglib \
+ && cp -r *.h /usr/local/include/alglib \
+ && cp -r libalglib.a /usr/local/lib \
+ && cd ../.. \
+ && rm -r alglib-cpp alglib-4.00.0.cpp.gpl.tgz
+
 # Python packages
 RUN pip3 install \
       build \

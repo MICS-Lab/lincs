@@ -259,6 +259,33 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 96)
         self.assertEqual(result.unchanged, 904)
 
+    def test_alglib_mrsort_learning(self):
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+
+        models = make_models(problem, learning_set, 9, 44)
+        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
+        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
+        weights_optimization_strategy = OptimizeWeightsUsingAlglib(models)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
+        learned_model = WeightsProfilesBreedMrSortLearning(
+            models,
+            profiles_initialization_strategy,
+            weights_optimization_strategy,
+            profiles_improvement_strategy,
+            termination_strategy,
+        ).perform()
+
+        result = classify_alternatives(problem, learned_model, learning_set)
+        self.assertEqual(result.changed, 0)
+        self.assertEqual(result.unchanged, 200)
+
+        testing_set = generate_alternatives(problem, model, 1000, 44)
+        result = classify_alternatives(problem, learned_model, testing_set)
+        self.assertEqual(result.changed, 24)
+        self.assertEqual(result.unchanged, 976)
+
     def test_gpu_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)

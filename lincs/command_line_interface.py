@@ -471,7 +471,7 @@ def learn():
                                         "solver",
                                         dict(
                                             help="The solver to use to solve the linear programs. See (@todo Add link to doc) for details of available solvers.",
-                                            type=click.Choice(["glop"]),
+                                            type=click.Choice(["glop", "alglib"]),
                                             default="glop",
                                             show_default=True,
                                         ),
@@ -575,6 +575,8 @@ def classification_model(
             if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
                 if mrsort__weights_profiles_breed__linear_program__solver == "glop":
                     weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(models)
+                elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
+                    weights_optimization_strategy = lincs.OptimizeWeightsUsingAlglib(models)
 
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":

@@ -2,6 +2,7 @@
 
 #include <limits>
 
+#include "alglib.hpp"
 #include "glop.hpp"
 
 #include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -64,4 +65,8 @@ void test_linear_program() {
 
 TEST_CASE("GLOP linear program") {
   test_linear_program<lincs::GlopLinearProgram>();
+}
+
+TEST_CASE("Alglib linear program") {
+  test_linear_program<lincs::AlglibLinearProgram>();
 }
