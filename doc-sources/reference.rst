@@ -4,12 +4,12 @@
 Reference
 =========
 
-
 @todo Generate a reference documentation using Sphinx:
 
 - Python using autodoc
 - C++ using Doxygen+Breath
 - YAML file formats using JSON Schema and https://sphinx-jsonschema.readthedocs.io/en/latest/
+
 
 File formats
 ============
@@ -38,6 +38,7 @@ The model file
 --------------
 
 @todo Write (or generate from a JSON Schema?)
+
 
 .. _ref-cli:
 

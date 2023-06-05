@@ -47,3 +47,7 @@ os.environ["LINCS_GENERATING_SPHINX_DOC"] = "1"
 extensions.append("sphinx_click")
 sys.path.insert(0, os.path.abspath(".."))  # To find module 'lincs' before it's installed
 sys.path.insert(0, os.path.abspath("../development"))  # To find 'cycle.py', which implements './run-development-cycle.sh'
+
+# Details and summary directive
+
+extensions.append("sphinxcontrib.details.directive")

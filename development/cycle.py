@@ -150,14 +150,15 @@ def make_example_integration_test_from_doc():
                 while files[current_file_name][last_line_index] == "":
                     last_line_index -= 1
                 files[current_file_name][last_line_index] += m.group(1)
-            elif line.startswith("    "):
+            elif line.startswith(current_prefix + "    "):
                 files[current_file_name].append(line)
             elif line == "" and files[current_file_name]:
                 files[current_file_name].append("")
-        m = re.fullmatch(r".. (START|EXTEND) (.+)", line)
+        m = re.fullmatch(r"( *).. (START|EXTEND) (.+)", line)
         if m:
-            current_file_name = m.group(2)
-            if m.group(1) == "START":
+            current_prefix = m.group(1)
+            current_file_name = m.group(3)
+            if m.group(2) == "START":
                 files[current_file_name] = []
     assert current_file_name is None, current_file_name
 
@@ -168,7 +169,7 @@ def make_example_integration_test_from_doc():
         while file_contents and file_contents[-1] == "":
             file_contents.pop()
         with open(file_path, "w") as f:
-            f.write(textwrap.dedent("\n".join(file_contents)) + "\n")
+            f.write(textwrap.dedent("\n".join(file_contents) + "\n"))
     with open("integration-tests/from-documentation/.gitignore", "w") as f:
         f.write("*\n")
 

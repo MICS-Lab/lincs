@@ -474,23 +474,14 @@ It should be close to 100%::
     diff expected-classification-accuracy.txt classification-accuracy.txt
 .. STOP
 
-.. EXTEND command-line-example/run.sh
-
-If you have a CUDA-compatible GPU and its drivers correctly installed, you can try another strategy to learn the model using it::
-
-    lincs learn classification-model domain.yml learning-set.csv --output-model gpu-trained-model.yml --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
-
-.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    diff expected-trained-model.yml gpu-trained-model.yml
-.. STOP
-
 
 What now?
 =========
 
 If you haven't done so yet, we recommend you now read our :doc:`conceptual overview documentation <conceptual-overview>`.
+
+Keep in mind that we've only demonstrated the default learning strategy in this guide.
+This package implements several strategies accessible via options of ``lincs learn``.
+See the :ref:`learning strategies documentation <user-learning-strategies>` in our user guide for more details.
 
 Once you're comfortable with the concepts and tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.
