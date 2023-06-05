@@ -51,3 +51,7 @@ sys.path.insert(0, os.path.abspath("../development"))  # To find 'cycle.py', whi
 # Details and summary directive
 
 extensions.append("sphinxcontrib.details.directive")
+
+# MathJax
+
+extensions.append("sphinx.ext.mathjax")

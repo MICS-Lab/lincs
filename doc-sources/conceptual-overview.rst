@@ -22,6 +22,16 @@ For a given student, their performances are their actual grades on each topic, t
 
 The same vocabulary could apply to triaging patients in an hospital based on vital signs.
 
+Formally, a problem is defined by:
+
+- its number of categories :math:`p \in \mathbb{N}`
+- its set of categories :math:`C = \{C^h\}_{h \in \{1, ..., p\}}`, ordered by :math:`C^1 \prec ... \prec C^p`
+- its number of criteria :math:`n \in \mathbb{N}`
+- its set of criteria :math:`\{X_i\}_{i \in \{1, ..., n\}}`. Each criterion is a set of values :math:`X_i` with a total pre-order :math:`\preccurlyeq_i`, for :math:`i \in \{1, ..., n\}`
+
+In that setting, alternatives are the Cartesian product of the criteria: :math:`X = \prod_{i \in \{1, ..., n\}} X_i`.
+For a given alternative :math:`x = (x_1, ..., x_n) \in X`, its performance on criterion :math:`i` is :math:`x_i \in X_i`.
+
 
 Learning and classifying
 ========================
@@ -54,22 +64,45 @@ Non-compensatory sorting models are a way to capture that.
 An NCS model defines lower performance profiles for each category.
 It then assigns an alternative in a good category if it has performances above that category's lower profiles on a sufficient subset of the criteria.
 
-@todo Add general formal definition of NCS models (including the fact that sufficient criteria ar upsets of the parts of the set of criteria)
+Formally, an NCS model is defined by:
+
+- for each category :math:`C^h` but the last, *i.e.* for :math:`h \in \{1, ..., p - 1\}`:
+
+  - its upper performance profile :math:`b^h = (b^h_1, ..., b^h_n) \in X`
+  - its sufficient criteria :math:`\mathcal{F}^h`, which are sets of parts of the set of criteria: :math:`\mathcal{F}^h \subseteq \mathcal{P}(\{1, ..., n\})`
+
+The profiles must be ordered to match the order on the set of categories:
+:math:`b^h_i \preccurlyeq_i b^{h + 1}_i` for each category :math:`h \in \{1, ..., p - 2\}` and each criterion :math:`i \in \{1, ..., n\}`.
+
+Each category's sufficient criteria :math:`\mathcal{F}^h` must be up-closed by inclusion:
+if :math:`S \in \mathcal{F}^h` and :math:`S \subset T \in \mathcal{P}(\{1, ..., n\})`, then :math:`T \in \mathcal{F}^h`.
+This matches the intuition that they are *sufficient* criteria: if a few criteria are sufficient, then more criteria are still sufficient.
+
+They also must be nested: :math:`\mathcal{F}^1 \subseteq ... \subseteq \mathcal{F}^{p - 1}`.
+@todo Question from Vincent J to Wassila or Vincent M: why?
+This means that if some criteria are sufficient for a category, then they are sufficient for the next category.
+What would the consequence be of having a set of criteria that's sufficient to go to category 2 but not sufficient to go to category 3?
+
+This NCS model assigns an alternative :math:`x = (x_1, ..., x_n) \in X` to the category :math:`C^h` if and only if:
+
+- :math:`\{ i \in \{1, ..., n\}: x_i \succcurlyeq_i b^{h-1}_i \} \subseteq \mathcal{F}^h`, *i.e.* the criteria on which :math:`x` has performances above the upper profile of the previous category are sufficient for the current category
+- and :math:`\{ i \in \{1, ..., n\}: x_i \succcurlyeq_i b^h_i \} \not\subseteq \mathcal{F}^{h + 1}`, *i.e.* the criteria on which :math:`x` has performances above the upper profile of the current category are not sufficient for the next category
+
 @todo Add an example (with visualization) showing how an NCS models assigns alternatives to categories
 
 Particular cases
 ----------------
 
-In general, the subset of sufficient criteria is different for each category and defined arbitrarily.
+In general, the sufficient criteria :math:`\mathcal{F}^h` can be different for each category and defined arbitrarily.
 
 Some particular cases are quite common, namely:
 
-- 1C-NCS (@todo check name): where the same subset of criteria is sufficient for all categories
-- MR-Sort: where the subset of sufficient criteria is defined using weights on criteria and a threshold
+- :math:`U^c \textsf{-} NCS`: where sufficient criteria are the same for all categories (:math:`\mathcal{F}^1 = ... = \mathcal{F}^{p - 1}`)
+- :math:`1 \textsf{-} U^c \textsf{-} NCS` *a.k.a.* MR-Sort: where sufficient criteria are defined using weights on criteria and a threshold
 
 @todo Add formal definitions particular cases; emphasize what they simplify *vs.* more general models
 
-@todo Add example of NCS model that is not 1C-NCS
+@todo Add example of NCS model that is not U^C-NCS
 
 @todo Add example of NCS model that is not MR-Sort
 
