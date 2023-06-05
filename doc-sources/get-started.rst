@@ -187,6 +187,8 @@ The generated ``domain.yml`` should look like::
 
 .. STOP
 
+You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
+
 .. EXTEND command-line-example/run.sh
     diff expected-domain.yml domain.yml
 .. STOP
@@ -273,6 +275,10 @@ And finally generate a set of classified alternatives (@todo Link to concepts an
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
 
+@todo Should we provide utilities to split a set of alternatives into a training set and a testing set?
+Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
+Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
+
 .. highlight:: text
 
 .. START command-line-example/expected-learning-set.csv
@@ -332,8 +338,10 @@ You can use it to train a new model::
 
 .. START command-line-example/expected-trained-model.yml
 
-The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain,
-but the trained model is numerically different because information was lost in the process::
+The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain.
+The learning set doesn't contain all the information from the original model,
+and the trained model was reconstituted from this partial information,
+so it is numerically different::
 
     kind: classification-model
     format_version: 1
@@ -369,7 +377,7 @@ but the trained model is numerically different because information was lost in t
     diff expected-trained-model.yml trained-model.yml
 .. STOP
 
-If the training is effective, the resulting trained model should behave closely to the original one.
+If the training is effective, the resulting trained model should however behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
 .. highlight:: shell

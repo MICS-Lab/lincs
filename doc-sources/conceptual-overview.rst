@@ -55,6 +55,7 @@ An NCS model defines lower performance profiles for each category.
 It then assigns an alternative in a good category if it has performances above that category's lower profiles on a sufficient subset of the criteria.
 
 @todo Add general formal definition of NCS models (including the fact that sufficient criteria ar upsets of the parts of the set of criteria)
+@todo Add an example (with visualization) showing how an NCS models assigns alternatives to categories
 
 Particular cases
 ----------------

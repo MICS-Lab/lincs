@@ -6,7 +6,7 @@
     - on GitHub Pages (https://mics-lab.github.io/lincs/)
     So when you change it, take care to check all those places.
 
-*lincs* is a collection of MCDA algorithms, usable as a C++ library, a Python package and a command-line utility.
+*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of MCDA algorithms, usable as a C++ library, a Python package and a command-line utility.
 
 *lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files `COPYING <COPYING>`_ and `COPYING.LESSER <COPYING.LESSER>`_.
 
@@ -36,6 +36,8 @@ It's based on work by:
 - `Olivier Sobrie <http://olivier.sobrie.be/>`_ (The "weights, profiles, breed" learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his `Ph.D thesis <http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf>`_, and `implemented in Python <https://github.com/oso/pymcda>`_)
 - Emma Dixneuf, Thibault Monsel and Thomas Vindard (`C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_)
 
+@todo Add links to the fundamental articles for NCS.
+@todo Add links to the articles that define other learning methods we re-implement.
 
 Project goals
 =============
@@ -61,6 +63,7 @@ Get started
 
 Depending on your favorite approach, you can either start with our `hands-on "Get started" guide <https://mics-lab.github.io/lincs/get-started.html>`_
 or with our `conceptual overview documentation <https://mics-lab.github.io/lincs/conceptual-overview.html>`_.
+The former will show you how to use our tools, the latter will explain the concepts behind them: what's MCDA, what are NCS models, *etc.*
 We highly recommend you read the other one just after.
 
 Once you've used *lincs* a bit, you can follow up with our `user guide <https://mics-lab.github.io/lincs/user-guide.html>`_
