@@ -7,12 +7,12 @@
 
 namespace lincs {
 
-ClassificationResult classify_alternatives(const Domain& domain, const Model& model, Alternatives* alternatives) {
-  assert(&(model.domain) == &domain);
-  assert(&(alternatives->domain) == &domain);
+ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
+  assert(&(model.problem) == &problem);
+  assert(&(alternatives->problem) == &problem);
 
-  const unsigned criteria_count = domain.criteria.size();
-  const unsigned categories_count = domain.categories.size();
+  const unsigned criteria_count = problem.criteria.size();
+  const unsigned categories_count = problem.categories.size();
 
   ClassificationResult result{0, 0};
 
@@ -34,7 +34,7 @@ ClassificationResult classify_alternatives(const Domain& domain, const Model& mo
       }
     }
 
-    const std::string& category = domain.categories[category_index].name;
+    const std::string& category = problem.categories[category_index].name;
     if (alternative.category == category) {
       ++result.unchanged;
     } else {

@@ -3,13 +3,13 @@
 #ifndef LINCS__IO__MODEL_HPP
 #define LINCS__IO__MODEL_HPP
 
-#include "domain.hpp"
+#include "problem.hpp"
 
 
 namespace lincs {
 
 struct Model {
-  const Domain& domain;
+  const Problem& problem;
 
   struct SufficientCoalitions {
     // Sufficient coalitions form an https://en.wikipedia.org/wiki/Upper_set in the set of parts of the set of criteria.
@@ -37,10 +37,10 @@ struct Model {
 
   std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1
 
-  Model(const Domain& domain_, const std::vector<Boundary>& boundaries_) : domain(domain_), boundaries(boundaries_) {}
+  Model(const Problem& problem_, const std::vector<Boundary>& boundaries_) : problem(problem_), boundaries(boundaries_) {}
 
   void dump(std::ostream&) const;
-  static Model load(const Domain&, std::istream&);
+  static Model load(const Problem&, std::istream&);
 
 };
 

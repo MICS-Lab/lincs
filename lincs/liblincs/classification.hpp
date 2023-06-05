@@ -13,7 +13,7 @@ struct ClassificationResult {
   unsigned changed;
 };
 
-ClassificationResult classify_alternatives(const Domain&, const Model&, Alternatives*);
+ClassificationResult classify_alternatives(const Problem&, const Model&, Alternatives*);
 
 }  // namespace lincs
 

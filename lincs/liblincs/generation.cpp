@@ -11,20 +11,20 @@
 
 namespace lincs {
 
-Domain generate_domain(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
+Problem generate_problem(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
   // There is nothing random yet. There will be when other value types and category correlations are added.
 
-  std::vector<Domain::Criterion> criteria;
+  std::vector<Problem::Criterion> criteria;
   criteria.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
-      Domain::Criterion::ValueType::real,
-      Domain::Criterion::CategoryCorrelation::growing
+      Problem::Criterion::ValueType::real,
+      Problem::Criterion::CategoryCorrelation::growing
     );
   }
 
-  std::vector<Domain::Category> categories;
+  std::vector<Problem::Category> categories;
   categories.reserve(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
     categories.emplace_back(
@@ -32,12 +32,12 @@ Domain generate_domain(const unsigned criteria_count, const unsigned categories_
     );
   }
 
-  return Domain{criteria, categories};
+  return Problem{criteria, categories};
 }
 
-Model generate_mrsort_model(const Domain& domain, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
-  const unsigned categories_count = domain.categories.size();
-  const unsigned criteria_count = domain.criteria.size();
+Model generate_mrsort_model(const Problem& problem, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
+  const unsigned categories_count = problem.categories.size();
+  const unsigned criteria_count = problem.criteria.size();
 
   std::mt19937 gen(random_seed);
 
@@ -97,16 +97,16 @@ Model generate_mrsort_model(const Domain& domain, const unsigned random_seed, co
     boundaries.emplace_back(profiles[category_index], coalitions);
   }
 
-  return Model(domain, boundaries);
+  return Model(problem, boundaries);
 }
 
 Alternatives generate_uniform_alternatives(
-  const Domain& domain,
+  const Problem& problem,
   const Model& model,
   const unsigned alternatives_count,
   std::mt19937& gen
 ) {
-  const unsigned criteria_count = domain.criteria.size();
+  const unsigned criteria_count = problem.criteria.size();
 
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
@@ -128,8 +128,8 @@ Alternatives generate_uniform_alternatives(
     });
   }
 
-  Alternatives alts{domain, alternatives};
-  classify_alternatives(domain, model, &alts);
+  Alternatives alts{problem, alternatives};
+  classify_alternatives(problem, model, &alts);
 
   return alts;
 }
@@ -149,7 +149,7 @@ unsigned max_category_size(const unsigned alternatives_count, const unsigned cat
 }
 
 Alternatives generate_balanced_alternatives(
-  const Domain& domain,
+  const Problem& problem,
   const Model& model,
   const unsigned alternatives_count,
   const float max_imbalance,
@@ -158,7 +158,7 @@ Alternatives generate_balanced_alternatives(
   assert(max_imbalance >= 0);
   assert(max_imbalance <= 1);
 
-  const unsigned categories_count = domain.categories.size();
+  const unsigned categories_count = problem.categories.size();
 
   // These parameters are somewhat arbitrary and not really critical,
   // but changing there values *does* change the generated set, because of the two-steps process below:
@@ -180,7 +180,7 @@ Alternatives generate_balanced_alternatives(
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
   std::map<std::string, unsigned> histogram;
-  for (const auto& category : domain.categories) {
+  for (const auto& category : problem.categories) {
     histogram[category.name] = 0;
   }
 
@@ -192,7 +192,7 @@ Alternatives generate_balanced_alternatives(
   while (min_size > 0) {
     ++iterations_with_no_effect;
 
-    Alternatives candidates = generate_uniform_alternatives(domain, model, multiplier * alternatives_count, gen);
+    Alternatives candidates = generate_uniform_alternatives(problem, model, multiplier * alternatives_count, gen);
 
     for (const auto& candidate : candidates.alternatives) {
       assert(candidate.category);
@@ -223,7 +223,7 @@ Alternatives generate_balanced_alternatives(
   while (true) {
     ++iterations_with_no_effect;
 
-    Alternatives candidates = generate_uniform_alternatives(domain, model, multiplier * alternatives_count, gen);
+    Alternatives candidates = generate_uniform_alternatives(problem, model, multiplier * alternatives_count, gen);
 
     for (const auto& candidate : candidates.alternatives) {
       assert(candidate.category);
@@ -238,7 +238,7 @@ Alternatives generate_balanced_alternatives(
         assert(std::all_of(
           histogram.begin(), histogram.end(),
           [min_size, max_size](const auto it) { return it.second >= min_size && it.second <= max_size; }));
-        return Alternatives(domain, alternatives);
+        return Alternatives(problem, alternatives);
       }
     }
 
@@ -249,7 +249,7 @@ Alternatives generate_balanced_alternatives(
 }
 
 Alternatives generate_alternatives(
-  const Domain& domain,
+  const Problem& problem,
   const Model& model,
   const unsigned alternatives_count,
   const unsigned random_seed,
@@ -258,9 +258,9 @@ Alternatives generate_alternatives(
   std::mt19937 gen(random_seed);
 
   if (max_imbalance) {
-    return generate_balanced_alternatives(domain, model, alternatives_count, *max_imbalance, gen);
+    return generate_balanced_alternatives(problem, model, alternatives_count, *max_imbalance, gen);
   } else {
-    return generate_uniform_alternatives(domain, model, alternatives_count, gen);
+    return generate_uniform_alternatives(problem, model, alternatives_count, gen);
   }
 }
 

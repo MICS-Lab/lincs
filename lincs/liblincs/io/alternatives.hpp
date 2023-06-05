@@ -5,7 +5,7 @@
 
 #include <optional>
 
-#include "domain.hpp"
+#include "problem.hpp"
 
 
 namespace lincs {
@@ -22,13 +22,13 @@ struct Alternative {
 };
 
 struct Alternatives {
-  const Domain& domain;
+  const Problem& problem;
   std::vector<Alternative> alternatives;
 
-  Alternatives(const Domain& domain_, const std::vector<Alternative>& alternatives_): domain(domain_), alternatives(alternatives_) {}
+  Alternatives(const Problem& problem_, const std::vector<Alternative>& alternatives_): problem(problem_), alternatives(alternatives_) {}
 
   void dump(std::ostream&) const;
-  static Alternatives load(const Domain&, std::istream&);
+  static Alternatives load(const Problem&, std::istream&);
 };
 
 }  // namespace lincs

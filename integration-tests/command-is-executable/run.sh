@@ -6,6 +6,6 @@ set -o pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 
-lincs generate classification-domain 4 3 >actual.yml
+lincs generate classification-problem 4 3 >actual.yml
 
 diff expected.yml actual.yml

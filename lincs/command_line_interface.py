@@ -154,9 +154,9 @@ def generate():
 
 @generate.command(
     help="""
-        Generate a synthetic classification domain.
+        Generate a synthetic classification problem.
 
-        The generated domain has CRITERIA_COUNT criteria and CATEGORIES_COUNT categories.
+        The generated problem has CRITERIA_COUNT criteria and CATEGORIES_COUNT categories.
     """,
 )
 @click.argument(
@@ -168,10 +168,10 @@ def generate():
     type=click.IntRange(min=1),
 )
 @click.option(
-    "--output-domain",
+    "--output-problem",
     type=click.File(mode="w"),
     default="-",
-    help="Write generated domain to this file instead of standard output.",
+    help="Write generated problem to this file instead of standard output.",
 )
 @click.option(
     "--random-seed",
@@ -179,29 +179,29 @@ def generate():
     type=click.IntRange(min=0),
     default=random.randrange(2**30),
 )
-def classification_domain(
+def classification_problem(
     criteria_count,
     categories_count,
-    output_domain,
+    output_problem,
     random_seed
 ):
-    domain = lincs.generate_domain(
+    problem = lincs.generate_problem(
         criteria_count,
         categories_count,
         random_seed=random_seed,
     )
-    domain.dump(output_domain)
+    problem.dump(output_problem)
 
 
 @generate.command(
     help="""
         Generate a synthetic classification model.
 
-        DOMAIN is a *classification domain* file describing the domain to generate a model for.
+        PROBLEM is a *classification problem* file describing the problem to generate a model for.
     """,
 )
 @click.argument(
-    "domain",
+    "problem",
     type=click.File(mode="r"),
 )
 @click.option(
@@ -240,16 +240,16 @@ def classification_domain(
     },
 )
 def classification_model(
-    domain,
+    problem,
     output_model,
     random_seed,
     model_type,
     mrsort__fixed_weights_sum,
 ):
-    domain = lincs.load_domain(domain)
+    problem = lincs.load_problem(problem)
     assert model_type == "mrsort"
     model = lincs.generate_mrsort_model(
-        domain,
+        problem,
         random_seed=random_seed,
         fixed_weights_sum=mrsort__fixed_weights_sum,
     )
@@ -260,12 +260,12 @@ def classification_model(
     help="""
         Generate synthetic classified alternatives.
 
-        DOMAIN is a *classification domain* file describing the domain to generate alternatives for.
-        MODEL is a *classification model* file for that domain describing the model to use to classify the generated alternatives.
+        PROBLEM is a *classification problem* file describing the problem to generate alternatives for.
+        MODEL is a *classification model* file for that problem describing the model to use to classify the generated alternatives.
     """,
 )
 @click.argument(
-    "domain",
+    "problem",
     type=click.File(mode="r"),
 )
 @click.argument(
@@ -295,17 +295,17 @@ def classification_model(
     default=random.randrange(2**30),
 )
 def classified_alternatives(
-    domain,
+    problem,
     model,
     alternatives_count,
     output_classified_alternatives,
     max_imbalance,
     random_seed,
 ):
-    domain = lincs.load_domain(domain)
-    model = lincs.load_model(domain, model)
+    problem = lincs.load_problem(problem)
+    model = lincs.load_model(problem, model)
     alternatives = lincs.generate_alternatives(
-        domain,
+        problem,
         model,
         alternatives_count,
         random_seed=random_seed,
@@ -325,13 +325,13 @@ def visualize():
     help="""
         Visualize a classification model.
 
-        DOMAIN is a *classification domain* file.
-        MODEL is a *classification model* file for that domain describing the model to visualize.
+        PROBLEM is a *classification problem* file.
+        MODEL is a *classification model* file for that problem describing the model to visualize.
         The generated image is written to the OUTPUT file in PNG format.
     """,
 )
 @click.argument(
-    "domain",
+    "problem",
     type=click.File(mode="r"),
 )
 @click.argument(
@@ -353,17 +353,17 @@ def visualize():
     type=click.File(mode="wb"),
 )
 def classification_model(
-    domain,
+    problem,
     model,
     alternatives,
     alternatives_count,
     output,
 ):
-    domain = lincs.load_domain(domain)
-    model = lincs.load_model(domain, model)
+    problem = lincs.load_problem(problem)
+    model = lincs.load_model(problem, model)
     if alternatives is not None:
-        alternatives = lincs.load_alternatives(domain, alternatives)
-    lincs.visualization.visualize_model(domain, model, alternatives, alternatives_count, output)
+        alternatives = lincs.load_alternatives(problem, alternatives)
+    lincs.visualization.visualize_model(problem, model, alternatives, alternatives_count, output)
 
 
 @main.group(
@@ -377,13 +377,13 @@ def learn():
     help="""
         Learn a classification model.
 
-        DOMAIN is a *classification domain* file describing the domain to learn a model for.
-        LEARNING_SET is a *classified alternatives* file for that domain.
+        PROBLEM is a *classification problem* file describing the problem to learn a model for.
+        LEARNING_SET is a *classified alternatives* file for that problem.
         It's used as a source of truth to learn the model.
     """,
 )
 @click.argument(
-    "domain",
+    "problem",
     type=click.File(mode="r"),
 )
 @click.argument(
@@ -542,7 +542,7 @@ def learn():
     },
 )
 def classification_model(
-    domain,
+    problem,
     learning_set,
     output_model,
     model_type,
@@ -559,12 +559,12 @@ def classification_model(
     mrsort__weights_profiles_breed__breed_strategy,
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
 ):
-    domain = lincs.load_domain(domain)
-    learning_set = lincs.load_alternatives(domain, learning_set)
+    problem = lincs.load_problem(problem)
+    learning_set = lincs.load_alternatives(problem, learning_set)
 
     if model_type == "mrsort":
         if mrsort__strategy == "weights-profiles-breed":
-            models = lincs.make_models(domain, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            models = lincs.make_models(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             assert mrsort__weights_profiles_breed__max_iterations is None
             termination_strategy = lincs.TerminateAtAccuracy(math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)))
@@ -602,13 +602,13 @@ def classification_model(
     help="""
         Classify alternatives.
 
-        DOMAIN is a *classification domain* file.
-        MODEL is a *classification model* file for that domain.
-        ALTERNATIVES is an *unclassified alternatives* file for that domain.
+        PROBLEM is a *classification problem* file.
+        MODEL is a *classification model* file for that problem.
+        ALTERNATIVES is an *unclassified alternatives* file for that problem.
     """,
 )
 @click.argument(
-    "domain",
+    "problem",
     type=click.File(mode="r"),
 )
 @click.argument(
@@ -626,15 +626,15 @@ def classification_model(
     help="Write classified alternatives to this file instead of standard output.",
 )
 def classify(
-    domain,
+    problem,
     model,
     alternatives,
     output_classified_alternatives,
 ):
-    domain = lincs.load_domain(domain)
-    model = lincs.load_model(domain, model)
-    alternatives = lincs.load_alternatives(domain, alternatives)
-    lincs.classify_alternatives(domain, model, alternatives)
+    problem = lincs.load_problem(problem)
+    model = lincs.load_model(problem, model)
+    alternatives = lincs.load_alternatives(problem, alternatives)
+    lincs.classify_alternatives(problem, model, alternatives)
     alternatives.dump(output_classified_alternatives)
 
 
@@ -642,15 +642,15 @@ def classify(
     help="""
         Compute a classification accuracy.
 
-        DOMAIN is a *classification domain* file.
-        MODEL is a *classification model* file for that domain.
-        TESTING_SET is a *classified alternatives* file for that domain.
+        PROBLEM is a *classification problem* file.
+        MODEL is a *classification model* file for that problem.
+        TESTING_SET is a *classified alternatives* file for that problem.
 
         The classification accuracy is written to standard output as an integer between 0 and the number of alternatives.
     """,
 )
 @click.argument(
-    "domain",
+    "problem",
     type=click.File(mode="r"),
 )
 @click.argument(
@@ -662,12 +662,12 @@ def classify(
     type=click.File(mode="r"),
 )
 def classification_accuracy(
-    domain,
+    problem,
     model,
     testing_set,
 ):
-    domain = lincs.load_domain(domain)
-    model = lincs.load_model(domain, model)
-    testing_set = lincs.load_alternatives(domain, testing_set)
-    result = lincs.classify_alternatives(domain, model, testing_set)
+    problem = lincs.load_problem(problem)
+    model = lincs.load_model(problem, model)
+    testing_set = lincs.load_alternatives(problem, testing_set)
+    result = lincs.classify_alternatives(problem, model, testing_set)
     print(f"{result.unchanged}/{result.changed + result.unchanged}")

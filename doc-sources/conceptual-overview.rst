@@ -11,7 +11,7 @@ About classification
 For now, *lincs* focuses on "classification" problems, *i.e.* the task of sorting "alternatives" into "categories".
 Categories are ordered: there is a worst category and a best category, and possibly some intermediates.
 Alternatives are assigned to a category based on their "performances" on a set of "criteria".
-The description of the criteria and categories constitutes the "domain" of the problem.
+The description of the criteria and categories constitutes the "problem" itself.
 
 This vocabulary is voluntarily abstract to allow for a wide range of applications, so a concrete example might help.
 Let's say you want to assign scholarships to students based on their academic performances.
@@ -36,12 +36,12 @@ Synthetic data
 ==============
 
 It's not always practical to use real-world data when developing a new learning algorithm, so one can use synthetic data instead.
-In that approach, one specifies the domain of the problem and provides a pre-known model.
+In that approach, one specifies the problem and provides a pre-known model.
 They then generate pseudo-random alternatives classified according to that original model,
 and use them as a training set to learn a new model.
 Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the algorithm.
 
-*lincs* provides ways to generate synthetic pseudo-random domains, models and training sets.
+*lincs* provides ways to generate synthetic pseudo-random problems, models and training sets.
 
 
 Non-compensatory sorting (NCS)
@@ -77,9 +77,9 @@ Some particular cases are quite common, namely:
 Files
 =====
 
-Before starting, *lincs* needs to know basic things about the structure of the alternatives you care about and the categories they can belong to, *i.e.* your domain.
-It is described in the domain file in YAML format.
-It's specified in :ref:`the domain file format <ref-file-domain>`.
+Before starting, *lincs* needs to know basic things about the structure of the alternatives you care about and the categories they can belong to, *i.e.* your problem.
+It is described in the problem file in YAML format.
+It's specified in :ref:`the problem file format <ref-file-problem>`.
 
 The training set is expected in CSV format.
 It's specified in :ref:`the alternatives file format <ref-file-alternatives>`.

@@ -18,10 +18,10 @@ File formats
 The same formats are used for synthetic and real-world data.
 The same formats are used when the ``lincs`` command lines outputs to actual files or to its standard output.
 
-.. _ref-file-domain:
+.. _ref-file-problem:
 
-The domain file
----------------
+The problem file
+----------------
 
 @todo Write (or generate from a JSON Schema?)
 

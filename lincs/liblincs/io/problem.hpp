@@ -1,7 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__IO__DOMAIN_HPP
-#define LINCS__IO__DOMAIN_HPP
+#ifndef LINCS__IO__PROBLEM_HPP
+#define LINCS__IO__PROBLEM_HPP
 
 #include <string>
 #include <vector>
@@ -9,7 +9,7 @@
 
 namespace lincs {
 
-struct Domain {
+struct Problem {
   struct Criterion {
     std::string name;
 
@@ -54,13 +54,13 @@ struct Domain {
 
   std::vector<Category> categories;
 
-  Domain(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
+  Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
 
   void dump(std::ostream&) const;
-  static Domain load(std::istream&);
+  static Problem load(std::istream&);
 
 };
 
 }  // namespace lincs
 
-#endif  // LINCS__IO__DOMAIN_HPP
+#endif  // LINCS__IO__PROBLEM_HPP

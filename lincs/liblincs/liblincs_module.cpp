@@ -35,9 +35,9 @@ class PythonOutputDevice : public boost::iostreams::sink {
   bp::object out_file;
 };
 
-void dump_domain(const lincs::Domain& domain, bp::object& out_file) {
+void dump_problem(const lincs::Problem& problem, bp::object& out_file) {
   boost::iostreams::stream<PythonOutputDevice> out_stream(out_file);
-  domain.dump(out_stream);
+  problem.dump(out_stream);
 }
 
 void dump_model(const lincs::Model& model, bp::object& out_file) {
@@ -65,19 +65,19 @@ class PythonInputDevice : public boost::iostreams::source {
   bp::object in_file;
 };
 
-lincs::Domain load_domain(bp::object& in_file) {
+lincs::Problem load_problem(bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
-  return lincs::Domain::load(in_stream);
+  return lincs::Problem::load(in_stream);
 }
 
-lincs::Model load_model(const lincs::Domain& domain, bp::object& in_file) {
+lincs::Model load_model(const lincs::Problem& problem, bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
-  return lincs::Model::load(domain, in_stream);
+  return lincs::Model::load(problem, in_stream);
 }
 
-lincs::Alternatives load_alternatives(const lincs::Domain& domain, bp::object& in_file) {
+lincs::Alternatives load_alternatives(const lincs::Problem& problem, bp::object& in_file) {
   boost::iostreams::stream<PythonInputDevice> in_stream(in_file);
-  return lincs::Alternatives::load(domain, in_stream);
+  return lincs::Alternatives::load(problem, in_stream);
 }
 
 // @todo Thoroughly review all conversions between Python and C++ types.
@@ -155,13 +155,13 @@ struct std_optional_converter {
 };
 
 lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(
-  const lincs::Domain& domain,
+  const lincs::Problem& problem,
   const lincs::Alternatives& learning_set,
   const unsigned models_count,
   const unsigned random_seed
 ) {
   return new lincs::WeightsProfilesBreedMrSortLearning::Models(std::move(
-    lincs::WeightsProfilesBreedMrSortLearning::Models::make(domain, learning_set, models_count, random_seed)));
+    lincs::WeightsProfilesBreedMrSortLearning::Models::make(problem, learning_set, models_count, random_seed)));
 }
 
 lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels* make_gpu_models(
@@ -192,8 +192,8 @@ void auto_enum(const std::string& name) {
 BOOST_PYTHON_MODULE(liblincs) {
   iterable_converter()
     .from_python<std::vector<float>>()
-    .from_python<std::vector<lincs::Domain::Category>>()
-    .from_python<std::vector<lincs::Domain::Criterion>>()
+    .from_python<std::vector<lincs::Problem::Category>>()
+    .from_python<std::vector<lincs::Problem::Criterion>>()
     .from_python<std::vector<lincs::Model::Boundary>>()
     .from_python<std::vector<lincs::Model::SufficientCoalitions>>()
     .from_python<std::vector<lincs::Alternative>>()
@@ -203,48 +203,48 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_optional_converter<std::string>::enroll();
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
-  auto_enum<lincs::Domain::Criterion::ValueType>("ValueType");
-  auto_enum<lincs::Domain::Criterion::CategoryCorrelation>("CategoryCorrelation");
+  auto_enum<lincs::Problem::Criterion::ValueType>("ValueType");
+  auto_enum<lincs::Problem::Criterion::CategoryCorrelation>("CategoryCorrelation");
   auto_enum<lincs::Model::SufficientCoalitions::Kind>("SufficientCoalitionsKind");
 
-  bp::class_<lincs::Domain::Criterion>("Criterion", bp::init<std::string, lincs::Domain::Criterion::ValueType, lincs::Domain::Criterion::CategoryCorrelation>())
-    .def_readwrite("name", &lincs::Domain::Criterion::name)
-    .def_readwrite("value_type", &lincs::Domain::Criterion::value_type)
-    .def_readwrite("category_correlation", &lincs::Domain::Criterion::category_correlation)
+  bp::class_<lincs::Problem::Criterion>("Criterion", bp::init<std::string, lincs::Problem::Criterion::ValueType, lincs::Problem::Criterion::CategoryCorrelation>())
+    .def_readwrite("name", &lincs::Problem::Criterion::name)
+    .def_readwrite("value_type", &lincs::Problem::Criterion::value_type)
+    .def_readwrite("category_correlation", &lincs::Problem::Criterion::category_correlation)
   ;
 
-  bp::class_<lincs::Domain::Category>("Category", bp::init<std::string>())
-    .def_readwrite("name", &lincs::Domain::Category::name)
+  bp::class_<lincs::Problem::Category>("Category", bp::init<std::string>())
+    .def_readwrite("name", &lincs::Problem::Category::name)
   ;
 
-  bp::class_<std::vector<lincs::Domain::Category>>("categories_vector")
-    .def(bp::vector_indexing_suite<std::vector<lincs::Domain::Category>>())
+  bp::class_<std::vector<lincs::Problem::Category>>("categories_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Problem::Category>>())
   ;
-  bp::class_<std::vector<lincs::Domain::Criterion>>("criteria_vector")
-    .def(bp::vector_indexing_suite<std::vector<lincs::Domain::Criterion>>())
+  bp::class_<std::vector<lincs::Problem::Criterion>>("criteria_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Problem::Criterion>>())
   ;
-  bp::class_<lincs::Domain>("Domain", bp::init<std::vector<lincs::Domain::Criterion>, std::vector<lincs::Domain::Category>>())
-    .def_readwrite("criteria", &lincs::Domain::criteria)
-    .def_readwrite("categories", &lincs::Domain::categories)
+  bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Problem::Criterion>, std::vector<lincs::Problem::Category>>())
+    .def_readwrite("criteria", &lincs::Problem::criteria)
+    .def_readwrite("categories", &lincs::Problem::categories)
     .def(
       "dump",
-      &dump_domain,
+      &dump_problem,
       (bp::arg("self"), "out"),
-      "Dump the domain to the provided `.write()`-supporting file-like object, in YAML format."
+      "Dump the problem to the provided `.write()`-supporting file-like object, in YAML format."
     )
   ;
   // @todo Make these 'staticmethod's of Alternatives. Same for other load and generate functions.
   bp::def(
-    "load_domain",
-    &load_domain,
+    "load_problem",
+    &load_problem,
     (bp::arg("in")),
-    "Load a domain from the provided `.read()`-supporting file-like object, in YAML format."
+    "Load a problem from the provided `.read()`-supporting file-like object, in YAML format."
   );
   bp::def(
-    "generate_domain",
-    &lincs::generate_domain,
+    "generate_problem",
+    &lincs::generate_problem,
     (bp::arg("criteria_count"), "categories_count", "random_seed"),
-    "Generate a domain with `criteria_count` criteria and `categories_count` categories."
+    "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 
   bp::class_<lincs::Model::SufficientCoalitions>("SufficientCoalitions", bp::init<lincs::Model::SufficientCoalitions::Kind, std::vector<float>>())
@@ -262,7 +262,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<std::vector<lincs::Model::Boundary>>("boundaries_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Model::Boundary>>())
   ;
-  bp::class_<lincs::Model>("Model", bp::init<const lincs::Domain&, const std::vector<lincs::Model::Boundary>&>())
+  bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::Model::Boundary>&>())
     .def_readwrite("boundaries", &lincs::Model::boundaries)
     .def(
       "dump",
@@ -274,14 +274,14 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::def(
     "load_model",
     &load_model,
-    (bp::arg("domain"), "in"),
-    "Load a model for the provided `domain`, from the provided `.read()`-supporting file-like object, in YAML format."
+    (bp::arg("problem"), "in"),
+    "Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format."
   );
   bp::def(
     "generate_mrsort_model",
     &lincs::generate_mrsort_model,
-    (bp::arg("domain"), "random_seed", bp::arg("fixed_weights_sum")=std::optional<float>()),
-    "Generate an MR-Sort model for the provided `domain`."
+    (bp::arg("problem"), "random_seed", bp::arg("fixed_weights_sum")=std::optional<float>()),
+    "Generate an MR-Sort model for the provided `problem`."
   );
 
   bp::class_<lincs::Alternative>(
@@ -297,7 +297,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<std::vector<lincs::Alternative>>("alternatives_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>())
   ;
-  bp::class_<lincs::Alternatives>("Alternatives", bp::init<const lincs::Domain&, const std::vector<lincs::Alternative>&>())
+  bp::class_<lincs::Alternatives>("Alternatives", bp::init<const lincs::Problem&, const std::vector<lincs::Alternative>&>())
     .def_readwrite("alternatives", &lincs::Alternatives::alternatives)
     .def(
       "dump",
@@ -309,14 +309,14 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::def(
     "load_alternatives",
     &load_alternatives,
-    (bp::arg("domain"), "in"),
+    (bp::arg("problem"), "in"),
     "Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format."
   );
   bp::def(
     "generate_alternatives",
     &lincs::generate_alternatives,
-    (bp::arg("domain"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
-    "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`."
+    (bp::arg("problem"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
+    "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`."
   );
 
   bp::class_<lincs::ClassificationResult>("ClassificationResult", bp::no_init)
@@ -326,7 +326,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::def(
     "classify_alternatives",
     &lincs::classify_alternatives,
-    (bp::arg("domain"), "model", "alternatives"),
+    (bp::arg("problem"), "model", "alternatives"),
     "Classify the provided `alternatives` according to the provided `model`."
   );
 

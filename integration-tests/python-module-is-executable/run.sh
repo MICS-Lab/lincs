@@ -6,6 +6,6 @@ set -o pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 
-python3 -m lincs  generate classification-domain 4 3 >actual.yml
+python3 -m lincs  generate classification-problem 4 3 >actual.yml
 
 diff expected.yml actual.yml

@@ -1,4 +1,4 @@
-kind: classification-domain
+kind: classification-problem
 format_version: 1
 criteria:
   - name: Physics grade

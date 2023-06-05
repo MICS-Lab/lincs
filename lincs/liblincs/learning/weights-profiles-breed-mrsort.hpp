@@ -56,7 +56,7 @@ class WeightsProfilesBreedMrSortLearning {
 };
 
 struct WeightsProfilesBreedMrSortLearning::Models {
-  const Domain& domain;
+  const Problem& problem;
   unsigned categories_count;
   unsigned criteria_count;
   unsigned learning_alternatives_count;
@@ -67,7 +67,7 @@ struct WeightsProfilesBreedMrSortLearning::Models {
   Array3D<Host, float> profiles;
   std::vector<std::mt19937> urbgs;
 
-  static Models make(const Domain& domain, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
+  static Models make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
 
   Model get_model(const unsigned model_index) const;
 };

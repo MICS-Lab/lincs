@@ -1,6 +1,6 @@
 // Copyright 2023 Vincent Jacques
 
-#include "domain.hpp"
+#include "problem.hpp"
 
 #include <cassert>
 
@@ -13,15 +13,15 @@
 namespace YAML {
 
 template<>
-struct convert<lincs::Domain::Category> {
-  static Node encode(const lincs::Domain::Category& category) {
+struct convert<lincs::Problem::Category> {
+  static Node encode(const lincs::Problem::Category& category) {
     Node node;
     node["name"] = category.name;
 
     return node;
   }
 
-  static bool decode(const Node& node, lincs::Domain::Category& category) {
+  static bool decode(const Node& node, lincs::Problem::Category& category) {
     category.name = node["name"].as<std::string>();
 
     return true;
@@ -29,8 +29,8 @@ struct convert<lincs::Domain::Category> {
 };
 
 template<>
-struct convert<lincs::Domain::Criterion> {
-  static Node encode(const lincs::Domain::Criterion& criterion) {
+struct convert<lincs::Problem::Criterion> {
+  static Node encode(const lincs::Problem::Criterion& criterion) {
     Node node;
     node["name"] = criterion.name;
     node["value_type"] = std::string(magic_enum::enum_name(criterion.value_type));
@@ -39,11 +39,11 @@ struct convert<lincs::Domain::Criterion> {
     return node;
   }
 
-  static bool decode(const Node& node, lincs::Domain::Criterion& criterion) {
+  static bool decode(const Node& node, lincs::Problem::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
     // @todo Handle error where value_type category_correlation does not properly convert back to enum
-    criterion.value_type = magic_enum::enum_cast<lincs::Domain::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
-    criterion.category_correlation = magic_enum::enum_cast<lincs::Domain::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
+    criterion.value_type = magic_enum::enum_cast<lincs::Problem::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
+    criterion.category_correlation = magic_enum::enum_cast<lincs::Problem::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
 
     return true;
   }
@@ -53,9 +53,9 @@ struct convert<lincs::Domain::Criterion> {
 
 namespace lincs {
 
-void Domain::dump(std::ostream& os) const {
+void Problem::dump(std::ostream& os) const {
   YAML::Node node;
-  node["kind"] = "classification-domain";
+  node["kind"] = "classification-problem";
   node["format_version"] = 1;
   node["criteria"] = criteria;
   node["categories"] = categories;
@@ -63,30 +63,30 @@ void Domain::dump(std::ostream& os) const {
   os << node << '\n';
 }
 
-Domain Domain::load(std::istream& is) {
+Problem Problem::load(std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
-  assert(node["kind"].as<std::string>() == "classification-domain");
+  assert(node["kind"].as<std::string>() == "classification-problem");
   assert(node["format_version"].as<int>() == 1);
 
-  return Domain(
+  return Problem(
     node["criteria"].as<std::vector<Criterion>>(),
     node["categories"].as<std::vector<Category>>()
   );
 }
 
-TEST_CASE("dumping then loading domain preserves data") {
-  Domain domain{
-    {{"Criterion 1", Domain::Criterion::ValueType::real, Domain::Criterion::CategoryCorrelation::growing}},
+TEST_CASE("dumping then loading problem preserves data") {
+  Problem problem{
+    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
   };
 
   std::stringstream ss;
-  domain.dump(ss);
+  problem.dump(ss);
 
-  Domain domain2 = Domain::load(ss);
-  CHECK(domain2.criteria == domain.criteria);
-  CHECK(domain2.categories == domain.categories);
+  Problem problem2 = Problem::load(ss);
+  CHECK(problem2.criteria == problem.criteria);
+  CHECK(problem2.categories == problem.categories);
 }
 
 }  // namespace lincs

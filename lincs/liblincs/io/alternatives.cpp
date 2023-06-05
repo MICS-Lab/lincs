@@ -8,14 +8,14 @@
 namespace lincs {
 
 void Alternatives::dump(std::ostream& os) const {
-  const unsigned criteria_count = domain.criteria.size();
+  const unsigned criteria_count = problem.criteria.size();
   const unsigned alternatives_count = alternatives.size();
 
   rapidcsv::Document doc;
 
   doc.SetColumnName(0, "name");
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    doc.SetColumnName(criterion_index + 1, domain.criteria[criterion_index].name);
+    doc.SetColumnName(criterion_index + 1, problem.criteria[criterion_index].name);
   }
   doc.SetColumnName(criteria_count + 1, "category");
 
@@ -33,8 +33,8 @@ void Alternatives::dump(std::ostream& os) const {
   doc.Save(os);
 }
 
-Alternatives Alternatives::load(const Domain& domain, std::istream& is) {
-  const unsigned criteria_count = domain.criteria.size();
+Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
+  const unsigned criteria_count = problem.criteria.size();
 
   // I don't know why constructing the rapidcsv::Document directly from 'is' sometimes results in an empty document.
   // So, read the whole stream into a string and construct the document from that.
@@ -50,7 +50,7 @@ Alternatives Alternatives::load(const Domain& domain, std::istream& is) {
     alternative.name = doc.GetCell<std::string>("name", row_index);
     alternative.profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      alternative.profile.push_back(doc.GetCell<float>(domain.criteria[criterion_index].name, row_index));
+      alternative.profile.push_back(doc.GetCell<float>(problem.criteria[criterion_index].name, row_index));
     }
     std::string category = doc.GetCell<std::string>("category", row_index);
     if (category != "") {
@@ -59,7 +59,7 @@ Alternatives Alternatives::load(const Domain& domain, std::istream& is) {
     alternatives.push_back(alternative);
   }
 
-  return Alternatives{domain, alternatives};
+  return Alternatives{problem, alternatives};
 }
 
 }  // namespace lincs

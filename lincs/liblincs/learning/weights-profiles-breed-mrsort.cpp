@@ -9,14 +9,14 @@
 
 namespace lincs {
 
-WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::Models::make(const Domain& domain, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
+WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::Models::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
   std::map<std::string, unsigned> category_indexes;
-  for (const auto& category: domain.categories) {
+  for (const auto& category: problem.categories) {
     category_indexes[category.name] = category_indexes.size();
   }
 
-  const unsigned criteria_count = domain.criteria.size();
-  const unsigned categories_count = domain.categories.size();
+  const unsigned criteria_count = problem.criteria.size();
+  const unsigned categories_count = problem.categories.size();
   const unsigned alternatives_count = learning_set.alternatives.size();
 
   Array2D<Host, float> alternatives(criteria_count, alternatives_count, uninitialized);
@@ -41,7 +41,7 @@ WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::M
   }
 
   return {
-    domain,
+    problem,
     categories_count,
     criteria_count,
     alternatives_count,
@@ -75,7 +75,7 @@ Model WeightsProfilesBreedMrSortLearning::Models::get_model(const unsigned model
     boundaries.emplace_back(boundary_profile, coalitions);
   }
 
-  return Model{domain, boundaries};
+  return Model{problem, boundaries};
 }
 
 Model WeightsProfilesBreedMrSortLearning::perform() {

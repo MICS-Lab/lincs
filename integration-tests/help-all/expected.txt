@@ -27,23 +27,23 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  classification-domain    Generate a synthetic classification domain.
   classification-model     Generate a synthetic classification model.
+  classification-problem   Generate a synthetic classification problem.
   classified-alternatives  Generate synthetic classified alternatives.
 
-lincs generate classification-domain
-====================================
+lincs generate classification-problem
+=====================================
 
-Usage: lincs generate classification-domain [OPTIONS] CRITERIA_COUNT
-                                            CATEGORIES_COUNT
+Usage: lincs generate classification-problem [OPTIONS] CRITERIA_COUNT
+                                             CATEGORIES_COUNT
 
-  Generate a synthetic classification domain.
+  Generate a synthetic classification problem.
 
-  The generated domain has CRITERIA_COUNT criteria and CATEGORIES_COUNT
+  The generated problem has CRITERIA_COUNT criteria and CATEGORIES_COUNT
   categories.
 
 Options:
-  --output-domain FILENAME     Write generated domain to this file instead of
+  --output-problem FILENAME    Write generated problem to this file instead of
                                standard output.
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
   --help                       Show this message and exit.
@@ -51,12 +51,12 @@ Options:
 lincs generate classification-model
 ===================================
 
-Usage: lincs generate classification-model [OPTIONS] DOMAIN
+Usage: lincs generate classification-model [OPTIONS] PROBLEM
 
   Generate a synthetic classification model.
 
-  DOMAIN is a *classification domain* file describing the domain to generate a
-  model for.
+  PROBLEM is a *classification problem* file describing the problem to
+  generate a model for.
 
 Options:
   --output-model FILENAME         Write generated model to this file instead
@@ -78,14 +78,14 @@ Options:
 lincs generate classified-alternatives
 ======================================
 
-Usage: lincs generate classified-alternatives [OPTIONS] DOMAIN MODEL
+Usage: lincs generate classified-alternatives [OPTIONS] PROBLEM MODEL
                                               ALTERNATIVES_COUNT
 
   Generate synthetic classified alternatives.
 
-  DOMAIN is a *classification domain* file describing the domain to generate
-  alternatives for. MODEL is a *classification model* file for that domain
-  describing the model to use to classify the generated alternatives.
+  PROBLEM is a *classification problem* file describing the problem to
+  generate alternatives for. MODEL is a *classification model* file for that
+  problem describing the model to use to classify the generated alternatives.
 
 Options:
   --output-classified-alternatives FILENAME
@@ -114,13 +114,13 @@ Commands:
 lincs visualize classification-model
 ====================================
 
-Usage: lincs visualize classification-model [OPTIONS] DOMAIN MODEL OUTPUT
+Usage: lincs visualize classification-model [OPTIONS] PROBLEM MODEL OUTPUT
 
   Visualize a classification model.
 
-  DOMAIN is a *classification domain* file. MODEL is a *classification model*
-  file for that domain describing the model to visualize. The generated image
-  is written to the OUTPUT file in PNG format.
+  PROBLEM is a *classification problem* file. MODEL is a *classification
+  model* file for that problem describing the model to visualize. The
+  generated image is written to the OUTPUT file in PNG format.
 
 Options:
   --alternatives FILENAME       Add the alternatives from this *classified
@@ -144,13 +144,13 @@ Commands:
 lincs learn classification-model
 ================================
 
-Usage: lincs learn classification-model [OPTIONS] DOMAIN LEARNING_SET
+Usage: lincs learn classification-model [OPTIONS] PROBLEM LEARNING_SET
 
   Learn a classification model.
 
-  DOMAIN is a *classification domain* file describing the domain to learn a
-  model for. LEARNING_SET is a *classified alternatives* file for that domain.
-  It's used as a source of truth to learn the model.
+  PROBLEM is a *classification problem* file describing the problem to learn a
+  model for. LEARNING_SET is a *classified alternatives* file for that
+  problem. It's used as a source of truth to learn the model.
 
 Options:
   --output-model FILENAME         Write the learned classification model to
@@ -282,13 +282,13 @@ Options:
 lincs classify
 ==============
 
-Usage: lincs classify [OPTIONS] DOMAIN MODEL ALTERNATIVES
+Usage: lincs classify [OPTIONS] PROBLEM MODEL ALTERNATIVES
 
   Classify alternatives.
 
-  DOMAIN is a *classification domain* file. MODEL is a *classification model*
-  file for that domain. ALTERNATIVES is an *unclassified alternatives* file
-  for that domain.
+  PROBLEM is a *classification problem* file. MODEL is a *classification
+  model* file for that problem. ALTERNATIVES is an *unclassified alternatives*
+  file for that problem.
 
 Options:
   --output-classified-alternatives FILENAME
@@ -299,13 +299,13 @@ Options:
 lincs classification-accuracy
 =============================
 
-Usage: lincs classification-accuracy [OPTIONS] DOMAIN MODEL TESTING_SET
+Usage: lincs classification-accuracy [OPTIONS] PROBLEM MODEL TESTING_SET
 
   Compute a classification accuracy.
 
-  DOMAIN is a *classification domain* file. MODEL is a *classification model*
-  file for that domain. TESTING_SET is a *classified alternatives* file for
-  that domain.
+  PROBLEM is a *classification problem* file. MODEL is a *classification
+  model* file for that problem. TESTING_SET is a *classified alternatives*
+  file for that problem.
 
   The classification accuracy is written to standard output as an integer
   between 0 and the number of alternatives.
@@ -341,10 +341,10 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Domain)arg2, (alternatives_vector)arg3) -> None :
+__init__( (object)arg1, (Problem)arg2, (alternatives_vector)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::Domain,std::vector<lincs::Alternative, std::allocator<lincs::Alternative> >)
+        void __init__(_object*,lincs::Problem,std::vector<lincs::Alternative, std::allocator<lincs::Alternative> >)
 
 alternatives
 ------------
@@ -413,7 +413,7 @@ __init__
 __init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4) -> None :
 
     C++ signature :
-        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Domain::Criterion::ValueType,lincs::Domain::Criterion::CategoryCorrelation)
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Problem::Criterion::ValueType,lincs::Problem::Criterion::CategoryCorrelation)
 
 category_correlation
 --------------------
@@ -423,34 +423,6 @@ name
 
 value_type
 ----------
-
-lincs.Domain
-============
-
-__init__
---------
-
-
-__init__( (object)arg1, (criteria_vector)arg2, (categories_vector)arg3) -> None :
-
-    C++ signature :
-        void __init__(_object*,std::vector<lincs::Domain::Criterion, std::allocator<lincs::Domain::Criterion> >,std::vector<lincs::Domain::Category, std::allocator<lincs::Domain::Category> >)
-
-categories
-----------
-
-criteria
---------
-
-dump
-----
-
-
-dump( (Domain)self, (object)out) -> None :
-    Dump the domain to the provided `.write()`-supporting file-like object, in YAML format.
-
-    C++ signature :
-        void dump(lincs::Domain,boost::python::api::object {lvalue})
 
 lincs.ImproveProfilesWithAccuracyHeuristicOnCpu
 ===============================================
@@ -522,10 +494,10 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Domain)arg2, (boundaries_vector)arg3) -> None :
+__init__( (object)arg1, (Problem)arg2, (boundaries_vector)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::Domain,std::vector<lincs::Model::Boundary, std::allocator<lincs::Model::Boundary> >)
+        void __init__(_object*,lincs::Problem,std::vector<lincs::Model::Boundary, std::allocator<lincs::Model::Boundary> >)
 
 boundaries
 ----------
@@ -560,6 +532,34 @@ optimize_weights( (OptimizeWeightsUsingGlop)arg1) -> None :
 
     C++ signature :
         void optimize_weights(lincs::OptimizeWeightsUsingLinearProgram<lincs::GlopLinearProgram> {lvalue})
+
+lincs.Problem
+=============
+
+__init__
+--------
+
+
+__init__( (object)arg1, (criteria_vector)arg2, (categories_vector)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::vector<lincs::Problem::Criterion, std::allocator<lincs::Problem::Criterion> >,std::vector<lincs::Problem::Category, std::allocator<lincs::Problem::Category> >)
+
+categories
+----------
+
+criteria
+--------
+
+dump
+----
+
+
+dump( (Problem)self, (object)out) -> None :
+    Dump the problem to the provided `.write()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        void dump(lincs::Problem,boost::python::api::object {lvalue})
 
 lincs.ProfilesImprovementStrategy
 =================================
@@ -745,11 +745,11 @@ lincs.classify_alternatives
 ===========================
 
 
-classify_alternatives( (Domain)domain, (Model)model, (Alternatives)alternatives) -> ClassificationResult :
+classify_alternatives( (Problem)problem, (Model)model, (Alternatives)alternatives) -> ClassificationResult :
     Classify the provided `alternatives` according to the provided `model`.
 
     C++ signature :
-        lincs::ClassificationResult classify_alternatives(lincs::Domain,lincs::Model,lincs::Alternatives*)
+        lincs::ClassificationResult classify_alternatives(lincs::Problem,lincs::Model,lincs::Alternatives*)
 
 lincs.command_line_interface
 ============================
@@ -758,61 +758,61 @@ lincs.generate_alternatives
 ===========================
 
 
-generate_alternatives( (Domain)domain, (Model)model, (int)alternatives_count, (int)random_seed [, (object)max_imbalance=None]) -> Alternatives :
-    Generate a set of `alternatives_count` pseudo-random alternatives for the provided `domain`, classified according to the provided `model`.
+generate_alternatives( (Problem)problem, (Model)model, (int)alternatives_count, (int)random_seed [, (object)max_imbalance=None]) -> Alternatives :
+    Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`.
 
     C++ signature :
-        lincs::Alternatives generate_alternatives(lincs::Domain,lincs::Model,unsigned int,unsigned int [,std::optional<float>=None])
-
-lincs.generate_domain
-=====================
-
-
-generate_domain( (int)criteria_count, (int)categories_count, (int)random_seed) -> Domain :
-    Generate a domain with `criteria_count` criteria and `categories_count` categories.
-
-    C++ signature :
-        lincs::Domain generate_domain(unsigned int,unsigned int,unsigned int)
+        lincs::Alternatives generate_alternatives(lincs::Problem,lincs::Model,unsigned int,unsigned int [,std::optional<float>=None])
 
 lincs.generate_mrsort_model
 ===========================
 
 
-generate_mrsort_model( (Domain)domain, (int)random_seed [, (object)fixed_weights_sum=None]) -> Model :
-    Generate an MR-Sort model for the provided `domain`.
+generate_mrsort_model( (Problem)problem, (int)random_seed [, (object)fixed_weights_sum=None]) -> Model :
+    Generate an MR-Sort model for the provided `problem`.
 
     C++ signature :
-        lincs::Model generate_mrsort_model(lincs::Domain,unsigned int [,std::optional<float>=None])
+        lincs::Model generate_mrsort_model(lincs::Problem,unsigned int [,std::optional<float>=None])
+
+lincs.generate_problem
+======================
+
+
+generate_problem( (int)criteria_count, (int)categories_count, (int)random_seed) -> Problem :
+    Generate a problem with `criteria_count` criteria and `categories_count` categories.
+
+    C++ signature :
+        lincs::Problem generate_problem(unsigned int,unsigned int,unsigned int)
 
 lincs.load_alternatives
 =======================
 
 
-load_alternatives( (Domain)domain, (object)in) -> Alternatives :
+load_alternatives( (Problem)problem, (object)in) -> Alternatives :
     Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format.
 
     C++ signature :
-        lincs::Alternatives load_alternatives(lincs::Domain,boost::python::api::object {lvalue})
-
-lincs.load_domain
-=================
-
-
-load_domain( (object)in) -> Domain :
-    Load a domain from the provided `.read()`-supporting file-like object, in YAML format.
-
-    C++ signature :
-        lincs::Domain load_domain(boost::python::api::object {lvalue})
+        lincs::Alternatives load_alternatives(lincs::Problem,boost::python::api::object {lvalue})
 
 lincs.load_model
 ================
 
 
-load_model( (Domain)domain, (object)in) -> Model :
-    Load a model for the provided `domain`, from the provided `.read()`-supporting file-like object, in YAML format.
+load_model( (Problem)problem, (object)in) -> Model :
+    Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format.
 
     C++ signature :
-        lincs::Model load_model(lincs::Domain,boost::python::api::object {lvalue})
+        lincs::Model load_model(lincs::Problem,boost::python::api::object {lvalue})
+
+lincs.load_problem
+==================
+
+
+load_problem( (object)in) -> Problem :
+    Load a problem from the provided `.read()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        lincs::Problem load_problem(boost::python::api::object {lvalue})
 
 lincs.make_gpu_models
 =====================
@@ -827,10 +827,10 @@ lincs.make_models
 =================
 
 
-make_models( (Domain)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> Models :
+make_models( (Problem)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> Models :
 
     C++ signature :
-        lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(lincs::Domain,lincs::Alternatives,unsigned int,unsigned int)
+        lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
 
 lincs.visualization
 ===================

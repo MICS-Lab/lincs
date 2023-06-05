@@ -24,17 +24,17 @@ Learning strategies
     set -o pipefail
     trap 'echo "Error on line $LINENO"' ERR
 
-    cp ../command-line-example/{domain.yml,learning-set.csv} .
+    cp ../command-line-example/{problem.yml,learning-set.csv} .
     cp ../command-line-example/expected-trained-model.yml .
 .. STOP
 
-The following examples assume you've followed our :doc:`"Get started" guide <get-started>` and have ``domain.yml`` and ``learning-set.csv`` in your current directory.
+The following examples assume you've followed our :doc:`"Get started" guide <get-started>` and have ``problem.yml`` and ``learning-set.csv`` in your current directory.
 
 .. EXTEND other-learnings/run.sh
 
 If you have a CUDA-compatible GPU and its drivers correctly installed, you can try another strategy to learn the model using it::
 
-    lincs learn classification-model domain.yml learning-set.csv --output-model gpu-trained-model.yml --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
+    lincs learn classification-model problem.yml learning-set.csv --output-model gpu-trained-model.yml --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
 .. STOP

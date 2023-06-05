@@ -10,9 +10,9 @@
 
 namespace lincs {
 
-Domain generate_domain(unsigned criteria_count, unsigned categories_count, unsigned random_seed);
+Problem generate_problem(unsigned criteria_count, unsigned categories_count, unsigned random_seed);
 
-Model generate_mrsort_model(const Domain&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
+Model generate_mrsort_model(const Problem&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
 
 class BalancedAlternativesGenerationException : public std::exception {
  public:
@@ -26,7 +26,7 @@ class BalancedAlternativesGenerationException : public std::exception {
 };
 
 Alternatives generate_alternatives(
-  const Domain&,
+  const Problem&,
   const Model&,
   unsigned alternatives_count,
   unsigned random_seed,

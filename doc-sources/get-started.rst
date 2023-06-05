@@ -152,20 +152,20 @@ It's organized using sub-commands, the first one being ``generate``, to generate
 
 .. EXTEND command-line-example/run.sh
 
-Generate a classification domain with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
+Generate a classification problem with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
 
-    lincs generate classification-domain 4 3 --output-domain domain.yml
+    lincs generate classification-problem 4 3 --output-problem problem.yml
 
 .. APPEND-TO-LAST-LINE --random-seed 40
 .. STOP
 
 .. highlight:: yaml
 
-.. START command-line-example/expected-domain.yml
+.. START command-line-example/expected-problem.yml
 
-The generated ``domain.yml`` should look like::
+The generated ``problem.yml`` should look like::
 
-    kind: classification-domain
+    kind: classification-problem
     format_version: 1
     criteria:
       - name: Criterion 1
@@ -190,7 +190,7 @@ The generated ``domain.yml`` should look like::
 You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
 
 .. EXTEND command-line-example/run.sh
-    diff expected-domain.yml domain.yml
+    diff expected-problem.yml problem.yml
 .. STOP
 
 .. highlight:: shell
@@ -199,7 +199,7 @@ You can edit this file to change the criteria names, the number of categories, *
 
 Then generate a classification model (@todo Link to concepts and file formats)::
 
-    lincs generate classification-model domain.yml --output-model model.yml
+    lincs generate classification-model problem.yml --output-model model.yml
 
 .. APPEND-TO-LAST-LINE --random-seed 41
 .. STOP
@@ -252,7 +252,7 @@ It should look like::
 
 You can visualize it using::
 
-    lincs visualize classification-model domain.yml model.yml model.png
+    lincs visualize classification-model problem.yml model.yml model.png
 
 .. STOP
 
@@ -270,7 +270,7 @@ It should output something like:
 
 And finally generate a set of classified alternatives (@todo Link to concepts and file formats)::
 
-    lincs generate classified-alternatives domain.yml model.yml 1000 --output-classified-alternatives learning-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 1000 --output-classified-alternatives learning-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
@@ -304,7 +304,7 @@ It should start with something like this, and contain 1000 alternatives::
 
 You can visualize its first five alternatives using::
 
-    lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
+    lincs visualize classification-model problem.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
 
 .. STOP
 
@@ -329,7 +329,7 @@ You now have a (synthetic) learning set.
 You can use it to train a new model::
 
     # @todo Rename the command to `train`?
-    lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
+    lincs learn classification-model problem.yml learning-set.csv --output-model trained-model.yml
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
 .. STOP
@@ -338,7 +338,7 @@ You can use it to train a new model::
 
 .. START command-line-example/expected-trained-model.yml
 
-The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain.
+The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same problem.
 The learning set doesn't contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
 so it is numerically different::
@@ -386,7 +386,7 @@ To see how close a trained model is to the original one, you can reclassify a te
 
 First, generate a testing set::
 
-    lincs generate classified-alternatives domain.yml model.yml 10000 --output-classified-alternatives testing-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 10000 --output-classified-alternatives testing-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 44
 .. STOP
@@ -397,7 +397,7 @@ First, generate a testing set::
 
 And ask the trained model to classify it::
 
-    lincs classify domain.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
+    lincs classify problem.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
 
 .. STOP
 
@@ -455,7 +455,7 @@ That command should show a few alternatives that are not classified the same way
 
 You can also measure the classification accuracy of the trained model on that testing set::
 
-    lincs classification-accuracy domain.yml trained-model.yml testing-set.csv
+    lincs classification-accuracy problem.yml trained-model.yml testing-set.csv
 
 .. APPEND-TO-LAST-LINE >classification-accuracy.txt
 .. STOP

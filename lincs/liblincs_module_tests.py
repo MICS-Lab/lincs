@@ -5,111 +5,111 @@ import unittest
 from . import *
 
 
-class DomainTestCase(unittest.TestCase):
+class ProblemTestCase(unittest.TestCase):
     def test_init_empty(self):
-        domain = Domain([], [])
-        self.assertEqual(len(domain.criteria), 0)
-        self.assertEqual(len(domain.categories), 0)
+        problem = Problem([], [])
+        self.assertEqual(len(problem.criteria), 0)
+        self.assertEqual(len(problem.categories), 0)
 
     def test_init_wrong_types(self):
         with self.assertRaises(TypeError):
-            Domain()
+            Problem()
         with self.assertRaises(TypeError):
-            Domain([])
+            Problem([])
         with self.assertRaises(TypeError):
-            Domain([0], [])
+            Problem([0], [])
         with self.assertRaises(TypeError):
-            Domain([], [0])
+            Problem([], [0])
         with self.assertRaises(TypeError):
-            Domain([], [], 0)
+            Problem([], [], 0)
 
     def test_init_one_criterion(self):
-        domain = Domain([Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)], [])
-        self.assertEqual(len(domain.criteria), 1)
-        self.assertEqual(domain.criteria[0].name, "Criterion name")
-        self.assertEqual(domain.criteria[0].value_type, ValueType.real)
-        self.assertEqual(domain.criteria[0].category_correlation, CategoryCorrelation.growing)
+        problem = Problem([Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)], [])
+        self.assertEqual(len(problem.criteria), 1)
+        self.assertEqual(problem.criteria[0].name, "Criterion name")
+        self.assertEqual(problem.criteria[0].value_type, ValueType.real)
+        self.assertEqual(problem.criteria[0].category_correlation, CategoryCorrelation.growing)
 
     def test_assign_criterion_attributes(self):
         # @todo (When there are more values in ValueType and CategoryCorrelation) Use other values in constructor
-        domain = Domain([Criterion("Wrong criterion", ValueType.real, CategoryCorrelation.growing)], [])
-        domain.criteria[0].name = "Criterion name"
-        domain.criteria[0].value_type = ValueType.real
-        domain.criteria[0].category_correlation = CategoryCorrelation.growing
-        self.assertEqual(domain.criteria[0].name, "Criterion name")
-        self.assertEqual(domain.criteria[0].value_type, ValueType.real)
-        self.assertEqual(domain.criteria[0].category_correlation, CategoryCorrelation.growing)
+        problem = Problem([Criterion("Wrong criterion", ValueType.real, CategoryCorrelation.growing)], [])
+        problem.criteria[0].name = "Criterion name"
+        problem.criteria[0].value_type = ValueType.real
+        problem.criteria[0].category_correlation = CategoryCorrelation.growing
+        self.assertEqual(problem.criteria[0].name, "Criterion name")
+        self.assertEqual(problem.criteria[0].value_type, ValueType.real)
+        self.assertEqual(problem.criteria[0].category_correlation, CategoryCorrelation.growing)
 
     def test_assign_criterion(self):
-        domain = Domain([Criterion("Wrong criterion", ValueType.real, CategoryCorrelation.growing)], [])
-        domain.criteria[0] = Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)
-        self.assertEqual(domain.criteria[0].name, "Criterion name")
+        problem = Problem([Criterion("Wrong criterion", ValueType.real, CategoryCorrelation.growing)], [])
+        problem.criteria[0] = Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)
+        self.assertEqual(problem.criteria[0].name, "Criterion name")
 
     def test_append_criterion(self):
-        domain = Domain([], [])
-        domain.criteria.append(Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing))
-        self.assertEqual(len(domain.criteria), 1)
+        problem = Problem([], [])
+        problem.criteria.append(Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing))
+        self.assertEqual(len(problem.criteria), 1)
 
     def test_assign_criteria_slice(self):
-        domain = Domain([], [])
-        domain.criteria[:] = [Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)]
-        self.assertEqual(len(domain.criteria), 1)
+        problem = Problem([], [])
+        problem.criteria[:] = [Criterion("Criterion name", ValueType.real, CategoryCorrelation.growing)]
+        self.assertEqual(len(problem.criteria), 1)
 
     def test_init_one_category(self):
-        domain = Domain([], [Category("Category name")])
-        self.assertEqual(len(domain.categories), 1)
-        self.assertEqual(domain.categories[0].name, "Category name")
+        problem = Problem([], [Category("Category name")])
+        self.assertEqual(len(problem.categories), 1)
+        self.assertEqual(problem.categories[0].name, "Category name")
 
     def test_assign_category_attributes(self):
-        domain = Domain([], [Category("Wrong category")])
-        domain.categories[0].name = "Category name"
-        self.assertEqual(domain.categories[0].name, "Category name")
+        problem = Problem([], [Category("Wrong category")])
+        problem.categories[0].name = "Category name"
+        self.assertEqual(problem.categories[0].name, "Category name")
 
     def test_assign_category(self):
-        domain = Domain([], [Category("Wrong category")])
-        domain.categories[0] = Category("Category name")
-        self.assertEqual(domain.categories[0].name, "Category name")
+        problem = Problem([], [Category("Wrong category")])
+        problem.categories[0] = Category("Category name")
+        self.assertEqual(problem.categories[0].name, "Category name")
 
     def test_append_category(self):
-        domain = Domain([], [])
-        domain.categories.append(Category("Category name"))
-        self.assertEqual(len(domain.categories), 1)
+        problem = Problem([], [])
+        problem.categories.append(Category("Category name"))
+        self.assertEqual(len(problem.categories), 1)
 
     def test_assign_categories_slice(self):
-        domain = Domain([], [])
-        domain.categories[:] = [Category("Category name")]
-        self.assertEqual(len(domain.categories), 1)
+        problem = Problem([], [])
+        problem.categories[:] = [Category("Category name")]
+        self.assertEqual(len(problem.categories), 1)
 
 
 class ModelTestCase(unittest.TestCase):
     def test_init_empty(self):
-        domain = Domain([], [])
-        model = Model(domain, [])
+        problem = Problem([], [])
+        model = Model(problem, [])
         self.assertEqual(len(model.boundaries), 0)
 
     def test_init_wrong_types(self):
-        domain = Domain([], [])
+        problem = Problem([], [])
         with self.assertRaises(TypeError):
             Model()
         with self.assertRaises(TypeError):
-            Model(domain)
+            Model(problem)
         with self.assertRaises(TypeError):
-            Model(domain, 0)
+            Model(problem, 0)
         with self.assertRaises(TypeError):
             Model(0, [])
         with self.assertRaises(TypeError):
-            Model(domain, [0])
+            Model(problem, [0])
 
     def test_init_one_empty_boundary(self):
-        domain = Domain([], [])
-        model = Model(domain, [Boundary([], SufficientCoalitions(SufficientCoalitionsKind.weights, []))])
+        problem = Problem([], [])
+        model = Model(problem, [Boundary([], SufficientCoalitions(SufficientCoalitionsKind.weights, []))])
         self.assertEqual(len(model.boundaries), 1)
         self.assertEqual(len(model.boundaries[0].profile), 0)
         self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitionsKind.weights)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
 
     def test_init_three_criteria_two_categories(self):
-        domain = Domain(
+        problem = Problem(
             [
                 Criterion("Criterion 1", ValueType.real, CategoryCorrelation.growing),
                 Criterion("Criterion 2", ValueType.real, CategoryCorrelation.growing),
@@ -120,7 +120,7 @@ class ModelTestCase(unittest.TestCase):
             ],
         )
         model = Model(
-            domain,
+            problem,
             [
                 Boundary(
                     [5., 5., 5],
@@ -133,33 +133,33 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 3)
 
     def test_assign_model_attributes(self):
-        domain = Domain([], [])
-        model = Model(domain, [])
+        problem = Problem([], [])
+        model = Model(problem, [])
         model.boundaries = [Boundary([], SufficientCoalitions(SufficientCoalitionsKind.weights, []))]
         self.assertEqual(len(model.boundaries), 1)
 
 
 class AlternativesTestCase(unittest.TestCase):
     def test_init_empty(self):
-        domain = Domain([], [])
-        alternatives = Alternatives(domain, [])
+        problem = Problem([], [])
+        alternatives = Alternatives(problem, [])
         self.assertEqual(len(alternatives.alternatives), 0)
 
     def test_init_wrong_types(self):
-        domain = Domain([], [])
+        problem = Problem([], [])
         with self.assertRaises(TypeError):
             Alternatives()
         with self.assertRaises(TypeError):
-            Alternatives(domain)
+            Alternatives(problem)
         with self.assertRaises(TypeError):
-            Alternatives(domain, 0)
+            Alternatives(problem, 0)
         with self.assertRaises(TypeError):
             Alternatives(0, [])
         with self.assertRaises(TypeError):
-            Alternatives(domain, [0])
+            Alternatives(problem, [0])
 
     def test_init_three_criteria_two_categories(self):
-        domain = Domain(
+        problem = Problem(
             [
                 Criterion("Criterion 1", ValueType.real, CategoryCorrelation.growing),
                 Criterion("Criterion 2", ValueType.real, CategoryCorrelation.growing),
@@ -170,7 +170,7 @@ class AlternativesTestCase(unittest.TestCase):
             ],
         )
         alternatives = Alternatives(
-            domain,
+            problem,
             [
                 Alternative("First alternative", [5., 5., 5], "Category 1"),
                 Alternative("Second alternative", [1., 2., 3.], None),
@@ -194,11 +194,11 @@ class AlternativesTestCase(unittest.TestCase):
 
 class MrSortLearningTestCase(unittest.TestCase):
     def test_basic_mrsort_learning(self):
-        domain = generate_domain(5, 3, 41)
-        model = generate_mrsort_model(domain, 42)
-        learning_set = generate_alternatives(domain, model, 200, 43)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
-        models = make_models(domain, learning_set, 9, 44)
+        models = make_models(problem, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
@@ -211,19 +211,19 @@ class MrSortLearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
-        result = classify_alternatives(domain, learned_model, learning_set)
+        result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(domain, model, 1000, 44)
-        result = classify_alternatives(domain, learned_model, testing_set)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
+        result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
 
     def test_python_termination_strategy(self):
-        domain = generate_domain(5, 3, 41)
-        model = generate_mrsort_model(domain, 42)
-        learning_set = generate_alternatives(domain, model, 200, 43)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         class MyTerminationStrategy(TerminationStrategy):
             def __init__(self):
@@ -235,7 +235,7 @@ class MrSortLearningTestCase(unittest.TestCase):
                 self.accuracies.append(best_accuracy)
                 return iteration_index == 2
 
-        models = make_models(domain, learning_set, 9, 44)
+        models = make_models(problem, learning_set, 9, 44)
         termination_strategy = MyTerminationStrategy()
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
@@ -250,21 +250,21 @@ class MrSortLearningTestCase(unittest.TestCase):
 
         self.assertEqual(termination_strategy.accuracies, [0, 176, 186])
 
-        result = classify_alternatives(domain, learned_model, learning_set)
+        result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 14)
         self.assertEqual(result.unchanged, 186)
 
-        testing_set = generate_alternatives(domain, model, 1000, 44)
-        result = classify_alternatives(domain, learned_model, testing_set)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
+        result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 96)
         self.assertEqual(result.unchanged, 904)
 
     def test_gpu_mrsort_learning(self):
-        domain = generate_domain(5, 3, 41)
-        model = generate_mrsort_model(domain, 42)
-        learning_set = generate_alternatives(domain, model, 200, 43)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
-        models = make_models(domain, learning_set, 9, 44)
+        models = make_models(problem, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
@@ -278,11 +278,11 @@ class MrSortLearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
-        result = classify_alternatives(domain, learned_model, learning_set)
+        result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(domain, model, 1000, 44)
-        result = classify_alternatives(domain, learned_model, testing_set)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
+        result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
