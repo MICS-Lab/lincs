@@ -5,10 +5,42 @@ Get started
 ===========
 
 
-Install *lincs*
-===============
+Get *lincs*
+===========
 
+You have two options: use the Docker image or an actual system install.
+We recommend the Docker image for now, as it's easier to get started with,
+but the actual install is totally viable on Ubuntu 22.04 if you wish.
+We plan to publish binary wheels on PyPI for popular platforms to make system install easier in the future.
 @todo Support other operating systems than Ubuntu 22.04
+
+Get and run the Docker image
+----------------------------
+
+.. highlight:: shell
+
+Get the image::
+
+    docker pull jacquev6/lincs
+
+Run the image::
+
+    docker run --rm -it jacquev6/lincs
+
+This will put you in a basic Ubuntu shell with the ``lincs`` command-line interface installed.
+You can skip the next section and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
+
+More details about the Docker image: the default tag ``latest`` always points at the latest published version of *lincs*.
+`Other tags <https://hub.docker.com/repository/docker/jacquev6/lincs/tags>`_ are available for specific versions, *e.g.* ``jacquev6/lincs:0.3.7``.
+
+Make sure to get familiar with Docker and containers: in particular, all changes you make in the container will be lost when you exit it.
+You'll need to use the ``--volume`` option to access your local filesystem from within the container.
+See `Docker documentation <https://docs.docker.com/>`_ for more information.
+
+Install *lincs* on your Ubuntu 22.04 system
+-------------------------------------------
+
+For now, *lincs* only runs on Ubuntu 22.04 and we highly recommend you don't waste your time trying to make it work somewhere else.
 
 .. highlight:: shell
 
@@ -102,6 +134,8 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
 
 Finally, *lincs* is available on the `Python Package Index <https://pypi.org/project/lincs/>`_, so ``pip install lincs`` should finalize the install.
 
+
+.. _start-command-line:
 
 Start using *lincs*' command-line interface
 ===========================================

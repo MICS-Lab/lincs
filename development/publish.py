@@ -19,7 +19,7 @@ def main(level):
     new_version = bump_version(level)
     update_changelog(new_version)
     build_sphinx_documentation()
-    publish_to_pypi(new_version)
+    publish(new_version)
     prepare_next_version(new_version)
 
 
@@ -110,7 +110,7 @@ def update_changelog(new_version):
     input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
 
 
-def publish_to_pypi(new_version):
+def publish(new_version):
     shutil.rmtree("dist", ignore_errors=True)
     shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("lincs.egg-info", ignore_errors=True)
@@ -120,6 +120,16 @@ def publish_to_pypi(new_version):
     subprocess.run(["python3", "-m", "build", "--sdist"], check=True)
     subprocess.run(["twine", "check"] + glob.glob("dist/*.tar.gz"), check=True)
     subprocess.run(["twine", "upload"] + glob.glob("dist/*.tar.gz"), check=True)
+
+    subprocess.run([
+        "docker", "build",
+        "--build-arg", f"LINCS_VERSION={new_version}",
+        "--tag", f"jacquev6/lincs:{new_version}",
+        "--tag", "jacquev6/lincs:latest",
+        "docker"
+    ], check=True)
+    subprocess.run(["docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
+    subprocess.run(["docker", "push", "jacquev6/lincs:latest"], check=True)
 
     subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)
