@@ -55,3 +55,7 @@ extensions.append("sphinxcontrib.details.directive")
 # MathJax
 
 extensions.append("sphinx.ext.mathjax")
+
+# GraphViz
+
+extensions.append("sphinx.ext.graphviz")

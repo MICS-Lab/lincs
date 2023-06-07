@@ -13,6 +13,7 @@ RUN set -x \
       g++ \
       git \
       gpg-agent \
+      graphviz \
       libboost-python-dev \
       libyaml-cpp-dev \
       python3-dev \
