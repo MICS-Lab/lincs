@@ -64,6 +64,7 @@ Get started
 Depending on your favorite approach, you can either start with our `hands-on "Get started" guide <https://mics-lab.github.io/lincs/get-started.html>`_
 or with our `conceptual overview documentation <https://mics-lab.github.io/lincs/conceptual-overview.html>`_.
 The former will show you how to use our tools, the latter will explain the concepts behind them: what's MCDA, what are NCS models, *etc.*
+If in doubt, start with the conceptual overview.
 We highly recommend you read the other one just after.
 
 Once you've used *lincs* a bit, you can follow up with our `user guide <https://mics-lab.github.io/lincs/user-guide.html>`_
