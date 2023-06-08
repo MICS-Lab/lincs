@@ -32,10 +32,10 @@ The alternatives file
 
 @todo Write
 
-.. _ref-file-model:
+.. _ref-file-ncs-model:
 
-The model file
---------------
+The NCS model file
+------------------
 
 @todo Write (or generate from a JSON Schema?)
 

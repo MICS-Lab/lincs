@@ -10,7 +10,7 @@ criteria:
 categories:
   - name: Bad
   - name: Good
-kind: classification-model
+kind: ncs-classification-model
 format_version: 1
 boundaries:
   - profile:

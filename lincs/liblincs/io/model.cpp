@@ -52,7 +52,7 @@ namespace lincs {
 
 void Model::dump(std::ostream& os) const {
   YAML::Node node;
-  node["kind"] = "classification-model";
+  node["kind"] = "ncs-classification-model";
   node["format_version"] = 1;
   node["boundaries"] = boundaries;
 
@@ -62,7 +62,7 @@ void Model::dump(std::ostream& os) const {
 Model Model::load(const Problem& problem, std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
-  assert(node["kind"].as<std::string>() == "classification-model");
+  assert(node["kind"].as<std::string>() == "ncs-classification-model");
   assert(node["format_version"].as<int>() == 1);
 
   return Model(problem, node["boundaries"].as<std::vector<Boundary>>());

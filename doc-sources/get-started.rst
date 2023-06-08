@@ -231,7 +231,7 @@ You can edit this file to change the criteria names, the number of categories, *
 
 .. EXTEND command-line-example/run.sh
 
-Then generate a classification model (@todo Link to concepts and file formats)::
+Then generate an NCS classification model (@todo Link to concepts and file formats)::
 
     lincs generate classification-model problem.yml --output-model model.yml
 
@@ -244,7 +244,7 @@ Then generate a classification model (@todo Link to concepts and file formats)::
 
 It should look like::
 
-    kind: classification-model
+    kind: ncs-classification-model
     format_version: 1
     boundaries:
       - profile:
@@ -377,7 +377,7 @@ The learning set doesn't contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
 so it is numerically different::
 
-    kind: classification-model
+    kind: ncs-classification-model
     format_version: 1
     boundaries:
       - profile:

@@ -10,7 +10,7 @@ criteria:
 categories:
   - name: Fail
   - name: Pass
-kind: classification-model
+kind: ncs-classification-model
 format_version: 1
 boundaries:
   - profile:
@@ -22,7 +22,7 @@ boundaries:
         - 0.400000006
         - 0.699999988
 
-kind: classification-model
+kind: ncs-classification-model
 format_version: 1
 boundaries:
   - profile:

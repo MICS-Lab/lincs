@@ -19,7 +19,8 @@ This vocabulary is voluntarily abstract to allow for a wide range of application
 Let's say you want to assign scholarships to students based on their academic performances.
 Your funding policy might be that students with the best grades should get the best scholarships.
 And you might want to favor younger students, and/or students coming from more modest backgrounds.
-In this example, the categories are the different scholarships, the alternatives are the students, and the criteria are grades on each topic, age and family income.
+In this example, the categories are the different scholarships, the alternatives are the students,
+and the criteria are grades on each topic, age and family income.
 For a given student, their performances are their actual grades on each topic, their age and their family income.
 
 The same vocabulary could apply to triaging patients in an hospital based on vital signs.
@@ -35,6 +36,9 @@ The same vocabulary could apply to triaging patients in an hospital based on vit
 
   In that setting, alternatives are the Cartesian product of the criteria: :math:`X = \prod_{i \in \{1, ..., n\}} X_i`.
   For a given alternative :math:`x = (x_1, ..., x_n) \in X`, its performance on criterion :math:`i` is :math:`x_i \in X_i`.
+
+*lincs* stores and reads information about the classification problem using :ref:`the YAML problem file format <ref-file-problem>`.
+Alternatives are stored and read using :ref:`the CSV alternatives file format <ref-file-alternatives>`.
 
 
 Learning and classifying
@@ -60,7 +64,7 @@ There are many "families" of models, *i.e.* sets of models that share the same g
 NCS models are one such family.
 
 An NCS model defines a "lower performance profile" for each category.
-It then assigns an alternative to a good category if it has performances above that category's lower profiles on a sufficient set of the criteria.
+It then assigns an alternative to a good category if that alternative has performances above that category's lower profiles on a sufficient set of the criteria.
 Sets of criteria are called "coalitions".
 NCS models allow for several ways to reach the minimum performance level to be assigned to a category,
 so sufficient criteria for a category are not a *single* coalition, but actually a *set* of coalitions.
@@ -79,9 +83,9 @@ Additionally, this set of coalitions can be different for each category.
 
   With the following constraints:
 
-  - the profiles must be ordered to match the order on the set of categories: :math:`b^h_i \preccurlyeq_i b^{h + 1}_i` for each category :math:`h \in \{2, ..., p - 1\}` and each criterion :math:`i \in \{1, ..., n\}`
-  - each category's set of sufficient coalitions :math:`\mathcal{F}^h` must be up-closed by inclusion: if :math:`S \in \mathcal{F}^h` and :math:`S \subset T \in \mathcal{P}(\{1, ..., n\})`, then :math:`T \in \mathcal{F}^h`. This matches the intuition that they are *sufficient* criteria: if a few criteria are sufficient, then more criteria are still sufficient
-  - sufficient coalitions must be imbricated: :math:`\mathcal{F}^2 \supseteq ... \supseteq \mathcal{F}^p`. This matches the intuition that upper categories are more selective than lower ones
+  - the profiles must be ordered: :math:`b^h_i \preccurlyeq_i b^{h + 1}_i` for each category :math:`h \in \{2, ..., p - 1\}` and each criterion :math:`i \in \{1, ..., n\}`
+  - each category's set of sufficient coalitions :math:`\mathcal{F}^h` must be up-closed by inclusion: if :math:`S \in \mathcal{F}^h` and :math:`S \subset T \in \mathcal{P}(\{1, ..., n\})`, then :math:`T \in \mathcal{F}^h`
+  - sufficient coalitions must be imbricated: :math:`\mathcal{F}^2 \supseteq ... \supseteq \mathcal{F}^p`
 
   This NCS model assigns an alternative :math:`x = (x_1, ..., x_n) \in X` to the best category :math:`C^h`
   such that the criteria on which :math:`x` has performances above that category's lower profile are sufficient,
@@ -89,12 +93,20 @@ Additionally, this set of coalitions can be different for each category.
 
   .. math::
 
-    f: x \mapsto \max (\{1\} \cup \{ h \in \{2, ..., p\}: \{ i \in \{1, ..., n\}: x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \})
+    f: x \mapsto C^\max (\{1\} \cup \{ h \in \{2, ..., p\}: \{ i \in \{1, ..., n\}: x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \})
 
 This definition may differ slightly from the one you're used to, but it should be formally equivalent.
 We use it in *lincs* because it is somewhat simple and matches the implementation quite well.
 We detail its equivalence to other common definitions in the following appendix:
 @todo Write appendix about equivalence of definitions (:math:`h` is shifted by 1, assignment to category is a max instead of two conditions)
+
+The constraints in the definition all ensure NDS models behave according to intuition:
+
+- the ordering of profiles ensures consistency with the order on categories
+- the up-closed-ness-by-inclusion(!) of the sufficient coalitions matches the intuition that they are *sufficient* criteria: if a few criteria are sufficient, then more criteria are still sufficient
+- the imbrication of sufficient coalitions matches the intuition that upper categories are more selective than lower ones
+
+NCS classification models are stored and read using :ref:`the YAML NCS model file format <ref-file-ncs-model>`.
 
 Example
 -------
@@ -111,11 +123,11 @@ Grades have the form :math:`x = (x_M, x_P, x_L, x_H) \in X`.
 Let's consider the following NCS model:
 
 - :math:`b^2 = (b^2_M, b^2_P, b^2_L, b^2_H) = (0.6, 0.55, 0.7, 0.5)`
-- :math:`\mathcal{F}^2 = \{ \{M, L\}, \{M, H\}, \{P, L\}, \{P, H\}, \{M, P, L\}, \{M, P, H\}, \br \{M, L, H\}, \{P, L, H\}, \{M, P, L, H\} \}`
+- :math:`\mathcal{F}^2 = \{ \{M, L\}, \{M, H\}, \{P, L\}, \{P, H\}, \{M, P, L\}, \{M, P, H\}, \{M, L, H\}, \{P, L, H\}, \{M, P, L, H\} \}`
 - :math:`b^3 = (b^3_M, b^3_P, b^3_L, b^3_H) = (0.75, 0.9, 0.8, 0.65)`
 - :math:`\mathcal{F}^3 = \{ \{M, P, L\}, \{M, P, H\}, \{M, L, H\}, \{P, L, H\}, \{M, P, L, H\} \}`
 
-We let you check that the constraints of NCS models are satisfied:
+You can check that the constraints of NCS models are satisfied:
 
 - :math:`b^2_i \preccurlyeq_i b^3_i` for :math:`i \in \{M, P, L, H\}`
 - :math:`\mathcal{F}^2` and :math:`\mathcal{F}^3` are up-closed by inclusion
@@ -338,6 +350,8 @@ This simplification captures the idea that in many cases, the same criteria are 
 
     - there is a single :math:`\mathcal{F} \subseteq \mathcal{P}(\{1, ..., n\})` such that :math:`\mathcal{F}^h = \mathcal{F}` for each category :math:`h \in \{2, ..., p\}`
 
+In the previous model example, :math:`\mathcal{F}^2 \ne \mathcal{F}^3`, so it is not a :math:`U^c \textsf{-} NCS` model.
+
 :math:`1 \textsf{-} U^c \textsf{-} NCS` *a.k.a.* MR-Sort
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -360,7 +374,31 @@ Again, this definition differs slightly from others in the literature.
 We detail their equivalence in this appendix:
 @todo Write appendix about equivalence of definitions (weights are de-normalized, :math:`\lambda` is 1)
 
-@todo Add example of NCS model that is not MR-Sort
+Example
+.......
+
+Let's consider a simplified form of our previous model example, with only the two categories :math:`C^1` and :math:`C^2`,
+and the same profile :math:`b^2` and sufficient coalitions :math:`\mathcal{F}^2` as before.
+Is it an MR-Sort model?
+To answer this question, we can try to find weights :math:`w_M`, :math:`w_P`, :math:`w_L`, :math:`w_H` such that
+:math:`\mathcal{F}^2 = \{ S \in \mathcal{P}(\{M, P, L, H\}): \sum_{i \in S} w_i \geq 1 \}`.
+This gives us :math:`|\mathcal{P}(\{M, P, L, H\})| = 16` equations, amongst which the following 6 are of interest:
+
+- :math:`w_M + w_P \lt 1` (because :math:`\{M, P\} \notin \mathcal{F}^2`)
+- :math:`w_L + w_H \lt 1` (because :math:`\{L, H\} \notin \mathcal{F}^2`)
+- :math:`w_M + w_L \ge 1` (because :math:`\{M, L\} \in \mathcal{F}^2`)
+- :math:`w_P + w_L \ge 1` (because :math:`\{P, L\} \in \mathcal{F}^2`)
+- :math:`w_M + w_H \ge 1` (because :math:`\{M, H\} \in \mathcal{F}^2`)
+- :math:`w_P + w_H \ge 1` (because :math:`\{P, H\} \in \mathcal{F}^2`)
+
+Summing the first two equations gives :math:`w_M + w_P + w_L + w_H \lt 2`, and summing teh last four gives :math:`w_M + w_P + w_L + w_H \ge 2`,
+so there is no solution, and that model is not MR-Sort.
+
+By contrast, the coalitions :math:`\mathcal{F}^3` of the previous model example can be expressed using the following weights:
+:math:`w_M = 0.4`, :math:`w_P = 0.4`, :math:`w_L = 0.4`, :math:`w_H = 0.4`: coalitions of at most two criteria have weights sums less than 1,
+and coalitions of at least 3 criteria have weights sums greater than 1.
+
+Intuitively, MR-Sort models can express slightly fewer differences in the importance of criteria than :math:`U^c \textsf{-} NCS` models.
 
 
 Synthetic data
@@ -373,21 +411,7 @@ and use them as a training set to learn a new model.
 Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the algorithm.
 
 *lincs* provides ways to generate synthetic pseudo-random problems, models and training sets.
-
-
-Files
-=====
-
-Before starting, *lincs* needs to know basic things about the structure of the alternatives you care about and the categories they can belong to, *i.e.* your problem.
-It is described in the problem file in YAML format.
-It's specified in :ref:`the problem file format <ref-file-problem>`.
-
-The training set is expected in CSV format.
-It's specified in :ref:`the alternatives file format <ref-file-alternatives>`.
-
-Finally, NCS models are described in YAML format, as specified in :ref:`the model file format <ref-file-model>`.
-
-The same formats are used for synthetic and real-world data.
+The same file formats are used for synthetic and real-world data.
 
 
 Next
