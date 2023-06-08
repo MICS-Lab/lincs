@@ -5,16 +5,48 @@ Get started
 ===========
 
 
-Install *lincs*
-===============
+Get *lincs*
+===========
 
+You have two options: use the Docker image or actually install *lincs* on your system.
+We recommend the Docker image for now, as it's easier to get started with,
+but the actual install is viable on Ubuntu 22.04 if you wish.
+We plan to publish binary wheels on PyPI for popular platforms to make system install easier in the future.
 @todo Support other operating systems than Ubuntu 22.04
+
+Get and run the Docker image
+----------------------------
+
+.. highlight:: shell
+
+Get the image::
+
+    docker pull jacquev6/lincs
+
+Run the image::
+
+    docker run --rm -it jacquev6/lincs
+
+This will put you in a basic Ubuntu shell with the ``lincs`` command-line interface installed.
+You can skip the next section and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
+
+More details about the Docker image: the default tag ``latest`` always points at the latest published version of *lincs*.
+`Other tags <https://hub.docker.com/repository/docker/jacquev6/lincs/tags>`_ are available for specific versions, *e.g.* ``jacquev6/lincs:0.3.7``.
+
+Make sure to get familiar with Docker and containers: in particular, all changes you make in the container will be lost when you exit it.
+You'll need to use the ``--volume`` option to access your local filesystem from within the container.
+See `Docker documentation <https://docs.docker.com/>`_ for more information.
+
+Install *lincs* on your Ubuntu 22.04 system
+-------------------------------------------
+
+For now, *lincs* only runs on Ubuntu 22.04 and we highly recommend you don't waste your time trying to make it work somewhere else.
 
 .. highlight:: shell
 
 .. START install/dependencies.sh
 
-First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier)::
+First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier. SOON because this is getting really cumbersome)::
 
     # System packages
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
@@ -24,6 +56,7 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /'
     sudo apt-get update
     sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
+    export PATH=/usr/local/cuda-12.1/bin:$PATH
 
     # OR-tools
     wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
@@ -32,6 +65,16 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib
     sudo ldconfig
     rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+
+    # Alglib
+    wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz
+    tar xf alglib-4.00.0.cpp.gpl.tgz
+    cd alglib-cpp/src
+    for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done
+    ar rcs libalglib.a *.o
+    sudo mkdir /usr/local/include/alglib
+    sudo cp -r *.h /usr/local/include/alglib
+    sudo cp -r libalglib.a /usr/local/lib
 
     # Header-only libraries
     cd /usr/local/include
@@ -68,6 +111,9 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
 
 .. STOP
 
+.. START install/is-long
+.. STOP
+
 .. START install/run.sh
     set -o errexit
     set -o nounset
@@ -81,7 +127,8 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
       cat dependencies.sh \
       | grep -v -e '^#' -e '^$' \
       | sed 's/^/RUN /' \
-      | sed 's/^RUN cd/WORKDIR/'
+      | sed 's/^RUN cd/WORKDIR/' \
+      | sed 's/^RUN export/ENV/'
       echo
       cat Dockerfile-post
     ) >Dockerfile
@@ -97,6 +144,8 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
 
 Finally, *lincs* is available on the `Python Package Index <https://pypi.org/project/lincs/>`_, so ``pip install lincs`` should finalize the install.
 
+
+.. _start-command-line:
 
 Start using *lincs*' command-line interface
 ===========================================
@@ -147,20 +196,20 @@ It's organized using sub-commands, the first one being ``generate``, to generate
 
 .. EXTEND command-line-example/run.sh
 
-Generate a classification domain with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
+Generate a classification problem with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
 
-    lincs generate classification-domain 4 3 --output-domain domain.yml
+    lincs generate classification-problem 4 3 --output-problem problem.yml
 
 .. APPEND-TO-LAST-LINE --random-seed 40
 .. STOP
 
 .. highlight:: yaml
 
-.. START command-line-example/expected-domain.yml
+.. START command-line-example/expected-problem.yml
 
-The generated ``domain.yml`` should look like::
+The generated ``problem.yml`` should look like::
 
-    kind: classification-domain
+    kind: classification-problem
     format_version: 1
     criteria:
       - name: Criterion 1
@@ -182,17 +231,19 @@ The generated ``domain.yml`` should look like::
 
 .. STOP
 
+You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
+
 .. EXTEND command-line-example/run.sh
-    diff expected-domain.yml domain.yml
+    diff expected-problem.yml problem.yml
 .. STOP
 
 .. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
-Then generate a classification model (@todo Link to concepts and file formats)::
+Then generate an NCS classification model (@todo Link to concepts and file formats)::
 
-    lincs generate classification-model domain.yml --output-model model.yml
+    lincs generate classification-model problem.yml --output-model model.yml
 
 .. APPEND-TO-LAST-LINE --random-seed 41
 .. STOP
@@ -203,7 +254,7 @@ Then generate a classification model (@todo Link to concepts and file formats)::
 
 It should look like::
 
-    kind: classification-model
+    kind: ncs-classification-model
     format_version: 1
     boundaries:
       - profile:
@@ -245,7 +296,7 @@ It should look like::
 
 You can visualize it using::
 
-    lincs visualize classification-model domain.yml model.yml model.png
+    lincs visualize classification-model problem.yml model.yml model.png
 
 .. STOP
 
@@ -263,10 +314,14 @@ It should output something like:
 
 And finally generate a set of classified alternatives (@todo Link to concepts and file formats)::
 
-    lincs generate classified-alternatives domain.yml model.yml 1000 --output-classified-alternatives learning-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 1000 --output-classified-alternatives learning-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
+
+@todo Should we provide utilities to split a set of alternatives into a training set and a testing set?
+Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
+Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
 
 .. highlight:: text
 
@@ -293,7 +348,7 @@ It should start with something like this, and contain 1000 alternatives::
 
 You can visualize its first five alternatives using::
 
-    lincs visualize classification-model domain.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
+    lincs visualize classification-model problem.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
 
 .. STOP
 
@@ -307,11 +362,7 @@ It should output something like:
     :alt: Alternatives visualization
     :align: center
 
-@todo Improve how this graph looks:
-
-- display categories as stacked solid colors
-- display alternatives in a color that matches their assigned category
-- remove the legend, place names (categories and alternatives) directly on the graph
+@todo Remove the legend, place names (categories and alternatives) directly on the graph
 
 You now have a (synthetic) learning set.
 
@@ -322,7 +373,7 @@ You now have a (synthetic) learning set.
 You can use it to train a new model::
 
     # @todo Rename the command to `train`?
-    lincs learn classification-model domain.yml learning-set.csv --output-model trained-model.yml
+    lincs learn classification-model problem.yml learning-set.csv --output-model trained-model.yml
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
 .. STOP
@@ -331,10 +382,12 @@ You can use it to train a new model::
 
 .. START command-line-example/expected-trained-model.yml
 
-The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same domain,
-but the trained model is numerically different because information was lost in the process::
+The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same problem.
+The learning set doesn't contain all the information from the original model,
+and the trained model was reconstituted from this partial information,
+so it is numerically different::
 
-    kind: classification-model
+    kind: ncs-classification-model
     format_version: 1
     boundaries:
       - profile:
@@ -368,7 +421,7 @@ but the trained model is numerically different because information was lost in t
     diff expected-trained-model.yml trained-model.yml
 .. STOP
 
-If the training is effective, the resulting trained model should behave closely to the original one.
+If the training is effective, the resulting trained model should however behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
 .. highlight:: shell
@@ -377,7 +430,7 @@ To see how close a trained model is to the original one, you can reclassify a te
 
 First, generate a testing set::
 
-    lincs generate classified-alternatives domain.yml model.yml 10000 --output-classified-alternatives testing-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 10000 --output-classified-alternatives testing-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 44
 .. STOP
@@ -388,7 +441,7 @@ First, generate a testing set::
 
 And ask the trained model to classify it::
 
-    lincs classify domain.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
+    lincs classify problem.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
 
 .. STOP
 
@@ -446,7 +499,7 @@ That command should show a few alternatives that are not classified the same way
 
 You can also measure the classification accuracy of the trained model on that testing set::
 
-    lincs classification-accuracy domain.yml trained-model.yml testing-set.csv
+    lincs classification-accuracy problem.yml trained-model.yml testing-set.csv
 
 .. APPEND-TO-LAST-LINE >classification-accuracy.txt
 .. STOP
@@ -470,5 +523,9 @@ What now?
 =========
 
 If you haven't done so yet, we recommend you now read our :doc:`conceptual overview documentation <conceptual-overview>`.
+
+Keep in mind that we've only demonstrated the default learning strategy in this guide.
+This package implements several strategies accessible via options of ``lincs learn``.
+See the :ref:`learning strategies documentation <user-learning-strategies>` in our user guide for more details.
 
 Once you're comfortable with the concepts and tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.

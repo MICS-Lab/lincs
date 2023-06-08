@@ -4,6 +4,17 @@
 Changelog
 =========
 
+Version 0.4.0
+=============
+
+- Add a GPU (CUDA) implementation of the accuracy heuristic strategy for the "weights, profiles, breed" learning method
+- Introduce Alglib as a LP solver for the "weights, profiles, breed" learning method
+- Publish a Docker image with *lincs* installed
+- Change "domain" to "problem" everywhere
+- Improve documentation
+- Improve model and alternatives visualization
+- Expose 'Alternative::category' properly
+
 Versions 0.3.4 to 0.3.7
 =======================
 

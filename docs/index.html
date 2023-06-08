@@ -5,9 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>README &#8212; lincs 0.3.7 documentation</title>
+    <title>README &#8212; lincs 0.4.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
@@ -34,12 +35,12 @@
 </div>
 <section id="readme">
 <h1>README<a class="headerlink" href="#readme" title="Permalink to this heading">¶</a></h1>
-<p><em>lincs</em> is a collection of MCDA algorithms, usable as a C++ library, a Python package and a command-line utility.</p>
-<p><em>lincs</em> is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files <a class="reference external" href="COPYING">COPYING</a> and <a class="reference external" href="COPYING.LESSER">COPYING.LESSER</a>.
-It’s available on the <a class="reference external" href="https://pypi.org/project/lincs/">Python package index</a>.
+<p><em>lincs</em> (Learn and Infer Non Compensatory Sortings) is a collection of MCDA algorithms, usable as a C++ library, a Python package and a command-line utility.</p>
+<p><em>lincs</em> is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files <a class="reference external" href="COPYING">COPYING</a> and <a class="reference external" href="COPYING.LESSER">COPYING.LESSER</a>.</p>
+<p>&#64;todo (When we have a paper to actually cite) Add a note asking academics to kindly cite our work.</p>
+<p><em>lincs</em> is available for install from the <a class="reference external" href="https://pypi.org/project/lincs/">Python package index</a>.
 Its <a class="reference external" href="http://mics-lab.github.io/lincs/">documentation</a>
 and its <a class="reference external" href="https://github.com/mics-lab/lincs/">source code</a> are on GitHub.</p>
-<p>&#64;todo (When we have a paper to actually cite) Add a note asking academics to kindly cite our work.</p>
 <p>Questions? Remarks? Bugs? Want to contribute? Open <a class="reference external" href="https://github.com/MICS-Lab/lincs/issues">an issue</a> or <a class="reference external" href="https://github.com/MICS-Lab/lincs/discussions">a discussion</a>!</p>
 <section id="contributors-and-previous-work">
 <h2>Contributors and previous work<a class="headerlink" href="#contributors-and-previous-work" title="Permalink to this heading">¶</a></h2>
@@ -56,6 +57,8 @@ and its <a class="reference external" href="https://github.com/mics-lab/lincs/">
 <li><p><a class="reference external" href="http://olivier.sobrie.be/">Olivier Sobrie</a> (The “weights, profiles, breed” learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his <a class="reference external" href="http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf">Ph.D thesis</a>, and <a class="reference external" href="https://github.com/oso/pymcda">implemented in Python</a>)</p></li>
 <li><p>Emma Dixneuf, Thibault Monsel and Thomas Vindard (<a class="reference external" href="https://github.com/Mostah/fastPL/">C++ implementation of Sobrie’s heuristic</a>)</p></li>
 </ul>
+<p>&#64;todo Add links to the fundamental articles for NCS.
+&#64;todo Add links to the articles that define other learning methods we re-implement.</p>
 </section>
 <section id="project-goals">
 <h2>Project goals<a class="headerlink" href="#project-goals" title="Permalink to this heading">¶</a></h2>
@@ -67,8 +70,8 @@ Just follow the <a class="reference external" href="#get-started">Get started</a
 <section id="provide-a-base-for-developing-new-mcda-algorithms">
 <h3>Provide a base for developing new MCDA algorithms<a class="headerlink" href="#provide-a-base-for-developing-new-mcda-algorithms" title="Permalink to this heading">¶</a></h3>
 <p><em>lincs</em> is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
-&#64;todo Write doc about that use case.</p>
-<p><em>lincs</em> also provides a benchmark framework to compare algorithms (&#64;todo Write and document).
+See our <a class="reference internal" href="contributor-guide.html"><span class="doc">contributor guide</span></a> for more details.</p>
+<p><em>lincs</em> also provides a benchmark framework to compare algorithms (&#64;todo Implement and document).
 This should make it easier to understand the relative strengths and weaknesses of each algorithm.</p>
 </section>
 </section>
@@ -76,6 +79,8 @@ This should make it easier to understand the relative strengths and weaknesses o
 <h2>Get started<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <p>Depending on your favorite approach, you can either start with our <a class="reference internal" href="get-started.html"><span class="doc">hands-on “Get started” guide</span></a>
 or with our <a class="reference internal" href="conceptual-overview.html"><span class="doc">conceptual overview documentation</span></a>.
+The former will show you how to use our tools, the latter will explain the concepts behind them: what’s MCDA, what are NCS models, <em>etc.</em>
+If in doubt, start with the conceptual overview.
 We highly recommend you read the other one just after.</p>
 <p>Once you’ve used <em>lincs</em> a bit, you can follow up with our <a class="reference internal" href="user-guide.html"><span class="doc">user guide</span></a>
 and <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>.</p>

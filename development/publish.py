@@ -119,7 +119,17 @@ def publish(new_version):
     # Remove --sdist, upload the produced wheels as well as the produced tar.gz sdist.
     subprocess.run(["python3", "-m", "build", "--sdist"], check=True)
     subprocess.run(["twine", "check"] + glob.glob("dist/*.tar.gz"), check=True)
-    subprocess.run(["twine", "upload"] + glob.glob("dist/*.tar.gz"), check=True)
+
+    # The --repository option on next line assumes ~/.pypirc contains:
+    # [distutils]
+    #   index-servers=
+    #     ...
+    #     lincs
+    # [lincs]
+    #   repository = https://upload.pypi.org/legacy/
+    #   username = __token__
+    #   password = ... a token for package lincs
+    subprocess.run(["twine", "upload", "--repository", "lincs"] + glob.glob("dist/*.tar.gz"), check=True)
 
     subprocess.run([
         "docker", "build",
@@ -156,4 +166,4 @@ def prepare_next_version(new_version):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()

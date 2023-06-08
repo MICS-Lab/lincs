@@ -5,9 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Contributor guide &#8212; lincs 0.3.7 documentation</title>
+    <title>Contributor guide &#8212; lincs 0.4.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
@@ -33,17 +34,232 @@
             
   <section id="contributor-guide">
 <h1>Contributor guide<a class="headerlink" href="#contributor-guide" title="Permalink to this heading">¶</a></h1>
-<p>Run <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span></code>.</p>
+<section id="development-dependencies">
+<h2>Development dependencies<a class="headerlink" href="#development-dependencies" title="Permalink to this heading">¶</a></h2>
+<p>To modify <em>lincs</em>, you need reasonably recent versions of:</p>
+<ul class="simple">
+<li><p>Bash</p></li>
+<li><p>Git</p></li>
+<li><p>Docker</p></li>
+</ul>
+<p>This is less than what you need to install and use it directly on a machine (see our <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a>),
+because dependencies are installed inside the Docker container.
+You can even contribute to <em>lincs</em> on an OS that is not supported to run it directly,
+<em>e.g.</em> macOS with <a class="reference external" href="https://www.docker.com/products/docker-desktop/">Docker for Desktop</a>.
+If you want to change code that runs on a GPU, you need to configure the NVidia Docker runtime.
+&#64;todo Add pointers to the documentation of the NVidia Docker runtime</p>
+</section>
+<section id="development-cycle">
+<h2>Development cycle<a class="headerlink" href="#development-cycle" title="Permalink to this heading">¶</a></h2>
+<p>The main loop when working on <em>lincs</em> is:</p>
+<ul class="simple">
+<li><p>make some changes</p></li>
+<li><p>run <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span></code></p></li>
+<li><p>repeat</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span></code> script first <a class="reference external" href="https://github.com/MICS-Lab/lincs/blob/main/development/Dockerfile">builds a Docker image</a> with the development dependencies.
+It then runs that image as a Docker container to build the library, run its C++ and Python unit tests, install it, run its integration tests, <em>etc.</em></p>
+<p>Eventually, if you are a maintainer of the PyPI package, you can publish a new version of the package using… <code class="docutils literal notranslate"><span class="pre">./publish.sh</span></code>.
+Else, please <a class="reference external" href="https://github.com/MICS-Lab/lincs/pulls">open a pull request</a> on GitHub!</p>
+<section id="run-development-cycle-sh">
+<h3>./run-development-cycle.sh<a class="headerlink" href="#run-development-cycle-sh" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./run-development-cycle.sh<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-with-docs">
+<span class="sig-name descname"><span class="pre">--with-docs</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-with-docs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the documentation.
+The built documentation is published at <a class="reference external" href="https://mics-lab.github.io/lincs/">https://mics-lab.github.io/lincs/</a> using GitHub Pages.
+So, it should only be pushed to GitHub when a new version of the package is published.
+Use this option to see the impact of your changes on the documentation, but do not commit them.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-long">
+<span class="sig-name descname"><span class="pre">--skip-long</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-long" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip long tests. We all know what it is to be in a hurry. But please run the full development cycle at least once before submitting your changes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-stop-after-unit">
+<span class="sig-name descname"><span class="pre">--stop-after-unit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-stop-after-unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop before installing the package.
+For when you’re even more in a hurry.
+Or when you’ve changed the dependencies in the Dockerfile but not yet in the “Getting started” guide.</p>
+</dd></dl>
+
+</section>
+<section id="publish-sh">
+<h3>./publish.sh<a class="headerlink" href="#publish-sh" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./publish.sh<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">{</span>patch<span class="p">|</span>minor<span class="p">|</span>major<span class="o">}</span>
+</pre></div>
+</div>
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-publish.sh-arg-LEVEL">
+<span class="sig-name descname"><span class="pre">LEVEL</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-publish.sh-arg-LEVEL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="directory-structure">
+<h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this heading">¶</a></h2>
+<p>All source code is in the <code class="docutils literal notranslate"><span class="pre">lincs</span></code> directory.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">development</span></code> directory contains scripts and files used for development.
+Scripts <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span></code> and <code class="docutils literal notranslate"><span class="pre">./publish.sh</span></code> at the root are thin wrappers for scripts in that directory.</p>
+<p>The root directory also contains basic packaging files like the <code class="docutils literal notranslate"><span class="pre">README.rst</span></code>, <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>, <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code> files, as well as the licence files.
+See comments in <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> for details about temporary files and directories.</p>
+<p>Documentation sources are in <code class="docutils literal notranslate"><span class="pre">doc-sources</span></code>, and built documentation is in <code class="docutils literal notranslate"><span class="pre">docs</span></code>, to be published in GitHub Pages.
+Published documentation should only be committed when publishing a new version.
+You can build it locally to check how your changes are rendered using <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span> <span class="pre">--with-docs</span></code>, but you must not commit only <code class="docutils literal notranslate"><span class="pre">doc-sources</span></code> and not <code class="docutils literal notranslate"><span class="pre">docs</span></code>.</p>
+<p>Integration tests are in… <code class="docutils literal notranslate"><span class="pre">integration-tests</span></code>.
+Each test consists of a <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> script and accompanying files.
+Some tests are generated from the documentation to check that the code examples are correct.
+This is done by the <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span></code> script before it runs them.</p>
+</section>
+<section id="coding-standards">
+<h2>Coding standards<a class="headerlink" href="#coding-standards" title="Permalink to this heading">¶</a></h2>
+<p>We have not written coding standards yet, so please have a look at existing code, and try to follow the existing conventions.
+But keep in mind that we value all contributions, even if they do not follow the coding standards.
+We may simply rework them at some point.</p>
+</section>
 <section id="general-design">
 <h2>General design<a class="headerlink" href="#general-design" title="Permalink to this heading">¶</a></h2>
+<p>&#64;todo Write</p>
+<section id="focus-on-interfaces">
+<h3>Focus on interfaces<a class="headerlink" href="#focus-on-interfaces" title="Permalink to this heading">¶</a></h3>
+<p>&#64;todo Write</p>
+</section>
+<section id="strategies">
+<h3>Strategies<a class="headerlink" href="#strategies" title="Permalink to this heading">¶</a></h3>
+<p>&#64;todo Define, explain added value</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Strategy_pattern">https://en.wikipedia.org/wiki/Strategy_pattern</a></p>
+<section id="customization-and-reusability">
+<h4>Customization and reusability<a class="headerlink" href="#customization-and-reusability" title="Permalink to this heading">¶</a></h4>
+<p>&#64;todo Write</p>
+</section>
+<section id="but-beware-of-virtual-function-calls">
+<h4>But beware of virtual function calls<a class="headerlink" href="#but-beware-of-virtual-function-calls" title="Permalink to this heading">¶</a></h4>
+<details>
+<summary>
+Virtual function calls are costly (click for details)</summary><p>Given these classes:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="o">:</span>
+<span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">yes_virtual</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">no_virtual</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ActualFoo</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Foo</span><span class="w"> </span><span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="o">:</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">yes_virtual</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>And functions:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Foo::no_virtual</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">ActualFoo::yes_virtual</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="n">Foo</span><span class="o">*</span><span class="w"> </span><span class="nf">makeFoo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ActualFoo</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The following code runs in ~0.93s:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span><span class="o">*</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">makeFoo</span><span class="p">();</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1&#39;000&#39;000&#39;000</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foo</span><span class="o">-&gt;</span><span class="n">no_virtual</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And the following code runs in ~1.12s:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span><span class="o">*</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">makeFoo</span><span class="p">();</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1&#39;000&#39;000&#39;000</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">foo</span><span class="o">-&gt;</span><span class="n">yes_virtual</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</details><p>So, although virtual function calls are useful, they must be used with care.
+It’s best to keep them for cases where they are not called too often; up to a few thousands per learning should be OK.
+When polymorphism is required for frequent calls, it’s best to use template-based static polymorphism.</p>
+<p>An example of that can be found in <code class="docutils literal notranslate"><span class="pre">lincs/liblincs/learning/weights-profiles-breed-mrsort/optimize-weights/linear-program.hpp</span></code>,
+where the LP solver is injected using the <code class="docutils literal notranslate"><span class="pre">LinearProgram</span></code> template parameter, at no runtime cost.</p>
+</section>
+<section id="so-why-not-all-templates">
+<h4>So, why not all templates?<a class="headerlink" href="#so-why-not-all-templates" title="Permalink to this heading">¶</a></h4>
+<p>One could now consider using templates everywhere, and not use virtual function calls at all.
+This would have the following negative consequences:</p>
+<ul class="simple">
+<li><p>The number of explicit template instantiations would explode combinatorially. For example, the <code class="docutils literal notranslate"><span class="pre">LinearProgram</span></code> template parameter of <code class="docutils literal notranslate"><span class="pre">optimize-weights/linear-program.hpp</span></code> is currently instantiated explicitly for each LP solver in <code class="docutils literal notranslate"><span class="pre">lincs/liblincs/learning.hpp</span></code>. &#64;todo Move implementation and explicit instantiation in linear-program.cpp and update this document.</p></li>
+<li><p>It would forbid customization from the Python side. By nature, Python customization happens at runtime, which requires virtual functions. (For example, from the Python side, it’s possible to add a termination strategy, but it’s not possible to add an LP solver)</p></li>
+</ul>
+<p>That explains why we use virtual functions where we do.</p>
+</section>
+</section>
 </section>
 <section id="how-tos">
 <h2>How-tos<a class="headerlink" href="#how-tos" title="Permalink to this heading">¶</a></h2>
+<section id="update-the-documentation">
+<h3>Update the documentation<a class="headerlink" href="#update-the-documentation" title="Permalink to this heading">¶</a></h3>
+<p>To update the documentation, you’ll have to get familiar with the following tools:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a></p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a></p></li>
+</ul>
+<p>And to less extent:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://sphinx-click.readthedocs.io/">sphinx-click</a></p></li>
+</ul>
+<p>You can then edit <code class="docutils literal notranslate"><span class="pre">README.rst</span></code> and files in <code class="docutils literal notranslate"><span class="pre">doc-sources</span></code> and run <code class="docutils literal notranslate"><span class="pre">./run-development-cycle.sh</span> <span class="pre">--with-docs</span></code>.
+Open <code class="docutils literal notranslate"><span class="pre">docs/index.html</span></code> in your browser to check the result.</p>
+</section>
+<section id="choose-python-or-c-for-your-change">
+<h3>Choose Python or C++ for your change<a class="headerlink" href="#choose-python-or-c-for-your-change" title="Permalink to this heading">¶</a></h3>
+<p><em>lincs</em> is written partly in C++ and partly in Python.
+One important reason for a Python part is usability: Python is arguably easier to get started with than C++,
+so having a Python interface makes it easier for users to get started with <em>lincs</em>.
+The main reason for writing the core of <em>lincs</em> in C++ is performance: for CPU-intensive tasks,
+compiled C++ is definitely faster than interpreted Python; even more so for multi-threaded code.</p>
+<p>Here is how we suggest you choose what language to use for your changes:</p>
+<ul class="simple">
+<li><p>Do you know both languages?</p></li>
+</ul>
+<p>If you only know one of those languages, well, use it.
+It may not be the best choice for the project, but it is the best choice for you.
+If your contribution requires and deserves to be re-implemented in the other language,
+then someone else may do it, or you may become motivated enough to learn the other language.</p>
+<ul class="simple">
+<li><p>Should the new feature be exposed in the C++ library?</p></li>
+</ul>
+<p>The core of <em>lincs</em> is usable as a C++ library (synthetic data generation, learning, classification).
+A counter example is the <code class="docutils literal notranslate"><span class="pre">visualization</span></code> module, which is only usable from Python.</p>
+<p>If the new feature should be usable through the C++ library, then it must be written in C++.</p>
+<ul class="simple">
+<li><p>How computationally-intensive is the new feature?</p></li>
+</ul>
+<p>Most computationally-intensive parts should be written in C++, and Python can be used for the rest.</p>
+<p>For example, a <code class="docutils literal notranslate"><span class="pre">WeightsProfilesBreedMrSortLearning::BreadingStrategy</span></code> that reduces the number of iterations of the <code class="docutils literal notranslate"><span class="pre">WeightsProfilesBreedMrSortLearning</span></code> can be written in Python because this high-level strategy is called only a few times per learning.
+On the other side, a variant of <code class="docutils literal notranslate"><span class="pre">OptimizeWeightsUsingGlop</span></code> that spares a few CPU cycles should be written in C++ because this is where most CPU time is spent.</p>
+</section>
+<section id="tweak-an-existing-strategy">
+<h3>Tweak an existing strategy<a class="headerlink" href="#tweak-an-existing-strategy" title="Permalink to this heading">¶</a></h3>
+<p>&#64;todo Write</p>
+</section>
+<section id="add-a-new-strategy">
+<h3>Add a new strategy<a class="headerlink" href="#add-a-new-strategy" title="Permalink to this heading">¶</a></h3>
+<p>&#64;todo Write</p>
+</section>
 <section id="add-a-new-step-in-an-existing-strategy">
 <h3>Add a new step in an existing strategy<a class="headerlink" href="#add-a-new-step-in-an-existing-strategy" title="Permalink to this heading">¶</a></h3>
+<p>&#64;todo Write</p>
+<ul class="simple">
+<li><p>add a null strategy (&#64;todo Add wiki link to null object pattern)</p></li>
+</ul>
 </section>
-<section id="add-a-variant-of-a-strategy">
-<h3>Add a variant of a strategy<a class="headerlink" href="#add-a-variant-of-a-strategy" title="Permalink to this heading">¶</a></h3>
+<section id="add-an-external-solver">
+<h3>Add an external solver<a class="headerlink" href="#add-an-external-solver" title="Permalink to this heading">¶</a></h3>
+<p>&#64;todo Write</p>
 </section>
 </section>
 </section>
@@ -72,10 +288,26 @@
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contributor guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#general-design">General design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-dependencies">Development dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-cycle">Development cycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-development-cycle-sh">./run-development-cycle.sh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#publish-sh">./publish.sh</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#directory-structure">Directory structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-standards">Coding standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-design">General design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#focus-on-interfaces">Focus on interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#strategies">Strategies</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#how-tos">How-tos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#update-the-documentation">Update the documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-python-or-c-for-your-change">Choose Python or C++ for your change</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tweak-an-existing-strategy">Tweak an existing strategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-a-new-strategy">Add a new strategy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#add-a-new-step-in-an-existing-strategy">Add a new step in an existing strategy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#add-a-variant-of-a-strategy">Add a variant of a strategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-an-external-solver">Add an external solver</a></li>
 </ul>
 </li>
 </ul>
