@@ -66,6 +66,7 @@ void Problem::dump(std::ostream& os) const {
 Problem Problem::load(std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
+  // @todo Consider using https://github.com/tristanpenman/valijson to validate the input data against a JSON Schema
   assert(node["kind"].as<std::string>() == "classification-problem");
   assert(node["format_version"].as<int>() == 1);
 

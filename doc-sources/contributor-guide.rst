@@ -212,7 +212,7 @@ So, why not all templates?
 One could now consider using templates everywhere, and not use virtual function calls at all.
 This would have the following negative consequences:
 
-- The number of explicit template instantiations would explode combinatorially. For example, the ``LinearProgram`` template parameter of ``optimize-weights/linear-program.hpp`` is currently instantiated explicitly for each LP solver in ``lincs/liblincs/learning.hpp``. @todo Move implementation and explicit instantiation in linear-program.cpp and update this document.
+- The number of explicit template instantiations would explode combinatorially. For example, the ``LinearProgram`` template parameter of ``.../optimize-weights/linear-program.hpp`` is currently instantiated explicitly for each LP solver in ``.../optimize-weights/linear-program.cpp``
 - It would forbid customization from the Python side. By nature, Python customization happens at runtime, which requires virtual functions. (For example, from the Python side, it's possible to add a termination strategy, but it's not possible to add an LP solver)
 
 That explains why we use virtual functions where we do.
