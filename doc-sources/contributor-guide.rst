@@ -361,7 +361,7 @@ Default behavior for backward compatibility
 If your extension point is a new step in some previously existing algorithm,
 then you should provide a default implementation that mimics the previous behavior.
 
-This can even be a ``null strategy (https://en.wikipedia.org/wiki/Null_object_pattern)``_ if the previous behavior was to do nothing.
+This can even be a `null strategy <https://en.wikipedia.org/wiki/Null_object_pattern>`_ if the previous behavior was to do nothing.
 
 Add an external solver
 ----------------------
