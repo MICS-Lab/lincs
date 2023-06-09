@@ -4,6 +4,26 @@
 Contributor guide
 =================
 
+We strongly recommend you get familiar with *lincs* by reading all the user documentation before reading this guide.
+This will help you contribute in a way that is consistent with the rest of the project.
+
+
+Do contribute!
+==============
+
+We value contributions of any scale, from minor details to major refactorings.
+If you see a typo, please fix that typo! Using the GitHub web interface spares you the need to even clone the repository.
+If you think our entire architecture deserves a rewrite, please... discuss it with us `<https://github.com/MICS-Lab/lincs/discussions>`_.
+(Don't spend time on something that we might reject for reasons not entirely apparent to you at the moment.)
+If you have an idea but don't want (or know how) to implement it yourself, please tell us about it.
+If you find a bug, please `report it <https://github.com/MICS-Lab/lincs/issues>`_.
+Everything helps!
+
+We also recognize that contributing to an open source project can be intimidating,
+and that not everyone has the same experience and fluency with the tools and programming languages we use.
+If you're willing to get our feedback on your contribution,
+you can be assured that we will take time to provide this feedback in a kind and constructive manner.
+
 
 Development dependencies
 ========================
@@ -18,7 +38,7 @@ This is less than what you need to install and use it directly on a machine (see
 because dependencies are installed inside the Docker container.
 You can even contribute to *lincs* on an OS that is not supported to run it directly,
 *e.g.* macOS with `Docker for Desktop <https://www.docker.com/products/docker-desktop/>`_.
-If you want to change code that runs on a GPU, you need to configure the NVidia Docker runtime.
+If you have an CUDA-compatible NVidia GPU and want to run code that uses it, you need to configure the NVidia Docker runtime.
 @todo Add pointers to the documentation of the NVidia Docker runtime
 
 
@@ -32,7 +52,9 @@ The main loop when working on *lincs* is:
 - repeat
 
 The ``./run-development-cycle.sh`` script first `builds a Docker image <https://github.com/MICS-Lab/lincs/blob/main/development/Dockerfile>`_ with the development dependencies.
+It can take a long time the first time you run it, but the Docker cache makes subsequent builds much faster.
 It then runs that image as a Docker container to build the library, run its C++ and Python unit tests, install it, run its integration tests, *etc.*
+It provides a few options to speed things up, see its ``--help`` option.
 
 Eventually, if you are a maintainer of the PyPI package, you can publish a new version of the package using... ``./publish.sh``.
 Else, please `open a pull request <https://github.com/MICS-Lab/lincs/pulls>`_ on GitHub!
@@ -59,20 +81,12 @@ See comments in ``.gitignore`` for details about temporary files and directories
 
 Documentation sources are in ``doc-sources``, and built documentation is in ``docs``, to be published in GitHub Pages.
 Published documentation should only be committed when publishing a new version.
-You can build it locally to check how your changes are rendered using ``./run-development-cycle.sh --with-docs``, but you must not commit only ``doc-sources`` and not ``docs``.
+You can build it locally to check how your changes are rendered using ``./run-development-cycle.sh --with-docs``, but you must commit only ``doc-sources`` and not ``docs``.
 
 Integration tests are in... ``integration-tests``.
 Each test consists of a ``run.sh`` script and accompanying files.
 Some tests are generated from the documentation to check that the code examples are correct.
 This is done by the ``./run-development-cycle.sh`` script before it runs them.
-
-
-Coding standards
-================
-
-We have not written coding standards yet, so please have a look at existing code, and try to follow the existing conventions.
-But keep in mind that we value all contributions, even if they do not follow the coding standards.
-We may simply rework them at some point.
 
 
 General design
