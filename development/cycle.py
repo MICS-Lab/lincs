@@ -34,7 +34,15 @@ import click
         Or when you've changed the dependencies in the Dockerfile but not yet in the "Getting started" guide.
     """),
 )
-def main(with_docs, skip_long, stop_after_unit):
+@click.option(
+    "--forbid-gpu", is_flag=True,
+    help=textwrap.dedent("""\
+        Skip all tests that use the GPU.
+        This is done automatically (with a warning) if your machine does not have a GPU.
+        Using this option explicitly avoids the warning.
+    """),
+)
+def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
 
     shutil.rmtree("build", ignore_errors=True)
@@ -58,27 +66,13 @@ def main(with_docs, skip_long, stop_after_unit):
     print("Running C++ unit tests")
     print("======================")
     print(flush=True)
-    subprocess.run(
-        [
-            "g++",
-            "-L.", "-llincs.cpython-310-x86_64-linux-gnu",  # Contains the `main` function
-            "-o", "/tmp/lincs-tests",
-        ],
-        check=True,
-    )
-    subprocess.run(
-        [
-            "/tmp/lincs-tests",
-        ],
-        check=True,
-        env=dict(os.environ, LD_LIBRARY_PATH="."),
-    )
+    run_cpp_tests(forbid_gpu=forbid_gpu)
     print()
 
     print("Running Python unit tests")
     print("=========================")
     print(flush=True)
-    run_python_tests()
+    run_python_tests(forbid_gpu=forbid_gpu)
     print()
 
     if stop_after_unit:
@@ -104,7 +98,7 @@ def main(with_docs, skip_long, stop_after_unit):
         # With lincs installed
         ######################
 
-        run_integration_tests(skip_long=skip_long)
+        run_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
     if with_docs:
         print("Building Sphinx documentation")
@@ -117,7 +111,31 @@ def main(with_docs, skip_long, stop_after_unit):
         subprocess.run(["git", "clean", "-fd", "docs"], check=True, capture_output=True)
 
 
-def run_python_tests():
+def run_cpp_tests(*, forbid_gpu):
+    subprocess.run(
+        [
+            "g++",
+            "-L.", "-llincs.cpython-310-x86_64-linux-gnu",  # Contains the `main` function
+            "-o", "/tmp/lincs-tests",
+        ],
+        check=True,
+    )
+    env = dict(os.environ)
+    env["LD_LIBRARY_PATH"] = "."
+    if forbid_gpu:
+        env["LINCS_DEV_FORBID_GPU"] = "true"
+    subprocess.run(
+        [
+            "/tmp/lincs-tests",
+        ],
+        check=True,
+        env=env,
+    )
+
+def run_python_tests(*, forbid_gpu):
+    env = dict(os.environ)
+    if forbid_gpu:
+        env["LINCS_DEV_FORBID_GPU"] = "true"
     subprocess.run(
         [
             "python3", "-m", "unittest", "discover",
@@ -125,6 +143,7 @@ def run_python_tests():
             "--start-directory", "lincs", "--top-level-directory", ".",
         ],
         check=True,
+        env=env,
     )
 
 
@@ -199,7 +218,7 @@ def build_sphinx_documentation():
         f.write(original_content)
 
 
-def run_integration_tests(skip_long):
+def run_integration_tests(*, skip_long, forbid_gpu):
     print("Running integration tests")
     print("=========================")
     print()
@@ -210,6 +229,11 @@ def run_integration_tests(skip_long):
         print("-" * len(test_name), flush=True)
 
         if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):
+            print(f"{test_name}: SKIPPED")
+            print(flush=True)
+            continue
+
+        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "uses-gpu")):
             print(f"{test_name}: SKIPPED")
             print(flush=True)
             continue

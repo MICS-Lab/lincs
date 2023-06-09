@@ -8,6 +8,11 @@
 #include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
+namespace {
+  const char* env = std::getenv("LINCS_DEV_FORBID_GPU");
+  const bool forbid_gpu = env && std::string(env) == "true";
+}  // namespace
+
 namespace lincs {
 
 TEST_CASE("Basic MR-Sort learning") {
@@ -82,7 +87,7 @@ TEST_CASE("Alglib MR-Sort learning") {
   }
 }
 
-TEST_CASE("GPU MR-Sort learning") {
+TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
   Problem problem = generate_problem(5, 3, 41);
   Model model = generate_mrsort_model(problem, 42);
   Alternatives learning_set = generate_alternatives(problem, model, 200, 43);

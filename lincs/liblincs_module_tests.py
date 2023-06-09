@@ -1,8 +1,12 @@
 # Copyright 2023 Vincent Jacques
 
 import unittest
+import os
 
 from . import *
+
+
+forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
 
 
 class ProblemTestCase(unittest.TestCase):
@@ -286,6 +290,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 24)
         self.assertEqual(result.unchanged, 976)
 
+    @unittest.skipIf(forbid_gpu, "Can't use GPU")
     def test_gpu_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
