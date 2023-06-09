@@ -4,6 +4,11 @@
 Changelog
 =========
 
+Versions 0.4.1 to 0.4.4
+=======================
+
+Never properly published
+
 Version 0.4.0
 =============
 

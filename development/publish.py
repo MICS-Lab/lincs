@@ -5,6 +5,7 @@ import glob
 import shutil
 import subprocess
 import sys
+import time
 
 import click
 import semver
@@ -130,6 +131,15 @@ def publish(new_version):
     #   username = __token__
     #   password = ... a token for package lincs
     subprocess.run(["twine", "upload", "--repository", "lincs"] + glob.glob("dist/*.tar.gz"), check=True)
+
+    # Give PyPI some time to process the publication
+    for i in range(12):
+        try:
+            subprocess.run(["pip3", "download", "--no-deps", f"lincs=={new_version}"], check=True)
+            break
+        except subprocess.CalledProcessError:
+            print("PyPI is not ready yet, retrying soon...")
+            time.sleep(10)
 
     subprocess.run([
         "sudo", "docker", "build",
