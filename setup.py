@@ -6,7 +6,7 @@ import setuptools
 import setuptools.command.build_ext
 
 
-version = "0.4.5-dev"
+version = "0.4.5"
 
 with open("README.rst") as f:
     long_description = f.read()

@@ -1,0 +1,45 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: NCS classification model
+type: object
+properties:
+  kind:
+    type: string
+    enum: [ncs-classification-model]
+  format_version:
+    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
+    enum: [1]
+  boundaries:
+    type: array
+    items:
+      type: object
+      properties:
+        profile:
+          type: array
+          # items:
+          #   type: number  # @todo Why does this fail? (similar error)
+          minItems: 1
+        sufficient_coalitions:
+          type: object
+          properties:
+            kind:
+              type: string
+              enum: [weights]
+            criterion_weights:
+              type: array
+              # items:
+              #   type: number  # @todo Why does this fail? (similar error)
+              minItems: 1
+          required:
+            - kind
+            - criterion_weights
+          additionalProperties: false
+      required:
+        - profile
+        - sufficient_coalitions
+      additionalProperties: false
+    minItems: 1
+required:
+  - kind
+  - format_version
+  - boundaries
+additionalProperties: false

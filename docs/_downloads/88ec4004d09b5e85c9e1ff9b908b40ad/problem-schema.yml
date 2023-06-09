@@ -1,0 +1,46 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Classification problem
+type: object
+properties:
+  kind:
+    type: string
+    enum: [classification-problem]
+  format_version:
+    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
+    enum: [1]
+  criteria:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        value_type:
+          type: string
+          enum: [real]
+        category_correlation:
+          type: string
+          enum: [growing]
+      required:
+        - name
+        - value_type
+        - category_correlation
+      additionalProperties: false
+    minItems: 1
+  categories:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      additionalProperties: false
+    minItems: 2
+required:
+  - kind
+  - format_version
+  - criteria
+  - categories
+additionalProperties: false

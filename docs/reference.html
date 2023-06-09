@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reference &#8212; lincs 0.4.0 documentation</title>
+    <title>Reference &#8212; lincs 0.4.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -47,7 +47,110 @@ The same formats are used for synthetic and real-world data.
 The same formats are used when the <code class="docutils literal notranslate"><span class="pre">lincs</span></code> command lines outputs to actual files or to its standard output.</p>
 <section id="the-problem-file">
 <span id="ref-file-problem"></span><h3>The problem file<a class="headerlink" href="#the-problem-file" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo Write (or generate from a JSON Schema?)</p>
+<p>The problem file is a YAML file specified by the following <a class="reference download internal" download="" href="_downloads/88ec4004d09b5e85c9e1ff9b908b40ad/problem-schema.yml"><code class="xref download docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Schema</span></code></a>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td colspan="5"><p><em>Classification problem</em></p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="4"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="5"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>kind</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td colspan="3"><p>classification-problem</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p><strong>format_version</strong></p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td colspan="3"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="10"><ul class="simple">
+<li><p><strong>criteria</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="8"><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p><strong>name</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>value_type</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td><p>real</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>category_correlation</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td><p>growing</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p>minItems</p></td>
+<td colspan="3"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="6"><ul class="simple">
+<li><p><strong>categories</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p><strong>name</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p>minItems</p></td>
+<td colspan="3"><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="4"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="the-alternatives-file">
 <span id="ref-file-alternatives"></span><h3>The alternatives file<a class="headerlink" href="#the-alternatives-file" title="Permalink to this heading">¶</a></h3>
@@ -55,7 +158,99 @@ The same formats are used when the <code class="docutils literal notranslate"><s
 </section>
 <section id="the-ncs-model-file">
 <span id="ref-file-ncs-model"></span><h3>The NCS model file<a class="headerlink" href="#the-ncs-model-file" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo Write (or generate from a JSON Schema?)</p>
+<p>The model file is a YAML file specified by the following <a class="reference download internal" download="" href="_downloads/03deec4b0f63d30bca7548e47d373fce/model-schema.yml"><code class="xref download docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Schema</span></code></a>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td colspan="6"><p><em>NCS classification model</em></p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="5"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="6"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>kind</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="4"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td colspan="4"><p>ncs-classification-model</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p><strong>format_version</strong></p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td colspan="4"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="14"><ul class="simple">
+<li><p><strong>boundaries</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="4"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="12"><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>profile</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minItems</p></td>
+<td colspan="2"><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="7"><ul class="simple">
+<li><p><strong>sufficient_coalitions</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>kind</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td><p>weights</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>criterion_weights</strong></p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minItems</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p>minItems</p></td>
+<td colspan="4"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="5"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 <section id="command-line-interface">
@@ -315,7 +510,7 @@ It’s used as a source of truth to learn the model.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.strategy">
 <span class="sig-name descname"><span class="pre">--mrsort.strategy</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__strategy&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>The top-level strategy to use to learn the MRSort model. See (&#64;todo Add link to doc) for details about the available strategies.</p>
+<dd><p>The top-level strategy to use to learn the MRSort model. See <a class="reference external" href="https://mics-lab.github.io/lincs/user-guide.html#learning-strategies">https://mics-lab.github.io/lincs/user-guide.html#learning-strategies</a> about strategies.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>
@@ -384,7 +579,7 @@ It’s used as a source of truth to learn the model.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.initialization-strategy">
 <span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.initialization-strategy</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__initialization_strategy&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.initialization-strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>The strategy to use to initialize the MRSort models. See (&#64;todo Add link to doc) for details about the available strategies.</p>
+<dd><p>The strategy to use to initialize the MRSort models.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>
@@ -405,7 +600,7 @@ It’s used as a source of truth to learn the model.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.weights-strategy">
 <span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.weights-strategy</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__weights_strategy&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.weights-strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>The strategy to use to improve the weights of the MRSort models. See (&#64;todo Add link to doc) for details about the available strategies.</p>
+<dd><p>The strategy to use to improve the weights of the MRSort models.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>
@@ -426,7 +621,7 @@ It’s used as a source of truth to learn the model.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.linear-program.solver">
 <span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.linear-program.solver</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__linear_program__solver&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.linear-program.solver" title="Permalink to this definition">¶</a></dt>
-<dd><p>The solver to use to solve the linear programs. See (&#64;todo Add link to doc) for details of available solvers.</p>
+<dd><p>The solver to use to solve the linear programs.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>
@@ -448,7 +643,7 @@ It’s used as a source of truth to learn the model.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.profiles-strategy">
 <span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.profiles-strategy</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__profiles_strategy&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.profiles-strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>The strategy to use to improve the profiles of the MRSort models. See (&#64;todo Add link to doc) for details about the available strategies.</p>
+<dd><p>The strategy to use to improve the profiles of the MRSort models.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>
@@ -505,7 +700,7 @@ It’s used as a source of truth to learn the model.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.breed-strategy">
 <span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.breed-strategy</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__breed_strategy&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.breed-strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>The strategy to use to breed the MRSort models. See (&#64;todo Add link to doc) for details about the available strategies.</p>
+<dd><p>The strategy to use to breed the MRSort models.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>

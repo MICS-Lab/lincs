@@ -23,7 +23,10 @@ The same formats are used when the ``lincs`` command lines outputs to actual fil
 The problem file
 ----------------
 
-@todo Write (or generate from a JSON Schema?)
+The problem file is a YAML file specified by the following :download:`JSON Schema <problem-schema.yml>`:
+
+.. jsonschema:: problem-schema.yml
+   :lift_title: false
 
 .. _ref-file-alternatives:
 
@@ -37,8 +40,10 @@ The alternatives file
 The NCS model file
 ------------------
 
-@todo Write (or generate from a JSON Schema?)
+The model file is a YAML file specified by the following :download:`JSON Schema <model-schema.yml>`:
 
+.. jsonschema:: model-schema.yml
+   :lift_title: false
 
 .. _ref-cli:
 

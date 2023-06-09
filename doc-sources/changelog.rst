@@ -4,6 +4,13 @@
 Changelog
 =========
 
+Version 0.4.5
+=============
+
+- Use JSON schemas to document and validate the problem and model files
+- Support development on macOS and on machines without a GPU
+- Improve documentation
+
 Versions 0.4.1 to 0.4.4
 =======================
 
