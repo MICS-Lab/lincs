@@ -56,9 +56,9 @@ struct Problem {
 
   Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
 
+  static const std::string json_schema;
   void dump(std::ostream&) const;
   static Problem load(std::istream&);
-
 };
 
 }  // namespace lincs

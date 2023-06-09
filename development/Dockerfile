@@ -91,6 +91,7 @@ RUN pip3 install \
       semver \
       sphinx \
       sphinx-click \
+      sphinx-jsonschema \
       sphinxcontrib-details-directive \
       twine
 

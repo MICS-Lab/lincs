@@ -55,10 +55,7 @@ struct convert<lincs::Problem::Criterion> {
 
 namespace lincs {
 
-namespace {
-
-const char* schema_text = R"(
-$schema: https://json-schema.org/draft/2020-12/schema
+const std::string Problem::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
 title: Classification problem
 type: object
 properties:
@@ -104,9 +101,11 @@ required:
   - criteria
   - categories
 additionalProperties: false
-)";
+)");
 
-std::istringstream schema_iss(schema_text);
+namespace {
+
+std::istringstream schema_iss(Problem::json_schema);
 YAML::Node schema = YAML::Load(schema_iss);
 JsonValidator validator(schema);
 

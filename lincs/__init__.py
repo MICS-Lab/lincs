@@ -1,7 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
-from liblincs import ValueType, CategoryCorrelation, Criterion, Category, Problem, load_problem, generate_problem
-from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, Model, load_model, generate_mrsort_model
+from liblincs import ValueType, CategoryCorrelation, Criterion, Category, Problem, PROBLEM_JSON_SCHEMA, load_problem, generate_problem
+from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, Model, MODEL_JSON_SCHEMA, load_model, generate_mrsort_model
 from liblincs import Alternative, Alternatives, load_alternatives, generate_alternatives, classify_alternatives
 from liblincs import ProfilesInitializationStrategy, InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib

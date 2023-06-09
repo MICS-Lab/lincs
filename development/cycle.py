@@ -203,6 +203,12 @@ def build_sphinx_documentation():
     with open("README.rst", "w") as f:
         f.write(content)
 
+    with open("doc-sources/problem-schema.yml", "w") as f:
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.PROBLEM_JSON_SCHEMA, end='')"], check=True, stdout=f)
+
+    with open("doc-sources/model-schema.yml", "w") as f:
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.MODEL_JSON_SCHEMA, end='')"], check=True, stdout=f)
+
     shutil.rmtree("docs", ignore_errors=True)
     subprocess.run(
         [
@@ -214,6 +220,8 @@ def build_sphinx_documentation():
         check=True,
     )
 
+    os.unlink("doc-sources/problem-schema.yml")
+    os.unlink("doc-sources/model-schema.yml")
     with open("README.rst", "w") as f:
         f.write(original_content)
 

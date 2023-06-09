@@ -59,3 +59,7 @@ extensions.append("sphinx.ext.mathjax")
 # GraphViz
 
 extensions.append("sphinx.ext.graphviz")
+
+# JSON Schemas
+
+extensions.append("sphinx-jsonschema")

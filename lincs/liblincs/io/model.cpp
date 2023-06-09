@@ -54,11 +54,8 @@ struct convert<lincs::Model::Boundary> {
 
 namespace lincs {
 
-namespace {
-
-const char* schema_text = R"(
-$schema: https://json-schema.org/draft/2020-12/schema
-title: Classification problem
+const std::string Model::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
+title: NCS classification model
 type: object
 properties:
   kind:
@@ -102,9 +99,11 @@ required:
   - format_version
   - boundaries
 additionalProperties: false
-)";
+)");
 
-std::istringstream schema_iss(schema_text);
+namespace {
+
+std::istringstream schema_iss(Model::json_schema);
 YAML::Node schema = YAML::Load(schema_iss);
 JsonValidator validator(schema);
 

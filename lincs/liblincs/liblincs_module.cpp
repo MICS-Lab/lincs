@@ -223,6 +223,8 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<std::vector<lincs::Problem::Criterion>>("criteria_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Problem::Criterion>>())
   ;
+
+  bp::scope().attr("PROBLEM_JSON_SCHEMA") = lincs::Problem::json_schema;
   bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Problem::Criterion>, std::vector<lincs::Problem::Category>>())
     .def_readwrite("criteria", &lincs::Problem::criteria)
     .def_readwrite("categories", &lincs::Problem::categories)
@@ -262,6 +264,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<std::vector<lincs::Model::Boundary>>("boundaries_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Model::Boundary>>())
   ;
+  bp::scope().attr("MODEL_JSON_SCHEMA") = lincs::Model::json_schema;
   bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::Model::Boundary>&>())
     .def_readwrite("boundaries", &lincs::Model::boundaries)
     .def(
