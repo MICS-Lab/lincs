@@ -137,9 +137,8 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     cp -r ../../../{lincs,requirements.txt,setup.py} project
     touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
 
-    docker build . --tag lincs-development--install --quiet >/dev/null
-    docker run --rm lincs-development--install lincs --help >/dev/null
-
+    sudo docker build . --tag lincs-development--install --quiet >/dev/null
+    sudo docker run --rm lincs-development--install lincs --help >/dev/null
 .. STOP
 
 Finally, *lincs* is available on the `Python Package Index <https://pypi.org/project/lincs/>`_, so ``pip install lincs`` should finalize the install.

@@ -43,7 +43,7 @@ else
 fi
 
 
-docker build --build-arg UID=$(id -u) --build-arg DOCKER_GID=$(getent group docker | cut -d ':' -f 3) development --tag lincs-development
+docker build --build-arg UID=$(id -u) development --tag lincs-development
 
 docker run \
   --rm --interactive --tty \

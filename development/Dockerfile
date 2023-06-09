@@ -21,6 +21,7 @@ RUN set -x \
       python3-venv \
       software-properties-common \
       ssh \
+      sudo \
       wget \
  && apt-get clean
 
@@ -94,9 +95,7 @@ RUN pip3 install \
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home
-ARG DOCKER_GID
-RUN groupadd hostdocker --gid $DOCKER_GID
-RUN adduser user hostdocker
+RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/user
 USER user
 RUN mkdir -p /home/user/.local/bin
 ENV PATH=/home/user/.local/bin:$PATH:/usr/local/cuda-12.1/bin
