@@ -168,7 +168,7 @@ The profiles for this model look like this:
 .. STOP
 
 .. START concept-example/model.yml
-    kind: calssification-model
+    kind: ncs-classification-model
     format_version: 1
     boundaries:
       - profile: [0.6, 0.55, 0.7, 0.5]

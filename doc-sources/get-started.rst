@@ -76,6 +76,12 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo cp -r *.h /usr/local/include/alglib
     sudo cp -r libalglib.a /usr/local/lib
 
+    # valijson
+    wget https://github.com/tristanpenman/valijson/archive/refs/tags/v1.0.1.tar.gz
+    tar xf v1.0.1.tar.gz
+    cd valijson-1.0.1
+    ./bundle.sh yaml_cpp | sudo tee /usr/local/include/valijson_yamlcpp_bundled.hpp
+
     # Header-only libraries
     cd /usr/local/include
     sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp

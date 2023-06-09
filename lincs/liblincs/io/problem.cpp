@@ -7,6 +7,8 @@
 #include <magic_enum.hpp>
 #include <yaml-cpp/yaml.h>
 
+#include "validation.hpp"
+
 #include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
@@ -53,6 +55,63 @@ struct convert<lincs::Problem::Criterion> {
 
 namespace lincs {
 
+namespace {
+
+const char* schema_text = R"(
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Classification problem
+type: object
+properties:
+  kind:
+    type: string
+    enum: [classification-problem]
+  format_version:
+    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
+    enum: [1]
+  criteria:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        value_type:
+          type: string
+          enum: [real]
+        category_correlation:
+          type: string
+          enum: [growing]
+      required:
+        - name
+        - value_type
+        - category_correlation
+      additionalProperties: false
+    minItems: 1
+  categories:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      additionalProperties: false
+    minItems: 2
+required:
+  - kind
+  - format_version
+  - criteria
+  - categories
+additionalProperties: false
+)";
+
+std::istringstream schema_iss(schema_text);
+YAML::Node schema = YAML::Load(schema_iss);
+JsonValidator validator(schema);
+
+}  // namespace
+
 void Problem::dump(std::ostream& os) const {
   YAML::Node node;
   node["kind"] = "classification-problem";
@@ -60,15 +119,17 @@ void Problem::dump(std::ostream& os) const {
   node["criteria"] = criteria;
   node["categories"] = categories;
 
+  #ifndef NDEBUG
+  validator.validate(node);
+  #endif
+
   os << node << '\n';
 }
 
 Problem Problem::load(std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
-  // @todo Consider using https://github.com/tristanpenman/valijson to validate the input data against a JSON Schema
-  assert(node["kind"].as<std::string>() == "classification-problem");
-  assert(node["format_version"].as<int>() == 1);
+  validator.validate(node);
 
   return Problem(
     node["criteria"].as<std::vector<Criterion>>(),
@@ -88,6 +149,24 @@ TEST_CASE("dumping then loading problem preserves data") {
   Problem problem2 = Problem::load(ss);
   CHECK(problem2.criteria == problem.criteria);
   CHECK(problem2.categories == problem.categories);
+}
+
+TEST_CASE("Parsing error") {
+  std::istringstream iss("*");
+
+  CHECK_THROWS_WITH_AS(
+    Problem::load(iss),
+    "yaml-cpp: error at line 1, column 2: alias not found after *",
+    YAML::Exception);
+}
+
+TEST_CASE("Validation error") {
+  std::istringstream iss("42");
+
+  CHECK_THROWS_WITH_AS(
+    Problem::load(iss),
+    "JSON validation failed:\n - <root>: Value type not permitted by 'type' constraint.",
+    JsonValidationException);
 }
 
 }  // namespace lincs

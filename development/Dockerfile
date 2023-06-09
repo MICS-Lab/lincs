@@ -78,6 +78,13 @@ RUN set -x \
  && cd ../.. \
  && rm -r alglib-cpp alglib-4.00.0.cpp.gpl.tgz
 
+# Valijson
+RUN set -x \
+ && wget https://github.com/tristanpenman/valijson/archive/refs/tags/v1.0.1.tar.gz \
+ && tar xf v1.0.1.tar.gz \
+ && cd valijson-1.0.1 \
+ && ./bundle.sh yaml_cpp >/usr/local/include/valijson_yamlcpp_bundled.hpp
+
 # Python packages
 RUN pip3 install \
       build \

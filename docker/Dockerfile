@@ -44,6 +44,12 @@ RUN set -x \
  && rm -r alglib-cpp alglib-4.00.0.cpp.gpl.tgz
 
 RUN set -x \
+ && wget https://github.com/tristanpenman/valijson/archive/refs/tags/v1.0.1.tar.gz \
+ && tar xf v1.0.1.tar.gz \
+ && cd valijson-1.0.1 \
+ && ./bundle.sh yaml_cpp >/usr/local/include/valijson_yamlcpp_bundled.hpp
+
+RUN set -x \
  && cd /usr/local/include \
  && wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp \
  && wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h \

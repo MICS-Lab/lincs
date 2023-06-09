@@ -7,6 +7,10 @@
 #include <magic_enum.hpp>
 #include <yaml-cpp/yaml.h>
 
+#include "validation.hpp"
+
+#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
+
 
 namespace YAML {
 
@@ -50,11 +54,71 @@ struct convert<lincs::Model::Boundary> {
 
 namespace lincs {
 
+namespace {
+
+const char* schema_text = R"(
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Classification problem
+type: object
+properties:
+  kind:
+    type: string
+    enum: [ncs-classification-model]
+  format_version:
+    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
+    enum: [1]
+  boundaries:
+    type: array
+    items:
+      type: object
+      properties:
+        profile:
+          type: array
+          # items:
+          #   type: number  # @todo Why does this fail? (similar error)
+          minItems: 1
+        sufficient_coalitions:
+          type: object
+          properties:
+            kind:
+              type: string
+              enum: [weights]
+            criterion_weights:
+              type: array
+              # items:
+              #   type: number  # @todo Why does this fail? (similar error)
+              minItems: 1
+          required:
+            - kind
+            - criterion_weights
+          additionalProperties: false
+      required:
+        - profile
+        - sufficient_coalitions
+      additionalProperties: false
+    minItems: 1
+required:
+  - kind
+  - format_version
+  - boundaries
+additionalProperties: false
+)";
+
+std::istringstream schema_iss(schema_text);
+YAML::Node schema = YAML::Load(schema_iss);
+JsonValidator validator(schema);
+
+}  // namespace
+
 void Model::dump(std::ostream& os) const {
   YAML::Node node;
   node["kind"] = "ncs-classification-model";
   node["format_version"] = 1;
   node["boundaries"] = boundaries;
+
+  #ifndef NDEBUG
+  validator.validate(node);
+  #endif
 
   os << node << '\n';
 }
@@ -62,10 +126,55 @@ void Model::dump(std::ostream& os) const {
 Model Model::load(const Problem& problem, std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
-  assert(node["kind"].as<std::string>() == "ncs-classification-model");
-  assert(node["format_version"].as<int>() == 1);
+  validator.validate(node);
 
   return Model(problem, node["boundaries"].as<std::vector<Boundary>>());
+}
+
+TEST_CASE("dumping then loading problem preserves data") {
+  Problem problem{
+    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  Model model{
+    problem,
+    {{{0.5}, {Model::SufficientCoalitions::Kind::weights, {1}}}},
+  };
+
+  std::stringstream ss;
+  model.dump(ss);
+
+  Model model2 = Model::load(problem, ss);
+  CHECK(model2.boundaries == model.boundaries);
+}
+
+TEST_CASE("Parsing error") {
+  Problem problem{
+    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::istringstream iss("*");
+
+  CHECK_THROWS_WITH_AS(
+    Model::load(problem, iss),
+    "yaml-cpp: error at line 1, column 2: alias not found after *",
+    YAML::Exception);
+}
+
+TEST_CASE("Validation error") {
+  Problem problem{
+    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::istringstream iss("42");
+
+  CHECK_THROWS_WITH_AS(
+    Model::load(problem, iss),
+    "JSON validation failed:\n - <root>: Value type not permitted by 'type' constraint.",
+    JsonValidationException);
 }
 
 }  // namespace lincs
