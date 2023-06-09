@@ -410,7 +410,7 @@ def learn():
             (
                 "strategy",
                 dict(
-                    help="The top-level strategy to use to learn the MRSort model. See (@todo Add link to doc) for details about the available strategies.",
+                    help="The top-level strategy to use to learn the MRSort model. See https://mics-lab.github.io/lincs/user-guide.html#learning-strategies about strategies.",
                     type=click.Choice(["weights-profiles-breed"]),
                     default="weights-profiles-breed",
                     show_default=True,
@@ -450,7 +450,7 @@ def learn():
                         (
                             "initialization-strategy",
                             dict(
-                                help="The strategy to use to initialize the MRSort models. See (@todo Add link to doc) for details about the available strategies.",
+                                help="The strategy to use to initialize the MRSort models.",
                                 type=click.Choice(["maximize-discrimination-per-criterion"]),
                                 default="maximize-discrimination-per-criterion",
                                 show_default=True,
@@ -460,7 +460,7 @@ def learn():
                         (
                             "weights-strategy",
                             dict(
-                                help="The strategy to use to improve the weights of the MRSort models. See (@todo Add link to doc) for details about the available strategies.",
+                                help="The strategy to use to improve the weights of the MRSort models.",
                                 type=click.Choice(["linear-program"]),
                                 default="linear-program",
                                 show_default=True,
@@ -470,7 +470,7 @@ def learn():
                                     (
                                         "solver",
                                         dict(
-                                            help="The solver to use to solve the linear programs. See (@todo Add link to doc) for details of available solvers.",
+                                            help="The solver to use to solve the linear programs.",
                                             type=click.Choice(["glop", "alglib"]),
                                             default="glop",
                                             show_default=True,
@@ -483,7 +483,7 @@ def learn():
                         (
                             "profiles-strategy",
                             dict(
-                                help="The strategy to use to improve the profiles of the MRSort models. See (@todo Add link to doc) for details about the available strategies.",
+                                help="The strategy to use to improve the profiles of the MRSort models.",
                                 type=click.Choice(["accuracy-heuristic"]),
                                 default="accuracy-heuristic",
                                 show_default=True,
@@ -515,7 +515,7 @@ def learn():
                         (
                             "breed-strategy",
                             dict(
-                                help="The strategy to use to breed the MRSort models. See (@todo Add link to doc) for details about the available strategies.",
+                                help="The strategy to use to breed the MRSort models.",
                                 type=click.Choice(["reinitialize-least-accurate"]),
                                 default="reinitialize-least-accurate",
                                 show_default=True,

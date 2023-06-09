@@ -317,12 +317,25 @@ On the other side, a variant of ``OptimizeWeightsUsingGlop`` that spares a few C
 Tweak an existing strategy
 --------------------------
 
-@todo Write
+Just do it!
+Locate the strategy you want to change, and change it.
+
+But this should be quite rare and only for minor changes.
+For anything more significant, you should add a new strategy instead.
+This will make it easy to compare the new and old strategies, and then choose the one we want to advertise more or set as default.
 
 Add a new strategy
 ------------------
 
-@todo Write
+To implement a new way to do something, you should add a new strategy.
+
+It boils down to:
+
+- implement the strategy
+- expose the strategy in the Python API
+- expose the strategy on the command-line
+
+This is a case where using ``git grep`` on existing strategies is very effective to find all the places where you need to make changes.
 
 Add a new extension point
 -------------------------

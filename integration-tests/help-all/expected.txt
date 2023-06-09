@@ -159,8 +159,10 @@ Options:
                                   [default: mrsort]
   --mrsort.strategy [weights-profiles-breed]
                                   The top-level strategy to use to learn the
-                                  MRSort model. See (@todo Add link to doc)
-                                  for details about the available strategies.
+                                  MRSort model. See https://mics-
+                                  lab.github.io/lincs/user-
+                                  guide.html#learning-strategies about
+                                  strategies.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
@@ -196,8 +198,7 @@ Options:
                                      [default: 9; x>=1]
   --mrsort.weights-profiles-breed.initialization-strategy [maximize-discrimination-per-criterion]
                                   The strategy to use to initialize the MRSort
-                                  models. See (@todo Add link to doc) for
-                                  details about the available strategies.
+                                  models.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
@@ -207,9 +208,7 @@ Options:
                                      criterion]
   --mrsort.weights-profiles-breed.weights-strategy [linear-program]
                                   The strategy to use to improve the weights
-                                  of the MRSort models. See (@todo Add link to
-                                  doc) for details about the available
-                                  strategies.
+                                  of the MRSort models.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
@@ -218,8 +217,7 @@ Options:
                                      [default: linear-program]
   --mrsort.weights-profiles-breed.linear-program.solver [glop|alglib]
                                   The solver to use to solve the linear
-                                  programs. See (@todo Add link to doc) for
-                                  details of available solvers.
+                                  programs.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
@@ -229,9 +227,7 @@ Options:
                                      [default: glop]
   --mrsort.weights-profiles-breed.profiles-strategy [accuracy-heuristic]
                                   The strategy to use to improve the profiles
-                                  of the MRSort models. See (@todo Add link to
-                                  doc) for details about the available
-                                  strategies.
+                                  of the MRSort models.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
@@ -259,8 +255,7 @@ Options:
                                      [default: cpu]
   --mrsort.weights-profiles-breed.breed-strategy [reinitialize-least-accurate]
                                   The strategy to use to breed the MRSort
-                                  models. See (@todo Add link to doc) for
-                                  details about the available strategies.
+                                  models.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
