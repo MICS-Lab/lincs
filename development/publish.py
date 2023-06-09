@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import glob
+import os
 import shutil
 import subprocess
 import sys
@@ -136,6 +137,7 @@ def publish(new_version):
     for i in range(12):
         try:
             subprocess.run(["pip3", "download", "--no-deps", f"lincs=={new_version}"], check=True)
+            os.unlink(f"lincs-{new_version}.tar.gz")
             break
         except subprocess.CalledProcessError:
             print("PyPI is not ready yet, retrying soon...")
