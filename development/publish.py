@@ -132,14 +132,14 @@ def publish(new_version):
     subprocess.run(["twine", "upload", "--repository", "lincs"] + glob.glob("dist/*.tar.gz"), check=True)
 
     subprocess.run([
-        "docker", "build",
+        "sudo", "docker", "build",
         "--build-arg", f"LINCS_VERSION={new_version}",
         "--tag", f"jacquev6/lincs:{new_version}",
         "--tag", "jacquev6/lincs:latest",
         "docker"
     ], check=True)
-    subprocess.run(["docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
-    subprocess.run(["docker", "push", "jacquev6/lincs:latest"], check=True)
+    subprocess.run(["sudo", "docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
+    subprocess.run(["sudo", "docker", "push", "jacquev6/lincs:latest"], check=True)
 
     subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)
