@@ -37,7 +37,9 @@ It's based on work by:
 - Emma Dixneuf, Thibault Monsel and Thomas Vindard (`C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_)
 
 @todo Add links to the fundamental articles for NCS.
+
 @todo Add links to the articles that define other learning methods we re-implement.
+
 
 Project goals
 =============
@@ -56,6 +58,13 @@ See our `contributor guide <https://mics-lab.github.io/lincs/contributor-guide.h
 
 *lincs* also provides a benchmark framework to compare algorithms (@todo Implement and document).
 This should make it easier to understand the relative strengths and weaknesses of each algorithm.
+
+
+Versioning
+==========
+
+Starting with version 1.0.0, *lincs* tries to apply `semantic versioning <https://semver.org/>`_ at a *code* level:
+upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.
 
 
 Get started
