@@ -192,6 +192,8 @@ void auto_enum(const std::string& name) {
 BOOST_PYTHON_MODULE(liblincs) {
   iterable_converter()
     .from_python<std::vector<float>>()
+    .from_python<std::vector<unsigned>>()
+    .from_python<std::vector<std::vector<unsigned>>>()
     .from_python<std::vector<lincs::Problem::Category>>()
     .from_python<std::vector<lincs::Problem::Criterion>>()
     .from_python<std::vector<lincs::Model::Boundary>>()
@@ -249,10 +251,16 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 
-  bp::class_<lincs::Model::SufficientCoalitions>("SufficientCoalitions", bp::init<lincs::Model::SufficientCoalitions::Kind, std::vector<float>>())
+  bp::class_<lincs::Model::SufficientCoalitions::Weights>("Weights", bp::no_init);
+  bp::class_<lincs::Model::SufficientCoalitions::Roots>("Roots", bp::no_init);
+  auto c = bp::class_<lincs::Model::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
+    .def(bp::init<lincs::Model::SufficientCoalitions::Weights, std::vector<float>>())
+    .def(bp::init<lincs::Model::SufficientCoalitions::Roots, unsigned, std::vector<std::vector<unsigned>>>())
     .def_readwrite("kind", &lincs::Model::SufficientCoalitions::kind)
     .def_readwrite("criterion_weights", &lincs::Model::SufficientCoalitions::criterion_weights)
   ;
+  c.attr("weights") = lincs::Model::SufficientCoalitions::weights;
+  c.attr("roots") = lincs::Model::SufficientCoalitions::roots;
 
   bp::class_<std::vector<float>>("floats_vector")
     .def(bp::vector_indexing_suite<std::vector<float>>())

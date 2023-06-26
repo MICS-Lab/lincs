@@ -86,10 +86,7 @@ Model generate_mrsort_model(const Problem& problem, const unsigned random_seed, 
     denormalized_weights.begin(),
     [weights_sum](float w) { return w * weights_sum; });
 
-  Model::SufficientCoalitions coalitions{
-    Model::SufficientCoalitions::Kind::weights,
-    denormalized_weights,
-  };
+  Model::SufficientCoalitions coalitions{Model::SufficientCoalitions::weights, denormalized_weights};
 
   std::vector<Model::Boundary> boundaries;
   boundaries.reserve(categories_count - 1);

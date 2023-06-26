@@ -106,13 +106,13 @@ class ModelTestCase(unittest.TestCase):
 
     def test_init_one_empty_boundary(self):
         problem = Problem([], [])
-        model = Model(problem, [Boundary([], SufficientCoalitions(SufficientCoalitionsKind.weights, []))])
+        model = Model(problem, [Boundary([], SufficientCoalitions(SufficientCoalitions.weights, []))])
         self.assertEqual(len(model.boundaries), 1)
         self.assertEqual(len(model.boundaries[0].profile), 0)
         self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitionsKind.weights)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
 
-    def test_init_three_criteria_two_categories(self):
+    def test_init_three_criteria_two_categories_weights_boundary(self):
         problem = Problem(
             [
                 Criterion("Criterion 1", ValueType.real, CategoryCorrelation.growing),
@@ -128,18 +128,46 @@ class ModelTestCase(unittest.TestCase):
             [
                 Boundary(
                     [5., 5., 5],
-                    SufficientCoalitions(SufficientCoalitionsKind.weights, [0.7, 0.7, 1])
+                    SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.7, 1])
                 ),
             ],
         )
         self.assertEqual(len(model.boundaries), 1)
         self.assertEqual(len(model.boundaries[0].profile), 3)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitionsKind.weights)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 3)
+        # @todo self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 0)
+
+    def test_init_three_criteria_two_categories_roots_boundary(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", ValueType.real, CategoryCorrelation.growing),
+                Criterion("Criterion 2", ValueType.real, CategoryCorrelation.growing),
+                Criterion("Criterion 3", ValueType.real, CategoryCorrelation.growing),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+        model = Model(
+            problem,
+            [
+                Boundary(
+                    [5., 5., 5],
+                    SufficientCoalitions(SufficientCoalitions.roots, 3, [[0, 1], [0, 2]])
+                ),
+            ],
+        )
+        self.assertEqual(len(model.boundaries), 1)
+        self.assertEqual(len(model.boundaries[0].profile), 3)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitionsKind.roots)
+        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
+        # @todo self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 2)
 
     def test_assign_model_attributes(self):
         problem = Problem([], [])
         model = Model(problem, [])
-        model.boundaries = [Boundary([], SufficientCoalitions(SufficientCoalitionsKind.weights, []))]
+        model.boundaries = [Boundary([], SufficientCoalitions(SufficientCoalitions.weights, []))]
         self.assertEqual(len(model.boundaries), 1)
 
 

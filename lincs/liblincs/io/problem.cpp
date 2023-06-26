@@ -61,10 +61,10 @@ type: object
 properties:
   kind:
     type: string
-    enum: [classification-problem]
+    const: classification-problem
   format_version:
     # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
-    enum: [1]
+    const: 1
   criteria:
     type: array
     items:
