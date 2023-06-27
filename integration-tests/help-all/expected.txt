@@ -155,7 +155,7 @@ Usage: lincs learn classification-model [OPTIONS] PROBLEM LEARNING_SET
 Options:
   --output-model FILENAME         Write the learned classification model to
                                   this file instead of standard output.
-  --model-type [mrsort]           The type of classification model to learn.
+  --model-type [mrsort|ucncs]     The type of classification model to learn.
                                   [default: mrsort]
   --mrsort.strategy [weights-profiles-breed]
                                   The top-level strategy to use to learn the
@@ -653,6 +653,27 @@ initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object
     C++ signature :
         void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
 
+lincs.SatCoalitionUcncsLearningUsingMinisat
+===========================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Problem,lincs::Alternatives)
+
+perform
+-------
+
+
+perform( (SatCoalitionUcncsLearningUsingMinisat)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
+
 lincs.SufficientCoalitions
 ==========================
 
@@ -660,16 +681,27 @@ __init__
 --------
 
 
-__init__( (object)arg1, (SufficientCoalitionsKind)arg2, (floats_vector)arg3) -> None :
+__init__( (object)arg1, (Weights)arg2, (floats_vector)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::Model::SufficientCoalitions::Kind,std::vector<float, std::allocator<float> >)
+        void __init__(_object*,lincs::Model::SufficientCoalitions::Weights,std::vector<float, std::allocator<float> >)
+
+__init__( (object)arg1, (Roots)arg2, (int)arg3, (object)arg4) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Model::SufficientCoalitions::Roots,unsigned int,std::vector<std::vector<unsigned int, std::allocator<unsigned int> >, std::allocator<std::vector<unsigned int, std::allocator<unsigned int> > > >)
 
 criterion_weights
 -----------------
 
 kind
 ----
+
+roots
+-----
+
+weights
+-------
 
 lincs.SufficientCoalitionsKind
 ==============================
@@ -678,6 +710,9 @@ __init__
 --------
 
 Initialize self.  See help(type(self)) for accurate signature.
+
+roots
+-----
 
 weights
 -------

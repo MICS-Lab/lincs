@@ -22,7 +22,7 @@ int main() {
 
   problem.dump(std::cout);
 
-  lincs::Model model{problem, {{{10.f, 10.f}, {lincs::Model::SufficientCoalitions::Kind::weights, {0.4f, 0.7f}}}}};
+  lincs::Model model{problem, {{{10.f, 10.f}, {lincs::Model::SufficientCoalitions::weights, {0.4f, 0.7f}}}}};
   {
     std::ostringstream oss;
     model.dump(oss);

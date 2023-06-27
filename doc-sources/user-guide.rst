@@ -156,6 +156,49 @@ This should output a similar model, with slight numerical differences.
 
 .. EXTEND other-learnings/run.sh
 
+You can also use an entirely different approach using a SAT solver::
+
+    lincs learn classification-model problem.yml learning-set.csv \
+      --output-model minisat-trained-model.yml \
+      --model-type ucncs
+
+.. STOP
+
+.. START other-learnings/expected-minisat-trained-model.yml
+
+It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
+
+    kind: ncs-classification-model
+    format_version: 1
+    boundaries:
+      - profile:
+          - 1
+          - 0.0552680492
+          - 0.161919117
+          - 0.995402098
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            -
+              - 1
+              - 2
+      - profile:
+          - 1
+          - 0.325211823
+          - 0.672662616
+          - 0.996754646
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            -
+              - 1
+              - 2
+.. STOP
+
+.. EXTEND other-learnings/run.sh
+    diff expected-minisat-trained-model.yml minisat-trained-model.yml
+.. STOP
+
 Output location
 ~~~~~~~~~~~~~~~
 
