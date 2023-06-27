@@ -24,6 +24,7 @@ struct convert<lincs::Model::SufficientCoalitions> {
         node["criterion_weights"] = coalitions.criterion_weights;
         break;
       case lincs::Model::SufficientCoalitions::Kind::roots:
+        // @todo Emit each root as a single-line compact array of integers
         node["upset_roots"] = coalitions.get_upset_roots();
         break;
     }

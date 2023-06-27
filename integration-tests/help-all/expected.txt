@@ -155,7 +155,7 @@ Usage: lincs learn classification-model [OPTIONS] PROBLEM LEARNING_SET
 Options:
   --output-model FILENAME         Write the learned classification model to
                                   this file instead of standard output.
-  --model-type [mrsort]           The type of classification model to learn.
+  --model-type [mrsort|ucncs]     The type of classification model to learn.
                                   [default: mrsort]
   --mrsort.strategy [weights-profiles-breed]
                                   The top-level strategy to use to learn the
@@ -652,6 +652,27 @@ initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object
 
     C++ signature :
         void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
+
+lincs.SatCoalitionUcncsLearningUsingMinisat
+===========================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Problem,lincs::Alternatives)
+
+perform
+-------
+
+
+perform( (SatCoalitionUcncsLearningUsingMinisat)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
 lincs.SufficientCoalitions
 ==========================

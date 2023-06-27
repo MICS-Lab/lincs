@@ -400,12 +400,11 @@ def learn():
     "model-type",
     dict(
         help="The type of classification model to learn.",
-        type=click.Choice(["mrsort"]),
+        type=click.Choice(["mrsort", "ucncs"]),
         default="mrsort",
         show_default=True,
     ),
     {
-        "ucncs": [],
         "mrsort": [
             (
                 "strategy",
@@ -539,6 +538,7 @@ def learn():
                 },
             ),
         ],
+        "ucncs": [],
     },
 )
 def classification_model(
@@ -585,6 +585,7 @@ def classification_model(
                     gpu_models = lincs.make_gpu_models(models)
                     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(models, gpu_models)
 
+            # @todo Implement breeding strategies
             assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
             assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
 
@@ -595,6 +596,8 @@ def classification_model(
                 profiles_improvement_strategy,
                 termination_strategy,
             )
+    elif model_type == "ucncs":
+        learning = lincs.SatCoalitionUcncsLearningUsingMinisat(problem, learning_set)
 
     model = learning.perform()
     model.dump(output_model)

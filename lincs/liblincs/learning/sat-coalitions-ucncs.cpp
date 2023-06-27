@@ -1,0 +1,205 @@
+// Copyright 2023 Vincent Jacques
+
+#include "sat-coalitions-ucncs.hpp"
+
+#include <algorithm>
+#include <map>
+
+#include "../sat/minisat.hpp"
+
+
+namespace lincs {
+
+template<typename SatProblem>
+Model SatCoalitionUcncsLearning<SatProblem>::perform() {
+  const unsigned criteria_count = problem.criteria.size();
+  const unsigned categories_count = problem.categories.size();
+
+  std::vector<std::vector<float>> unique_values(criteria_count);
+  for (auto alternative : learning_set.alternatives) {
+    for (uint i = 0; i != criteria_count; ++i) {
+      unique_values[i].push_back(alternative.profile[i]);
+    }
+  }
+  for (auto& v : unique_values) {
+    std::sort(v.begin(), v.end());
+    v.erase(std::unique(v.begin(), v.end()), v.end());
+  }
+
+  SatProblem sat;
+
+  // x[i][h][k]: value k is above profile h on criterion i
+  std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> x(criteria_count);
+  for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    x[criterion_index].resize(categories_count);
+    for (uint category_index = 0; category_index != categories_count - 1; ++category_index) {
+      x[criterion_index][category_index].resize(unique_values[criterion_index].size());
+      for (uint value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
+        x[criterion_index][category_index][value_index] = sat.create_variable();
+      }
+    }
+  }
+
+  // A subsets b of criteria (i.e. a coalition) is represented
+  // as a bitset where bit i is set if and only if criteria i is in b.
+  // y[b]: coalition b is sufficient
+  uint subsets_count = 1 << criteria_count;
+  std::vector<typename SatProblem::variable_type> y(subsets_count);
+  for (uint subset = 0; subset != subsets_count; ++subset) {
+    y[subset] = sat.create_variable();
+  }
+
+  sat.mark_all_variables_created();
+
+  // Note: "A => B" <=> "-A or B"
+
+  // Ascending scales: values are ordered according to index k
+  // so if a value is above profile h, then values above it are above profile h too
+  // so x[i][h][k] => x[i][h][k + 1]
+  for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    for (uint category_index = 0; category_index != categories_count - 1; ++category_index) {
+      for (uint value_index = 0; value_index != unique_values[criterion_index].size() - 1; ++value_index) {
+        sat.add_clause({-x[criterion_index][category_index][value_index], x[criterion_index][category_index][value_index + 1]});
+      }
+    }
+  }
+
+  // Hierarchy of profiles: profiles are ordered according to index h
+  // so if a value is above a profile h, then it is above lower profiles too
+  // so x[i][h][k] => x[i][hp][k] for hp < h
+  for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    for (uint value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
+      for (uint category_index_a = 0; category_index_a != categories_count - 1; ++category_index_a) {
+        for (uint category_index_b = 0; category_index_b != category_index_a; ++category_index_b) {
+          sat.add_clause({-x[criterion_index][category_index_a][value_index], x[criterion_index][category_index_b][value_index]});
+        }
+      }
+    }
+  }
+
+  // Coalitions strength: coalitions are an upset
+  // so if coalition b is sufficient and b is included in bp, then bp is sufficient too
+  // so y[b] => y[bp] for b included in bp
+  // @todo Optimize this nested loop on pairs of coalitions using the fact that b is included in bp
+  for (uint subset_a = 0; subset_a != subsets_count; ++subset_a) {
+    for (uint subset_b = 0; subset_b != subsets_count; ++subset_b) {
+      // "subset_a included in subset_b" <=> "all bits set in subset_a are set in subset_b"
+      if ((subset_a & subset_b) == subset_a && subset_a != subset_b) {
+        sat.add_clause({-y[subset_a], y[subset_b]});
+      }
+    }
+  }
+
+  std::map<std::string, unsigned> category_indexes;
+  for (const auto& category: problem.categories) {
+    category_indexes[category.name] = category_indexes.size();
+  }
+
+  // Alternatives are outranked by boundary above them
+  for (auto alternative : learning_set.alternatives) {
+    const uint category_index = category_indexes[*alternative.category];
+    if (category_index == problem.categories.size() - 1) {
+      continue;
+    }
+    for (uint subset = 0; subset != subsets_count; ++subset) {
+      std::vector<typename SatProblem::variable_type> clause;
+      for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+        // "criterion_index in subset" <=> "bit criterion_index is set in subset"
+        if (subset & (1 << criterion_index)) {
+          const auto lb = std::lower_bound(unique_values[criterion_index].begin(), unique_values[criterion_index].end(), alternative.profile[criterion_index]);
+          assert(lb != unique_values[criterion_index].end());
+          const uint value_index = lb - unique_values[criterion_index].begin();
+          assert(criterion_index < x.size());
+          assert(category_index < x[criterion_index].size());
+          assert(value_index < x[criterion_index][category_index].size());
+          clause.push_back(-x[criterion_index][category_index][value_index]);
+        }
+      }
+      clause.push_back(-y[subset]);
+      sat.add_clause(clause);
+    }
+  }
+
+  // Alternatives outrank the boundary below them
+  for (auto alternative : learning_set.alternatives) {
+    const uint category_index = category_indexes[*alternative.category];
+    if (category_index == 0) {
+      continue;
+    }
+    for (uint subset = 0; subset != subsets_count; ++subset) {
+      std::vector<typename SatProblem::variable_type> clause;
+      for (uint criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+        // "criterion_index in subset" <=> "bit criterion_index is set in subset"
+        if (subset & (1 << criterion_index)) {
+          const auto lb = std::lower_bound(unique_values[criterion_index].begin(), unique_values[criterion_index].end(), alternative.profile[criterion_index]);
+          assert(lb != unique_values[criterion_index].end());
+          const uint value_index = lb - unique_values[criterion_index].begin();
+          assert(criterion_index < x.size());
+          assert(category_index - 1 < x[criterion_index].size());
+          assert(value_index < x[criterion_index][category_index - 1].size());
+          clause.push_back(x[criterion_index][category_index - 1][value_index]);
+        }
+      }
+      uint subset_complement = ~subset & (subsets_count - 1);
+      clause.push_back(y[subset_complement]);
+      sat.add_clause(clause);
+    }
+  }
+
+  auto solution = sat.solve();
+
+  std::vector<Model::Boundary> boundaries;
+  for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
+    std::vector<float> profile(criteria_count);
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      bool found = false;
+      // @todo Replace next loop with a binary search
+      for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
+        if (solution[x[criterion_index][category_index][value_index]]) {
+          if (value_index == 0) {
+            profile[criterion_index] = unique_values[criterion_index][value_index];
+          } else {
+            profile[criterion_index] = (unique_values[criterion_index][value_index - 1] + unique_values[criterion_index][value_index]) / 2;
+          }
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        profile[criterion_index] = 1;  // @todo Use the max value for the criterion
+      }
+    }
+
+    std::vector<std::vector<unsigned>> roots;
+    for (uint subset_a = 0; subset_a != subsets_count; ++subset_a) {
+      if (solution[y[subset_a]]) {
+        bool is_root = true;
+        // @todo Optimize this search for actual roots; it may be something like a transitive reduction
+        for (uint subset_b = 0; subset_b != subsets_count; ++subset_b) {
+          if (solution[y[subset_b]]) {
+            if ((subset_a & subset_b) == subset_b && subset_a != subset_b) {
+              is_root = false;
+              break;
+            }
+          }
+        }
+        if (is_root) {
+          roots.emplace_back();
+          for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+            if (subset_a & (1 << criterion_index)) {
+              roots.back().push_back(criterion_index);
+            }
+          }
+        }
+      }
+    }
+
+    boundaries.emplace_back(profile, Model::SufficientCoalitions{Model::SufficientCoalitions::roots, criteria_count, roots});
+  }
+
+  return Model{problem, boundaries};
+}
+
+template class SatCoalitionUcncsLearning<MinisatSatProblem>;
+
+}  // namespace lincs

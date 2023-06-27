@@ -346,3 +346,19 @@ class MrSortLearningTestCase(unittest.TestCase):
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
+
+    def test_sat_by_coalitions_using_minisat_learning(self):
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+
+        learned_model = SatCoalitionUcncsLearningUsingMinisat(problem, learning_set).perform()
+
+        result = classify_alternatives(problem, learned_model, learning_set)
+        self.assertEqual(result.changed, 0)
+        self.assertEqual(result.unchanged, 200)
+
+        testing_set = generate_alternatives(problem, model, 1000, 44)
+        result = classify_alternatives(problem, learned_model, testing_set)
+        self.assertEqual(result.changed, 33)
+        self.assertEqual(result.unchanged, 967)
