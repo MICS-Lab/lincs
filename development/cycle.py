@@ -66,7 +66,7 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
     print("Running C++ unit tests")
     print("======================")
     print(flush=True)
-    run_cpp_tests(forbid_gpu=forbid_gpu)
+    run_cpp_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
     print()
 
     print("Running Python unit tests")
@@ -111,7 +111,7 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
         subprocess.run(["git", "clean", "-fd", "docs"], check=True, capture_output=True)
 
 
-def run_cpp_tests(*, forbid_gpu):
+def run_cpp_tests(*, skip_long, forbid_gpu):
     subprocess.run(
         [
             "g++",
@@ -122,6 +122,8 @@ def run_cpp_tests(*, forbid_gpu):
     )
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
+    if skip_long:
+        env["LINCS_DEV_SKIP_LONG"] = "true"
     if forbid_gpu:
         env["LINCS_DEV_FORBID_GPU"] = "true"
     subprocess.run(
