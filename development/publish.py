@@ -5,24 +5,32 @@ import glob
 import os
 import shutil
 import subprocess
-import sys
-import time
+import textwrap
 
+import auditwheel.wheel_abi
 import click
 import semver
 
-from cycle import build_sphinx_documentation
+from cycle import build_sphinx_documentation, print_title
+
+
+python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
 
 
 @click.command()
-@click.argument("level", type=click.Choice(["patch", "minor", "major"]))
+@click.argument("level", type=click.Choice(["patch", "minor", "major", "dry-run"]))
 def main(level):
-    check_cleanliness()
+    dry_run = level == "dry-run"
+    if not dry_run:
+        check_cleanliness()
     new_version = bump_version(level)
-    update_changelog(new_version)
-    build_sphinx_documentation()
-    publish(new_version)
-    prepare_next_version(new_version)
+    if not dry_run:
+        update_changelog(new_version)
+        build_sphinx_documentation()
+    build_archives(new_version)
+    if not dry_run:
+        publish(new_version)
+        prepare_next_version(new_version)
 
 
 def check_cleanliness():
@@ -49,6 +57,9 @@ def bump_version(level):
 
     assert dev_version.prerelease == "dev"
     assert dev_version.build is None
+
+    if level == "dry-run":
+        return str(dev_version).replace("-dev", ".dev0")
 
     print("Development version:", dev_version)
     if level == "patch":
@@ -112,16 +123,67 @@ def update_changelog(new_version):
     input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
 
 
-def publish(new_version):
+def build_archives(new_version):
     shutil.rmtree("dist", ignore_errors=True)
-    shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("lincs.egg-info", ignore_errors=True)
+    for path in glob.glob("/tmp/lincs-*"):
+        shutil.rmtree(path)
 
-    # @todo Create a manylinux wheel and upload it (https://stackoverflow.com/a/59586096/905845)
-    # Remove --sdist, upload the produced wheels as well as the produced tar.gz sdist.
+    print_title("Building source archive and Docker image")
     subprocess.run(["python3", "-m", "build", "--sdist"], check=True)
-    subprocess.run(["twine", "check"] + glob.glob("dist/*.tar.gz"), check=True)
+    shutil.rmtree("lincs.egg-info")
+    source_dist = f"dist/lincs-{new_version}.tar.gz"
+    subprocess.run(["twine", "check", source_dist], check=True)
+    os.link(source_dist, f"docker/lincs-{new_version}.tar.gz")
+    try:
+        subprocess.run([
+            "sudo", "docker", "build",
+            "--build-arg", f"LINCS_VERSION={new_version}",
+            "--tag", f"jacquev6/lincs:{new_version}",
+            "docker"
+        ], check=True)
+    finally:
+        os.unlink(f"docker/lincs-{new_version}.tar.gz")
+    print()
 
+    platform = None
+    for python_version in python_versions:
+        print_title(f"Building wheel for Python {python_version}")
+        shutil.rmtree(f"/tmp/lincs-{new_version}", ignore_errors=True)
+        subprocess.run(["tar", "xf", os.path.abspath(source_dist)], cwd="/tmp", check=True)
+
+        subprocess.run([f"python{python_version}", "-m", "build", "--wheel", f"/tmp/lincs-{new_version}"], check=True)
+        suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
+        linux_wheel = f"/tmp/lincs-{new_version}/dist/lincs-{new_version}-cp{python_version.replace('.', '')}-cp{python_version.replace('.', '')}{suffix}-linux_x86_64.whl"
+        if platform is None:
+            # Inspired from the code of the 'auditwheel show' command, to get just what we need from its output
+            platform = auditwheel.wheel_abi.analyze_wheel_abi(linux_wheel).sym_tag
+
+        subprocess.run(["auditwheel", "repair", "--plat", platform, "--wheel-dir", "dist", "--strip", linux_wheel], check=True)
+
+        subprocess.run(["twine", "check", linux_wheel], check=True)
+
+        subprocess.run(
+            [
+                "sudo", "docker", "run",
+                "--volume", f"{os.environ['HOST_ROOT_DIR']}/dist:/dist",
+                "--rm",
+                f"python:{python_version}-slim",
+                "sh", "-c", textwrap.dedent(f"""\
+                    set -o errexit
+
+                    pip install --only-binary lincs --find-links /dist lincs=={new_version}
+                    python -m lincs --help
+                    lincs --help
+                """),
+            ],
+            check=True,
+        )
+        print()
+
+
+def publish(new_version):
+    print_title("Publishing to PyPI")
     # The --repository option on next line assumes ~/.pypirc contains:
     # [distutils]
     #   index-servers=
@@ -131,28 +193,16 @@ def publish(new_version):
     #   repository = https://upload.pypi.org/legacy/
     #   username = __token__
     #   password = ... a token for package lincs
-    subprocess.run(["twine", "upload", "--repository", "lincs"] + glob.glob("dist/*.tar.gz"), check=True)
+    subprocess.run(["twine", "upload", "--repository", "lincs"] + glob.glob("dist/*"), check=True)
+    print()
 
-    # Give PyPI some time to process the publication
-    for i in range(12):
-        try:
-            subprocess.run(["pip3", "download", "--no-deps", f"lincs=={new_version}"], check=True)
-            os.unlink(f"lincs-{new_version}.tar.gz")
-            break
-        except subprocess.CalledProcessError:
-            print("PyPI is not ready yet, retrying soon...")
-            time.sleep(10)
-
-    subprocess.run([
-        "sudo", "docker", "build",
-        "--build-arg", f"LINCS_VERSION={new_version}",
-        "--tag", f"jacquev6/lincs:{new_version}",
-        "--tag", "jacquev6/lincs:latest",
-        "docker"
-    ], check=True)
+    print_title("Publishing to Docker Hub")
+    subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}", "jacquev6/lincs:latest"], check=True)
     subprocess.run(["sudo", "docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
     subprocess.run(["sudo", "docker", "push", "jacquev6/lincs:latest"], check=True)
+    print()
 
+    print_title("Publishing to GitHub")
     subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)
     subprocess.run(["git", "tag", f"v{new_version}"], check=True)

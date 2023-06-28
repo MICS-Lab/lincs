@@ -54,8 +54,8 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
     # With lincs not installed
     ##########################
 
-    print_title("Building extension module in debug mode")
     for python_version in python_versions:
+        print_title(f"Building extension module in debug mode for Python {python_version}")
         subprocess.run(
             [
                 f"python{python_version}", "setup.py", "build_ext",
@@ -64,10 +64,10 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
             ],
             check=True,
         )
-    print()
+        print()
 
     print_title("Running C++ unit tests")
-    run_cpp_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
+    run_cpp_tests(python_version=python_versions[-1], skip_long=skip_long, forbid_gpu=forbid_gpu)
     print()
 
     for python_version in python_versions:
@@ -110,11 +110,11 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, skip_long, forbid_gpu):
+def run_cpp_tests(*, python_version, skip_long, forbid_gpu):
     subprocess.run(
         [
             "g++",
-            "-L.", "-llincs.cpython-310-x86_64-linux-gnu",  # Contains the `main` function
+            "-L.", f"-llincs.cpython-{python_version.replace('.', '')}-x86_64-linux-gnu",  # Contains the `main` function
             "-o", "/tmp/lincs-tests",
         ],
         check=True,
@@ -257,6 +257,8 @@ def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
             print("FAILED")
             print(flush=True)
             ok = False
+        else:
+            print()
     if not ok:
         exit(1)
 

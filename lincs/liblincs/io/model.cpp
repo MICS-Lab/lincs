@@ -168,11 +168,22 @@ TEST_CASE("dumping then loading problem preserves data - weights") {
 
   Model model{
     problem,
-    {{{0.5}, {Model::SufficientCoalitions::weights, {1}}}},
+    {{{0.4}, {Model::SufficientCoalitions::weights, {0.7}}}},
   };
 
   std::stringstream ss;
   model.dump(ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile:
+      - 0.4
+    sufficient_coalitions:
+      kind: weights
+      criterion_weights:
+        - 0.7
+)");
 
   Model model2 = Model::load(problem, ss);
   CHECK(model2.boundaries == model.boundaries);
@@ -195,6 +206,23 @@ TEST_CASE("dumping then loading problem preserves data - roots") {
 
   std::stringstream ss;
   model.dump(ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile:
+      - 0.4
+      - 0.5
+      - 0.6
+    sufficient_coalitions:
+      kind: roots
+      upset_roots:
+        -
+          - 0
+        -
+          - 1
+          - 2
+)");
 
   Model model2 = Model::load(problem, ss);
   CHECK(model2.boundaries == model.boundaries);

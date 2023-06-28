@@ -1,9 +1,15 @@
 # Copyright 2023 Vincent Jacques
 
-FROM ubuntu:22.04
-# @todo Consider downgrading to ubuntu:20.04
-#  - to support Python 3.5 and 3.6 (See "Supported Ubuntu and Python Versions" in https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa)
-#  - to provide slightly more usable manylinux_2_y wheels (i.e. with a smaller "y")
+FROM ubuntu:20.04
+# About the choice of Ubuntu 20.04 instead of 22.04: it an acceptable compromise:
+# - it's an LTS version as well
+# - the deadsnakes PPA supports it
+# - NVidia supports the same versions of CUDA as for 22.04
+# - its gcc version supports C++17
+# - it allows building manylinux_2_31 wheels, which are slightly more widely usable than the manylinux_2_34 wheels produced on 22.04
+
+# @todo Clean-up intermediate files (tarballs, source and build directories, etc.)
+# @todo Use Docker build stages to avoid re-downloading tarballs (but keep it compatible with the clean-up of intermediate files)
 
 # System packages
 RUN set -x \
@@ -19,7 +25,6 @@ RUN set -x \
       graphviz \
       libyaml-cpp-dev \
       python3-dev \
-      python3-pip \
       python3-venv \
       software-properties-common \
       ssh \
@@ -30,14 +35,18 @@ RUN set -x \
 # Python versions
 ENV LINCS_DEV_PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11"
 RUN set -x \
+ && default_python_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')") \
+ && non_default_python_versions=$(\
+      for python_version in $LINCS_DEV_PYTHON_VERSIONS; do echo $python_version; done \
+      | grep -v $default_python_version \
+    ) \
  && add-apt-repository ppa:deadsnakes/ppa \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      $( \
-        for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "python$version python$version-dev python$version-distutils python$version-venv"; done \
-        | grep -v 3.10 `# Default version provided by Ubuntu` \
-      ) \
- && apt-get clean
+      $(for python_version in $non_default_python_versions; do echo "python$python_version-dev python$python_version-distutils python$python_version-venv"; done) \
+ && apt-get clean \
+ && wget https://bootstrap.pypa.io/get-pip.py \
+ && for python_version in $non_default_python_versions $default_python_version; do python$python_version get-pip.py || exit 1; done
 
 # Boost
 RUN set -x \
@@ -52,8 +61,8 @@ RUN set -x \
 
 # NVidia packages
 RUN set -x \
- && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub \
- && add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /" \
+ && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub \
+ && add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       cuda-cudart-dev-12-1 \
@@ -67,7 +76,6 @@ RUN set -x \
  && tar xf or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
  && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include \
  && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib \
- && rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
  && ldconfig
 
 # MagicEnum
@@ -100,8 +108,7 @@ RUN set -x \
  && mkdir /usr/local/include/alglib \
  && cp -r *.h /usr/local/include/alglib \
  && cp -r libalglib.a /usr/local/lib \
- && cd ../.. \
- && rm -r alglib-cpp alglib-4.00.0.cpp.gpl.tgz
+ && cd ../..
 
 # Valijson
 RUN set -x \
@@ -123,25 +130,32 @@ RUN set -x \
  && make install \
  && ldconfig
 
-# Python packages
-RUN pip3 install \
-      build \
+# Python packages: development and publication tools
+RUN set -x \
+ && pip3 install \
+      auditwheel \
       semver \
       sphinx \
       sphinx-click \
       sphinx-jsonschema \
       sphinxcontrib-details-directive \
-      twine
+      twine \
+ && for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
+      build \
+    || exit 1; done
+# Recent patchelf version for 'auditwheel repair'
+RUN set -x \
+ && mkdir patchelf \
+ && cd patchelf \
+ && wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz \
+ && tar xf patchelf-0.18.0-x86_64.tar.gz \
+ && cp bin/patchelf /usr/local/bin
 
-# Python packages again, to speed-up development cycle
-RUN for version in $LINCS_DEV_PYTHON_VERSIONS; \
-    do \
-      python$version -m pip install \
-        click~=8.1 \
-        matplotlib~=3.5 \
-      || exit 1 \
-    ; \
-    done
+# Python packages: runtime dependencies
+RUN for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
+      click~=8.1 \
+      matplotlib~=3.5 \
+    || exit 1; done
 
 # User
 ARG UID

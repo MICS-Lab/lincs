@@ -70,4 +70,5 @@ ENV PATH=/usr/local/cuda-12.1/bin:$PATH
 RUN ldconfig
 
 ARG LINCS_VERSION
-RUN pip3 install lincs==$LINCS_VERSION
+COPY lincs-$LINCS_VERSION.tar.gz /dist/lincs-$LINCS_VERSION.tar.gz
+RUN pip3 install --find-links /dist lincs==$LINCS_VERSION
