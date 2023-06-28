@@ -43,6 +43,10 @@ import click
     """),
 )
 def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
+    python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
+    if skip_long:
+        python_versions = [python_versions[0], python_versions[-1]]
+
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
 
     shutil.rmtree("build", ignore_errors=True)
@@ -50,65 +54,60 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
     # With lincs not installed
     ##########################
 
-    print("Building extension module in debug mode")
-    print("=======================================")
-    print(flush=True)
-    subprocess.run(
-        [
-            f"python3", "setup.py", "build_ext",
-            "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
-            "--parallel", str(multiprocessing.cpu_count() - 1),
-        ],
-        check=True,
-    )
+    print_title("Building extension module in debug mode")
+    for python_version in python_versions:
+        subprocess.run(
+            [
+                f"python{python_version}", "setup.py", "build_ext",
+                "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
+                "--parallel", str(multiprocessing.cpu_count() - 1),
+            ],
+            check=True,
+        )
     print()
 
-    print("Running C++ unit tests")
-    print("======================")
-    print(flush=True)
+    print_title("Running C++ unit tests")
     run_cpp_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
     print()
 
-    print("Running Python unit tests")
-    print("=========================")
-    print(flush=True)
-    run_python_tests(forbid_gpu=forbid_gpu)
-    print()
+    for python_version in python_versions:
+        print_title(f"Running Python {python_version} unit tests")
+        run_python_tests(python_version=python_version, forbid_gpu=forbid_gpu)
+        print()
 
     if stop_after_unit:
         pass
     else:
-        print("Making integration tests from documentation")
-        print("===========================================")
-        print(flush=True)
-
+        print_title("Making integration tests from documentation")
         make_example_integration_test_from_doc()
 
         # Install lincs
         ###############
 
         shutil.rmtree("build", ignore_errors=True)
-
-        print("Installing *lincs*")
-        print("==================")
-        print(flush=True)
-        shutil.rmtree("lincs.egg-info", ignore_errors=True)
-        subprocess.run([f"pip3", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+        for python_version in python_versions:
+            print_title(f"Installing *lincs* for Python {python_version}")
+            shutil.rmtree("lincs.egg-info", ignore_errors=True)
+            subprocess.run([f"python{python_version}", "-m", "pip", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
 
         # With lincs installed
         ######################
 
-        run_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
+        print_title("Running integration tests")
+        run_integration_tests(python_versions=python_versions, skip_long=skip_long, forbid_gpu=forbid_gpu)
 
     if with_docs:
-        print("Building Sphinx documentation")
-        print("=============================")
-        print(flush=True)
+        print_title("Building Sphinx documentation")
         build_sphinx_documentation()
-        print()
     else:
         subprocess.run(["git", "checkout", "--", "docs"], check=True, capture_output=True)
         subprocess.run(["git", "clean", "-fd", "docs"], check=True, capture_output=True)
+
+
+def print_title(title, under="="):
+    print(title)
+    print(under * len(title))
+    print(flush=True)
 
 
 def run_cpp_tests(*, skip_long, forbid_gpu):
@@ -134,13 +133,14 @@ def run_cpp_tests(*, skip_long, forbid_gpu):
         env=env,
     )
 
-def run_python_tests(*, forbid_gpu):
+
+def run_python_tests(*, python_version, forbid_gpu):
     env = dict(os.environ)
     if forbid_gpu:
         env["LINCS_DEV_FORBID_GPU"] = "true"
     subprocess.run(
         [
-            "python3", "-m", "unittest", "discover",
+            f"python{python_version}", "-m", "unittest", "discover",
             "--pattern", "*.py",
             "--start-directory", "lincs", "--top-level-directory", ".",
         ],
@@ -228,37 +228,35 @@ def build_sphinx_documentation():
         f.write(original_content)
 
 
-def run_integration_tests(*, skip_long, forbid_gpu):
-    print("Running integration tests")
-    print("=========================")
-    print()
+def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
+    env = dict(os.environ)
+    env["LINCS_DEV_PYTHON_VERSIONS"] = " ".join(python_versions)
+
     ok = True
     for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
         test_name = test_file_name[18:-7]
-        print(test_name)
-        print("-" * len(test_name), flush=True)
 
         if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):
-            print(f"{test_name}: SKIPPED")
-            print(flush=True)
+            print_title(f"{test_name}: SKIPPED (is long)", '-')
             continue
 
         if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "uses-gpu")):
-            print(f"{test_name}: SKIPPED")
-            print(flush=True)
+            print_title(f"{test_name}: SKIPPED (uses GPU)", '-')
             continue
+
+        print_title(test_name, '-')
 
         try:
             subprocess.run(
                 ["bash", "run.sh"],
                 cwd=os.path.dirname(test_file_name),
                 check=True,
+                env=env,
             )
         except subprocess.CalledProcessError as e:
-            print(f"{test_name}: FAILED")
+            print("FAILED")
+            print(flush=True)
             ok = False
-        else:
-            print()
     if not ok:
         exit(1)
 

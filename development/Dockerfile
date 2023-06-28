@@ -1,6 +1,9 @@
 # Copyright 2023 Vincent Jacques
 
 FROM ubuntu:22.04
+# @todo Consider downgrading to ubuntu:20.04
+#  - to support Python 3.5 and 3.6 (See "Supported Ubuntu and Python Versions" in https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa)
+#  - to provide slightly more usable manylinux_2_y wheels (i.e. with a smaller "y")
 
 # System packages
 RUN set -x \
@@ -14,7 +17,6 @@ RUN set -x \
       git \
       gpg-agent \
       graphviz \
-      libboost-python-dev \
       libyaml-cpp-dev \
       python3-dev \
       python3-pip \
@@ -24,6 +26,29 @@ RUN set -x \
       sudo \
       wget \
  && apt-get clean
+
+# Python versions
+ENV LINCS_DEV_PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11"
+RUN set -x \
+ && add-apt-repository ppa:deadsnakes/ppa \
+ && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+      $( \
+        for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "python$version python$version-dev python$version-distutils python$version-venv"; done \
+        | grep -v 3.10 `# Default version provided by Ubuntu` \
+      ) \
+ && apt-get clean
+
+# Boost
+RUN set -x \
+ && wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz \
+ && tar xf boost_1_82_0.tar.gz \
+ && cd boost_1_82_0 \
+ && (for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "using python : $version ;"; done) >tools/build/src/user-config.jam \
+ && ./bootstrap.sh --with-libraries=python \
+ && ./b2 $(for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "python=$version"; done) \
+ && cd /usr/local/include && ln -s /boost_1_82_0/boost boost \
+ && cd /usr/local/lib && ln -s /boost_1_82_0/stage/lib/* .
 
 # NVidia packages
 RUN set -x \
@@ -85,21 +110,6 @@ RUN set -x \
  && cd valijson-1.0.1 \
  && ./bundle.sh yaml_cpp >/usr/local/include/valijson_yamlcpp_bundled.hpp
 
-# Python packages
-RUN pip3 install \
-      build \
-      semver \
-      sphinx \
-      sphinx-click \
-      sphinx-jsonschema \
-      sphinxcontrib-details-directive \
-      twine
-
-# Python packages again, to speed-up development cycle
-RUN pip3 install \
-      click \
-      matplotlib
-
 # Minisat
 RUN set -x \
  && wget https://github.com/niklasso/minisat/archive/37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz \
@@ -112,6 +122,26 @@ RUN set -x \
  && make config prefix=/usr/local \
  && make install \
  && ldconfig
+
+# Python packages
+RUN pip3 install \
+      build \
+      semver \
+      sphinx \
+      sphinx-click \
+      sphinx-jsonschema \
+      sphinxcontrib-details-directive \
+      twine
+
+# Python packages again, to speed-up development cycle
+RUN for version in $LINCS_DEV_PYTHON_VERSIONS; \
+    do \
+      python$version -m pip install \
+        click~=8.1 \
+        matplotlib~=3.5 \
+      || exit 1 \
+    ; \
+    done
 
 # User
 ARG UID

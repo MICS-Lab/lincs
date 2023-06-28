@@ -4,4 +4,4 @@
 /lincs.egg-info/
 /dist/
 __pycache__/
-/liblincs.cpython-310-x86_64-linux-gnu.so
+/liblincs.cpython-*-x86_64-linux-gnu.so
