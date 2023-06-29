@@ -20,11 +20,11 @@
 #include <string>
 #include <vector>
 
-#include <valijson/constraints/basic_constraint.hpp>
-#include <valijson/internal/custom_allocator.hpp>
-#include <valijson/internal/frozen_value.hpp>
-#include <valijson/schema.hpp>
-#include <valijson/exceptions.hpp>
+#include "basic_constraint.hpp"
+#include "../internal/custom_allocator.hpp"
+#include "../internal/frozen_value.hpp"
+#include "../schema.hpp"
+#include "../exceptions.hpp"
 
 #ifdef _MSC_VER
 #pragma warning( push )

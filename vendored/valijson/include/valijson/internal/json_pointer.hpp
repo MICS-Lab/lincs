@@ -7,9 +7,9 @@
 #include <stdexcept>
 #include <string>
 
-#include <valijson/internal/adapter.hpp>
-#include <valijson/internal/optional.hpp>
-#include <valijson/exceptions.hpp>
+#include "adapter.hpp"
+#include "optional.hpp"
+#include "../exceptions.hpp"
 
 #ifdef _MSC_VER
 #pragma warning( push )

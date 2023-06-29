@@ -78,58 +78,6 @@ RUN set -x \
  && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib \
  && ldconfig
 
-# MagicEnum
-RUN set -x \
- && cd /usr/local/include \
- && wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
-
-# RapidCSV
-RUN set -x \
- && cd /usr/local/include \
- && wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
-
-# Doctest
-RUN set -x \
- && cd /usr/local/include \
- && wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
-
-# Lov-e-cuda
-RUN set -x \
- && cd /usr/local/include \
- && wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
-
-# Alglib
-RUN set -x \
- && wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz \
- && tar xf alglib-4.00.0.cpp.gpl.tgz \
- && cd alglib-cpp/src \
- && for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done \
- && ar rcs libalglib.a *.o \
- && mkdir /usr/local/include/alglib \
- && cp -r *.h /usr/local/include/alglib \
- && cp -r libalglib.a /usr/local/lib \
- && cd ../..
-
-# Valijson
-RUN set -x \
- && wget https://github.com/tristanpenman/valijson/archive/refs/tags/v1.0.1.tar.gz \
- && tar xf v1.0.1.tar.gz \
- && cd valijson-1.0.1 \
- && ./bundle.sh yaml_cpp >/usr/local/include/valijson_yamlcpp_bundled.hpp
-
-# Minisat
-RUN set -x \
- && wget https://github.com/niklasso/minisat/archive/37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz \
- && tar xzf 37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz \
- && cd minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543 \
- `# Patch to compile with modern versions of g++` \
- && sed -i minisat/core/SolverTypes.h \
-      -e 's/friend Lit mkLit(Var var, bool sign = false);/friend Lit mkLit(Var var, bool sign);/' \
-      -e 's/inline  Lit  mkLit     (Var var, bool sign)/inline  Lit  mkLit     (Var var, bool sign = false)/' \
- && make config prefix=/usr/local \
- && make install \
- && ldconfig
-
 # Python packages: development and publication tools
 RUN set -x \
  && pip3 install \

@@ -29,10 +29,10 @@
 #include <yaml-cpp/yaml.h>
 
 #include <utility>
-#include <valijson/internal/adapter.hpp>
-#include <valijson/internal/basic_adapter.hpp>
-#include <valijson/internal/frozen_value.hpp>
-#include <valijson/exceptions.hpp>
+#include "../internal/adapter.hpp"
+#include "../internal/basic_adapter.hpp"
+#include "../internal/frozen_value.hpp"
+#include "../exceptions.hpp"
 
 namespace valijson {
 namespace adapters {

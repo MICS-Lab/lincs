@@ -4,9 +4,9 @@
 #include <memory>
 #include <vector>
 
-#include <valijson/constraints/constraint.hpp>
-#include <valijson/internal/optional.hpp>
-#include <valijson/exceptions.hpp>
+#include "constraints/constraint.hpp"
+#include "internal/optional.hpp"
+#include "exceptions.hpp"
 
 namespace valijson {
 

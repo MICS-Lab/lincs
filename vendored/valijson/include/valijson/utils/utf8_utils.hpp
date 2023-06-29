@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <valijson/exceptions.hpp>
+#include "../exceptions.hpp"
 
 /*
   Basic UTF-8 manipulation routines, adapted from code that was released into

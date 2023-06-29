@@ -66,39 +66,6 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo ldconfig
     rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
 
-    # Alglib
-    wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz
-    tar xf alglib-4.00.0.cpp.gpl.tgz
-    cd alglib-cpp/src
-    for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done
-    ar rcs libalglib.a *.o
-    sudo mkdir /usr/local/include/alglib
-    sudo cp -r *.h /usr/local/include/alglib
-    sudo cp -r libalglib.a /usr/local/lib
-
-    # valijson
-    wget https://github.com/tristanpenman/valijson/archive/refs/tags/v1.0.1.tar.gz
-    tar xf v1.0.1.tar.gz
-    cd valijson-1.0.1
-    ./bundle.sh yaml_cpp | sudo tee /usr/local/include/valijson_yamlcpp_bundled.hpp
-
-    # Minisat
-    wget https://github.com/niklasso/minisat/archive/37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz
-    tar xzf 37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz
-    cd minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543
-    sed -i minisat/core/SolverTypes.h -e 's/friend Lit mkLit(Var var, bool sign = false);/friend Lit mkLit(Var var, bool sign);/'
-    sed -i minisat/core/SolverTypes.h -e 's/inline  Lit  mkLit     (Var var, bool sign)/inline  Lit  mkLit     (Var var, bool sign = false)/'
-    make config prefix=/usr/local
-    sudo make install
-    sudo ldconfig
-
-    # Header-only libraries
-    cd /usr/local/include
-    sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
-    sudo wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
-    sudo wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
-    sudo wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
-
 .. STOP
 
 .. START install/Dockerfile-pre
@@ -150,7 +117,7 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     ) >Dockerfile
 
     mkdir project
-    cp -r ../../../{lincs,requirements.txt,setup.py} project
+    cp -Lr ../../../{lincs,requirements.txt,setup.py} project
     touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
 
     sudo docker build . --tag lincs-development--install --quiet >/dev/null

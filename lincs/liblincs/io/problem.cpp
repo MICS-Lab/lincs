@@ -4,12 +4,12 @@
 
 #include <cassert>
 
-#include <magic_enum.hpp>
 #include <yaml-cpp/yaml.h>
 
+#include "../vendored/magic_enum.hpp"
 #include "validation.hpp"
 
-#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
+#include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
 namespace YAML {

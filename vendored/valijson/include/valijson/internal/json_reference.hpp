@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <valijson/internal/optional.hpp>
+#include "optional.hpp"
 
 namespace valijson {
 namespace internal {

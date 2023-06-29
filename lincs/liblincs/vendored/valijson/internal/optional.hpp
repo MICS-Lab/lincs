@@ -1,0 +1,1 @@
+../../../../../vendored/valijson/include/valijson/internal/optional.hpp

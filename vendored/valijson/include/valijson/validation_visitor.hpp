@@ -5,13 +5,13 @@
 #include <regex>
 #include <unordered_map>
 
-#include <valijson/adapters/std_string_adapter.hpp>
-#include <valijson/constraints/concrete_constraints.hpp>
-#include <valijson/constraints/constraint_visitor.hpp>
+#include "adapters/std_string_adapter.hpp"
+#include "constraints/concrete_constraints.hpp"
+#include "constraints/constraint_visitor.hpp"
 #include <utility>
-#include <valijson/validation_results.hpp>
+#include "validation_results.hpp"
 
-#include <valijson/utils/utf8_utils.hpp>
+#include "utils/utf8_utils.hpp"
 
 #ifdef _MSC_VER
 #pragma warning( push )

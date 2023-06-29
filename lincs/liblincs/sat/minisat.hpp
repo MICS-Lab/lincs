@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include <minisat/simp/SimpSolver.h>
+#include "../vendored/minisat/simp/SimpSolver.h"
 
 
 namespace lincs {

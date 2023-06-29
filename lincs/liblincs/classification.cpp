@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cassert>
 
-#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
+#include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
 namespace lincs {

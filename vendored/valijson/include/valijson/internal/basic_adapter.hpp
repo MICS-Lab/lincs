@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <sstream>
 
-#include <valijson/internal/adapter.hpp>
-#include <valijson/internal/optional.hpp>
-#include <valijson/exceptions.hpp>
+#include "adapter.hpp"
+#include "optional.hpp"
+#include "../exceptions.hpp"
 
 namespace valijson {
 namespace adapters {

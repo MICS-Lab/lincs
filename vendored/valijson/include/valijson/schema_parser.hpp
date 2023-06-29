@@ -6,15 +6,15 @@
 #include <memory>
 #include <functional>
 
-#include <valijson/constraints/concrete_constraints.hpp>
-#include <valijson/internal/adapter.hpp>
-#include <valijson/internal/debug.hpp>
-#include <valijson/internal/json_pointer.hpp>
-#include <valijson/internal/json_reference.hpp>
-#include <valijson/internal/uri.hpp>
-#include <valijson/constraint_builder.hpp>
-#include <valijson/schema.hpp>
-#include <valijson/exceptions.hpp>
+#include "constraints/concrete_constraints.hpp"
+#include "internal/adapter.hpp"
+#include "internal/debug.hpp"
+#include "internal/json_pointer.hpp"
+#include "internal/json_reference.hpp"
+#include "internal/uri.hpp"
+#include "constraint_builder.hpp"
+#include "schema.hpp"
+#include "exceptions.hpp"
 
 namespace valijson {
 

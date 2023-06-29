@@ -8,12 +8,13 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <magic_enum.hpp>
+
+#include "vendored/magic_enum.hpp"
 
 #ifndef DOCTEST_CONFIG_DISABLE
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #endif
-#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
+#include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
 // @todo Consider using pybind11, which advertises itself as an evolved and simplified version of Boost.Python

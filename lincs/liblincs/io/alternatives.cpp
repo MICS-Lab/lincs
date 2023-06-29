@@ -2,7 +2,7 @@
 
 #include "alternatives.hpp"
 
-#include <rapidcsv.h>
+#include "../vendored/rapidcsv.h"
 
 
 namespace lincs {

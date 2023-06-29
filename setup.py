@@ -1,6 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
 import glob
+import itertools
 import os
 import sys
 import setuptools
@@ -52,15 +53,16 @@ class custom_build_ext(setuptools.command.build_ext.build_ext):
 
 liblincs = setuptools.Extension(
     "liblincs",
-    sources=glob.glob("lincs/liblincs/**/*.cpp", recursive=True) + glob.glob("lincs/liblincs/**/*.cu", recursive=True),
+    sources=list(itertools.chain.from_iterable(
+        glob.glob(f"lincs/liblincs/**/*.{ext}", recursive=True)
+        for ext in ["c", "cc", "cpp", "cu"]
+    )),
     libraries=[
         f"boost_python{sys.version_info.major}{sys.version_info.minor}",
-        "minisat",
         "ortools",
         f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",  # @todo Investigate why removing this line fails to link
         "yaml-cpp",
         "cudart",
-        "alglib",
     ],
     define_macros=[("DOCTEST_CONFIG_DISABLE", None)],
     # @todo Support building without CUDA (required on macOS)

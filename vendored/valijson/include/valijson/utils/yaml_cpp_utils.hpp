@@ -6,7 +6,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <valijson/utils/file_utils.hpp>
+#include "../utils/file_utils.hpp"
 
 namespace valijson {
 namespace utils {

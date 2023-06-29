@@ -1,0 +1,1 @@
+../../../../../vendored/valijson/include/valijson/adapters/std_string_adapter.hpp
