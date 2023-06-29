@@ -111,10 +111,11 @@ def print_title(title, under="="):
 
 
 def run_cpp_tests(*, python_version, skip_long, forbid_gpu):
+    suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
             "g++",
-            "-L.", f"-llincs.cpython-{python_version.replace('.', '')}-x86_64-linux-gnu",  # Contains the `main` function
+            "-L.", f"-llincs.cpython-{python_version.replace('.', '')}{suffix}-x86_64-linux-gnu",  # Contains the `main` function
             "-o", "/tmp/lincs-tests",
         ],
         check=True,
