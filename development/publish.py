@@ -134,16 +134,20 @@ def build_archives(new_version):
     shutil.rmtree("lincs.egg-info")
     source_dist = f"dist/lincs-{new_version}.tar.gz"
     subprocess.run(["twine", "check", source_dist], check=True)
-    os.link(source_dist, f"docker/lincs-{new_version}.tar.gz")
-    try:
-        subprocess.run([
-            "sudo", "docker", "build",
-            "--build-arg", f"LINCS_VERSION={new_version}",
-            "--tag", f"jacquev6/lincs:{new_version}",
-            "docker"
-        ], check=True)
-    finally:
-        os.unlink(f"docker/lincs-{new_version}.tar.gz")
+    # @todo Make ccache work in the following build
+    subprocess.run([
+        "sudo", "docker", "run",
+        "--mount", f"type=bind,src={os.environ['HOST_ROOT_DIR']}/dist,dst=/dist,ro",
+        "--rm",
+        "lincs-development",
+        "sh", "-c", textwrap.dedent(f"""\
+            set -o errexit
+
+            pip3 install --no-binary lincs --find-links /dist lincs=={new_version}
+            python3 -m lincs --help
+            lincs --help
+        """),
+    ], check=True)
     print()
 
     platform = None
@@ -155,30 +159,37 @@ def build_archives(new_version):
         subprocess.run([f"python{python_version}", "-m", "build", "--wheel", f"/tmp/lincs-{new_version}"], check=True)
         suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
         linux_wheel = f"/tmp/lincs-{new_version}/dist/lincs-{new_version}-cp{python_version.replace('.', '')}-cp{python_version.replace('.', '')}{suffix}-linux_x86_64.whl"
+
         if platform is None:
             # Inspired from the code of the 'auditwheel show' command, to get just what we need from its output
             platform = auditwheel.wheel_abi.analyze_wheel_abi(linux_wheel).sym_tag
-
         subprocess.run(["auditwheel", "repair", "--plat", platform, "--wheel-dir", "dist", "--strip", linux_wheel], check=True)
+        repaired_wheel = f"dist/lincs-{new_version}-cp{python_version.replace('.', '')}-cp{python_version.replace('.', '')}{suffix}-{platform}.whl"
 
-        subprocess.run(["twine", "check", linux_wheel], check=True)
+        subprocess.run(["twine", "check", repaired_wheel], check=True)
 
-        subprocess.run(
-            [
-                "sudo", "docker", "run",
-                "--volume", f"{os.environ['HOST_ROOT_DIR']}/dist:/dist",
-                "--rm",
-                f"python:{python_version}-slim",
-                "sh", "-c", textwrap.dedent(f"""\
-                    set -o errexit
-
-                    pip install --only-binary lincs --find-links /dist lincs=={new_version}
-                    python -m lincs --help
-                    lincs --help
-                """),
-            ],
-            check=True,
-        )
+        docker_tag = f"jacquev6/lincs:{new_version}-python{python_version}"
+        os.mkdir("docker/dist")
+        shutil.copy(repaired_wheel, "docker/dist")
+        try:
+            subprocess.run(
+                [
+                    "sudo", "docker", "build",
+                    "--tag", docker_tag,
+                    "--build-arg", f"PYTHON_VERSION={python_version}",
+                    "--build-arg", f"LINCS_VERSION={new_version}",
+                    "docker",
+                ],
+                check=True,
+            )
+            subprocess.run(
+                [
+                    "sudo", "docker", "run", "--rm", docker_tag, "lincs", "--help",
+                ],
+                check=True,
+            )
+        finally:
+            shutil.rmtree("docker/dist")
         print()
 
 
@@ -197,6 +208,7 @@ def publish(new_version):
     print()
 
     print_title("Publishing to Docker Hub")
+    subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}-python{python_versions[-1]}", f"jacquev6/lincs:{new_version}"], check=True)
     subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}", "jacquev6/lincs:latest"], check=True)
     subprocess.run(["sudo", "docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
     subprocess.run(["sudo", "docker", "push", "jacquev6/lincs:latest"], check=True)
