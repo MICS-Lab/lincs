@@ -19,8 +19,8 @@ boundaries:
     sufficient_coalitions:
       kind: weights
       criterion_weights:
-        - 0.400000006
-        - 0.699999988
+        - 0.4
+        - 0.7
 name,"Physics grade","Literature grade",category
 Alice,11,12,Good
 Bob,9,11,Bad

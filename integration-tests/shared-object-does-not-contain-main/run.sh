@@ -2,11 +2,16 @@
 
 set -o errexit
 set -o nounset
-set -o pipefail
+set +o pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 
-if g++ -L/home/user/.local/lib/python3.10/site-packages -llincs.cpython-310-x86_64-linux-gnu 2>/dev/null
-then
-  false
-fi
+for python_version in $LINCS_DEV_PYTHON_VERSIONS
+do
+  echo "Python $python_version"
+
+  lib_version=$(python$python_version -c 'import sys; suffix="m" if sys.hexversion < 0x03080000 else ""; print(f"{sys.version_info.major}{sys.version_info.minor}{suffix}")')
+
+  g++ -L/home/user/.local/lib/python$python_version/site-packages -llincs.cpython-$lib_version-x86_64-linux-gnu 2>&1 \
+  | grep "undefined reference to \`main'" >/dev/null
+done

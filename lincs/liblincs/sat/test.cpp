@@ -2,7 +2,7 @@
 
 #include "minisat.hpp"
 
-#include <doctest.h>  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
+#include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
 template<typename SatProblem>

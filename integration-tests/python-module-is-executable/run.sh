@@ -6,6 +6,11 @@ set -o pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 
-python3 -m lincs  generate classification-problem 4 3 >actual.yml
+for python_version in $LINCS_DEV_PYTHON_VERSIONS
+do
+  echo "Python $python_version"
 
-diff expected.yml actual.yml
+  python$python_version -m lincs generate classification-problem 4 3 >actual-$python_version.yml
+
+  diff expected.yml actual-$python_version.yml
+done

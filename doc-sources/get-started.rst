@@ -66,39 +66,6 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo ldconfig
     rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
 
-    # Alglib
-    wget https://www.alglib.net/translator/re/alglib-4.00.0.cpp.gpl.tgz
-    tar xf alglib-4.00.0.cpp.gpl.tgz
-    cd alglib-cpp/src
-    for f in *.cpp; do g++ -c -O3 -fPIC $f -o ${f%.cpp}.o; done
-    ar rcs libalglib.a *.o
-    sudo mkdir /usr/local/include/alglib
-    sudo cp -r *.h /usr/local/include/alglib
-    sudo cp -r libalglib.a /usr/local/lib
-
-    # valijson
-    wget https://github.com/tristanpenman/valijson/archive/refs/tags/v1.0.1.tar.gz
-    tar xf v1.0.1.tar.gz
-    cd valijson-1.0.1
-    ./bundle.sh yaml_cpp | sudo tee /usr/local/include/valijson_yamlcpp_bundled.hpp
-
-    # Minisat
-    wget https://github.com/niklasso/minisat/archive/37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz
-    tar xzf 37dc6c67e2af26379d88ce349eb9c4c6160e8543.tar.gz
-    cd minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543
-    sed -i minisat/core/SolverTypes.h -e 's/friend Lit mkLit(Var var, bool sign = false);/friend Lit mkLit(Var var, bool sign);/'
-    sed -i minisat/core/SolverTypes.h -e 's/inline  Lit  mkLit     (Var var, bool sign)/inline  Lit  mkLit     (Var var, bool sign = false)/'
-    make config prefix=/usr/local
-    sudo make install
-    sudo ldconfig
-
-    # Header-only libraries
-    cd /usr/local/include
-    sudo wget https://raw.githubusercontent.com/Neargye/magic_enum/v0.8.2/include/magic_enum.hpp
-    sudo wget https://raw.githubusercontent.com/d99kris/rapidcsv/v8.75/src/rapidcsv.h
-    sudo wget https://raw.githubusercontent.com/jacquev6/lov-e-cuda/13e45bc/lov-e.hpp
-    sudo wget https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h
-
 .. STOP
 
 .. START install/Dockerfile-pre
@@ -150,7 +117,7 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     ) >Dockerfile
 
     mkdir project
-    cp -r ../../../{lincs,requirements.txt,setup.py} project
+    cp -Lr ../../../{lincs,requirements.txt,setup.py} project
     touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
 
     sudo docker build . --tag lincs-development--install --quiet >/dev/null
@@ -273,29 +240,29 @@ It should look like::
     format_version: 1
     boundaries:
       - profile:
-          - 0.255905151
-          - 0.0551739037
-          - 0.162252158
-          - 0.0526000932
+          - 0.2559052
+          - 0.0551739
+          - 0.1622522
+          - 0.05260009
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.147771254
-            - 0.618687689
-            - 0.406786472
-            - 0.0960085914
+            - 0.1477713
+            - 0.6186877
+            - 0.4067865
+            - 0.09600859
       - profile:
-          - 0.676961303
-          - 0.324553937
-          - 0.673279881
-          - 0.598555863
+          - 0.6769613
+          - 0.3245539
+          - 0.6732799
+          - 0.5985559
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.147771254
-            - 0.618687689
-            - 0.406786472
-            - 0.0960085914
+            - 0.1477713
+            - 0.6186877
+            - 0.4067865
+            - 0.09600859
 
 .. STOP
 
@@ -406,26 +373,26 @@ so it is numerically different::
     format_version: 1
     boundaries:
       - profile:
-          - 0.00751833664
-          - 0.0549556538
-          - 0.162616938
-          - 0.193127945
+          - 0.007518337
+          - 0.05495565
+          - 0.1626169
+          - 0.1931279
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.499998987
+            - 0.499999
             - 0.5
             - 0.5
             - 0
       - profile:
-          - 0.0340298451
-          - 0.324480206
-          - 0.672487617
-          - 0.427051842
+          - 0.03402985
+          - 0.3244802
+          - 0.6724876
+          - 0.4270518
         sufficient_coalitions:
           kind: weights
           criterion_weights:
-            - 0.499998987
+            - 0.499999
             - 0.5
             - 0.5
             - 0

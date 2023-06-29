@@ -1,7 +1,9 @@
 # Copyright 2023 Vincent Jacques
 
 import glob
+import itertools
 import os
+import sys
 import setuptools
 import setuptools.command.build_ext
 
@@ -51,25 +53,27 @@ class custom_build_ext(setuptools.command.build_ext.build_ext):
 
 liblincs = setuptools.Extension(
     "liblincs",
-    sources=glob.glob("lincs/liblincs/**/*.cpp", recursive=True) + glob.glob("lincs/liblincs/**/*.cu", recursive=True),
+    sources=list(itertools.chain.from_iterable(
+        glob.glob(f"lincs/liblincs/**/*.{ext}", recursive=True)
+        for ext in ["c", "cc", "cpp", "cu"]
+    )),
     libraries=[
-        "boost_python310",
-        "minisat",
+        f"boost_python{sys.version_info.major}{sys.version_info.minor}",
         "ortools",
-        "python3.10",  # Make the Python module usable as a C++ shared library without -lpython3.10 (still linked, but implicitly)
+        f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",  # @todo Investigate why removing this line fails to link
         "yaml-cpp",
         "cudart",
-        "alglib",
     ],
     define_macros=[("DOCTEST_CONFIG_DISABLE", None)],
+    # @todo Support building without CUDA (required on macOS)
+    # @todo Support several versions of CUDA?
     include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
     library_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/lib"],
-    # runtime_library_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/lib"],
     # Non-standard: the dict is accessed in `customize_compiler_for_nvcc`
     # to get the standard form for `extra_compile_args`
     extra_compile_args={
-        "gcc": ["-fopenmp"],
-        "nvcc": ["-Xcompiler", "-fopenmp,-fPIC"],
+        "gcc": ["-std=c++17", "-fopenmp"],
+        "nvcc": ["-std=c++17", "-Xcompiler", "-fopenmp,-fPIC"],
     },
     extra_link_args=["-fopenmp"],
 )

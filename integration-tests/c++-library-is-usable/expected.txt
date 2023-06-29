@@ -19,8 +19,8 @@ boundaries:
     sufficient_coalitions:
       kind: weights
       criterion_weights:
-        - 0.400000006
-        - 0.699999988
+        - 0.4
+        - 0.7
 
 kind: ncs-classification-model
 format_version: 1
@@ -31,8 +31,8 @@ boundaries:
     sufficient_coalitions:
       kind: weights
       criterion_weights:
-        - 0.400000006
-        - 0.699999988
+        - 0.4
+        - 0.7
 name,"Literature grade","Physics grade",category
 Alice,11,12,Pass
 Bob,9,11,Fail

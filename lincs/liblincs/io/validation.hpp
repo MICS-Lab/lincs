@@ -4,8 +4,12 @@
 #define LINCS__IO__VALIDATION_HPP
 
 #include <yaml-cpp/yaml.h>
-#include <valijson_yamlcpp_bundled.hpp>
 
+#include "../vendored/valijson/adapters/yaml_cpp_adapter.hpp"
+#include "../vendored/valijson/utils/yaml_cpp_utils.hpp"
+#include "../vendored/valijson/schema.hpp"
+#include "../vendored/valijson/schema_parser.hpp"
+#include "../vendored/valijson/validator.hpp"
 
 namespace lincs {
 

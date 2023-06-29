@@ -6,7 +6,7 @@
 #include <cassert>
 #include <map>
 
-#include <alglib/optimization.h>
+#include "../vendored/alglib/optimization.h"
 
 
 namespace lincs {

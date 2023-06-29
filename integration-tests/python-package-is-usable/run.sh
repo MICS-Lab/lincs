@@ -6,6 +6,11 @@ set -o pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 
-python3 test.py >actual.txt
+for python_version in $LINCS_DEV_PYTHON_VERSIONS
+do
+  echo "Python $python_version"
 
-diff expected.txt actual.txt
+  python$python_version test.py >actual-$python_version.txt
+
+  diff expected.txt actual-$python_version.txt
+done
