@@ -1,0 +1,46 @@
+# https://forums.developer.nvidia.com/t/valgrind-3-4-suppressions-a-little-howto/7504
+
+{
+   libcuda_calloc
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+}
+
+{
+   libcuda_malloc
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+}
+
+{
+   cuDevicePrimaryCtxRetain
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+   fun:cuDevicePrimaryCtxRetain
+}
+
+{
+   cuInit
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+   obj:/usr/lib/x86_64-linux-gnu/libcuda.so.460.91.03
+   fun:cuInit
+}
