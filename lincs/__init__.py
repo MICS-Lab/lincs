@@ -8,6 +8,6 @@ from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop, Opti
 from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
 from liblincs import TerminationStrategy, TerminateAtAccuracy
 from liblincs import make_models, make_gpu_models, WeightsProfilesBreedMrSortLearning
-from liblincs import SatCoalitionUcncsLearningUsingMinisat
+from liblincs import SatCoalitionUcncsLearningUsingMinisat, SatCoalitionUcncsLearningUsingEvalmaxsat
 
 # @todo Accept learning and training set as Pandas DataFrame?

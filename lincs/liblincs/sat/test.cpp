@@ -1,5 +1,8 @@
 // Copyright 2023 Vincent Jacques
 
+// @todo Let these two be included in alphabetical order
+// Currently, swapping them results in the following error:
+// could not convert ‘Glucose::lbool(2)’ from ‘Glucose::lbool’ to ‘Minisat::lbool’
 #include "minisat.hpp"
 #include "eval-max-sat.hpp"
 

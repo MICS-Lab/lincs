@@ -13,10 +13,12 @@
 #include "linear-programming/alglib.hpp"
 #include "linear-programming/glop.hpp"
 #include "sat/minisat.hpp"
+#include "sat/eval-max-sat.hpp"
 
 namespace lincs {
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
+  typedef SatCoalitionUcncsLearning<EvalmaxsatSatProblem> SatCoalitionUcncsLearningUsingEvalmaxsat;
   typedef SatCoalitionUcncsLearning<MinisatSatProblem> SatCoalitionUcncsLearningUsingMinisat;
 }  // namespace lincs
 

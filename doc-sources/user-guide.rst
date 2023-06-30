@@ -156,11 +156,15 @@ This should output a similar model, with slight numerical differences.
 
 .. EXTEND other-learnings/run.sh
 
-You can also use an entirely different approach using a SAT solver::
+You can also use an entirely different approach using SAT and max-SAT solvers::
 
     lincs learn classification-model problem.yml learning-set.csv \
       --output-model minisat-trained-model.yml \
-      --model-type ucncs
+      --model-type ucncs --ucncs.approach sat-by-coalitions
+
+    lincs learn classification-model problem.yml learning-set.csv \
+      --output-model evalmaxsat-trained-model.yml \
+      --model-type ucncs --ucncs.approach max-sat-by-coalitions
 
 .. STOP
 
@@ -195,8 +199,41 @@ It should produce a different kind of model, with the sufficient coalitions spec
               - 2
 .. STOP
 
+.. START other-learnings/expected-evalmaxsat-trained-model.yml
+    kind: ncs-classification-model
+    format_version: 1
+    boundaries:
+      - profile:
+          - 0.005953997
+          - 0.05526805
+          - 0.1619191
+          - 0.0003789498
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            -
+              - 0
+              - 1
+              - 2
+              - 3
+      - profile:
+          - 0.01213762
+          - 0.3252118
+          - 0.6726626
+          - 0.00400545
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            -
+              - 0
+              - 1
+              - 2
+              - 3
+.. STOP
+
 .. EXTEND other-learnings/run.sh
     diff expected-minisat-trained-model.yml minisat-trained-model.yml
+    diff expected-evalmaxsat-trained-model.yml evalmaxsat-trained-model.yml
 .. STOP
 
 Output location

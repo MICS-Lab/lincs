@@ -173,4 +173,8 @@ TEST_CASE("SAT by coalitions using Minisat learning") {
   check_learning<SatCoalitionUcncsLearningUsingMinisat>();
 }
 
+TEST_CASE("SAT by coalitions using EvalMaxSAT learning") {
+  check_learning<SatCoalitionUcncsLearningUsingEvalmaxsat>();
+}
+
 }  // namespace lincs
