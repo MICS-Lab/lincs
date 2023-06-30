@@ -38,6 +38,8 @@ class MinisatSatProblem {
     solver.addClause(clause);
   }
 
+  typedef void weight_type;
+
   auto solve() {
     solver.eliminate(true);
     assert(solver.okay());

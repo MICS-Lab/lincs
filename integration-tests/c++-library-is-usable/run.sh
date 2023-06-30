@@ -18,6 +18,7 @@ do
     -I/home/user/.local/lib/python$python_version/site-packages/lincs/liblincs \
     -I/usr/local/cuda-12.1/targets/x86_64-linux/include \
     -L/home/user/.local/lib/python$python_version/site-packages -llincs.cpython-$lib_version-x86_64-linux-gnu \
+    -pthread -lz \
     -o test
 
   LD_LIBRARY_PATH=/home/user/.local/lib/python$python_version/site-packages ./test >actual-$python_version.txt

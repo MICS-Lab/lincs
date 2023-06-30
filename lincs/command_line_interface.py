@@ -538,7 +538,18 @@ def learn():
                 },
             ),
         ],
-        "ucncs": [],
+        "ucncs": [
+            (
+                "approach",
+                dict(
+                    help="@todo.",
+                    type=click.Choice(["sat-by-coalitions", "max-sat-by-coalitions"]),
+                    default="sat-by-coalitions",
+                    show_default=True,
+                ),
+                {},
+            ),
+        ],
     },
 )
 def classification_model(
@@ -558,6 +569,7 @@ def classification_model(
     mrsort__weights_profiles_breed__accuracy_heuristic__processor,
     mrsort__weights_profiles_breed__breed_strategy,
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
+    ucncs__approach,
 ):
     problem = lincs.load_problem(problem)
     learning_set = lincs.load_alternatives(problem, learning_set)
@@ -597,7 +609,10 @@ def classification_model(
                 termination_strategy,
             )
     elif model_type == "ucncs":
-        learning = lincs.SatCoalitionUcncsLearningUsingMinisat(problem, learning_set)
+        if ucncs__approach == "sat-by-coalitions":
+            learning = lincs.SatCoalitionUcncsLearningUsingMinisat(problem, learning_set)
+        elif ucncs__approach == "max-sat-by-coalitions":
+            learning = lincs.SatCoalitionUcncsLearningUsingEvalmaxsat(problem, learning_set)
 
     model = learning.perform()
     model.dump(output_model)

@@ -430,4 +430,8 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::class_<lincs::SatCoalitionUcncsLearningUsingMinisat>("SatCoalitionUcncsLearningUsingMinisat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
     .def("perform", &lincs::SatCoalitionUcncsLearningUsingMinisat::perform)
   ;
+
+  bp::class_<lincs::SatCoalitionUcncsLearningUsingEvalmaxsat>("SatCoalitionUcncsLearningUsingEvalmaxsat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
+    .def("perform", &lincs::SatCoalitionUcncsLearningUsingEvalmaxsat::perform)
+  ;
 }
