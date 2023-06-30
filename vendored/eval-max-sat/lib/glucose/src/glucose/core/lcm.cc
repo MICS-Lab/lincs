@@ -1,5 +1,5 @@
-#include "glucose/core/Solver.h"
-#include "glucose/mtl/Sort.h"
+#include "Solver.h"
+#include "../mtl/Sort.h"
 using namespace Glucose;
 
 

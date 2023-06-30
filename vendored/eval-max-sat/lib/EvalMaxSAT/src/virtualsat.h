@@ -11,7 +11,7 @@
 #include "cardincremental.h"
 #include "card_oe.h"
 #include "lazyvariable.h"
-#include "coutUtil.h"
+#include "MaLib/coutUtil.h"
 
 using namespace MaLib;
 

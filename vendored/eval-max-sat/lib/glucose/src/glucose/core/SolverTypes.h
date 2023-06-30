@@ -55,11 +55,11 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <stdint.h>
 #include <pthread.h>
 
-#include "glucose/mtl/IntTypes.h"
-#include "glucose/mtl/Alg.h"
-#include "glucose/mtl/Vec.h"
-#include "glucose/mtl/Map.h"
-#include "glucose/mtl/Alloc.h"
+#include "../mtl/IntTypes.h"
+#include "../mtl/Alg.h"
+#include "../mtl/Vec.h"
+#include "../mtl/Map.h"
+#include "../mtl/Alloc.h"
 
 
 namespace Glucose {

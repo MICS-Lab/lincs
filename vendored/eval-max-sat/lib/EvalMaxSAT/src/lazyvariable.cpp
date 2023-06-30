@@ -1,6 +1,6 @@
 #include "lazyvariable.h"
 
-#include "coutUtil.h"
+#include "MaLib/coutUtil.h"
 #include "virtualsat.h"
 
 

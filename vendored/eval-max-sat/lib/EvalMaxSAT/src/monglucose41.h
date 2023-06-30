@@ -5,8 +5,8 @@
 
 #include "glucose/core/Solver.h"
 
-#include "coutUtil.h"
-#include "Chrono.h"
+#include "MaLib/coutUtil.h"
+#include "MaLib/Chrono.h"
 
 #include <thread>
 #include <future>

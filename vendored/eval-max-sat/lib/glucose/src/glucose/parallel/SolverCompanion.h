@@ -55,7 +55,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #ifndef SolverCompanion_h
 #define SolverCompanion_h
-#include "glucose/mtl/Vec.h"
+#include "../mtl/Vec.h"
 namespace Glucose {
     
     class ParallelSolver;

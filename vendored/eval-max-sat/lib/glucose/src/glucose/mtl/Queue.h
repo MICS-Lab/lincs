@@ -21,7 +21,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Queue_h
 #define Glucose_Queue_h
 
-#include "glucose/mtl/Vec.h"
+#include "Vec.h"
 
 namespace Glucose {
 

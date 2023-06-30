@@ -21,7 +21,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Heap_h
 #define Glucose_Heap_h
 
-#include "glucose/mtl/Vec.h"
+#include "Vec.h"
 
 #include <iostream>
 

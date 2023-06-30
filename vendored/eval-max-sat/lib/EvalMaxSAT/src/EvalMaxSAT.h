@@ -6,14 +6,14 @@
 #include <algorithm>
 #include <random>
 
-#include "communicationlist.h"
-#include "Chrono.h"
-#include "coutUtil.h"
+#include "MaLib/communicationlist.h"
+#include "MaLib/Chrono.h"
+#include "MaLib/coutUtil.h"
 #include "virtualmaxsat.h"
 #include "virtualsat.h"
 #include "monglucose41.h"
 #include "mcqd.h"
-#include "coutUtil.h"
+#include "MaLib/coutUtil.h"
 
 using namespace MaLib;
 

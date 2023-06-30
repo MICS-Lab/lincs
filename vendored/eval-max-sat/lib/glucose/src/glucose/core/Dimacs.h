@@ -23,8 +23,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include <stdio.h>
 
-#include "glucose/utils/ParseUtils.h"
-#include "glucose/core/SolverTypes.h"
+#include "../utils/ParseUtils.h"
+#include "SolverTypes.h"
 
 namespace Glucose {
 

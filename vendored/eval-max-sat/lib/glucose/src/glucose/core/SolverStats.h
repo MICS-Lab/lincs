@@ -50,7 +50,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef SOLVERSTATS_H
 #define	SOLVERSTATS_H
 
-#include "glucose/mtl/Map.h"
+#include "../mtl/Map.h"
 #include <string>
 
 namespace Glucose {

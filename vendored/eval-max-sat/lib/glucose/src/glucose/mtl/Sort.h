@@ -21,7 +21,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glucose_Sort_h
 #define Glucose_Sort_h
 
-#include "glucose/mtl/Vec.h"
+#include "Vec.h"
 
 //=================================================================================================
 // Some sorting algorithms for vec's

@@ -4,7 +4,7 @@
 #include "virtualcard.h"
 #include "lazyvariable.h"
 
-#include "View.h"
+#include "MaLib/View.h"
 
 
 #include <optional>
