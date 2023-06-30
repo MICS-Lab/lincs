@@ -246,7 +246,7 @@ public:
         return solver->nClauses();
     }
 };
-MonGlucose41::~MonGlucose41() {
+inline MonGlucose41::~MonGlucose41() {
     delete solver;
 }
 

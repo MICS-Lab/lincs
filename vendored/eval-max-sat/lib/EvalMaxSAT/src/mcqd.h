@@ -145,7 +145,7 @@ public:
   };
 };
 
-Maxclique::Maxclique (const bool* const* conn, const int sz, const float tt) : pk(0), level(1), Tlimit(tt), V(sz), Q(sz), QMAX(sz) {
+inline Maxclique::Maxclique (const bool* const* conn, const int sz, const float tt) : pk(0), level(1), Tlimit(tt), V(sz), Q(sz), QMAX(sz) {
   assert(conn!=0 && sz>0);
   for (int i=0; i < sz; i++) V.push(i);
   e_conn = conn;
@@ -154,7 +154,7 @@ Maxclique::Maxclique (const bool* const* conn, const int sz, const float tt) : p
   S = new StepCount[sz + 1];
 }
 
-void Maxclique::_mcq(int* &maxclique, int &sz, const int &maxStep, bool dyn) {
+inline void Maxclique::_mcq(int* &maxclique, int &sz, const int &maxStep, bool dyn) {
   V.set_degrees(*this);
   V.sort();
   V.init_colors();
@@ -174,7 +174,7 @@ void Maxclique::_mcq(int* &maxclique, int &sz, const int &maxStep, bool dyn) {
   sz = QMAX.size();
 }
 
-void Maxclique::Vertices::init_colors() { 
+inline void Maxclique::Vertices::init_colors() { 
   const int max_degree = v[0].get_degree();
   for (int i = 0; i < max_degree; i++)
     v[i].set_degree(i + 1);
@@ -182,7 +182,7 @@ void Maxclique::Vertices::init_colors() {
     v[i].set_degree(max_degree + 1);
 }
 
-void Maxclique::Vertices::set_degrees(Maxclique &m) { 
+inline void Maxclique::Vertices::set_degrees(Maxclique &m) { 
   for (int i=0; i < sz; i++) {
     int d = 0;
     for (int j=0; j < sz; j++)
@@ -191,21 +191,21 @@ void Maxclique::Vertices::set_degrees(Maxclique &m) {
   }
 }
 
-bool Maxclique::cut1(const int pi, const ColorClass &A) {
+inline bool Maxclique::cut1(const int pi, const ColorClass &A) {
   for (int i = 0; i < A.size(); i++)
     if (connection(pi, A.at(i)))
       return true;
   return false;
 }
 
-void Maxclique::cut2(const Vertices &A, Vertices &B) {
+inline void Maxclique::cut2(const Vertices &A, Vertices &B) {
   for (int i = 0; i < A.size() - 1; i++) {
     if (connection(A.end().get_i(), A.at(i).get_i()))
       B.push(A.at(i).get_i());
   }
 }
 
-void Maxclique::color_sort(Vertices &R) {
+inline void Maxclique::color_sort(Vertices &R) {
   int j = 0;
   int maxno = 1;
   int min_k = QMAX.size() - Q.size() + 1;
@@ -235,7 +235,7 @@ void Maxclique::color_sort(Vertices &R) {
     }
 }
 
-void Maxclique::expand(Vertices R) {
+inline void Maxclique::expand(Vertices R) {
   while (R.size()) {
     if (Q.size() + R.end().get_degree() > QMAX.size()) {
       Q.push(R.end().get_i());
@@ -260,7 +260,7 @@ void Maxclique::expand(Vertices R) {
   }
 }
 
-void Maxclique::expand_dyn(Vertices R, const int &maxStep) {
+inline void Maxclique::expand_dyn(Vertices R, const int &maxStep) {
     S[level].set_i1(S[level].get_i1() + S[level - 1].get_i1() - S[level].get_i2());
     S[level].set_i2(S[level - 1].get_i1());
     while (R.size()) {

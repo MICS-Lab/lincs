@@ -113,6 +113,6 @@ private:
     }
 
 };
-VirtualMAXSAT::~VirtualMAXSAT() {}
+inline VirtualMAXSAT::~VirtualMAXSAT() {}
 
 #endif // VIRTUALMAXSAT_H

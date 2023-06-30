@@ -955,7 +955,7 @@ private:
 };
 
 
-EvalMaxSAT::~EvalMaxSAT() {
+inline EvalMaxSAT::~EvalMaxSAT() {
     CL_ConflictToMinimize.close();
     CL_LitToUnrelax.close();
     CL_LitToRelax.close();
