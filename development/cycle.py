@@ -45,7 +45,7 @@ import click
 def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
     if skip_long:
-        python_versions = [python_versions[0], python_versions[-1]]
+        python_versions = [python_versions[0]]
 
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
 
