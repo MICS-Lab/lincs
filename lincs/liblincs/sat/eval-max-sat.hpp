@@ -3,6 +3,7 @@
 #ifndef LINCS__SAT__EVALMAXSAT_HPP
 #define LINCS__SAT__EVALMAXSAT_HPP
 
+#include <optional>
 #include <vector>
 
 #include "../vendored/eval-max-sat/EvalMaxSAT.h"
@@ -12,6 +13,9 @@
 namespace lincs {
 
 class EvalmaxsatSatProblem {
+ public:
+  EvalmaxsatSatProblem() : solver(0) {}
+
  public:
   typedef int variable_type;
   variable_type create_variable() {
@@ -32,15 +36,16 @@ class EvalmaxsatSatProblem {
     solver.addWeightedClause(clause, weight);
   }
 
-  auto solve() {
-    solver.solve();
-
-    std::vector<bool> solution(variables.back() + 1);
-    for (const int v : variables) {
-      solution[v] = solver.getValue(v);
+  std::optional<std::vector<bool>> solve() {
+    if (solver.solve()) {
+      std::vector<bool> solution(variables.back() + 1);
+      for (const int v : variables) {
+        solution[v] = solver.getValue(v);
+      }
+      return solution;
+    } else {
+      return std::nullopt;
     }
-
-    return solution;
   }
 
  private:

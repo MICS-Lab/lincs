@@ -3,6 +3,7 @@
 #ifndef LINCS__SAT__MINISAT_HPP
 #define LINCS__SAT__MINISAT_HPP
 
+#include <optional>
 #include <vector>
 
 #include "../vendored/minisat/simp/SimpSolver.h"
@@ -40,18 +41,20 @@ class MinisatSatProblem {
 
   typedef void weight_type;
 
-  auto solve() {
-    solver.eliminate(true);
-    assert(solver.okay());
+  std::optional<std::vector<bool>> solve() {
     Minisat::vec<Minisat::Lit> dummy;
-    solver.solveLimited(dummy);
+    const auto ret = solver.solveLimited(dummy);
 
-    std::vector<bool> solution(solver.nVars() + 1);
-    for (int i = 0; i < solver.nVars(); ++i) {
-      solution[i + 1] = solver.model[i] == Minisat::l_True;
+    if (ret == Minisat::l_True) {
+      std::vector<bool> solution(solver.nVars() + 1);
+      for (int i = 0; i < solver.nVars(); ++i) {
+        solution[i + 1] = solver.model[i] == Minisat::l_True;
+      }
+
+      return solution;
+    } else {
+      return std::nullopt;
     }
-
-    return solution;
   }
 
  private:

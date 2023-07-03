@@ -11,21 +11,37 @@
 
 template<typename SatProblem>
 void test_sat_problem() {
-  SatProblem problem;
+  {
+    SatProblem problem;
 
-  auto x1 = problem.create_variable();
-  auto x2 = problem.create_variable();
-  auto x3 = problem.create_variable();
+    auto x1 = problem.create_variable();
+    auto x2 = problem.create_variable();
+    auto x3 = problem.create_variable();
 
-  problem.mark_all_variables_created();
+    problem.mark_all_variables_created();
 
-  problem.add_clause({x1, -x3});
-  problem.add_clause({x2, x3, -x1});
+    problem.add_clause({x1, -x3});
+    problem.add_clause({x2, x3, -x1});
 
-  auto solution = problem.solve();
+    std::optional<std::vector<bool>> solution = problem.solve();
 
-  CHECK((solution[x1] || !solution[x3]));
-  CHECK((solution[x2] || solution[x3] || !solution[x1]));
+    CHECK(((*solution)[x1] || !(*solution)[x3]));
+    CHECK(((*solution)[x2] || (*solution)[x3] || !(*solution)[x1]));
+  }
+  {
+    SatProblem problem;
+
+    auto x1 = problem.create_variable();
+
+    problem.mark_all_variables_created();
+
+    problem.add_clause({x1});
+    problem.add_clause({-x1});
+
+    std::optional<std::vector<bool>> solution = problem.solve();
+
+    CHECK(!solution);
+  }
 }
 
 template<typename SatProblem>
@@ -55,13 +71,13 @@ void test_max_sat_problem() {
 
   auto solution = problem.solve();
 
-  CHECK((!solution[x1] || !solution[x2] || !solution[x3]));
+  CHECK((!(*solution)[x1] || !(*solution)[x2] || !(*solution)[x3]));
 
   int score = 0;
-  if (solution[x1] || solution[x2]) ++score;
-  if (solution[x3]) ++score;
-  if (solution[x1] || !solution[x3]) ++score;
-  if (solution[x2] || !solution[x3]) ++score;
+  if ((*solution)[x1] || (*solution)[x2]) ++score;
+  if ((*solution)[x3]) ++score;
+  if ((*solution)[x1] || !(*solution)[x3]) ++score;
+  if ((*solution)[x2] || !(*solution)[x3]) ++score;
   CHECK(score == 3);
 }
 

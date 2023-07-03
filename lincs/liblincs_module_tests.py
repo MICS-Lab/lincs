@@ -360,8 +360,8 @@ class MrSortLearningTestCase(unittest.TestCase):
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 33)
-        self.assertEqual(result.unchanged, 967)
+        self.assertEqual(result.changed, 21)
+        self.assertEqual(result.unchanged, 979)
 
     def test_sat_by_coalitions_using_evalmaxsat_learning(self):
         problem = generate_classification_problem(5, 3, 41)

@@ -6,6 +6,7 @@
 #include <map>
 #include <type_traits>
 
+#include "exception.hpp"
 // @todo Let these two be included in alphabetical order
 // Currently, swapping them results in the following error:
 // could not convert ‘Glucose::lbool(2)’ from ‘Glucose::lbool’ to ‘Minisat::lbool’
@@ -166,7 +167,11 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
     }
   }
 
-  auto solution = sat.solve();
+  std::optional<std::vector<bool>> solution = sat.solve();
+
+  if (!solution) {
+    throw LearningFailureException();
+  }
 
   std::vector<Model::Boundary> boundaries;
   for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
@@ -175,7 +180,7 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
       bool found = false;
       // @todo Replace next loop with a binary search
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        if (solution[x[criterion_index][category_index][value_index]]) {
+        if ((*solution)[x[criterion_index][category_index][value_index]]) {
           if (value_index == 0) {
             profile[criterion_index] = unique_values[criterion_index][value_index];
           } else {
@@ -192,11 +197,11 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
 
     std::vector<std::vector<unsigned>> roots;
     for (uint subset_a = 0; subset_a != subsets_count; ++subset_a) {
-      if (solution[y[subset_a]]) {
+      if ((*solution)[y[subset_a]]) {
         bool is_root = true;
         // @todo Optimize this search for actual roots; it may be something like a transitive reduction
         for (uint subset_b = 0; subset_b != subsets_count; ++subset_b) {
-          if (solution[y[subset_b]]) {
+          if ((*solution)[y[subset_b]]) {
             if ((subset_a & subset_b) == subset_b && subset_a != subset_b) {
               is_root = false;
               break;

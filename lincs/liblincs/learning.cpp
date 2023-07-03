@@ -4,6 +4,7 @@
 
 #include "classification.hpp"  // Only for tests
 #include "generation.hpp"  // Only for tests
+#include "learning/exception.hpp"
 
 #include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
@@ -19,7 +20,7 @@ const bool forbid_gpu = env_is_true("LINCS_DEV_FORBID_GPU");
 const bool skip_long = env_is_true("LINCS_DEV_SKIP_LONG");
 
 template<typename T>
-void check_learning(const lincs::Problem& problem, unsigned seed) {
+void check_exact_learning(const lincs::Problem& problem, unsigned seed) {
   CAPTURE(seed);
 
   lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
@@ -33,7 +34,7 @@ void check_learning(const lincs::Problem& problem, unsigned seed) {
 }
 
 template<typename T>
-void check_learning(const unsigned criteria_count, const unsigned categories_count) {
+void check_exact_learning(const unsigned criteria_count, const unsigned categories_count) {
   CAPTURE(criteria_count);
   CAPTURE(categories_count);
 
@@ -46,16 +47,16 @@ void check_learning(const unsigned criteria_count, const unsigned categories_cou
     if (seed == 58) { continue; }
     if (seed == 59) { continue; }
 
-    check_learning<T>(problem, seed);
+    check_exact_learning<T>(problem, seed);
   }
 }
 
 template<typename T>
-void check_learning() {
-  check_learning<T>(1, 2);
-  check_learning<T>(3, 2);
-  check_learning<T>(1, 3);
-  check_learning<T>(4, 3);
+void check_exact_learning() {
+  check_exact_learning<T>(1, 2);
+  check_exact_learning<T>(3, 2);
+  check_exact_learning<T>(1, 3);
+  check_exact_learning<T>(4, 3);
 }
 
 }  // namespace
@@ -94,7 +95,7 @@ TEST_CASE("Basic MR-Sort learning") {
     WeightsProfilesBreedMrSortLearning learning;
   };
 
-  check_learning<Wrapper>();
+  check_exact_learning<Wrapper>();
 }
 
 TEST_CASE("Alglib MR-Sort learning") {
@@ -129,7 +130,7 @@ TEST_CASE("Alglib MR-Sort learning") {
     WeightsProfilesBreedMrSortLearning learning;
   };
 
-  check_learning<Wrapper>();
+  check_exact_learning<Wrapper>();
 }
 
 TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
@@ -166,15 +167,32 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     WeightsProfilesBreedMrSortLearning learning;
   };
 
-  check_learning<Wrapper>();
+  check_exact_learning<Wrapper>();
 }
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
-  check_learning<SatCoalitionUcncsLearningUsingMinisat>();
+  check_exact_learning<SatCoalitionUcncsLearningUsingMinisat>();
 }
 
 TEST_CASE("SAT by coalitions using EvalMaxSAT learning") {
-  check_learning<SatCoalitionUcncsLearningUsingEvalmaxsat>();
+  check_exact_learning<SatCoalitionUcncsLearningUsingEvalmaxsat>();
+}
+
+TEST_CASE("Non-exact learning - SAT by coalitions") {
+  const Problem problem = generate_classification_problem(3, 2, 41);
+  const Model model = generate_mrsort_classification_model(problem, 44);
+  Alternatives learning_set = generate_classified_alternatives(problem, model, 100, 44);
+  misclassify_alternatives(problem, &learning_set, 10, 44);
+
+  CHECK_THROWS_AS(
+    SatCoalitionUcncsLearningUsingMinisat(problem, learning_set).perform(),
+    LearningFailureException
+  );
+
+  SatCoalitionUcncsLearningUsingEvalmaxsat learning(problem, learning_set);
+  Model learned_model = learning.perform();
+
+  CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
 }
 
 }  // namespace lincs
