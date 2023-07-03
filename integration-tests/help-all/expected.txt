@@ -861,35 +861,35 @@ classify_alternatives( (Problem)problem, (Model)model, (Alternatives)alternative
 lincs.command_line_interface
 ============================
 
-lincs.generate_alternatives
-===========================
+lincs.generate_classification_problem
+=====================================
 
 
-generate_alternatives( (Problem)problem, (Model)model, (int)alternatives_count, (int)random_seed [, (object)max_imbalance=None]) -> Alternatives :
-    Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`.
-
-    C++ signature :
-        lincs::Alternatives generate_alternatives(lincs::Problem,lincs::Model,unsigned int,unsigned int [,std::optional<float>=None])
-
-lincs.generate_mrsort_model
-===========================
-
-
-generate_mrsort_model( (Problem)problem, (int)random_seed [, (object)fixed_weights_sum=None]) -> Model :
-    Generate an MR-Sort model for the provided `problem`.
-
-    C++ signature :
-        lincs::Model generate_mrsort_model(lincs::Problem,unsigned int [,std::optional<float>=None])
-
-lincs.generate_problem
-======================
-
-
-generate_problem( (int)criteria_count, (int)categories_count, (int)random_seed) -> Problem :
+generate_classification_problem( (int)criteria_count, (int)categories_count, (int)random_seed) -> Problem :
     Generate a problem with `criteria_count` criteria and `categories_count` categories.
 
     C++ signature :
-        lincs::Problem generate_problem(unsigned int,unsigned int,unsigned int)
+        lincs::Problem generate_classification_problem(unsigned int,unsigned int,unsigned int)
+
+lincs.generate_classified_alternatives
+======================================
+
+
+generate_classified_alternatives( (Problem)problem, (Model)model, (int)alternatives_count, (int)random_seed [, (object)max_imbalance=None]) -> Alternatives :
+    Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`.
+
+    C++ signature :
+        lincs::Alternatives generate_classified_alternatives(lincs::Problem,lincs::Model,unsigned int,unsigned int [,std::optional<float>=None])
+
+lincs.generate_mrsort_classification_model
+==========================================
+
+
+generate_mrsort_classification_model( (Problem)problem, (int)random_seed [, (object)fixed_weights_sum=None]) -> Model :
+    Generate an MR-Sort model for the provided `problem`.
+
+    C++ signature :
+        lincs::Model generate_mrsort_classification_model(lincs::Problem,unsigned int [,std::optional<float>=None])
 
 lincs.load_alternatives
 =======================

@@ -185,7 +185,7 @@ def classification_problem(
     output_problem,
     random_seed
 ):
-    problem = lincs.generate_problem(
+    problem = lincs.generate_classification_problem(
         criteria_count,
         categories_count,
         random_seed=random_seed,
@@ -248,7 +248,7 @@ def classification_model(
 ):
     problem = lincs.load_problem(problem)
     assert model_type == "mrsort"
-    model = lincs.generate_mrsort_model(
+    model = lincs.generate_mrsort_classification_model(
         problem,
         random_seed=random_seed,
         fixed_weights_sum=mrsort__fixed_weights_sum,
@@ -304,7 +304,7 @@ def classified_alternatives(
 ):
     problem = lincs.load_problem(problem)
     model = lincs.load_model(problem, model)
-    alternatives = lincs.generate_alternatives(
+    alternatives = lincs.generate_classified_alternatives(
         problem,
         model,
         alternatives_count,

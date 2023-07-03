@@ -246,8 +246,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Load a problem from the provided `.read()`-supporting file-like object, in YAML format."
   );
   bp::def(
-    "generate_problem",
-    &lincs::generate_problem,
+    "generate_classification_problem",
+    &lincs::generate_classification_problem,
     (bp::arg("criteria_count"), "categories_count", "random_seed"),
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
@@ -290,8 +290,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format."
   );
   bp::def(
-    "generate_mrsort_model",
-    &lincs::generate_mrsort_model,
+    "generate_mrsort_classification_model",
+    &lincs::generate_mrsort_classification_model,
     (bp::arg("problem"), "random_seed", bp::arg("fixed_weights_sum")=std::optional<float>()),
     "Generate an MR-Sort model for the provided `problem`."
   );
@@ -325,8 +325,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format."
   );
   bp::def(
-    "generate_alternatives",
-    &lincs::generate_alternatives,
+    "generate_classified_alternatives",
+    &lincs::generate_classified_alternatives,
     (bp::arg("problem"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
     "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`."
   );

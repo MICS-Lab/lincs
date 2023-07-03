@@ -22,8 +22,8 @@ template<typename T>
 void check_learning(const lincs::Problem& problem, unsigned seed) {
   CAPTURE(seed);
 
-  lincs::Model model = lincs::generate_mrsort_model(problem, seed);
-  lincs::Alternatives learning_set = lincs::generate_alternatives(problem, model, 200, seed);
+  lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
+  lincs::Alternatives learning_set = lincs::generate_classified_alternatives(problem, model, 200, seed);
 
   T learning(problem, learning_set);
 
@@ -37,7 +37,7 @@ void check_learning(const unsigned criteria_count, const unsigned categories_cou
   CAPTURE(criteria_count);
   CAPTURE(categories_count);
 
-  lincs::Problem problem = lincs::generate_problem(criteria_count, categories_count, 41);
+  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41);
 
   const unsigned max_seed = skip_long ? 10 : 100;
 

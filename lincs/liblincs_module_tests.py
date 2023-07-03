@@ -226,9 +226,9 @@ class AlternativesTestCase(unittest.TestCase):
 
 class MrSortLearningTestCase(unittest.TestCase):
     def test_basic_mrsort_learning(self):
-        problem = generate_problem(5, 3, 41)
-        model = generate_mrsort_model(problem, 42)
-        learning_set = generate_alternatives(problem, model, 200, 43)
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         models = make_models(problem, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
@@ -247,15 +247,15 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(problem, model, 1000, 44)
+        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
 
     def test_python_termination_strategy(self):
-        problem = generate_problem(5, 3, 41)
-        model = generate_mrsort_model(problem, 42)
-        learning_set = generate_alternatives(problem, model, 200, 43)
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         class MyTerminationStrategy(TerminationStrategy):
             def __init__(self):
@@ -286,15 +286,15 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 14)
         self.assertEqual(result.unchanged, 186)
 
-        testing_set = generate_alternatives(problem, model, 1000, 44)
+        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 96)
         self.assertEqual(result.unchanged, 904)
 
     def test_alglib_mrsort_learning(self):
-        problem = generate_problem(5, 3, 41)
-        model = generate_mrsort_model(problem, 42)
-        learning_set = generate_alternatives(problem, model, 200, 43)
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         models = make_models(problem, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
@@ -313,16 +313,16 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(problem, model, 1000, 44)
+        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 24)
         self.assertEqual(result.unchanged, 976)
 
     @unittest.skipIf(forbid_gpu, "Can't use GPU")
     def test_gpu_mrsort_learning(self):
-        problem = generate_problem(5, 3, 41)
-        model = generate_mrsort_model(problem, 42)
-        learning_set = generate_alternatives(problem, model, 200, 43)
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         models = make_models(problem, learning_set, 9, 44)
         termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
@@ -342,15 +342,15 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(problem, model, 1000, 44)
+        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
 
     def test_sat_by_coalitions_using_minisat_learning(self):
-        problem = generate_problem(5, 3, 41)
-        model = generate_mrsort_model(problem, 42)
-        learning_set = generate_alternatives(problem, model, 200, 43)
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learned_model = SatCoalitionUcncsLearningUsingMinisat(problem, learning_set).perform()
 
@@ -358,15 +358,15 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(problem, model, 1000, 44)
+        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 33)
         self.assertEqual(result.unchanged, 967)
 
     def test_sat_by_coalitions_using_evalmaxsat_learning(self):
-        problem = generate_problem(5, 3, 41)
-        model = generate_mrsort_model(problem, 42)
-        learning_set = generate_alternatives(problem, model, 200, 43)
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learned_model = SatCoalitionUcncsLearningUsingEvalmaxsat(problem, learning_set).perform()
 
@@ -374,7 +374,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_alternatives(problem, model, 1000, 44)
+        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
