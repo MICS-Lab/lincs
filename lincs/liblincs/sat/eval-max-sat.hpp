@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../vendored/eval-max-sat/EvalMaxSAT.h"
+#undef LOG
 
 
 namespace lincs {

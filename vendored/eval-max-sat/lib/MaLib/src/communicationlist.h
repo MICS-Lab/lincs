@@ -129,7 +129,7 @@ public:
             });
         } else {
             _cv_wait.wait(lock, [&]{
-                return std::max(0, static_cast<int>(numberWaiting) - static_cast<int>(data.size())) >= n;
+                return std::max(0, static_cast<int>(numberWaiting) - static_cast<int>(data.size())) >= static_cast<int>(n);
             });
         }
         newWaintingProcess = false;

@@ -4,6 +4,14 @@
 #define LINCS__LINEAR_PROGRAMMING__GLOP_HPP
 
 #include <ortools/glop/lp_solver.h>
+#undef CHECK
+#undef CHECK_EQ
+#undef CHECK_NE
+#undef CHECK_LT
+#undef CHECK_GT
+#undef CHECK_LE
+#undef CHECK_GE
+#undef LOG
 
 
 namespace lincs {

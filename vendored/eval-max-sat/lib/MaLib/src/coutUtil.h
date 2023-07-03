@@ -226,8 +226,8 @@ std::ostream& operator<< (std::ostream &output, const std::map<T1, T2> &s) {
 }
 
 namespace  {
-    void _toString(std::ostringstream &oss){
-    }
+    // void _toString(std::ostringstream &oss){
+    // }
 
     template<typename T1, typename ...T>
     void _toString(std::ostringstream &oss, const T1& arg, const T&... args) {
