@@ -413,4 +413,56 @@ TEST_CASE("Generate balanced classified alternatives - many seeds") {
     }
   }
 }
+
+TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
+  std::vector<unsigned> v(100);
+  std::iota(v.begin(), v.end(), 0);
+
+  CHECK(v[76] == 76);
+  CHECK(v[77] == 77);
+  CHECK(v[78] == 78);
+
+  std::mt19937 gen(0);
+  std::shuffle(v.begin(), v.end(), gen);
+
+  CHECK(v[76] == 31);
+  CHECK(v[77] == 77);  // Kept
+  CHECK(v[78] == 71);
+}
+
+void misclassify_alternatives(const Problem& problem, Alternatives* alternatives, const unsigned count, const unsigned random_seed) {
+  std::map<std::string, unsigned> category_indexes;
+  for (const auto& category: problem.categories) {
+    category_indexes[category.name] = category_indexes.size();
+  }
+
+  std::mt19937 gen(random_seed);
+
+  std::vector<unsigned> alternative_indexes(alternatives->alternatives.size());
+  std::iota(alternative_indexes.begin(), alternative_indexes.end(), 0);
+  std::shuffle(alternative_indexes.begin(), alternative_indexes.end(), gen);
+  alternative_indexes.resize(count);
+
+  for (const unsigned alternative_index : alternative_indexes) {
+    auto& alternative = alternatives->alternatives[alternative_index];
+    const unsigned previous_category_index = category_indexes[*alternative.category];
+    unsigned new_category_index = std::uniform_int_distribution<unsigned>(0, category_indexes.size() - 2)(gen);
+    if (new_category_index >= previous_category_index) {
+      ++new_category_index;
+    }
+
+    alternative.category = problem.categories[new_category_index].name;
+  }
+}
+
+TEST_CASE("Misclassify alternatives") {
+  Problem problem = generate_classification_problem(3, 2, 42);
+  Model model = generate_mrsort_classification_model(problem, 42, 2);
+  Alternatives alternatives = generate_classified_alternatives(problem, model, 100, 42, 0.2);
+
+  misclassify_alternatives(problem, &alternatives, 10, 42);
+
+  CHECK(classify_alternatives(problem, model, &alternatives).changed == 10);
+}
+
 } // namespace lincs

@@ -289,6 +289,12 @@ def classification_model(
     help="Ensure that categories are balanced, by forcing their size to differ from the perfectly balanced size by at most this fraction.",
 )
 @click.option(
+    "--misclassified-count",
+    type=click.IntRange(min=0),
+    default=0,
+    help="Misclassify that many alternatives.",
+)
+@click.option(
     "--random-seed",
     help="The random seed to use.",
     type=click.IntRange(min=0),
@@ -300,6 +306,7 @@ def classified_alternatives(
     alternatives_count,
     output_classified_alternatives,
     max_imbalance,
+    misclassified_count,
     random_seed,
 ):
     problem = lincs.load_problem(problem)
@@ -311,6 +318,13 @@ def classified_alternatives(
         random_seed=random_seed,
         max_imbalance=max_imbalance,
     )
+    if misclassified_count:
+        lincs.misclassify_alternatives(
+            problem,
+            alternatives,
+            misclassified_count,
+            random_seed=random_seed + 27,  # Arbitrary, does not hurt
+        )
     alternatives.dump(output_classified_alternatives)
 
 

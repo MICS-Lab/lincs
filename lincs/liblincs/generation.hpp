@@ -33,6 +33,8 @@ Alternatives generate_classified_alternatives(
   std::optional<float> max_imbalance = std::nullopt
 );
 
+void misclassify_alternatives(const Problem&, Alternatives*, unsigned misclassification_count, unsigned random_seed);
+
 } // namespace lincs
 
 #endif  // LINCS__GENERATION_HPP

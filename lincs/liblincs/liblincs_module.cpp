@@ -330,6 +330,12 @@ BOOST_PYTHON_MODULE(liblincs) {
     (bp::arg("problem"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
     "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`."
   );
+  bp::def(
+    "misclassify_alternatives",
+    &lincs::misclassify_alternatives,
+    (bp::arg("problem"), "alternatives", "count", "random_seed"),
+    "Misclassify `count` alternatives from the provided `alternatives`."
+  );
 
   bp::class_<lincs::ClassificationResult>("ClassificationResult", bp::no_init)
     .def_readonly("changed", &lincs::ClassificationResult::changed)

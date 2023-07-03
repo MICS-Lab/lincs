@@ -2,7 +2,7 @@
 
 from liblincs import ValueType, CategoryCorrelation, Criterion, Category, Problem, PROBLEM_JSON_SCHEMA, load_problem, generate_classification_problem
 from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, Model, MODEL_JSON_SCHEMA, load_model, generate_mrsort_classification_model
-from liblincs import Alternative, Alternatives, load_alternatives, generate_classified_alternatives, classify_alternatives
+from liblincs import Alternative, Alternatives, load_alternatives, generate_classified_alternatives, misclassify_alternatives, classify_alternatives
 from liblincs import ProfilesInitializationStrategy, InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
 from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu

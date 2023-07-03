@@ -95,6 +95,8 @@ Options:
                                   forcing their size to differ from the
                                   perfectly balanced size by at most this
                                   fraction.  [0.0<=x<1.0]
+  --misclassified-count INTEGER RANGE
+                                  Misclassify that many alternatives.  [x>=0]
   --random-seed INTEGER RANGE     The random seed to use.  [x>=0]
   --help                          Show this message and exit.
 
@@ -938,6 +940,16 @@ make_models( (Problem)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> Models 
 
     C++ signature :
         lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
+
+lincs.misclassify_alternatives
+==============================
+
+
+misclassify_alternatives( (Problem)problem, (Alternatives)alternatives, (int)count, (int)random_seed) -> None :
+    Misclassify `count` alternatives from the provided `alternatives`.
+
+    C++ signature :
+        void misclassify_alternatives(lincs::Problem,lincs::Alternatives*,unsigned int,unsigned int)
 
 lincs.visualization
 ===================
