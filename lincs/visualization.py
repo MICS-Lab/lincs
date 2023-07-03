@@ -19,12 +19,9 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     )
     colors = [collection.get_facecolor() for collection in collections]
 
-    # @todo Rethink class Alternative to also expose its assigned category *index*, not just category name
-    category_indexes = {category.name: index for index, category in enumerate(problem.categories)}
-
     if alternatives:
         for alternative in alternatives.alternatives[:alternatives_count]:
-            color = colors[category_indexes[alternative.category]]
+            color = colors[alternative.category_index]
             ax.plot(
                 xs, list(alternative.profile),
                 "o--",

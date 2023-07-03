@@ -13,12 +13,12 @@ namespace lincs {
 struct Alternative {
   std::string name;
   std::vector<float> profile;
-  std::optional<std::string> category;
+  std::optional<unsigned> category_index;
 
   Alternative() {}
-  Alternative(const std::string& name_, const std::vector<float>& profile_, const std::optional<std::string>& category_): name(name_), profile(profile_), category(category_) {}
+  Alternative(const std::string& name_, const std::vector<float>& profile_, const std::optional<unsigned>& category_index_): name(name_), profile(profile_), category_index(category_index_) {}
 
-  bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category == other.category; }
+  bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category_index == other.category_index; }
 };
 
 struct Alternatives {
@@ -27,7 +27,7 @@ struct Alternatives {
 
   Alternatives(const Problem& problem_, const std::vector<Alternative>& alternatives_): problem(problem_), alternatives(alternatives_) {}
 
-  void dump(std::ostream&) const;
+  void dump(const Problem&, std::ostream&) const;
   static Alternatives load(const Problem&, std::istream&);
 };
 

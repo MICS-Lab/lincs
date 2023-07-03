@@ -115,14 +115,9 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
     }
   }
 
-  std::map<std::string, unsigned> category_indexes;
-  for (const auto& category: problem.categories) {
-    category_indexes[category.name] = category_indexes.size();
-  }
-
   // Alternatives are outranked by boundary above them
   for (auto alternative : learning_set.alternatives) {
-    const uint category_index = category_indexes[*alternative.category];
+    const uint category_index = *alternative.category_index;
     if (category_index == problem.categories.size() - 1) {
       continue;
     }
@@ -147,7 +142,7 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
 
   // Alternatives outrank the boundary below them
   for (auto alternative : learning_set.alternatives) {
-    const uint category_index = category_indexes[*alternative.category];
+    const uint category_index = *alternative.category_index;
     if (category_index == 0) {
       continue;
     }

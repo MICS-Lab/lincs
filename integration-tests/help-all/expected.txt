@@ -327,10 +327,10 @@ __init__
 __init__( (object)arg1, (str)name, (floats_vector)profile [, (object)category=None]) -> None :
 
     C++ signature :
-        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,std::vector<float, std::allocator<float> > [,std::optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >=None])
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,std::vector<float, std::allocator<float> > [,std::optional<unsigned int>=None])
 
-category
---------
+category_index
+--------------
 
 name
 ----
@@ -357,11 +357,11 @@ dump
 ----
 
 
-dump( (Alternatives)self, (object)out) -> None :
+dump( (Alternatives)self, (Problem)problem, (object)out) -> None :
     Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format.
 
     C++ signature :
-        void dump(lincs::Alternatives,boost::python::api::object {lvalue})
+        void dump(lincs::Alternatives,lincs::Problem,boost::python::api::object {lvalue})
 
 lincs.Boundary
 ==============

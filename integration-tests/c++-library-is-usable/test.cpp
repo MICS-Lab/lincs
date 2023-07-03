@@ -33,14 +33,14 @@ int main() {
     model2.dump(std::cout);
   }
 
-  lincs::Alternatives alternatives{problem, {{"Alice", {11.f, 12.f}, "Pass"}, {"Bob", {9.f, 11.f}, "Fail"}}};
+  lincs::Alternatives alternatives{problem, {{"Alice", {11.f, 12.f}, 1}, {"Bob", {9.f, 11.f}, 0}}};
   {
     std::ostringstream oss;
-    alternatives.dump(oss);
+    alternatives.dump(problem, oss);
     std::cout << oss.str();
     std::istringstream iss(oss.str());
     lincs::Alternatives alternatives2 = lincs::Alternatives::load(problem, iss);
 
-    alternatives2.dump(std::cout);
+    alternatives2.dump(problem, std::cout);
   }
 }

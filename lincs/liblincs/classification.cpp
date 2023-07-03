@@ -62,11 +62,10 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
       }
     }
 
-    const std::string& category = problem.categories[category_index].name;
-    if (alternative.category == category) {
+    if (alternative.category_index == category_index) {
       ++result.unchanged;
     } else {
-      alternative.category = category;
+      alternative.category_index = category_index;
       ++result.changed;
     }
   }
@@ -102,14 +101,14 @@ TEST_CASE("Basic classification using weights") {
 
   auto result = classify_alternatives(problem, model, &alternatives);
 
-  CHECK(alternatives.alternatives[0].category == "Category 1");
-  CHECK(alternatives.alternatives[1].category == "Category 1");
-  CHECK(alternatives.alternatives[2].category == "Category 1");
-  CHECK(alternatives.alternatives[3].category == "Category 1");
-  CHECK(alternatives.alternatives[4].category == "Category 2");
-  CHECK(alternatives.alternatives[5].category == "Category 2");
-  CHECK(alternatives.alternatives[6].category == "Category 1");
-  CHECK(alternatives.alternatives[7].category == "Category 2");
+  CHECK(alternatives.alternatives[0].category_index == 0);
+  CHECK(alternatives.alternatives[1].category_index == 0);
+  CHECK(alternatives.alternatives[2].category_index == 0);
+  CHECK(alternatives.alternatives[3].category_index == 0);
+  CHECK(alternatives.alternatives[4].category_index == 1);
+  CHECK(alternatives.alternatives[5].category_index == 1);
+  CHECK(alternatives.alternatives[6].category_index == 0);
+  CHECK(alternatives.alternatives[7].category_index == 1);
   CHECK(result.unchanged == 0);
   CHECK(result.changed == 8);
 }
@@ -142,14 +141,14 @@ TEST_CASE("Basic classification using upset roots") {
 
   auto result = classify_alternatives(problem, model, &alternatives);
 
-  CHECK(alternatives.alternatives[0].category == "Category 1");
-  CHECK(alternatives.alternatives[1].category == "Category 1");
-  CHECK(alternatives.alternatives[2].category == "Category 1");
-  CHECK(alternatives.alternatives[3].category == "Category 1");
-  CHECK(alternatives.alternatives[4].category == "Category 2");
-  CHECK(alternatives.alternatives[5].category == "Category 2");
-  CHECK(alternatives.alternatives[6].category == "Category 1");
-  CHECK(alternatives.alternatives[7].category == "Category 2");
+  CHECK(alternatives.alternatives[0].category_index == 0);
+  CHECK(alternatives.alternatives[1].category_index == 0);
+  CHECK(alternatives.alternatives[2].category_index == 0);
+  CHECK(alternatives.alternatives[3].category_index == 0);
+  CHECK(alternatives.alternatives[4].category_index == 1);
+  CHECK(alternatives.alternatives[5].category_index == 1);
+  CHECK(alternatives.alternatives[6].category_index == 0);
+  CHECK(alternatives.alternatives[7].category_index == 1);
   CHECK(result.unchanged == 0);
   CHECK(result.changed == 8);
 }

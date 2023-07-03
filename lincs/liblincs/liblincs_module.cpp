@@ -46,9 +46,9 @@ void dump_model(const lincs::Model& model, bp::object& out_file) {
   model.dump(out_stream);
 }
 
-void dump_alternatives(const lincs::Alternatives& alternatives, bp::object& out_file) {
+void dump_alternatives(const lincs::Alternatives& alternatives, const lincs::Problem& problem, bp::object& out_file) {
   boost::iostreams::stream<PythonOutputDevice> out_stream(out_file);
-  alternatives.dump(out_stream);
+  alternatives.dump(problem, out_stream);
 }
 
 class PythonInputDevice : public boost::iostreams::source {
@@ -172,12 +172,12 @@ lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels* make_gpu_models(
     lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(models)));
 }
 
-std::optional<std::string> get_alternative_category(const lincs::Alternative& alt) {
-  return alt.category;
+std::optional<unsigned> get_alternative_category_index(const lincs::Alternative& alt) {
+  return alt.category_index;
 }
 
-void set_alternative_category(lincs::Alternative& alt, std::optional<std::string> category) {
-  alt.category = category;
+void set_alternative_category_index(lincs::Alternative& alt, std::optional<unsigned> category_index) {
+  alt.category_index = category_index;
 }
 
 }  // namespace
@@ -203,7 +203,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   ;
 
   std_optional_converter<float>::enroll();
-  std_optional_converter<std::string>::enroll();
+  std_optional_converter<unsigned>::enroll();
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
   auto_enum<lincs::Problem::Criterion::ValueType>("ValueType");
@@ -298,13 +298,13 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<lincs::Alternative>(
     "Alternative",
-    bp::init<std::string, std::vector<float>, std::optional<std::string>>(
-      (bp::arg("name"), "profile", (bp::arg("category")=std::optional<std::string>()))
+    bp::init<std::string, std::vector<float>, std::optional<unsigned>>(
+      (bp::arg("name"), "profile", (bp::arg("category")=std::optional<unsigned>()))
     )
   )
     .def_readwrite("name", &lincs::Alternative::name)
     .def_readwrite("profile", &lincs::Alternative::profile)
-    .add_property("category", &get_alternative_category, &set_alternative_category)
+    .add_property("category_index", &get_alternative_category_index, &set_alternative_category_index)
   ;
   bp::class_<std::vector<lincs::Alternative>>("alternatives_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>())
@@ -314,7 +314,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def(
       "dump",
       &dump_alternatives,
-      (bp::arg("self"), "out"),
+      (bp::arg("self"), "problem", "out"),
       "Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format."
     )
   ;

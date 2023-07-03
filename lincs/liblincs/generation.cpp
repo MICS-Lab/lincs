@@ -255,10 +255,7 @@ Alternatives generate_balanced_classified_alternatives(
 
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
-  std::map<std::string, unsigned> histogram;
-  for (const auto& category : problem.categories) {
-    histogram[category.name] = 0;
-  }
+  std::vector<unsigned> histogram(categories_count, 0);
 
   int max_iterations_with_no_effect = max_iterations_with_no_effect_with_empty_category;
 
@@ -271,21 +268,21 @@ Alternatives generate_balanced_classified_alternatives(
     Alternatives candidates = generate_uniform_classified_alternatives(problem, model, multiplier * alternatives_count, gen);
 
     for (const auto& candidate : candidates.alternatives) {
-      assert(candidate.category);
-      const std::string& category = *candidate.category;
-      if (histogram[category] < min_size) {
+      assert(candidate.category_index);
+      const unsigned category_index = *candidate.category_index;
+      if (histogram[category_index] < min_size) {
         alternatives.push_back(candidate);
-        ++histogram[category];
+        ++histogram[category_index];
         iterations_with_no_effect = 0;
       }
     }
 
-    if (std::all_of(histogram.begin(), histogram.end(), [min_size](const auto it) { return it.second >= min_size; })) {
+    if (std::all_of(histogram.begin(), histogram.end(), [min_size](const auto size) { return size >= min_size; })) {
       // Success
       break;
     }
 
-    if (std::all_of(histogram.begin(), histogram.end(), [](const auto it) { return it.second > 0; })) {
+    if (std::all_of(histogram.begin(), histogram.end(), [](const auto size) { return size > 0; })) {
       max_iterations_with_no_effect = max_iterations_with_no_effect_with_all_categories_populated;
     }
 
@@ -302,18 +299,18 @@ Alternatives generate_balanced_classified_alternatives(
     Alternatives candidates = generate_uniform_classified_alternatives(problem, model, multiplier * alternatives_count, gen);
 
     for (const auto& candidate : candidates.alternatives) {
-      assert(candidate.category);
-      const std::string& category = *candidate.category;
-      if (histogram[category] < max_size) {
+      assert(candidate.category_index);
+      const unsigned category_index = *candidate.category_index;
+      if (histogram[category_index] < max_size) {
         alternatives.push_back(candidate);
-        ++histogram[category];
+        ++histogram[category_index];
         iterations_with_no_effect = 0;
       }
 
       if (alternatives.size() == alternatives_count) {
         assert(std::all_of(
           histogram.begin(), histogram.end(),
-          [min_size, max_size](const auto it) { return it.second >= min_size && it.second <= max_size; }));
+          [min_size, max_size](const auto size) { return size >= min_size && size <= max_size; }));
         return Alternatives(problem, alternatives);
       }
     }
@@ -341,14 +338,16 @@ Alternatives generate_classified_alternatives(
 }
 
 void check_histogram(const Problem& problem, const Model& model, const std::optional<float> max_imbalance, const unsigned a, const unsigned b) {
+  REQUIRE(problem.categories.size() == 2);
+
   Alternatives alternatives = generate_classified_alternatives(problem, model, 100, 42, max_imbalance);
 
-  std::map<std::string, unsigned> histogram;
+  std::vector<unsigned> histogram(2, 0);
   for (const auto& alternative : alternatives.alternatives) {
-    ++histogram[*alternative.category];
+    ++histogram[*alternative.category_index];
   }
-  CHECK(histogram["Category 1"] == a);
-  CHECK(histogram["Category 2"] == b);
+  CHECK(histogram[0] == a);
+  CHECK(histogram[1] == b);
 }
 
 TEST_CASE("Generate balanced classified alternatives") {
@@ -431,27 +430,27 @@ TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
 }
 
 void misclassify_alternatives(const Problem& problem, Alternatives* alternatives, const unsigned count, const unsigned random_seed) {
-  std::map<std::string, unsigned> category_indexes;
-  for (const auto& category: problem.categories) {
-    category_indexes[category.name] = category_indexes.size();
-  }
+  const unsigned categories_count = problem.categories.size();
+  const unsigned alternatives_count = alternatives->alternatives.size();
 
   std::mt19937 gen(random_seed);
 
-  std::vector<unsigned> alternative_indexes(alternatives->alternatives.size());
+  std::vector<unsigned> alternative_indexes(alternatives_count);
   std::iota(alternative_indexes.begin(), alternative_indexes.end(), 0);
   std::shuffle(alternative_indexes.begin(), alternative_indexes.end(), gen);
   alternative_indexes.resize(count);
 
   for (const unsigned alternative_index : alternative_indexes) {
     auto& alternative = alternatives->alternatives[alternative_index];
-    const unsigned previous_category_index = category_indexes[*alternative.category];
-    unsigned new_category_index = std::uniform_int_distribution<unsigned>(0, category_indexes.size() - 2)(gen);
-    if (new_category_index >= previous_category_index) {
+
+    // Choose new index in [0, alternative.category_index - 1] U [alternative.category_index + 1, categories_count - 1]
+    // => choose in [0, categories_count - 2] and increment if >= alternative.category_index
+    unsigned new_category_index = std::uniform_int_distribution<unsigned>(0, categories_count - 2)(gen);
+    if (new_category_index >= *alternative.category_index) {
       ++new_category_index;
     }
 
-    alternative.category = problem.categories[new_category_index].name;
+    alternative.category_index = new_category_index;
   }
 }
 

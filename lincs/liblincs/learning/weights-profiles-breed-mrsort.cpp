@@ -10,11 +10,6 @@
 namespace lincs {
 
 WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::Models::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
-  std::map<std::string, unsigned> category_indexes;
-  for (const auto& category: problem.categories) {
-    category_indexes[category.name] = category_indexes.size();
-  }
-
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
   const unsigned alternatives_count = learning_set.alternatives.size();
@@ -29,7 +24,7 @@ WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::M
       alternatives[criterion_index][alternative_index] = alt.profile[criterion_index];
     }
 
-    assignments[alternative_index] = category_indexes[*alt.category];
+    assignments[alternative_index] = *alt.category_index;
   }
 
   Array2D<Host, float> weights(criteria_count, models_count, uninitialized);

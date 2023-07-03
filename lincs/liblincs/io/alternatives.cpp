@@ -7,7 +7,7 @@
 
 namespace lincs {
 
-void Alternatives::dump(std::ostream& os) const {
+void Alternatives::dump(const Problem& problem, std::ostream& os) const {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned alternatives_count = alternatives.size();
 
@@ -25,8 +25,8 @@ void Alternatives::dump(std::ostream& os) const {
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index]);
     }
-    if (alternative.category) {
-      doc.SetCell<std::string>(criteria_count + 1, alternative_index, *alternative.category);
+    if (alternative.category_index) {
+      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.categories[*alternative.category_index].name);
     }
   }
 
@@ -35,6 +35,10 @@ void Alternatives::dump(std::ostream& os) const {
 
 Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
   const unsigned criteria_count = problem.criteria.size();
+  std::map<std::string, unsigned> category_indexes;
+  for (const auto& category: problem.categories) {
+    category_indexes[category.name] = category_indexes.size();
+  }
 
   // I don't know why constructing the rapidcsv::Document directly from 'is' sometimes results in an empty document.
   // So, read the whole stream into a string and construct the document from that.
@@ -54,7 +58,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
     }
     std::string category = doc.GetCell<std::string>("category", row_index);
     if (category != "") {
-      alternative.category = category;
+      alternative.category_index = category_indexes[category];
     }
     alternatives.push_back(alternative);
   }

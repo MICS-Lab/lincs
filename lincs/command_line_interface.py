@@ -325,7 +325,7 @@ def classified_alternatives(
             misclassified_count,
             random_seed=random_seed + 27,  # Arbitrary, does not hurt
         )
-    alternatives.dump(output_classified_alternatives)
+    alternatives.dump(problem, output_classified_alternatives)
 
 
 @main.group(
@@ -669,7 +669,7 @@ def classify(
     model = lincs.load_model(problem, model)
     alternatives = lincs.load_alternatives(problem, alternatives)
     lincs.classify_alternatives(problem, model, alternatives)
-    alternatives.dump(output_classified_alternatives)
+    alternatives.dump(problem, output_classified_alternatives)
 
 
 @main.command(

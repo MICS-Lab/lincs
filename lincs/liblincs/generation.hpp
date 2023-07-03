@@ -3,7 +3,7 @@
 #ifndef LINCS__GENERATION_HPP
 #define LINCS__GENERATION_HPP
 
-#include <map>
+#include <vector>
 
 #include "io.hpp"
 
@@ -16,13 +16,13 @@ Model generate_mrsort_classification_model(const Problem&, unsigned random_seed,
 
 class BalancedAlternativesGenerationException : public std::exception {
  public:
-  explicit BalancedAlternativesGenerationException(const std::map<std::string, unsigned>& histogram_) : histogram(histogram_) {}
+  explicit BalancedAlternativesGenerationException(const std::vector<unsigned>& histogram_) : histogram(histogram_) {}
 
   const char* what() const noexcept override {
     return "Unable to generate balanced alternatives. Try increasing the allowed imbalance, or use a more lenient model?";
   }
 
-  std::map<std::string, unsigned> histogram;
+  std::vector<unsigned> histogram;
 };
 
 Alternatives generate_classified_alternatives(
