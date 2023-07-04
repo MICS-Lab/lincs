@@ -9,6 +9,7 @@
 #include "learning/weights-profiles-breed-mrsort/improve-profiles/accuracy-heuristic-on-gpu.hpp"
 #include "learning/weights-profiles-breed-mrsort/initialize-profiles/probabilistic-maximal-discrimination-power-per-criterion.hpp"
 #include "learning/weights-profiles-breed-mrsort/optimize-weights/linear-program.hpp"
+#include "learning/weights-profiles-breed-mrsort/breed/reinitialize-least-accurate.hpp"
 #include "learning/weights-profiles-breed-mrsort/terminate/at-accuracy.hpp"
 #include "linear-programming/alglib.hpp"
 #include "linear-programming/glop.hpp"

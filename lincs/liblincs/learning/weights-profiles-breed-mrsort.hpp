@@ -19,6 +19,7 @@ class WeightsProfilesBreedMrSortLearning {
   struct ProfilesInitializationStrategy;
   struct WeightsOptimizationStrategy;
   struct ProfilesImprovementStrategy;
+  struct BreedingStrategy;
   struct TerminationStrategy;
 
  public:
@@ -27,12 +28,14 @@ class WeightsProfilesBreedMrSortLearning {
     ProfilesInitializationStrategy& profiles_initialization_strategy_,
     WeightsOptimizationStrategy& weights_optimization_strategy_,
     ProfilesImprovementStrategy& profiles_improvement_strategy_,
+    BreedingStrategy& breeding_strategy_,
     TerminationStrategy& termination_strategy_
   ) :
     models(models_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
     weights_optimization_strategy(weights_optimization_strategy_),
     profiles_improvement_strategy(profiles_improvement_strategy_),
+    breeding_strategy(breeding_strategy_),
     termination_strategy(termination_strategy_) {}
 
  public:
@@ -50,6 +53,7 @@ class WeightsProfilesBreedMrSortLearning {
   ProfilesInitializationStrategy& profiles_initialization_strategy;
   WeightsOptimizationStrategy& weights_optimization_strategy;
   ProfilesImprovementStrategy& profiles_improvement_strategy;
+  BreedingStrategy& breeding_strategy;
   TerminationStrategy& termination_strategy;
 };
 
@@ -99,6 +103,14 @@ struct WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
   virtual ~ProfilesImprovementStrategy() {}
 
   virtual void improve_profiles() = 0;
+};
+
+struct WeightsProfilesBreedMrSortLearning::BreedingStrategy {
+  typedef WeightsProfilesBreedMrSortLearning::Models Models;
+
+  virtual ~BreedingStrategy() {}
+
+  virtual void breed() = 0;
 };
 
 struct WeightsProfilesBreedMrSortLearning::TerminationStrategy {

@@ -231,15 +231,17 @@ class MrSortLearningTestCase(unittest.TestCase):
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         models = make_models(problem, learning_set, 9, 44)
-        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
+        breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
+        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
             weights_optimization_strategy,
             profiles_improvement_strategy,
+            breeding_strategy,
             termination_strategy,
         ).perform()
 
@@ -268,15 +270,17 @@ class MrSortLearningTestCase(unittest.TestCase):
                 return iteration_index == 1
 
         models = make_models(problem, learning_set, 9, 44)
-        termination_strategy = MyTerminationStrategy()
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
+        breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
+        termination_strategy = MyTerminationStrategy()
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
             weights_optimization_strategy,
             profiles_improvement_strategy,
+            breeding_strategy,
             termination_strategy,
         ).perform()
 
@@ -297,15 +301,17 @@ class MrSortLearningTestCase(unittest.TestCase):
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         models = make_models(problem, learning_set, 9, 44)
-        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingAlglib(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
+        breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
+        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
             weights_optimization_strategy,
             profiles_improvement_strategy,
+            breeding_strategy,
             termination_strategy,
         ).perform()
 
@@ -325,16 +331,18 @@ class MrSortLearningTestCase(unittest.TestCase):
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         models = make_models(problem, learning_set, 9, 44)
-        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         gpu_models = make_gpu_models(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnGpu(models, gpu_models)
+        breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
+        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
             weights_optimization_strategy,
             profiles_improvement_strategy,
+            breeding_strategy,
             termination_strategy,
         ).perform()
 

@@ -611,15 +611,16 @@ def classification_model(
                     gpu_models = lincs.make_gpu_models(models)
                     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(models, gpu_models)
 
-            # @todo Implement breeding strategies
-            assert mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate"
-            assert mrsort__weights_profiles_breed__reinitialize_least_accurate__portion == 0.5
+            if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
+                count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
+                breeding_strategy = lincs.ReinitializeLeastAccurate(models, profiles_initialization_strategy, count)
 
             learning = lincs.WeightsProfilesBreedMrSortLearning(
                 models,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,
                 profiles_improvement_strategy,
+                breeding_strategy,
                 termination_strategy,
             )
     elif model_type == "ucncs":

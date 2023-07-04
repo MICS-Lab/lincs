@@ -120,8 +120,7 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
     }
 
     // Breed
-    // @todo Introduce breeding extension point
-    profiles_initialization_strategy.initialize_profiles(models.model_indexes.begin(), models.model_indexes.begin() + models.models_count / 2);
+    breeding_strategy.breed();
 
     ++models.iteration_index;
   }

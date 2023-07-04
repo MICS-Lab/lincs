@@ -73,12 +73,14 @@ TEST_CASE("Basic MR-Sort learning") {
       profiles_initialization_strategy(models),
       weights_optimization_strategy(models),
       profiles_improvement_strategy(models),
+      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
       termination_strategy(learning_set.alternatives.size()),
       learning(
         models,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
+        breeding_strategy,
         termination_strategy
       )
     {}
@@ -91,6 +93,7 @@ TEST_CASE("Basic MR-Sort learning") {
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
     WeightsProfilesBreedMrSortLearning learning;
   };
@@ -108,12 +111,14 @@ TEST_CASE("Alglib MR-Sort learning") {
       profiles_initialization_strategy(models),
       weights_optimization_strategy(models),
       profiles_improvement_strategy(models),
+      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
       termination_strategy(learning_set.alternatives.size()),
       learning(
         models,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
+        breeding_strategy,
         termination_strategy
       )
     {}
@@ -126,6 +131,7 @@ TEST_CASE("Alglib MR-Sort learning") {
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingAlglib weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
     WeightsProfilesBreedMrSortLearning learning;
   };
@@ -144,12 +150,14 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
       profiles_initialization_strategy(host_models),
       weights_optimization_strategy(host_models),
       profiles_improvement_strategy(host_models, gpu_models),
+      breeding_strategy(host_models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
       termination_strategy(learning_set.alternatives.size()),
       learning(
         host_models,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
+        breeding_strategy,
         termination_strategy
       )
     {}
@@ -163,6 +171,7 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
     WeightsProfilesBreedMrSortLearning learning;
   };
@@ -205,12 +214,14 @@ TEST_CASE("Non-exact learning - MR-Sort") {
       profiles_initialization_strategy(models),
       weights_optimization_strategy(models),
       profiles_improvement_strategy(models),
+      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
       termination_strategy(target_accuracy),
       learning(
         models,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
+        breeding_strategy,
         termination_strategy
       )
     {}
@@ -223,6 +234,7 @@ TEST_CASE("Non-exact learning - MR-Sort") {
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
     WeightsProfilesBreedMrSortLearning learning;
   };

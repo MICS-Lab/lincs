@@ -381,6 +381,30 @@ profile
 sufficient_coalitions
 ---------------------
 
+lincs.BreedingStrategy
+======================
+
+__init__
+--------
+
+Raises an exception
+This class cannot be instantiated from Python
+
+
+breed
+-----
+
+
+breed( (BreedingStrategy)arg1) -> None :
+
+    C++ signature :
+        void breed(lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue})
+
+breed( (BreedingStrategy)arg1) -> None :
+
+    C++ signature :
+        void breed(lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue})
+
 lincs.Category
 ==============
 
@@ -662,6 +686,27 @@ initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object
     C++ signature :
         void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
 
+lincs.ReinitializeLeastAccurate
+===============================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Models)arg2, (ProfilesInitializationStrategy)arg3, (int)arg4) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},unsigned int)
+
+breed
+-----
+
+
+breed( (ReinitializeLeastAccurate)arg1) -> None :
+
+    C++ signature :
+        void breed(lincs::ReinitializeLeastAccurate {lvalue})
+
 lincs.SatCoalitionUcncsLearningUsingEvalmaxsat
 ==============================================
 
@@ -836,10 +881,10 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (TerminationStrategy)arg6) -> None :
+__init__( (object)arg1, (Models)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
 
 perform
 -------
