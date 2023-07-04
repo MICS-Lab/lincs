@@ -381,30 +381,6 @@ profile
 sufficient_coalitions
 ---------------------
 
-lincs.BreedingStrategy
-======================
-
-__init__
---------
-
-Raises an exception
-This class cannot be instantiated from Python
-
-
-breed
------
-
-
-breed( (BreedingStrategy)arg1) -> None :
-
-    C++ signature :
-        void breed(lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue})
-
-breed( (BreedingStrategy)arg1) -> None :
-
-    C++ signature :
-        void breed(lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue})
-
 lincs.Category
 ==============
 
@@ -459,7 +435,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2) -> None :
+__init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
@@ -480,7 +456,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2) -> None :
+__init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
@@ -501,7 +477,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2) -> None :
+__init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
@@ -561,7 +537,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2) -> None :
+__init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
@@ -582,7 +558,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2) -> None :
+__init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
@@ -638,54 +614,6 @@ dump( (Problem)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Problem,boost::python::api::object {lvalue})
 
-lincs.ProfilesImprovementStrategy
-=================================
-
-__init__
---------
-
-Raises an exception
-This class cannot be instantiated from Python
-
-
-improve_profiles
-----------------
-
-
-improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
-
-    C++ signature :
-        void improve_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue})
-
-improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
-
-    C++ signature :
-        void improve_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue})
-
-lincs.ProfilesInitializationStrategy
-====================================
-
-__init__
---------
-
-Raises an exception
-This class cannot be instantiated from Python
-
-
-initialize_profiles
--------------------
-
-
-initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object)arg3) -> None :
-
-    C++ signature :
-        void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
-
-initialize_profiles( (ProfilesInitializationStrategy)arg1, (object)arg2, (object)arg3) -> None :
-
-    C++ signature :
-        void initialize_profiles(lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
-
 lincs.ReinitializeLeastAccurate
 ===============================
 
@@ -693,7 +621,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2, (ProfilesInitializationStrategy)arg3, (int)arg4) -> None :
+__init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (int)arg4) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},unsigned int)
@@ -799,7 +727,7 @@ __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2, (int)arg3) -> None :
+__init__( (object)arg1, (LearningData)arg2, (int)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},unsigned int)
@@ -813,32 +741,6 @@ terminate( (TerminateAtAccuracy)arg1) -> bool :
     C++ signature :
         bool terminate(lincs::TerminateAtAccuracy {lvalue})
 
-lincs.TerminationStrategy
-=========================
-
-__init__
---------
-
-
-__init__( (object)arg1) -> None :
-
-    C++ signature :
-        void __init__(_object*)
-
-terminate
----------
-
-
-terminate( (TerminationStrategy)arg1) -> bool :
-
-    C++ signature :
-        bool terminate(lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
-
-terminate( (TerminationStrategy)arg1) -> None :
-
-    C++ signature :
-        void terminate(init_module_liblincs()::TerminationStrategyWrap {lvalue})
-
 lincs.ValueType
 ===============
 
@@ -850,38 +752,32 @@ Initialize self.  See help(type(self)) for accurate signature.
 real
 ----
 
-lincs.WeightsOptimizationStrategy
-=================================
-
-__init__
---------
-
-Raises an exception
-This class cannot be instantiated from Python
-
-
-optimize_weights
-----------------
-
-
-optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
-
-    C++ signature :
-        void optimize_weights(lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue})
-
-optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
-
-    C++ signature :
-        void optimize_weights(lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue})
-
 lincs.WeightsProfilesBreedMrSortLearning
 ========================================
 
+BreedingStrategy
+----------------
+
+LearningData
+------------
+
+ProfilesImprovementStrategy
+---------------------------
+
+ProfilesInitializationStrategy
+------------------------------
+
+TerminationStrategy
+-------------------
+
+WeightsOptimizationStrategy
+---------------------------
+
 __init__
 --------
 
 
-__init__( (object)arg1, (Models)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
+__init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
@@ -967,15 +863,6 @@ load_problem( (object)in) -> Problem :
 
     C++ signature :
         lincs::Problem load_problem(boost::python::api::object {lvalue})
-
-lincs.make_models
-=================
-
-
-make_models( (Problem)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> Models :
-
-    C++ signature :
-        lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
 
 lincs.misclassify_alternatives
 ==============================

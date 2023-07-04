@@ -3,12 +3,12 @@
 from liblincs import ValueType, CategoryCorrelation, Criterion, Category, Problem, PROBLEM_JSON_SCHEMA, load_problem, generate_classification_problem
 from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, Model, MODEL_JSON_SCHEMA, load_model, generate_mrsort_classification_model
 from liblincs import Alternative, Alternatives, load_alternatives, generate_classified_alternatives, misclassify_alternatives, classify_alternatives
-from liblincs import ProfilesInitializationStrategy, InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
-from liblincs import WeightsOptimizationStrategy, OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
-from liblincs import ProfilesImprovementStrategy, ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
-from liblincs import BreedingStrategy, ReinitializeLeastAccurate
-from liblincs import TerminationStrategy, TerminateAtAccuracy
-from liblincs import make_models, WeightsProfilesBreedMrSortLearning
+from liblincs import WeightsProfilesBreedMrSortLearning
+from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
+from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
+from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
+from liblincs import ReinitializeLeastAccurate
+from liblincs import TerminateAtAccuracy
 from liblincs import SatCoalitionUcncsLearningUsingMinisat, SatCoalitionUcncsLearningUsingEvalmaxsat
 
 # @todo Accept learning and training set as Pandas DataFrame?

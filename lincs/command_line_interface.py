@@ -590,7 +590,7 @@ def classification_model(
 
     if model_type == "mrsort":
         if mrsort__strategy == "weights-profiles-breed":
-            models = lincs.make_models(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            models = lincs.WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             assert mrsort__weights_profiles_breed__max_iterations is None
             termination_strategy = lincs.TerminateAtAccuracy(
