@@ -21,10 +21,7 @@ class ReinitializeLeastAccurate : public WeightsProfilesBreedMrSortLearning::Bre
   {}
 
  public:
-  // @todo Move to .cpp file
-  void breed() override {
-    profiles_initialization_strategy.initialize_profiles(models.model_indexes.begin(), models.model_indexes.begin() + count);
-  }
+  void breed() override;
 
  private:
   Models& models;
