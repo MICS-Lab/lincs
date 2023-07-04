@@ -38,6 +38,8 @@ def customize_compiler_for_nvcc(self):
             postargs = extra_postargs["nvcc"]
         else:
             postargs = extra_postargs["gcc"]
+        if "/vendored/" in src:
+            postargs = postargs + ["-w"]
 
         default_compile(obj, src, ext, cc_args, postargs, pp_opts)
         self.compiler_so = default_compiler_so

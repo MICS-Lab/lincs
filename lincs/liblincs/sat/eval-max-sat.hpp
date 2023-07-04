@@ -6,7 +6,16 @@
 #include <optional>
 #include <vector>
 
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic ignored "-Wmisleading-indentation"
+#pragma GCC diagnostic ignored "-Wparentheses"
+#pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #include "../vendored/eval-max-sat/EvalMaxSAT.h"
+#pragma GCC diagnostic pop  // No associated push => restore command-line options
 #undef LOG
 
 
