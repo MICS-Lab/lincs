@@ -6,7 +6,7 @@
 namespace lincs {
 
 bool TerminateAtAccuracy::terminate() {
-  return models.get_best_accuracy() >= target_accuracy;
+  return learning_data.get_best_accuracy() >= target_accuracy;
 }
 
 }  // namespace lincs

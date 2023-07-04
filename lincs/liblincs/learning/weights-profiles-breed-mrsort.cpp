@@ -10,7 +10,7 @@
 
 namespace lincs {
 
-WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::Models::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
+WeightsProfilesBreedMrSortLearning::LearningData WeightsProfilesBreedMrSortLearning::LearningData::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
   const unsigned alternatives_count = learning_set.alternatives.size();
@@ -57,7 +57,7 @@ WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::M
   };
 }
 
-Model WeightsProfilesBreedMrSortLearning::Models::get_model(const unsigned model_index) const {
+Model WeightsProfilesBreedMrSortLearning::LearningData::get_model(const unsigned model_index) const {
   assert(model_index < models_count);
 
   std::vector<float> model_weights;
@@ -82,12 +82,12 @@ Model WeightsProfilesBreedMrSortLearning::Models::get_model(const unsigned model
 }
 
 Model WeightsProfilesBreedMrSortLearning::perform() {
-  profiles_initialization_strategy.initialize_profiles(models.model_indexes.begin(), models.model_indexes.end());
+  profiles_initialization_strategy.initialize_profiles(learning_data.model_indexes.begin(), learning_data.model_indexes.end());
 
   unsigned iterations_without_progress = 0;
   // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin
   while (iterations_without_progress < 100) {
-    const int previous_best_accuracy = models.get_best_accuracy();
+    const int previous_best_accuracy = learning_data.get_best_accuracy();
 
     // Improve
     // @todo Shouldn't we swap the next two lines? (To have optimal weights before breeding)
@@ -95,18 +95,18 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
     profiles_improvement_strategy.improve_profiles();
 
     // Sort model_indexes by increasing model accuracy
-    for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
-      models.accuracies[model_index] = compute_accuracy(model_index);
+    for (unsigned model_index = 0; model_index != learning_data.models_count; ++model_index) {
+      learning_data.accuracies[model_index] = compute_accuracy(model_index);
     }
     std::sort(
-      models.model_indexes.begin(), models.model_indexes.end(),
+      learning_data.model_indexes.begin(), learning_data.model_indexes.end(),
       [this](unsigned left_model_index, unsigned right_model_index) {
-        return models.accuracies[left_model_index] < models.accuracies[right_model_index];
+        return learning_data.accuracies[left_model_index] < learning_data.accuracies[right_model_index];
       }
     );
 
     // Interrupt if no progress
-    const int new_best_accuracy = models.get_best_accuracy();
+    const int new_best_accuracy = learning_data.get_best_accuracy();
     if (new_best_accuracy > previous_best_accuracy) {
       iterations_without_progress = 0;
     } else {
@@ -115,13 +115,13 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
 
     // Succeed?
     if (termination_strategy.terminate()) {
-      return models.get_model(models.model_indexes.back());
+      return learning_data.get_model(learning_data.model_indexes.back());
     }
 
     // Breed
     breeding_strategy.breed();
 
-    ++models.iteration_index;
+    ++learning_data.iteration_index;
   }
 
   // Fail
@@ -131,7 +131,7 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
 unsigned WeightsProfilesBreedMrSortLearning::compute_accuracy(const unsigned model_index) {
   unsigned accuracy = 0;
 
-  for (unsigned alternative_index = 0; alternative_index != models.learning_alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
     if (is_correctly_assigned(model_index, alternative_index)) {
       ++accuracy;
     }
@@ -143,29 +143,29 @@ unsigned WeightsProfilesBreedMrSortLearning::compute_accuracy(const unsigned mod
 bool WeightsProfilesBreedMrSortLearning::is_correctly_assigned(
     const unsigned model_index,
     const unsigned alternative_index) {
-  const unsigned expected_assignment = models.learning_assignments[alternative_index];
-  const unsigned actual_assignment = get_assignment(models, model_index, alternative_index);
+  const unsigned expected_assignment = learning_data.learning_assignments[alternative_index];
+  const unsigned actual_assignment = get_assignment(learning_data, model_index, alternative_index);
 
   return actual_assignment == expected_assignment;
 }
 
-unsigned WeightsProfilesBreedMrSortLearning::get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index) {
+unsigned WeightsProfilesBreedMrSortLearning::get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
-  assert(model_index < models.models_count);
-  assert(alternative_index < models.learning_alternatives_count);
+  assert(model_index < learning_data.models_count);
+  assert(alternative_index < learning_data.learning_alternatives_count);
 
   // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
   // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
   // phase keeping the maximum 'category_index' that passes the weight threshold.
-  for (unsigned category_index = models.categories_count - 1; category_index != 0; --category_index) {
+  for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
     const unsigned profile_index = category_index - 1;
     float weight_at_or_above_profile = 0;
-    for (unsigned criterion_index = 0; criterion_index != models.criteria_count; ++criterion_index) {
-      const float alternative_value = models.learning_alternatives[criterion_index][alternative_index];
-      const float profile_value = models.profiles[criterion_index][profile_index][model_index];
+    for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
+      const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
+      const float profile_value = learning_data.profiles[criterion_index][profile_index][model_index];
       if (alternative_value >= profile_value) {
-        weight_at_or_above_profile += models.weights[criterion_index][model_index];
+        weight_at_or_above_profile += learning_data.weights[criterion_index][model_index];
       }
     }
     if (weight_at_or_above_profile >= 1) {

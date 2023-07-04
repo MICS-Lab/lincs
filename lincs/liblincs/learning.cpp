@@ -67,16 +67,16 @@ TEST_CASE("Basic MR-Sort learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      models(WeightsProfilesBreedMrSortLearning::Models::make(
+      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
         problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
       )),
-      profiles_initialization_strategy(models),
-      weights_optimization_strategy(models),
-      profiles_improvement_strategy(models),
-      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(models, learning_set.alternatives.size()),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      termination_strategy(learning_data, learning_set.alternatives.size()),
       learning(
-        models,
+        learning_data,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -89,7 +89,7 @@ TEST_CASE("Basic MR-Sort learning") {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::Models models;
+    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
@@ -105,16 +105,16 @@ TEST_CASE("Alglib MR-Sort learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      models(WeightsProfilesBreedMrSortLearning::Models::make(
+      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
         problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
       )),
-      profiles_initialization_strategy(models),
-      weights_optimization_strategy(models),
-      profiles_improvement_strategy(models),
-      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(models, learning_set.alternatives.size()),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      termination_strategy(learning_data, learning_set.alternatives.size()),
       learning(
-        models,
+        learning_data,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -127,7 +127,7 @@ TEST_CASE("Alglib MR-Sort learning") {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::Models models;
+    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingAlglib weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
@@ -143,16 +143,16 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      models(WeightsProfilesBreedMrSortLearning::Models::make(
+      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
         problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
       )),
-      profiles_initialization_strategy(models),
-      weights_optimization_strategy(models),
-      profiles_improvement_strategy(models),
-      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(models, learning_set.alternatives.size()),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      termination_strategy(learning_data, learning_set.alternatives.size()),
       learning(
-        models,
+        learning_data,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -165,7 +165,7 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::Models models;
+    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
@@ -206,16 +206,16 @@ TEST_CASE("Non-exact learning - MR-Sort") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set, const unsigned target_accuracy) :
-      models(WeightsProfilesBreedMrSortLearning::Models::make(
+      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
         problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
       )),
-      profiles_initialization_strategy(models),
-      weights_optimization_strategy(models),
-      profiles_improvement_strategy(models),
-      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(models, target_accuracy),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      termination_strategy(learning_data, target_accuracy),
       learning(
-        models,
+        learning_data,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -228,7 +228,7 @@ TEST_CASE("Non-exact learning - MR-Sort") {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::Models models;
+    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;

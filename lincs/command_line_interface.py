@@ -590,35 +590,35 @@ def classification_model(
 
     if model_type == "mrsort":
         if mrsort__strategy == "weights-profiles-breed":
-            models = lincs.WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            learning_data = lincs.WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             assert mrsort__weights_profiles_breed__max_iterations is None
             termination_strategy = lincs.TerminateAtAccuracy(
-                models,
+                learning_data,
                 math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
             )
 
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
-                profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
+                profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 
             if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
                 if mrsort__weights_profiles_breed__linear_program__solver == "glop":
-                    weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(models)
+                    weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(learning_data)
                 elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
-                    weights_optimization_strategy = lincs.OptimizeWeightsUsingAlglib(models)
+                    weights_optimization_strategy = lincs.OptimizeWeightsUsingAlglib(learning_data)
 
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
-                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(models)
+                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
                 elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
-                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(models)
+                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
 
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
-                breeding_strategy = lincs.ReinitializeLeastAccurate(models, profiles_initialization_strategy, count)
+                breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
 
             learning = lincs.WeightsProfilesBreedMrSortLearning(
-                models,
+                learning_data,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,
                 profiles_improvement_strategy,

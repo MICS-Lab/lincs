@@ -15,7 +15,7 @@ class WeightsProfilesBreedMrSortLearning {
  public:
   static const unsigned default_models_count = 9;
 
-  struct Models;
+  struct LearningData;
   struct ProfilesInitializationStrategy;
   struct WeightsOptimizationStrategy;
   struct ProfilesImprovementStrategy;
@@ -24,14 +24,14 @@ class WeightsProfilesBreedMrSortLearning {
 
  public:
   WeightsProfilesBreedMrSortLearning(
-    Models& models_,
+    LearningData& learning_data_,
     ProfilesInitializationStrategy& profiles_initialization_strategy_,
     WeightsOptimizationStrategy& weights_optimization_strategy_,
     ProfilesImprovementStrategy& profiles_improvement_strategy_,
     BreedingStrategy& breeding_strategy_,
     TerminationStrategy& termination_strategy_
   ) :
-    models(models_),
+    learning_data(learning_data_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
     weights_optimization_strategy(weights_optimization_strategy_),
     profiles_improvement_strategy(profiles_improvement_strategy_),
@@ -46,10 +46,10 @@ class WeightsProfilesBreedMrSortLearning {
   bool is_correctly_assigned(const unsigned model_index, const unsigned alternative_index);
 
  public:
-  static unsigned get_assignment(const Models& models, const unsigned model_index, const unsigned alternative_index);
+  static unsigned get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index);
 
  private:
-  Models& models;
+  LearningData& learning_data;
   ProfilesInitializationStrategy& profiles_initialization_strategy;
   WeightsOptimizationStrategy& weights_optimization_strategy;
   ProfilesImprovementStrategy& profiles_improvement_strategy;
@@ -57,7 +57,7 @@ class WeightsProfilesBreedMrSortLearning {
   TerminationStrategy& termination_strategy;
 };
 
-struct WeightsProfilesBreedMrSortLearning::Models {
+struct WeightsProfilesBreedMrSortLearning::LearningData {
   const Problem& problem;
   unsigned categories_count;
   unsigned criteria_count;
@@ -72,7 +72,7 @@ struct WeightsProfilesBreedMrSortLearning::Models {
   Array1D<Host, unsigned> accuracies;
   std::vector<std::mt19937> urbgs;
 
-  static Models make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
+  static LearningData make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
 
   unsigned get_best_accuracy() const { return accuracies[model_indexes.back()]; }
 
@@ -80,7 +80,7 @@ struct WeightsProfilesBreedMrSortLearning::Models {
 };
 
 struct WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::Models Models;
+  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
 
   virtual ~ProfilesInitializationStrategy() {}
 
@@ -90,7 +90,7 @@ struct WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
 };
 
 struct WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::Models Models;
+  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
 
   virtual ~WeightsOptimizationStrategy() {}
 
@@ -98,7 +98,7 @@ struct WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {
 };
 
 struct WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::Models Models;
+  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
 
   virtual ~ProfilesImprovementStrategy() {}
 
@@ -106,7 +106,7 @@ struct WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
 };
 
 struct WeightsProfilesBreedMrSortLearning::BreedingStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::Models Models;
+  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
 
   virtual ~BreedingStrategy() {}
 
@@ -114,7 +114,7 @@ struct WeightsProfilesBreedMrSortLearning::BreedingStrategy {
 };
 
 struct WeightsProfilesBreedMrSortLearning::TerminationStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::Models Models;
+  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
 
   virtual ~TerminationStrategy() {}
 

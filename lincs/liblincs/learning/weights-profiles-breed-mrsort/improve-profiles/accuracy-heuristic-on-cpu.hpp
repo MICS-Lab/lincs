@@ -11,7 +11,7 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnCpu : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(Models& models_) : models(models_) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(LearningData& learning_data_) : learning_data(learning_data_) {}
 
  public:
   void improve_profiles() override;
@@ -48,7 +48,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public WeightsProfilesBreedMrS
   );
 
  private:
-  Models& models;
+  LearningData& learning_data;
 };
 
 }  // namespace lincs

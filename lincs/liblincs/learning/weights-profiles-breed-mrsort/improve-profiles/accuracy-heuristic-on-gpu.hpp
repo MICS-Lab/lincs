@@ -11,7 +11,7 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
  private:
-  struct GpuModels {
+  struct GpuLearningData {
     unsigned categories_count;
     unsigned criteria_count;
     unsigned learning_alternatives_count;
@@ -24,11 +24,11 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
     Array2D<Device, Desirability> desirabilities;
     Array2D<Device, float> destinations;
 
-    static GpuModels make(const Models&);
+    static GpuLearningData make(const LearningData&);
   };
 
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& host_models_) : host_models(host_models_), gpu_models(std::move(GpuModels::make(host_models))) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(LearningData& host_learning_data_) : host_learning_data(host_learning_data_), gpu_learning_data(std::move(GpuLearningData::make(host_learning_data))) {}
 
  public:
   void improve_profiles() override;
@@ -49,8 +49,8 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
   );
 
  private:
-  Models& host_models;
-  GpuModels gpu_models;
+  LearningData& host_learning_data;
+  GpuLearningData gpu_learning_data;
 
   static const unsigned destinations_count = 64;
 };

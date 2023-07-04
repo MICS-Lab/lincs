@@ -19,7 +19,7 @@ unsigned get_assignment(
   const unsigned criteria_count = learning_alternatives.s1();
   const unsigned categories_count = profiles.s1() + 1;
 
-  // @todo Evaluate if it's worth storing and updating the gpu_models' assignments
+  // @todo Evaluate if it's worth storing and updating the gpu_learning_data' assignments
   // (instead of recomputing them here)
 
   // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
@@ -240,47 +240,47 @@ void apply_best_move__kernel(
 
 namespace lincs {
 
-ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(const Models& models) {
+ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::make(const LearningData& learning_data) {
   return {
-    models.categories_count,
-    models.criteria_count,
-    models.learning_alternatives_count,
-    models.learning_alternatives.template clone_to<Device>(),
-    models.learning_assignments.template clone_to<Device>(),
-    models.models_count,
-    Array2D<Device, float>(models.criteria_count, models.models_count, uninitialized),
-    Array3D<Device, float>(models.criteria_count, (models.categories_count - 1), models.models_count, uninitialized),
-    Array2D<Device, Desirability>(models.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::destinations_count, uninitialized),
-    Array2D<Device, float>(models.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::destinations_count, uninitialized),
+    learning_data.categories_count,
+    learning_data.criteria_count,
+    learning_data.learning_alternatives_count,
+    learning_data.learning_alternatives.template clone_to<Device>(),
+    learning_data.learning_assignments.template clone_to<Device>(),
+    learning_data.models_count,
+    Array2D<Device, float>(learning_data.criteria_count, learning_data.models_count, uninitialized),
+    Array3D<Device, float>(learning_data.criteria_count, (learning_data.categories_count - 1), learning_data.models_count, uninitialized),
+    Array2D<Device, Desirability>(learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::destinations_count, uninitialized),
+    Array2D<Device, float>(learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::destinations_count, uninitialized),
   };
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
   // Get optimized weights
-  copy(host_models.weights, ref(gpu_models.weights));
+  copy(host_learning_data.weights, ref(gpu_learning_data.weights));
   // Get (re-)initialized profiles
-  copy(host_models.profiles, ref(gpu_models.profiles));
+  copy(host_learning_data.profiles, ref(gpu_learning_data.profiles));
 
   #pragma omp parallel for
-  for (unsigned model_index = 0; model_index != gpu_models.models_count; ++model_index) {
+  for (unsigned model_index = 0; model_index != gpu_learning_data.models_count; ++model_index) {
     improve_model_profiles(model_index);
   }
 
   // Set improved profiles
-  copy(gpu_models.profiles, ref(host_models.profiles));
+  copy(gpu_learning_data.profiles, ref(host_learning_data.profiles));
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {
-  Array1D<Host, unsigned> criterion_indexes(gpu_models.criteria_count, uninitialized);
-  // Not worth parallelizing because models.criteria_count is typically small
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != gpu_models.criteria_count; ++crit_idx_idx) {
+  Array1D<Host, unsigned> criterion_indexes(gpu_learning_data.criteria_count, uninitialized);
+  // Not worth parallelizing because learning_data.criteria_count is typically small
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != gpu_learning_data.criteria_count; ++crit_idx_idx) {
     criterion_indexes[crit_idx_idx] = crit_idx_idx;
   }
 
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned profile_index = 0; profile_index != gpu_models.categories_count - 1; ++profile_index) {
-    shuffle(host_models.urbgs[model_index], ref(criterion_indexes));
+  for (unsigned profile_index = 0; profile_index != gpu_learning_data.categories_count - 1; ++profile_index) {
+    shuffle(host_learning_data.urbgs[model_index], ref(criterion_indexes));
     improve_model_profile(model_index, profile_index, criterion_indexes);
   }
 }
@@ -292,7 +292,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
 ) {
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != gpu_models.criteria_count; ++crit_idx_idx) {
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != gpu_learning_data.criteria_count; ++crit_idx_idx) {
     improve_model_profile(model_index, profile_index, criterion_indexes[crit_idx_idx]);
   }
 }
@@ -307,13 +307,13 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
   const float lowest_destination =
     profile_index == 0 ? 0. :
-    host_models.profiles[criterion_index][profile_index - 1][model_index];
+    host_learning_data.profiles[criterion_index][profile_index - 1][model_index];
   const float highest_destination =
-    profile_index == host_models.categories_count - 2 ? 1. :
-    host_models.profiles[criterion_index][profile_index + 1][model_index];
+    profile_index == host_learning_data.categories_count - 2 ? 1. :
+    host_learning_data.profiles[criterion_index][profile_index + 1][model_index];
 
   if (lowest_destination == highest_destination) {
-    assert(host_models.profiles[criterion_index][profile_index][model_index] == lowest_destination);
+    assert(host_learning_data.profiles[criterion_index][profile_index][model_index] == lowest_destination);
     return;
   }
 
@@ -325,38 +325,38 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     // so we work around that bug by calling it again until it doesn't.
     // Ref: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
     while (destination == highest_destination) {
-      destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(host_models.urbgs[model_index]);
+      destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(host_learning_data.urbgs[model_index]);
     }
     host_destinations[destination_index] = destination;
   }
 
-  copy(host_destinations, ref(gpu_models.destinations[model_index]));
-  gpu_models.desirabilities[model_index].fill_with_zeros();
-  Grid grid = grid::make(gpu_models.learning_alternatives_count, destinations_count);
+  copy(host_destinations, ref(gpu_learning_data.destinations[model_index]));
+  gpu_learning_data.desirabilities[model_index].fill_with_zeros();
+  Grid grid = grid::make(gpu_learning_data.learning_alternatives_count, destinations_count);
   compute_move_desirabilities__kernel<<<LOVE_CONFIG(grid)>>>(
-    gpu_models.learning_alternatives,
-    gpu_models.learning_assignments,
-    gpu_models.weights,
-    gpu_models.profiles,
+    gpu_learning_data.learning_alternatives,
+    gpu_learning_data.learning_assignments,
+    gpu_learning_data.weights,
+    gpu_learning_data.profiles,
     model_index,
     profile_index,
     criterion_index,
-    gpu_models.destinations[model_index],
-    ref(gpu_models.desirabilities[model_index]));
+    gpu_learning_data.destinations[model_index],
+    ref(gpu_learning_data.desirabilities[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
   apply_best_move__kernel<<<1, 1>>>(
-    ref(gpu_models.profiles),
+    ref(gpu_learning_data.profiles),
     model_index,
     profile_index,
     criterion_index,
-    gpu_models.destinations[model_index],
-    gpu_models.desirabilities[model_index],
-    std::uniform_real_distribution<float>(0, 1)(host_models.urbgs[model_index]));
+    gpu_learning_data.destinations[model_index],
+    gpu_learning_data.desirabilities[model_index],
+    std::uniform_real_distribution<float>(0, 1)(host_learning_data.urbgs[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
   // @todo Double-check and document why we don't need [model_index] here
-  copy(gpu_models.profiles[criterion_index][profile_index], host_models.profiles[criterion_index][profile_index]);
+  copy(gpu_learning_data.profiles[criterion_index][profile_index], host_learning_data.profiles[criterion_index][profile_index]);
 }
 
 }  // namespace lincs

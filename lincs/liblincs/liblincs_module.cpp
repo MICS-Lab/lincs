@@ -155,14 +155,14 @@ struct std_optional_converter {
   }
 };
 
-lincs::WeightsProfilesBreedMrSortLearning::Models* make_learning_data(
+lincs::WeightsProfilesBreedMrSortLearning::LearningData* make_learning_data(
   const lincs::Problem& problem,
   const lincs::Alternatives& learning_set,
   const unsigned models_count,
   const unsigned random_seed
 ) {
-  return new lincs::WeightsProfilesBreedMrSortLearning::Models(std::move(
-    lincs::WeightsProfilesBreedMrSortLearning::Models::make(problem, learning_set, models_count, random_seed)));
+  return new lincs::WeightsProfilesBreedMrSortLearning::LearningData(std::move(
+    lincs::WeightsProfilesBreedMrSortLearning::LearningData::make(problem, learning_set, models_count, random_seed)));
 }
 
 std::optional<unsigned> get_alternative_category_index(const lincs::Alternative& alt) {
@@ -345,7 +345,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   auto wpb_learning_class = bp::class_<lincs::WeightsProfilesBreedMrSortLearning>(
     "WeightsProfilesBreedMrSortLearning",
     bp::init<
-      lincs::WeightsProfilesBreedMrSortLearning::Models&,
+      lincs::WeightsProfilesBreedMrSortLearning::LearningData&,
       lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy&,
       lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy&,
       lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy&,
@@ -356,9 +356,9 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("perform", &lincs::WeightsProfilesBreedMrSortLearning::perform)
   ;
 
-  wpb_learning_class.attr("LearningData") = bp::class_<lincs::WeightsProfilesBreedMrSortLearning::Models, boost::noncopyable>("LearningData", bp::no_init)
+  wpb_learning_class.attr("LearningData") = bp::class_<lincs::WeightsProfilesBreedMrSortLearning::LearningData, boost::noncopyable>("LearningData", bp::no_init)
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
-    .def("get_best_accuracy", &lincs::WeightsProfilesBreedMrSortLearning::Models::get_best_accuracy)
+    .def("get_best_accuracy", &lincs::WeightsProfilesBreedMrSortLearning::LearningData::get_best_accuracy)
   ;
 
   wpb_learning_class.attr("ProfilesInitializationStrategy") = bp::class_<lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy, boost::noncopyable>("ProfilesInitializationStrategy", bp::no_init)
@@ -369,7 +369,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy>
   >(
     "InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&>()
   )
     .def("initialize_profiles", &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles);
 
@@ -381,7 +381,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     bp::bases<lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy>
   >(
     "OptimizeWeightsUsingGlop",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&>()
   )
     .def("optimize_weights", &lincs::OptimizeWeightsUsingGlop::optimize_weights);
 
@@ -390,7 +390,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     bp::bases<lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy>
   >(
     "OptimizeWeightsUsingAlglib",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&>()
   )
     .def("optimize_weights", &lincs::OptimizeWeightsUsingAlglib::optimize_weights);
 
@@ -402,7 +402,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>
   >(
     "ImproveProfilesWithAccuracyHeuristicOnCpu",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&>()
   )
     .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles);
 
@@ -412,7 +412,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     boost::noncopyable
   >(
     "ImproveProfilesWithAccuracyHeuristicOnGpu",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&>()
   )
     .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles);
 
@@ -421,7 +421,7 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<lincs::ReinitializeLeastAccurate, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy>>(
     "ReinitializeLeastAccurate",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&, lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy&, unsigned>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&, lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy&, unsigned>()
   )
     .def("breed", &lincs::ReinitializeLeastAccurate::breed);
 
@@ -434,7 +434,7 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>(
     "TerminateAtAccuracy",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&, unsigned>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::LearningData&, unsigned>()
   )
     .def("terminate", &lincs::TerminateAtAccuracy::terminate);
 

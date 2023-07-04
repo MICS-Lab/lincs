@@ -5,10 +5,10 @@
 
 namespace lincs {
 
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(Models& models_) : models(models_) {
-  for (unsigned criterion_index = 0; criterion_index != models.criteria_count; ++criterion_index) {
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_) : learning_data(learning_data_) {
+  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
     generators.emplace_back();
-    for (unsigned profile_index = 0; profile_index != models.categories_count - 1; ++profile_index) {
+    for (unsigned profile_index = 0; profile_index != learning_data.categories_count - 1; ++profile_index) {
       generators.back().emplace_back(get_candidate_probabilities(criterion_index, profile_index));
     }
   }
@@ -22,13 +22,13 @@ std::map<float, double> InitializeProfilesForProbabilisticMaximalDiscriminationP
   // The size used for 'reserve' is a few times larger than the actual final size,
   // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
   // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
-  values_below.reserve(models.learning_alternatives_count);
+  values_below.reserve(learning_data.learning_alternatives_count);
   std::vector<float> values_above;
-  values_above.reserve(models.learning_alternatives_count);
+  values_above.reserve(learning_data.learning_alternatives_count);
   // This loop could/should be done once outside this function
-  for (unsigned alternative_index = 0; alternative_index != models.learning_alternatives_count; ++alternative_index) {
-    const float value = models.learning_alternatives[criterion_index][alternative_index];
-    const unsigned assignment = models.learning_assignments[alternative_index];
+  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
+    const float value = learning_data.learning_alternatives[criterion_index][alternative_index];
+    const unsigned assignment = learning_data.learning_assignments[alternative_index];
     if (assignment == profile_index) {
       values_below.push_back(value);
     } else if (assignment == profile_index + 1) {
@@ -66,14 +66,14 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
     const unsigned model_index = *model_indexes_begin;
 
     // Embarrassingly parallel
-    for (unsigned criterion_index = 0; criterion_index != models.criteria_count; ++criterion_index) {
+    for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
       // Not parallel because of the profiles ordering constraint
-      for (unsigned category_index = models.categories_count - 1; category_index != 0; --category_index) {
+      for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
         const unsigned profile_index = category_index - 1;
-        float value = generators[criterion_index][profile_index](models.urbgs[model_index]);
+        float value = generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
 
-        if (profile_index != models.categories_count - 2) {
-          value = std::min(value, models.profiles[criterion_index][profile_index + 1][model_index]);
+        if (profile_index != learning_data.categories_count - 2) {
+          value = std::min(value, learning_data.profiles[criterion_index][profile_index + 1][model_index]);
         }
         // @todo Add a unit test that triggers the following assertion
         // (This will require removing the code to enforce the order of profiles above)
@@ -81,10 +81,10 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
         // Note, this assertion does not protect us from initializing a model with two identical profiles.
         // Is it really that bad?
         assert(
-          profile_index == models.categories_count - 2
-          || models.profiles[criterion_index][profile_index + 1][model_index] >= value);
+          profile_index == learning_data.categories_count - 2
+          || learning_data.profiles[criterion_index][profile_index + 1][model_index] >= value);
 
-        models.profiles[criterion_index][profile_index][model_index] = value;
+        learning_data.profiles[criterion_index][profile_index][model_index] = value;
       }
     }
   }

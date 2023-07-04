@@ -10,7 +10,7 @@ namespace lincs {
 
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
  public:
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(Models& models_);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_);
 
  public:
   void initialize_profiles(
@@ -25,7 +25,7 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   );
 
  private:
-  Models& models;
+  LearningData& learning_data;
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> generators;
 };
 
