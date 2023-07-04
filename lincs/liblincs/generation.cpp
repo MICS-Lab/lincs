@@ -368,9 +368,9 @@ TEST_CASE("Generate balanced classified alternatives - many seeds") {
 
   // (dynamic OpenMP scheduling because iteration durations vary a lot)
   #pragma omp parallel for collapse(3) schedule(dynamic, 1)
-  for (uint criteria_count = 1; criteria_count != 7; ++criteria_count) {
-    for (uint categories_count = 2; categories_count != 7; ++categories_count) {
-      for (uint model_seed = 0; model_seed != (skip_long ? 10 : 100); ++model_seed) {
+  for (unsigned criteria_count = 1; criteria_count != 7; ++criteria_count) {
+    for (unsigned categories_count = 2; categories_count != 7; ++categories_count) {
+      for (unsigned model_seed = 0; model_seed != (skip_long ? 10 : 100); ++model_seed) {
         Problem problem = generate_classification_problem(criteria_count, categories_count, 42);
 
         CAPTURE(criteria_count);
