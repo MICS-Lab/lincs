@@ -5,8 +5,8 @@
 
 namespace lincs {
 
-bool TerminateAtAccuracy::terminate(unsigned /*iteration_index*/, unsigned best_accuracy) {
-  return best_accuracy >= target_accuracy;
+bool TerminateAtAccuracy::terminate() {
+  return models.get_best_accuracy() >= target_accuracy;
 }
 
 }  // namespace lincs

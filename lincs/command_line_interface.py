@@ -593,7 +593,10 @@ def classification_model(
             models = lincs.make_models(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             assert mrsort__weights_profiles_breed__max_iterations is None
-            termination_strategy = lincs.TerminateAtAccuracy(math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)))
+            termination_strategy = lincs.TerminateAtAccuracy(
+                models,
+                math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
+            )
 
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
                 profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)

@@ -799,19 +799,19 @@ __init__
 --------
 
 
-__init__( (object)arg1, (int)arg2) -> None :
+__init__( (object)arg1, (Models)arg2, (int)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,unsigned int)
+        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},unsigned int)
 
 terminate
 ---------
 
 
-terminate( (TerminateAtAccuracy)arg1, (int)arg2, (int)arg3) -> bool :
+terminate( (TerminateAtAccuracy)arg1) -> bool :
 
     C++ signature :
-        bool terminate(lincs::TerminateAtAccuracy {lvalue},unsigned int,unsigned int)
+        bool terminate(lincs::TerminateAtAccuracy {lvalue})
 
 lincs.TerminationStrategy
 =========================
@@ -829,15 +829,15 @@ terminate
 ---------
 
 
-terminate( (TerminationStrategy)arg1, (int)arg2, (int)arg3) -> bool :
+terminate( (TerminationStrategy)arg1) -> bool :
 
     C++ signature :
-        bool terminate(lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue},unsigned int,unsigned int)
+        bool terminate(lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
 
-terminate( (TerminationStrategy)arg1, (int)arg2, (int)arg3) -> None :
+terminate( (TerminationStrategy)arg1) -> None :
 
     C++ signature :
-        void terminate(init_module_liblincs()::TerminationStrategyWrap {lvalue},unsigned int,unsigned int)
+        void terminate(init_module_liblincs()::TerminationStrategyWrap {lvalue})
 
 lincs.ValueType
 ===============

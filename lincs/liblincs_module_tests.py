@@ -235,7 +235,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
         breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
-        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
+        termination_strategy = TerminateAtAccuracy(models, len(learning_set.alternatives))
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
@@ -260,21 +260,21 @@ class MrSortLearningTestCase(unittest.TestCase):
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         class MyTerminationStrategy(TerminationStrategy):
-            def __init__(self):
+            def __init__(self, models):
                 super().__init__()
+                self.models = models
                 self.accuracies = []
 
-            def terminate(self, iteration_index, best_accuracy):
-                assert iteration_index == len(self.accuracies)
-                self.accuracies.append(best_accuracy)
-                return iteration_index == 1
+            def terminate(self):
+                self.accuracies.append(models.get_best_accuracy())
+                return len(self.accuracies) == 2
 
         models = make_models(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(models)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
         breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
-        termination_strategy = MyTerminationStrategy()
+        termination_strategy = MyTerminationStrategy(models)
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
@@ -305,7 +305,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         weights_optimization_strategy = OptimizeWeightsUsingAlglib(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(models)
         breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
-        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
+        termination_strategy = TerminateAtAccuracy(models, len(learning_set.alternatives))
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,
@@ -336,7 +336,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         gpu_models = make_gpu_models(models)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnGpu(models, gpu_models)
         breeding_strategy = ReinitializeLeastAccurate(models, profiles_initialization_strategy, 4)
-        termination_strategy = TerminateAtAccuracy(len(learning_set.alternatives))
+        termination_strategy = TerminateAtAccuracy(models, len(learning_set.alternatives))
         learned_model = WeightsProfilesBreedMrSortLearning(
             models,
             profiles_initialization_strategy,

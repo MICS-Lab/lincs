@@ -114,8 +114,7 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
     }
 
     // Succeed?
-    // @todo Let termination strategy access the models; remove its parameters
-    if (termination_strategy.terminate(models.iteration_index, models.get_best_accuracy())) {
+    if (termination_strategy.terminate()) {
       return models.get_model(models.model_indexes.back());
     }
 

@@ -412,18 +412,21 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("breed", &lincs::ReinitializeLeastAccurate::breed);
 
   struct TerminationStrategyWrap : lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy, bp::wrapper<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy> {
-    bool terminate(unsigned iteration_index, unsigned best_accuracy) override {
-      return this->get_override("terminate")(iteration_index, best_accuracy);
-    }
+    bool terminate() override { return this->get_override("terminate")(); }
   };
 
   bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
     .def("terminate", bp::pure_virtual(&lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy::terminate));
 
-  bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>("TerminateAtAccuracy", bp::init<unsigned>())
+  bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy>>(
+    "TerminateAtAccuracy",
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&, unsigned>()
+  )
     .def("terminate", &lincs::TerminateAtAccuracy::terminate);
 
-  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::Models, boost::noncopyable>("Models", bp::no_init);
+  bp::class_<lincs::WeightsProfilesBreedMrSortLearning::Models, boost::noncopyable>("Models", bp::no_init)
+    .def("get_best_accuracy", &lincs::WeightsProfilesBreedMrSortLearning::Models::get_best_accuracy)
+  ;
   bp::def("make_models", &make_models, bp::return_value_policy<bp::manage_new_object>());
 
   bp::class_<lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels, boost::noncopyable>("GpuModels", bp::no_init);

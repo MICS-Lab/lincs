@@ -74,7 +74,7 @@ TEST_CASE("Basic MR-Sort learning") {
       weights_optimization_strategy(models),
       profiles_improvement_strategy(models),
       breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(learning_set.alternatives.size()),
+      termination_strategy(models, learning_set.alternatives.size()),
       learning(
         models,
         profiles_initialization_strategy,
@@ -112,7 +112,7 @@ TEST_CASE("Alglib MR-Sort learning") {
       weights_optimization_strategy(models),
       profiles_improvement_strategy(models),
       breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(learning_set.alternatives.size()),
+      termination_strategy(models, learning_set.alternatives.size()),
       learning(
         models,
         profiles_initialization_strategy,
@@ -151,7 +151,7 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
       weights_optimization_strategy(host_models),
       profiles_improvement_strategy(host_models, gpu_models),
       breeding_strategy(host_models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(learning_set.alternatives.size()),
+      termination_strategy(host_models, learning_set.alternatives.size()),
       learning(
         host_models,
         profiles_initialization_strategy,
@@ -215,7 +215,7 @@ TEST_CASE("Non-exact learning - MR-Sort") {
       weights_optimization_strategy(models),
       profiles_improvement_strategy(models),
       breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(target_accuracy),
+      termination_strategy(models, target_accuracy),
       learning(
         models,
         profiles_initialization_strategy,

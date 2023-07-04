@@ -118,7 +118,7 @@ struct WeightsProfilesBreedMrSortLearning::TerminationStrategy {
 
   virtual ~TerminationStrategy() {}
 
-  virtual bool terminate(unsigned iteration_index, unsigned best_accuracy) = 0;
+  virtual bool terminate() = 0;
 };
 
 }  // namespace lincs
