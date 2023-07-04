@@ -137,11 +137,10 @@ Model::SufficientCoalitions load_sufficient_coalitions(const Problem& problem, c
   switch (magic_enum::enum_cast<Model::SufficientCoalitions::Kind>(node["kind"].as<std::string>()).value()) {
     case Model::SufficientCoalitions::Kind::weights:
       return Model::SufficientCoalitions(Model::SufficientCoalitions::weights, node["criterion_weights"].as<std::vector<float>>());
-      break;
     case Model::SufficientCoalitions::Kind::roots:
       return Model::SufficientCoalitions(Model::SufficientCoalitions::roots, problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
-      break;
   }
+  __builtin_unreachable();
 }
 
 Model Model::load(const Problem& problem, std::istream& is) {

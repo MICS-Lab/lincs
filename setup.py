@@ -74,8 +74,8 @@ liblincs = setuptools.Extension(
     # Non-standard: the dict is accessed in `customize_compiler_for_nvcc`
     # to get the standard form for `extra_compile_args`
     extra_compile_args={
-        "gcc": ["-std=c++17", "-fopenmp"],
-        "nvcc": ["-std=c++17", "-Xcompiler", "-fopenmp,-fPIC"],
+        "gcc": ["-std=c++17", "-fopenmp", "-Werror=switch"],
+        "nvcc": ["-std=c++17", "-Xcompiler", "-fopenmp,-fPIC,-Werror=switch"],
     },
     extra_link_args=["-fopenmp"],
 )

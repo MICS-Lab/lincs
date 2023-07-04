@@ -44,6 +44,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       return false;
     }
   }
+  __builtin_unreachable();
 }
 
 ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
