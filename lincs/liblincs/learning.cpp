@@ -143,17 +143,16 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      host_models(WeightsProfilesBreedMrSortLearning::Models::make(
+      models(WeightsProfilesBreedMrSortLearning::Models::make(
         problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
       )),
-      gpu_models(ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(host_models)),
-      profiles_initialization_strategy(host_models),
-      weights_optimization_strategy(host_models),
-      profiles_improvement_strategy(host_models, gpu_models),
-      breeding_strategy(host_models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
-      termination_strategy(host_models, learning_set.alternatives.size()),
+      profiles_initialization_strategy(models),
+      weights_optimization_strategy(models),
+      profiles_improvement_strategy(models),
+      breeding_strategy(models, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      termination_strategy(models, learning_set.alternatives.size()),
       learning(
-        host_models,
+        models,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -166,8 +165,7 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::Models host_models;
-    ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels gpu_models;
+    WeightsProfilesBreedMrSortLearning::Models models;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;

@@ -165,13 +165,6 @@ lincs::WeightsProfilesBreedMrSortLearning::Models* make_models(
     lincs::WeightsProfilesBreedMrSortLearning::Models::make(problem, learning_set, models_count, random_seed)));
 }
 
-lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels* make_gpu_models(
-  const lincs::WeightsProfilesBreedMrSortLearning::Models& models
-) {
-  return new lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels(std::move(
-    lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels::make(models)));
-}
-
 std::optional<unsigned> get_alternative_category_index(const lincs::Alternative& alt) {
   return alt.category_index;
 }
@@ -395,10 +388,11 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<
     lincs::ImproveProfilesWithAccuracyHeuristicOnGpu,
-    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>
+    bp::bases<lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy>,
+    boost::noncopyable
   >(
     "ImproveProfilesWithAccuracyHeuristicOnGpu",
-    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&, lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels&>()
+    bp::init<lincs::WeightsProfilesBreedMrSortLearning::Models&>()
   )
     .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles);
 
@@ -428,9 +422,6 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("get_best_accuracy", &lincs::WeightsProfilesBreedMrSortLearning::Models::get_best_accuracy)
   ;
   bp::def("make_models", &make_models, bp::return_value_policy<bp::manage_new_object>());
-
-  bp::class_<lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels, boost::noncopyable>("GpuModels", bp::no_init);
-  bp::def("make_gpu_models", &make_gpu_models, bp::return_value_policy<bp::manage_new_object>());
 
   bp::class_<lincs::WeightsProfilesBreedMrSortLearning>(
     "WeightsProfilesBreedMrSortLearning",

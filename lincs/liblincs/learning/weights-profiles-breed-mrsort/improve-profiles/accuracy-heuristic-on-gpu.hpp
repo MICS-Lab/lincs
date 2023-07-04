@@ -10,11 +10,25 @@
 namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
- public:
-  struct GpuModels;
+ private:
+  struct GpuModels {
+    unsigned categories_count;
+    unsigned criteria_count;
+    unsigned learning_alternatives_count;
+    Array2D<Device, float> learning_alternatives;
+    Array1D<Device, unsigned> learning_assignments;
+    unsigned models_count;
+    Array2D<Device, float> weights;
+    Array3D<Device, float> profiles;
+
+    Array2D<Device, Desirability> desirabilities;
+    Array2D<Device, float> destinations;
+
+    static GpuModels make(const Models&);
+  };
 
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& host_models_, GpuModels& gpu_models_) : host_models(host_models_), gpu_models(gpu_models_) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(Models& host_models_) : host_models(host_models_), gpu_models(std::move(GpuModels::make(host_models))) {}
 
  public:
   void improve_profiles() override;
@@ -36,25 +50,9 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
 
  private:
   Models& host_models;
-  GpuModels& gpu_models;
+  GpuModels gpu_models;
 
   static const unsigned destinations_count = 64;
-};
-
-struct ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModels {
-  unsigned categories_count;
-  unsigned criteria_count;
-  unsigned learning_alternatives_count;
-  Array2D<Device, float> learning_alternatives;
-  Array1D<Device, unsigned> learning_assignments;
-  unsigned models_count;
-  Array2D<Device, float> weights;
-  Array3D<Device, float> profiles;
-
-  Array2D<Device, Desirability> desirabilities;
-  Array2D<Device, float> destinations;
-
-  static GpuModels make(const Models&);
 };
 
 }  // namespace lincs
