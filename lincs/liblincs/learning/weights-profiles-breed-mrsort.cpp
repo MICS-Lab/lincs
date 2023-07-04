@@ -4,6 +4,7 @@
 
 #include <map>
 
+#include "exception.hpp"
 #include "../median-and-max.hpp"
 
 
@@ -79,6 +80,7 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
   profiles_initialization_strategy.initialize_profiles(model_indexes.begin(), model_indexes.end());
 
   unsigned best_accuracy = 0;
+  unsigned iterations_without_progress = 0;
 
   for (int iteration_index = 0; !termination_strategy.terminate(iteration_index, best_accuracy); ++iteration_index) {
     if (iteration_index != 0) {
@@ -90,7 +92,17 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
 
     auto p = partition_models_by_accuracy();
     model_indexes = std::move(p.first);
-    best_accuracy = p.second;
+    const int new_best_accuracy = p.second;
+    if (new_best_accuracy > best_accuracy) {
+      best_accuracy = new_best_accuracy;
+      iterations_without_progress = 0;
+    } else {
+      ++iterations_without_progress;
+    }
+    // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin
+    if (iterations_without_progress > 100) {
+      throw LearningFailureException();
+    }
   }
 
   return models.get_model(model_indexes.back());

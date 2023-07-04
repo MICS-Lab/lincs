@@ -195,4 +195,52 @@ TEST_CASE("Non-exact learning - SAT by coalitions") {
   CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
 }
 
+TEST_CASE("Non-exact learning - MR-Sort") {
+  class Wrapper {
+   public:
+    Wrapper(const Problem& problem, const Alternatives& learning_set, const unsigned target_accuracy) :
+      models(WeightsProfilesBreedMrSortLearning::Models::make(
+        problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
+      )),
+      profiles_initialization_strategy(models),
+      weights_optimization_strategy(models),
+      profiles_improvement_strategy(models),
+      termination_strategy(target_accuracy),
+      learning(
+        models,
+        profiles_initialization_strategy,
+        weights_optimization_strategy,
+        profiles_improvement_strategy,
+        termination_strategy
+      )
+    {}
+
+   public:
+    auto perform() { return learning.perform(); }
+
+   private:
+    WeightsProfilesBreedMrSortLearning::Models models;
+    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
+    OptimizeWeightsUsingGlop weights_optimization_strategy;
+    ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
+    TerminateAtAccuracy termination_strategy;
+    WeightsProfilesBreedMrSortLearning learning;
+  };
+
+  const Problem problem = generate_classification_problem(3, 2, 41);
+  const Model model = generate_mrsort_classification_model(problem, 44);
+  Alternatives learning_set = generate_classified_alternatives(problem, model, 100, 44);
+  misclassify_alternatives(problem, &learning_set, 10, 44);
+
+  CHECK_THROWS_AS(
+    Wrapper(problem, learning_set, 100).perform(),
+    LearningFailureException
+  );
+
+  Wrapper learning(problem, learning_set, 90);
+  Model learned_model = learning.perform();
+
+  CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
+}
+
 }  // namespace lincs
