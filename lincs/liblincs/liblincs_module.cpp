@@ -358,10 +358,15 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   wpb_learning_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
+    // @todo Expose all attributes to allow non-trivial Python strategies
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
   ;
 
-  wpb_learning_class.attr("ProfilesInitializationStrategy") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, boost::noncopyable>("ProfilesInitializationStrategy", bp::no_init)
+  struct ProfilesInitializationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy> {
+    void initialize_profiles(const unsigned begin, const unsigned end) override { this->get_override("initialize_profiles")(begin, end); }
+  };
+
+  wpb_learning_class.attr("ProfilesInitializationStrategy") = bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>("ProfilesInitializationStrategy")
     .def("initialize_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles));
 
   bp::class_<
@@ -373,7 +378,11 @@ BOOST_PYTHON_MODULE(liblincs) {
   )
     .def("initialize_profiles", &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles);
 
-  wpb_learning_class.attr("WeightsOptimizationStrategy") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, boost::noncopyable>("WeightsOptimizationStrategy", bp::no_init)
+  struct WeightsOptimizationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy> {
+    void optimize_weights() override { this->get_override("optimize_weights")(); }
+  };
+
+  wpb_learning_class.attr("WeightsOptimizationStrategy") = bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>("WeightsOptimizationStrategy")
     .def("optimize_weights", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights));
 
   bp::class_<
@@ -394,7 +403,11 @@ BOOST_PYTHON_MODULE(liblincs) {
   )
     .def("optimize_weights", &lincs::OptimizeWeightsUsingAlglib::optimize_weights);
 
-  wpb_learning_class.attr("ProfilesImprovementStrategy") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, boost::noncopyable>("ProfilesImprovementStrategy", bp::no_init)
+  struct ProfilesImprovementStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy> {
+    void improve_profiles() override { this->get_override("improve_profiles")(); }
+  };
+
+  wpb_learning_class.attr("ProfilesImprovementStrategy") = bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>("ProfilesImprovementStrategy")
     .def("improve_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles));
 
   bp::class_<
@@ -416,7 +429,11 @@ BOOST_PYTHON_MODULE(liblincs) {
   )
     .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles);
 
-  wpb_learning_class.attr("BreedingStrategy") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, boost::noncopyable>("BreedingStrategy", bp::no_init)
+  struct BreedingStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy> {
+    void breed() override { this->get_override("breed")(); }
+  };
+
+  wpb_learning_class.attr("BreedingStrategy") = bp::class_<BreedingStrategyWrap, boost::noncopyable>("BreedingStrategy")
     .def("breed", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed));
 
   bp::class_<lincs::ReinitializeLeastAccurate, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy>>(

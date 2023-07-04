@@ -84,9 +84,7 @@ struct LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
 
   virtual ~ProfilesInitializationStrategy() {}
 
-  virtual void initialize_profiles(
-    std::vector<unsigned>::const_iterator model_indexes_begin,
-    std::vector<unsigned>::const_iterator model_indexes_end) = 0;
+  virtual void initialize_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {

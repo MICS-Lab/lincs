@@ -486,10 +486,10 @@ initialize_profiles
 -------------------
 
 
-initialize_profiles( (InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion)arg1, (object)arg2, (object)arg3) -> None :
+initialize_profiles( (InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion)arg1, (int)arg2, (int)arg3) -> None :
 
     C++ signature :
-        void initialize_profiles(lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
+        void initialize_profiles(lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion {lvalue},unsigned int,unsigned int)
 
 lincs.LearnMrsortByWeightsProfilesBreed
 =======================================

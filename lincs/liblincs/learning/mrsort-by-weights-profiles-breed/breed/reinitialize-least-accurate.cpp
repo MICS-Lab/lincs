@@ -6,7 +6,7 @@
 namespace lincs {
 
 void ReinitializeLeastAccurate::breed() {
-  profiles_initialization_strategy.initialize_profiles(learning_data.model_indexes.begin(), learning_data.model_indexes.begin() + count);
+  profiles_initialization_strategy.initialize_profiles(0, count);
 }
 
 }  // namespace lincs

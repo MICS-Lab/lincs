@@ -13,10 +13,7 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_);
 
  public:
-  void initialize_profiles(
-    std::vector<unsigned>::const_iterator model_indexes_begin,
-    const std::vector<unsigned>::const_iterator model_indexes_end
-  ) override;
+  void initialize_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
   std::map<float, double> get_candidate_probabilities(

@@ -82,7 +82,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
 }
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {
-  profiles_initialization_strategy.initialize_profiles(learning_data.model_indexes.begin(), learning_data.model_indexes.end());
+  profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 
   unsigned iterations_without_progress = 0;
   // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin

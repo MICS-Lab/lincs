@@ -254,10 +254,50 @@ class MrSortLearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
 
-    def test_python_termination_strategy(self):
+    def test_python_strategies(self):
         problem = generate_classification_problem(5, 3, 41)
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
+
+        class MyProfileInitializationStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+                self.called_count = 0
+
+            def initialize_profiles(self, begin, end):
+                self.called_count += 1
+                return self.strategy.initialize_profiles(begin, end)
+
+        class MyWeightsOptimizationStrategy(LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.strategy = OptimizeWeightsUsingGlop(learning_data)
+                self.called_count = 0
+
+            def optimize_weights(self):
+                self.called_count += 1
+                return self.strategy.optimize_weights()
+
+        class MyProfilesImprovementStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+                self.called_count = 0
+
+            def improve_profiles(self):
+                self.called_count += 1
+                return self.strategy.improve_profiles()
+
+        class MyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
+            def __init__(self, learning_data, profiles_initialization_strategy, count):
+                super().__init__()
+                self.strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+                self.called_count = 0
+
+            def breed(self):
+                self.called_count += 1
+                return self.strategy.breed()
 
         class MyTerminationStrategy(LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
             def __init__(self, learning_data):
@@ -270,10 +310,10 @@ class MrSortLearningTestCase(unittest.TestCase):
                 return len(self.accuracies) == 2
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
-        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-        weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
-        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        profiles_initialization_strategy = MyProfileInitializationStrategy(learning_data)
+        weights_optimization_strategy = MyWeightsOptimizationStrategy(learning_data)
+        profiles_improvement_strategy = MyProfilesImprovementStrategy(learning_data)
+        breeding_strategy = MyBreedingStrategy(learning_data, profiles_initialization_strategy, 4)
         termination_strategy = MyTerminationStrategy(learning_data)
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
@@ -284,6 +324,10 @@ class MrSortLearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
+        self.assertEqual(profiles_initialization_strategy.called_count, 2)
+        self.assertEqual(weights_optimization_strategy.called_count, 2)
+        self.assertEqual(profiles_improvement_strategy.called_count, 2)
+        self.assertEqual(breeding_strategy.called_count, 1)
         self.assertEqual(termination_strategy.accuracies, [176, 186])
 
         result = classify_alternatives(problem, learned_model, learning_set)

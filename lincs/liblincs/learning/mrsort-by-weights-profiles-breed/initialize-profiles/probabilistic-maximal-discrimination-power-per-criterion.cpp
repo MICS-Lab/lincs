@@ -58,12 +58,12 @@ std::map<float, double> InitializeProfilesForProbabilisticMaximalDiscriminationP
 }
 
 void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  std::vector<unsigned>::const_iterator model_indexes_begin,
-  const std::vector<unsigned>::const_iterator model_indexes_end
+  unsigned model_indexes_begin,
+  const unsigned model_indexes_end
 ) {
   // Embarrassingly parallel
   for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
-    const unsigned model_index = *model_indexes_begin;
+    const unsigned model_index = learning_data.model_indexes[model_indexes_begin];
 
     // Embarrassingly parallel
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
