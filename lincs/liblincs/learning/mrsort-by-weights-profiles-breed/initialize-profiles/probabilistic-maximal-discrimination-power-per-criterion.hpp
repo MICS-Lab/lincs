@@ -1,14 +1,14 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__INITIALIZE_PROFILES__PROBABILISTIC_MAXIMAL_DISCRIMINATION_POWER_PER_CRITERION_HPP
-#define LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__INITIALIZE_PROFILES__PROBABILISTIC_MAXIMAL_DISCRIMINATION_POWER_PER_CRITERION_HPP
+#ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__INITIALIZE_PROFILES__PROBABILISTIC_MAXIMAL_DISCRIMINATION_POWER_PER_CRITERION_HPP
+#define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__INITIALIZE_PROFILES__PROBABILISTIC_MAXIMAL_DISCRIMINATION_POWER_PER_CRITERION_HPP
 
-#include "../../weights-profiles-breed-mrsort.hpp"
+#include "../../mrsort-by-weights-profiles-breed.hpp"
 #include "../../../randomness-utils.hpp"
 
 namespace lincs {
 
-class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
+class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
  public:
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_);
 
@@ -31,4 +31,4 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
 
 }  // namespace lincs
 
-#endif  // LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__INITIALIZE_PROFILES__PROBABILISTIC_MAXIMAL_DISCRIMINATION_POWER_PER_CRITERION_HPP
+#endif  // LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__INITIALIZE_PROFILES__PROBABILISTIC_MAXIMAL_DISCRIMINATION_POWER_PER_CRITERION_HPP

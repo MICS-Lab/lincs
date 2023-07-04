@@ -1,6 +1,6 @@
 // Copyright 2023 Vincent Jacques
 
-#include "sat-coalitions-ucncs.hpp"
+#include "ucncs-by-sat-by-coalitions.hpp"
 
 #include <algorithm>
 #include <map>

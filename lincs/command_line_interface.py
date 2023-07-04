@@ -590,7 +590,7 @@ def classification_model(
 
     if model_type == "mrsort":
         if mrsort__strategy == "weights-profiles-breed":
-            learning_data = lincs.WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             assert mrsort__weights_profiles_breed__max_iterations is None
             termination_strategy = lincs.TerminateAtAccuracy(
@@ -617,7 +617,7 @@ def classification_model(
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
                 breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
 
-            learning = lincs.WeightsProfilesBreedMrSortLearning(
+            learning = lincs.LearnMrsortByWeightsProfilesBreed(
                 learning_data,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,
@@ -627,9 +627,9 @@ def classification_model(
             )
     elif model_type == "ucncs":
         if ucncs__approach == "sat-by-coalitions":
-            learning = lincs.SatCoalitionUcncsLearningUsingMinisat(problem, learning_set)
+            learning = lincs.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
         elif ucncs__approach == "max-sat-by-coalitions":
-            learning = lincs.SatCoalitionUcncsLearningUsingEvalmaxsat(problem, learning_set)
+            learning = lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat(problem, learning_set)
 
     model = learning.perform()
     model.dump(output_model)

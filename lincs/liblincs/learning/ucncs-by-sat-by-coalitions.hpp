@@ -1,7 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__LEARNING__SAT_COALITIONS_UCNCS_HPP
-#define LINCS__LEARNING__SAT_COALITIONS_UCNCS_HPP
+#ifndef LINCS__LEARNING__UCNCS_BY_SAT_BY_COALITIONS_HPP
+#define LINCS__LEARNING__UCNCS_BY_SAT_BY_COALITIONS_HPP
 
 #include "../io.hpp"
 
@@ -23,4 +23,4 @@ class SatCoalitionUcncsLearning {
 
 }  // namespace lincs
 
-#endif  // LINCS__LEARNING__SAT_COALITIONS_UCNCS_HPP
+#endif  // LINCS__LEARNING__UCNCS_BY_SAT_BY_COALITIONS_HPP

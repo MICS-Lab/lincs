@@ -1,6 +1,6 @@
 // Copyright 2023 Vincent Jacques
 
-#include "weights-profiles-breed-mrsort.hpp"
+#include "mrsort-by-weights-profiles-breed.hpp"
 
 #include <map>
 
@@ -10,7 +10,7 @@
 
 namespace lincs {
 
-WeightsProfilesBreedMrSortLearning::LearningData WeightsProfilesBreedMrSortLearning::LearningData::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
+LearnMrsortByWeightsProfilesBreed::LearningData LearnMrsortByWeightsProfilesBreed::LearningData::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
   const unsigned alternatives_count = learning_set.alternatives.size();
@@ -57,7 +57,7 @@ WeightsProfilesBreedMrSortLearning::LearningData WeightsProfilesBreedMrSortLearn
   };
 }
 
-Model WeightsProfilesBreedMrSortLearning::LearningData::get_model(const unsigned model_index) const {
+Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned model_index) const {
   assert(model_index < models_count);
 
   std::vector<float> model_weights;
@@ -81,7 +81,7 @@ Model WeightsProfilesBreedMrSortLearning::LearningData::get_model(const unsigned
   return Model{problem, boundaries};
 }
 
-Model WeightsProfilesBreedMrSortLearning::perform() {
+Model LearnMrsortByWeightsProfilesBreed::perform() {
   profiles_initialization_strategy.initialize_profiles(learning_data.model_indexes.begin(), learning_data.model_indexes.end());
 
   unsigned iterations_without_progress = 0;
@@ -128,7 +128,7 @@ Model WeightsProfilesBreedMrSortLearning::perform() {
   throw LearningFailureException();
 }
 
-unsigned WeightsProfilesBreedMrSortLearning::compute_accuracy(const unsigned model_index) {
+unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned model_index) {
   unsigned accuracy = 0;
 
   for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
@@ -140,7 +140,7 @@ unsigned WeightsProfilesBreedMrSortLearning::compute_accuracy(const unsigned mod
   return accuracy;
 }
 
-bool WeightsProfilesBreedMrSortLearning::is_correctly_assigned(
+bool LearnMrsortByWeightsProfilesBreed::is_correctly_assigned(
     const unsigned model_index,
     const unsigned alternative_index) {
   const unsigned expected_assignment = learning_data.learning_assignments[alternative_index];
@@ -149,7 +149,7 @@ bool WeightsProfilesBreedMrSortLearning::is_correctly_assigned(
   return actual_assignment == expected_assignment;
 }
 
-unsigned WeightsProfilesBreedMrSortLearning::get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
+unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
   // @todo Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   assert(model_index < learning_data.models_count);

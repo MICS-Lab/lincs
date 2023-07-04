@@ -230,13 +230,13 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learning_data = WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, 9, 44)
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
         breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
-        learned_model = WeightsProfilesBreedMrSortLearning(
+        learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
             profiles_initialization_strategy,
             weights_optimization_strategy,
@@ -259,7 +259,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        class MyTerminationStrategy(WeightsProfilesBreedMrSortLearning.TerminationStrategy):
+        class MyTerminationStrategy(LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
             def __init__(self, learning_data):
                 super().__init__()
                 self.learning_data = learning_data
@@ -269,13 +269,13 @@ class MrSortLearningTestCase(unittest.TestCase):
                 self.accuracies.append(learning_data.get_best_accuracy())
                 return len(self.accuracies) == 2
 
-        learning_data = WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, 9, 44)
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
         breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
         termination_strategy = MyTerminationStrategy(learning_data)
-        learned_model = WeightsProfilesBreedMrSortLearning(
+        learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
             profiles_initialization_strategy,
             weights_optimization_strategy,
@@ -300,13 +300,13 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learning_data = WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, 9, 44)
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingAlglib(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
         breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
-        learned_model = WeightsProfilesBreedMrSortLearning(
+        learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
             profiles_initialization_strategy,
             weights_optimization_strategy,
@@ -330,13 +330,13 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learning_data = WeightsProfilesBreedMrSortLearning.LearningData.make(problem, learning_set, 9, 44)
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
         breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
-        learned_model = WeightsProfilesBreedMrSortLearning(
+        learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
             profiles_initialization_strategy,
             weights_optimization_strategy,
@@ -359,7 +359,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learned_model = SatCoalitionUcncsLearningUsingMinisat(problem, learning_set).perform()
+        learned_model = LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set).perform()
 
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
@@ -375,7 +375,7 @@ class MrSortLearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learned_model = SatCoalitionUcncsLearningUsingEvalmaxsat(problem, learning_set).perform()
+        learned_model = LearnUcncsBySatByCoalitionsUsingEvalmaxsat(problem, learning_set).perform()
 
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)

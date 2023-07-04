@@ -1,15 +1,15 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_CPU_HPP
-#define LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_CPU_HPP
+#ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_CPU_HPP
+#define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_CPU_HPP
 
-#include "../../weights-profiles-breed-mrsort.hpp"
+#include "../../mrsort-by-weights-profiles-breed.hpp"
 #include "accuracy-heuristic/desirability.hpp"
 
 
 namespace lincs {
 
-class ImproveProfilesWithAccuracyHeuristicOnCpu : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
+class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  public:
   explicit ImproveProfilesWithAccuracyHeuristicOnCpu(LearningData& learning_data_) : learning_data(learning_data_) {}
 
@@ -53,4 +53,4 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public WeightsProfilesBreedMrS
 
 }  // namespace lincs
 
-#endif  // LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_CPU_HPP
+#endif  // LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_CPU_HPP

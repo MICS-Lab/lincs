@@ -134,7 +134,7 @@ Strategies can recursively call other strategies, so it's possible for a piece o
 
 Examples:
 
-- ``WeightsProfilesBreedMrSortLearning`` defines several extension points (*e.g.* ``WeightsOptimizationStrategy``, ``ProfilesImprovementStrategy``, *etc.*)
+- ``LearnMrsortByWeightsProfilesBreed`` defines several extension points (*e.g.* ``WeightsOptimizationStrategy``, ``ProfilesImprovementStrategy``, *etc.*)
 - ``ImproveProfilesWithAccuracyHeuristicOnCpu`` and ``ImproveProfilesWithAccuracyHeuristicOnGpu`` are strategies for the ``ProfilesImprovementStrategy`` extension point
 
 But beware of virtual function calls
@@ -243,7 +243,7 @@ So, although virtual function calls are useful, they must be used with care.
 It's best to keep them for cases where they are not called too often; up to a few thousands per learning should be OK.
 When polymorphism is required for frequent calls, it's best to use template-based static polymorphism.
 
-An example of that can be found in ``lincs/liblincs/learning/weights-profiles-breed-mrsort/optimize-weights/linear-program.hpp``,
+An example of that can be found in ``lincs/liblincs/learning/mrsort-by-weights-profiles-breed/optimize-weights/linear-program.hpp``,
 where the LP solver is injected using the ``LinearProgram`` template parameter, at no runtime cost.
 
 So, why not all templates?
@@ -254,9 +254,9 @@ This would have the following negative consequences:
 
 The number of explicit template instantiations would explode incombinatorially.
 For example, the ``LinearProgram`` template parameter of ``.../optimize-weights/linear-program.hpp`` is currently instantiated explicitly for each LP solver in ``.../optimize-weights/linear-program.cpp``.
-If ``WeightsProfilesBreedMrSortLearning`` was a template, it would have to be instantiated for the whole Cartesian product of all variants of each strategy, to a great maintenance cost.
+If ``LearnMrsortByWeightsProfilesBreed`` was a template, it would have to be instantiated for the whole Cartesian product of all variants of each strategy, to a great maintenance cost.
 Note that this is not specific to explicit template instanciation, because we expose *lincs* as a Python library:
-the Python module has to give access to all instanciations of ``WeightsProfilesBreedMrSortLearning``.
+the Python module has to give access to all instanciations of ``LearnMrsortByWeightsProfilesBreed``.
 
 It would forbid customization from the Python side.
 By nature, Python customization happens at runtime, which requires virtual functions.
@@ -311,7 +311,7 @@ If the new feature should be usable through the C++ library, then it must be wri
 
 Most computationally-intensive parts should be written in C++, and Python can be used for the rest.
 
-For example, a ``WeightsProfilesBreedMrSortLearning::BreedingStrategy`` that reduces the number of iterations of the ``WeightsProfilesBreedMrSortLearning`` can be written in Python because this high-level strategy is called only a few times per learning.
+For example, a ``LearnMrsortByWeightsProfilesBreed::BreedingStrategy`` that reduces the number of iterations of the ``LearnMrsortByWeightsProfilesBreed`` can be written in Python because this high-level strategy is called only a few times per learning.
 On the other side, a variant of ``OptimizeWeightsUsingGlop`` that spares a few CPU cycles should be written in C++ because this is where most CPU time is spent.
 
 Tweak an existing strategy
@@ -376,7 +376,7 @@ To add a new one, you have to:
 - write a new solver class, *e.g.* in ``lincs/liblincs/linear-programming/foobar.hpp`` and ``.../foobar.cpp``
 - test it to check that its interface and functionality are compatible with the existing solvers, *e.g.* in ``.../linear-programming/test.cpp``
 - optionally add specific tests in ``.../foobar.cpp``
-- add explicit template instantiations everywhere you want it used, *e.g.* in ``.../learning/weights-profiles-breed-mrsort/optimize-weights/linear-program.cpp``
+- add explicit template instantiations everywhere you want it used, *e.g.* in ``.../learning/mrsort-by-weights-profiles-breed/optimize-weights/linear-program.cpp``
 - add typedefs for the instantiations in ``.../liblincs/learning.hpp``
 - expose typedefs in the Python module ``.../liblincs/liblincs_module.cpp``
 - import it in ``lincs/__init__.py``

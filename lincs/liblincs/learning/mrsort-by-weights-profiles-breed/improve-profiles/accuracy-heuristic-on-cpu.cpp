@@ -128,7 +128,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
 
   const float value = learning_data.learning_alternatives[criterion_index][alternative_index];
   const unsigned learning_assignment = learning_data.learning_assignments[alternative_index];
-  const unsigned model_assignment = WeightsProfilesBreedMrSortLearning::get_assignment(learning_data, model_index, alternative_index);
+  const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(learning_data, model_index, alternative_index);
 
   // @todo Factorize with get_assignment
   float weight_at_or_above_profile = 0;

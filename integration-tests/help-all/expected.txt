@@ -438,7 +438,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
 improve_profiles
 ----------------
@@ -459,7 +459,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
 improve_profiles
 ----------------
@@ -480,7 +480,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
 initialize_profiles
 -------------------
@@ -490,6 +490,87 @@ initialize_profiles( (InitializeProfilesForProbabilisticMaximalDiscriminationPow
 
     C++ signature :
         void initialize_profiles(lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion {lvalue},__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >,__gnu_cxx::__normal_iterator<unsigned int const*, std::vector<unsigned int, std::allocator<unsigned int> > >)
+
+lincs.LearnMrsortByWeightsProfilesBreed
+=======================================
+
+BreedingStrategy
+----------------
+
+LearningData
+------------
+
+ProfilesImprovementStrategy
+---------------------------
+
+ProfilesInitializationStrategy
+------------------------------
+
+TerminationStrategy
+-------------------
+
+WeightsOptimizationStrategy
+---------------------------
+
+__init__
+--------
+
+
+__init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {lvalue})
+
+perform
+-------
+
+
+perform( (LearnMrsortByWeightsProfilesBreed)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::LearnMrsortByWeightsProfilesBreed {lvalue})
+
+lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat
+================================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Problem,lincs::Alternatives)
+
+perform
+-------
+
+
+perform( (LearnUcncsBySatByCoalitionsUsingEvalmaxsat)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
+
+lincs.LearnUcncsBySatByCoalitionsUsingMinisat
+=============================================
+
+__init__
+--------
+
+
+__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Problem,lincs::Alternatives)
+
+perform
+-------
+
+
+perform( (LearnUcncsBySatByCoalitionsUsingMinisat)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
 lincs.MODEL_JSON_SCHEMA
 =======================
@@ -540,7 +621,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
 optimize_weights
 ----------------
@@ -561,7 +642,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue})
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
 optimize_weights
 ----------------
@@ -624,7 +705,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (int)arg4) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},unsigned int)
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},unsigned int)
 
 breed
 -----
@@ -634,48 +715,6 @@ breed( (ReinitializeLeastAccurate)arg1) -> None :
 
     C++ signature :
         void breed(lincs::ReinitializeLeastAccurate {lvalue})
-
-lincs.SatCoalitionUcncsLearningUsingEvalmaxsat
-==============================================
-
-__init__
---------
-
-
-__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
-
-    C++ signature :
-        void __init__(_object*,lincs::Problem,lincs::Alternatives)
-
-perform
--------
-
-
-perform( (SatCoalitionUcncsLearningUsingEvalmaxsat)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
-
-lincs.SatCoalitionUcncsLearningUsingMinisat
-===========================================
-
-__init__
---------
-
-
-__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
-
-    C++ signature :
-        void __init__(_object*,lincs::Problem,lincs::Alternatives)
-
-perform
--------
-
-
-perform( (SatCoalitionUcncsLearningUsingMinisat)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
 lincs.SufficientCoalitions
 ==========================
@@ -730,7 +769,7 @@ __init__
 __init__( (object)arg1, (LearningData)arg2, (int)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},unsigned int)
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},unsigned int)
 
 terminate
 ---------
@@ -751,45 +790,6 @@ Initialize self.  See help(type(self)) for accurate signature.
 
 real
 ----
-
-lincs.WeightsProfilesBreedMrSortLearning
-========================================
-
-BreedingStrategy
-----------------
-
-LearningData
-------------
-
-ProfilesImprovementStrategy
----------------------------
-
-ProfilesInitializationStrategy
-------------------------------
-
-TerminationStrategy
--------------------
-
-WeightsOptimizationStrategy
----------------------------
-
-__init__
---------
-
-
-__init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
-
-    C++ signature :
-        void __init__(_object*,lincs::WeightsProfilesBreedMrSortLearning::Models {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::BreedingStrategy {lvalue},lincs::WeightsProfilesBreedMrSortLearning::TerminationStrategy {lvalue})
-
-perform
--------
-
-
-perform( (WeightsProfilesBreedMrSortLearning)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::WeightsProfilesBreedMrSortLearning {lvalue})
 
 lincs.classify_alternatives
 ===========================

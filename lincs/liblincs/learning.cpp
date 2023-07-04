@@ -67,13 +67,13 @@ TEST_CASE("Basic MR-Sort learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
-        problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
       )),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
       termination_strategy(learning_data, learning_set.alternatives.size()),
       learning(
         learning_data,
@@ -89,13 +89,13 @@ TEST_CASE("Basic MR-Sort learning") {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
-    WeightsProfilesBreedMrSortLearning learning;
+    LearnMrsortByWeightsProfilesBreed learning;
   };
 
   check_exact_learning<Wrapper>();
@@ -105,13 +105,13 @@ TEST_CASE("Alglib MR-Sort learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
-        problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
       )),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
       termination_strategy(learning_data, learning_set.alternatives.size()),
       learning(
         learning_data,
@@ -127,13 +127,13 @@ TEST_CASE("Alglib MR-Sort learning") {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingAlglib weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
-    WeightsProfilesBreedMrSortLearning learning;
+    LearnMrsortByWeightsProfilesBreed learning;
   };
 
   check_exact_learning<Wrapper>();
@@ -143,13 +143,13 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
-        problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
       )),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
       termination_strategy(learning_data, learning_set.alternatives.size()),
       learning(
         learning_data,
@@ -165,24 +165,24 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
-    WeightsProfilesBreedMrSortLearning learning;
+    LearnMrsortByWeightsProfilesBreed learning;
   };
 
   check_exact_learning<Wrapper>();
 }
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
-  check_exact_learning<SatCoalitionUcncsLearningUsingMinisat>();
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>();
 }
 
 TEST_CASE("SAT by coalitions using EvalMaxSAT learning") {
-  check_exact_learning<SatCoalitionUcncsLearningUsingEvalmaxsat>();
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>();
 }
 
 TEST_CASE("Non-exact learning - SAT by coalitions") {
@@ -192,11 +192,11 @@ TEST_CASE("Non-exact learning - SAT by coalitions") {
   misclassify_alternatives(problem, &learning_set, 10, 44);
 
   CHECK_THROWS_AS(
-    SatCoalitionUcncsLearningUsingMinisat(problem, learning_set).perform(),
+    LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set).perform(),
     LearningFailureException
   );
 
-  SatCoalitionUcncsLearningUsingEvalmaxsat learning(problem, learning_set);
+  LearnUcncsBySatByCoalitionsUsingEvalmaxsat learning(problem, learning_set);
   Model learned_model = learning.perform();
 
   CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
@@ -206,13 +206,13 @@ TEST_CASE("Non-exact learning - MR-Sort") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set, const unsigned target_accuracy) :
-      learning_data(WeightsProfilesBreedMrSortLearning::LearningData::make(
-        problem, learning_set, WeightsProfilesBreedMrSortLearning::default_models_count, 44
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
       )),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, WeightsProfilesBreedMrSortLearning::default_models_count / 2),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
       termination_strategy(learning_data, target_accuracy),
       learning(
         learning_data,
@@ -228,13 +228,13 @@ TEST_CASE("Non-exact learning - MR-Sort") {
     auto perform() { return learning.perform(); }
 
    private:
-    WeightsProfilesBreedMrSortLearning::LearningData learning_data;
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
-    WeightsProfilesBreedMrSortLearning learning;
+    LearnMrsortByWeightsProfilesBreed learning;
   };
 
   const Problem problem = generate_classification_problem(3, 2, 41);

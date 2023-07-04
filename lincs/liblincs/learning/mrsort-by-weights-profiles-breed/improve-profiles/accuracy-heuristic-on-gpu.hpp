@@ -1,15 +1,15 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP
-#define LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP
+#ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP
+#define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP
 
-#include "../../weights-profiles-breed-mrsort.hpp"
+#include "../../mrsort-by-weights-profiles-breed.hpp"
 #include "accuracy-heuristic/desirability.hpp"
 
 
 namespace lincs {
 
-class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
+class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  private:
   struct GpuLearningData {
     unsigned categories_count;
@@ -57,4 +57,4 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public WeightsProfilesBreedMrS
 
 }  // namespace lincs
 
-#endif  // LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP
+#endif  // LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC_ON_GPU_HPP

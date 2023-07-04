@@ -1,7 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT_HPP
-#define LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT_HPP
+#ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED_HPP
+#define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED_HPP
 
 #include <random>
 
@@ -11,7 +11,7 @@
 
 namespace lincs {
 
-class WeightsProfilesBreedMrSortLearning {
+class LearnMrsortByWeightsProfilesBreed {
  public:
   static const unsigned default_models_count = 9;
 
@@ -23,7 +23,7 @@ class WeightsProfilesBreedMrSortLearning {
   struct TerminationStrategy;
 
  public:
-  WeightsProfilesBreedMrSortLearning(
+  LearnMrsortByWeightsProfilesBreed(
     LearningData& learning_data_,
     ProfilesInitializationStrategy& profiles_initialization_strategy_,
     WeightsOptimizationStrategy& weights_optimization_strategy_,
@@ -57,7 +57,7 @@ class WeightsProfilesBreedMrSortLearning {
   TerminationStrategy& termination_strategy;
 };
 
-struct WeightsProfilesBreedMrSortLearning::LearningData {
+struct LearnMrsortByWeightsProfilesBreed::LearningData {
   const Problem& problem;
   unsigned categories_count;
   unsigned criteria_count;
@@ -79,8 +79,8 @@ struct WeightsProfilesBreedMrSortLearning::LearningData {
   Model get_model(const unsigned model_index) const;
 };
 
-struct WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
+struct LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
+  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
   virtual ~ProfilesInitializationStrategy() {}
 
@@ -89,32 +89,32 @@ struct WeightsProfilesBreedMrSortLearning::ProfilesInitializationStrategy {
     std::vector<unsigned>::const_iterator model_indexes_end) = 0;
 };
 
-struct WeightsProfilesBreedMrSortLearning::WeightsOptimizationStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
+struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
+  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
   virtual ~WeightsOptimizationStrategy() {}
 
   virtual void optimize_weights() = 0;
 };
 
-struct WeightsProfilesBreedMrSortLearning::ProfilesImprovementStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
+struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
+  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
   virtual ~ProfilesImprovementStrategy() {}
 
   virtual void improve_profiles() = 0;
 };
 
-struct WeightsProfilesBreedMrSortLearning::BreedingStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
+struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
+  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
   virtual ~BreedingStrategy() {}
 
   virtual void breed() = 0;
 };
 
-struct WeightsProfilesBreedMrSortLearning::TerminationStrategy {
-  typedef WeightsProfilesBreedMrSortLearning::LearningData LearningData;
+struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
+  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
   virtual ~TerminationStrategy() {}
 
@@ -124,4 +124,4 @@ struct WeightsProfilesBreedMrSortLearning::TerminationStrategy {
 }  // namespace lincs
 
 
-#endif  // LINCS__LEARNING__WEIGHTS_PROFILES_BREED_MRSORT_HPP
+#endif  // LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED_HPP

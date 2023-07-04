@@ -6,7 +6,7 @@ from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, M
 from liblincs import Alternative, Alternatives, load_alternatives, generate_classified_alternatives, misclassify_alternatives, classify_alternatives
 
 # Learning - weights-profiles-breed
-from liblincs import WeightsProfilesBreedMrSortLearning
+from liblincs import LearnMrsortByWeightsProfilesBreed
 from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
 from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
@@ -14,6 +14,6 @@ from liblincs import ReinitializeLeastAccurate
 from liblincs import TerminateAtAccuracy
 
 # Learning - SAT by coalitions
-from liblincs import SatCoalitionUcncsLearningUsingMinisat, SatCoalitionUcncsLearningUsingEvalmaxsat
+from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat, LearnUcncsBySatByCoalitionsUsingEvalmaxsat
 
 # @todo Accept learning and training set as Pandas DataFrame?
