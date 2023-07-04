@@ -10,13 +10,13 @@ namespace lincs {
 
 class TerminateAtAccuracy : public WeightsProfilesBreedMrSortLearning::TerminationStrategy {
  public:
-  explicit TerminateAtAccuracy(unsigned target_accuracy) : _target_accuracy(target_accuracy) {}
+  explicit TerminateAtAccuracy(unsigned target_accuracy_) : target_accuracy(target_accuracy_) {}
 
  public:
   bool terminate(unsigned, unsigned) override;
 
  private:
-  unsigned _target_accuracy;
+  unsigned target_accuracy;
 };
 
 }  // namespace lincs
