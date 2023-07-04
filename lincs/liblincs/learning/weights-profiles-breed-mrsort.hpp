@@ -39,8 +39,7 @@ class WeightsProfilesBreedMrSortLearning {
   Model perform();
 
  private:
-  std::pair<std::vector<unsigned>, unsigned> partition_models_by_accuracy();
-  unsigned get_accuracy(const unsigned model_index);
+  unsigned compute_accuracy(const unsigned model_index);
   bool is_correctly_assigned(const unsigned model_index, const unsigned alternative_index);
 
  public:
@@ -61,12 +60,17 @@ struct WeightsProfilesBreedMrSortLearning::Models {
   unsigned learning_alternatives_count;
   Array2D<Host, float> learning_alternatives;
   Array1D<Host, unsigned> learning_assignments;
+  unsigned iteration_index;
   unsigned models_count;
+  std::vector<unsigned> model_indexes;
   Array2D<Host, float> weights;
   Array3D<Host, float> profiles;
+  Array1D<Host, unsigned> accuracies;
   std::vector<std::mt19937> urbgs;
 
   static Models make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
+
+  unsigned get_best_accuracy() const { return accuracies[model_indexes.back()]; }
 
   Model get_model(const unsigned model_index) const;
 };

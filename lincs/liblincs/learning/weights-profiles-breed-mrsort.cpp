@@ -28,8 +28,12 @@ WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::M
     assignments[alternative_index] = *alt.category_index;
   }
 
+  std::vector<unsigned> model_indexes(models_count);
+  std::iota(model_indexes.begin(), model_indexes.end(), 0);
+
   Array2D<Host, float> weights(criteria_count, models_count, uninitialized);
   Array3D<Host, float> profiles(criteria_count, (categories_count - 1), models_count, uninitialized);
+  Array1D<Host, unsigned> accuracies(models_count, zeroed);
 
   std::vector<std::mt19937> urbgs(models_count);
   for (unsigned model_index = 0; model_index != models_count; ++model_index) {
@@ -43,9 +47,12 @@ WeightsProfilesBreedMrSortLearning::Models WeightsProfilesBreedMrSortLearning::M
     alternatives_count,
     std::move(alternatives),
     std::move(assignments),
+    0,
     models_count,
+    std::move(model_indexes),
     std::move(weights),
     std::move(profiles),
+    std::move(accuracies),
     std::move(urbgs),
   };
 }
@@ -75,57 +82,55 @@ Model WeightsProfilesBreedMrSortLearning::Models::get_model(const unsigned model
 }
 
 Model WeightsProfilesBreedMrSortLearning::perform() {
-  std::vector<unsigned> model_indexes(models.models_count, 0);
-  std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  profiles_initialization_strategy.initialize_profiles(model_indexes.begin(), model_indexes.end());
+  profiles_initialization_strategy.initialize_profiles(models.model_indexes.begin(), models.model_indexes.end());
 
-  unsigned best_accuracy = 0;
   unsigned iterations_without_progress = 0;
+  // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin
+  while (iterations_without_progress < 100) {
+    const int previous_best_accuracy = models.get_best_accuracy();
 
-  for (int iteration_index = 0; !termination_strategy.terminate(iteration_index, best_accuracy); ++iteration_index) {
-    if (iteration_index != 0) {
-      profiles_initialization_strategy.initialize_profiles(model_indexes.begin(), model_indexes.begin() + models.models_count / 2);
-    }
-
+    // Improve
+    // @todo Shouldn't we swap the next two lines? (To have optimal weights before breeding)
     weights_optimization_strategy.optimize_weights();
     profiles_improvement_strategy.improve_profiles();
 
-    auto p = partition_models_by_accuracy();
-    model_indexes = std::move(p.first);
-    const int new_best_accuracy = p.second;
-    if (new_best_accuracy > best_accuracy) {
-      best_accuracy = new_best_accuracy;
+    // Sort model_indexes by increasing model accuracy
+    for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
+      models.accuracies[model_index] = compute_accuracy(model_index);
+    }
+    std::sort(
+      models.model_indexes.begin(), models.model_indexes.end(),
+      [this](unsigned left_model_index, unsigned right_model_index) {
+        return models.accuracies[left_model_index] < models.accuracies[right_model_index];
+      }
+    );
+
+    // Interrupt if no progress
+    const int new_best_accuracy = models.get_best_accuracy();
+    if (new_best_accuracy > previous_best_accuracy) {
       iterations_without_progress = 0;
     } else {
       ++iterations_without_progress;
     }
-    // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin
-    if (iterations_without_progress > 100) {
-      throw LearningFailureException();
+
+    // Succeed?
+    // @todo Let termination strategy access the models; remove its parameters
+    if (termination_strategy.terminate(models.iteration_index, models.get_best_accuracy())) {
+      return models.get_model(models.model_indexes.back());
     }
+
+    // Breed
+    // @todo Introduce breeding extension point
+    profiles_initialization_strategy.initialize_profiles(models.model_indexes.begin(), models.model_indexes.begin() + models.models_count / 2);
+
+    ++models.iteration_index;
   }
 
-  return models.get_model(model_indexes.back());
+  // Fail
+  throw LearningFailureException();
 }
 
-std::pair<std::vector<unsigned>, unsigned> WeightsProfilesBreedMrSortLearning::partition_models_by_accuracy() {
-  std::vector<unsigned> accuracies(models.models_count, 0);
-  for (unsigned model_index = 0; model_index != models.models_count; ++model_index) {
-    accuracies[model_index] = get_accuracy(model_index);
-  }
-
-  std::vector<unsigned> model_indexes(models.models_count, 0);
-  std::iota(model_indexes.begin(), model_indexes.end(), 0);
-  ensure_median_and_max(
-    model_indexes.begin(), model_indexes.end(),
-    [&accuracies](unsigned left_model_index, unsigned right_model_index) {
-      return accuracies[left_model_index] < accuracies[right_model_index];
-    });
-
-  return std::make_pair(model_indexes, accuracies[model_indexes.back()]);
-}
-
-unsigned WeightsProfilesBreedMrSortLearning::get_accuracy(const unsigned model_index) {
+unsigned WeightsProfilesBreedMrSortLearning::compute_accuracy(const unsigned model_index) {
   unsigned accuracy = 0;
 
   for (unsigned alternative_index = 0; alternative_index != models.learning_alternatives_count; ++alternative_index) {

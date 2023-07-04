@@ -265,7 +265,7 @@ class MrSortLearningTestCase(unittest.TestCase):
             def terminate(self, iteration_index, best_accuracy):
                 assert iteration_index == len(self.accuracies)
                 self.accuracies.append(best_accuracy)
-                return iteration_index == 2
+                return iteration_index == 1
 
         models = make_models(problem, learning_set, 9, 44)
         termination_strategy = MyTerminationStrategy()
@@ -280,7 +280,7 @@ class MrSortLearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
-        self.assertEqual(termination_strategy.accuracies, [0, 176, 186])
+        self.assertEqual(termination_strategy.accuracies, [176, 186])
 
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 14)
