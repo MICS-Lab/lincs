@@ -109,40 +109,51 @@ def help_all():
 
     walk([], main)
 
-    for obj_name in sorted(dir(lincs)):
-        if obj_name.startswith("_"):
-            continue
+    def walk(path, node, type_name=None):
+        if '.'.join(path) in [
+            "lincs.command_line_interface",
+            "lincs.visualization.plt",
+        ]:
+            return
 
-        obj = getattr(lincs, obj_name)
-        print(f"lincs.{obj_name}")
-        print("=" * len(f"lincs.{obj_name}"))
-        print()
-        if obj.__doc__:
-            print(obj.__doc__)
+        title = f"{'.'.join(path)}: {type_name or type(node).__name__}"
+        print(title)
+        print("-" * len(title))
+
+        if type_name is not None:
+            return
+
+        if type(node) in [str, dict, property]:
             print()
-        if isinstance(obj, type):
-            for attr_name in sorted(dir(obj)):
-                if attr_name.startswith("_") and attr_name not in ["__init__"]:  # @todo Include some other dunders
-                    continue
-                if (
-                    obj_name in {"CategoryCorrelation", "SufficientCoalitionsKind", "ValueType"}
-                    and
-                    attr_name in {"as_integer_ratio", "bit_count", "bit_length", "conjugate", "denominator", "from_bytes", "imag", "numerator", "to_bytes", "attr_name", "name", "names", "values"}
-                ):
-                    continue
-                if (
-                    obj_name in {"CategoryCorrelation", "SufficientCoalitionsKind"}
-                    and
-                    attr_name in {"real"}
-                ):
-                    continue
-                print(f"{attr_name}")
-                print("-" * len(attr_name))
-                print()
-                doc = getattr(obj, attr_name).__doc__
-                if doc:
-                    print(doc)
-                    print()
+            return
+
+        if node.__doc__:
+            print(node.__doc__)
+        print()
+
+        if type(node) in [type(walk), type(lincs.Model.dump)]:
+            return
+
+        if '.'.join(path) in [
+            "lincs.Criterion.CategoryCorrelation",
+            "lincs.Criterion.ValueType",
+            "lincs.SufficientCoalitions.Kind",
+        ]:
+            for name in node.names:
+                walk(path + [name], name, type_name="value")
+            return
+
+        for name in sorted(dir(node)):
+            if name not in ["__init__"] and name.startswith("__") and name.endswith("__"):
+                continue
+
+            # Avoid weird recursion
+            if name in path:
+                continue
+
+            walk(path + [name], getattr(node, name))
+
+    walk(["lincs"], lincs)
 
 
 @main.group(

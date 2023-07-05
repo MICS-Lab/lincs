@@ -319,45 +319,45 @@ Usage: lincs classification-accuracy [OPTIONS] PROBLEM MODEL TESTING_SET
 Options:
   --help  Show this message and exit.
 
-lincs.Alternative
-=================
+lincs: module
+-------------
 
-__init__
---------
+lincs.Alternative: class
+------------------------
 
+lincs.Alternative.__init__: function
+------------------------------------
 
 __init__( (object)arg1, (str)name, (floats_vector)profile [, (object)category=None]) -> None :
 
     C++ signature :
         void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,std::vector<float, std::allocator<float> > [,std::optional<unsigned int>=None])
 
-category_index
---------------
+lincs.Alternative.category_index: property
+------------------------------------------
 
-name
-----
+lincs.Alternative.name: property
+--------------------------------
 
-profile
--------
+lincs.Alternative.profile: property
+-----------------------------------
 
-lincs.Alternatives
-==================
+lincs.Alternatives: class
+-------------------------
 
-__init__
---------
-
+lincs.Alternatives.__init__: function
+-------------------------------------
 
 __init__( (object)arg1, (Problem)arg2, (alternatives_vector)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::Problem,std::vector<lincs::Alternative, std::allocator<lincs::Alternative> >)
 
-alternatives
-------------
+lincs.Alternatives.alternatives: property
+-----------------------------------------
 
-dump
-----
-
+lincs.Alternatives.dump: function
+---------------------------------
 
 dump( (Alternatives)self, (Problem)problem, (object)out) -> None :
     Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format.
@@ -365,9 +365,8 @@ dump( (Alternatives)self, (Problem)problem, (object)out) -> None :
     C++ signature :
         void dump(lincs::Alternatives,lincs::Problem,boost::python::api::object {lvalue})
 
-load
-----
-
+lincs.Alternatives.load: function
+---------------------------------
 
 load( (Problem)problem, (object)in) -> Alternatives :
     Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format.
@@ -375,227 +374,345 @@ load( (Problem)problem, (object)in) -> Alternatives :
     C++ signature :
         lincs::Alternatives load(lincs::Problem,boost::python::api::object {lvalue})
 
-lincs.Category
-==============
+lincs.Category: class
+---------------------
 
-__init__
---------
-
+lincs.Category.__init__: function
+---------------------------------
 
 __init__( (object)arg1, (str)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
 
-name
-----
+lincs.Category.name: property
+-----------------------------
 
-lincs.Criterion
-===============
+lincs.Criterion: class
+----------------------
 
-CategoryCorrelation
--------------------
+lincs.Criterion.CategoryCorrelation: type
+-----------------------------------------
 
-ValueType
----------
+lincs.Criterion.CategoryCorrelation.growing: value
+--------------------------------------------------
+lincs.Criterion.ValueType: type
+-------------------------------
 
-__init__
---------
-
+lincs.Criterion.ValueType.real: value
+-------------------------------------
+lincs.Criterion.__init__: function
+----------------------------------
 
 __init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4) -> None :
 
     C++ signature :
         void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Criterion::ValueType,lincs::Criterion::CategoryCorrelation)
 
-category_correlation
---------------------
+lincs.Criterion.category_correlation: property
+----------------------------------------------
 
-name
-----
+lincs.Criterion.name: property
+------------------------------
 
-value_type
-----------
+lincs.Criterion.value_type: property
+------------------------------------
 
-lincs.ImproveProfilesWithAccuracyHeuristicOnCpu
-===============================================
+lincs.ImproveProfilesWithAccuracyHeuristicOnCpu: class
+------------------------------------------------------
 
-__init__
---------
-
+lincs.ImproveProfilesWithAccuracyHeuristicOnCpu.__init__: function
+------------------------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
-improve_profiles
-----------------
-
+lincs.ImproveProfilesWithAccuracyHeuristicOnCpu.improve_profiles: function
+--------------------------------------------------------------------------
 
 improve_profiles( (ImproveProfilesWithAccuracyHeuristicOnCpu)arg1) -> None :
 
     C++ signature :
         void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristicOnCpu {lvalue})
 
-lincs.ImproveProfilesWithAccuracyHeuristicOnGpu
-===============================================
+lincs.ImproveProfilesWithAccuracyHeuristicOnGpu: class
+------------------------------------------------------
 
-__init__
---------
-
+lincs.ImproveProfilesWithAccuracyHeuristicOnGpu.__init__: function
+------------------------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
-improve_profiles
-----------------
-
+lincs.ImproveProfilesWithAccuracyHeuristicOnGpu.improve_profiles: function
+--------------------------------------------------------------------------
 
 improve_profiles( (ImproveProfilesWithAccuracyHeuristicOnGpu)arg1) -> None :
 
     C++ signature :
         void improve_profiles(lincs::ImproveProfilesWithAccuracyHeuristicOnGpu {lvalue})
 
-lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
-==============================================================================
+lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion: class
+-------------------------------------------------------------------------------------
 
-__init__
---------
-
+lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.__init__: function
+-------------------------------------------------------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
-initialize_profiles
--------------------
-
+lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.initialize_profiles: function
+------------------------------------------------------------------------------------------------------------
 
 initialize_profiles( (InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion)arg1, (int)arg2, (int)arg3) -> None :
 
     C++ signature :
         void initialize_profiles(lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion {lvalue},unsigned int,unsigned int)
 
-lincs.LearnMrsortByWeightsProfilesBreed
-=======================================
+lincs.LearnMrsortByWeightsProfilesBreed: class
+----------------------------------------------
 
-BreedingStrategy
-----------------
+lincs.LearnMrsortByWeightsProfilesBreed.BreedingStrategy: class
+---------------------------------------------------------------
 
-LearningData
-------------
+lincs.LearnMrsortByWeightsProfilesBreed.BreedingStrategy.__init__: function
+---------------------------------------------------------------------------
 
-ProfilesImprovementStrategy
----------------------------
+__init__( (object)arg1) -> None :
 
-ProfilesInitializationStrategy
-------------------------------
+    C++ signature :
+        void __init__(_object*)
 
-TerminationStrategy
--------------------
+lincs.LearnMrsortByWeightsProfilesBreed.BreedingStrategy.breed: function
+------------------------------------------------------------------------
 
-WeightsOptimizationStrategy
----------------------------
+breed( (BreedingStrategy)arg1) -> None :
 
-__init__
---------
+    C++ signature :
+        void breed(lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {lvalue})
 
+breed( (BreedingStrategy)arg1) -> None :
+
+    C++ signature :
+        void breed(init_module_liblincs()::BreedingStrategyWrap {lvalue})
+
+lincs.LearnMrsortByWeightsProfilesBreed.LearningData: class
+-----------------------------------------------------------
+
+lincs.LearnMrsortByWeightsProfilesBreed.LearningData.__init__: builtin_function_or_method
+-----------------------------------------------------------------------------------------
+Raises an exception
+This class cannot be instantiated from Python
+
+
+lincs.LearnMrsortByWeightsProfilesBreed.LearningData.get_best_accuracy: function
+--------------------------------------------------------------------------------
+
+get_best_accuracy( (LearningData)arg1) -> int :
+
+    C++ signature :
+        unsigned int get_best_accuracy(lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
+
+lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make: function
+-------------------------------------------------------------------
+
+make( (Problem)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> LearningData :
+
+    C++ signature :
+        lincs::LearnMrsortByWeightsProfilesBreed::LearningData* make(lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
+
+lincs.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy: class
+--------------------------------------------------------------------------
+
+lincs.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy.__init__: function
+--------------------------------------------------------------------------------------
+
+__init__( (object)arg1) -> None :
+
+    C++ signature :
+        void __init__(_object*)
+
+lincs.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy.improve_profiles: function
+----------------------------------------------------------------------------------------------
+
+improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
+
+    C++ signature :
+        void improve_profiles(lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {lvalue})
+
+improve_profiles( (ProfilesImprovementStrategy)arg1) -> None :
+
+    C++ signature :
+        void improve_profiles(init_module_liblincs()::ProfilesImprovementStrategyWrap {lvalue})
+
+lincs.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy: class
+-----------------------------------------------------------------------------
+
+lincs.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy.__init__: function
+-----------------------------------------------------------------------------------------
+
+__init__( (object)arg1) -> None :
+
+    C++ signature :
+        void __init__(_object*)
+
+lincs.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy.initialize_profiles: function
+----------------------------------------------------------------------------------------------------
+
+initialize_profiles( (ProfilesInitializationStrategy)arg1, (int)arg2, (int)arg3) -> None :
+
+    C++ signature :
+        void initialize_profiles(lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},unsigned int,unsigned int)
+
+initialize_profiles( (ProfilesInitializationStrategy)arg1, (int)arg2, (int)arg3) -> None :
+
+    C++ signature :
+        void initialize_profiles(init_module_liblincs()::ProfilesInitializationStrategyWrap {lvalue},unsigned int,unsigned int)
+
+lincs.LearnMrsortByWeightsProfilesBreed.TerminationStrategy: class
+------------------------------------------------------------------
+
+lincs.LearnMrsortByWeightsProfilesBreed.TerminationStrategy.__init__: function
+------------------------------------------------------------------------------
+
+__init__( (object)arg1) -> None :
+
+    C++ signature :
+        void __init__(_object*)
+
+lincs.LearnMrsortByWeightsProfilesBreed.TerminationStrategy.terminate: function
+-------------------------------------------------------------------------------
+
+terminate( (TerminationStrategy)arg1) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {lvalue})
+
+terminate( (TerminationStrategy)arg1) -> None :
+
+    C++ signature :
+        void terminate(init_module_liblincs()::TerminationStrategyWrap {lvalue})
+
+lincs.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy: class
+--------------------------------------------------------------------------
+
+lincs.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy.__init__: function
+--------------------------------------------------------------------------------------
+
+__init__( (object)arg1) -> None :
+
+    C++ signature :
+        void __init__(_object*)
+
+lincs.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy.optimize_weights: function
+----------------------------------------------------------------------------------------------
+
+optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
+
+    C++ signature :
+        void optimize_weights(lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {lvalue})
+
+optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
+
+    C++ signature :
+        void optimize_weights(init_module_liblincs()::WeightsOptimizationStrategyWrap {lvalue})
+
+lincs.LearnMrsortByWeightsProfilesBreed.__init__: function
+----------------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {lvalue})
 
-perform
--------
-
+lincs.LearnMrsortByWeightsProfilesBreed.perform: function
+---------------------------------------------------------
 
 perform( (LearnMrsortByWeightsProfilesBreed)arg1) -> Model :
 
     C++ signature :
         lincs::Model perform(lincs::LearnMrsortByWeightsProfilesBreed {lvalue})
 
-lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat
-================================================
+lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat: class
+-------------------------------------------------------
 
-__init__
---------
-
+lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat.__init__: function
+-------------------------------------------------------------------
 
 __init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::Problem,lincs::Alternatives)
 
-perform
--------
-
+lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat.perform: function
+------------------------------------------------------------------
 
 perform( (LearnUcncsBySatByCoalitionsUsingEvalmaxsat)arg1) -> Model :
 
     C++ signature :
         lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
 
-lincs.LearnUcncsBySatByCoalitionsUsingMinisat
-=============================================
+lincs.LearnUcncsBySatByCoalitionsUsingMinisat: class
+----------------------------------------------------
 
-__init__
---------
-
+lincs.LearnUcncsBySatByCoalitionsUsingMinisat.__init__: function
+----------------------------------------------------------------
 
 __init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::Problem,lincs::Alternatives)
 
-perform
--------
-
+lincs.LearnUcncsBySatByCoalitionsUsingMinisat.perform: function
+---------------------------------------------------------------
 
 perform( (LearnUcncsBySatByCoalitionsUsingMinisat)arg1) -> Model :
 
     C++ signature :
         lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
-lincs.Model
-===========
+lincs.Model: class
+------------------
 
-Boundary
---------
+lincs.Model.Boundary: class
+---------------------------
 
-JSON_SCHEMA
------------
+lincs.Model.Boundary.__init__: function
+---------------------------------------
 
-str(object='') -> str
-str(bytes_or_buffer[, encoding[, errors]]) -> str
+__init__( (object)arg1, (floats_vector)arg2, (SufficientCoalitions)arg3) -> None :
 
-Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.__str__() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.
+    C++ signature :
+        void __init__(_object*,std::vector<float, std::allocator<float> >,lincs::SufficientCoalitions)
 
-__init__
---------
+lincs.Model.Boundary.profile: property
+--------------------------------------
 
+lincs.Model.Boundary.sufficient_coalitions: property
+----------------------------------------------------
+
+lincs.Model.JSON_SCHEMA: str
+----------------------------
+
+lincs.Model.__init__: function
+------------------------------
 
 __init__( (object)arg1, (Problem)arg2, (boundaries_vector)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::Problem,std::vector<lincs::Model::Boundary, std::allocator<lincs::Model::Boundary> >)
 
-boundaries
-----------
+lincs.Model.boundaries: property
+--------------------------------
 
-dump
-----
-
+lincs.Model.dump: function
+--------------------------
 
 dump( (Model)self, (Problem)problem, (object)out) -> None :
     Dump the model to the provided `.write()`-supporting file-like object, in YAML format.
@@ -603,9 +720,8 @@ dump( (Model)self, (Problem)problem, (object)out) -> None :
     C++ signature :
         void dump(lincs::Model,lincs::Problem,boost::python::api::object {lvalue})
 
-load
-----
-
+lincs.Model.load: function
+--------------------------
 
 load( (Problem)problem, (object)in) -> Model :
     Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format.
@@ -613,83 +729,66 @@ load( (Problem)problem, (object)in) -> Model :
     C++ signature :
         lincs::Model load(lincs::Problem,boost::python::api::object {lvalue})
 
-lincs.OptimizeWeightsUsingAlglib
-================================
+lincs.OptimizeWeightsUsingAlglib: class
+---------------------------------------
 
-__init__
---------
-
+lincs.OptimizeWeightsUsingAlglib.__init__: function
+---------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
-optimize_weights
-----------------
-
+lincs.OptimizeWeightsUsingAlglib.optimize_weights: function
+-----------------------------------------------------------
 
 optimize_weights( (OptimizeWeightsUsingAlglib)arg1) -> None :
 
     C++ signature :
         void optimize_weights(lincs::OptimizeWeightsUsingLinearProgram<lincs::AlglibLinearProgram> {lvalue})
 
-lincs.OptimizeWeightsUsingGlop
-==============================
+lincs.OptimizeWeightsUsingGlop: class
+-------------------------------------
 
-__init__
---------
-
+lincs.OptimizeWeightsUsingGlop.__init__: function
+-------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
-optimize_weights
-----------------
-
+lincs.OptimizeWeightsUsingGlop.optimize_weights: function
+---------------------------------------------------------
 
 optimize_weights( (OptimizeWeightsUsingGlop)arg1) -> None :
 
     C++ signature :
         void optimize_weights(lincs::OptimizeWeightsUsingLinearProgram<lincs::GlopLinearProgram> {lvalue})
 
-lincs.Problem
-=============
+lincs.Problem: class
+--------------------
 
-JSON_SCHEMA
------------
+lincs.Problem.JSON_SCHEMA: str
+------------------------------
 
-str(object='') -> str
-str(bytes_or_buffer[, encoding[, errors]]) -> str
-
-Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.__str__() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.
-
-__init__
---------
-
+lincs.Problem.__init__: function
+--------------------------------
 
 __init__( (object)arg1, (criteria_vector)arg2, (categories_vector)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,std::vector<lincs::Criterion, std::allocator<lincs::Criterion> >,std::vector<lincs::Category, std::allocator<lincs::Category> >)
 
-categories
-----------
+lincs.Problem.categories: property
+----------------------------------
 
-criteria
---------
+lincs.Problem.criteria: property
+--------------------------------
 
-dump
-----
-
+lincs.Problem.dump: function
+----------------------------
 
 dump( (Problem)self, (object)out) -> None :
     Dump the problem to the provided `.write()`-supporting file-like object, in YAML format.
@@ -697,9 +796,8 @@ dump( (Problem)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Problem,boost::python::api::object {lvalue})
 
-load
-----
-
+lincs.Problem.load: function
+----------------------------
 
 load( (object)in) -> Problem :
     Load a problem from the provided `.read()`-supporting file-like object, in YAML format.
@@ -707,36 +805,37 @@ load( (object)in) -> Problem :
     C++ signature :
         lincs::Problem load(boost::python::api::object {lvalue})
 
-lincs.ReinitializeLeastAccurate
-===============================
+lincs.ReinitializeLeastAccurate: class
+--------------------------------------
 
-__init__
---------
-
+lincs.ReinitializeLeastAccurate.__init__: function
+--------------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (int)arg4) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},unsigned int)
 
-breed
------
-
+lincs.ReinitializeLeastAccurate.breed: function
+-----------------------------------------------
 
 breed( (ReinitializeLeastAccurate)arg1) -> None :
 
     C++ signature :
         void breed(lincs::ReinitializeLeastAccurate {lvalue})
 
-lincs.SufficientCoalitions
-==========================
+lincs.SufficientCoalitions: class
+---------------------------------
 
-Kind
-----
+lincs.SufficientCoalitions.Kind: type
+-------------------------------------
 
-__init__
---------
-
+lincs.SufficientCoalitions.Kind.weights: value
+----------------------------------------------
+lincs.SufficientCoalitions.Kind.roots: value
+--------------------------------------------
+lincs.SufficientCoalitions.__init__: function
+---------------------------------------------
 
 __init__( (object)arg1, (Weights)arg2, (floats_vector)arg3) -> None :
 
@@ -748,42 +847,51 @@ __init__( (object)arg1, (Roots)arg2, (int)arg3, (object)arg4) -> None :
     C++ signature :
         void __init__(_object*,lincs::SufficientCoalitions::Roots,unsigned int,std::vector<std::vector<unsigned int, std::allocator<unsigned int> >, std::allocator<std::vector<unsigned int, std::allocator<unsigned int> > > >)
 
-criterion_weights
------------------
+lincs.SufficientCoalitions.criterion_weights: property
+------------------------------------------------------
 
-kind
-----
+lincs.SufficientCoalitions.kind: property
+-----------------------------------------
 
-roots
------
+lincs.SufficientCoalitions.roots: Roots
+---------------------------------------
 
-weights
--------
+lincs.SufficientCoalitions.roots.__init__: builtin_function_or_method
+---------------------------------------------------------------------
+Raises an exception
+This class cannot be instantiated from Python
 
-lincs.TerminateAtAccuracy
-=========================
 
-__init__
---------
+lincs.SufficientCoalitions.weights: Weights
+-------------------------------------------
 
+lincs.SufficientCoalitions.weights.__init__: builtin_function_or_method
+-----------------------------------------------------------------------
+Raises an exception
+This class cannot be instantiated from Python
+
+
+lincs.TerminateAtAccuracy: class
+--------------------------------
+
+lincs.TerminateAtAccuracy.__init__: function
+--------------------------------------------
 
 __init__( (object)arg1, (LearningData)arg2, (int)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},unsigned int)
 
-terminate
----------
-
+lincs.TerminateAtAccuracy.terminate: function
+---------------------------------------------
 
 terminate( (TerminateAtAccuracy)arg1) -> bool :
 
     C++ signature :
         bool terminate(lincs::TerminateAtAccuracy {lvalue})
 
-lincs.classify_alternatives
-===========================
-
+lincs.classify_alternatives: function
+-------------------------------------
 
 classify_alternatives( (Problem)problem, (Model)model, (Alternatives)alternatives) -> ClassificationResult :
     Classify the provided `alternatives` according to the provided `model`.
@@ -791,12 +899,8 @@ classify_alternatives( (Problem)problem, (Model)model, (Alternatives)alternative
     C++ signature :
         lincs::ClassificationResult classify_alternatives(lincs::Problem,lincs::Model,lincs::Alternatives*)
 
-lincs.command_line_interface
-============================
-
-lincs.generate_classification_problem
-=====================================
-
+lincs.generate_classification_problem: function
+-----------------------------------------------
 
 generate_classification_problem( (int)criteria_count, (int)categories_count, (int)random_seed) -> Problem :
     Generate a problem with `criteria_count` criteria and `categories_count` categories.
@@ -804,9 +908,8 @@ generate_classification_problem( (int)criteria_count, (int)categories_count, (in
     C++ signature :
         lincs::Problem generate_classification_problem(unsigned int,unsigned int,unsigned int)
 
-lincs.generate_classified_alternatives
-======================================
-
+lincs.generate_classified_alternatives: function
+------------------------------------------------
 
 generate_classified_alternatives( (Problem)problem, (Model)model, (int)alternatives_count, (int)random_seed [, (object)max_imbalance=None]) -> Alternatives :
     Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`.
@@ -814,9 +917,8 @@ generate_classified_alternatives( (Problem)problem, (Model)model, (int)alternati
     C++ signature :
         lincs::Alternatives generate_classified_alternatives(lincs::Problem,lincs::Model,unsigned int,unsigned int [,std::optional<float>=None])
 
-lincs.generate_mrsort_classification_model
-==========================================
-
+lincs.generate_mrsort_classification_model: function
+----------------------------------------------------
 
 generate_mrsort_classification_model( (Problem)problem, (int)random_seed [, (object)fixed_weights_sum=None]) -> Model :
     Generate an MR-Sort model for the provided `problem`.
@@ -824,9 +926,8 @@ generate_mrsort_classification_model( (Problem)problem, (int)random_seed [, (obj
     C++ signature :
         lincs::Model generate_mrsort_classification_model(lincs::Problem,unsigned int [,std::optional<float>=None])
 
-lincs.misclassify_alternatives
-==============================
-
+lincs.misclassify_alternatives: function
+----------------------------------------
 
 misclassify_alternatives( (Problem)problem, (Alternatives)alternatives, (int)count, (int)random_seed) -> None :
     Misclassify `count` alternatives from the provided `alternatives`.
@@ -834,6 +935,9 @@ misclassify_alternatives( (Problem)problem, (Alternatives)alternatives, (int)cou
     C++ signature :
         void misclassify_alternatives(lincs::Problem,lincs::Alternatives*,unsigned int,unsigned int)
 
-lincs.visualization
-===================
+lincs.visualization: module
+---------------------------
+
+lincs.visualization.visualize_model: function
+---------------------------------------------
 
