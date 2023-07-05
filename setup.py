@@ -62,7 +62,7 @@ liblincs = setuptools.Extension(
     libraries=[
         f"boost_python{sys.version_info.major}{sys.version_info.minor}",
         "ortools",
-        f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",  # @todo Investigate why removing this line fails to link
+        f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",  # Weirdly required because of BoostPython
         "yaml-cpp",
         "cudart",
     ],
