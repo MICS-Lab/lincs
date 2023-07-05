@@ -373,7 +373,7 @@ __init__
 __init__( (object)arg1, (floats_vector)arg2, (SufficientCoalitions)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,std::vector<float, std::allocator<float> >,lincs::Model::SufficientCoalitions)
+        void __init__(_object*,std::vector<float, std::allocator<float> >,lincs::SufficientCoalitions)
 
 profile
 -------
@@ -726,12 +726,12 @@ __init__
 __init__( (object)arg1, (Weights)arg2, (floats_vector)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::Model::SufficientCoalitions::Weights,std::vector<float, std::allocator<float> >)
+        void __init__(_object*,lincs::SufficientCoalitions::Weights,std::vector<float, std::allocator<float> >)
 
 __init__( (object)arg1, (Roots)arg2, (int)arg3, (object)arg4) -> None :
 
     C++ signature :
-        void __init__(_object*,lincs::Model::SufficientCoalitions::Roots,unsigned int,std::vector<std::vector<unsigned int, std::allocator<unsigned int> >, std::allocator<std::vector<unsigned int, std::allocator<unsigned int> > > >)
+        void __init__(_object*,lincs::SufficientCoalitions::Roots,unsigned int,std::vector<std::vector<unsigned int, std::allocator<unsigned int> >, std::allocator<std::vector<unsigned int, std::allocator<unsigned int> > > >)
 
 criterion_weights
 -----------------

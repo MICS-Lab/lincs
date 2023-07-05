@@ -64,7 +64,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     model_weights.push_back(weights[criterion_index][model_index]);
   }
-  Model::SufficientCoalitions coalitions{Model::SufficientCoalitions::weights, model_weights};
+  SufficientCoalitions coalitions{SufficientCoalitions::weights, model_weights};
 
   std::vector<Model::Boundary> boundaries;
   boundaries.reserve(categories_count - 1);

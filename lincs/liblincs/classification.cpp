@@ -14,7 +14,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
   const unsigned criteria_count = problem.criteria.size();
 
   switch (boundary.sufficient_coalitions.kind) {
-    case Model::SufficientCoalitions::Kind::weights: {
+    case SufficientCoalitions::Kind::weights: {
       float weight_at_or_above_profile = 0;
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
@@ -25,7 +25,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       }
       return weight_at_or_above_profile >= 1.f;
     }
-    case Model::SufficientCoalitions::Kind::roots: {
+    case SufficientCoalitions::Kind::roots: {
       boost::dynamic_bitset<> at_or_above_profile(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
@@ -86,7 +86,7 @@ TEST_CASE("Basic classification using weights") {
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {Model::SufficientCoalitions::weights, {0.3, 0.6, 0.8}}}},
+    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::weights, {0.3, 0.6, 0.8}}}},
   };
 
   Alternatives alternatives{problem, {
@@ -126,7 +126,7 @@ TEST_CASE("Basic classification using upset roots") {
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {Model::SufficientCoalitions::roots, 3, {{0, 2}, {1, 2}}}}},
+    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::roots, 3, {{0, 2}, {1, 2}}}}},
   };
 
   Alternatives alternatives{problem, {

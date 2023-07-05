@@ -219,7 +219,7 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
       }
     }
 
-    boundaries.emplace_back(profile, Model::SufficientCoalitions{Model::SufficientCoalitions::roots, criteria_count, roots});
+    boundaries.emplace_back(profile, SufficientCoalitions{SufficientCoalitions::roots, criteria_count, roots});
   }
 
   return Model{problem, boundaries};

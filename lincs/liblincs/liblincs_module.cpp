@@ -191,7 +191,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .from_python<std::vector<lincs::Category>>()
     .from_python<std::vector<lincs::Criterion>>()
     .from_python<std::vector<lincs::Model::Boundary>>()
-    .from_python<std::vector<lincs::Model::SufficientCoalitions>>()
+    .from_python<std::vector<lincs::SufficientCoalitions>>()
     .from_python<std::vector<lincs::Alternative>>()
   ;
 
@@ -201,7 +201,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
   auto_enum<lincs::Criterion::ValueType>("ValueType");
   auto_enum<lincs::Criterion::CategoryCorrelation>("CategoryCorrelation");
-  auto_enum<lincs::Model::SufficientCoalitions::Kind>("SufficientCoalitionsKind");
+  auto_enum<lincs::SufficientCoalitions::Kind>("SufficientCoalitionsKind");
 
   bp::class_<lincs::Criterion>("Criterion", bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::CategoryCorrelation>())
     .def_readwrite("name", &lincs::Criterion::name)
@@ -245,21 +245,21 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 
-  bp::class_<lincs::Model::SufficientCoalitions::Weights>("Weights", bp::no_init);
-  bp::class_<lincs::Model::SufficientCoalitions::Roots>("Roots", bp::no_init);
-  auto c = bp::class_<lincs::Model::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
-    .def(bp::init<lincs::Model::SufficientCoalitions::Weights, std::vector<float>>())
-    .def(bp::init<lincs::Model::SufficientCoalitions::Roots, unsigned, std::vector<std::vector<unsigned>>>())
-    .def_readwrite("kind", &lincs::Model::SufficientCoalitions::kind)
-    .def_readwrite("criterion_weights", &lincs::Model::SufficientCoalitions::criterion_weights)
+  bp::class_<lincs::SufficientCoalitions::Weights>("Weights", bp::no_init);
+  bp::class_<lincs::SufficientCoalitions::Roots>("Roots", bp::no_init);
+  auto c = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
+    .def(bp::init<lincs::SufficientCoalitions::Weights, std::vector<float>>())
+    .def(bp::init<lincs::SufficientCoalitions::Roots, unsigned, std::vector<std::vector<unsigned>>>())
+    .def_readwrite("kind", &lincs::SufficientCoalitions::kind)
+    .def_readwrite("criterion_weights", &lincs::SufficientCoalitions::criterion_weights)
   ;
-  c.attr("weights") = lincs::Model::SufficientCoalitions::weights;
-  c.attr("roots") = lincs::Model::SufficientCoalitions::roots;
+  c.attr("weights") = lincs::SufficientCoalitions::weights;
+  c.attr("roots") = lincs::SufficientCoalitions::roots;
 
   bp::class_<std::vector<float>>("floats_vector")
     .def(bp::vector_indexing_suite<std::vector<float>>())
   ;
-  bp::class_<lincs::Model::Boundary>("Boundary", bp::init<std::vector<float>, lincs::Model::SufficientCoalitions>())
+  bp::class_<lincs::Model::Boundary>("Boundary", bp::init<std::vector<float>, lincs::SufficientCoalitions>())
     .def_readwrite("profile", &lincs::Model::Boundary::profile)
     .def_readwrite("sufficient_coalitions", &lincs::Model::Boundary::sufficient_coalitions)
   ;

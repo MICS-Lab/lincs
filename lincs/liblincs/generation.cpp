@@ -99,7 +99,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
     denormalized_weights.begin(),
     [weights_sum](float w) { return w * weights_sum; });
 
-  Model::SufficientCoalitions coalitions{Model::SufficientCoalitions::weights, denormalized_weights};
+  SufficientCoalitions coalitions{SufficientCoalitions::weights, denormalized_weights};
 
   std::vector<Model::Boundary> boundaries;
   boundaries.reserve(categories_count - 1);

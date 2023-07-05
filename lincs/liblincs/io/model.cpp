@@ -15,15 +15,15 @@
 namespace YAML {
 
 template<>
-struct convert<lincs::Model::SufficientCoalitions> {
-  static Node encode(const lincs::Model::SufficientCoalitions& coalitions) {
+struct convert<lincs::SufficientCoalitions> {
+  static Node encode(const lincs::SufficientCoalitions& coalitions) {
     Node node;
     node["kind"] = std::string(magic_enum::enum_name(coalitions.kind));
     switch (coalitions.kind) {
-      case lincs::Model::SufficientCoalitions::Kind::weights:
+      case lincs::SufficientCoalitions::Kind::weights:
         node["criterion_weights"] = coalitions.criterion_weights;
         break;
-      case lincs::Model::SufficientCoalitions::Kind::roots:
+      case lincs::SufficientCoalitions::Kind::roots:
         // @todo Emit each root as a single-line compact array of integers
         node["upset_roots"] = coalitions.get_upset_roots();
         break;
@@ -133,12 +133,12 @@ void Model::dump(const Problem&, std::ostream& os) const {
   os << node << '\n';
 }
 
-Model::SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YAML::Node& node) {
-  switch (magic_enum::enum_cast<Model::SufficientCoalitions::Kind>(node["kind"].as<std::string>()).value()) {
-    case Model::SufficientCoalitions::Kind::weights:
-      return Model::SufficientCoalitions(Model::SufficientCoalitions::weights, node["criterion_weights"].as<std::vector<float>>());
-    case Model::SufficientCoalitions::Kind::roots:
-      return Model::SufficientCoalitions(Model::SufficientCoalitions::roots, problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
+SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YAML::Node& node) {
+  switch (magic_enum::enum_cast<SufficientCoalitions::Kind>(node["kind"].as<std::string>()).value()) {
+    case SufficientCoalitions::Kind::weights:
+      return SufficientCoalitions(SufficientCoalitions::weights, node["criterion_weights"].as<std::vector<float>>());
+    case SufficientCoalitions::Kind::roots:
+      return SufficientCoalitions(SufficientCoalitions::roots, problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
   }
   __builtin_unreachable();
 }
@@ -167,7 +167,7 @@ TEST_CASE("dumping then loading problem preserves data - weights") {
 
   Model model{
     problem,
-    {{{0.4}, {Model::SufficientCoalitions::weights, {0.7}}}},
+    {{{0.4}, {SufficientCoalitions::weights, {0.7}}}},
   };
 
   std::stringstream ss;
@@ -200,7 +200,7 @@ TEST_CASE("dumping then loading problem preserves data - roots") {
 
   Model model{
     problem,
-    {{{0.4, 0.5, 0.6}, {Model::SufficientCoalitions::roots, 3, {{0}, {1, 2}}}}},
+    {{{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}}},
   };
 
   std::stringstream ss;
