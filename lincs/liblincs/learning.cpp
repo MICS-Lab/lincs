@@ -34,7 +34,7 @@ void check_exact_learning(const lincs::Problem& problem, unsigned seed) {
 }
 
 template<typename T>
-void check_exact_learning(const unsigned criteria_count, const unsigned categories_count) {
+void check_exact_learning(const unsigned criteria_count, const unsigned categories_count, bool is_wpb) {
   CAPTURE(criteria_count);
   CAPTURE(categories_count);
 
@@ -43,19 +43,21 @@ void check_exact_learning(const unsigned criteria_count, const unsigned categori
   const unsigned max_seed = skip_long ? 10 : 100;
 
   for (unsigned seed = 0; seed != max_seed; ++seed) {
-    // @todo Understand why this seed is problematic and handle it properly
-    if (seed == 59) { continue; }
-
-    check_exact_learning<T>(problem, seed);
+    // This set of parameters can't reach 100% accuracy with WPB approach
+    if (is_wpb && criteria_count == 4 && categories_count == 3 && seed == 59) {
+      CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+    } else {
+      check_exact_learning<T>(problem, seed);
+    }
   }
 }
 
 template<typename T>
-void check_exact_learning() {
-  check_exact_learning<T>(1, 2);
-  check_exact_learning<T>(3, 2);
-  check_exact_learning<T>(1, 3);
-  check_exact_learning<T>(4, 3);
+void check_exact_learning(bool is_wpb = false) {
+  check_exact_learning<T>(1, 2, is_wpb);
+  check_exact_learning<T>(3, 2, is_wpb);
+  check_exact_learning<T>(1, 3, is_wpb);
+  check_exact_learning<T>(4, 3, is_wpb);
 }
 
 }  // namespace
@@ -97,10 +99,10 @@ TEST_CASE("Basic MR-Sort learning") {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>();
+  check_exact_learning<Wrapper>(true);
 }
 
-TEST_CASE("No termination strategy learning") {
+TEST_CASE("No termination strategy MR-Sort learning") {
   struct NeverTerminate : LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
     bool terminate() override { return false; }
   };
@@ -139,7 +141,7 @@ TEST_CASE("No termination strategy learning") {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>();
+  check_exact_learning<Wrapper>(true);
 }
 
 TEST_CASE("Alglib MR-Sort learning") {
@@ -177,7 +179,7 @@ TEST_CASE("Alglib MR-Sort learning") {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>();
+  check_exact_learning<Wrapper>(true);
 }
 
 TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
@@ -215,7 +217,7 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>();
+  check_exact_learning<Wrapper>(true);
 }
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
