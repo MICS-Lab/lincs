@@ -86,7 +86,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
   unsigned iterations_without_progress = 0;
   // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin
   while (iterations_without_progress < 100) {
-    const int previous_best_accuracy = learning_data.get_best_accuracy();
+    const unsigned previous_best_accuracy = learning_data.get_best_accuracy();
 
     // Improve
     weights_optimization_strategy.optimize_weights();
@@ -104,7 +104,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     );
 
     // Interrupt if no progress
-    const int new_best_accuracy = learning_data.get_best_accuracy();
+    const unsigned new_best_accuracy = learning_data.get_best_accuracy();
     if (new_best_accuracy > previous_best_accuracy) {
       iterations_without_progress = 0;
     } else {
