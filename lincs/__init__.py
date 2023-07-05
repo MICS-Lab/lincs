@@ -18,7 +18,7 @@ from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowe
 from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
 from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
 from liblincs import ReinitializeLeastAccurate
-from liblincs import TerminateAtAccuracy
+from liblincs import TerminateAtAccuracy, TerminateAfterSeconds, TerminateAfterIterations, TerminateWhenAny
 
 # Learning - SAT by coalitions
 from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat, LearnUcncsBySatByCoalitionsUsingEvalmaxsat

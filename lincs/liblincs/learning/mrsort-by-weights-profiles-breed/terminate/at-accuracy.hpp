@@ -16,8 +16,8 @@ class TerminateAtAccuracy : public LearnMrsortByWeightsProfilesBreed::Terminatio
   bool terminate() override;
 
  private:
-  LearningData& learning_data;
-  unsigned target_accuracy;
+  const LearningData& learning_data;
+  const unsigned target_accuracy;
 };
 
 }  // namespace lincs

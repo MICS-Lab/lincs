@@ -871,6 +871,44 @@ Raises an exception
 This class cannot be instantiated from Python
 
 
+lincs.TerminateAfterIterations: class
+-------------------------------------
+
+lincs.TerminateAfterIterations.__init__: function
+-------------------------------------------------
+
+__init__( (object)arg1, (LearningData)arg2, (int)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},unsigned int)
+
+lincs.TerminateAfterIterations.terminate: function
+--------------------------------------------------
+
+terminate( (TerminateAfterIterations)arg1) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::TerminateAfterIterations {lvalue})
+
+lincs.TerminateAfterSeconds: class
+----------------------------------
+
+lincs.TerminateAfterSeconds.__init__: function
+----------------------------------------------
+
+__init__( (object)arg1, (int)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,unsigned int)
+
+lincs.TerminateAfterSeconds.terminate: function
+-----------------------------------------------
+
+terminate( (TerminateAfterSeconds)arg1) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::TerminateAfterSeconds {lvalue})
+
 lincs.TerminateAtAccuracy: class
 --------------------------------
 
@@ -889,6 +927,25 @@ terminate( (TerminateAtAccuracy)arg1) -> bool :
 
     C++ signature :
         bool terminate(lincs::TerminateAtAccuracy {lvalue})
+
+lincs.TerminateWhenAny: class
+-----------------------------
+
+lincs.TerminateWhenAny.__init__: function
+-----------------------------------------
+
+__init__( (object)arg1, (object)arg2) -> None :
+
+    C++ signature :
+        void __init__(_object*,std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*, std::allocator<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*> >)
+
+lincs.TerminateWhenAny.terminate: function
+------------------------------------------
+
+terminate( (TerminateWhenAny)arg1) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::TerminateWhenAny {lvalue})
 
 lincs.classify_alternatives: function
 -------------------------------------

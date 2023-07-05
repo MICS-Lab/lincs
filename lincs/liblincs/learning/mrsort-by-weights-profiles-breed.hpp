@@ -113,9 +113,6 @@ struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
   virtual void breed() = 0;
 };
 
-// @todo Implement termination strategy for "maximum number of iterations"
-// @todo Implement termination strategy for "maximum duration"
-// @todo Implement composite termination strategies for "all" and "any"
 struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
   typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 

@@ -194,6 +194,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .from_python<std::vector<lincs::Model::Boundary>>()
     .from_python<std::vector<lincs::SufficientCoalitions>>()
     .from_python<std::vector<lincs::Alternative>>()
+    .from_python<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>()
   ;
 
   std_optional_converter<float>::enroll();
@@ -457,6 +458,24 @@ BOOST_PYTHON_MODULE(liblincs) {
     bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>()
   )
     .def("terminate", &lincs::TerminateAtAccuracy::terminate);
+
+  bp::class_<lincs::TerminateAfterIterations, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
+    "TerminateAfterIterations",
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>()
+  )
+    .def("terminate", &lincs::TerminateAfterIterations::terminate);
+
+  bp::class_<lincs::TerminateAfterSeconds, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
+    "TerminateAfterSeconds",
+    bp::init<unsigned>()
+  )
+    .def("terminate", &lincs::TerminateAfterSeconds::terminate);
+
+  bp::class_<lincs::TerminateWhenAny, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
+    "TerminateWhenAny",
+    bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>()
+  )
+    .def("terminate", &lincs::TerminateWhenAny::terminate);
 
 
   bp::class_<lincs::LearnUcncsBySatByCoalitionsUsingMinisat>("LearnUcncsBySatByCoalitionsUsingMinisat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
