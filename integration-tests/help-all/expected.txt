@@ -605,11 +605,11 @@ dump
 ----
 
 
-dump( (Model)self, (object)out) -> None :
+dump( (Model)self, (Problem)problem, (object)out) -> None :
     Dump the model to the provided `.write()`-supporting file-like object, in YAML format.
 
     C++ signature :
-        void dump(lincs::Model,boost::python::api::object {lvalue})
+        void dump(lincs::Model,lincs::Problem,boost::python::api::object {lvalue})
 
 lincs.OptimizeWeightsUsingAlglib
 ================================

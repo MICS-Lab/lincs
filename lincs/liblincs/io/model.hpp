@@ -75,7 +75,7 @@ struct Model {
   Model(const Problem& problem_, const std::vector<Boundary>& boundaries_) : problem(problem_), boundaries(boundaries_) {}
 
   static const std::string json_schema;
-  void dump(std::ostream&) const;  // @todo Add 'const Problem&' for consistency?
+  void dump(const Problem&, std::ostream&) const;
   static Model load(const Problem&, std::istream&);
 };
 

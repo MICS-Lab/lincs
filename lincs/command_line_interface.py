@@ -253,7 +253,7 @@ def classification_model(
         random_seed=random_seed,
         fixed_weights_sum=mrsort__fixed_weights_sum,
     )
-    model.dump(output_model)
+    model.dump(problem, output_model)
 
 
 @generate.command(
@@ -632,7 +632,7 @@ def classification_model(
             learning = lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat(problem, learning_set)
 
     model = learning.perform()
-    model.dump(output_model)
+    model.dump(problem, output_model)
 
 
 @main.command(

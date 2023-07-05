@@ -25,12 +25,12 @@ int main() {
   lincs::Model model{problem, {{{10.f, 10.f}, {lincs::Model::SufficientCoalitions::weights, {0.4f, 0.7f}}}}};
   {
     std::ostringstream oss;
-    model.dump(oss);
+    model.dump(problem, oss);
     std::cout << oss.str() << std::endl;
     std::istringstream iss(oss.str());
     lincs::Model model2 = lincs::Model::load(problem, iss);
 
-    model2.dump(std::cout);
+    model2.dump(problem, std::cout);
   }
 
   lincs::Alternatives alternatives{problem, {{"Alice", {11.f, 12.f}, 1}, {"Bob", {9.f, 11.f}, 0}}};

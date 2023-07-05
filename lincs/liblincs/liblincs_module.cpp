@@ -41,9 +41,9 @@ void dump_problem(const lincs::Problem& problem, bp::object& out_file) {
   problem.dump(out_stream);
 }
 
-void dump_model(const lincs::Model& model, bp::object& out_file) {
+void dump_model(const lincs::Model& model, const lincs::Problem& problem, bp::object& out_file) {
   boost::iostreams::stream<PythonOutputDevice> out_stream(out_file);
-  model.dump(out_stream);
+  model.dump(problem, out_stream);
 }
 
 void dump_alternatives(const lincs::Alternatives& alternatives, const lincs::Problem& problem, bp::object& out_file) {
@@ -272,7 +272,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def(
       "dump",
       &dump_model,
-      (bp::arg("self"), "out"),
+      (bp::arg("self"), "problem", "out"),
       "Dump the model to the provided `.write()`-supporting file-like object, in YAML format."
     )
   ;

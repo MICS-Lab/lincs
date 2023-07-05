@@ -120,7 +120,7 @@ JsonValidator validator(schema);
 
 }  // namespace
 
-void Model::dump(std::ostream& os) const {
+void Model::dump(const Problem&, std::ostream& os) const {
   YAML::Node node;
   node["kind"] = "ncs-classification-model";
   node["format_version"] = 1;
@@ -171,7 +171,7 @@ TEST_CASE("dumping then loading problem preserves data - weights") {
   };
 
   std::stringstream ss;
-  model.dump(ss);
+  model.dump(problem, ss);
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
@@ -204,7 +204,7 @@ TEST_CASE("dumping then loading problem preserves data - roots") {
   };
 
   std::stringstream ss;
-  model.dump(ss);
+  model.dump(problem, ss);
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1

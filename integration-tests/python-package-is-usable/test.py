@@ -19,7 +19,7 @@ problem = lincs.Problem(
 problem.dump(sys.stdout)
 
 model = lincs.Model(problem, [lincs.Boundary([10.,10.], lincs.SufficientCoalitions(lincs.SufficientCoalitions.weights, [0.4, 0.7]))])
-model.dump(sys.stdout)
+model.dump(problem, sys.stdout)
 
 alternatives = lincs.Alternatives(problem, [lincs.Alternative("Alice", [11., 12.], 1), lincs.Alternative("Bob", [9., 11.], 0)])
 alternatives.dump(problem, sys.stdout)

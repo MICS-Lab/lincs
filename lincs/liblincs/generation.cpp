@@ -115,7 +115,7 @@ TEST_CASE("Generate MR-Sort model - random weights sum") {
   Model model = generate_mrsort_classification_model(problem, 42);
 
   std::ostringstream oss;
-  model.dump(oss);
+  model.dump(problem, oss);
   CHECK(oss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
@@ -137,7 +137,7 @@ TEST_CASE("Generate MR-Sort model - fixed weights sum") {
   Model model = generate_mrsort_classification_model(problem, 42, 2);
 
   std::ostringstream oss;
-  model.dump(oss);
+  model.dump(problem, oss);
   CHECK(oss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
