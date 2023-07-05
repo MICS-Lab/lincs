@@ -1,9 +1,16 @@
 # Copyright 2023 Vincent Jacques
 
-# I/O, generation, classification
-from liblincs import ValueType, CategoryCorrelation, Criterion, Category, Problem, PROBLEM_JSON_SCHEMA, load_problem, generate_classification_problem
-from liblincs import SufficientCoalitionsKind, SufficientCoalitions, Boundary, Model, MODEL_JSON_SCHEMA, load_model, generate_mrsort_classification_model
-from liblincs import Alternative, Alternatives, load_alternatives, generate_classified_alternatives, misclassify_alternatives, classify_alternatives
+# I/O
+from liblincs import Criterion, Category, Problem
+
+from liblincs import SufficientCoalitions, Model
+from liblincs import Alternative, Alternatives
+
+# Generation (incl. misclassification)
+from liblincs import generate_classification_problem, generate_mrsort_classification_model, generate_classified_alternatives, misclassify_alternatives
+
+# Classification
+from liblincs import classify_alternatives
 
 # Learning - weights-profiles-breed
 from liblincs import LearnMrsortByWeightsProfilesBreed

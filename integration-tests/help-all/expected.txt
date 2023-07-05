@@ -363,23 +363,15 @@ dump( (Alternatives)self, (Problem)problem, (object)out) -> None :
     C++ signature :
         void dump(lincs::Alternatives,lincs::Problem,boost::python::api::object {lvalue})
 
-lincs.Boundary
-==============
-
-__init__
---------
+load
+----
 
 
-__init__( (object)arg1, (floats_vector)arg2, (SufficientCoalitions)arg3) -> None :
+load( (Problem)problem, (object)in) -> Alternatives :
+    Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format.
 
     C++ signature :
-        void __init__(_object*,std::vector<float, std::allocator<float> >,lincs::SufficientCoalitions)
-
-profile
--------
-
-sufficient_coalitions
----------------------
+        lincs::Alternatives load(lincs::Problem,boost::python::api::object {lvalue})
 
 lincs.Category
 ==============
@@ -396,19 +388,14 @@ __init__( (object)arg1, (str)arg2) -> None :
 name
 ----
 
-lincs.CategoryCorrelation
-=========================
-
-__init__
---------
-
-Initialize self.  See help(type(self)) for accurate signature.
-
-growing
--------
-
 lincs.Criterion
 ===============
+
+CategoryCorrelation
+-------------------
+
+ValueType
+---------
 
 __init__
 --------
@@ -572,8 +559,14 @@ perform( (LearnUcncsBySatByCoalitionsUsingMinisat)arg1) -> Model :
     C++ signature :
         lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
-lincs.MODEL_JSON_SCHEMA
-=======================
+lincs.Model
+===========
+
+Boundary
+--------
+
+JSON_SCHEMA
+-----------
 
 str(object='') -> str
 str(bytes_or_buffer[, encoding[, errors]]) -> str
@@ -585,9 +578,6 @@ Otherwise, returns the result of object.__str__() (if defined)
 or repr(object).
 encoding defaults to sys.getdefaultencoding().
 errors defaults to 'strict'.
-
-lincs.Model
-===========
 
 __init__
 --------
@@ -610,6 +600,16 @@ dump( (Model)self, (Problem)problem, (object)out) -> None :
 
     C++ signature :
         void dump(lincs::Model,lincs::Problem,boost::python::api::object {lvalue})
+
+load
+----
+
+
+load( (Problem)problem, (object)in) -> Model :
+    Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        lincs::Model load(lincs::Problem,boost::python::api::object {lvalue})
 
 lincs.OptimizeWeightsUsingAlglib
 ================================
@@ -653,8 +653,11 @@ optimize_weights( (OptimizeWeightsUsingGlop)arg1) -> None :
     C++ signature :
         void optimize_weights(lincs::OptimizeWeightsUsingLinearProgram<lincs::GlopLinearProgram> {lvalue})
 
-lincs.PROBLEM_JSON_SCHEMA
-=========================
+lincs.Problem
+=============
+
+JSON_SCHEMA
+-----------
 
 str(object='') -> str
 str(bytes_or_buffer[, encoding[, errors]]) -> str
@@ -666,9 +669,6 @@ Otherwise, returns the result of object.__str__() (if defined)
 or repr(object).
 encoding defaults to sys.getdefaultencoding().
 errors defaults to 'strict'.
-
-lincs.Problem
-=============
 
 __init__
 --------
@@ -695,6 +695,16 @@ dump( (Problem)self, (object)out) -> None :
     C++ signature :
         void dump(lincs::Problem,boost::python::api::object {lvalue})
 
+load
+----
+
+
+load( (object)in) -> Problem :
+    Load a problem from the provided `.read()`-supporting file-like object, in YAML format.
+
+    C++ signature :
+        lincs::Problem load(boost::python::api::object {lvalue})
+
 lincs.ReinitializeLeastAccurate
 ===============================
 
@@ -718,6 +728,9 @@ breed( (ReinitializeLeastAccurate)arg1) -> None :
 
 lincs.SufficientCoalitions
 ==========================
+
+Kind
+----
 
 __init__
 --------
@@ -745,20 +758,6 @@ roots
 weights
 -------
 
-lincs.SufficientCoalitionsKind
-==============================
-
-__init__
---------
-
-Initialize self.  See help(type(self)) for accurate signature.
-
-roots
------
-
-weights
--------
-
 lincs.TerminateAtAccuracy
 =========================
 
@@ -779,17 +778,6 @@ terminate( (TerminateAtAccuracy)arg1) -> bool :
 
     C++ signature :
         bool terminate(lincs::TerminateAtAccuracy {lvalue})
-
-lincs.ValueType
-===============
-
-__init__
---------
-
-Initialize self.  See help(type(self)) for accurate signature.
-
-real
-----
 
 lincs.classify_alternatives
 ===========================
@@ -833,36 +821,6 @@ generate_mrsort_classification_model( (Problem)problem, (int)random_seed [, (obj
 
     C++ signature :
         lincs::Model generate_mrsort_classification_model(lincs::Problem,unsigned int [,std::optional<float>=None])
-
-lincs.load_alternatives
-=======================
-
-
-load_alternatives( (Problem)problem, (object)in) -> Alternatives :
-    Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format.
-
-    C++ signature :
-        lincs::Alternatives load_alternatives(lincs::Problem,boost::python::api::object {lvalue})
-
-lincs.load_model
-================
-
-
-load_model( (Problem)problem, (object)in) -> Model :
-    Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format.
-
-    C++ signature :
-        lincs::Model load_model(lincs::Problem,boost::python::api::object {lvalue})
-
-lincs.load_problem
-==================
-
-
-load_problem( (object)in) -> Problem :
-    Load a problem from the provided `.read()`-supporting file-like object, in YAML format.
-
-    C++ signature :
-        lincs::Problem load_problem(boost::python::api::object {lvalue})
 
 lincs.misclassify_alternatives
 ==============================

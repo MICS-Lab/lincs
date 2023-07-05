@@ -176,11 +176,12 @@ void set_alternative_category_index(lincs::Alternative& alt, std::optional<unsig
 }  // namespace
 
 template <typename T>
-void auto_enum(const std::string& name) {
+auto auto_enum(const std::string& name) {
   auto e = bp::enum_<T>(name.c_str());
   for(T value : magic_enum::enum_values<T>()) {
     e.value(std::string(magic_enum::enum_name(value)).c_str(), value);
   }
+  return e;
 }
 
 BOOST_PYTHON_MODULE(liblincs) {
@@ -198,16 +199,15 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();
 
-  // @todo Decide wether we nest types or not, use the same nesting in Python and C++
-  auto_enum<lincs::Criterion::ValueType>("ValueType");
-  auto_enum<lincs::Criterion::CategoryCorrelation>("CategoryCorrelation");
-  auto_enum<lincs::SufficientCoalitions::Kind>("SufficientCoalitionsKind");
-
-  bp::class_<lincs::Criterion>("Criterion", bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::CategoryCorrelation>())
+  auto criterion_class = bp::class_<lincs::Criterion>("Criterion", bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::CategoryCorrelation>())
     .def_readwrite("name", &lincs::Criterion::name)
     .def_readwrite("value_type", &lincs::Criterion::value_type)
     .def_readwrite("category_correlation", &lincs::Criterion::category_correlation)
   ;
+  // Note that nested things are at global scope as well. This is not wanted, not used, but doesn't hurt
+  // because 'liblincs' is only partially imported into module 'lincs' (see '__init__.py').
+  criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType");
+  criterion_class.attr("CategoryCorrelation") = auto_enum<lincs::Criterion::CategoryCorrelation>("CategoryCorrelation");
 
   bp::class_<lincs::Category>("Category", bp::init<std::string>())
     .def_readwrite("name", &lincs::Category::name)
@@ -220,8 +220,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def(bp::vector_indexing_suite<std::vector<lincs::Criterion>>())
   ;
 
-  bp::scope().attr("PROBLEM_JSON_SCHEMA") = lincs::Problem::json_schema;
-  bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>())
+  auto problem_class = bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>())
     .def_readwrite("criteria", &lincs::Problem::criteria)
     .def_readwrite("categories", &lincs::Problem::categories)
     .def(
@@ -230,14 +229,15 @@ BOOST_PYTHON_MODULE(liblincs) {
       (bp::arg("self"), "out"),
       "Dump the problem to the provided `.write()`-supporting file-like object, in YAML format."
     )
+    .def(
+      "load",
+      &load_problem,
+      (bp::arg("in")),
+      "Load a problem from the provided `.read()`-supporting file-like object, in YAML format."
+    )
+    .staticmethod("load")
   ;
-  // @todo Make these 'staticmethod's of Alternatives. Same for other load and generate functions.
-  bp::def(
-    "load_problem",
-    &load_problem,
-    (bp::arg("in")),
-    "Load a problem from the provided `.read()`-supporting file-like object, in YAML format."
-  );
+  problem_class.attr("JSON_SCHEMA") = lincs::Problem::json_schema;
   bp::def(
     "generate_classification_problem",
     &lincs::generate_classification_problem,
@@ -245,29 +245,23 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 
+  // @todo Double-check why we need both an enum 'Kind' and two tag classes 'Weights' and 'Roots'; simplify or document
   bp::class_<lincs::SufficientCoalitions::Weights>("Weights", bp::no_init);
   bp::class_<lincs::SufficientCoalitions::Roots>("Roots", bp::no_init);
-  auto c = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
+  auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
     .def(bp::init<lincs::SufficientCoalitions::Weights, std::vector<float>>())
     .def(bp::init<lincs::SufficientCoalitions::Roots, unsigned, std::vector<std::vector<unsigned>>>())
     .def_readwrite("kind", &lincs::SufficientCoalitions::kind)
     .def_readwrite("criterion_weights", &lincs::SufficientCoalitions::criterion_weights)
   ;
-  c.attr("weights") = lincs::SufficientCoalitions::weights;
-  c.attr("roots") = lincs::SufficientCoalitions::roots;
+  sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>("Kind");
+  sufficient_coalitions_class.attr("weights") = lincs::SufficientCoalitions::weights;
+  sufficient_coalitions_class.attr("roots") = lincs::SufficientCoalitions::roots;
 
   bp::class_<std::vector<float>>("floats_vector")
     .def(bp::vector_indexing_suite<std::vector<float>>())
   ;
-  bp::class_<lincs::Model::Boundary>("Boundary", bp::init<std::vector<float>, lincs::SufficientCoalitions>())
-    .def_readwrite("profile", &lincs::Model::Boundary::profile)
-    .def_readwrite("sufficient_coalitions", &lincs::Model::Boundary::sufficient_coalitions)
-  ;
-  bp::class_<std::vector<lincs::Model::Boundary>>("boundaries_vector")
-    .def(bp::vector_indexing_suite<std::vector<lincs::Model::Boundary>>())
-  ;
-  bp::scope().attr("MODEL_JSON_SCHEMA") = lincs::Model::json_schema;
-  bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::Model::Boundary>&>())
+  auto model_class = bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::Model::Boundary>&>())
     .def_readwrite("boundaries", &lincs::Model::boundaries)
     .def(
       "dump",
@@ -275,13 +269,22 @@ BOOST_PYTHON_MODULE(liblincs) {
       (bp::arg("self"), "problem", "out"),
       "Dump the model to the provided `.write()`-supporting file-like object, in YAML format."
     )
+    .def(
+      "load",
+      &load_model,
+      (bp::arg("problem"), "in"),
+      "Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format."
+    )
+    .staticmethod("load")
   ;
-  bp::def(
-    "load_model",
-    &load_model,
-    (bp::arg("problem"), "in"),
-    "Load a model for the provided `problem`, from the provided `.read()`-supporting file-like object, in YAML format."
-  );
+  model_class.attr("JSON_SCHEMA") = lincs::Model::json_schema;
+  model_class.attr("Boundary") = bp::class_<lincs::Model::Boundary>("Boundary", bp::init<std::vector<float>, lincs::SufficientCoalitions>())
+    .def_readwrite("profile", &lincs::Model::Boundary::profile)
+    .def_readwrite("sufficient_coalitions", &lincs::Model::Boundary::sufficient_coalitions)
+  ;
+  bp::class_<std::vector<lincs::Model::Boundary>>("boundaries_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Model::Boundary>>())
+  ;
   bp::def(
     "generate_mrsort_classification_model",
     &lincs::generate_mrsort_classification_model,
@@ -310,13 +313,14 @@ BOOST_PYTHON_MODULE(liblincs) {
       (bp::arg("self"), "problem", "out"),
       "Dump the set of alternatives to the provided `.write()`-supporting file-like object, in CSV format."
     )
+    .def(
+      "load",
+      &load_alternatives,
+      (bp::arg("problem"), "in"),
+      "Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format."
+    )
+    .staticmethod("load")
   ;
-  bp::def(
-    "load_alternatives",
-    &load_alternatives,
-    (bp::arg("problem"), "in"),
-    "Load a set of alternatives (classified or not) from the provided `.read()`-supporting file-like object, in CSV format."
-  );
   bp::def(
     "generate_classified_alternatives",
     &lincs::generate_classified_alternatives,
@@ -341,8 +345,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Classify the provided `alternatives` according to the provided `model`."
   );
 
-
-  auto wpb_learning_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>(
+  auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>(
     "LearnMrsortByWeightsProfilesBreed",
     bp::init<
       lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
@@ -356,7 +359,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform)
   ;
 
-  wpb_learning_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
+  learn_wbp_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
     // @todo Expose all attributes to allow non-trivial Python strategies
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
@@ -366,7 +369,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     void initialize_profiles(const unsigned begin, const unsigned end) override { this->get_override("initialize_profiles")(begin, end); }
   };
 
-  wpb_learning_class.attr("ProfilesInitializationStrategy") = bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>("ProfilesInitializationStrategy")
+  learn_wbp_class.attr("ProfilesInitializationStrategy") = bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>("ProfilesInitializationStrategy")
     .def("initialize_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles));
 
   bp::class_<
@@ -382,7 +385,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     void optimize_weights() override { this->get_override("optimize_weights")(); }
   };
 
-  wpb_learning_class.attr("WeightsOptimizationStrategy") = bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>("WeightsOptimizationStrategy")
+  learn_wbp_class.attr("WeightsOptimizationStrategy") = bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>("WeightsOptimizationStrategy")
     .def("optimize_weights", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights));
 
   bp::class_<
@@ -407,7 +410,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     void improve_profiles() override { this->get_override("improve_profiles")(); }
   };
 
-  wpb_learning_class.attr("ProfilesImprovementStrategy") = bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>("ProfilesImprovementStrategy")
+  learn_wbp_class.attr("ProfilesImprovementStrategy") = bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>("ProfilesImprovementStrategy")
     .def("improve_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles));
 
   bp::class_<
@@ -433,7 +436,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     void breed() override { this->get_override("breed")(); }
   };
 
-  wpb_learning_class.attr("BreedingStrategy") = bp::class_<BreedingStrategyWrap, boost::noncopyable>("BreedingStrategy")
+  learn_wbp_class.attr("BreedingStrategy") = bp::class_<BreedingStrategyWrap, boost::noncopyable>("BreedingStrategy")
     .def("breed", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed));
 
   bp::class_<lincs::ReinitializeLeastAccurate, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy>>(
@@ -446,7 +449,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     bool terminate() override { return this->get_override("terminate")(); }
   };
 
-  wpb_learning_class.attr("TerminationStrategy") = bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
+  learn_wbp_class.attr("TerminationStrategy") = bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
     .def("terminate", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate));
 
   bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(

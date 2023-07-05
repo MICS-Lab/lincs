@@ -246,7 +246,7 @@ def classification_model(
     model_type,
     mrsort__fixed_weights_sum,
 ):
-    problem = lincs.load_problem(problem)
+    problem = lincs.Problem.load(problem)
     assert model_type == "mrsort"
     model = lincs.generate_mrsort_classification_model(
         problem,
@@ -309,8 +309,8 @@ def classified_alternatives(
     misclassified_count,
     random_seed,
 ):
-    problem = lincs.load_problem(problem)
-    model = lincs.load_model(problem, model)
+    problem = lincs.Problem.load(problem)
+    model = lincs.Model.load(problem, model)
     alternatives = lincs.generate_classified_alternatives(
         problem,
         model,
@@ -373,10 +373,10 @@ def classification_model(
     alternatives_count,
     output,
 ):
-    problem = lincs.load_problem(problem)
-    model = lincs.load_model(problem, model)
+    problem = lincs.Problem.load(problem)
+    model = lincs.Model.load(problem, model)
     if alternatives is not None:
-        alternatives = lincs.load_alternatives(problem, alternatives)
+        alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.visualization.visualize_model(problem, model, alternatives, alternatives_count, output)
 
 
@@ -585,8 +585,8 @@ def classification_model(
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
     ucncs__approach,
 ):
-    problem = lincs.load_problem(problem)
-    learning_set = lincs.load_alternatives(problem, learning_set)
+    problem = lincs.Problem.load(problem)
+    learning_set = lincs.Alternatives.load(problem, learning_set)
 
     if model_type == "mrsort":
         if mrsort__strategy == "weights-profiles-breed":
@@ -668,9 +668,9 @@ def classify(
     alternatives,
     output_classified_alternatives,
 ):
-    problem = lincs.load_problem(problem)
-    model = lincs.load_model(problem, model)
-    alternatives = lincs.load_alternatives(problem, alternatives)
+    problem = lincs.Problem.load(problem)
+    model = lincs.Model.load(problem, model)
+    alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.classify_alternatives(problem, model, alternatives)
     alternatives.dump(problem, output_classified_alternatives)
 
@@ -703,8 +703,8 @@ def classification_accuracy(
     model,
     testing_set,
 ):
-    problem = lincs.load_problem(problem)
-    model = lincs.load_model(problem, model)
-    testing_set = lincs.load_alternatives(problem, testing_set)
+    problem = lincs.Problem.load(problem)
+    model = lincs.Model.load(problem, model)
+    testing_set = lincs.Alternatives.load(problem, testing_set)
     result = lincs.classify_alternatives(problem, model, testing_set)
     print(f"{result.unchanged}/{result.changed + result.unchanged}")
