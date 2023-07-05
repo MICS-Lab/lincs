@@ -197,6 +197,8 @@ def make_example_integration_test_from_doc():
 
 
 def build_sphinx_documentation():
+    subprocess.run([f"python3", "-m", "pip", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+
     with open("README.rst") as f:
         original_content = f.read()
 

@@ -197,6 +197,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
             -
               - 1
               - 2
+
 .. STOP
 
 .. START other-learnings/expected-evalmaxsat-trained-model.yml
