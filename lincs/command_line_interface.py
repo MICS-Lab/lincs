@@ -556,7 +556,7 @@ def learn():
             (
                 "approach",
                 dict(
-                    help="@todo.",
+                    help="The general approach to transform the learning problem into a satisfiability problem.",
                     type=click.Choice(["sat-by-coalitions", "max-sat-by-coalitions"]),
                     default="sat-by-coalitions",
                     show_default=True,
