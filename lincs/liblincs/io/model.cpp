@@ -66,7 +66,7 @@ properties:
         profile:
           type: array
           # items:
-          #   type: number  # @todo Why does this fail? (similar error)
+          #   type: number  # Similar error
           minItems: 1
         sufficient_coalitions:
           type: object
@@ -78,7 +78,7 @@ properties:
                 criterion_weights:
                   type: array
                   # items:
-                  #   type: number  # @todo Why does this fail? (similar error)
+                  #   type: number  # Similar error
                   minItems: 1
               required:
                 - kind
@@ -93,7 +93,7 @@ properties:
                   items:
                     type: array
                     # items:
-                    #   type: integer  # @todo Why does this fail? (similar error)
+                    #   type: integer  # Similar error
                     minItems: 1
                   minItems: 1
               required:

@@ -16,6 +16,7 @@ class LearnMrsortByWeightsProfilesBreed {
   static const unsigned default_models_count = 9;
 
   struct LearningData;
+  // @todo Define and add an observation extension point, e.g. to log the best model at each iteration
   struct ProfilesInitializationStrategy;
   struct WeightsOptimizationStrategy;
   struct ProfilesImprovementStrategy;
@@ -70,6 +71,7 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData {
   Array2D<Host, float> weights;
   Array3D<Host, float> profiles;
   Array1D<Host, unsigned> accuracies;
+  // @todo Add models' ages
   std::vector<std::mt19937> urbgs;
 
   static LearningData make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
@@ -111,6 +113,9 @@ struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
   virtual void breed() = 0;
 };
 
+// @todo Implement termination strategy for "maximum number of iterations"
+// @todo Implement termination strategy for "maximum duration"
+// @todo Implement composite termination strategies for "all" and "any"
 struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
   typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 

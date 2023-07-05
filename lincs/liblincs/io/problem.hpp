@@ -26,6 +26,8 @@ struct Criterion {
     // @todo Add unknown
   } category_correlation;
 
+  // @todo Add min and max values (with the possibility of infinite values?)
+
   // @todo Remove these constructors
   // The struct is usable without them in C++, and they were added only to allow using bp::init in the Python module
   // (Do it for other structs as well)

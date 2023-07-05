@@ -113,6 +113,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     }
 
     // Succeed?
+    // @todo Also succeed if accuracy == 100%; no reason to continue then
     if (termination_strategy.terminate()) {
       return learning_data.get_model(learning_data.model_indexes.back());
     }
