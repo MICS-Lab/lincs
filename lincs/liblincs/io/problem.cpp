@@ -15,15 +15,15 @@
 namespace YAML {
 
 template<>
-struct convert<lincs::Problem::Category> {
-  static Node encode(const lincs::Problem::Category& category) {
+struct convert<lincs::Category> {
+  static Node encode(const lincs::Category& category) {
     Node node;
     node["name"] = category.name;
 
     return node;
   }
 
-  static bool decode(const Node& node, lincs::Problem::Category& category) {
+  static bool decode(const Node& node, lincs::Category& category) {
     category.name = node["name"].as<std::string>();
 
     return true;
@@ -31,8 +31,8 @@ struct convert<lincs::Problem::Category> {
 };
 
 template<>
-struct convert<lincs::Problem::Criterion> {
-  static Node encode(const lincs::Problem::Criterion& criterion) {
+struct convert<lincs::Criterion> {
+  static Node encode(const lincs::Criterion& criterion) {
     Node node;
     node["name"] = criterion.name;
     node["value_type"] = std::string(magic_enum::enum_name(criterion.value_type));
@@ -41,11 +41,11 @@ struct convert<lincs::Problem::Criterion> {
     return node;
   }
 
-  static bool decode(const Node& node, lincs::Problem::Criterion& criterion) {
+  static bool decode(const Node& node, lincs::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
     // @todo Handle error where value_type category_correlation does not properly convert back to enum
-    criterion.value_type = magic_enum::enum_cast<lincs::Problem::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
-    criterion.category_correlation = magic_enum::enum_cast<lincs::Problem::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
+    criterion.value_type = magic_enum::enum_cast<lincs::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
+    criterion.category_correlation = magic_enum::enum_cast<lincs::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
 
     return true;
   }
@@ -138,7 +138,7 @@ Problem Problem::load(std::istream& is) {
 
 TEST_CASE("dumping then loading problem preserves data") {
   Problem problem{
-    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
   };
 

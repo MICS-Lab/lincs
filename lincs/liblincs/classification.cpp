@@ -77,9 +77,9 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
 TEST_CASE("Basic classification using weights") {
   Problem problem{
     {
-      {"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
-      {"Criterion 2", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
-      {"Criterion 3", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -117,9 +117,9 @@ TEST_CASE("Basic classification using weights") {
 TEST_CASE("Basic classification using upset roots") {
   Problem problem{
     {
-      {"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
-      {"Criterion 2", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
-      {"Criterion 3", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
     },
     {{"Category 1"}, {"Category 2"}},
   };

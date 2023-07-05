@@ -27,17 +27,17 @@ namespace lincs {
 Problem generate_classification_problem(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
   // There is nothing random yet. There will be when other value types and category correlations are added.
 
-  std::vector<Problem::Criterion> criteria;
+  std::vector<Criterion> criteria;
   criteria.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
-      Problem::Criterion::ValueType::real,
-      Problem::Criterion::CategoryCorrelation::growing
+      Criterion::ValueType::real,
+      Criterion::CategoryCorrelation::growing
     );
   }
 
-  std::vector<Problem::Category> categories;
+  std::vector<Category> categories;
   categories.reserve(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
     categories.emplace_back(

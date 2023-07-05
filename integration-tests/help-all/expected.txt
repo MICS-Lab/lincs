@@ -417,7 +417,7 @@ __init__
 __init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4) -> None :
 
     C++ signature :
-        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Problem::Criterion::ValueType,lincs::Problem::Criterion::CategoryCorrelation)
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Criterion::ValueType,lincs::Criterion::CategoryCorrelation)
 
 category_correlation
 --------------------
@@ -677,7 +677,7 @@ __init__
 __init__( (object)arg1, (criteria_vector)arg2, (categories_vector)arg3) -> None :
 
     C++ signature :
-        void __init__(_object*,std::vector<lincs::Problem::Criterion, std::allocator<lincs::Problem::Criterion> >,std::vector<lincs::Problem::Category, std::allocator<lincs::Problem::Category> >)
+        void __init__(_object*,std::vector<lincs::Criterion, std::allocator<lincs::Criterion> >,std::vector<lincs::Category, std::allocator<lincs::Category> >)
 
 categories
 ----------

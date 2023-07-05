@@ -188,8 +188,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     .from_python<std::vector<float>>()
     .from_python<std::vector<unsigned>>()
     .from_python<std::vector<std::vector<unsigned>>>()
-    .from_python<std::vector<lincs::Problem::Category>>()
-    .from_python<std::vector<lincs::Problem::Criterion>>()
+    .from_python<std::vector<lincs::Category>>()
+    .from_python<std::vector<lincs::Criterion>>()
     .from_python<std::vector<lincs::Model::Boundary>>()
     .from_python<std::vector<lincs::Model::SufficientCoalitions>>()
     .from_python<std::vector<lincs::Alternative>>()
@@ -199,29 +199,29 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_optional_converter<unsigned>::enroll();
 
   // @todo Decide wether we nest types or not, use the same nesting in Python and C++
-  auto_enum<lincs::Problem::Criterion::ValueType>("ValueType");
-  auto_enum<lincs::Problem::Criterion::CategoryCorrelation>("CategoryCorrelation");
+  auto_enum<lincs::Criterion::ValueType>("ValueType");
+  auto_enum<lincs::Criterion::CategoryCorrelation>("CategoryCorrelation");
   auto_enum<lincs::Model::SufficientCoalitions::Kind>("SufficientCoalitionsKind");
 
-  bp::class_<lincs::Problem::Criterion>("Criterion", bp::init<std::string, lincs::Problem::Criterion::ValueType, lincs::Problem::Criterion::CategoryCorrelation>())
-    .def_readwrite("name", &lincs::Problem::Criterion::name)
-    .def_readwrite("value_type", &lincs::Problem::Criterion::value_type)
-    .def_readwrite("category_correlation", &lincs::Problem::Criterion::category_correlation)
+  bp::class_<lincs::Criterion>("Criterion", bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::CategoryCorrelation>())
+    .def_readwrite("name", &lincs::Criterion::name)
+    .def_readwrite("value_type", &lincs::Criterion::value_type)
+    .def_readwrite("category_correlation", &lincs::Criterion::category_correlation)
   ;
 
-  bp::class_<lincs::Problem::Category>("Category", bp::init<std::string>())
-    .def_readwrite("name", &lincs::Problem::Category::name)
+  bp::class_<lincs::Category>("Category", bp::init<std::string>())
+    .def_readwrite("name", &lincs::Category::name)
   ;
 
-  bp::class_<std::vector<lincs::Problem::Category>>("categories_vector")
-    .def(bp::vector_indexing_suite<std::vector<lincs::Problem::Category>>())
+  bp::class_<std::vector<lincs::Category>>("categories_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Category>>())
   ;
-  bp::class_<std::vector<lincs::Problem::Criterion>>("criteria_vector")
-    .def(bp::vector_indexing_suite<std::vector<lincs::Problem::Criterion>>())
+  bp::class_<std::vector<lincs::Criterion>>("criteria_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Criterion>>())
   ;
 
   bp::scope().attr("PROBLEM_JSON_SCHEMA") = lincs::Problem::json_schema;
-  bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Problem::Criterion>, std::vector<lincs::Problem::Category>>())
+  bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>())
     .def_readwrite("criteria", &lincs::Problem::criteria)
     .def_readwrite("categories", &lincs::Problem::categories)
     .def(

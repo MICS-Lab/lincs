@@ -11,8 +11,8 @@
 int main() {
   lincs::Problem problem{
     {
-      {"Literature grade", lincs::Problem::Criterion::ValueType::real, lincs::Problem::Criterion::CategoryCorrelation::growing},
-      {"Physics grade", lincs::Problem::Criterion::ValueType::real, lincs::Problem::Criterion::CategoryCorrelation::growing},
+      {"Literature grade", lincs::Criterion::ValueType::real, lincs::Criterion::CategoryCorrelation::growing},
+      {"Physics grade", lincs::Criterion::ValueType::real, lincs::Criterion::CategoryCorrelation::growing},
     },
     {
       {"Fail"},

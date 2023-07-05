@@ -161,7 +161,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("dumping then loading problem preserves data - weights") {
   Problem problem{
-    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -191,9 +191,9 @@ boundaries:
 TEST_CASE("dumping then loading problem preserves data - roots") {
   Problem problem{
     {
-      {"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
-      {"Criterion 2", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
-      {"Criterion 3", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -229,7 +229,7 @@ boundaries:
 
 TEST_CASE("Parsing error") {
   Problem problem{
-    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -243,7 +243,7 @@ TEST_CASE("Parsing error") {
 
 TEST_CASE("Validation error - not an object") {
   Problem problem{
-    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -258,7 +258,7 @@ TEST_CASE("Validation error - not an object") {
 
 TEST_CASE("Validation error - missing weights") {
   Problem problem{
-    {{"Criterion 1", Problem::Criterion::ValueType::real, Problem::Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
   };
 
