@@ -43,8 +43,7 @@ void check_exact_learning(const unsigned criteria_count, const unsigned categori
   const unsigned max_seed = skip_long ? 10 : 100;
 
   for (unsigned seed = 0; seed != max_seed; ++seed) {
-    // @todo Understand why these seeds are problematic and handle them properly
-    if (seed == 58) { continue; }
+    // @todo Understand why this seed is problematic and handle it properly
     if (seed == 59) { continue; }
 
     check_exact_learning<T>(problem, seed);
