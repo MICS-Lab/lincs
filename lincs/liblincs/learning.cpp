@@ -100,6 +100,48 @@ TEST_CASE("Basic MR-Sort learning") {
   check_exact_learning<Wrapper>();
 }
 
+TEST_CASE("No termination strategy learning") {
+  struct NeverTerminate : LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
+    bool terminate() override { return false; }
+  };
+
+  class Wrapper {
+   public:
+    Wrapper(const Problem& problem, const Alternatives& learning_set) :
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
+      )),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+      termination_strategy(),
+      learning(
+        learning_data,
+        profiles_initialization_strategy,
+        weights_optimization_strategy,
+        profiles_improvement_strategy,
+        breeding_strategy,
+        termination_strategy
+      )
+    {}
+
+   public:
+    auto perform() { return learning.perform(); }
+
+   private:
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
+    OptimizeWeightsUsingGlop weights_optimization_strategy;
+    ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
+    NeverTerminate termination_strategy;
+    LearnMrsortByWeightsProfilesBreed learning;
+  };
+
+  check_exact_learning<Wrapper>();
+}
+
 TEST_CASE("Alglib MR-Sort learning") {
   class Wrapper {
    public:
