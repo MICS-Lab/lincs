@@ -89,7 +89,6 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     const int previous_best_accuracy = learning_data.get_best_accuracy();
 
     // Improve
-    // @todo Shouldn't we swap the next two lines? (To have optimal weights before breeding)
     weights_optimization_strategy.optimize_weights();
     profiles_improvement_strategy.improve_profiles();
 
