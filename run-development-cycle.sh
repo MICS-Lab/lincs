@@ -49,6 +49,7 @@ docker run \
   --rm --interactive --tty \
   --env HOST_ROOT_DIR=$PWD \
   --env CCACHE_DIR=/wd/ccache \
+  --mount type=bind,src=$PWD/development/cycle/git-config,dst=/home/user/.gitconfig,ro \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "$PWD:/wd" --workdir /wd \
   $docker_run_gpu_arguments \
