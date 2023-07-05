@@ -10,6 +10,7 @@ criteria:
 categories:
   - name: Bad
   - name: Good
+
 kind: ncs-classification-model
 format_version: 1
 boundaries:
@@ -21,6 +22,7 @@ boundaries:
       criterion_weights:
         - 0.4
         - 0.7
+
 name,"Physics grade","Literature grade",category
 Alice,11,12,Good
 Bob,9,11,Bad

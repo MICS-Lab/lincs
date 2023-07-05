@@ -1,26 +1,15 @@
 kind: classification-problem
 format_version: 1
 criteria:
-  - name: Literature grade
-    value_type: real
-    category_correlation: growing
   - name: Physics grade
     value_type: real
     category_correlation: growing
+  - name: Literature grade
+    value_type: real
+    category_correlation: growing
 categories:
-  - name: Fail
-  - name: Pass
-kind: ncs-classification-model
-format_version: 1
-boundaries:
-  - profile:
-      - 10
-      - 10
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights:
-        - 0.4
-        - 0.7
+  - name: Bad
+  - name: Good
 
 kind: ncs-classification-model
 format_version: 1
@@ -33,9 +22,7 @@ boundaries:
       criterion_weights:
         - 0.4
         - 0.7
-name,"Literature grade","Physics grade",category
-Alice,11,12,Pass
-Bob,9,11,Fail
-name,"Literature grade","Physics grade",category
-Alice,11,12,Pass
-Bob,9,11,Fail
+
+name,"Physics grade","Literature grade",category
+Alice,11,12,Good
+Bob,9,11,Bad
