@@ -5,7 +5,6 @@
 #include <map>
 
 #include "exception.hpp"
-#include "../median-and-max.hpp"
 
 
 namespace lincs {
