@@ -124,30 +124,14 @@ This should output a similar model, with slight numerical differences.
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile:
-          - 0.007700569
-          - 0.05495565
-          - 0.1626169
-          - 0.1931279
+      - profile: [0.007700569, 0.05495565, 0.1626169, 0.1931279]
         sufficient_coalitions:
           kind: weights
-          criterion_weights:
-            - 0.01812871
-            - 0.9818703
-            - 0.9818703
-            - 9.925777e-13
-      - profile:
-          - 0.03420721
-          - 0.3244802
-          - 0.6724876
-          - 0.4270518
+          criterion_weights: [0.01812871, 0.9818703, 0.9818703, 9.925777e-13]
+      - profile: [0.03420721, 0.3244802, 0.6724876, 0.4270518]
         sufficient_coalitions:
           kind: weights
-          criterion_weights:
-            - 0.01812871
-            - 0.9818703
-            - 0.9818703
-            - 9.925777e-13
+          criterion_weights: [0.01812871, 0.9818703, 0.9818703, 9.925777e-13]
 .. STOP
 
 .. EXTEND other-learnings/run.sh
@@ -175,28 +159,16 @@ It should produce a different kind of model, with the sufficient coalitions spec
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile:
-          - 1
-          - 0.05526805
-          - 0.1619191
-          - 0.9954021
+      - profile: [1, 0.05526805, 0.1619191, 0.9954021]
         sufficient_coalitions:
           kind: roots
           upset_roots:
-            -
-              - 1
-              - 2
-      - profile:
-          - 1
-          - 0.3252118
-          - 0.6726626
-          - 0.9967546
+            - [1, 2]
+      - profile: [1, 0.3252118, 0.6726626, 0.9967546]
         sufficient_coalitions:
           kind: roots
           upset_roots:
-            -
-              - 1
-              - 2
+            - [1, 2]
 
 .. STOP
 
@@ -204,32 +176,16 @@ It should produce a different kind of model, with the sufficient coalitions spec
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile:
-          - 0.005953997
-          - 0.05526805
-          - 0.1619191
-          - 0.0003789498
+      - profile: [0.005953997, 0.05526805, 0.1619191, 0.0003789498]
         sufficient_coalitions:
           kind: roots
           upset_roots:
-            -
-              - 0
-              - 1
-              - 2
-              - 3
-      - profile:
-          - 0.01213762
-          - 0.3252118
-          - 0.6726626
-          - 0.00400545
+            - [0, 1, 2, 3]
+      - profile: [0.01213762, 0.3252118, 0.6726626, 0.00400545]
         sufficient_coalitions:
           kind: roots
           upset_roots:
-            -
-              - 0
-              - 1
-              - 2
-              - 3
+            - [0, 1, 2, 3]
 .. STOP
 
 .. EXTEND other-learnings/run.sh

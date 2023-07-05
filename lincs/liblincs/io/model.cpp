@@ -12,40 +12,6 @@
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
-namespace YAML {
-
-template<>
-struct convert<lincs::SufficientCoalitions> {
-  static Node encode(const lincs::SufficientCoalitions& coalitions) {
-    Node node;
-    node["kind"] = std::string(magic_enum::enum_name(coalitions.kind));
-    switch (coalitions.kind) {
-      case lincs::SufficientCoalitions::Kind::weights:
-        node["criterion_weights"] = coalitions.criterion_weights;
-        break;
-      case lincs::SufficientCoalitions::Kind::roots:
-        // @todo Emit each root as a single-line compact array of integers
-        node["upset_roots"] = coalitions.get_upset_roots();
-        break;
-    }
-
-    return node;
-  }
-};
-
-template<>
-struct convert<lincs::Model::Boundary> {
-  static Node encode(const lincs::Model::Boundary& boundary) {
-    Node node;
-    node["profile"] = boundary.profile;
-    node["sufficient_coalitions"] = boundary.sufficient_coalitions;
-
-    return node;
-  }
-};
-
-}  // namespace YAML
-
 namespace lincs {
 
 const std::string Model::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
@@ -121,16 +87,34 @@ JsonValidator validator(schema);
 }  // namespace
 
 void Model::dump(const Problem&, std::ostream& os) const {
-  YAML::Node node;
-  node["kind"] = "ncs-classification-model";
-  node["format_version"] = 1;
-  node["boundaries"] = boundaries;
+  YAML::Emitter out(os);
 
-  #ifndef NDEBUG
-  validator.validate(node);
-  #endif
+  out << YAML::BeginMap;
+  out << YAML::Key << "kind" << YAML::Value << "ncs-classification-model";
+  out << YAML::Key << "format_version" << YAML::Value << 1;
+  out << YAML::Key << "boundaries" << YAML::Value << YAML::BeginSeq;
+  for (const Boundary& boundary : boundaries) {
+    out << YAML::BeginMap;
+    out << YAML::Key << "profile" << YAML::Value << YAML::Flow << boundary.profile;
+    out << YAML::Key << "sufficient_coalitions" << YAML::Value << YAML::BeginMap;
+    out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(boundary.sufficient_coalitions.kind));
+    switch (boundary.sufficient_coalitions.kind) {
+      case SufficientCoalitions::Kind::weights:
+        out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << boundary.sufficient_coalitions.criterion_weights;
+        break;
+      case SufficientCoalitions::Kind::roots:
+        out << YAML::Key << "upset_roots" << YAML::Value << YAML::BeginSeq;
+        for (const auto& root : boundary.sufficient_coalitions.get_upset_roots()) {
+          out << YAML::Flow << root;
+        }
+        out << YAML::EndSeq;
+        break;
+    }
+    out << YAML::EndMap << YAML::EndMap;
+  }
+  out << YAML::EndSeq;
 
-  os << node << '\n';
+  os << '\n';
 }
 
 SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YAML::Node& node) {
@@ -176,12 +160,10 @@ TEST_CASE("dumping then loading problem preserves data - weights") {
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile:
-      - 0.4
+  - profile: [0.4]
     sufficient_coalitions:
       kind: weights
-      criterion_weights:
-        - 0.7
+      criterion_weights: [0.7]
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -209,18 +191,12 @@ TEST_CASE("dumping then loading problem preserves data - roots") {
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile:
-      - 0.4
-      - 0.5
-      - 0.6
+  - profile: [0.4, 0.5, 0.6]
     sufficient_coalitions:
       kind: roots
       upset_roots:
-        -
-          - 0
-        -
-          - 1
-          - 2
+        - [0]
+        - [1, 2]
 )");
 
   Model model2 = Model::load(problem, ss);
