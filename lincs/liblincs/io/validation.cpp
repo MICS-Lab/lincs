@@ -1,5 +1,8 @@
 // Copyright 2023 Vincent Jacques
 
+#include "../vendored/valijson/adapters/yaml_cpp_adapter.hpp"
+#include "../vendored/valijson/schema_parser.hpp"
+#include "../vendored/valijson/validator.hpp"
 #include "validation.hpp"
 
 
