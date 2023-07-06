@@ -457,6 +457,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles)
   ;
 
+  #ifdef LINCS_HAS_NVCC
   bp::class_<
     lincs::ImproveProfilesWithAccuracyHeuristicOnGpu,
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy>,
@@ -467,6 +468,7 @@ BOOST_PYTHON_MODULE(liblincs) {
   )
     .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles)
   ;
+  #endif  // LINCS_HAS_NVCC
 
   struct BreedingStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy> {
     void breed() override { this->get_override("breed")(); }

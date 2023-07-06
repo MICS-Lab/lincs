@@ -9,6 +9,8 @@
 
 namespace lincs {
 
+#ifdef LINCS_HAS_NVCC
+
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  private:
   struct GpuLearningData {
@@ -54,6 +56,8 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
 
   static const unsigned destinations_count = 64;
 };
+
+#endif  // LINCS_HAS_NVCC
 
 }  // namespace lincs
 

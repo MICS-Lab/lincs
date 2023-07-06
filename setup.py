@@ -3,6 +3,7 @@
 import glob
 import itertools
 import os
+import shutil
 import sys
 import setuptools
 import setuptools.command.build_ext
@@ -20,6 +21,8 @@ for lang in ["yaml", "shell", "text", "diff"]:
 with open("requirements.txt") as f:
     install_requires = f.readlines()
 
+
+has_nvcc = os.environ.get("LINCS_DEV_FORBID_NVCC", "false") != "true" and shutil.which("nvcc") is not None
 
 # Method for building an extension with CUDA code extracted from https://stackoverflow.com/a/13300714/905845
 # @todo Consider using scikit-build:
@@ -57,17 +60,15 @@ liblincs = setuptools.Extension(
     "liblincs",
     sources=list(itertools.chain.from_iterable(
         glob.glob(f"lincs/liblincs/**/*.{ext}", recursive=True)
-        for ext in ["c", "cc", "cpp", "cu"]
+        for ext in ["c", "cc", "cpp"] + (["cu"] if has_nvcc else [])
     )),
     libraries=[
         f"boost_python{sys.version_info.major}{sys.version_info.minor}",
         "ortools",
         f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",  # Weirdly required because of BoostPython
         "yaml-cpp",
-        "cudart",
-    ],
-    define_macros=[("DOCTEST_CONFIG_DISABLE", None)],
-    # @todo Support building without CUDA (required on macOS)
+    ] + (["cudart"] if has_nvcc else []),
+    define_macros=[("DOCTEST_CONFIG_DISABLE", None)] + ([("LINCS_HAS_NVCC", None)] if has_nvcc else []),
     # @todo Support several versions of CUDA?
     include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
     library_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/lib"],

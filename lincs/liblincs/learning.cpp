@@ -182,6 +182,8 @@ TEST_CASE("Alglib MR-Sort learning") {
   check_exact_learning<Wrapper>(true);
 }
 
+#ifdef LINCS_HAS_NVCC
+
 TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
   class Wrapper {
    public:
@@ -219,6 +221,8 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
 
   check_exact_learning<Wrapper>(true);
 }
+
+#endif  // LINCS_HAS_NVCC
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>();
