@@ -19,9 +19,6 @@ unsigned get_assignment(
   const unsigned criteria_count = learning_alternatives.s1();
   const unsigned categories_count = profiles.s1() + 1;
 
-  // @todo Evaluate if it's worth storing and updating the gpu_learning_data' assignments
-  // (instead of recomputing them here)
-
   // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
   // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
   // phase keeping the maximum 'category_index' that passes the weight threshold.
@@ -70,7 +67,6 @@ void update_move_desirability(
     model_index,
     alternative_index);
 
-  // @todo Factorize with get_assignment
   float weight_at_or_above_profile = 0;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const float alternative_value = learning_alternatives[criterion_index][alternative_index];
@@ -303,8 +299,6 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   const unsigned criterion_index
 ) {
   // WARNING: We're assuming all criteria have values in [0, 1]
-  // @todo Can we relax this assumption?
-  // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
   const float lowest_destination =
     profile_index == 0 ? 0. :
     host_learning_data.profiles[criterion_index][profile_index - 1][model_index];

@@ -46,8 +46,6 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned criterion_index
 ) {
   // WARNING: We're assuming all criteria have values in [0, 1]
-  // @todo Can we relax this assumption?
-  // This is consistent with our comment in the header file, but slightly less generic than Sobrie's thesis
   const float lowest_destination =
     profile_index == 0 ? 0. :
     learning_data.profiles[criterion_index][profile_index - 1][model_index];
@@ -131,6 +129,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(learning_data, model_index, alternative_index);
 
   // @todo Factorize with get_assignment
+  // (Same remark in accuracy-heuristic-on-gpu.cu)
   float weight_at_or_above_profile = 0;
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
     const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
