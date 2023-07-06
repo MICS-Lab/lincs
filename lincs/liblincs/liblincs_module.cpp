@@ -195,6 +195,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .from_python<std::vector<lincs::SufficientCoalitions>>()
     .from_python<std::vector<lincs::Alternative>>()
     .from_python<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>()
+    .from_python<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>()
   ;
 
   std_optional_converter<float>::enroll();
@@ -346,23 +347,49 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Classify the provided `alternatives` according to the provided `model`."
   );
 
-  auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>(
-    "LearnMrsortByWeightsProfilesBreed",
-    bp::init<
+  auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>("LearnMrsortByWeightsProfilesBreed", bp::no_init)
+    .def(bp::init<
       lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
       lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&,
       lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy&,
       lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy&,
       lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy&,
       lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy&
-    >()
-  )
+    >(
+      (
+        bp::arg("learning_data"),
+        "profiles_initialization_strategy",
+        "weights_optimization_strategy",
+        "profiles_improvement_strategy",
+        "breeding_strategy",
+        "termination_strategy"
+      )
+    ))
+    .def(bp::init<
+      lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
+      lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&,
+      lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy&,
+      lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy&,
+      lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy&,
+      lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy&,
+      std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>
+    >(
+      (
+        bp::arg("learning_data"),
+        "profiles_initialization_strategy",
+        "weights_optimization_strategy",
+        "profiles_improvement_strategy",
+        "breeding_strategy",
+        "termination_strategy",
+        "observers"
+      )
+    ))
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform)
   ;
 
   learn_wbp_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
-    // @todo Expose all attributes to allow non-trivial Python strategies
+    // @todo Expose all attributes to allow non-trivial Python strategies and observers
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
   ;
 
@@ -490,6 +517,14 @@ BOOST_PYTHON_MODULE(liblincs) {
     bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>()
   )
     .def("terminate", &lincs::TerminateWhenAny::terminate)
+  ;
+
+  struct ObserverWrap : lincs::LearnMrsortByWeightsProfilesBreed::Observer, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::Observer> {
+    void after_iteration() override { this->get_override("after_iteration")(); }
+  };
+
+  learn_wbp_class.attr("Observer") = bp::class_<ObserverWrap, boost::noncopyable>("Observer")
+    .def("after_iteration", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration))
   ;
 
 

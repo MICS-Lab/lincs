@@ -16,12 +16,12 @@ class LearnMrsortByWeightsProfilesBreed {
   static const unsigned default_models_count = 9;
 
   struct LearningData;
-  // @todo Define and add an observation extension point, e.g. to log the best model at each iteration
   struct ProfilesInitializationStrategy;
   struct WeightsOptimizationStrategy;
   struct ProfilesImprovementStrategy;
   struct BreedingStrategy;
   struct TerminationStrategy;
+  struct Observer;
 
  public:
   LearnMrsortByWeightsProfilesBreed(
@@ -30,14 +30,16 @@ class LearnMrsortByWeightsProfilesBreed {
     WeightsOptimizationStrategy& weights_optimization_strategy_,
     ProfilesImprovementStrategy& profiles_improvement_strategy_,
     BreedingStrategy& breeding_strategy_,
-    TerminationStrategy& termination_strategy_
+    TerminationStrategy& termination_strategy_,
+    const std::vector<Observer*>& observers_ = {}
   ) :
     learning_data(learning_data_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
     weights_optimization_strategy(weights_optimization_strategy_),
     profiles_improvement_strategy(profiles_improvement_strategy_),
     breeding_strategy(breeding_strategy_),
-    termination_strategy(termination_strategy_) {}
+    termination_strategy(termination_strategy_),
+    observers(observers_) {}
 
  public:
   Model perform();
@@ -56,6 +58,7 @@ class LearnMrsortByWeightsProfilesBreed {
   ProfilesImprovementStrategy& profiles_improvement_strategy;
   BreedingStrategy& breeding_strategy;
   TerminationStrategy& termination_strategy;
+  std::vector<Observer*> observers;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::LearningData {
@@ -119,6 +122,14 @@ struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
   virtual ~TerminationStrategy() {}
 
   virtual bool terminate() = 0;
+};
+
+struct LearnMrsortByWeightsProfilesBreed::Observer {
+  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+
+  virtual ~Observer() {}
+
+  virtual void after_iteration() = 0;
 };
 
 }  // namespace lincs

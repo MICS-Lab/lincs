@@ -384,6 +384,39 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 96)
         self.assertEqual(result.unchanged, 904)
 
+    def test_observers(self):
+        problem = generate_classification_problem(5, 3, 41)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+
+        class MyObserver(LearnMrsortByWeightsProfilesBreed.Observer):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.learning_data = learning_data
+                self.best_accuracies = []
+
+            def after_iteration(self):
+                self.best_accuracies.append(self.learning_data.get_best_accuracy())
+
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
+        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+        weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+        observer = MyObserver(learning_data)
+        LearnMrsortByWeightsProfilesBreed(
+            learning_data,
+            profiles_initialization_strategy,
+            weights_optimization_strategy,
+            profiles_improvement_strategy,
+            breeding_strategy,
+            termination_strategy,
+            [observer],
+        ).perform()
+
+        self.assertEqual(observer.best_accuracies, [176, 186, 193, 193, 199, 199, 199])
+
     def test_alglib_mrsort_learning(self):
         problem = generate_classification_problem(5, 3, 41)
         model = generate_mrsort_classification_model(problem, 42)

@@ -569,6 +569,14 @@ def learn():
                                 ],
                             },
                         ),
+                        (
+                            "verbose",
+                            dict(
+                                help="Print information about the learning process on stderr while learning.",
+                                is_flag=True,
+                            ),
+                            {},
+                        )
                     ],
                 },
             ),
@@ -605,6 +613,7 @@ def classification_model(
     mrsort__weights_profiles_breed__accuracy_heuristic__processor,
     mrsort__weights_profiles_breed__breed_strategy,
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
+    mrsort__weights_profiles_breed__verbose,
     ucncs__approach,
 ):
     problem = lincs.Problem.load(problem)
@@ -646,6 +655,18 @@ def classification_model(
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
                 breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
 
+            observers = []
+            if mrsort__weights_profiles_breed__verbose:
+                class VerboseObserver(lincs.LearnMrsortByWeightsProfilesBreed.Observer):
+                    def __init__(self, learning_data):
+                        super().__init__()
+                        self.learning_data = learning_data
+
+                    def after_iteration(self):
+                        print("Best accuracy:", self.learning_data.get_best_accuracy(), file=sys.stderr)
+
+                observers.append(VerboseObserver(learning_data))
+
             learning = lincs.LearnMrsortByWeightsProfilesBreed(
                 learning_data,
                 profiles_initialization_strategy,
@@ -653,6 +674,7 @@ def classification_model(
                 profiles_improvement_strategy,
                 breeding_strategy,
                 termination_strategy,
+                observers,
             )
     elif model_type == "ucncs":
         if ucncs__approach == "sat-by-coalitions":

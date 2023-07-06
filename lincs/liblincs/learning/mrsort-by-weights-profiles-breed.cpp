@@ -119,6 +119,11 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     // Breed
     breeding_strategy.breed();
 
+    // Observe
+    for (auto observer : observers) {
+      observer->after_iteration();
+    }
+
     ++learning_data.iteration_index;
   }
 

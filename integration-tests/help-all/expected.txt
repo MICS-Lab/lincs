@@ -292,6 +292,14 @@ Options:
                                   - '--mrsort.weights-profiles-breed.breed-strategy' is 'reinitialize-least-accurate'
                                   
                                      [default: 0.5; 0.0<=x<=1.0]
+  --mrsort.weights-profiles-breed.verbose
+                                  Print information about the learning process
+                                  on stderr while learning.
+                                  
+                                  Only valid if:
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
   --help                          Show this message and exit.
 
 lincs classify
@@ -536,6 +544,30 @@ make( (Problem)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> LearningData :
     C++ signature :
         lincs::LearnMrsortByWeightsProfilesBreed::LearningData* make(lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
 
+lincs.LearnMrsortByWeightsProfilesBreed.Observer: class
+-------------------------------------------------------
+
+lincs.LearnMrsortByWeightsProfilesBreed.Observer.__init__: function
+-------------------------------------------------------------------
+
+__init__( (object)arg1) -> None :
+
+    C++ signature :
+        void __init__(_object*)
+
+lincs.LearnMrsortByWeightsProfilesBreed.Observer.after_iteration: function
+--------------------------------------------------------------------------
+
+after_iteration( (Observer)arg1) -> None :
+
+    C++ signature :
+        void after_iteration(lincs::LearnMrsortByWeightsProfilesBreed::Observer {lvalue})
+
+after_iteration( (Observer)arg1) -> None :
+
+    C++ signature :
+        void after_iteration(init_module_liblincs()::ObserverWrap {lvalue})
+
 lincs.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy: class
 --------------------------------------------------------------------------
 
@@ -635,10 +667,15 @@ optimize_weights( (WeightsOptimizationStrategy)arg1) -> None :
 lincs.LearnMrsortByWeightsProfilesBreed.__init__: function
 ----------------------------------------------------------
 
-__init__( (object)arg1, (LearningData)arg2, (ProfilesInitializationStrategy)arg3, (WeightsOptimizationStrategy)arg4, (ProfilesImprovementStrategy)arg5, (BreedingStrategy)arg6, (TerminationStrategy)arg7) -> None :
+__init__( (object)arg1, (LearningData)learning_data, (ProfilesInitializationStrategy)profiles_initialization_strategy, (WeightsOptimizationStrategy)weights_optimization_strategy, (ProfilesImprovementStrategy)profiles_improvement_strategy, (BreedingStrategy)breeding_strategy, (TerminationStrategy)termination_strategy) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {lvalue})
+
+__init__( (object)arg1, (LearningData)learning_data, (ProfilesInitializationStrategy)profiles_initialization_strategy, (WeightsOptimizationStrategy)weights_optimization_strategy, (ProfilesImprovementStrategy)profiles_improvement_strategy, (BreedingStrategy)breeding_strategy, (TerminationStrategy)termination_strategy, (object)observers) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {lvalue},lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {lvalue},std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*, std::allocator<lincs::LearnMrsortByWeightsProfilesBreed::Observer*> >)
 
 lincs.LearnMrsortByWeightsProfilesBreed.perform: function
 ---------------------------------------------------------
