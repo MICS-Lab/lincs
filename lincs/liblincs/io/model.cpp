@@ -22,7 +22,7 @@ properties:
     type: string
     const: ncs-classification-model
   format_version:
-    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
+    type: integer
     const: 1
   boundaries:
     type: array
@@ -31,8 +31,8 @@ properties:
       properties:
         profile:
           type: array
-          # items:
-          #   type: number  # Similar error
+          items:
+            type: number
           minItems: 1
         sufficient_coalitions:
           type: object
@@ -43,8 +43,8 @@ properties:
                   const: weights
                 criterion_weights:
                   type: array
-                  # items:
-                  #   type: number  # Similar error
+                  items:
+                    type: number
                   minItems: 1
               required:
                 - kind
@@ -58,8 +58,8 @@ properties:
                   type: array
                   items:
                     type: array
-                    # items:
-                    #   type: integer  # Similar error
+                    items:
+                      type: integer
                     minItems: 1
                   minItems: 1
               required:

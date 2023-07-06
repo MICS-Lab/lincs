@@ -63,7 +63,7 @@ properties:
     type: string
     const: classification-problem
   format_version:
-    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
+    type: integer
     const: 1
   criteria:
     type: array

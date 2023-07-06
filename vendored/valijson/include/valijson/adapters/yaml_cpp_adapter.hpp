@@ -403,17 +403,35 @@ class YamlCppValue
 
     bool isBool() const
     {
-        return false;
+        // @jacquev6's temporary fix for https://github.com/tristanpenman/valijson/issues/178
+        try {
+            m_value.as<bool>();
+            return true;
+        } catch (const YAML::BadConversion &e) {
+            return false;
+        }
     }
 
     bool isDouble() const
     {
-        return false;
+        // @jacquev6's temporary fix for https://github.com/tristanpenman/valijson/issues/178
+        try {
+            m_value.as<double>();
+            return true;
+        } catch (const YAML::BadConversion &e) {
+            return false;
+        }
     }
 
     bool isInteger() const
     {
-        return false;
+        // @jacquev6's temporary fix for https://github.com/tristanpenman/valijson/issues/178
+        try {
+            m_value.as<int64_t>();
+            return true;
+        } catch (const YAML::BadConversion &e) {
+            return false;
+        }
     }
 
     bool isNull() const
@@ -433,7 +451,13 @@ class YamlCppValue
 
     bool isString() const
     {
-        return true;
+        // @jacquev6's temporary fix for https://github.com/tristanpenman/valijson/issues/178
+        try {
+            m_value.as<std::string>();
+            return true;
+        } catch (const YAML::BadConversion &e) {
+            return false;
+        }
     }
 
   private:
