@@ -4,10 +4,10 @@ type: object
 properties:
   kind:
     type: string
-    enum: [ncs-classification-model]
+    const: ncs-classification-model
   format_version:
-    # type: integer  # @todo Why does this fail? (Error: <root> [format_version]: Value type not permitted by 'type' constraint.)
-    enum: [1]
+    type: integer
+    const: 1
   boundaries:
     type: array
     items:
@@ -15,24 +15,41 @@ properties:
       properties:
         profile:
           type: array
-          # items:
-          #   type: number  # @todo Why does this fail? (similar error)
+          items:
+            type: number
           minItems: 1
         sufficient_coalitions:
           type: object
-          properties:
-            kind:
-              type: string
-              enum: [weights]
-            criterion_weights:
-              type: array
-              # items:
-              #   type: number  # @todo Why does this fail? (similar error)
-              minItems: 1
-          required:
-            - kind
-            - criterion_weights
-          additionalProperties: false
+          oneOf:
+            - properties:
+                kind:
+                  type: string
+                  const: weights
+                criterion_weights:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 1
+              required:
+                - kind
+                - criterion_weights
+              additionalProperties: false
+            - properties:
+                kind:
+                  type: string
+                  const: roots
+                upset_roots:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: integer
+                    minItems: 1
+                  minItems: 1
+              required:
+                - kind
+                - upset_roots
+              additionalProperties: false
       required:
         - profile
         - sufficient_coalitions

@@ -4,6 +4,20 @@
 Changelog
 =========
 
+Version 0.5.0
+=============
+
+- Implement "SAT by coalitions" and "max-SAT by coalitions" learning methods
+- Add `misclassify_alternatives` to synthesize noise on alternatives
+- Expend the model file format to support specifying the sufficient coalitions by their roots
+- Produce "manylinux_2_31" binary wheels
+- Improve YAML schemas for problem and model file formats
+- Use the "flow" YAML formatting for arrays of scalars
+- Improve consistency between Python and C++ APIs (not yet documented though)
+- Add more control over the "weights, profiles, breed" learning method (termination strategies, "verbose" option)
+- Add an expansion point for the breeding part of "weights, profiles, breed"
+- Add an exception for failed learnings
+
 Version 0.4.5
 =============
 
