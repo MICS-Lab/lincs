@@ -623,19 +623,6 @@ def classification_model(
         if mrsort__strategy == "weights-profiles-breed":
             learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
-            termination_strategies = [lincs.TerminateAtAccuracy(
-                learning_data,
-                math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
-            )]
-            if mrsort__weights_profiles_breed__max_iterations is not None:
-                termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
-            if mrsort__weights_profiles_breed__max_duration_seconds is not None:
-                termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration_seconds))
-            if len(termination_strategies) == 1:
-                termination_strategy = termination_strategies[0]
-            else:
-                termination_strategy = lincs.TerminateWhenAny(termination_strategies)
-
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
                 profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 
@@ -654,6 +641,19 @@ def classification_model(
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
                 breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+
+            termination_strategies = [lincs.TerminateAtAccuracy(
+                learning_data,
+                math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
+            )]
+            if mrsort__weights_profiles_breed__max_iterations is not None:
+                termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
+            if mrsort__weights_profiles_breed__max_duration_seconds is not None:
+                termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration_seconds))
+            if len(termination_strategies) == 1:
+                termination_strategy = termination_strategies[0]
+            else:
+                termination_strategy = lincs.TerminateWhenAny(termination_strategies)
 
             observers = []
             if mrsort__weights_profiles_breed__verbose:
