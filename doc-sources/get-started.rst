@@ -8,11 +8,14 @@ Get started
 Get *lincs*
 ===========
 
-You have two options: use the Docker image or actually install *lincs* on your system.
-We recommend the Docker image for now, as it's easier to get started with,
-but the actual install is viable on Ubuntu 22.04 if you wish.
-We plan to publish binary wheels on PyPI for popular platforms to make system install easier in the future.
-@todo Support other operating systems than Ubuntu 22.04
+You have a few options:
+
+- run *lincs* using our Docker image: simple and works on any machine with Docker installed
+- install *lincs* using binary wheels: simple and works on fairly recent Linux distributions
+- install *lincs* from the source distribution: works on Ubuntu 20.04, and you'll need to install a few dependencies first
+
+We strongly recommend you don't waste your time trying to install *lincs* on another system for now; we do plan to do that soon-ish.
+@todo Support other operating systems; distribute wheels.
 
 Get and run the Docker image
 ----------------------------
@@ -28,7 +31,7 @@ Run the image::
     docker run --rm -it jacquev6/lincs
 
 This will put you in a basic Ubuntu shell with the ``lincs`` command-line interface installed.
-You can skip the next section and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
+You can skip the next sections and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
 
 More details about the Docker image: the default tag ``latest`` always points at the latest published version of *lincs*.
 `Other tags <https://hub.docker.com/repository/docker/jacquev6/lincs/tags>`_ are available for specific versions, *e.g.* ``jacquev6/lincs:0.3.7``.
@@ -37,23 +40,29 @@ Make sure to get familiar with Docker and containers: in particular, all changes
 You'll need to use the ``--volume`` option to access your local filesystem from within the container.
 See `Docker documentation <https://docs.docker.com/>`_ for more information.
 
-Install *lincs* on your Ubuntu 22.04 system
--------------------------------------------
+Install *lincs* on your Linux system, using binary wheels
+---------------------------------------------------------
 
-For now, *lincs* only runs on Ubuntu 22.04 and we highly recommend you don't waste your time trying to make it work somewhere else.
+``pip install lincs --only-binary lincs`` should be enough.
+You can now skip the next section and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
+
+Install *lincs* on your Ubuntu 20.04 system, from sources
+---------------------------------------------------------
+
+(The same procedure should work on Ubuntu 22.04 as well.)
 
 .. highlight:: shell
 
 .. START install/dependencies.sh
 
-First, you need to install a few dependencies (@todo build binary wheel distributions to make installation easier. SOON because this is getting really cumbersome)::
+First, you need to install a few dependencies::
 
     # System packages
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
 
     # CUDA
-    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
-    sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /'
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+    sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /'
     sudo apt-get update
     sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
     export PATH=/usr/local/cuda-12.1/bin:$PATH
@@ -69,7 +78,7 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
 .. STOP
 
 .. START install/Dockerfile-pre
-    FROM ubuntu:22.04
+    FROM ubuntu:20.04
 
     RUN apt-get update
 
@@ -124,7 +133,7 @@ First, you need to install a few dependencies (@todo build binary wheel distribu
     sudo docker run --rm lincs-development--install lincs --help >/dev/null
 .. STOP
 
-Finally, *lincs* is available on the `Python Package Index <https://pypi.org/project/lincs/>`_, so ``pip install lincs`` should finalize the install.
+Finally ``pip install lincs --no-binary lincs`` should finalize the install.
 
 
 .. _start-command-line:
