@@ -1,5 +1,6 @@
 # Copyright 2023 Vincent Jacques
 
+import time
 import unittest
 import os
 
@@ -253,28 +254,6 @@ class LearningTestCase(unittest.TestCase):
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
-
-    def test_time_restricted_mrsort_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 1000, 43)
-
-        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
-        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-        weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
-        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
-        termination_strategy = TerminateAfterSeconds(1)
-        learned_model = LearnMrsortByWeightsProfilesBreed(
-            learning_data,
-            profiles_initialization_strategy,
-            weights_optimization_strategy,
-            profiles_improvement_strategy,
-            breeding_strategy,
-            termination_strategy,
-        ).perform()
-
-        self.assertGreater(classify_alternatives(problem, learned_model, learning_set).changed, 0)
 
     def test_iterations_restricted_mrsort_learning(self):
         problem = generate_classification_problem(5, 3, 41)

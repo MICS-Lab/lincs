@@ -197,6 +197,15 @@ Options:
                                   - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
                                      [x>=1]
+  --mrsort.weights-profiles-breed.max-duration-seconds FLOAT RANGE
+                                  The maximum duration to learn the MRSort
+                                  model, in seconds.
+                                  
+                                  Only valid if:
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                     [x>=0]
   --mrsort.weights-profiles-breed.models-count INTEGER RANGE
                                   The number of temporary MRSort models to
                                   train. The result of the learning will be
@@ -896,10 +905,10 @@ lincs.TerminateAfterSeconds: class
 lincs.TerminateAfterSeconds.__init__: function
 ----------------------------------------------
 
-__init__( (object)arg1, (int)arg2) -> None :
+__init__( (object)arg1, (float)arg2) -> None :
 
     C++ signature :
-        void __init__(_object*,unsigned int)
+        void __init__(_object*,float)
 
 lincs.TerminateAfterSeconds.terminate: function
 -----------------------------------------------

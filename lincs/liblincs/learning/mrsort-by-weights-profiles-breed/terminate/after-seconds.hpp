@@ -12,15 +12,15 @@ namespace lincs {
 
 class TerminateAfterSeconds : public LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
  public:
-  explicit TerminateAfterSeconds(const unsigned max_seconds_) : max_seconds(max_seconds_), started_at(std::chrono::steady_clock::now()) {}
+  explicit TerminateAfterSeconds(const float max_seconds_) : max_seconds(max_seconds_), started_at(std::chrono::steady_clock::now()) {}
 
  public:
   bool terminate() override {
-    return (std::chrono::steady_clock::now() - started_at).count() > max_seconds;
+    return std::chrono::duration<float>(std::chrono::steady_clock::now() - started_at).count() > max_seconds;
   }
 
  private:
-  const unsigned max_seconds;
+  const float max_seconds;
   const std::chrono::steady_clock::time_point started_at;
 };
 

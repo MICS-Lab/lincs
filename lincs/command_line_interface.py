@@ -462,6 +462,16 @@ def learn():
                             {},
                         ),
                         (
+                            "max-duration-seconds",
+                            dict(
+                                help="The maximum duration to learn the MRSort model, in seconds.",
+                                type=click.FloatRange(min=0),
+                                default=None,
+                                show_default=True,
+                            ),
+                            {},
+                        ),
+                        (
                             "models-count",
                             dict(
                                 help="The number of temporary MRSort models to train. The result of the learning will be the most accurate of those models.",
@@ -585,6 +595,7 @@ def classification_model(
     mrsort__strategy,
     mrsort__weights_profiles_breed__target_accuracy,
     mrsort__weights_profiles_breed__max_iterations,
+    mrsort__weights_profiles_breed__max_duration_seconds,
     mrsort__weights_profiles_breed__models_count,
     mrsort__weights_profiles_breed__initialization_strategy,
     mrsort__weights_profiles_breed__weights_strategy,
@@ -603,11 +614,18 @@ def classification_model(
         if mrsort__strategy == "weights-profiles-breed":
             learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
-            assert mrsort__weights_profiles_breed__max_iterations is None
-            termination_strategy = lincs.TerminateAtAccuracy(
+            termination_strategies = [lincs.TerminateAtAccuracy(
                 learning_data,
                 math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
-            )
+            )]
+            if mrsort__weights_profiles_breed__max_iterations is not None:
+                termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
+            if mrsort__weights_profiles_breed__max_duration_seconds is not None:
+                termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration_seconds))
+            if len(termination_strategies) == 1:
+                termination_strategy = termination_strategies[0]
+            else:
+                termination_strategy = lincs.TerminateWhenAny(termination_strategies)
 
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
                 profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)

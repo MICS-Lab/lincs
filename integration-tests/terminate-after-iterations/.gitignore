@@ -1,0 +1,6 @@
+# Copyright 2023 Vincent Jacques
+
+/problem.yml
+/model.yml
+/learning-set.csv
+/trained-model--*-iterations.yml

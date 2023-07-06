@@ -467,7 +467,7 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   bp::class_<lincs::TerminateAfterSeconds, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterSeconds",
-    bp::init<unsigned>()
+    bp::init<float>()
   )
     .def("terminate", &lincs::TerminateAfterSeconds::terminate);
 
