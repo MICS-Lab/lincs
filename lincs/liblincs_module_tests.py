@@ -282,12 +282,22 @@ class LearningTestCase(unittest.TestCase):
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
+        class MyTerminationStrategy(LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
+            def __init__(self):
+                super().__init__()
+                self.called_count = 0
+
+            def terminate(self):
+                self.called_count += 1
+                return False
+
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
         breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
-        termination_strategy = TerminateWhenAny([TerminateAtAccuracy(learning_data, len(learning_set.alternatives))])
+        my_termination_strategy = MyTerminationStrategy()
+        termination_strategy = TerminateWhenAny([my_termination_strategy, TerminateAtAccuracy(learning_data, len(learning_set.alternatives))])
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
             profiles_initialization_strategy,
@@ -297,6 +307,7 @@ class LearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
+        self.assertEqual(my_termination_strategy.called_count, 7)
         self.assertEqual(classify_alternatives(problem, learned_model, learning_set).changed, 0)
 
     def test_python_strategies(self):
