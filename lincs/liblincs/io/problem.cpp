@@ -43,7 +43,6 @@ struct convert<lincs::Criterion> {
 
   static bool decode(const Node& node, lincs::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
-    // @todo Handle error where value_type category_correlation does not properly convert back to enum
     criterion.value_type = magic_enum::enum_cast<lincs::Criterion::ValueType>(node["value_type"].as<std::string>()).value();
     criterion.category_correlation = magic_enum::enum_cast<lincs::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>()).value();
 
@@ -145,6 +144,17 @@ TEST_CASE("dumping then loading problem preserves data") {
   std::stringstream ss;
   problem.dump(ss);
 
+  CHECK(ss.str() == R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: real
+    category_correlation: growing
+categories:
+  - name: Category 1
+  - name: Category 2
+)");
+
   Problem problem2 = Problem::load(ss);
   CHECK(problem2.criteria == problem.criteria);
   CHECK(problem2.categories == problem.categories);
@@ -159,12 +169,34 @@ TEST_CASE("Parsing error") {
     YAML::Exception);
 }
 
-TEST_CASE("Validation error") {
+TEST_CASE("Validation error - not an object") {
   std::istringstream iss("42");
 
   CHECK_THROWS_WITH_AS(
     Problem::load(iss),
     "JSON validation failed:\n - <root>: Value type not permitted by 'type' constraint.",
+    JsonValidationException);
+}
+
+TEST_CASE("Validation error - bad enum") {
+  std::istringstream iss(R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: invalid
+    category_correlation: growing
+categories:
+  - name: Category 1
+  - name: Category 2
+)");
+
+  CHECK_THROWS_WITH_AS(
+    Problem::load(iss),
+    R"(JSON validation failed:
+ - <root> [criteria] [0] [value_type]: Failed to match against any enum values.
+ - <root> [criteria] [0]: Failed to validate against schema associated with property name 'value_type'.
+ - <root> [criteria]: Failed to validate item #0 in array.
+ - <root>: Failed to validate against schema associated with property name 'criteria'.)",
     JsonValidationException);
 }
 
