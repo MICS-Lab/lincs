@@ -519,6 +519,8 @@ public:
 public:
 
     bool solve() {
+        std::mt19937 rng((std::random_device()()));
+
         // CONFIG
         unsigned int nbSecondSolveMin = 20;
         unsigned int timeOutForSecondSolve = 60;
@@ -643,7 +645,7 @@ public:
                         if(nbSecondSolve > 10000)
                             break;
 
-                        std::random_shuffle(forSolve.begin(), forSolve.end());
+                        std::shuffle(forSolve.begin(), forSolve.end(), rng);
 
                         bool res = solver->solve(forSolve);
                         assert(!res);
@@ -811,6 +813,8 @@ public:
 private:
 
     bool fullMinimize(VirtualSAT* solverForMinimize, std::set<int> &conflict, std::vector<int> &uselessLit, long timeRef) {
+        std::mt19937 rng((std::random_device()()));
+
         MaLib::Chrono chrono;
         bool minimum = true;
 
@@ -910,7 +914,7 @@ private:
                 break;
             }
 
-            std::random_shuffle(removable.begin(), removable.end());
+            std::shuffle(removable.begin(), removable.end(), rng);
         }
 
         for(auto lit: uselessLit) {

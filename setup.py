@@ -55,6 +55,21 @@ class custom_build_ext(setuptools.command.build_ext.build_ext):
         customize_compiler_for_nvcc(self.compiler)
         setuptools.command.build_ext.build_ext.build_extensions(self)
 
+optional_libraries = []
+
+if has_nvcc:
+    optional_libraries.append("cudart")
+
+if sys.platform == "linux":
+    omp_compile_args = ["-fopenmp"]
+    omp_link_args = ["-fopenmp"]
+    # Weirdly required because of BoostPython:
+    optional_libraries.append(f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}")
+elif sys.platform == "darwin":
+    omp_compile_args = ["-Xclang", "-fopenmp"]
+    omp_link_args = ["-lomp"]
+else:
+    assert False, f"Unsupported platform: {sys.platform}"
 
 liblincs = setuptools.Extension(
     "liblincs",
@@ -65,9 +80,8 @@ liblincs = setuptools.Extension(
     libraries=[
         f"boost_python{sys.version_info.major}{sys.version_info.minor}",
         "ortools",
-        f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",  # Weirdly required because of BoostPython
         "yaml-cpp",
-    ] + (["cudart"] if has_nvcc else []),
+    ] + optional_libraries,
     define_macros=[("DOCTEST_CONFIG_DISABLE", None)] + ([("LINCS_HAS_NVCC", None)] if has_nvcc else []),
     # @todo Support several versions of CUDA?
     include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
@@ -75,10 +89,10 @@ liblincs = setuptools.Extension(
     # Non-standard: the dict is accessed in `customize_compiler_for_nvcc`
     # to get the standard form for `extra_compile_args`
     extra_compile_args={
-        "gcc": ["-std=c++17", "-fopenmp", "-Werror=switch"],
+        "gcc": ["-std=c++17", "-Werror=switch"] + omp_compile_args,
         "nvcc": ["-std=c++17", "-Xcompiler", "-fopenmp,-fPIC,-Werror=switch"],
     },
-    extra_link_args=["-fopenmp"],
+    extra_link_args=omp_link_args,
 )
 
 setuptools.setup(
