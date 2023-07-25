@@ -34,30 +34,24 @@ void check_exact_learning(const lincs::Problem& problem, unsigned seed) {
 }
 
 template<typename T>
-void check_exact_learning(const unsigned criteria_count, const unsigned categories_count, bool is_wpb) {
+void check_exact_learning(
+    const unsigned criteria_count,
+    const unsigned categories_count,
+    std::set<unsigned> bad_seeds = {},
+    const unsigned max_seed = skip_long ? 10 : 100
+) {
   CAPTURE(criteria_count);
   CAPTURE(categories_count);
 
   lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41);
 
-  const unsigned max_seed = skip_long ? 10 : 100;
-
   for (unsigned seed = 0; seed != max_seed; ++seed) {
-    // This set of parameters can't reach 100% accuracy with WPB approach
-    if (is_wpb && criteria_count == 4 && categories_count == 3 && seed == 59) {
+    if (bad_seeds.find(seed) != bad_seeds.end()) {
       CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
     } else {
       check_exact_learning<T>(problem, seed);
     }
   }
-}
-
-template<typename T>
-void check_exact_learning(bool is_wpb = false) {
-  check_exact_learning<T>(1, 2, is_wpb);
-  check_exact_learning<T>(3, 2, is_wpb);
-  check_exact_learning<T>(1, 3, is_wpb);
-  check_exact_learning<T>(4, 3, is_wpb);
 }
 
 }  // namespace
@@ -99,7 +93,11 @@ TEST_CASE("Basic MR-Sort learning") {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>(true);
+  check_exact_learning<Wrapper>(1, 2);
+  check_exact_learning<Wrapper>(3, 2);
+  check_exact_learning<Wrapper>(7, 2, {78});
+  check_exact_learning<Wrapper>(1, 3);
+  check_exact_learning<Wrapper>(4, 3, {59});
 }
 
 TEST_CASE("No termination strategy MR-Sort learning") {
@@ -141,7 +139,11 @@ TEST_CASE("No termination strategy MR-Sort learning") {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>(true);
+  check_exact_learning<Wrapper>(1, 2);
+  check_exact_learning<Wrapper>(3, 2);
+  check_exact_learning<Wrapper>(7, 2, {78});
+  check_exact_learning<Wrapper>(1, 3);
+  check_exact_learning<Wrapper>(4, 3, {59});
 }
 
 TEST_CASE("Alglib MR-Sort learning") {
@@ -179,7 +181,11 @@ TEST_CASE("Alglib MR-Sort learning") {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>(true);
+  check_exact_learning<Wrapper>(1, 2);
+  check_exact_learning<Wrapper>(3, 2);
+  check_exact_learning<Wrapper>(7, 2);  // @todo Investigate why seed 78 succeeds with Alglib but not with Glop
+  check_exact_learning<Wrapper>(1, 3);
+  check_exact_learning<Wrapper>(4, 3, {59});
 }
 
 #ifdef LINCS_HAS_NVCC
@@ -219,17 +225,41 @@ TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-  check_exact_learning<Wrapper>(true);
+  check_exact_learning<Wrapper>(1, 2);
+  check_exact_learning<Wrapper>(3, 2);
+  check_exact_learning<Wrapper>(7, 2, {78});
+  check_exact_learning<Wrapper>(1, 3);
+  check_exact_learning<Wrapper>(4, 3, {59});
 }
 
 #endif  // LINCS_HAS_NVCC
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>();
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(7, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 3);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
 }
 
 TEST_CASE("SAT by coalitions using EvalMaxSAT learning") {
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>();
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(1, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(3, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(7, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(4, 3);
+}
+
+TEST_CASE("SAT by separation using Minisat learning") {
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
+}
+
+TEST_CASE("SAT by separation using EvalMaxSAT learning") {
+  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(1, 2);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(3, 2);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(7, 2);
 }
 
 TEST_CASE("Non-exact learning - SAT by coalitions") {
@@ -299,5 +329,7 @@ TEST_CASE("Non-exact learning - MR-Sort") {
 
   CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
 }
+
+// @todo TEST_CASE("Non-exact learning - SAT by separation") (Currently the "SAT by separation" can't benefit from a max-SAT solver because it doesn't use weighted clauses)
 
 }  // namespace lincs
