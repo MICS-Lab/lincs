@@ -53,19 +53,12 @@ Install *lincs* on your Ubuntu 20.04 system, from sources
 
 .. highlight:: shell
 
-.. START install/dependencies.sh
+.. START install/mandatory-dependencies.sh
 
 First, you need to install a few dependencies::
 
     # System packages
     sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
-
-    # CUDA
-    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-    sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /'
-    sudo apt-get update
-    sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
-    export PATH=/usr/local/cuda-12.1/bin:$PATH
 
     # OR-tools
     wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
@@ -74,6 +67,19 @@ First, you need to install a few dependencies::
     sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib
     sudo ldconfig
     rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+
+.. STOP
+
+.. START install/optional-dependencies.sh
+
+Optionally, to use GPU-based learning strategies::
+
+    # CUDA (Optional, recommended if you have an NVIDIA GPU)
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+    sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /'
+    sudo apt-get update
+    sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
+    export PATH=/usr/local/cuda-12.1/bin:$PATH
 
 .. STOP
 
@@ -112,11 +118,15 @@ First, you need to install a few dependencies::
     set -o pipefail
     trap 'echo "Error on line $LINENO"' ERR
 
+    mkdir project
+    cp -Lr ../../../{lincs,requirements.txt,setup.py} project
+    touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
+
     # Transform the dependencies.sh file into a Dockerfile to benefit from the Docker build cache
     (
       cat Dockerfile-pre
       echo
-      cat dependencies.sh \
+      cat mandatory-dependencies.sh optional-dependencies.sh \
       | grep -v -e '^#' -e '^$' \
       | sed 's/^/RUN /' \
       | sed 's/^RUN cd/WORKDIR/' \
@@ -125,12 +135,24 @@ First, you need to install a few dependencies::
       cat Dockerfile-post
     ) >Dockerfile
 
-    mkdir project
-    cp -Lr ../../../{lincs,requirements.txt,setup.py} project
-    touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
+    sudo docker build . --tag lincs-development--install-with-cuda --quiet >/dev/null
+    sudo docker run --rm lincs-development--install-with-cuda lincs --help >/dev/null
 
-    sudo docker build . --tag lincs-development--install --quiet >/dev/null
-    sudo docker run --rm lincs-development--install lincs --help >/dev/null
+    # Transform the dependencies.sh file into a Dockerfile to benefit from the Docker build cache
+    (
+      cat Dockerfile-pre
+      echo
+      cat mandatory-dependencies.sh \
+      | grep -v -e '^#' -e '^$' \
+      | sed 's/^/RUN /' \
+      | sed 's/^RUN cd/WORKDIR/' \
+      | sed 's/^RUN export/ENV/'
+      echo
+      cat Dockerfile-post
+    ) >Dockerfile
+
+    sudo docker build . --tag lincs-development--install-without-cuda --quiet >/dev/null
+    sudo docker run --rm lincs-development--install-without-cuda lincs --help >/dev/null
 .. STOP
 
 Finally ``pip install lincs --no-binary lincs`` should finalize the install.

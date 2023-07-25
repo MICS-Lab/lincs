@@ -4,6 +4,11 @@
 Changelog
 =========
 
+Version 0.5.1
+=============
+
+- Publish wheels for macOS
+
 Version 0.5.0
 =============
 

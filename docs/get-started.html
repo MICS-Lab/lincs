@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Get started &#8212; lincs 0.5.0 documentation</title>
+    <title>Get started &#8212; lincs 0.5.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -74,13 +74,6 @@ You can now skip the next section and go to <a class="reference internal" href="
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># System packages</span>
 sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>--yes<span class="w"> </span>g++<span class="w"> </span>libboost-python-dev<span class="w"> </span>python3-dev<span class="w"> </span>libyaml-cpp-dev
 
-<span class="c1"># CUDA</span>
-sudo<span class="w"> </span>apt-key<span class="w"> </span>adv<span class="w"> </span>--fetch-keys<span class="w"> </span>https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-sudo<span class="w"> </span>add-apt-repository<span class="w"> </span><span class="s1">&#39;deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /&#39;</span>
-sudo<span class="w"> </span>apt-get<span class="w"> </span>update
-sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>--yes<span class="w"> </span>cuda-cudart-dev-12-1<span class="w"> </span>cuda-nvcc-12-1
-<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-12.1/bin:<span class="nv">$PATH</span>
-
 <span class="c1"># OR-tools</span>
 wget<span class="w"> </span>https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
 tar<span class="w"> </span>xf<span class="w"> </span>or-tools_ubuntu-20.04_v8.2.8710.tar.gz
@@ -88,6 +81,15 @@ sudo<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>
 sudo<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so<span class="w"> </span>/usr/local/lib
 sudo<span class="w"> </span>ldconfig
 rm<span class="w"> </span>-r<span class="w"> </span>or-tools_Ubuntu-20.04-64bit_v8.2.8710<span class="w"> </span>or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+</pre></div>
+</div>
+<p>Optionally, to use GPU-based learning strategies:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># CUDA (Optional, recommended if you have an NVIDIA GPU)</span>
+sudo<span class="w"> </span>apt-key<span class="w"> </span>adv<span class="w"> </span>--fetch-keys<span class="w"> </span>https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+sudo<span class="w"> </span>add-apt-repository<span class="w"> </span><span class="s1">&#39;deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /&#39;</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>--yes<span class="w"> </span>cuda-cudart-dev-12-1<span class="w"> </span>cuda-nvcc-12-1
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-12.1/bin:<span class="nv">$PATH</span>
 </pre></div>
 </div>
 <p>Finally <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lincs</span> <span class="pre">--no-binary</span> <span class="pre">lincs</span></code> should finalize the install.</p>
