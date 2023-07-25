@@ -37,7 +37,7 @@ add_possibly_weighted_clause(
 }
 
 template<typename SatProblem>
-Model SatCoalitionUcncsLearning<SatProblem>::perform() {
+Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
 
@@ -225,7 +225,7 @@ Model SatCoalitionUcncsLearning<SatProblem>::perform() {
   return Model{problem, boundaries};
 }
 
-template class SatCoalitionUcncsLearning<EvalmaxsatSatProblem>;
-template class SatCoalitionUcncsLearning<MinisatSatProblem>;
+template class SatCoalitionsUcncsLearning<EvalmaxsatSatProblem>;
+template class SatCoalitionsUcncsLearning<MinisatSatProblem>;
 
 }  // namespace lincs

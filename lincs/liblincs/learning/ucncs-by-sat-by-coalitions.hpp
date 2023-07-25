@@ -9,9 +9,9 @@
 namespace lincs {
 
 template<typename SatProblem>
-class SatCoalitionUcncsLearning {
+class SatCoalitionsUcncsLearning {
  public:
-  SatCoalitionUcncsLearning(const Problem& problem_, const Alternatives& learning_set_) : problem(problem_), learning_set(learning_set_) {}
+  SatCoalitionsUcncsLearning(const Problem& problem_, const Alternatives& learning_set_) : problem(problem_), learning_set(learning_set_) {}
 
  public:
   Model perform();

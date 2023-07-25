@@ -702,7 +702,7 @@ lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat.perform: function
 perform( (LearnUcncsBySatByCoalitionsUsingEvalmaxsat)arg1) -> Model :
 
     C++ signature :
-        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
+        lincs::Model perform(lincs::SatCoalitionsUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
 
 lincs.LearnUcncsBySatByCoalitionsUsingMinisat: class
 ----------------------------------------------------
@@ -721,7 +721,7 @@ lincs.LearnUcncsBySatByCoalitionsUsingMinisat.perform: function
 perform( (LearnUcncsBySatByCoalitionsUsingMinisat)arg1) -> Model :
 
     C++ signature :
-        lincs::Model perform(lincs::SatCoalitionUcncsLearning<lincs::MinisatSatProblem> {lvalue})
+        lincs::Model perform(lincs::SatCoalitionsUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
 lincs.Model: class
 ------------------

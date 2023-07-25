@@ -22,8 +22,8 @@
 namespace lincs {
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
-  typedef SatCoalitionUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatByCoalitionsUsingEvalmaxsat;
-  typedef SatCoalitionUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
+  typedef SatCoalitionsUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatByCoalitionsUsingEvalmaxsat;
+  typedef SatCoalitionsUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
 }  // namespace lincs
 
 #endif  // LINCS__LEARNING_HPP
