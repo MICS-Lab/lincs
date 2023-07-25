@@ -1,0 +1,230 @@
+name: Distribute
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  make-source-dist:
+    runs-on: ubuntu-20.04
+    steps:
+      # Install dependencies
+      - run: pip3 install build twine
+
+      # Get the code
+      - uses: actions/checkout@v3
+
+      # Build the source distribution
+      - run: python3 -m build --sdist
+      - run: twine check dist/*
+
+      # Upload the source distribution
+      - uses: actions/upload-artifact@v3
+        with:
+          name: source-dist
+          path: dist
+
+  build-for-linux:
+    runs-on: ubuntu-20.04
+    needs:
+      - make-source-dist
+    strategy:
+      matrix:
+        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+    steps:
+      # Install dependencies
+      - run: sudo apt-get update
+      - run: sudo apt-get install --yes --no-install-recommends
+              libyaml-cpp-dev
+              wget
+      - run: |
+          sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+          sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends cuda-cudart-dev-12-1 cuda-nvcc-12-1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - run: |
+            mkdir boost
+            cd boost
+            wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+            tar xf *.tar.gz
+            rm *.tar.gz
+            cd boost_*
+            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
+            ./bootstrap.sh --with-libraries=python
+            ./b2 python=${{ matrix.python_version }}
+            sudo cp -r boost /usr/local/include
+            sudo cp -r stage/lib/* /usr/local/lib
+            sudo ldconfig
+            cd ../..
+            rm -r boost
+      - run: |
+            mkdir or-tools
+            cd or-tools
+            wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+            tar xf *.tar.gz
+            sudo cp -r or-tools_*/include/* /usr/local/include
+            sudo cp -r or-tools_*/lib/* /usr/local/lib
+            sudo ldconfig
+            cd ..
+            rm -r or-tools
+      - run: |
+            mkdir patchelf
+            cd patchelf
+            wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz
+            tar xf *.tar.gz
+            sudo cp bin/patchelf /usr/local/bin
+            cd ..
+            rm -r patchelf
+      - run: pip${{ matrix.python_version }} install build auditwheel twine
+
+      # Get the source distribution
+      - uses: actions/download-artifact@v3
+        with:
+          name: source-dist
+      - run: |
+            tar xf *.tar.gz
+            rm *.tar.gz
+
+      # Build the wheel
+      - run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
+      - run: auditwheel repair --plat manylinux_2_31_x86_64 --strip local-dist/*.whl --wheel-dir dist
+      - run: twine check dist/*
+
+      # Upload the wheel
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels-dist
+          path: dist
+
+  build-for-macos:
+    runs-on: macos-11
+    needs:
+      - make-source-dist
+    strategy:
+      matrix:
+        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+    steps:
+      # Install dependencies
+      - run: brew install
+              yaml-cpp
+      - run: |
+            mkdir openmp
+            cd openmp
+            wget https://mac.r-project.org/openmp/openmp-10.0.0-darwin17-Release.tar.gz
+            tar xf *.tar.gz
+            sudo cp usr/local/lib/* /usr/local/lib
+            sudo cp usr/local/include/* /usr/local/include
+            cd ..
+            rm -r openmp
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - run: |
+            mkdir boost
+            cd boost
+            wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+            tar xf *.tar.gz
+            rm *.tar.gz
+            cd boost_*
+            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
+            ./bootstrap.sh --with-libraries=python
+            ./b2 python=${{ matrix.python_version }}
+            sudo cp -r boost /usr/local/include
+            sudo cp -r stage/lib/* /usr/local/lib
+            cd ../..
+            rm -r boost
+      - run: |
+            mkdir or-tools
+            cd or-tools
+            wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_MacOsX-11.2.1_v8.2.8710.tar.gz
+            tar xf *.tar.gz
+            sudo cp -r or-tools_*/include/* /usr/local/include
+            sudo cp -r or-tools_*/lib/* /usr/local/lib
+            cd ..
+            rm -r or-tools
+      - run: pip3 install build delocate twine
+
+      # Get the source distribution
+      - uses: actions/download-artifact@v3
+        with:
+          name: source-dist
+      - run: |
+            tar xf *.tar.gz
+            rm *.tar.gz
+
+      # Build the wheel
+      - run: python3 -m build --wheel --outdir local-dist lincs-*
+      - run: delocate-wheel --wheel-dir dist local-dist/*.whl
+      - run: twine check dist/*.whl
+
+      # Upload the wheel
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels-dist
+          path: dist
+
+  check:
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build-for-linux
+      - build-for-macos
+    strategy:
+      matrix:
+        os: ['ubuntu-20.04', 'ubuntu-22.04', 'macos-11', 'macos-12', 'macos-13']
+        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+    steps:
+      # DO NOT install dependencies
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      # Get the wheels
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels-dist
+      - run: find .
+
+      # Install
+      - run: pip${{ matrix.python_version }} install --find-links . --pre lincs
+
+      # Run
+      - run: which lincs
+      - run: lincs --help
+      - run: lincs generate classification-problem 3 2
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    environment:
+      name: pypi
+      url: https://pypi.org/p/lincs
+    permissions:
+      id-token: write
+    steps:
+      # Get the source distribution and the wheels
+      - uses: actions/download-artifact@v3
+        with:
+          name: source-dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels-dist
+
+      # Publish them on PyPI
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: .
+          verify-metadata: false
+          verbose: true
+
+  purge:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    steps:
+      - uses: kolpav/purge-artifacts-action@v1
+        with:
+          token: ${{ secrets.TOKEN_FOR_PURGE_ARTIFACTS_ACTION }}
+          expire-in: 0  # Purge all artifacts from previous runs, keep the new ones from this run

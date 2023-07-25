@@ -118,7 +118,7 @@ void Model::dump(const Problem&, std::ostream& os) const {
 }
 
 SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YAML::Node& node) {
-  switch (magic_enum::enum_cast<SufficientCoalitions::Kind>(node["kind"].as<std::string>()).value()) {
+  switch (*magic_enum::enum_cast<SufficientCoalitions::Kind>(node["kind"].as<std::string>())) {
     case SufficientCoalitions::Kind::weights:
       return SufficientCoalitions(SufficientCoalitions::weights, node["criterion_weights"].as<std::vector<float>>());
     case SufficientCoalitions::Kind::roots:

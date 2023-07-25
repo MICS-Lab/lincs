@@ -43,6 +43,8 @@ void Host::memset<lincs::Desirability>(const std::size_t n, const char v, lincs:
   Host::force_memset<lincs::Desirability>(n, v, p);
 }
 
+#ifdef LINCS_HAS_NVCC
+
 template<>
 __inline__
 lincs::Desirability* Device::alloc<lincs::Desirability>(const std::size_t n) {
@@ -54,5 +56,7 @@ __inline__
 void Device::memset<lincs::Desirability>(const std::size_t n, const char v, lincs::Desirability* const p) {
   Device::force_memset<lincs::Desirability>(n, v, p);
 }
+
+#endif  // LINCS_HAS_NVCC
 
 #endif  // LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC__DESIRABILITY_HPP

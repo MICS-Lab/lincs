@@ -16,7 +16,11 @@ from liblincs import classify_alternatives
 from liblincs import LearnMrsortByWeightsProfilesBreed
 from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
-from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu, ImproveProfilesWithAccuracyHeuristicOnGpu
+from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu
+try:
+    from liblincs import ImproveProfilesWithAccuracyHeuristicOnGpu
+except ImportError:
+    pass
 from liblincs import ReinitializeLeastAccurate
 from liblincs import TerminateAtAccuracy, TerminateAfterSeconds, TerminateAfterIterations, TerminateWhenAny
 

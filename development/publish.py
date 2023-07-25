@@ -1,13 +1,9 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
-import glob
 import os
-import shutil
 import subprocess
-import textwrap
 
-import auditwheel.wheel_abi
 import click
 import semver
 
@@ -27,7 +23,6 @@ def main(level):
     if not dry_run:
         update_changelog(new_version)
         build_sphinx_documentation()
-    build_archives(new_version)
     if not dry_run:
         publish(new_version)
         prepare_next_version(new_version)
@@ -122,97 +117,14 @@ def update_changelog(new_version):
 
     input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
 
-
-def build_archives(new_version):
-    shutil.rmtree("dist", ignore_errors=True)
-    shutil.rmtree("lincs.egg-info", ignore_errors=True)
-    for path in glob.glob("/tmp/lincs-*"):
-        shutil.rmtree(path)
-
-    print_title("Building source archive and Docker image")
-    subprocess.run(["python3", "-m", "build", "--sdist"], check=True)
-    shutil.rmtree("lincs.egg-info")
-    source_dist = f"dist/lincs-{new_version}.tar.gz"
-    subprocess.run(["twine", "check", source_dist], check=True)
-    # @todo Make ccache work in the following build
-    subprocess.run([
-        "sudo", "docker", "run",
-        "--mount", f"type=bind,src={os.environ['HOST_ROOT_DIR']}/dist,dst=/dist,ro",
-        "--rm",
-        "lincs-development",
-        "sh", "-c", textwrap.dedent(f"""\
-            set -o errexit
-
-            pip3 install --no-binary lincs --find-links /dist lincs=={new_version}
-            python3 -m lincs --help
-            lincs --help
-        """),
-    ], check=True)
-    print()
-
-    platform = None
-    for python_version in python_versions:
-        print_title(f"Building wheel for Python {python_version}")
-        shutil.rmtree(f"/tmp/lincs-{new_version}", ignore_errors=True)
-        subprocess.run(["tar", "xf", os.path.abspath(source_dist)], cwd="/tmp", check=True)
-
-        subprocess.run([f"python{python_version}", "-m", "build", "--wheel", f"/tmp/lincs-{new_version}"], check=True)
-        suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
-        linux_wheel = f"/tmp/lincs-{new_version}/dist/lincs-{new_version}-cp{python_version.replace('.', '')}-cp{python_version.replace('.', '')}{suffix}-linux_x86_64.whl"
-
-        if platform is None:
-            # Inspired from the code of the 'auditwheel show' command, to get just what we need from its output
-            platform = auditwheel.wheel_abi.analyze_wheel_abi(linux_wheel).sym_tag
-        subprocess.run(["auditwheel", "repair", "--plat", platform, "--wheel-dir", "dist", "--strip", linux_wheel], check=True)
-        repaired_wheel = f"dist/lincs-{new_version}-cp{python_version.replace('.', '')}-cp{python_version.replace('.', '')}{suffix}-{platform}.whl"
-
-        subprocess.run(["twine", "check", repaired_wheel], check=True)
-
-        docker_tag = f"jacquev6/lincs:{new_version}-python{python_version}"
-        os.mkdir("docker/dist")
-        shutil.copy(repaired_wheel, "docker/dist")
-        try:
-            subprocess.run(
-                [
-                    "sudo", "docker", "build",
-                    "--tag", docker_tag,
-                    "--build-arg", f"PYTHON_VERSION={python_version}",
-                    "--build-arg", f"LINCS_VERSION={new_version}",
-                    "docker",
-                ],
-                check=True,
-            )
-            subprocess.run(
-                [
-                    "sudo", "docker", "run", "--rm", docker_tag, "lincs", "--help",
-                ],
-                check=True,
-            )
-        finally:
-            shutil.rmtree("docker/dist")
-        print()
-
-
 def publish(new_version):
-    print_title("Publishing to PyPI")
-    # The --repository option on next line assumes ~/.pypirc contains:
-    # [distutils]
-    #   index-servers=
-    #     ...
-    #     lincs
-    # [lincs]
-    #   repository = https://upload.pypi.org/legacy/
-    #   username = __token__
-    #   password = ... a token for package lincs
-    subprocess.run(["twine", "upload", "--repository", "lincs"] + glob.glob("dist/*"), check=True)
-    print()
-
-    print_title("Publishing to Docker Hub")
-    subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}-python{python_versions[-1]}", f"jacquev6/lincs:{new_version}"], check=True)
-    subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}", "jacquev6/lincs:latest"], check=True)
-    subprocess.run(["sudo", "docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
-    subprocess.run(["sudo", "docker", "push", "jacquev6/lincs:latest"], check=True)
-    print()
+    # @todo Restore publishing to Docker Hub, from GitHub Actions
+    # print_title("Publishing to Docker Hub")
+    # subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}-python{python_versions[-1]}", f"jacquev6/lincs:{new_version}"], check=True)
+    # subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}", "jacquev6/lincs:latest"], check=True)
+    # subprocess.run(["sudo", "docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
+    # subprocess.run(["sudo", "docker", "push", "jacquev6/lincs:latest"], check=True)
+    # print()
 
     print_title("Publishing to GitHub")
     subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)

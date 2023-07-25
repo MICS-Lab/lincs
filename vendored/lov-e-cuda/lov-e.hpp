@@ -6,7 +6,9 @@
 #ifndef LOV_E_HPP_
 #define LOV_E_HPP_
 
+#ifdef LINCS_HAS_NVCC
 #include <cuda_runtime.h>
+#endif  // LINCS_HAS_NVCC
 
 #include <cassert>
 #include <cstdio>
@@ -26,6 +28,8 @@
 /*                          *
  * Error checking utilities *
  *                          */
+
+#ifdef LINCS_HAS_NVCC
 
 struct CudaError : public std::exception {
   CudaError(const char* const file_, const unsigned line_, const cudaError_t error_) :
@@ -85,6 +89,8 @@ inline void check_last_cuda_error_sync_stream_(cudaStream_t stream, const char* 
 #define check_last_cuda_error_no_sync() check_last_cuda_error_no_sync_(__FILE__, __LINE__)
 #define check_last_cuda_error_sync_stream(stream) check_last_cuda_error_sync_stream_(stream, __FILE__, __LINE__)
 #define check_last_cuda_error_sync_device() check_last_cuda_error_sync_device_(__FILE__, __LINE__)
+
+#endif  // LINCS_HAS_NVCC
 
 /*                   *
  * Memory management *
@@ -163,6 +169,8 @@ class Host {
   }
 };
 
+#ifdef LINCS_HAS_NVCC
+
 class Device {
  public:
   static const bool can_be_allocated_on_device = true;
@@ -226,6 +234,8 @@ class Device {
   }
 };
 
+#endif  // LINCS_HAS_NVCC
+
 template<typename WhereFrom>
 struct From {
   template<typename WhereTo>
@@ -253,6 +263,8 @@ void From<Host>::To<Host>::copy(
     std::memcpy(dst, src, n * sizeof(T));
   }
 }
+
+#ifdef LINCS_HAS_NVCC
 
 template<> template<> template<typename T>
 void From<Host>::To<Device>::copy(
@@ -289,6 +301,8 @@ void From<Device>::To<Host>::copy(
     check_cuda_error(cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToHost));
   }
 }
+
+#endif  // LINCS_HAS_NVCC
 
 /*                       *
  * Arrays and ArrayViews *
@@ -431,6 +445,8 @@ class ArrayView1D<Host, T> {
   friend class Array1D<Host, typename std::remove_const<T>::type>;
 };
 
+#ifdef LINCS_HAS_NVCC
+
 template<typename T>
 class ArrayView1D<Device, T> {
  public:
@@ -496,6 +512,8 @@ class ArrayView1D<Device, T> {
 
   friend class Array1D<Device, typename std::remove_const<T>::type>;
 };
+
+#endif  // LINCS_HAS_NVCC
 
 template<typename WhereFrom, typename WhereTo, typename T>
 void copy(ArrayView1D<WhereFrom, T> src, ArrayView1D<WhereTo, typename std::remove_const<T>::type> dst) {
@@ -594,6 +612,8 @@ Array1D<WhereTo, typename std::remove_const<T>::type> ArrayView1D<Host, T>::clon
   return dst;
 }
 
+#ifdef LINCS_HAS_NVCC
+
 template<typename T>
 template<typename WhereTo>
 Array1D<WhereTo, typename std::remove_const<T>::type> ArrayView1D<Device, T>::clone_to() const {
@@ -601,6 +621,8 @@ Array1D<WhereTo, typename std::remove_const<T>::type> ArrayView1D<Device, T>::cl
   copy(*this, ref(dst));  // NOLINT(build/include_what_you_use)
   return dst;
 }
+
+#endif  // LINCS_HAS_NVCC
 
 template<typename Where, typename T> class Array2D;
 
@@ -1335,6 +1357,8 @@ Array5D<WhereTo, typename std::remove_const<T>::type> ArrayView5D<WhereFrom, T>:
  * Grid and block utilities *
  *                          */
 
+#ifdef LINCS_HAS_NVCC
+
 struct Grid {
   const dim3 gridDim;
   const dim3 blockDim;
@@ -1452,6 +1476,8 @@ struct GridFactory3D {
 
   static constexpr dim3 blockDim = {BLOCKDIM_X, BLOCKDIM_Y, BLOCKDIM_Z};
 };
+
+#endif  // LINCS_HAS_NVCC
 
 #undef HOST_DEVICE_DECORATORS
 
