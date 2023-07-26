@@ -27,4 +27,7 @@ from liblincs import TerminateAtAccuracy, TerminateAfterSeconds, TerminateAfterI
 # Learning - SAT by coalitions
 from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat, LearnUcncsBySatByCoalitionsUsingEvalmaxsat
 
+# Learning - SAT by separation
+from liblincs import LearnUcncsBySatBySeparationUsingMinisat, LearnUcncsBySatBySeparationUsingEvalmaxsat
+
 # @todo Accept learning and training set as Pandas DataFrame?
