@@ -143,16 +143,24 @@ This should output a similar model, with slight numerical differences.
 You can also use an entirely different approach using SAT and max-SAT solvers::
 
     lincs learn classification-model problem.yml learning-set.csv \
-      --output-model minisat-trained-model.yml \
+      --output-model minisat-coalitions-trained-model.yml \
       --model-type ucncs --ucncs.approach sat-by-coalitions
 
     lincs learn classification-model problem.yml learning-set.csv \
-      --output-model evalmaxsat-trained-model.yml \
+      --output-model evalmaxsat-coalitions-trained-model.yml \
       --model-type ucncs --ucncs.approach max-sat-by-coalitions
+
+    lincs learn classification-model problem.yml learning-set.csv \
+      --output-model minisat-separation-trained-model.yml \
+      --model-type ucncs --ucncs.approach sat-by-separation
+
+    lincs learn classification-model problem.yml learning-set.csv \
+      --output-model evalmaxsat-separation-trained-model.yml \
+      --model-type ucncs --ucncs.approach max-sat-by-separation
 
 .. STOP
 
-.. START other-learnings/expected-minisat-trained-model.yml
+.. START other-learnings/expected-minisat-coalitions-trained-model.yml
 
 It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
@@ -172,7 +180,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
 
 .. STOP
 
-.. START other-learnings/expected-evalmaxsat-trained-model.yml
+.. START other-learnings/expected-evalmaxsat-coalitions-trained-model.yml
     kind: ncs-classification-model
     format_version: 1
     boundaries:
@@ -188,9 +196,55 @@ It should produce a different kind of model, with the sufficient coalitions spec
             - [0, 1, 2, 3]
 .. STOP
 
+.. START other-learnings/expected-minisat-separation-trained-model.yml
+    kind: ncs-classification-model
+    format_version: 1
+    boundaries:
+      - profile: [0.1682088, 0.05526805, 0.1619191, 0.9954021]
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            - [0, 1, 2]
+            - [0, 1, 2, 3]
+            - [1, 2]
+            - [1, 2, 3]
+      - profile: [1, 0.3252118, 0.6726626, 0.9967546]
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            - [0, 1, 2]
+            - [0, 1, 2, 3]
+            - [1, 2]
+            - [1, 2, 3]
+.. STOP
+
+.. START other-learnings/expected-evalmaxsat-separation-trained-model.yml
+    kind: ncs-classification-model
+    format_version: 1
+    boundaries:
+      - profile: [0.4387934, 0.05526805, 0.1619191, 0.7900946]
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            - [0, 1, 2]
+            - [0, 1, 2, 3]
+            - [1, 2]
+            - [1, 2, 3]
+      - profile: [0.4522586, 0.3252118, 0.6726626, 0.7900946]
+        sufficient_coalitions:
+          kind: roots
+          upset_roots:
+            - [0, 1, 2]
+            - [0, 1, 2, 3]
+            - [1, 2]
+            - [1, 2, 3]
+.. STOP
+
 .. EXTEND other-learnings/run.sh
-    diff expected-minisat-trained-model.yml minisat-trained-model.yml
-    diff expected-evalmaxsat-trained-model.yml evalmaxsat-trained-model.yml
+    diff expected-minisat-coalitions-trained-model.yml minisat-coalitions-trained-model.yml
+    diff expected-evalmaxsat-coalitions-trained-model.yml evalmaxsat-coalitions-trained-model.yml
+    diff expected-minisat-separation-trained-model.yml minisat-separation-trained-model.yml
+    diff expected-evalmaxsat-separation-trained-model.yml evalmaxsat-separation-trained-model.yml
 .. STOP
 
 Output location

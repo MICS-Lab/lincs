@@ -4,6 +4,7 @@
 #define LINCS__LEARNING_HPP
 
 #include "learning/ucncs-by-sat-by-coalitions.hpp"
+#include "learning/ucncs-by-sat-by-separation.hpp"
 #include "learning/mrsort-by-weights-profiles-breed.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/improve-profiles/accuracy-heuristic-on-cpu.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/improve-profiles/accuracy-heuristic-on-gpu.hpp"
@@ -22,8 +23,10 @@
 namespace lincs {
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
-  typedef SatCoalitionUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatByCoalitionsUsingEvalmaxsat;
-  typedef SatCoalitionUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
+  typedef SatCoalitionsUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatByCoalitionsUsingEvalmaxsat;
+  typedef SatCoalitionsUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
+  typedef SatSeparationUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatBySeparationUsingEvalmaxsat;
+  typedef SatSeparationUcncsLearning<MinisatSatProblem> LearnUcncsBySatBySeparationUsingMinisat;
 }  // namespace lincs
 
 #endif  // LINCS__LEARNING_HPP
