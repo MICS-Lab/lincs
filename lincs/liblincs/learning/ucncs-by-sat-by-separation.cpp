@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 #include <type_traits>
 
 #include "exception.hpp"
@@ -166,17 +167,20 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
       }
     }
 
-    std::vector<std::vector<unsigned>> roots;
+    std::set<std::vector<unsigned>> roots;
     for (unsigned good_alternative_index : good_alternative_indexes) {
-      std::vector<unsigned>& root = roots.emplace_back();
+      std::vector<unsigned> root;
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (learning_set.alternatives[good_alternative_index].profile[criterion_index] >= profile[criterion_index]) {
           root.push_back(criterion_index);
         }
       }
+      roots.insert(root);
     }
 
-    boundaries.emplace_back(profile, SufficientCoalitions{SufficientCoalitions::roots, criteria_count, roots});
+    boundaries.emplace_back(
+      profile,
+      SufficientCoalitions{SufficientCoalitions::roots, criteria_count, std::vector<std::vector<unsigned>>(roots.begin(), roots.end())});
   }
 
   return Model{problem, boundaries};
