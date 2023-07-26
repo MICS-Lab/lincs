@@ -254,12 +254,16 @@ TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
 }
 
 TEST_CASE("SAT by separation using EvalMaxSAT learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(1, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(3, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(7, 2);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(4, 3);
 }
 
 TEST_CASE("Non-exact learning - SAT by coalitions") {

@@ -40,6 +40,7 @@ template<typename SatProblem>
 Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
+  const unsigned boundaries_count = categories_count - 1;
 
   std::vector<std::vector<float>> unique_values(criteria_count);
   for (auto alternative : learning_set.alternatives) {
@@ -58,10 +59,10 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> x(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     x[criterion_index].resize(categories_count);
-    for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
-      x[criterion_index][category_index].resize(unique_values[criterion_index].size());
+    for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+      x[criterion_index][boundary_index].resize(unique_values[criterion_index].size());
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        x[criterion_index][category_index][value_index] = sat.create_variable();
+        x[criterion_index][boundary_index][value_index] = sat.create_variable();
       }
     }
   }
@@ -83,9 +84,9 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   // so if a value is above profile h, then values above it are above profile h too
   // so x[i][h][k] => x[i][h][k + 1]
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
+    for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size() - 1; ++value_index) {
-        sat.add_clause({-x[criterion_index][category_index][value_index], x[criterion_index][category_index][value_index + 1]});
+        sat.add_clause({-x[criterion_index][boundary_index][value_index], x[criterion_index][boundary_index][value_index + 1]});
       }
     }
   }
@@ -95,9 +96,9 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   // so x[i][h][k] => x[i][hp][k] for hp < h
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-      for (unsigned category_index_a = 0; category_index_a != categories_count - 1; ++category_index_a) {
-        for (unsigned category_index_b = 0; category_index_b != category_index_a; ++category_index_b) {
-          sat.add_clause({-x[criterion_index][category_index_a][value_index], x[criterion_index][category_index_b][value_index]});
+      for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
+        for (unsigned boundary_index_b = 0; boundary_index_b != boundary_index_a; ++boundary_index_b) {
+          sat.add_clause({-x[criterion_index][boundary_index_a][value_index], x[criterion_index][boundary_index_b][value_index]});
         }
       }
     }
@@ -173,14 +174,39 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
     throw LearningFailureException();
   }
 
+  std::vector<std::vector<unsigned>> roots;
+  for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
+    if ((*solution)[y[subset_a]]) {
+      bool is_root = true;
+      // @todo Optimize this search for actual roots; it may be something like a transitive reduction
+      for (unsigned subset_b = 0; subset_b != subsets_count; ++subset_b) {
+        if ((*solution)[y[subset_b]]) {
+          if ((subset_a & subset_b) == subset_b && subset_a != subset_b) {
+            is_root = false;
+            break;
+          }
+        }
+      }
+      if (is_root) {
+        roots.emplace_back();
+        for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+          if (subset_a & (1 << criterion_index)) {
+            roots.back().push_back(criterion_index);
+          }
+        }
+      }
+    }
+  }
+
   std::vector<Model::Boundary> boundaries;
-  for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
+  boundaries.reserve(boundaries_count);
+  for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<float> profile(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       bool found = false;
       // @todo Replace next loop with a binary search
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        if ((*solution)[x[criterion_index][category_index][value_index]]) {
+        if ((*solution)[x[criterion_index][boundary_index][value_index]]) {
           if (value_index == 0) {
             profile[criterion_index] = unique_values[criterion_index][value_index];
           } else {
@@ -192,30 +218,6 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
       }
       if (!found) {
         profile[criterion_index] = 1;  // @todo Use the max value for the criterion
-      }
-    }
-
-    std::vector<std::vector<unsigned>> roots;
-    for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
-      if ((*solution)[y[subset_a]]) {
-        bool is_root = true;
-        // @todo Optimize this search for actual roots; it may be something like a transitive reduction
-        for (unsigned subset_b = 0; subset_b != subsets_count; ++subset_b) {
-          if ((*solution)[y[subset_b]]) {
-            if ((subset_a & subset_b) == subset_b && subset_a != subset_b) {
-              is_root = false;
-              break;
-            }
-          }
-        }
-        if (is_root) {
-          roots.emplace_back();
-          for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-            if (subset_a & (1 << criterion_index)) {
-              roots.back().push_back(criterion_index);
-            }
-          }
-        }
       }
     }
 
