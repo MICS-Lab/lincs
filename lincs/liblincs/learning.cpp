@@ -18,6 +18,8 @@ bool env_is_true(const char* name) {
 
 const bool forbid_gpu = env_is_true("LINCS_DEV_FORBID_GPU");
 const bool skip_long = env_is_true("LINCS_DEV_SKIP_LONG");
+const bool coverage = env_is_true("LINCS_DEV_COVERAGE");
+const unsigned default_seeds_count = coverage ? 1 : (skip_long ? 10 : 100);
 
 template<typename T>
 void check_exact_learning(const lincs::Problem& problem, unsigned seed) {
@@ -38,14 +40,14 @@ void check_exact_learning(
     const unsigned criteria_count,
     const unsigned categories_count,
     std::set<unsigned> bad_seeds = {},
-    const unsigned max_seed = skip_long ? 10 : 100
+    const unsigned seeds_count = default_seeds_count
 ) {
   CAPTURE(criteria_count);
   CAPTURE(categories_count);
 
   lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41);
 
-  for (unsigned seed = 0; seed != max_seed; ++seed) {
+  for (unsigned seed = 0; seed != seeds_count; ++seed) {
     if (bad_seeds.find(seed) != bad_seeds.end()) {
       CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
     } else {

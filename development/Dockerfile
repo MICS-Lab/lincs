@@ -82,6 +82,7 @@ RUN set -x \
 RUN set -x \
  && pip3 install \
       auditwheel \
+      gcovr \
       semver \
       sphinx \
       sphinx-click \

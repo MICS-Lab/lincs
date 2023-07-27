@@ -24,6 +24,12 @@ with open("requirements.txt") as f:
 
 has_nvcc = os.environ.get("LINCS_DEV_FORBID_NVCC", "false") != "true" and shutil.which("nvcc") is not None
 
+coverage_compile_args = []
+coverage_link_args = []
+if os.environ.get("LINCS_DEV_COVERAGE", "false") == "true":
+    coverage_compile_args = ["--coverage", "-O0"]
+    coverage_link_args = ["--coverage"]
+
 # Method for building an extension with CUDA code extracted from https://stackoverflow.com/a/13300714/905845
 # @todo Consider using scikit-build:
 # it should make it easier to compile CUDA code using nvcc and to run C++ unit tests during build.
@@ -39,10 +45,10 @@ def customize_compiler_for_nvcc(self):
         if os.path.splitext(src)[1] == ".cu":
             self.set_executable("compiler_so", "nvcc")
             postargs = extra_postargs["nvcc"]
+        elif "/vendored/" in src:
+            postargs = extra_postargs["gcc"] + ["-w"]
         else:
-            postargs = extra_postargs["gcc"]
-        if "/vendored/" in src:
-            postargs = postargs + ["-w"]
+            postargs = extra_postargs["gcc"] + coverage_compile_args
 
         default_compile(obj, src, ext, cc_args, postargs, pp_opts)
         self.compiler_so = default_compiler_so
@@ -92,7 +98,7 @@ liblincs = setuptools.Extension(
         "gcc": ["-std=c++17", "-Werror=switch"] + omp_compile_args,
         "nvcc": ["-std=c++17", "-Xcompiler", "-fopenmp,-fPIC,-Werror=switch"],
     },
-    extra_link_args=omp_link_args,
+    extra_link_args=omp_link_args + coverage_link_args,
 )
 
 setuptools.setup(

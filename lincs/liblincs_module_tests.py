@@ -289,7 +289,7 @@ class LearningTestCase(unittest.TestCase):
 
             def terminate(self):
                 self.called_count += 1
-                return False
+                return self.called_count == 6
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
@@ -307,8 +307,8 @@ class LearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
-        self.assertEqual(my_termination_strategy.called_count, 7)
-        self.assertEqual(classify_alternatives(problem, learned_model, learning_set).changed, 0)
+        self.assertEqual(my_termination_strategy.called_count, 6)
+        self.assertEqual(classify_alternatives(problem, learned_model, learning_set).changed, 1)
 
     def test_python_strategies(self):
         problem = generate_classification_problem(5, 3, 41)

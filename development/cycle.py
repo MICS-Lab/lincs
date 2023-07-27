@@ -23,6 +23,10 @@ import click
     """)
 )
 @click.option(
+    "--unit-coverage", is_flag=True,
+    help="Measure coverage of unit tests, stop right after that. Quite long.",
+)
+@click.option(
     "--skip-long", is_flag=True,
     help="Skip long tests. We all know what it is to be in a hurry. But please run the full development cycle at least once before submitting your changes.",
 )
@@ -42,9 +46,9 @@ import click
         Using this option explicitly avoids the warning.
     """),
 )
-def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
+def main(with_docs, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
-    if skip_long:
+    if skip_long or unit_coverage:
         python_versions = [python_versions[0]]
 
     # @todo Collect failures in each step, print them at the end, add an option --keep-running à la GNU make
@@ -53,6 +57,9 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
 
     # With lincs not installed
     ##########################
+
+    if unit_coverage:
+        os.environ["LINCS_DEV_COVERAGE"] = "true"
 
     for python_version in python_versions:
         print_title(f"Building extension module in debug mode for Python {python_version}")
@@ -67,13 +74,29 @@ def main(with_docs, skip_long, stop_after_unit, forbid_gpu):
         print()
 
     print_title("Running C++ unit tests")
-    run_cpp_tests(python_version=python_versions[-1], skip_long=skip_long, forbid_gpu=forbid_gpu)
+    run_cpp_tests(python_version=python_versions[0], skip_long=skip_long, forbid_gpu=forbid_gpu)
     print()
 
     for python_version in python_versions:
         print_title(f"Running Python {python_version} unit tests")
         run_python_tests(python_version=python_version, forbid_gpu=forbid_gpu)
         print()
+
+    if unit_coverage:
+        print_title(f"Making report of unit tests coverage")
+        gcovr = ["gcovr", "--exclude-directories", "ccache", "--html-details", "build/coverage.html", "--print-summary", "--sort-uncovered"]
+        # 'gcovr --exclude' doesn't work as advertised, so I'm using many '--filter' instead
+        for source_name in glob.glob("lincs/liblincs/**/*.*", recursive=True):
+            if not source_name.startswith("lincs/liblincs/vendored/") and not source_name.endswith("/liblincs_module.cpp"):
+                gcovr += ["--filter", source_name]
+        subprocess.run(gcovr, check=True)
+
+        # Remove branch coverage (unreliable in C++ due to exception handling)
+        with open("build/coverage.html") as f:
+            lines = f.readlines()
+        with open("build/coverage.html", "w") as f:
+            f.writelines(line for line in lines if not "branch-coverage" in line)
+        return
 
     if stop_after_unit:
         pass
@@ -126,13 +149,7 @@ def run_cpp_tests(*, python_version, skip_long, forbid_gpu):
         env["LINCS_DEV_SKIP_LONG"] = "true"
     if forbid_gpu:
         env["LINCS_DEV_FORBID_GPU"] = "true"
-    subprocess.run(
-        [
-            "/tmp/lincs-tests",
-        ],
-        check=True,
-        env=env,
-    )
+    subprocess.run(["/tmp/lincs-tests"], check=True, env=env)
 
 
 def run_python_tests(*, python_version, forbid_gpu):
