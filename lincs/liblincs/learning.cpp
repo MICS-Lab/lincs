@@ -277,6 +277,7 @@ TEST_CASE("SAT by coalitions using Minisat learning") {
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(7, 2);
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 3);
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
+  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 5);
 }
 
 TEST_CASE("SAT by separation using Minisat learning") {
@@ -285,6 +286,7 @@ TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 5);
 }
 
 TEST_CASE("Non-exact learning - MR-Sort") {

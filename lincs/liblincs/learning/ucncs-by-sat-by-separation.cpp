@@ -99,13 +99,11 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
   // P'2
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-      for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
-        for (unsigned boundary_index_b = 0; boundary_index_b != boundary_index_a; ++boundary_index_b) {
-          sat.add_clause({
-            -a[criterion_index][boundary_index_a][value_index],
-            a[criterion_index][boundary_index_b][value_index],
-          });
-        }
+      for (unsigned boundary_index_a = 1; boundary_index_a != boundaries_count; ++boundary_index_a) {
+        sat.add_clause({
+          -a[criterion_index][boundary_index_a][value_index],
+          a[criterion_index][boundary_index_a - 1][value_index],
+        });
       }
     }
   }
