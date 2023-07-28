@@ -31,7 +31,7 @@ std::enable_if_t<std::is_same_v<typename SatProblem::weight_type, void>>
 add_possibly_weighted_clause(
   SatProblem& sat,
   const std::vector<typename SatProblem::variable_type>& clause,
-  const int
+  const unsigned
 ) {
   sat.add_clause(clause);
 }

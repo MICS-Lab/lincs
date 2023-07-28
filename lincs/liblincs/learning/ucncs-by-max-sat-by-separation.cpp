@@ -18,6 +18,7 @@ Model MaxSatSeparationUcncsLearning<SatProblem>::perform() {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
   const unsigned boundaries_count = categories_count - 1;
+  const unsigned alternatives_count = learning_set.alternatives.size();
 
   std::vector<std::vector<float>> unique_values(criteria_count);
   for (auto alternative : learning_set.alternatives) {
@@ -35,10 +36,10 @@ Model MaxSatSeparationUcncsLearning<SatProblem>::perform() {
   // Alternatives in category k or below
   std::vector<std::vector<unsigned>> worse_alternative_indexes(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
-    better_alternative_indexes[category_index].reserve(learning_set.alternatives.size());
-    worse_alternative_indexes[category_index].reserve(learning_set.alternatives.size());
+    better_alternative_indexes[category_index].reserve(alternatives_count);
+    worse_alternative_indexes[category_index].reserve(alternatives_count);
   }
-  for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives.size(); ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     for (unsigned category_index = 0; category_index != *learning_set.alternatives[alternative_index].category_index; ++category_index) {
       better_alternative_indexes[category_index].push_back(alternative_index);
     }
@@ -47,7 +48,7 @@ Model MaxSatSeparationUcncsLearning<SatProblem>::perform() {
     }
   }
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
-    assert(better_alternative_indexes[category_index].size() + worse_alternative_indexes[category_index].size() == learning_set.alternatives.size());
+    assert(better_alternative_indexes[category_index].size() + worse_alternative_indexes[category_index].size() == alternatives_count);
   }
 
   SatProblem sat;
@@ -71,9 +72,9 @@ Model MaxSatSeparationUcncsLearning<SatProblem>::perform() {
     for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
       s[criterion_index][boundary_index_a].resize(boundaries_count);
       for (unsigned boundary_index_b = 0; boundary_index_b != boundaries_count; ++boundary_index_b) {
-        s[criterion_index][boundary_index_a][boundary_index_b].resize(learning_set.alternatives.size());
+        s[criterion_index][boundary_index_a][boundary_index_b].resize(alternatives_count);
         for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
-          s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index].resize(learning_set.alternatives.size());
+          s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index].resize(alternatives_count);
           for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
             s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index] = sat.create_variable();
           }

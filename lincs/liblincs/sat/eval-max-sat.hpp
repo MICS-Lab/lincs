@@ -40,7 +40,7 @@ class EvalmaxsatSatProblem {
     solver.addClause(clause);
   }
 
-  typedef int weight_type;
+  typedef unsigned weight_type;
   void add_weighted_clause(std::vector<variable_type> clause, weight_type weight) {
     solver.addWeightedClause(clause, weight);
   }
