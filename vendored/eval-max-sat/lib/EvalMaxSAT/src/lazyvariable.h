@@ -17,17 +17,17 @@ class LazyVariable {
 
     std::optional<int> var = {};
 
+   // For a node without 'var'. Lists clauses ; one of them should be satisfied for this variable to be "on" for the unary number.
     std::vector< std::vector< std::shared_ptr<LazyVariable> > > impliquants;
-
-    unsigned int countUsed = 0;
 
     LazyVariable( VirtualSAT *solver )
         : solver(solver) {
-
     }
+
 
 public:
 
+    // Create a new LazyVariable instance with var and return it - TODO : can't this be a constructor instead ?
     static std::shared_ptr<LazyVariable> encapsulate(int variable) {
         assert(variable != 0);
         auto result = std::shared_ptr<LazyVariable>(new LazyVariable(nullptr));
@@ -35,20 +35,18 @@ public:
         return result;
     }
 
+    // Create a new LazyVariable instance with a SatSolver instead - TODO : could be a constructor too
     static std::shared_ptr<LazyVariable> newVar(VirtualSAT *solver) {
         return std::shared_ptr<LazyVariable>(new LazyVariable(solver));
     }
 
-    // (\wedge_{v \in vars} v) => this
+    // (\wedge_{v \in lazyVars} v) => this
     void addImpliquant(const std::vector< std::shared_ptr<LazyVariable> > &vars) {
         assert(vars.size() > 0);
         impliquants.push_back( vars );
     }
 
     int get();
-
-    void stopUse(VirtualSAT *solver);
-    void use(VirtualSAT *solver);
 };
 
 

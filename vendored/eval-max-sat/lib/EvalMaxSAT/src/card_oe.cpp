@@ -188,7 +188,7 @@ std::vector< std::shared_ptr<LazyVariable> > Card_Lazy_OE::oe_4combine(const MaL
     // y[i−2] & x[i+1] => x''[i]    <===>   -y[i−2]  V  -x[i+1]  V  x''[i]
     {
         // Cas particulier quand i={0,1}
-        //addClause(-x[1], X(0)); inutile car x[0] => X(0)
+        //addUnitClause(-x[1], X(0)); inutile car x[0] => X(0)
         if(x.size() > 2) {
             if(X(1)) {
                 //std::cout << "x[2] => X(1)" << std::endl;

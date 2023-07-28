@@ -116,7 +116,6 @@ namespace MaLib
             void print()
             {
                 double val = tac();
-
                 if(_name.size())
                     std::cout << _name << ": ";
                 if(val < 1000.0)
@@ -125,6 +124,11 @@ namespace MaLib
                     std::cout << val/1000.0 << " ms" << std::endl;
                 else
                     std::cout << val/1000000.0 << " sec" << std::endl;
+                //static double total; total+=val/1000000.0; std::cout<<"Total : "<<total<<" s"<<std::endl; // TODO: Remove this line
+            }
+
+            void afficherQuandDetruit(bool val) {
+                _afficherQuandDetruit = val;
             }
 
         private :

@@ -270,17 +270,25 @@ std::tuple<T...> operator + (std::tuple<T...> lhs, const std::tuple<T...>& rhs)
 }
 
 namespace {
-//MaLib::Chrono MonPrint_Chrono;
+#ifdef NDEBUG
+
+#else
+//    MaLib::Chrono MonPrint_Chrono;
+#endif
 }
 template<typename ...T>
 void MonPrint(const T&... args) {
+#ifdef NDEBUG
+
+#else
 /*
     static std::mutex forPrint;
     {
         std::lock_guard lock(forPrint);
-        std::cout << MonPrint_Chrono.tacSec() << ": " << toString(args...) << std::endl;
+        std::cout << "c " << MonPrint_Chrono.tacSec() << ": " << toString(args...) << std::endl;
     }
 */
+#endif
 }
 
 
