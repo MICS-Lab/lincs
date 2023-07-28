@@ -159,7 +159,7 @@ Options:
                                   this file instead of standard output.
   --model-type [mrsort|ucncs]     The type of classification model to learn.
                                   [default: mrsort]
-  --ucncs.approach [sat-by-coalitions|max-sat-by-coalitions|sat-by-separation|max-sat-by-separation]
+  --ucncs.approach [sat-by-coalitions|sat-by-separation]
                                   The general approach to transform the
                                   learning problem into a satisfiability
                                   problem.
@@ -684,44 +684,6 @@ perform( (LearnMrsortByWeightsProfilesBreed)arg1) -> Model :
 
     C++ signature :
         lincs::Model perform(lincs::LearnMrsortByWeightsProfilesBreed {lvalue})
-
-lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat: class
-----------------------------------------------------------
-
-lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.__init__: function
-----------------------------------------------------------------------
-
-__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
-
-    C++ signature :
-        void __init__(_object*,lincs::Problem,lincs::Alternatives)
-
-lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.perform: function
----------------------------------------------------------------------
-
-perform( (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::SatCoalitionsUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
-
-lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat: class
-----------------------------------------------------------
-
-lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.__init__: function
-----------------------------------------------------------------------
-
-__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
-
-    C++ signature :
-        void __init__(_object*,lincs::Problem,lincs::Alternatives)
-
-lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.perform: function
----------------------------------------------------------------------
-
-perform( (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::MaxSatSeparationUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
 
 lincs.LearnUcncsBySatByCoalitionsUsingMinisat: class
 ----------------------------------------------------

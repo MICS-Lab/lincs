@@ -279,14 +279,6 @@ TEST_CASE("SAT by coalitions using Minisat learning") {
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
 }
 
-TEST_CASE("max-SAT by coalitions using EvalMaxSAT learning") {
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
-}
-
 TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
@@ -294,25 +286,6 @@ TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
 }
-
-TEST_CASE("max-SAT by separation using EvalMaxSAT learning") {
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
-}
-
-TEST_CASE("Non-exact learning - max-SAT by coalitions") {
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
-  // MANY failures below
-  // check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
-  // check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
-  // check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
-  // check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
-}
-
-// @todo TEST_CASE("Non-exact learning - max-SAT by separation") (Currently the "SAT by separation" can't benefit from a max-SAT solver because it doesn't use weighted clauses)
 
 TEST_CASE("Non-exact learning - MR-Sort") {
   class Wrapper {

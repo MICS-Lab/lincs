@@ -7,34 +7,10 @@
 #include <type_traits>
 
 #include "exception.hpp"
-// @todo Let these two be included in alphabetical order
-// Currently, swapping them results in the following error:
-// could not convert ‘Glucose::lbool(2)’ from ‘Glucose::lbool’ to ‘Minisat::lbool’
 #include "../sat/minisat.hpp"
-#include "../sat/eval-max-sat.hpp"
 
 
 namespace lincs {
-
-template<typename SatProblem>
-std::enable_if_t<!std::is_same_v<typename SatProblem::weight_type, void>>
-add_possibly_weighted_clause(
-  SatProblem& sat,
-  const std::vector<typename SatProblem::variable_type>& clause,
-  const typename SatProblem::weight_type weight
-) {
-  sat.add_weighted_clause(clause, weight);
-}
-
-template<typename SatProblem>
-std::enable_if_t<std::is_same_v<typename SatProblem::weight_type, void>>
-add_possibly_weighted_clause(
-  SatProblem& sat,
-  const std::vector<typename SatProblem::variable_type>& clause,
-  const unsigned
-) {
-  sat.add_clause(clause);
-}
 
 template<typename SatProblem>
 Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
@@ -138,7 +114,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
         }
       }
       clause.push_back(-y[subset]);
-      add_possibly_weighted_clause(sat, clause, 1);
+      sat.add_clause(clause);
     }
   }
 
@@ -164,7 +140,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
       }
       unsigned subset_complement = ~subset & (subsets_count - 1);
       clause.push_back(y[subset_complement]);
-      add_possibly_weighted_clause(sat, clause, 1);
+      sat.add_clause(clause);
     }
   }
 
@@ -227,7 +203,6 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   return Model{problem, boundaries};
 }
 
-template class SatCoalitionsUcncsLearning<EvalmaxsatSatProblem>;
 template class SatCoalitionsUcncsLearning<MinisatSatProblem>;
 
 }  // namespace lincs

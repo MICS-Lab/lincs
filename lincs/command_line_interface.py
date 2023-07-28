@@ -586,7 +586,7 @@ def learn():
                 "approach",
                 dict(
                     help="The general approach to transform the learning problem into a satisfiability problem.",
-                    type=click.Choice(["sat-by-coalitions", "max-sat-by-coalitions", "sat-by-separation", "max-sat-by-separation"]),
+                    type=click.Choice(["sat-by-coalitions", "sat-by-separation"]),
                     default="sat-by-coalitions",
                     show_default=True,
                 ),
@@ -679,12 +679,8 @@ def classification_model(
     elif model_type == "ucncs":
         if ucncs__approach == "sat-by-coalitions":
             learning = lincs.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
-        elif ucncs__approach == "max-sat-by-coalitions":
-            learning = lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
         elif ucncs__approach == "sat-by-separation":
             learning = lincs.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
-        elif ucncs__approach == "max-sat-by-separation":
-            learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
 
     model = learning.perform()
     model.dump(problem, output_model)
