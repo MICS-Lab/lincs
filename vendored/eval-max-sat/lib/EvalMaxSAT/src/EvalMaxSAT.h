@@ -17,12 +17,21 @@
 
 using namespace MaLib;
 
+#ifdef EVALMAXSAT_IMPLEMENT
 MaLib::Chrono C_solve("c Cumulative time spent solving SAT formulas");
 MaLib::Chrono C_fastMinimize("c Cumulative time spent for fastMinimize");
 MaLib::Chrono C_fullMinimize("c Cumulative time spent for fullMinimize");
 MaLib::Chrono C_extractAM("c Cumulative time spent for extractAM");
 MaLib::Chrono C_harden("c Cumulative time spent for harden");
 MaLib::Chrono C_extractAMAfterHarden("c Cumulative time spent for extractAM afterHarden");
+#else
+extern MaLib::Chrono C_solve;
+extern MaLib::Chrono C_fastMinimize;
+extern MaLib::Chrono C_fullMinimize;
+extern MaLib::Chrono C_extractAM;
+extern MaLib::Chrono C_harden;
+extern MaLib::Chrono C_extractAMAfterHarden;
+#endif
 
 
 template<class B>
@@ -37,7 +46,7 @@ static void readClause(B& in, std::vector<int>& lits) {
 }
 
 
-t_weight calculateCost(const std::string & file, const std::vector<bool> &result) {
+inline t_weight calculateCost(const std::string & file, const std::vector<bool> &result) {
     t_weight cost = 0;
     auto in_ = gzopen(file.c_str(), "rb");
     t_weight weightForHardClause = -1;
@@ -1402,7 +1411,7 @@ private:
 
         auto costRemovedAssumLOCAL = currentSolutionCost();
 
-        assert([&](){
+        assert(savePourTest_file == "" || [&](){
             C_harden.pause(true);
             std::vector<bool> assign;
             assign.push_back(0); // fake var_0
@@ -1412,6 +1421,7 @@ private:
             auto costCalculated = calculateCost(savePourTest_file, assign);
             C_harden.pause(false);
             if(costRemovedAssumLOCAL != costCalculated) {
+                std::cout << "savePourTest_file = " << savePourTest_file << std::endl;
                 std::cout << "assign.size() = " << assign.size() << std::endl;
                 std::cout << "costRemovedAssumLOCAL = " << costRemovedAssumLOCAL << std::endl;
                 std::cout << "costCalculated = " << costCalculated << std::endl;

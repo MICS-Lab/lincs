@@ -46,7 +46,7 @@ def customize_compiler_for_nvcc(self):
             self.set_executable("compiler_so", "nvcc")
             postargs = extra_postargs["nvcc"]
         elif "/vendored/" in src:
-            postargs = extra_postargs["gcc"] + ["-w"]
+            postargs = extra_postargs["gcc"] + ["-w", "-DQUIET"]
         else:
             postargs = extra_postargs["gcc"] + coverage_compile_args
 

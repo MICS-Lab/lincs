@@ -1,1 +1,0 @@
-../../../../vendored/eval-max-sat/lib/EvalMaxSAT/src/monglucose41.h

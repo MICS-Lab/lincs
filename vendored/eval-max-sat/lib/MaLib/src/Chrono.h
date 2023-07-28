@@ -115,6 +115,7 @@ namespace MaLib
 
             void print()
             {
+                #if false
                 double val = tac();
                 if(_name.size())
                     std::cout << _name << ": ";
@@ -124,6 +125,7 @@ namespace MaLib
                     std::cout << val/1000.0 << " ms" << std::endl;
                 else
                     std::cout << val/1000000.0 << " sec" << std::endl;
+                #endif
                 //static double total; total+=val/1000000.0; std::cout<<"Total : "<<total<<" s"<<std::endl; // TODO: Remove this line
             }
 

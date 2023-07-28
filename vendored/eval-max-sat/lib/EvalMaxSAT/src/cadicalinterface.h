@@ -3,10 +3,10 @@
 
 #include "virtualsat.h"
 
-#include "../../cadical/src/cadical.hpp"
+#include "cadical/cadical.hpp"
 
-#include "coutUtil.h"
-#include "Chrono.h"
+#include "MaLib/coutUtil.h"
+#include "MaLib/Chrono.h"
 
 #include <thread>
 #include <future>
@@ -211,7 +211,7 @@ public:
     }
 
 };
-CadicalInterface::~CadicalInterface() {
+inline CadicalInterface::~CadicalInterface() {
     delete solver;
 }
 

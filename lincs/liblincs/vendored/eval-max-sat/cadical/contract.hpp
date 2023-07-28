@@ -1,0 +1,1 @@
+../../../../../vendored/eval-max-sat/lib/cadical/src/contract.hpp

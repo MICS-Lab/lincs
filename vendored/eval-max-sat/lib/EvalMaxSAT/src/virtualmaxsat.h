@@ -5,8 +5,8 @@
 #include "virtualsat.h"
 #include <set>
 #include <fstream>
-#include "../../cadical/src/cadical.hpp"
-#include "../../cadical/src/file.hpp"
+#include "cadical/cadical.hpp"
+#include "cadical/file.hpp"
 #include "ParseUtils.h"
 
 

@@ -81,6 +81,25 @@ void test_max_sat_problem() {
   CHECK(score == 3);
 }
 
+// Some SAT solvers:
+// - minisat
+// - glucose
+// - cadical
+// - lingeling
+// - cryptominisat
+// - picosat
+// - riss
+// - kissat
+// - minisatp
+
+// Some max-SAT solvers:
+// - EvalMaxSAT
+// - open-wbo
+// - maxhs
+// - cryptominisat
+// - maxwalksat
+// - maxsatz
+
 TEST_CASE("Minisat SAT problem") {
   test_sat_problem<lincs::MinisatSatProblem>();
 }
