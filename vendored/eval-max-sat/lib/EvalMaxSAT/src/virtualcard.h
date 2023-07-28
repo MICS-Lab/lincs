@@ -15,12 +15,6 @@ protected:
     unsigned int nbLit;
     unsigned int bound;
 
-    unsigned int newVar();
-    void addClause(const std::vector<int> & clause);
-
-    bool getValue(int lit);
-    void setDecisionVar(unsigned int var, bool value);
-
 public:
 
     VirtualCard(VirtualSAT *solver, const std::vector<int> &clause, unsigned int bound=0)
@@ -28,13 +22,13 @@ public:
 
     }
 
+    virtual std::vector<int> getClause() = 0;
+
     virtual ~VirtualCard();
 
     virtual int operator <= (unsigned int k) {
         return atMost(k);
     }
-
-    //virtual std::vector<int> getClause() {assert(!"TODO");}
 
     virtual unsigned int size() const {
         return nbLit;

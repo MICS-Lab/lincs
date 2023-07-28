@@ -21,7 +21,7 @@ class Card_Lazy_OE : public VirtualCard {
 
 public:
 
-    virtual int atMost(unsigned int k) {
+    virtual int atMost(unsigned int k) override {
         if(k >= coutingVar.size()) {
             return 0;
         }
@@ -29,7 +29,7 @@ public:
         return -coutingVar[k]->get();
     }
 
-    virtual std::vector<int> getClause() {
+    virtual std::vector<int> getClause() override {
         return clause;
     }
 

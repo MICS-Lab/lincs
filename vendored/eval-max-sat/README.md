@@ -1,35 +1,27 @@
 
+# EvalMaxSAT 2022
 
-# EvalMaxSAT
-
-Paper link: [A Short Description of the Solver EvalMaxSAT](http://florent.avellaneda.free.fr/dl/EvalMaxSAT.pdf)
+This repository contains the versions of EvalMaxSAT competing in [MaxSAT Evaluation 2022](https://maxsat-evaluations.github.io/2022/). The `main` branch contains the weighted and unweighted version, while the `incremental_track` branch contains the incremental version.
 
 ## Introduction
 
 EvalMaxSAT is a MaxSAT solver written in modern C++ language mainly using the Standard Template Library (STL).
-The solver is built on top of the SAT solver Glucose [1], but any other SAT solver can easily be used instead.
-EvalMaxSAT is based on the OLL algorithm [2] originally implemented in the MSCG MaxSAT solver [3], [4] and then reused in the RC2 solver [5].
-The Totalizer Encoding [6] is used to represent cardinalities and the implementation reuses the code from the PySAT’s ITotalizer [7].
+The solver is built on top of the SAT solver CaDiCal, but any other SAT solver can easily be used instead.
+EvalMaxSAT is based on the OLL algorithm [1] originally implemented in the MSCG MaxSAT solver [2], [3] and then reused in the RC2 solver [4].
+The Totalizer Encoding [5] is used to represent cardinalities and the implementation reuses the code from the PySAT’s ITotalizer [6].
 
-[1]: G. Audemard, J. Lagniez, and L. Simon, "Improving glucose for incremental SAT solving with assumptions: Application to MUS extraction"
+[1]: A. Morgado, C. Dodaro, and J. Marques-Silva, "Core-guided MaxSAT with soft cardinality constraints"
 
-[2]: A. Morgado, C. Dodaro, and J. Marques-Silva, "Core-guided MaxSAT with soft cardinality constraints"
+[2]: A. Morgado, A. Ignatiev, and J. Marques-Silva, "MSCG: robust core-guided maxsat solving"
 
-[3]: A. Morgado, A. Ignatiev, and J. Marques-Silva, "MSCG: robust core-guided maxsat solving"
+[3]: A. Ignatiev, A. Morgado, V. M. Manquinho, I. Lynce, and J. Marques-Silva, "Progression in maximum satisfiability"
 
-[4]: A. Ignatiev, A. Morgado, V. M. Manquinho, I. Lynce, and J. Marques-Silva, "Progression in maximum satisfiability"
+[4]: A. Ignatiev, A. Morgado, and J. Marques-Silva, "RC2: an efficient MaxSAT solver"
 
-[5]: A. Ignatiev, A. Morgado, and J. Marques-Silva, "RC2: an efficient MaxSAT solver"
+[5]: R. Martins, S. Joshi, V. M. Manquinho, and I. Lynce, "Reflections on incremental cardinality constraints for MaxSat"
 
-[6]: R. Martins, S. Joshi, V. M. Manquinho, and I. Lynce, "Reflections on incremental cardinality constraints for MaxSat"
+[6]: A. Ignatiev, A. Morgado, and J. Marques-Silva, "Pysat: A python toolkit for prototyping with SAT oracles"
 
-[7]: A. Ignatiev, A. Morgado, and J. Marques-Silva, "Pysat: A python toolkit for prototyping with SAT oracles"
-
-## Dependencies
-
-Dependencies already included:
-- glucose : https://www.labri.fr/perso/lsimon/glucose/
-- CLI11 : https://github.com/CLIUtils/CLI11
 
 ## Installation
 
@@ -113,7 +105,10 @@ int main(int argc, char *argv[]) {
 You can reuse and adapt the CMakeLists.txt file to compile.
 
 ## Benchmark
-The single thread version of EvalMaxSAT was ranked second in the [MaxSAT Evaluation 2020](https://maxsat-evaluations.github.io/2020/).
+
+The new incremental version was ranked first in 2 out of 5 instances in [MaxSAT Evaluation 2022](https://maxsat-evaluations.github.io/2022/).
+
+The single thread version of EvalMaxSAT was ranked second in [MaxSAT Evaluation 2020](https://maxsat-evaluations.github.io/2020/).
 
 ![img](http://florent.avellaneda.free.fr/maxsat2020.jpg)
 

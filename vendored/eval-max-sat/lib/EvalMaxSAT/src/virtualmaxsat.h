@@ -3,114 +3,157 @@
 
 #include <vector>
 #include "virtualsat.h"
+#include <set>
+#include <fstream>
+#include "../../cadical/src/cadical.hpp"
+#include "../../cadical/src/file.hpp"
+#include "ParseUtils.h"
 
-#include "glucose/utils/ParseUtils.h"
+
+typedef unsigned long long int t_weight;
 
 class VirtualMAXSAT : public VirtualSAT {
+
+    bool _isWeighted = false; // TODO : remplacer par  mapWeight2Assum
+protected:
+    //std::map<int, std::vector<int> > mapSoft2clause;    // which clause is related to which soft variable.
+    std::vector< std::vector<int> >  _mapSoft2clause;
 public:
+
     virtual ~VirtualMAXSAT();
 
-    virtual unsigned int newSoftVar(bool value, bool decisionVar, unsigned int weight) = 0;
+    virtual unsigned int newSoftVar(bool value, t_weight weight) = 0;
 
     virtual bool isSoft(unsigned int var) = 0;
 
-    virtual void setVarSoft(unsigned int var, bool value, unsigned int weight=1) = 0;
+    virtual void setVarSoft(unsigned int var, bool value, t_weight weight=1) = 0;
 
-    virtual int getCost() = 0;
+    virtual t_weight getCost() = 0;
 
-    virtual void setNInputVars(unsigned int nb) = 0;
 
-    int addWeightedClause(std::vector<int> clause, unsigned int weight) {
-        assert(weight==1);
+    void setIsWeightedVerif() {  // TODO : remplacer par  mapWeight2Assum
+        _isWeighted = true;
+    }
+    virtual bool isWeightedVerif() { // TODO : remplacer par  mapWeight2Assum
+        return _isWeighted;
+    }
+
+    virtual bool isWeighted() = 0;
+
+    unsigned int nInputVars=0;
+    void setNInputVars(unsigned int nInputVars) {
+        this->nInputVars=nInputVars;
+    }
+
+    int addWeightedClause(std::vector<int> clause, t_weight weight) {
+        // If it's a unit clause and its literal doesn't exist as a soft var already, add soft variable
         if(clause.size() == 1) {
-            if(!isSoft(abs(clause[0]))) {
-                setVarSoft(abs(clause[0]), clause[0] > 0, weight);
-                return clause[0];
-            }
+            // add weight to the soft var
+            setVarSoft(abs(clause[0]), clause[0] > 0, weight);
+
+            // Return instantly instead of adding a new var at the end because the soft var represents the unit clause anyway.
+            return clause[0];
         }
 
-        int r = static_cast<int>(newSoftVar(true, false, weight));
-        clause.push_back(-r);
+        // Soft clauses are "hard" clauses with a soft var at the end. Create said soft var for our clause.
+        int r = static_cast<int>(newSoftVar(true, weight));
+        clause.push_back( -r );
         addClause(clause);
+        clause.pop_back();
+
+        assert(r > 0);
+        if(r >= _mapSoft2clause.size()) {
+            _mapSoft2clause.resize(r+1);
+        }
+        _mapSoft2clause[r] = clause;
+        //mapSoft2clause[r] = clause;
 
         return r;
     }
 
 
-    bool parse(gzFile in_) {
-        Glucose::StreamBuffer in(in_);
+   std::string savePourTest_file;
+   bool parse(const std::string& filePath) {
+       auto gz = gzopen( filePath.c_str(), "rb");
 
-        bool weighted = false;
-        int64_t top = -1;
-        int64_t weight = 1;
+       savePourTest_file = filePath;
+       StreamBuffer in(gz);
+       t_weight weightForHardClause = -1;
 
-        std::vector<int> lits;
-        int vars = 0;
-        int inClauses = 0;
-        int count = 0;
-        for(;;) {
-            Glucose::skipWhitespace(in);
+       if(*in == EOF) {
+           return false;
+       }
 
-            if(*in == EOF)
-                break;
+       std::vector < std::tuple < std::vector<int>, t_weight> > softClauses;
 
-            if(*in == 'p') {
-                ++in;
-                if(*in != ' ') {
-                    std::cerr << "o PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
-                    return false;
-                }
-                ++in;
-                if(*in == 'w') { weighted = true; ++in; }
+       for(;;) {
+           skipWhitespace(in);
 
-                if(Glucose::eagerMatch(in, "cnf")) {
-                    vars = Glucose::parseInt(in);
-                    setNInputVars(vars);
-                    for(int i=0; i<vars; i++) {
-                        newVar();
-                    }
-                    inClauses = Glucose::parseInt(in);
-                    if(weighted && *in != '\n')
-                        top = Glucose::parseInt64(in);
-                } else {
-                    std::cerr << "o PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
-                    return false;
-                }
-            }
-            else if(*in == 'c')
-                Glucose::skipLine(in);
-            else {
-                count++;
-                if(weighted)
-                    weight = Glucose::parseInt64(in);
-                readClause(in, lits);
-                if(weight >= top) {
-                    addClause(lits);
-                } else {
-                    addWeightedClause(lits, weight);
-                }
-            }
-        }
-        if(count != inClauses) {
-            std::cerr << "o WARNING! DIMACS header mismatch: wrong number of clauses." << std::endl;
-            return false;
-        }
+           if(*in == EOF) {
+               break;
+           }
 
-        return true;
+           if(*in == 'c') {
+               skipLine(in);
+           } else if(*in == 'p') { // Old format
+               ++in;
+               if(*in != ' ') {
+                   std::cerr << "o PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
+                   return false;
+               }
+               skipWhitespace(in);
+
+               if(eagerMatch(in, "wcnf")) {
+                   parseInt(in); // # Var
+                   parseInt(in); // # Clauses
+                   weightForHardClause = parseWeight(in);
+               } else {
+                   std::cerr << "o PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
+                   return false;
+               }
+           } else {
+               t_weight weight = parseWeight(in);
+               std::vector<int> clause = readClause(in);
+
+               if(weight == weightForHardClause) {
+                   addClause(clause);
+               } else {
+                   // If it is a soft clause, we have to save it to add it once we are sure we know the total number of variables.
+                   softClauses.push_back({clause, weight});
+               }
+           }
+       }
+
+       setNInputVars(nVars());
+       for(auto & [clause, weight]: softClauses) {
+           addWeightedClause(clause, weight);
+       }
+
+       gzclose(gz);
+       return true;
     }
 
-private:
+private :
 
-    template<class B>
-    static void readClause(B& in, std::vector<int>& lits) {
-        int parsed_lit;
-        lits.clear();
-        for (;;){
-            parsed_lit = Glucose::parseInt(in);
-            if (parsed_lit == 0) break;
-            lits.push_back( parsed_lit );
-        }
-    }
+
+   std::vector<int> readClause(StreamBuffer &in) {
+       std::vector<int> clause;
+
+       for (;;) {
+           int lit = parseInt(in);
+
+           if (lit == 0)
+               break;
+           clause.push_back(lit);
+           while( abs(lit) > nVars()) {
+               newVar();
+           }
+       }
+
+       return clause;
+   }
+
+
 
 };
 inline VirtualMAXSAT::~VirtualMAXSAT() {}
