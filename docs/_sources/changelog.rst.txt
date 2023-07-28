@@ -4,6 +4,12 @@
 Changelog
 =========
 
+Version 0.6.0
+=============
+
+- **Remove buggy "max-SAT by coalitions" approach**
+- Add "SAT by separation" approach
+
 Version 0.5.1
 =============
 
@@ -12,7 +18,7 @@ Version 0.5.1
 Version 0.5.0
 =============
 
-- Implement "SAT by coalitions" and "max-SAT by coalitions" learning methods
+- Implement "SAT by coalitions" and "max-SAT by coalitions" **removed in 0.6.0** learning methods
 - Add `misclassify_alternatives` to synthesize noise on alternatives
 - Expend the model file format to support specifying the sufficient coalitions by their roots
 - Produce "manylinux_2_31" binary wheels

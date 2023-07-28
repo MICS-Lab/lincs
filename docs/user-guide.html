@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>User Guide &#8212; lincs 0.5.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <title>User Guide &#8212; lincs 0.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=add265a1"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -110,12 +110,12 @@ If those conditions are verified, you can tweak the â€œweights, profiles, breedâ
 <p>This should output a similar model, with slight numerical differences.</p>
 <p>You can also use an entirely different approach using SAT and max-SAT solvers:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>minisat-trained-model.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output-model<span class="w"> </span>minisat-coalitions-trained-model.yml<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.approach<span class="w"> </span>sat-by-coalitions
 
 lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>evalmaxsat-trained-model.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.approach<span class="w"> </span>max-sat-by-coalitions
+<span class="w">  </span>--output-model<span class="w"> </span>minisat-separation-trained-model.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.approach<span class="w"> </span>sat-by-separation
 </pre></div>
 </div>
 <p>It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
@@ -272,7 +272,7 @@ lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<s
       &copy;Copyright 2023 Vincent Jacques.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
