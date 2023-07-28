@@ -244,12 +244,12 @@ TEST_CASE("SAT by coalitions using Minisat learning") {
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
 }
 
-TEST_CASE("SAT by coalitions using EvalMaxSAT learning") {
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(1, 2);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(7, 2);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(1, 3);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingEvalmaxsat>(4, 3);
+TEST_CASE("max-SAT by coalitions using EvalMaxSAT learning") {
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
 }
 
 TEST_CASE("SAT by separation using Minisat learning") {
@@ -260,15 +260,15 @@ TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
 }
 
-TEST_CASE("SAT by separation using EvalMaxSAT learning") {
-  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(1, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(7, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(1, 3);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingEvalmaxsat>(4, 3);
+TEST_CASE("max-SAT by separation using EvalMaxSAT learning") {
+  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
+  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
+  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
+  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
+  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
 }
 
-TEST_CASE("Non-exact learning - SAT by coalitions") {
+TEST_CASE("Non-exact learning - max-SAT by coalitions") {
   const Problem problem = generate_classification_problem(3, 2, 41);
   const Model model = generate_mrsort_classification_model(problem, 44);
   Alternatives learning_set = generate_classified_alternatives(problem, model, 100, 44);
@@ -279,11 +279,13 @@ TEST_CASE("Non-exact learning - SAT by coalitions") {
     LearningFailureException
   );
 
-  LearnUcncsBySatByCoalitionsUsingEvalmaxsat learning(problem, learning_set);
+  LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat learning(problem, learning_set);
   Model learned_model = learning.perform();
 
   CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
 }
+
+// @todo TEST_CASE("Non-exact learning - max-SAT by separation") (Currently the "SAT by separation" can't benefit from a max-SAT solver because it doesn't use weighted clauses)
 
 TEST_CASE("Non-exact learning - MR-Sort") {
   class Wrapper {
@@ -335,7 +337,5 @@ TEST_CASE("Non-exact learning - MR-Sort") {
 
   CHECK(classify_alternatives(problem, learned_model, &learning_set).changed == 10);
 }
-
-// @todo TEST_CASE("Non-exact learning - SAT by separation") (Currently the "SAT by separation" can't benefit from a max-SAT solver because it doesn't use weighted clauses)
 
 }  // namespace lincs

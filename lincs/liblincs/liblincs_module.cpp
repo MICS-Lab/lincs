@@ -534,8 +534,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingMinisat::perform)
   ;
 
-  bp::class_<lincs::LearnUcncsBySatByCoalitionsUsingEvalmaxsat>("LearnUcncsBySatByCoalitionsUsingEvalmaxsat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
-    .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingEvalmaxsat::perform)
+  bp::class_<lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>("LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
+    .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform)
   ;
 
 
@@ -543,7 +543,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("perform", &lincs::LearnUcncsBySatBySeparationUsingMinisat::perform)
   ;
 
-  bp::class_<lincs::LearnUcncsBySatBySeparationUsingEvalmaxsat>("LearnUcncsBySatBySeparationUsingEvalmaxsat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
-    .def("perform", &lincs::LearnUcncsBySatBySeparationUsingEvalmaxsat::perform)
+  bp::class_<lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>("LearnUcncsByMaxSatBySeparationUsingEvalmaxsat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
+    .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform)
   ;
 }

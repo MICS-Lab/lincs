@@ -685,24 +685,43 @@ perform( (LearnMrsortByWeightsProfilesBreed)arg1) -> Model :
     C++ signature :
         lincs::Model perform(lincs::LearnMrsortByWeightsProfilesBreed {lvalue})
 
-lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat: class
--------------------------------------------------------
+lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat: class
+----------------------------------------------------------
 
-lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat.__init__: function
--------------------------------------------------------------------
+lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.__init__: function
+----------------------------------------------------------------------
 
 __init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
 
     C++ signature :
         void __init__(_object*,lincs::Problem,lincs::Alternatives)
 
-lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat.perform: function
-------------------------------------------------------------------
+lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.perform: function
+---------------------------------------------------------------------
 
-perform( (LearnUcncsBySatByCoalitionsUsingEvalmaxsat)arg1) -> Model :
+perform( (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat)arg1) -> Model :
 
     C++ signature :
         lincs::Model perform(lincs::SatCoalitionsUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
+
+lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat: class
+----------------------------------------------------------
+
+lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.__init__: function
+----------------------------------------------------------------------
+
+__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Problem,lincs::Alternatives)
+
+lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.perform: function
+---------------------------------------------------------------------
+
+perform( (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat)arg1) -> Model :
+
+    C++ signature :
+        lincs::Model perform(lincs::MaxSatSeparationUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
 
 lincs.LearnUcncsBySatByCoalitionsUsingMinisat: class
 ----------------------------------------------------
@@ -722,25 +741,6 @@ perform( (LearnUcncsBySatByCoalitionsUsingMinisat)arg1) -> Model :
 
     C++ signature :
         lincs::Model perform(lincs::SatCoalitionsUcncsLearning<lincs::MinisatSatProblem> {lvalue})
-
-lincs.LearnUcncsBySatBySeparationUsingEvalmaxsat: class
--------------------------------------------------------
-
-lincs.LearnUcncsBySatBySeparationUsingEvalmaxsat.__init__: function
--------------------------------------------------------------------
-
-__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3) -> None :
-
-    C++ signature :
-        void __init__(_object*,lincs::Problem,lincs::Alternatives)
-
-lincs.LearnUcncsBySatBySeparationUsingEvalmaxsat.perform: function
-------------------------------------------------------------------
-
-perform( (LearnUcncsBySatBySeparationUsingEvalmaxsat)arg1) -> Model :
-
-    C++ signature :
-        lincs::Model perform(lincs::SatSeparationUcncsLearning<lincs::EvalmaxsatSatProblem> {lvalue})
 
 lincs.LearnUcncsBySatBySeparationUsingMinisat: class
 ----------------------------------------------------

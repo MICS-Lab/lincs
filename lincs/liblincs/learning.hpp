@@ -3,18 +3,19 @@
 #ifndef LINCS__LEARNING_HPP
 #define LINCS__LEARNING_HPP
 
-#include "learning/ucncs-by-sat-by-coalitions.hpp"
-#include "learning/ucncs-by-sat-by-separation.hpp"
 #include "learning/mrsort-by-weights-profiles-breed.hpp"
+#include "learning/mrsort-by-weights-profiles-breed/breed/reinitialize-least-accurate.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/improve-profiles/accuracy-heuristic-on-cpu.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/improve-profiles/accuracy-heuristic-on-gpu.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/initialize-profiles/probabilistic-maximal-discrimination-power-per-criterion.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/optimize-weights/linear-program.hpp"
-#include "learning/mrsort-by-weights-profiles-breed/breed/reinitialize-least-accurate.hpp"
-#include "learning/mrsort-by-weights-profiles-breed/terminate/at-accuracy.hpp"
-#include "learning/mrsort-by-weights-profiles-breed/terminate/composite.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/terminate/after-iterations.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/terminate/after-seconds.hpp"
+#include "learning/mrsort-by-weights-profiles-breed/terminate/at-accuracy.hpp"
+#include "learning/mrsort-by-weights-profiles-breed/terminate/composite.hpp"
+#include "learning/ucncs-by-max-sat-by-separation.hpp"
+#include "learning/ucncs-by-sat-by-coalitions.hpp"
+#include "learning/ucncs-by-sat-by-separation.hpp"
 #include "linear-programming/alglib.hpp"
 #include "linear-programming/glop.hpp"
 #include "sat/minisat.hpp"
@@ -23,9 +24,9 @@
 namespace lincs {
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
-  typedef SatCoalitionsUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatByCoalitionsUsingEvalmaxsat;
+  typedef SatCoalitionsUcncsLearning<EvalmaxsatSatProblem> LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat;
   typedef SatCoalitionsUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
-  typedef SatSeparationUcncsLearning<EvalmaxsatSatProblem> LearnUcncsBySatBySeparationUsingEvalmaxsat;
+  typedef MaxSatSeparationUcncsLearning<EvalmaxsatSatProblem> LearnUcncsByMaxSatBySeparationUsingEvalmaxsat;
   typedef SatSeparationUcncsLearning<MinisatSatProblem> LearnUcncsBySatBySeparationUsingMinisat;
 }  // namespace lincs
 

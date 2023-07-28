@@ -503,12 +503,12 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 21)
         self.assertEqual(result.unchanged, 979)
 
-    def test_sat_by_coalitions_using_evalmaxsat_learning(self):
+    def test_max_sat_by_coalitions_using_evalmaxsat_learning(self):
         problem = generate_classification_problem(5, 3, 41)
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learned_model = LearnUcncsBySatByCoalitionsUsingEvalmaxsat(problem, learning_set).perform()
+        learned_model = LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set).perform()
 
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
@@ -535,12 +535,12 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 24)
         self.assertEqual(result.unchanged, 976)
 
-    def test_sat_by_separation_using_evalmaxsat_learning(self):
+    def test_max_sat_by_separation_using_evalmaxsat_learning(self):
         problem = generate_classification_problem(5, 2, 41)
         model = generate_mrsort_classification_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
-        learned_model = LearnUcncsBySatBySeparationUsingEvalmaxsat(problem, learning_set).perform()
+        learned_model = LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set).perform()
 
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)

@@ -1,6 +1,6 @@
 // Copyright 2023 Vincent Jacques
 
-#include "ucncs-by-sat-by-separation.hpp"
+#include "ucncs-by-max-sat-by-separation.hpp"
 
 #include <algorithm>
 #include <map>
@@ -8,13 +8,13 @@
 #include <type_traits>
 
 #include "exception.hpp"
-#include "../sat/minisat.hpp"
+#include "../sat/eval-max-sat.hpp"
 
 
 namespace lincs {
 
 template<typename SatProblem>
-Model SatSeparationUcncsLearning<SatProblem>::perform() {
+Model MaxSatSeparationUcncsLearning<SatProblem>::perform() {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
   const unsigned boundaries_count = categories_count - 1;
@@ -227,6 +227,6 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
   return Model{problem, boundaries};
 }
 
-template class SatSeparationUcncsLearning<MinisatSatProblem>;
+template class MaxSatSeparationUcncsLearning<EvalmaxsatSatProblem>;
 
 }  // namespace lincs

@@ -680,11 +680,11 @@ def classification_model(
         if ucncs__approach == "sat-by-coalitions":
             learning = lincs.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
         elif ucncs__approach == "max-sat-by-coalitions":
-            learning = lincs.LearnUcncsBySatByCoalitionsUsingEvalmaxsat(problem, learning_set)
+            learning = lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
         elif ucncs__approach == "sat-by-separation":
             learning = lincs.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
         elif ucncs__approach == "max-sat-by-separation":
-            learning = lincs.LearnUcncsBySatBySeparationUsingEvalmaxsat(problem, learning_set)
+            learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
 
     model = learning.perform()
     model.dump(problem, output_model)
