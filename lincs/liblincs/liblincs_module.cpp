@@ -530,7 +530,9 @@ BOOST_PYTHON_MODULE(liblincs) {
   ;
 
 
-  bp::class_<lincs::LearnUcncsBySatByCoalitionsUsingMinisat>("LearnUcncsBySatByCoalitionsUsingMinisat", bp::init<const lincs::Problem&, const lincs::Alternatives&>())
+  bp::class_<lincs::LearnUcncsBySatByCoalitionsUsingMinisat, boost::noncopyable>(
+    "LearnUcncsBySatByCoalitionsUsingMinisat",
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>())
     .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingMinisat::perform)
   ;
 

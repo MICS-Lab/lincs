@@ -95,7 +95,7 @@ void check_non_exact_learning(
 
 namespace lincs {
 
-TEST_CASE("Basic MR-Sort learning") {
+TEST_CASE("Basic WPB learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
@@ -137,7 +137,7 @@ TEST_CASE("Basic MR-Sort learning") {
   check_exact_learning<Wrapper>(4, 3, {59});
 }
 
-TEST_CASE("No termination strategy MR-Sort learning") {
+TEST_CASE("No termination strategy WPB learning") {
   struct NeverTerminate : LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
     bool terminate() override { return false; }
   };
@@ -183,7 +183,7 @@ TEST_CASE("No termination strategy MR-Sort learning") {
   check_exact_learning<Wrapper>(4, 3, {59});
 }
 
-TEST_CASE("Alglib MR-Sort learning") {
+TEST_CASE("Alglib WPB learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
@@ -227,7 +227,7 @@ TEST_CASE("Alglib MR-Sort learning") {
 
 #ifdef LINCS_HAS_NVCC
 
-TEST_CASE("GPU MR-Sort learning" * doctest::skip(forbid_gpu)) {
+TEST_CASE("GPU WPB learning" * doctest::skip(forbid_gpu)) {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
@@ -289,7 +289,7 @@ TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 5);
 }
 
-TEST_CASE("Non-exact learning - MR-Sort") {
+TEST_CASE("Non-exact WPB learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
