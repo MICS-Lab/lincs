@@ -31,10 +31,64 @@ Its main authors are (alphabetical order):
 - `Vincent Mousseau <https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D>`_ (domain expertise)
 - `Wassila Ouerdane <https://wassilaouerdane.github.io/>`_ (domain expertise)
 
-It's based on work by:
+Fondamental concepts
+--------------------
 
-- `Olivier Sobrie <http://olivier.sobrie.be/>`_ (The "weights, profiles, breed" learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his `Ph.D thesis <http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf>`_, and `implemented in Python <https://github.com/oso/pymcda>`_)
-- Emma Dixneuf, Thibault Monsel and Thomas Vindard (`C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_)
+*lincs* is based on the following concepts.
+Note that we describe them in our `conceptual overview documentation <https://mics-lab.github.io/lincs/conceptual-overview.html>`_.
+This section is here to give credit to their authors.
+
+The Non-Compensatory Sorting (NCS) model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The concept of the NCS model was first introduced by Denis Bouyssou and Thierry Marchant in their articles `An axiomatic approach to noncompensatory sorting methods in MCDM I: The case of two categories <https://hal.science/hal-00958022>`_ and `... II: More than two categories <https://hal.science/hal-00013762v1>`_.
+
+Particular cases of the NCS model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :math:`U^c \textsf{-} NCS` model is a particular case of the NCS model where the set of sufficient coalitions is unique, shared by all categories.
+
+The MR-Sort model is a particular case of the :math:`U^c \textsf{-} NCS` model introduced by Agnès Leroy *et al.* in `Learning the Parameters of a Multiple Criteria Sorting Method <https://link.springer.com/chapter/10.1007/978-3-642-24873-3_17>`_.
+
+@todo Add link to an article describing the familly of NCS models.
+
+Although *lincs* can sort alternatives acording to general NCS models (without veto), it only implements learning :math:`U^c \textsf{-} NCS` and MR-Sort models.
+
+Learning algorithms
+-------------------
+
+*lincs* provides new implementations of the following algorithms:
+
+Learning exact NCS models with a "SAT by coalitions" approach
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@todo Add link to the first article describing the algorithm.
+
+Learning approximate NCS models with a "max-SAT by coalitions" approach
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@todo Add link to the first article describing the algorithm.
+
+Learning exact NCS models with a "SAT by separation" approach
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@todo Add link to the first article describing the algorithm.
+
+Learning approximate NCS models with a "max-SAT by separation" approach
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@todo Add link to the first article describing the algorithm.
+
+Learning approximate MR-Sort with a heuristic approach
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This approach, described by `Olivier Sobrie <http://olivier.sobrie.be/>`_ in his `Ph.D thesis <http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf>`_,
+is based on splitting the learning into three phases: optimize the weights (linear programmming), improve the profiles (heuristic) and breed the population of intermediate models.
+We call it the "weights, profiles, breed" learning strategy in *lincs*.
+
+It was originaly `implemented in Python <https://github.com/oso/pymcda>`_ by Olivier Sobrie.
+Emma Dixneuf, Thibault Monsel and Thomas Vindard then provided a sequential `C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_.
+*lincs* provides two parallel implementations of this approach (using OpenMP and CUDA).
 
 @todo Add links to the fundamental articles for NCS.
 
