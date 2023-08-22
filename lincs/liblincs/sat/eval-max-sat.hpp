@@ -21,9 +21,9 @@
 
 namespace lincs {
 
-class EvalmaxsatSatProblem {
+class EvalmaxsatMaxSatProblem {
  public:
-  EvalmaxsatSatProblem() : solver(0) {}
+  EvalmaxsatMaxSatProblem() : solver(0) {}
 
  public:
   typedef int variable_type;

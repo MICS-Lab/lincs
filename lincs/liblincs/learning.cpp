@@ -280,6 +280,27 @@ TEST_CASE("SAT by coalitions using Minisat learning") {
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 5);
 }
 
+TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - exact") {
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
+  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
+}
+
+TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - non-exact") {
+  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
+  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
+  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
+}
+
+TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - non-exact - long" * doctest::skip(skip_long)) {
+  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
+  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
+}
+
 TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);

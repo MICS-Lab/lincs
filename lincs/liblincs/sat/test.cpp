@@ -1,10 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
-// @todo Let these two be included in alphabetical order
-// Currently, swapping them results in the following error:
-// could not convert ‘Glucose::lbool(2)’ from ‘Glucose::lbool’ to ‘Minisat::lbool’
-#include "minisat.hpp"
 #include "eval-max-sat.hpp"
+#include "minisat.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
@@ -44,9 +41,9 @@ void test_sat_problem() {
   }
 }
 
-template<typename SatProblem>
+template<typename MaxSatProblem>
 void test_max_sat_problem() {
-  SatProblem problem;
+  MaxSatProblem problem;
 
   auto x1 = problem.create_variable();
   auto x2 = problem.create_variable();
@@ -105,9 +102,9 @@ TEST_CASE("Minisat SAT problem") {
 }
 
 TEST_CASE("EvalMaxSAT SAT problem") {
-  test_sat_problem<lincs::EvalmaxsatSatProblem>();
+  test_sat_problem<lincs::EvalmaxsatMaxSatProblem>();
 }
 
 TEST_CASE("EvalMaxSAT max-SAT problem") {
-  test_max_sat_problem<lincs::EvalmaxsatSatProblem>();
+  test_max_sat_problem<lincs::EvalmaxsatMaxSatProblem>();
 }

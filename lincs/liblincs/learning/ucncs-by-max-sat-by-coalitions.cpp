@@ -1,13 +1,13 @@
 // Copyright 2023 Vincent Jacques
 
-#include "ucncs-by-sat-by-coalitions.hpp"
+#include "ucncs-by-max-sat-by-coalitions.hpp"
 
 #include <algorithm>
 #include <map>
 #include <type_traits>
 
 #include "exception.hpp"
-#include "../sat/minisat.hpp"
+#include "../sat/eval-max-sat.hpp"
 
 
 namespace lincs {
@@ -19,7 +19,7 @@ std::vector<V> implies(V a, V b) {
 }
 
 template<typename SatProblem>
-Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
+Model MaxSatCoalitionsUcncsLearning<SatProblem>::perform() {
   sort_values();
   create_variables();
   add_structural_constraints();
@@ -35,7 +35,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
 }
 
 template<typename SatProblem>
-void SatCoalitionsUcncsLearning<SatProblem>::sort_values() {
+void MaxSatCoalitionsUcncsLearning<SatProblem>::sort_values() {
   unique_values.resize(criteria_count);
   for (unsigned i = 0; i != criteria_count; ++i) {
     unique_values[i].reserve(learning_set.alternatives.size());
@@ -53,7 +53,7 @@ void SatCoalitionsUcncsLearning<SatProblem>::sort_values() {
 }
 
 template<typename SatProblem>
-void SatCoalitionsUcncsLearning<SatProblem>::create_variables() {
+void MaxSatCoalitionsUcncsLearning<SatProblem>::create_variables() {
   above.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     above[criterion_index].resize(categories_count);
@@ -70,11 +70,16 @@ void SatCoalitionsUcncsLearning<SatProblem>::create_variables() {
     sufficient[subset] = sat.create_variable();
   }
 
+  correct.reserve(learning_set.alternatives.size());
+  for (const auto& alternative : learning_set.alternatives) {
+    correct.push_back(sat.create_variable());
+  }
+
   sat.mark_all_variables_created();
 }
 
 template<typename SatProblem>
-void SatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
+void MaxSatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
   // Ascending scales: values are ordered so if a value is above a profile,
   // then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -116,9 +121,11 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
 }
 
 template<typename SatProblem>
-void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
+void MaxSatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
   // Alternatives are outranked by the boundary above them
-  for (const auto& alternative : learning_set.alternatives) {
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    const auto& alternative = learning_set.alternatives[alternative_index];
+
     const unsigned category_index = *alternative.category_index;
     if (category_index == problem.categories.size() - 1) {
       continue;
@@ -146,12 +153,16 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
           clause.push_back(-above[criterion_index][boundary_index][value_index]);
         }
       }
+      // ... or it's not correctly classified
+      clause.push_back(-correct[alternative_index]);
       sat.add_clause(clause);
     }
   }
 
   // Alternatives outrank the boundary below them
-  for (const auto& alternative : learning_set.alternatives) {
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    const auto& alternative = learning_set.alternatives[alternative_index];
+
     const unsigned category_index = *alternative.category_index;
     if (category_index == 0) {
       continue;
@@ -178,13 +189,19 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
           clause.push_back(above[criterion_index][boundary_index][value_index]);
         }
       }
+      clause.push_back(-correct[alternative_index]);
       sat.add_clause(clause);
     }
+  }
+
+  // Maximize the number of alternatives classified correctly
+  for (auto c : correct) {
+    sat.add_weighted_clause({c}, 1);
   }
 }
 
 template<typename SatProblem>
-Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
+Model MaxSatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
   std::vector<std::vector<unsigned>> roots;
   for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
     if (solution[sufficient[subset_a]]) {
@@ -238,6 +255,6 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   return Model{problem, boundaries};
 }
 
-template class SatCoalitionsUcncsLearning<MinisatSatProblem>;
+template class MaxSatCoalitionsUcncsLearning<EvalmaxsatMaxSatProblem>;
 
 }  // namespace lincs
