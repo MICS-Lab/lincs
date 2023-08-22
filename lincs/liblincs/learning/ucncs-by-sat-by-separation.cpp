@@ -13,14 +13,32 @@
 
 namespace lincs {
 
+template<typename V>
+std::vector<V> implies(V a, V b) {
+  // "A => B" <=> "-A or B"
+  return {-a, b};
+}
+
 template<typename SatProblem>
 Model SatSeparationUcncsLearning<SatProblem>::perform() {
-  const unsigned criteria_count = problem.criteria.size();
-  const unsigned categories_count = problem.categories.size();
-  const unsigned boundaries_count = categories_count - 1;
-  const unsigned alternatives_count = learning_set.alternatives.size();
+  sort_values();
+  partition_alternatives();
+  create_variables();
+  add_structural_constraints();
+  add_learning_set_constraints();
 
-  std::vector<std::vector<float>> unique_values(criteria_count);
+  std::optional<std::vector<bool>> solution = sat.solve();
+
+  if (!solution) {
+    throw LearningFailureException();
+  }
+
+  return decode(*solution);
+}
+
+template<typename SatProblem>
+void SatSeparationUcncsLearning<SatProblem>::sort_values() {
+  unique_values.resize(criteria_count);
   for (auto alternative : learning_set.alternatives) {
     for (unsigned i = 0; i != criteria_count; ++i) {
       unique_values[i].push_back(alternative.profile[i]);
@@ -30,11 +48,12 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
     std::sort(v.begin(), v.end());
     v.erase(std::unique(v.begin(), v.end()), v.end());
   }
+}
 
-  // Alternatives above category k
-  std::vector<std::vector<unsigned>> better_alternative_indexes(categories_count);
-  // Alternatives in category k or below
-  std::vector<std::vector<unsigned>> worse_alternative_indexes(categories_count);
+template<typename SatProblem>
+void SatSeparationUcncsLearning<SatProblem>::partition_alternatives() {
+  better_alternative_indexes.resize(categories_count);
+  worse_alternative_indexes.resize(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
     better_alternative_indexes[category_index].reserve(alternatives_count);
     worse_alternative_indexes[category_index].reserve(alternatives_count);
@@ -50,33 +69,32 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
     assert(better_alternative_indexes[category_index].size() + worse_alternative_indexes[category_index].size() == alternatives_count);
   }
+}
 
-  SatProblem sat;
-
-  // a[i][k][x]: value x is above profile k on criterion i
-  std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> a(criteria_count);
+template<typename SatProblem>
+void SatSeparationUcncsLearning<SatProblem>::create_variables() {
+  above.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    a[criterion_index].resize(boundaries_count);
+    above[criterion_index].resize(boundaries_count);
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-      a[criterion_index][boundary_index].resize(unique_values[criterion_index].size());
+      above[criterion_index][boundary_index].resize(unique_values[criterion_index].size());
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        a[criterion_index][boundary_index][value_index] = sat.create_variable();
+        above[criterion_index][boundary_index][value_index] = sat.create_variable();
       }
     }
   }
 
-  // s[i][k][k'][g][b]: criterion i separates alternatives g and b with regards to profiles k and k'
-  std::vector<std::vector<std::vector<std::vector<std::vector<typename SatProblem::variable_type>>>>> s(criteria_count);
+  separates.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    s[criterion_index].resize(boundaries_count);
+    separates[criterion_index].resize(boundaries_count);
     for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
-      s[criterion_index][boundary_index_a].resize(boundaries_count);
+      separates[criterion_index][boundary_index_a].resize(boundaries_count);
       for (unsigned boundary_index_b = 0; boundary_index_b != boundaries_count; ++boundary_index_b) {
-        s[criterion_index][boundary_index_a][boundary_index_b].resize(alternatives_count);
+        separates[criterion_index][boundary_index_a][boundary_index_b].resize(alternatives_count);
         for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
-          s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index].resize(alternatives_count);
+          separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index].resize(alternatives_count);
           for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
-            s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index] = sat.create_variable();
+            separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index] = sat.create_variable();
           }
         }
       }
@@ -84,30 +102,37 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
   }
 
   sat.mark_all_variables_created();
+}
 
-  // P'1
+template<typename SatProblem>
+void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
+  // Values are ordered so if a value is above a profile, then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size() - 1; ++value_index) {
-        sat.add_clause({
-          -a[criterion_index][boundary_index][value_index],
-          a[criterion_index][boundary_index][value_index + 1],
-        });
-      }
-    }
-  }
-  // P'2
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-      for (unsigned boundary_index_a = 1; boundary_index_a != boundaries_count; ++boundary_index_a) {
-        sat.add_clause({
-          -a[criterion_index][boundary_index_a][value_index],
-          a[criterion_index][boundary_index_a - 1][value_index],
-        });
+        sat.add_clause(implies(
+          above[criterion_index][boundary_index][value_index],
+          above[criterion_index][boundary_index][value_index + 1]
+        ));
       }
     }
   }
 
+  // Profiles are ordered so if a value is above a profile, then it is also above lower profiles
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
+      for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
+        sat.add_clause(implies(
+          above[criterion_index][boundary_index][value_index],
+          above[criterion_index][boundary_index - 1][value_index]
+        ));
+      }
+    }
+  }
+}
+
+template<typename SatProblem>
+void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
   // P'C3
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
@@ -122,10 +147,10 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
         );
         for (unsigned boundary_index_b = 0; boundary_index_b != boundaries_count; ++boundary_index_b) {
           for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
-            sat.add_clause({
-              -s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
-              -a[criterion_index][boundary_index_a][bad_value_index],
-            });
+            sat.add_clause(implies(
+              separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
+              -above[criterion_index][boundary_index_a][bad_value_index]
+            ));
           }
         }
       }
@@ -146,10 +171,10 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
         );
         for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
           for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
-            sat.add_clause({
-              -s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
-              a[criterion_index][boundary_index_b][good_value_index],
-            });
+            sat.add_clause(implies(
+              separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
+              above[criterion_index][boundary_index_b][good_value_index]
+            ));
           }
         }
       }
@@ -164,20 +189,17 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
           std::vector<typename SatProblem::variable_type> clause;
           clause.reserve(criteria_count);
           for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-            clause.push_back(s[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index]);
+            clause.push_back(separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index]);
           }
           sat.add_clause(clause);
         }
       }
     }
   }
+}
 
-  std::optional<std::vector<bool>> solution = sat.solve();
-
-  if (!solution) {
-    throw LearningFailureException();
-  }
-
+template<typename SatProblem>
+Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
   std::vector<std::vector<float>> profiles(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<float>& profile = profiles[boundary_index];
@@ -186,7 +208,7 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
       bool found = false;
       // @todo Replace next loop with a binary search
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        if ((*solution)[a[criterion_index][boundary_index][value_index]]) {
+        if (solution[above[criterion_index][boundary_index][value_index]]) {
           if (value_index == 0) {
             profile[criterion_index] = unique_values[criterion_index][value_index];
           } else {

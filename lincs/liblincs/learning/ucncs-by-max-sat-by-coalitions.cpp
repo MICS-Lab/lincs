@@ -80,8 +80,7 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::create_variables() {
 
 template<typename SatProblem>
 void MaxSatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
-  // Ascending scales: values are ordered so if a value is above a profile,
-  // then values above it are also above that profile
+  // Values are ordered so if a value is above a profile, then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size() - 1; ++value_index) {
@@ -93,8 +92,7 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
     }
   }
 
-  // Hierarchy of profiles: profiles are ordered so if a value is above a profile,
-  // then it is also above lower profiles
+  // Profiles are ordered so if a value is above a profile, then it is also above lower profiles
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
       for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
@@ -106,8 +104,7 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
     }
   }
 
-  // Coalitions strength: coalitions are an upset so if a coalition is sufficient,
-  // then all coalitions that include it are sufficient too
+  // Coalitions form an upset so if a coalition is sufficient, then all coalitions that include it are sufficient too
   // @todo Optimize this nested loop using the fact that a is included in b
   // Or even better, add constraints only for the transitive reduction of the inclusion relation
   for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
