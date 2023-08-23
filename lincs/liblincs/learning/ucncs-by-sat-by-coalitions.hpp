@@ -18,6 +18,7 @@ class SatCoalitionsUcncsLearning {
     categories_count(problem.categories.size()),
     boundaries_count(categories_count - 1),
     subsets_count(1 << criteria_count),
+    alternatives_count(learning_set.alternatives.size()),
     unique_values(),
     above(),
     sufficient(),
@@ -48,6 +49,7 @@ class SatCoalitionsUcncsLearning {
   const unsigned categories_count;
   const unsigned boundaries_count;
   const unsigned subsets_count;
+  const unsigned alternatives_count;
   std::vector<std::vector<float>> unique_values;
   // above[criterion_index][boundary_index][value_index]: value is above profile on criterion
   std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> above;

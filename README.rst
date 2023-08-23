@@ -59,25 +59,17 @@ Learning algorithms
 
 *lincs* provides new implementations of the following algorithms:
 
-Learning exact NCS models with a "SAT by coalitions" approach
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Learning :math:`U^c \textsf{-} NCS` models with a SAT-based approaches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@todo Add link to the first article describing the algorithm.
+The following learning algorithms were implemented using their description by Ali Tlili, Khaled Belahcène *et al.* in `Learning non-compensatory sorting models using efficient SAT/MaxSAT formulations <https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858>`_:
 
-Learning approximate NCS models with a "max-SAT by coalitions" approach
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- learning exact :math:`U^c \textsf{-} NCS` models with a "SAT by coalitions" approach
+- learning approximate :math:`U^c \textsf{-} NCS` models with a "max-SAT by coalitions" approach
+- learning exact :math:`U^c \textsf{-} NCS` models with a "SAT by separation" approach
+- learning approximate :math:`U^c \textsf{-} NCS` models with a "max-SAT by separation" approach
 
-@todo Add link to the first article describing the algorithm.
-
-Learning exact NCS models with a "SAT by separation" approach
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@todo Add link to the first article describing the algorithm.
-
-Learning approximate NCS models with a "max-SAT by separation" approach
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@todo Add link to the first article describing the algorithm.
+Note that they were introduced in previous articles by Khaled Belahcène, and that this article conveniently gathers them in a single place.
 
 Learning approximate MR-Sort with a heuristic approach
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

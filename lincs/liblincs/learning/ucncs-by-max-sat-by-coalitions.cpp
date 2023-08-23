@@ -52,8 +52,12 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::sort_values() {
   }
 }
 
+// This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
+// specifically its section 5.1, with the special case for Uc-NCS at the end of the section.
+
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
+  // Variables "a" in the article
   above.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     above[criterion_index].resize(categories_count);
@@ -65,11 +69,13 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
     }
   }
 
+  // Variables "t" in the article
   sufficient.resize(subsets_count);
   for (unsigned subset = 0; subset != subsets_count; ++subset) {
     sufficient[subset] = sat.create_variable();
   }
 
+  // Variables "z" in the article
   correct.reserve(learning_set.alternatives.size());
   for (const auto& alternative : learning_set.alternatives) {
     correct.push_back(sat.create_variable());
@@ -80,18 +86,20 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
 
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() {
+  // Clauses "C1" in the article
   // Values are ordered so if a value is above a profile, then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-      for (unsigned value_index = 0; value_index != unique_values[criterion_index].size() - 1; ++value_index) {
+      for (unsigned value_index = 1; value_index != unique_values[criterion_index].size(); ++value_index) {
         sat.add_clause(implies(
-          above[criterion_index][boundary_index][value_index],
-          above[criterion_index][boundary_index][value_index + 1]
+          above[criterion_index][boundary_index][value_index - 1],
+          above[criterion_index][boundary_index][value_index]
         ));
       }
     }
   }
 
+  // Clauses "C2" in the article
   // Profiles are ordered so if a value is above a profile, then it is also above lower profiles
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
@@ -104,6 +112,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
     }
   }
 
+  // Clauses "C3" in the article
   // Coalitions form an upset so if a coalition is sufficient, then all coalitions that include it are sufficient too
   // @todo Optimize this nested loop using the fact that a is included in b
   // Or even better, add constraints only for the transitive reduction of the inclusion relation
@@ -115,10 +124,13 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
       }
     }
   }
+
+  // No need for clauses "C4"
 }
 
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints() {
+  // Clauses "C5~" in the article
   // Alternatives are outranked by the boundary above them
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const auto& alternative = learning_set.alternatives[alternative_index];
@@ -156,6 +168,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
     }
   }
 
+  // Clauses "C6~" in the article
   // Alternatives outrank the boundary below them
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const auto& alternative = learning_set.alternatives[alternative_index];
@@ -191,6 +204,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
     }
   }
 
+  // Clauses "goal" in the article
   // Maximize the number of alternatives classified correctly
   for (auto c : correct) {
     sat.add_weighted_clause({c}, 1);

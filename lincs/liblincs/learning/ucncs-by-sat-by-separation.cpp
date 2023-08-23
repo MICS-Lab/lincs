@@ -71,8 +71,13 @@ void SatSeparationUcncsLearning<SatProblem>::partition_alternatives() {
   }
 }
 
+// This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
+// specifically its "Definition A.2", which references its "Definition 4.4".
+// These definitions are based on its "Theorem 4.2".
+
 template<typename SatProblem>
 void SatSeparationUcncsLearning<SatProblem>::create_variables() {
+  // Variables "a" in the article
   above.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     above[criterion_index].resize(boundaries_count);
@@ -84,6 +89,7 @@ void SatSeparationUcncsLearning<SatProblem>::create_variables() {
     }
   }
 
+  // Variables "s" in the article
   separates.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     separates[criterion_index].resize(boundaries_count);
@@ -106,6 +112,7 @@ void SatSeparationUcncsLearning<SatProblem>::create_variables() {
 
 template<typename SatProblem>
 void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
+  // Clauses "P'1" in the article
   // Values are ordered so if a value is above a profile, then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
@@ -118,6 +125,7 @@ void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
     }
   }
 
+  // Clauses "P'2" in the article
   // Profiles are ordered so if a value is above a profile, then it is also above lower profiles
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
@@ -133,7 +141,7 @@ void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
 
 template<typename SatProblem>
 void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
-  // P'C3
+  // Clauses "P'C3" in the article
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
       for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
@@ -157,7 +165,7 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
     }
   }
 
-  // P'C4
+  // Clauses "P'C4" in the article
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index_b = 0; boundary_index_b != boundaries_count; ++boundary_index_b) {
       for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
@@ -181,7 +189,7 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
     }
   }
 
-  // P'C5
+  // Clauses "P'C5" in the article
   for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
     for (unsigned boundary_index_b = 0; boundary_index_b != boundaries_count; ++boundary_index_b) {
       for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
