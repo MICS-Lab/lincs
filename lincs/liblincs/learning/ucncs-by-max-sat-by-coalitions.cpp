@@ -38,7 +38,7 @@ template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::sort_values() {
   unique_values.resize(criteria_count);
   for (unsigned i = 0; i != criteria_count; ++i) {
-    unique_values[i].reserve(learning_set.alternatives.size());
+    unique_values[i].reserve(alternatives_count);
   }
   for (const auto& alternative : learning_set.alternatives) {
     for (unsigned i = 0; i != criteria_count; ++i) {
@@ -76,9 +76,9 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
   }
 
   // Variables "z" in the article
-  correct.reserve(learning_set.alternatives.size());
-  for (const auto& alternative : learning_set.alternatives) {
-    correct.push_back(sat.create_variable());
+  correct.resize(alternatives_count);
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    correct[alternative_index] = sat.create_variable();
   }
 
   sat.mark_all_variables_created();
@@ -136,7 +136,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
     const auto& alternative = learning_set.alternatives[alternative_index];
 
     const unsigned category_index = *alternative.category_index;
-    if (category_index == problem.categories.size() - 1) {
+    if (category_index == categories_count - 1) {
       continue;
     }
 
@@ -155,8 +155,6 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
           );
           assert(lb != unique_values[criterion_index].end());
           const unsigned value_index = lb - unique_values[criterion_index].begin();
-          assert(criterion_index < above.size());
-          assert(boundary_index < above[criterion_index].size());
           assert(value_index < above[criterion_index][boundary_index].size());
           // ... or the alternative is below the profile on at least one necessary criterion
           clause.push_back(-above[criterion_index][boundary_index][value_index]);
@@ -193,8 +191,6 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
           );
           assert(lb != unique_values[criterion_index].end());
           const unsigned value_index = lb - unique_values[criterion_index].begin();
-          assert(criterion_index < above.size());
-          assert(boundary_index < above[criterion_index].size());
           assert(value_index < above[criterion_index][boundary_index].size());
           clause.push_back(above[criterion_index][boundary_index][value_index]);
         }

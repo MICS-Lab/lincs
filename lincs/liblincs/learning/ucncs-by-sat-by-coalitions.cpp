@@ -38,7 +38,7 @@ template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::sort_values() {
   unique_values.resize(criteria_count);
   for (unsigned i = 0; i != criteria_count; ++i) {
-    unique_values[i].reserve(learning_set.alternatives.size());
+    unique_values[i].reserve(alternatives_count);
   }
   for (const auto& alternative : learning_set.alternatives) {
     for (unsigned i = 0; i != criteria_count; ++i) {
@@ -130,7 +130,7 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
     const auto& alternative = learning_set.alternatives[alternative_index];
 
     const unsigned category_index = *alternative.category_index;
-    if (category_index == problem.categories.size() - 1) {
+    if (category_index == categories_count - 1) {
       continue;
     }
 
@@ -149,8 +149,6 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
           );
           assert(lb != unique_values[criterion_index].end());
           const unsigned value_index = lb - unique_values[criterion_index].begin();
-          assert(criterion_index < above.size());
-          assert(boundary_index < above[criterion_index].size());
           assert(value_index < above[criterion_index][boundary_index].size());
           // ... or the alternative is below the profile on at least one necessary criterion
           clause.push_back(-above[criterion_index][boundary_index][value_index]);
@@ -185,8 +183,6 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
           );
           assert(lb != unique_values[criterion_index].end());
           const unsigned value_index = lb - unique_values[criterion_index].begin();
-          assert(criterion_index < above.size());
-          assert(boundary_index < above[criterion_index].size());
           assert(value_index < above[criterion_index][boundary_index].size());
           clause.push_back(above[criterion_index][boundary_index][value_index]);
         }
