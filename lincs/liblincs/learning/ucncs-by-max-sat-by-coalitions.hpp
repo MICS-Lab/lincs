@@ -57,7 +57,7 @@ class MaxSatCoalitionsUcncsLearning {
   // bit i is set if and only if criteria i is in the subset
   // sufficient[subset]: subset is a sufficient coalition
   std::vector<typename MaxSatProblem::variable_type> sufficient;
-  // correct[alternative_index]: alternative_index is correctly classified
+  // correct[alternative_index]: alternative is correctly classified
   std::vector<typename MaxSatProblem::variable_type> correct;
   MaxSatProblem sat;
 };

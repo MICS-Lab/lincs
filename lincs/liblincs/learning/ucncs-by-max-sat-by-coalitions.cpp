@@ -18,8 +18,8 @@ std::vector<V> implies(V a, V b) {
   return {-a, b};
 }
 
-template<typename SatProblem>
-Model MaxSatCoalitionsUcncsLearning<SatProblem>::perform() {
+template<typename MaxSatProblem>
+Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::perform() {
   sort_values();
   create_variables();
   add_structural_constraints();
@@ -34,8 +34,8 @@ Model MaxSatCoalitionsUcncsLearning<SatProblem>::perform() {
   return decode(*solution);
 }
 
-template<typename SatProblem>
-void MaxSatCoalitionsUcncsLearning<SatProblem>::sort_values() {
+template<typename MaxSatProblem>
+void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::sort_values() {
   unique_values.resize(criteria_count);
   for (unsigned i = 0; i != criteria_count; ++i) {
     unique_values[i].reserve(learning_set.alternatives.size());
@@ -52,8 +52,8 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::sort_values() {
   }
 }
 
-template<typename SatProblem>
-void MaxSatCoalitionsUcncsLearning<SatProblem>::create_variables() {
+template<typename MaxSatProblem>
+void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
   above.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     above[criterion_index].resize(categories_count);
@@ -78,8 +78,8 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::create_variables() {
   sat.mark_all_variables_created();
 }
 
-template<typename SatProblem>
-void MaxSatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
+template<typename MaxSatProblem>
+void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() {
   // Values are ordered so if a value is above a profile, then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
@@ -117,8 +117,8 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
   }
 }
 
-template<typename SatProblem>
-void MaxSatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
+template<typename MaxSatProblem>
+void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints() {
   // Alternatives are outranked by the boundary above them
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const auto& alternative = learning_set.alternatives[alternative_index];
@@ -132,7 +132,7 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
     const unsigned boundary_index = category_index;
 
     for (unsigned subset = 0; subset != subsets_count; ++subset) {
-      std::vector<typename SatProblem::variable_type> clause;
+      std::vector<typename MaxSatProblem::variable_type> clause;
       // Either the coalition is not sufficient...
       clause.push_back(-sufficient[subset]);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -169,7 +169,7 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
     const unsigned boundary_index = category_index - 1;
 
     for (unsigned subset = 0; subset != subsets_count; ++subset) {
-      std::vector<typename SatProblem::variable_type> clause;
+      std::vector<typename MaxSatProblem::variable_type> clause;
       const unsigned subset_complement = ~subset & (subsets_count - 1);
       clause.push_back(sufficient[subset_complement]);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -197,8 +197,8 @@ void MaxSatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
   }
 }
 
-template<typename SatProblem>
-Model MaxSatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
+template<typename MaxSatProblem>
+Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<bool>& solution) {
   std::vector<std::vector<unsigned>> roots;
   for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
     if (solution[sufficient[subset_a]]) {
