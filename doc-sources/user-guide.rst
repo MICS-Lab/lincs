@@ -125,13 +125,11 @@ This should output a similar model, with slight numerical differences.
     format_version: 1
     boundaries:
       - profile: [0.007700569, 0.05495565, 0.1626169, 0.1931279]
-        sufficient_coalitions:
+        sufficient_coalitions: &coalitions
           kind: weights
           criterion_weights: [0.01812871, 0.9818703, 0.9818703, 9.925777e-13]
       - profile: [0.03420721, 0.3244802, 0.6724876, 0.4270518]
-        sufficient_coalitions:
-          kind: weights
-          criterion_weights: [0.01812871, 0.9818703, 0.9818703, 9.925777e-13]
+        sufficient_coalitions: *coalitions
 .. STOP
 
 .. EXTEND other-learnings/run.sh
@@ -160,15 +158,12 @@ It should produce a different kind of model, with the sufficient coalitions spec
     format_version: 1
     boundaries:
       - profile: [1, 0.05526805, 0.1619191, 0.9954021]
-        sufficient_coalitions:
+        sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
             - [1, 2]
       - profile: [1, 0.3252118, 0.6726626, 0.9967546]
-        sufficient_coalitions:
-          kind: roots
-          upset_roots:
-            - [1, 2]
+        sufficient_coalitions: *coalitions
 
 .. STOP
 
@@ -177,7 +172,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
     format_version: 1
     boundaries:
       - profile: [0.1682088, 0.05526805, 0.1619191, 0.9954021]
-        sufficient_coalitions:
+        sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
             - [0, 1, 2]
@@ -185,13 +180,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
             - [1, 2]
             - [1, 2, 3]
       - profile: [1, 0.3252118, 0.6726626, 0.9967546]
-        sufficient_coalitions:
-          kind: roots
-          upset_roots:
-            - [0, 1, 2]
-            - [0, 1, 2, 3]
-            - [1, 2]
-            - [1, 2, 3]
+        sufficient_coalitions: *coalitions
 .. STOP
 
 .. EXTEND other-learnings/run.sh

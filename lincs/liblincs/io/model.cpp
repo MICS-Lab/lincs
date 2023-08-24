@@ -89,30 +89,48 @@ JsonValidator validator(schema);
 void Model::dump(const Problem&, std::ostream& os) const {
   YAML::Emitter out(os);
 
+  bool use_coalitions_alias =
+    boundaries.size() > 1
+    && std::all_of(boundaries.begin(), boundaries.end(), [&](const Boundary& boundary) {
+      return boundary.sufficient_coalitions == boundaries.front().sufficient_coalitions;
+    });
+
   out << YAML::BeginMap;
   out << YAML::Key << "kind" << YAML::Value << "ncs-classification-model";
   out << YAML::Key << "format_version" << YAML::Value << 1;
   out << YAML::Key << "boundaries" << YAML::Value << YAML::BeginSeq;
-  for (const Boundary& boundary : boundaries) {
+  for (unsigned boundary_index = 0; boundary_index != boundaries.size(); ++boundary_index) {
+    const Boundary& boundary = boundaries[boundary_index];
+
     out << YAML::BeginMap;
     out << YAML::Key << "profile" << YAML::Value << YAML::Flow << boundary.profile;
-    out << YAML::Key << "sufficient_coalitions" << YAML::Value << YAML::BeginMap;
-    out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(boundary.sufficient_coalitions.kind));
-    switch (boundary.sufficient_coalitions.kind) {
-      case SufficientCoalitions::Kind::weights:
-        out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << boundary.sufficient_coalitions.criterion_weights;
-        break;
-      case SufficientCoalitions::Kind::roots:
-        out << YAML::Key << "upset_roots" << YAML::Value << YAML::BeginSeq;
-        for (const auto& root : boundary.sufficient_coalitions.get_upset_roots()) {
-          out << YAML::Flow << root;
-        }
-        out << YAML::EndSeq;
-        break;
+    out << YAML::Key << "sufficient_coalitions";
+    if (use_coalitions_alias && boundary_index == 0) {
+      out << YAML::Anchor("coalitions");
     }
-    out << YAML::EndMap << YAML::EndMap;
+    if (!use_coalitions_alias || boundary_index == 0) {
+      out << YAML::Value << YAML::BeginMap;
+      out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(boundary.sufficient_coalitions.kind));
+      switch (boundary.sufficient_coalitions.kind) {
+        case SufficientCoalitions::Kind::weights:
+          out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << boundary.sufficient_coalitions.criterion_weights;
+          break;
+        case SufficientCoalitions::Kind::roots:
+          out << YAML::Key << "upset_roots" << YAML::Value << YAML::BeginSeq;
+          for (const auto& root : boundary.sufficient_coalitions.get_upset_roots()) {
+            out << YAML::Flow << root;
+          }
+          out << YAML::EndSeq;
+          break;
+      }
+      out << YAML::EndMap;
+    } else if (use_coalitions_alias) {
+      out << YAML::Value << YAML::Alias("coalitions");
+    }
+    out << YAML::EndMap;
   }
   out << YAML::EndSeq;
+  out << YAML::EndMap;
 
   os << '\n';
 }
@@ -143,7 +161,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
   return Model(problem, boundaries);
 }
 
-TEST_CASE("dumping then loading problem preserves data - weights") {
+TEST_CASE("dumping then loading model preserves data - weights") {
   Problem problem{
     {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
     {{"Category 1"}, {"Category 2"}},
@@ -170,7 +188,7 @@ boundaries:
   CHECK(model2.boundaries == model.boundaries);
 }
 
-TEST_CASE("dumping then loading problem preserves data - roots") {
+TEST_CASE("dumping then loading model preserves data - roots") {
   Problem problem{
     {
       {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
@@ -192,6 +210,96 @@ TEST_CASE("dumping then loading problem preserves data - roots") {
 format_version: 1
 boundaries:
   - profile: [0.4, 0.5, 0.6]
+    sufficient_coalitions:
+      kind: roots
+      upset_roots:
+        - [0]
+        - [1, 2]
+)");
+
+  Model model2 = Model::load(problem, ss);
+  CHECK(model2.boundaries == model.boundaries);
+}
+
+TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions") {
+  Problem problem{
+    {
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+    },
+    {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
+  };
+
+  Model model{
+    problem,
+    {
+      {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+      {{0.5, 0.6, 0.7}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+      {{0.6, 0.7, 0.8}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+    },
+  };
+
+  std::stringstream ss;
+  model.dump(problem, ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile: [0.4, 0.5, 0.6]
+    sufficient_coalitions: &coalitions
+      kind: roots
+      upset_roots:
+        - [0]
+        - [1, 2]
+  - profile: [0.5, 0.6, 0.7]
+    sufficient_coalitions: *coalitions
+  - profile: [0.6, 0.7, 0.8]
+    sufficient_coalitions: *coalitions
+)");
+
+  Model model2 = Model::load(problem, ss);
+  CHECK(model2.boundaries == model.boundaries);
+}
+
+TEST_CASE("dumping doesn't use references when coalitions differ") {
+  Problem problem{
+    {
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+    },
+    {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
+  };
+
+  Model model{
+    problem,
+    {
+      {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+      {{0.5, 0.6, 0.7}, {SufficientCoalitions::roots, 3, {{1}, {0, 2}}}},
+      {{0.6, 0.7, 0.8}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+    },
+  };
+
+  std::stringstream ss;
+  model.dump(problem, ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile: [0.4, 0.5, 0.6]
+    sufficient_coalitions:
+      kind: roots
+      upset_roots:
+        - [0]
+        - [1, 2]
+  - profile: [0.5, 0.6, 0.7]
+    sufficient_coalitions:
+      kind: roots
+      upset_roots:
+        - [1]
+        - [0, 2]
+  - profile: [0.6, 0.7, 0.8]
     sufficient_coalitions:
       kind: roots
       upset_roots:

@@ -43,6 +43,10 @@ struct SufficientCoalitions {
     }
   }
 
+  bool operator==(const SufficientCoalitions& other) const {
+    return kind == other.kind && criterion_weights == other.criterion_weights && upset_roots == other.upset_roots;
+  }
+
   std::vector<std::vector<unsigned>> get_upset_roots() const {
     std::vector<std::vector<unsigned>> result;
     result.reserve(upset_roots.size());
@@ -67,7 +71,7 @@ struct Model {
 
     Boundary(const std::vector<float>& profile_, const SufficientCoalitions& sufficient_coalitions_): profile(profile_), sufficient_coalitions(sufficient_coalitions_) {}
 
-    bool operator==(const Boundary& other) const { return profile == other.profile && sufficient_coalitions.kind == other.sufficient_coalitions.kind && sufficient_coalitions.criterion_weights == other.sufficient_coalitions.criterion_weights; }
+    bool operator==(const Boundary& other) const { return profile == other.profile && sufficient_coalitions == other.sufficient_coalitions; }
   };
 
   std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1

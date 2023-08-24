@@ -271,17 +271,16 @@ It should look like::
     format_version: 1
     boundaries:
       - profile: [0.2559052, 0.0551739, 0.1622522, 0.05260009]
-        sufficient_coalitions:
+        sufficient_coalitions: &coalitions
           kind: weights
           criterion_weights: [0.1477713, 0.6186877, 0.4067865, 0.09600859]
       - profile: [0.6769613, 0.3245539, 0.6732799, 0.5985559]
-        sufficient_coalitions:
-          kind: weights
-          criterion_weights: [0.1477713, 0.6186877, 0.4067865, 0.09600859]
+        sufficient_coalitions: *coalitions
 
 .. STOP
 
-@todo Use YAML anchors and references to avoid repeating the same sufficient coalitions in all profiles
+Note that *lincs* uses [YAML anchors and references](https://yaml.org/spec/1.2-old/spec.html#id2765878) to avoid repeating the same sufficient coalitions in all profiles.
+All ``*coalitions`` means is "use the same value as the ``&coalitions`` anchor".
 
 .. EXTEND command-line-example/run.sh
     diff expected-model.yml model.yml
@@ -388,13 +387,11 @@ so it is numerically different::
     format_version: 1
     boundaries:
       - profile: [0.007518337, 0.05495565, 0.1626169, 0.1931279]
-        sufficient_coalitions:
+        sufficient_coalitions: &coalitions
           kind: weights
           criterion_weights: [0.499999, 0.5, 0.5, 0]
       - profile: [0.03402985, 0.3244802, 0.6724876, 0.4270518]
-        sufficient_coalitions:
-          kind: weights
-          criterion_weights: [0.499999, 0.5, 0.5, 0]
+        sufficient_coalitions: *coalitions
 
 .. STOP
 
