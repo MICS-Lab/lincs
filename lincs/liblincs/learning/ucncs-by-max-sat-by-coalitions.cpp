@@ -202,8 +202,8 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
 
   // Clauses "goal" in the article
   // Maximize the number of alternatives classified correctly
-  for (auto c : correct) {
-    sat.add_weighted_clause({c}, 1);
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    sat.add_weighted_clause({correct[alternative_index]}, goal_weight);
   }
 }
 

@@ -1,6 +1,6 @@
 // Copyright 2023 Vincent Jacques
 
-#include "ucncs-by-sat-by-separation.hpp"
+#include "ucncs-by-max-sat-by-separation.hpp"
 
 #include <algorithm>
 #include <map>
@@ -8,7 +8,7 @@
 #include <type_traits>
 
 #include "exception.hpp"
-#include "../sat/minisat.hpp"
+#include "../sat/eval-max-sat.hpp"
 
 
 namespace lincs {
@@ -19,8 +19,8 @@ std::vector<V> implies(V a, V b) {
   return {-a, b};
 }
 
-template<typename SatProblem>
-Model SatSeparationUcncsLearning<SatProblem>::perform() {
+template<typename MaxSatProblem>
+Model MaxSatSeparationUcncsLearning<MaxSatProblem>::perform() {
   sort_values();
   partition_alternatives();
   create_variables();
@@ -36,8 +36,8 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
   return decode(*solution);
 }
 
-template<typename SatProblem>
-void SatSeparationUcncsLearning<SatProblem>::sort_values() {
+template<typename MaxSatProblem>
+void MaxSatSeparationUcncsLearning<MaxSatProblem>::sort_values() {
   unique_values.resize(criteria_count);
   for (auto alternative : learning_set.alternatives) {
     for (unsigned i = 0; i != criteria_count; ++i) {
@@ -50,8 +50,8 @@ void SatSeparationUcncsLearning<SatProblem>::sort_values() {
   }
 }
 
-template<typename SatProblem>
-void SatSeparationUcncsLearning<SatProblem>::partition_alternatives() {
+template<typename MaxSatProblem>
+void MaxSatSeparationUcncsLearning<MaxSatProblem>::partition_alternatives() {
   better_alternative_indexes.resize(categories_count);
   worse_alternative_indexes.resize(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
@@ -72,11 +72,10 @@ void SatSeparationUcncsLearning<SatProblem>::partition_alternatives() {
 }
 
 // This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
-// specifically its "Definition A.2", which references its "Definition 4.4".
-// These definitions are based on its "Theorem 4.2".
+// specifically its section B2.
 
-template<typename SatProblem>
-void SatSeparationUcncsLearning<SatProblem>::create_variables() {
+template<typename MaxSatProblem>
+void MaxSatSeparationUcncsLearning<MaxSatProblem>::create_variables() {
   // Variables "a" in the article
   above.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -107,11 +106,26 @@ void SatSeparationUcncsLearning<SatProblem>::create_variables() {
     }
   }
 
+  // Variables "z" in the article
+  correct.resize(alternatives_count);
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    correct[alternative_index] = sat.create_variable();
+  }
+
+  // Variables "y" in the article
+  proper.resize(boundaries_count);
+  for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+    proper[boundary_index].reserve(alternatives_count);
+    for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+      proper[boundary_index][alternative_index] = sat.create_variable();
+    }
+  }
+
   sat.mark_all_variables_created();
 }
 
-template<typename SatProblem>
-void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
+template<typename MaxSatProblem>
+void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_structural_constraints() {
   // Clauses "P'1" in the article
   // Values are ordered so if a value is above a profile, then values above it are also above that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -139,8 +153,8 @@ void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
   }
 }
 
-template<typename SatProblem>
-void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
+template<typename MaxSatProblem>
+void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_learning_set_constraints() {
   // Clauses "P'C3" in the article
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
@@ -189,25 +203,49 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
     }
   }
 
-  // Clauses "P'C5" in the article
+  // Clauses "P'C5~" in the article
   for (unsigned boundary_index_a = 0; boundary_index_a != boundaries_count; ++boundary_index_a) {
     for (unsigned boundary_index_b = 0; boundary_index_b != boundaries_count; ++boundary_index_b) {
       for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
         for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
-          std::vector<typename SatProblem::variable_type> clause;
-          clause.reserve(criteria_count + 1);
+          std::vector<typename MaxSatProblem::variable_type> clause;
+          clause.reserve(criteria_count + 2);
           for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
             clause.push_back(separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index]);
           }
+          clause.push_back(-proper[boundary_index_a][bad_alternative_index]);
+          clause.push_back(-proper[boundary_index_b][good_alternative_index]);
           sat.add_clause(clause);
         }
       }
     }
   }
+
+  // Clauses "P'yz~" in the article
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+      sat.add_clause(implies(
+        correct[alternative_index],
+        proper[boundary_index][alternative_index]
+      ));
+    }
+  }
+
+  // Maximize the number of alternatives classified correctly
+  // Clauses "goal" in the article
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    sat.add_weighted_clause({correct[alternative_index]}, goal_weight);
+  }
+  // Clauses "subgoals" in the article
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+      sat.add_weighted_clause({proper[boundary_index][alternative_index]}, subgoal_weight);
+    }
+  }
 }
 
-template<typename SatProblem>
-Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
+template<typename MaxSatProblem>
+Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<bool>& solution) {
   std::vector<std::vector<float>> profiles(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<float>& profile = profiles[boundary_index];
@@ -235,6 +273,11 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   std::set<std::vector<unsigned>> roots_;
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     for (unsigned good_alternative_index : better_alternative_indexes[boundary_index]) {
+      if (!solution[correct[good_alternative_index]]) {
+        // Alternative is not correctly classified, it does not participate
+        continue;
+      }
+
       std::vector<unsigned> root;
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (learning_set.alternatives[good_alternative_index].profile[criterion_index] >= profiles[boundary_index][criterion_index]) {
@@ -256,6 +299,6 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   return Model{problem, boundaries};
 }
 
-template class SatSeparationUcncsLearning<MinisatSatProblem>;
+template class MaxSatSeparationUcncsLearning<EvalmaxsatMaxSatProblem>;
 
 }  // namespace lincs

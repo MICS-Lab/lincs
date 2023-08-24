@@ -14,6 +14,7 @@
 #include "learning/mrsort-by-weights-profiles-breed/terminate/at-accuracy.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/terminate/composite.hpp"
 #include "learning/ucncs-by-max-sat-by-coalitions.hpp"
+#include "learning/ucncs-by-max-sat-by-separation.hpp"
 #include "learning/ucncs-by-sat-by-coalitions.hpp"
 #include "learning/ucncs-by-sat-by-separation.hpp"
 #include "linear-programming/alglib.hpp"
@@ -23,6 +24,7 @@
 
 namespace lincs {
   typedef MaxSatCoalitionsUcncsLearning<EvalmaxsatMaxSatProblem> LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat;
+  typedef MaxSatSeparationUcncsLearning<EvalmaxsatMaxSatProblem> LearnUcncsByMaxSatBySeparationUsingEvalmaxsat;
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
   typedef SatCoalitionsUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;

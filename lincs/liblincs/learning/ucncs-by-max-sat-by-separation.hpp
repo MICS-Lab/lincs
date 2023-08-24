@@ -1,7 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
-#ifndef LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_COALITIONS_HPP
-#define LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_COALITIONS_HPP
+#ifndef LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_SEPARATION_HPP
+#define LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_SEPARATION_HPP
 
 #include "../io.hpp"
 
@@ -9,35 +9,31 @@
 namespace lincs {
 
 template<typename MaxSatProblem>
-class MaxSatCoalitionsUcncsLearning {
+class MaxSatSeparationUcncsLearning {
  public:
-  MaxSatCoalitionsUcncsLearning(const Problem& problem_, const Alternatives& learning_set_) :
+  MaxSatSeparationUcncsLearning(const Problem& problem_, const Alternatives& learning_set_) :
     problem(problem_),
     learning_set(learning_set_),
     criteria_count(problem.criteria.size()),
     categories_count(problem.categories.size()),
     boundaries_count(categories_count - 1),
-    subsets_count(1 << criteria_count),
     alternatives_count(learning_set.alternatives.size()),
-    goal_weight(1),
+    subgoal_weight(1),
+    goal_weight(boundaries_count * alternatives_count),
     unique_values(),
+    better_alternative_indexes(),
+    worse_alternative_indexes(),
     above(),
-    sufficient(),
+    separates(),
     sat()
   {}
-
-  // Not copyable
-  MaxSatCoalitionsUcncsLearning(const MaxSatCoalitionsUcncsLearning&) = delete;
-  MaxSatCoalitionsUcncsLearning& operator=(const MaxSatCoalitionsUcncsLearning&) = delete;
-  // Could be made movable if needed
-  MaxSatCoalitionsUcncsLearning(MaxSatCoalitionsUcncsLearning&&) = delete;
-  MaxSatCoalitionsUcncsLearning& operator=(MaxSatCoalitionsUcncsLearning&&) = delete;
 
  public:
   Model perform();
 
  private:
   void sort_values();
+  void partition_alternatives();
   void create_variables();
   void add_structural_constraints();
   void add_learning_set_constraints();
@@ -49,21 +45,26 @@ class MaxSatCoalitionsUcncsLearning {
   const unsigned criteria_count;
   const unsigned categories_count;
   const unsigned boundaries_count;
-  const unsigned subsets_count;
   const unsigned alternatives_count;
+  const typename MaxSatProblem::weight_type subgoal_weight;
   const typename MaxSatProblem::weight_type goal_weight;
   std::vector<std::vector<float>> unique_values;
+  // Alternatives above category k
+  std::vector<std::vector<unsigned>> better_alternative_indexes;
+  // Alternatives in category k or below
+  std::vector<std::vector<unsigned>> worse_alternative_indexes;
   // above[criterion_index][boundary_index][value_index]: value is above profile on criterion
   std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> above;
-  // A subset of criteria (i.e. a coalition) is represented as an unsigned int where
-  // bit i is set if and only if criteria i is in the subset
-  // sufficient[subset]: subset is a sufficient coalition
-  std::vector<typename MaxSatProblem::variable_type> sufficient;
+  // separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index]:
+  // criterion separates alternatives 'good' and 'bad' with regards to profiles 'a' and 'b'
+  std::vector<std::vector<std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>>>> separates;
   // correct[alternative_index]: alternative is correctly classified
   std::vector<typename MaxSatProblem::variable_type> correct;
+  // proper[alternative_index][boundary_index]: alternative is properly classified by the 2-categories model defined by the boundary
+  std::vector<std::vector<typename MaxSatProblem::variable_type>> proper;
   MaxSatProblem sat;
 };
 
 }  // namespace lincs
 
-#endif  // LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_COALITIONS_HPP
+#endif  // LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_SEPARATION_HPP
