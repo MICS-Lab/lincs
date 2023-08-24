@@ -102,7 +102,7 @@ def main(with_docs, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
         pass
     else:
         print_title("Making integration tests from documentation")
-        make_example_integration_test_from_doc()
+        make_integration_tests_from_doc()
 
         # Install lincs
         ###############
@@ -167,42 +167,43 @@ def run_python_tests(*, python_version, forbid_gpu):
     )
 
 
-def make_example_integration_test_from_doc():
-    lines = []
-    for file_name in ["README.rst"] + glob.glob("doc-sources/*.rst"):
-        with open(file_name) as f:
-            lines += f.readlines()
+def make_integration_tests_from_doc():
+    output_files = {}
+    current_prefix = ""
+    current_output_file_name = None
+    for input_file_name in ["README.rst"] + glob.glob("doc-sources/*.rst"):
+        with open(input_file_name) as f:
+            lines = f.readlines()
+        for line in lines:
+            line = line.rstrip()
 
-    files = {}
-    current_file_name = None
-    for line in lines:
-        line = line.rstrip()
-        m = re.fullmatch(r".. STOP", line)
-        if m:
-            assert current_file_name
-            current_file_name = None
-        if current_file_name:
-            m = re.fullmatch(r".. APPEND-TO-LAST-LINE( .+)", line)
+            if line == f"{current_prefix}.. STOP":
+                assert current_output_file_name
+                current_output_file_name = None
+            if current_output_file_name:
+                m = re.fullmatch(r".. APPEND-TO-LAST-LINE( .+)", line)
+                if m:
+                    assert output_files[current_output_file_name]
+                    last_line_index = -1
+                    while output_files[current_output_file_name][last_line_index] == "":
+                        last_line_index -= 1
+                    output_files[current_output_file_name][last_line_index] += m.group(1)
+                elif line.startswith(current_prefix + "    "):
+                    output_files[current_output_file_name].append(line)
+                elif line == "" and output_files[current_output_file_name]:
+                    output_files[current_output_file_name].append("")
+
+            m = re.fullmatch(r"( *).. (START|EXTEND) (.+)", line)
             if m:
-                assert files[current_file_name]
-                last_line_index = -1
-                while files[current_file_name][last_line_index] == "":
-                    last_line_index -= 1
-                files[current_file_name][last_line_index] += m.group(1)
-            elif line.startswith(current_prefix + "    "):
-                files[current_file_name].append(line)
-            elif line == "" and files[current_file_name]:
-                files[current_file_name].append("")
-        m = re.fullmatch(r"( *).. (START|EXTEND) (.+)", line)
-        if m:
-            current_prefix = m.group(1)
-            current_file_name = m.group(3)
-            if m.group(2) == "START":
-                files[current_file_name] = []
-    assert current_file_name is None, current_file_name
+                assert current_output_file_name is None, (input_file_name, current_output_file_name)
+                current_prefix = m.group(1)
+                current_output_file_name = m.group(3)
+                if m.group(2) == "START":
+                    output_files[current_output_file_name] = []
+        assert current_output_file_name is None, (input_file_name, current_output_file_name)
 
     shutil.rmtree("integration-tests/from-documentation", ignore_errors=True)
-    for file_name, file_contents in files.items():
+    for file_name, file_contents in output_files.items():
         file_path = os.path.join("integration-tests", "from-documentation", file_name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         while file_contents and file_contents[-1] == "":

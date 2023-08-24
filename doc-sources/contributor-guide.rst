@@ -224,8 +224,6 @@ But beware of virtual function calls
 
     .. EXTEND virtual-cost/yes-virtual.cpp
 
-    .. EXTEND virtual-cost/yes-virtual.cpp
-
     And the following code runs in ~1.12s::
 
         Foo* foo = makeFoo();
