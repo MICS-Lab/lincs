@@ -163,7 +163,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("dumping then loading model preserves data - weights") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -191,9 +191,9 @@ boundaries:
 TEST_CASE("dumping then loading model preserves data - roots") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -224,9 +224,9 @@ boundaries:
 TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
   };
@@ -265,9 +265,9 @@ boundaries:
 TEST_CASE("dumping doesn't use references when coalitions differ") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
   };
@@ -313,7 +313,7 @@ boundaries:
 
 TEST_CASE("Parsing error") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -327,7 +327,7 @@ TEST_CASE("Parsing error") {
 
 TEST_CASE("Validation error - not an object") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -342,7 +342,7 @@ TEST_CASE("Validation error - not an object") {
 
 TEST_CASE("Validation error - missing weights") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 

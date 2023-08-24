@@ -29,7 +29,7 @@ class ProblemTestCase(unittest.TestCase):
             Problem([], [], 0)
 
     def test_init_one_criterion(self):
-        problem = Problem([Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing)], [])
+        problem = Problem([Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1)], [])
         self.assertEqual(len(problem.criteria), 1)
         self.assertEqual(problem.criteria[0].name, "Criterion name")
         self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
@@ -37,7 +37,7 @@ class ProblemTestCase(unittest.TestCase):
 
     def test_assign_criterion_attributes(self):
         # @todo(Feature, when there are more values in ValueType and CategoryCorrelation) Use other values in constructor
-        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing)], [])
+        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1)], [])
         problem.criteria[0].name = "Criterion name"
         problem.criteria[0].value_type = Criterion.ValueType.real
         problem.criteria[0].category_correlation = Criterion.CategoryCorrelation.growing
@@ -46,18 +46,18 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.criteria[0].category_correlation, Criterion.CategoryCorrelation.growing)
 
     def test_assign_criterion(self):
-        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing)], [])
-        problem.criteria[0] = Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing)
+        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1)], [])
+        problem.criteria[0] = Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1)
         self.assertEqual(problem.criteria[0].name, "Criterion name")
 
     def test_append_criterion(self):
         problem = Problem([], [])
-        problem.criteria.append(Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing))
+        problem.criteria.append(Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1))
         self.assertEqual(len(problem.criteria), 1)
 
     def test_assign_criteria_slice(self):
         problem = Problem([], [])
-        problem.criteria[:] = [Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing)]
+        problem.criteria[:] = [Criterion("Criterion name", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1)]
         self.assertEqual(len(problem.criteria), 1)
 
     def test_init_one_category(self):
@@ -116,9 +116,9 @@ class ModelTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories_weights_boundary(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
+                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
+                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
+                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -142,9 +142,9 @@ class ModelTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories_roots_boundary(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
+                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
+                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
+                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -194,9 +194,9 @@ class AlternativesTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing),
+                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
+                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
+                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),

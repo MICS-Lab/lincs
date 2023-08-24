@@ -33,7 +33,8 @@ Problem generate_classification_problem(const unsigned criteria_count, const uns
     criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
       Criterion::ValueType::real,
-      Criterion::CategoryCorrelation::growing
+      Criterion::CategoryCorrelation::growing,
+      0, 1
     );
   }
 

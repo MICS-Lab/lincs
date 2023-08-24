@@ -26,20 +26,36 @@ struct Criterion {
     // @todo(Feature, much later) Add unknown
   } category_correlation;
 
-  // @todo(Feature, soon) Add min and max values (with the possibility of infinite values?)
-  // (Currently they are assumed to be 0 and 1 everywhere in the code; this is no small task)
+  float min_value;
+  float max_value;
 
   // @todo(Project management, later) Remove these constructors
   // The struct is usable without them in C++, and they were added only to allow using bp::init in the Python module
   // (Do it for other structs as well)
   Criterion() {}
-  Criterion(const std::string& name_, ValueType value_type_, CategoryCorrelation category_correlation_): name(name_), value_type(value_type_), category_correlation(category_correlation_) {}
+  Criterion(
+    const std::string& name_,
+    ValueType value_type_,
+    CategoryCorrelation category_correlation_,
+    float min_value_,
+    float max_value_
+  ):
+    name(name_),
+    value_type(value_type_),
+    category_correlation(category_correlation_),
+    min_value(min_value_),
+    max_value(max_value_)
+  {}
 
   // @todo(Project management, later) Remove this operator
   // The struct is usable without it in C++, and it was added only to allow using bp::vector_indexing_suite in the Python module
   // (Do it for other structs as well)
   bool operator==(const Criterion& other) const {
-    return name == other.name && value_type == other.value_type && category_correlation == other.category_correlation;
+    return name == other.name
+      && value_type == other.value_type
+      && category_correlation == other.category_correlation
+      && min_value == other.min_value
+      && max_value == other.max_value;
   }
 };
 

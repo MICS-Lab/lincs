@@ -4,9 +4,13 @@ criteria:
   - name: Physics grade
     value_type: real
     category_correlation: growing
+    min_value: 0
+    max_value: 1
   - name: Literature grade
     value_type: real
     category_correlation: growing
+    min_value: 0
+    max_value: 1
 categories:
   - name: Bad
   - name: Good

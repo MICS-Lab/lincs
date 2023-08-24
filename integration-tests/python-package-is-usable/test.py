@@ -7,8 +7,8 @@ import lincs
 
 problem = lincs.Problem(
     [
-        lincs.Criterion("Physics grade", lincs.Criterion.ValueType.real, lincs.Criterion.CategoryCorrelation.growing),
-        lincs.Criterion("Literature grade", lincs.Criterion.ValueType.real, lincs.Criterion.CategoryCorrelation.growing),
+        lincs.Criterion("Physics grade", lincs.Criterion.ValueType.real, lincs.Criterion.CategoryCorrelation.growing, 0, 1),
+        lincs.Criterion("Literature grade", lincs.Criterion.ValueType.real, lincs.Criterion.CategoryCorrelation.growing, 0, 1),
     ],
     (
         lincs.Category("Bad"),

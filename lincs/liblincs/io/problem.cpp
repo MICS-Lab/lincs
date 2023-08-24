@@ -37,6 +37,9 @@ struct convert<lincs::Criterion> {
     node["name"] = criterion.name;
     node["value_type"] = std::string(magic_enum::enum_name(criterion.value_type));
     node["category_correlation"] = std::string(magic_enum::enum_name(criterion.category_correlation));
+    // This produces strings "-inf" and "inf" for infinite values
+    node["min_value"] = criterion.min_value;
+    node["max_value"] = criterion.max_value;
 
     return node;
   }
@@ -45,6 +48,16 @@ struct convert<lincs::Criterion> {
     criterion.name = node["name"].as<std::string>();
     criterion.value_type = *magic_enum::enum_cast<lincs::Criterion::ValueType>(node["value_type"].as<std::string>());
     criterion.category_correlation = *magic_enum::enum_cast<lincs::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>());
+    if (node["min_value"].as<std::string>() == "-inf") {
+      criterion.min_value = -std::numeric_limits<float>::infinity();
+    } else {
+      criterion.min_value = node["min_value"].as<float>();
+    }
+    if (node["max_value"].as<std::string>() == "inf") {
+      criterion.max_value = std::numeric_limits<float>::infinity();
+    } else {
+      criterion.max_value = node["max_value"].as<float>();
+    }
 
     return true;
   }
@@ -77,10 +90,22 @@ properties:
         category_correlation:
           type: string
           enum: [growing]
+        min_value:
+          oneOf:
+            - type: number
+            - type: string
+              const: -inf
+        max_value:
+          oneOf:
+            - type: number
+            - type: string
+              const: inf
       required:
         - name
         - value_type
         - category_correlation
+        - min_value
+        - max_value
       additionalProperties: false
     minItems: 1
   categories:
@@ -137,7 +162,7 @@ Problem Problem::load(std::istream& is) {
 
 TEST_CASE("dumping then loading problem preserves data") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -150,6 +175,36 @@ criteria:
   - name: Criterion 1
     value_type: real
     category_correlation: growing
+    min_value: 0
+    max_value: 1
+categories:
+  - name: Category 1
+  - name: Category 2
+)");
+
+  Problem problem2 = Problem::load(ss);
+  CHECK(problem2.criteria == problem.criteria);
+  CHECK(problem2.categories == problem.categories);
+}
+
+TEST_CASE("dumping then loading problem preserves data - infinite min/max") {
+  const float inf = std::numeric_limits<float>::infinity();
+  Problem problem{
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, -inf, inf}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::stringstream ss;
+  problem.dump(ss);
+
+  CHECK(ss.str() == R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: real
+    category_correlation: growing
+    min_value: -inf
+    max_value: inf
 categories:
   - name: Category 1
   - name: Category 2
@@ -185,6 +240,8 @@ criteria:
   - name: Criterion 1
     value_type: invalid
     category_correlation: growing
+    min_value: 0
+    max_value: 1
 categories:
   - name: Category 1
   - name: Category 2

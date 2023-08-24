@@ -119,15 +119,23 @@ The generated ``problem.yml`` should look like::
       - name: Criterion 1
         value_type: real
         category_correlation: growing
+        min_value: 0
+        max_value: 1
       - name: Criterion 2
         value_type: real
         category_correlation: growing
+        min_value: 0
+        max_value: 1
       - name: Criterion 3
         value_type: real
         category_correlation: growing
+        min_value: 0
+        max_value: 1
       - name: Criterion 4
         value_type: real
         category_correlation: growing
+        min_value: 0
+        max_value: 1
     categories:
       - name: Category 1
       - name: Category 2

@@ -201,7 +201,10 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();
 
-  auto criterion_class = bp::class_<lincs::Criterion>("Criterion", bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::CategoryCorrelation>())
+  auto criterion_class = bp::class_<lincs::Criterion>(
+    "Criterion",
+    bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::CategoryCorrelation, float, float>()
+  )
     .def_readwrite("name", &lincs::Criterion::name)
     .def_readwrite("value_type", &lincs::Criterion::value_type)
     .def_readwrite("category_correlation", &lincs::Criterion::category_correlation)

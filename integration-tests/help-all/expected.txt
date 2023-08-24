@@ -421,10 +421,10 @@ lincs.Criterion.ValueType.real: value
 lincs.Criterion.__init__: function
 ----------------------------------
 
-__init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4) -> None :
+__init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4, (float)arg5, (float)arg6) -> None :
 
     C++ signature :
-        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Criterion::ValueType,lincs::Criterion::CategoryCorrelation)
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Criterion::ValueType,lincs::Criterion::CategoryCorrelation,float,float)
 
 lincs.Criterion.category_correlation: property
 ----------------------------------------------
