@@ -1,7 +1,6 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
-import os
 import subprocess
 
 import click
@@ -10,22 +9,15 @@ import semver
 from cycle import build_sphinx_documentation, print_title
 
 
-python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
-
-
 @click.command()
-@click.argument("level", type=click.Choice(["patch", "minor", "major", "dry-run"]))
+@click.argument("level", type=click.Choice(["patch", "minor", "major"]))
 def main(level):
-    dry_run = level == "dry-run"
-    if not dry_run:
-        check_cleanliness()
+    check_cleanliness()
     new_version = bump_version(level)
-    if not dry_run:
-        update_changelog(new_version)
-        build_sphinx_documentation()
-    if not dry_run:
-        publish(new_version)
-        prepare_next_version(new_version)
+    update_changelog(new_version)
+    build_sphinx_documentation()
+    publish(new_version)
+    prepare_next_version(new_version)
 
 
 def check_cleanliness():
@@ -117,15 +109,8 @@ def update_changelog(new_version):
 
     input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
 
-def publish(new_version):
-    # @todo Restore publishing to Docker Hub, from GitHub Actions
-    # print_title("Publishing to Docker Hub")
-    # subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}-python{python_versions[-1]}", f"jacquev6/lincs:{new_version}"], check=True)
-    # subprocess.run(["sudo", "docker", "tag", f"jacquev6/lincs:{new_version}", "jacquev6/lincs:latest"], check=True)
-    # subprocess.run(["sudo", "docker", "push", f"jacquev6/lincs:{new_version}"], check=True)
-    # subprocess.run(["sudo", "docker", "push", "jacquev6/lincs:latest"], check=True)
-    # print()
 
+def publish(new_version):
     print_title("Publishing to GitHub")
     subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)

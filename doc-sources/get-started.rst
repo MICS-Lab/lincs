@@ -8,154 +8,45 @@ Get started
 Get *lincs*
 ===========
 
-You have a few options:
+Your options:
 
-- run *lincs* using our Docker image: simple and works on any machine with Docker installed
-- install *lincs* using binary wheels: simple and works on fairly recent Linux distributions
-- install *lincs* from the source distribution: works on Ubuntu 20.04, and you'll need to install a few dependencies first
+- install *lincs* using binary wheels (on fairly recent Linux distributions and on macOS on Intel processors)
+.. - run *lincs* using our Docker image (on any machine with Docker installed, including Windows machines with Docker for Desktop)
 
-We strongly recommend you don't waste your time trying to install *lincs* on another system for now; we do plan to do that soon-ish.
-@todo Support other operating systems; distribute wheels.
+We recommend you don't try to build *lincs* from sources, as this requires installing quite a few dependencies.
+If you really want to go that route, you may want to start by reading the [GitHub Actions workflow](https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml) we use to build the binary wheels.
 
-Get and run the Docker image
-----------------------------
+We don't plan to support Windows in the short term, but we would accept a contribution that builds wheels for Windows on GitHub Actions.
 
-.. highlight:: shell
-
-Get the image::
-
-    docker pull jacquev6/lincs
-
-Run the image::
-
-    docker run --rm -it jacquev6/lincs
-
-This will put you in a basic Ubuntu shell with the ``lincs`` command-line interface installed.
-You can skip the next sections and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
-
-More details about the Docker image: the default tag ``latest`` always points at the latest published version of *lincs*.
-`Other tags <https://hub.docker.com/repository/docker/jacquev6/lincs/tags>`_ are available for specific versions, *e.g.* ``jacquev6/lincs:0.3.7``.
-
-Make sure to get familiar with Docker and containers: in particular, all changes you make in the container will be lost when you exit it.
-You'll need to use the ``--volume`` option to access your local filesystem from within the container.
-See `Docker documentation <https://docs.docker.com/>`_ for more information.
-
-Install *lincs* on your Linux system, using binary wheels
----------------------------------------------------------
-
-``pip install lincs --only-binary lincs`` should be enough.
-You can now skip the next section and go to :ref:`Start using *lincs*' command-line interface <start-command-line>`.
-
-Install *lincs* on your Ubuntu 20.04 system, from sources
----------------------------------------------------------
-
-(The same procedure should work on Ubuntu 22.04 as well.)
+Option 1: Install *lincs* on your Linux or macOS (Intel) system, using binary wheels
+-------------------------------------------------------------------------------------
 
 .. highlight:: shell
 
-.. START install/mandatory-dependencies.sh
+Just run::
 
-First, you need to install a few dependencies::
+    pip install lincs --only-binary lincs
 
-    # System packages
-    sudo apt-get install --yes g++ libboost-python-dev python3-dev libyaml-cpp-dev
+..
+    Option 2: Get and run the Docker image
+    --------------------------------------
 
-    # OR-tools
-    wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
-    tar xf or-tools_ubuntu-20.04_v8.2.8710.tar.gz
-    sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include
-    sudo cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib
-    sudo ldconfig
-    rm -r or-tools_Ubuntu-20.04-64bit_v8.2.8710 or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+    Get the image::
 
-.. STOP
+        docker pull jacquev6/lincs
 
-.. START install/optional-dependencies.sh
+    Run the image::
 
-Optionally, to use GPU-based learning strategies::
+        docker run --rm -it jacquev6/lincs bash
 
-    # CUDA (Optional, recommended if you have an NVIDIA GPU)
-    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-    sudo add-apt-repository 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /'
-    sudo apt-get update
-    sudo apt-get install --yes cuda-cudart-dev-12-1 cuda-nvcc-12-1
-    export PATH=/usr/local/cuda-12.1/bin:$PATH
+    This will put you in a basic Ubuntu shell with the ``lincs`` command-line interface installed.
 
-.. STOP
+    More details about the Docker image: the default tag ``latest`` always points at the latest published version of *lincs*.
+    `Other tags <https://hub.docker.com/repository/docker/jacquev6/lincs/tags>`_ are available for specific versions, *e.g.* ``jacquev6/lincs:0.3.7``.
 
-.. START install/Dockerfile-pre
-    FROM ubuntu:20.04
-
-    RUN apt-get update
-
-    RUN DEBIAN_FRONTEND=noninteractive apt-get install --yes \
-          sudo wget python3-pip dirmngr gpg-agent software-properties-common
-
-    RUN useradd user --create-home
-    RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/user
-    USER user
-    ENV PATH=$PATH:/home/user/.local/bin
-    WORKDIR /home/user
-
-.. STOP
-
-.. START install/Dockerfile-post
-    WORKDIR /home/user
-    # Speed-up build when requirements don't change
-    ADD project/requirements.txt .
-    RUN pip3 install -r requirements.txt
-    ADD --chown=user project /home/user/lincs
-    RUN pip3 install ./lincs
-
-.. STOP
-
-.. START install/is-long
-.. STOP
-
-.. START install/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
-    mkdir project
-    cp -Lr ../../../{lincs,requirements.txt,setup.py} project
-    touch project/README.rst  # No need for the actual readme, so don't bust the Docker cache
-
-    # Transform the dependencies.sh file into a Dockerfile to benefit from the Docker build cache
-    (
-      cat Dockerfile-pre
-      echo
-      cat mandatory-dependencies.sh optional-dependencies.sh \
-      | grep -v -e '^#' -e '^$' \
-      | sed 's/^/RUN /' \
-      | sed 's/^RUN cd/WORKDIR/' \
-      | sed 's/^RUN export/ENV/'
-      echo
-      cat Dockerfile-post
-    ) >Dockerfile
-
-    sudo docker build . --tag lincs-development--install-with-cuda --quiet >/dev/null
-    sudo docker run --rm lincs-development--install-with-cuda lincs --help >/dev/null
-
-    # Transform the dependencies.sh file into a Dockerfile to benefit from the Docker build cache
-    (
-      cat Dockerfile-pre
-      echo
-      cat mandatory-dependencies.sh \
-      | grep -v -e '^#' -e '^$' \
-      | sed 's/^/RUN /' \
-      | sed 's/^RUN cd/WORKDIR/' \
-      | sed 's/^RUN export/ENV/'
-      echo
-      cat Dockerfile-post
-    ) >Dockerfile
-
-    sudo docker build . --tag lincs-development--install-without-cuda --quiet >/dev/null
-    sudo docker run --rm lincs-development--install-without-cuda lincs --help >/dev/null
-.. STOP
-
-Finally ``pip install lincs --no-binary lincs`` should finalize the install.
+    Make sure to get familiar with Docker and containers: in particular, all changes you make in the container will be lost when you exit it.
+    You'll need to use the ``--volume`` option to access your local filesystem from within the container.
+    See `Docker documentation <https://docs.docker.com/>`_ for more information.
 
 
 .. _start-command-line:

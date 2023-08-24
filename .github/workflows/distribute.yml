@@ -229,3 +229,13 @@ jobs:
   #       with:
   #         token: ${{ secrets.TOKEN_FOR_PURGE_ARTIFACTS_ACTION }}
   #         expire-in: 0  # Purge all artifacts from previous runs, keep the new ones from this run
+
+  # @todo Publish a Docker image
+  # With a Dockerfile like:
+  #   FROM python:3.11-slim
+  #   ARG LINCS_VERSION
+  #   RUN pip3 install --only-binary lincs lincs==$LINCS_VERSION
+  # docker build docker --build-arg LINCS_VERSION=$new_version --tag jacquev6/lincs:$new_version
+  # docker tag jacquev6/lincs:$new_version jacquev6/lincs:latest
+  # docker push jacquev6/lincs:$new_version
+  # docker push jacquev6/lincs:latest
