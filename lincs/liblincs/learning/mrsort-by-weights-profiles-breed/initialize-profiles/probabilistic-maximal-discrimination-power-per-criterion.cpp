@@ -46,7 +46,7 @@ std::map<float, double> InitializeProfilesForProbabilisticMaximalDiscriminationP
       }
 
       unsigned correctly_classified_count = 0;
-      // @todo Could we somehow sort 'values_below' and 'values_above' and walk the values only once?
+      // @todo(Performance, later) Could we somehow sort 'values_below' and 'values_above' and walk the values only once?
       // (Transforming this O(n²) loop in O(n*log n) + O(n))
       for (auto value : values_below) if (value < candidate) ++correctly_classified_count;
       for (auto value : values_above) if (value >= candidate) ++correctly_classified_count;
@@ -75,7 +75,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
         if (profile_index != learning_data.categories_count - 2) {
           value = std::min(value, learning_data.profiles[criterion_index][profile_index + 1][model_index]);
         }
-        // @todo Add a unit test that triggers the following assertion
+        // @todo(Project management, soon) Add a unit test that triggers the following assertion
         // (This will require removing the code to enforce the order of profiles above)
         // Then restore the code to enforce the order of profiles
         // Note, this assertion does not protect us from initializing a model with two identical profiles.

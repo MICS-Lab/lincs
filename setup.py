@@ -31,7 +31,7 @@ if os.environ.get("LINCS_DEV_COVERAGE", "false") == "true":
     coverage_link_args = ["--coverage"]
 
 # Method for building an extension with CUDA code extracted from https://stackoverflow.com/a/13300714/905845
-# @todo Consider using scikit-build:
+# @todo(Project management, later) Consider using scikit-build:
 # it should make it easier to compile CUDA code using nvcc and to run C++ unit tests during build.
 # Note that pybind11 comes with an example of building using scikit-build.
 # (see also https://www.benjack.io/hybrid-python/c-packages-revisited/)
@@ -89,7 +89,7 @@ liblincs = setuptools.Extension(
         "yaml-cpp",
     ] + optional_libraries,
     define_macros=[("DOCTEST_CONFIG_DISABLE", None)] + ([("LINCS_HAS_NVCC", None)] if has_nvcc else []),
-    # @todo Support several versions of CUDA?
+    # @todo(Project management, later) Support several versions of CUDA?
     include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
     library_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/lib"],
     # Non-standard: the dict is accessed in `customize_compiler_for_nvcc`

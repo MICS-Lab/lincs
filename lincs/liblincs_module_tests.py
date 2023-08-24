@@ -36,7 +36,7 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.criteria[0].category_correlation, Criterion.CategoryCorrelation.growing)
 
     def test_assign_criterion_attributes(self):
-        # @todo (When there are more values in ValueType and CategoryCorrelation) Use other values in constructor
+        # @todo(Feature, when there are more values in ValueType and CategoryCorrelation) Use other values in constructor
         problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing)], [])
         problem.criteria[0].name = "Criterion name"
         problem.criteria[0].value_type = Criterion.ValueType.real
@@ -137,7 +137,7 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.boundaries[0].profile), 3)
         self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.weights)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 3)
-        # @todo self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 0)
+        # @todo(Feature, when upset_roots are exposed) self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 0)
 
     def test_init_three_criteria_two_categories_roots_boundary(self):
         problem = Problem(
@@ -163,7 +163,7 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.boundaries[0].profile), 3)
         self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.roots)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
-        # @todo self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 2)
+        # @todo(Feature, when upset_roots are exposed) self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 2)
 
     def test_assign_model_attributes(self):
         problem = Problem([], [])

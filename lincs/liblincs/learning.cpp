@@ -220,7 +220,7 @@ TEST_CASE("Alglib WPB learning") {
 
   check_exact_learning<Wrapper>(1, 2);
   check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2);  // @todo Investigate why seed 78 succeeds with Alglib but not with Glop
+  check_exact_learning<Wrapper>(7, 2);  // @todo(Project management, soon-ish) Investigate why seed 78 succeeds with Alglib but not with Glop
   check_exact_learning<Wrapper>(1, 3);
   check_exact_learning<Wrapper>(4, 3, {59});
 }

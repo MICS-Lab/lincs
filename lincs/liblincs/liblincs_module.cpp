@@ -17,7 +17,7 @@
 #include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
-// @todo Consider using pybind11, which advertises itself as an evolved and simplified version of Boost.Python
+// @todo(Project management, later) Consider using pybind11, which advertises itself as an evolved and simplified version of Boost.Python
 namespace bp = boost::python;
 
 namespace {
@@ -81,7 +81,7 @@ lincs::Alternatives load_alternatives(const lincs::Problem& problem, bp::object&
   return lincs::Alternatives::load(problem, in_stream);
 }
 
-// @todo Thoroughly review all conversions between Python and C++ types.
+// @todo(Project management, soon) Thoroughly review all conversions between Python and C++ types.
 // - read Boost.Python doc in details and understand the contract
 // - homogenize converters (some were copy-pasted from SO answers and even ChatGPT)
 // - double-check if/when we need to increment reference counts on Python objects
@@ -247,7 +247,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 
-  // @todo Double-check why we need both an enum 'Kind' and two tag classes 'Weights' and 'Roots'; simplify or document
+  // @todo(Project management, soon-ish) Double-check why we need both an enum 'Kind' and two tag classes 'Weights' and 'Roots'; simplify or document
   bp::class_<lincs::SufficientCoalitions::Weights>("Weights", bp::no_init);
   bp::class_<lincs::SufficientCoalitions::Roots>("Roots", bp::no_init);
   auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
@@ -389,7 +389,7 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   learn_wbp_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
-    // @todo Expose all attributes to allow non-trivial Python strategies and observers
+    // @todo(Feature, soon) Expose all attributes to allow non-trivial Python strategies and observers
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
   ;
 

@@ -5,7 +5,7 @@ Conceptual overview
 ===================
 
 
-@todo Double-check strictness of inequalities (:math:`\lt` *vs.* :math:`\le`) and inclusions (:math:`\subset` *vs.* :math:`\subseteq`) in all formal definitions in this document
+@todo(Documentation, soon) Double-check strictness of inequalities (:math:`\lt` *vs.* :math:`\le`) and inclusions (:math:`\subset` *vs.* :math:`\subseteq`) in all formal definitions in this document
 
 Notation
 ========
@@ -108,7 +108,7 @@ The definition of :math:`f` then simplifies to :math:`x \mapsto \max \{ h \in [1
 This definition may differ slightly from the one you're used to, but it should be formally equivalent.
 We use it in *lincs* because it is somewhat simple and matches the implementation quite well.
 We detail its equivalence to other common definitions in the following appendix:
-@todo Write appendix about equivalence of definitions (:math:`h` is shifted by 1, assignment to category is a max instead of two conditions)
+@todo(Documentation, soon) Write appendix about equivalence of definitions (:math:`h` is shifted by 1, assignment to category is a max instead of two conditions)
 
 The constraints in the definition all ensure NDS models behave according to intuition:
 
@@ -409,7 +409,7 @@ A coalition is sufficient if the sum of the weights of its criteria is above 1.
 
 Again, this definition differs slightly from others in the literature.
 We detail their equivalence in this appendix:
-@todo Write appendix about equivalence of definitions (weights are de-normalized, :math:`\lambda` is 1)
+@todo(Documentation, soon) Write appendix about equivalence of definitions (weights are de-normalized, :math:`\lambda` is 1)
 
 Example
 .......

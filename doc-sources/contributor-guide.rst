@@ -53,7 +53,7 @@ because dependencies are installed inside the Docker container.
 You can even contribute to *lincs* on an OS that is not supported to run it directly,
 *e.g.* macOS with `Docker Desktop <https://www.docker.com/products/docker-desktop/>`_.
 If you have an CUDA-compatible NVidia GPU and want to run code that uses it, you need to configure the NVidia Docker runtime.
-@todo Add pointers to the documentation of the NVidia Docker runtime
+@todo(Documentation, soon) Add pointers to the documentation of the NVidia Docker runtime
 
 
 Development cycle
@@ -106,12 +106,12 @@ This is done by the ``./run-development-cycle.sh`` script before it runs them.
 General design
 ==============
 
-@todo Write
+@todo(Documentation, soon) Write
 
 Focus on interfaces
 -------------------
 
-@todo Write
+@todo(Documentation, soon) Write
 
 Strategies
 ----------
@@ -346,12 +346,12 @@ By default, you should start with a dynamic extension point unless it's very cle
 Definition of an dynamic extension point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@todo Write
+@todo(Documentation, soon) Write
 
 Definition of an static extension point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@todo Write
+@todo(Documentation, soon) Write
 
 Default behavior for backward compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

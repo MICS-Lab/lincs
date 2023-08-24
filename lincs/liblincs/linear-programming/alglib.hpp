@@ -40,7 +40,7 @@ class AlglibLinearProgram {
     Constraint(alglib::minlpstate& state_) : state(state_) {}
     ~Constraint() {
       const unsigned nnz = coefficients.size();
-      // @todo Try using 'alglib::minlpsetbci' when 'nnz == 1'
+      // @todo(Performance, soon) Try using 'alglib::minlpsetbci' when 'nnz == 1'
       // Maybe Alglib can be faster with box constraints than with general linear constraints?
       alglib::integer_1d_array idxa;
       idxa.setlength(nnz);

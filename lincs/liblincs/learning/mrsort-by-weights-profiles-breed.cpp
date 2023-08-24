@@ -153,7 +153,7 @@ bool LearnMrsortByWeightsProfilesBreed::is_correctly_assigned(
 }
 
 unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
-  // @todo Evaluate if it's worth storing and updating the models' assignments
+  // @todo(Performance, later) Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   // Same question in accuracy-heuristic-on-gpu.cu
   assert(model_index < learning_data.models_count);

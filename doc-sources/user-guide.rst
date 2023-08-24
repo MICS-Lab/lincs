@@ -23,21 +23,21 @@ Generate synthetic data
 From the command-line interface
 -------------------------------
 
-@todo Write about ``lincs generate``
+@todo(Documentation, soon) Write about ``lincs generate``
 
-@todo Write about randomness and the ``--random-seed`` option
+@todo(Documentation, soon) Write about randomness and the ``--random-seed`` option
 
-@todo Write about outputting to the standard output by default
+@todo(Documentation, soon) Write about outputting to the standard output by default
 
 Through the Python API
 ----------------------
 
-@todo Write
+@todo(Documentation, later) Write
 
 Through the C++ API
 -------------------
 
-@todo Write
+@todo(Documentation, later) Write
 
 
 Learn a model
@@ -231,12 +231,12 @@ This ensures that the two following commands output exactly the same model::
 Through the Python API
 ----------------------
 
-@todo Write
+@todo(Documentation, later) Write
 
 Through the C++ API
 -------------------
 
-@todo Write
+@todo(Documentation, later) Write
 
 
 Use a model
@@ -245,18 +245,18 @@ Use a model
 From the command-line interface
 -------------------------------
 
-@todo Write about ``lincs classify`` (outputting to stdout by default)
+@todo(Documentation, soon) Write about ``lincs classify`` (outputting to stdout by default)
 
-@todo Write about ``lincs classification-accuracy`` (always outputting to stdout)
+@todo(Documentation, soon) Write about ``lincs classification-accuracy`` (always outputting to stdout)
 
-@todo Write about ``lincs visualize classification-model`` (mandatory output parameter, use - to output to stdout)
+@todo(Documentation, soon) Write about ``lincs visualize classification-model`` (mandatory output parameter, use - to output to stdout)
 
 Through the Python API
 ----------------------
 
-@todo Write
+@todo(Documentation, later) Write
 
 Through the C++ API
 -------------------
 
-@todo Write
+@todo(Documentation, later) Write

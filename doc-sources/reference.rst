@@ -4,7 +4,7 @@
 Reference
 =========
 
-@todo Generate a reference documentation using Sphinx:
+@todo(Documentation, later) Generate a reference documentation using Sphinx:
 
 - Python using autodoc
 - C++ using Doxygen+Breath
@@ -28,13 +28,6 @@ The problem file is a YAML file specified by the following :download:`JSON Schem
 .. jsonschema:: problem-schema.yml
    :lift_title: false
 
-.. _ref-file-alternatives:
-
-The alternatives file
----------------------
-
-@todo Write
-
 .. _ref-file-ncs-model:
 
 The NCS model file
@@ -44,6 +37,13 @@ The model file is a YAML file specified by the following :download:`JSON Schema 
 
 .. jsonschema:: model-schema.yml
    :lift_title: false
+
+.. _ref-file-alternatives:
+
+The alternatives file
+---------------------
+
+@todo(Documentation, soon) Write
 
 .. _ref-cli:
 

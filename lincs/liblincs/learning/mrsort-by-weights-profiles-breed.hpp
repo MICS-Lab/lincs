@@ -74,7 +74,7 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData {
   Array2D<Host, float> weights;
   Array3D<Host, float> profiles;
   Array1D<Host, unsigned> accuracies;
-  // @todo Add models' ages
+  // @todo(Performance, later) Add models' ages
   std::vector<std::mt19937> urbgs;
 
   static LearningData make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);

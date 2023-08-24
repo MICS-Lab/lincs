@@ -169,7 +169,7 @@ void update_move_desirability(
   }
 }
 
-// @todo investigate how sharing preliminary computations done in all threads could improve perf
+// @todo(Performance, later) investigate how sharing preliminary computations done in all threads could improve perf
 __global__
 void compute_move_desirabilities__kernel(
   const ArrayView2D<Device, const float> learning_alternatives,
@@ -349,7 +349,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     std::uniform_real_distribution<float>(0, 1)(host_learning_data.urbgs[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
-  // @todo Double-check and document why we don't need [model_index] here
+  // @todo(Feature, soon) Double-check and document why we don't need [model_index] here
   copy(gpu_learning_data.profiles[criterion_index][profile_index], host_learning_data.profiles[criterion_index][profile_index]);
 }
 

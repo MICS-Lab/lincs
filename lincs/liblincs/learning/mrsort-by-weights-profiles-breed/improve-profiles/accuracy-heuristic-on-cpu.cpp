@@ -65,7 +65,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   // Mousseau's prez-mics-2018(8).pdf, but:
   //  - this is wasteful when there are fewer alternatives in the interval
   //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
-  // @todo Ask Vincent Mousseau about the following:
+  // @todo(Performance, later) Ask Vincent Mousseau about the following:
   // We could consider only a finite set of values for b_j described as follows:
   // - sort all the 'a_j's
   // - compute all midpoints between two successive 'a_j'
@@ -91,7 +91,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
     }
   }
 
-  // @todo Desirability can be as high as 2. The [0, 1] interval is a weird choice.
+  // @todo(Feature, soon) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
   if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
     learning_data.profiles[criterion_index][profile_index][model_index] = best_destination;
   }
@@ -128,7 +128,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const unsigned learning_assignment = learning_data.learning_assignments[alternative_index];
   const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(learning_data, model_index, alternative_index);
 
-  // @todo Factorize with get_assignment
+  // @todo(Project management, later) Factorize with get_assignment
   // (Same remark in accuracy-heuristic-on-gpu.cu)
   float weight_at_or_above_profile = 0;
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {

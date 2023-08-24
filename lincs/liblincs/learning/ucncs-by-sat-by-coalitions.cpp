@@ -12,6 +12,8 @@
 
 namespace lincs {
 
+// @todo(Project management, soon-ish) Factorize common parts of all SAT approaches
+
 template<typename V>
 std::vector<V> implies(V a, V b) {
   // "A => B" <=> "-A or B"
@@ -108,8 +110,9 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
 
   // Clauses "C3" in the article
   // Coalitions form an upset so if a coalition is sufficient, then all coalitions that include it are sufficient too
-  // @todo Optimize this nested loop using the fact that a is included in b
+  // @todo(Performance, later) Optimize this nested loop using the fact that a is included in b
   // Or even better, add constraints only for the transitive reduction of the inclusion relation
+  // Same in "max-SAT by coalitions" approach
   for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
     for (unsigned subset_b = 0; subset_b != subsets_count; ++subset_b) {
       // "subset_a included in subset_b" <=> "all bits set in subset_a are set in subset_b"
@@ -198,7 +201,8 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
     if (solution[sufficient[subset_a]]) {
       bool is_root = true;
-      // @todo Optimize this search for actual roots; it may be something like a transitive reduction
+      // @todo(Performance, later) Optimize this search for actual roots; it may be something like a transitive reduction
+      // Same in "max-SAT by coalitions" approach
       for (unsigned subset_b = 0; subset_b != subsets_count; ++subset_b) {
         if (solution[sufficient[subset_b]]) {
           if ((subset_a & subset_b) == subset_b && subset_a != subset_b) {
@@ -224,7 +228,10 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     std::vector<float> profile(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       bool found = false;
-      // @todo Replace next loop with a binary search
+      // @todo(Performance, later) Replace next loop with a binary search
+      // Same in "max-SAT by coalitions" approach
+      // Same in "SAT by separation" approach
+      // Same in "max-SAT by separation" approach
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
         if (solution[above[criterion_index][boundary_index][value_index]]) {
           if (value_index == 0) {
@@ -237,7 +244,11 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
         }
       }
       if (!found) {
-        profile[criterion_index] = 1;  // @todo Use the max value for the criterion
+        // @todo(Feature, soon) Use the max value for the criterion
+        // Same in "max-SAT by coalitions" approach
+        // Same in "SAT by separation" approach
+        // Same in "max-SAT by separation" approach
+        profile[criterion_index] = 1;
       }
     }
 

@@ -36,4 +36,4 @@ from liblincs import LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 # Learning - max-SAT by separation
 from liblincs import LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
 
-# @todo Accept learning and training set as Pandas DataFrame?
+# @todo(Feature, later) Accept learning and training set as Pandas DataFrame?

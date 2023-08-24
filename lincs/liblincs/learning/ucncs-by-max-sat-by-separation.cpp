@@ -252,7 +252,6 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     profile.resize(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       bool found = false;
-      // @todo Replace next loop with a binary search
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
         if (solution[above[criterion_index][boundary_index][value_index]]) {
           if (value_index == 0) {
@@ -265,7 +264,7 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
         }
       }
       if (!found) {
-        profile[criterion_index] = 1;  // @todo Use the max value for the criterion
+        profile[criterion_index] = 1;
       }
     }
   }
@@ -287,7 +286,6 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
       roots_.insert(root);
     }
   }
-  // @todo Reduce to actual roots?
   std::vector<std::vector<unsigned>> roots(roots_.begin(), roots_.end());
 
   std::vector<Model::Boundary> boundaries;

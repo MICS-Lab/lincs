@@ -100,7 +100,7 @@ It's organized using sub-commands, the first one being ``generate``, to generate
 
 .. EXTEND command-line-example/run.sh
 
-Generate a classification problem with 4 criteria and 3 categories (@todo Link to concepts and file formats)::
+Generate a classification problem with 4 criteria and 3 categories (@todo(Documentation, soon) Link to concepts and file formats)::
 
     lincs generate classification-problem 4 3 --output-problem problem.yml
 
@@ -145,7 +145,7 @@ You can edit this file to change the criteria names, the number of categories, *
 
 .. EXTEND command-line-example/run.sh
 
-Then generate an NCS classification model (@todo Link to concepts and file formats)::
+Then generate an NCS classification model (@todo(Documentation, soon) Link to concepts and file formats)::
 
     lincs generate classification-model problem.yml --output-model model.yml
 
@@ -199,14 +199,14 @@ It should output something like:
 
 .. EXTEND command-line-example/run.sh
 
-And finally generate a set of classified alternatives (@todo Link to concepts and file formats)::
+And finally generate a set of classified alternatives (@todo(Documentation, soon) Link to concepts and file formats)::
 
     lincs generate classified-alternatives problem.yml model.yml 1000 --output-classified-alternatives learning-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
 
-@todo Should we provide utilities to split a set of alternatives into a training set and a testing set?
+@todo(Feature, later) Should we provide utilities to split a set of alternatives into a training set and a testing set?
 Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
 Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
 
@@ -249,7 +249,7 @@ It should output something like:
     :alt: Alternatives visualization
     :align: center
 
-@todo Remove the legend, place names (categories and alternatives) directly on the graph
+@todo(Feature, later) Remove the legend, place names (categories and alternatives) directly on the graph
 
 You now have a (synthetic) learning set.
 
@@ -259,7 +259,6 @@ You now have a (synthetic) learning set.
 
 You can use it to train a new model::
 
-    # @todo Rename the command to `train`?
     lincs learn classification-model problem.yml learning-set.csv --output-model trained-model.yml
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
