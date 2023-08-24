@@ -6,7 +6,8 @@
     - on GitHub Pages (https://mics-lab.github.io/lincs/)
     So when you change it, take care to check all those places.
 
-*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of MCDA algorithms, usable as a C++ library, a Python (3.7+) package and a command-line utility.
+*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of MCDA algorithms, usable as a command-line utility.
+We plan to make it usable as a C++ library and a Python (3.7+) package as well. (@todo)
 
 *lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files `COPYING <COPYING>`_ and `COPYING.LESSER <COPYING.LESSER>`_.
 
@@ -46,11 +47,9 @@ The concept of the NCS model was first introduced by Denis Bouyssou and Thierry 
 Particular cases of the NCS model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :math:`U^c \textsf{-} NCS` model is a particular case of the NCS model where the set of sufficient coalitions is unique, shared by all categories.
+The :math:`U^c \textsf{-} NCS` model is a particular case of the NCS model.
 
 The MR-Sort model is a particular case of the :math:`U^c \textsf{-} NCS` model introduced by Agnès Leroy *et al.* in `Learning the Parameters of a Multiple Criteria Sorting Method <https://link.springer.com/chapter/10.1007/978-3-642-24873-3_17>`_.
-
-@todo Add link to an article describing the familly of NCS models.
 
 Although *lincs* can sort alternatives acording to general NCS models (without veto), it only implements learning :math:`U^c \textsf{-} NCS` and MR-Sort models.
 
@@ -69,7 +68,7 @@ The following learning algorithms were implemented using their description by Al
 - learning exact :math:`U^c \textsf{-} NCS` models with a "SAT by separation" approach
 - learning approximate :math:`U^c \textsf{-} NCS` models with a "max-SAT by separation" approach
 
-Note that they were introduced in previous articles by Khaled Belahcène, and that this article conveniently gathers them in a single place.
+Note that they were introduced in previous articles, and that this article conveniently gathers them in a single place.
 
 Learning approximate MR-Sort with a heuristic approach
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,10 +80,6 @@ We call it the "weights, profiles, breed" learning strategy in *lincs*.
 It was originaly `implemented in Python <https://github.com/oso/pymcda>`_ by Olivier Sobrie.
 Emma Dixneuf, Thibault Monsel and Thomas Vindard then provided a sequential `C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_.
 *lincs* provides two parallel implementations of this approach (using OpenMP and CUDA).
-
-@todo Add links to the fundamental articles for NCS.
-
-@todo Add links to the articles that define other learning methods we re-implement.
 
 
 Project goals
@@ -102,15 +97,8 @@ Provide a base for developing new MCDA algorithms
 *lincs* is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
 See our `contributor guide <https://mics-lab.github.io/lincs/contributor-guide.html>`_ for more details.
 
-*lincs* also provides a benchmark framework to compare algorithms (@todo Implement and document).
+*lincs* will also provide a benchmark framework to compare algorithms (@todo).
 This should make it easier to understand the relative strengths and weaknesses of each algorithm.
-
-
-Versioning
-==========
-
-Starting with version 1.0.0, *lincs* tries to apply `semantic versioning <https://semver.org/>`_ at a *code* level:
-upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.
 
 
 Get started
@@ -124,6 +112,13 @@ We highly recommend you read the other one just after.
 
 Once you've used *lincs* a bit, you can follow up with our `user guide <https://mics-lab.github.io/lincs/user-guide.html>`_
 and `reference documentation <https://mics-lab.github.io/lincs/reference.html>`_.
+
+
+Versioning
+==========
+
+Starting with version 1.0.0, *lincs* tries to apply `semantic versioning <https://semver.org/>`_ at a *code* level:
+upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.
 
 
 Develop *lincs* itself
