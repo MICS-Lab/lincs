@@ -96,6 +96,9 @@ Note that the general improvements will undoubtedly worsen the situation for som
 .. START other-learnings/uses-gpu
 .. STOP
 
+.. START other-learnings/is-long
+.. STOP
+
 The following example assumes you've followed our :doc:`"Get started" guide <get-started>` and have ``problem.yml`` and ``learning-set.csv`` in your current directory.
 It also assumes you have an NVidia GPU with CUDA support and its drivers correctly installed.
 If you're using the Docker image, it further assumes you're running it with NVidia Docker Runtime properly configured and activated (*e.g.* with the ``--gpus all`` option of ``docker run``).
