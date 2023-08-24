@@ -543,4 +543,18 @@ BOOST_PYTHON_MODULE(liblincs) {
   )
     .def("perform", &lincs::LearnUcncsBySatBySeparationUsingMinisat::perform)
   ;
+
+  bp::class_<lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat, boost::noncopyable>(
+    "LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat",
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>()
+  )
+    .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform)
+  ;
+
+  bp::class_<lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat, boost::noncopyable>(
+    "LearnUcncsByMaxSatBySeparationUsingEvalmaxsat",
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>()
+  )
+    .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform)
+  ;
 }

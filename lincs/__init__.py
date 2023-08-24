@@ -30,4 +30,10 @@ from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat
 # Learning - SAT by separation
 from liblincs import LearnUcncsBySatBySeparationUsingMinisat
 
+# Learning - max-SAT by coalitions
+from liblincs import LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
+
+# Learning - max-SAT by separation
+from liblincs import LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
+
 # @todo Accept learning and training set as Pandas DataFrame?
