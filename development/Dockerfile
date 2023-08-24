@@ -1,6 +1,5 @@
 # Copyright 2023 Vincent Jacques
 
-FROM ubuntu:20.04
 # About the choice of Ubuntu 20.04 instead of 22.04: it an acceptable compromise:
 # - it's an LTS version as well
 # - the deadsnakes PPA supports it
@@ -8,14 +7,71 @@ FROM ubuntu:20.04
 # - its gcc version supports C++17
 # - it allows building manylinux_2_31 wheels, which are slightly more widely usable than the manylinux_2_34 wheels produced on 22.04
 
-# @todo Clean-up intermediate files (tarballs, source and build directories, etc.)
-# @todo Use Docker build stages to avoid re-downloading tarballs (but keep it compatible with the clean-up of intermediate files)
+FROM ubuntu:20.04 AS base
 
-# System packages
+# https://docs.docker.com/engine/reference/builder/#run---mounttypecache
 RUN set -x \
+ && rm -f /etc/apt/apt.conf.d/docker-clean \
+ && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache
+
+
+FROM base AS downloader
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      ca-certificates \
+        ca-certificates \
+        wget
+
+WORKDIR /download
+
+
+FROM downloader AS download-boost
+
+RUN set -x \
+ && wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz \
+ && tar xf boost_*.tar.gz \
+ && rm boost_*.tar.gz \
+ && mv boost_* boost
+
+
+FROM downloader AS download-get-pip
+
+RUN set -x \
+ && wget https://bootstrap.pypa.io/get-pip.py
+
+
+FROM downloader AS download-or-tools
+
+# DO NOT UPGRADE to version 9.y: there is a SegFault bug (that I still need to report)
+RUN set -x \
+ && wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
+ && tar xf or-tools_*.tar.gz \
+ && rm or-tools_*.tar.gz \
+ && mv or-tools_* or-tools
+
+
+FROM downloader AS download-patchelf
+
+RUN set -x \
+ && wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz \
+ && mkdir patchelf \
+ && cd patchelf \
+ && tar xf ../patchelf-*.tar.gz \
+ && cd .. \
+ && rm patchelf-*.tar.gz
+
+
+FROM base AS final
+
+# System packages
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
+ && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       ccache \
       dirmngr \
       docker.io \
@@ -28,13 +84,14 @@ RUN set -x \
       python3-venv \
       software-properties-common \
       ssh \
-      sudo \
-      wget \
- && apt-get clean
+      sudo
 
 # Python versions
 ENV LINCS_DEV_PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11"
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=bind,from=download-get-pip,source=/download,target=/download \
+    set -x \
  && default_python_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')") \
  && non_default_python_versions=$(\
       for python_version in $LINCS_DEV_PYTHON_VERSIONS; do echo $python_version; done \
@@ -44,42 +101,38 @@ RUN set -x \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       $(for python_version in $non_default_python_versions; do echo "python$python_version-dev python$python_version-distutils python$python_version-venv"; done) \
- && apt-get clean \
- && wget https://bootstrap.pypa.io/get-pip.py \
- && for python_version in $non_default_python_versions $default_python_version; do python$python_version get-pip.py || exit 1; done
+ && for python_version in $non_default_python_versions $default_python_version; do python$python_version /download/get-pip.py || exit 1; done
 
 # Boost
-RUN set -x \
- && wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz \
- && tar xf boost_1_82_0.tar.gz \
- && cd boost_1_82_0 \
+RUN --mount=type=bind,from=download-boost,source=/download,target=/download,readwrite \
+    set -x \
+ && cd /download/boost \
  && (for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "using python : $version ;"; done) >tools/build/src/user-config.jam \
  && ./bootstrap.sh --with-libraries=python \
  && ./b2 $(for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "python=$version"; done) \
- && cd /usr/local/include && ln -s /boost_1_82_0/boost boost \
- && cd /usr/local/lib && ln -s /boost_1_82_0/stage/lib/* .
+ && cp -r /download/boost/boost /usr/local/include \
+ && cp -r /download/boost/stage/lib/* /usr/local/lib
 
 # NVidia packages
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
  && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub \
  && add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
       cuda-cudart-dev-12-1 \
-      cuda-nvcc-12-1 \
- && apt-get clean
+      cuda-nvcc-12-1
 
 # OR-Tools
-# DO NOT UPGRADE to version 9.y: there is a SegFault bug (that I still need to report)
-RUN set -x \
- && wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
- && tar xf or-tools_ubuntu-20.04_v8.2.8710.tar.gz \
- && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/include/* /usr/local/include \
- && cp -r or-tools_Ubuntu-20.04-64bit_v8.2.8710/lib/*.so /usr/local/lib \
- && ldconfig
+RUN --mount=type=bind,from=download-or-tools,source=/download,target=/download \
+    set -x \
+ && cp -r /download/or-tools/include/* /usr/local/include \
+ && cp -r /download/or-tools/lib/*.so /usr/local/lib
 
 # Python packages: development and publication tools
-RUN set -x \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    set -x \
  && pip3 install \
       auditwheel \
       gcovr \
@@ -93,18 +146,19 @@ RUN set -x \
       build \
     || exit 1; done
 # Recent patchelf version for 'auditwheel repair'
-RUN set -x \
- && mkdir patchelf \
- && cd patchelf \
- && wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz \
- && tar xf patchelf-0.18.0-x86_64.tar.gz \
- && cp bin/patchelf /usr/local/bin
+RUN --mount=type=bind,from=download-patchelf,source=/download,target=/download \
+    set -x \
+ && cp /download/patchelf/bin/patchelf /usr/local/bin
 
 # Python packages: runtime dependencies
-RUN for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+    for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       click~=8.1 \
       matplotlib~=3.5 \
     || exit 1; done
+
+# Finalization
+RUN ldconfig
 
 # User
 ARG UID
