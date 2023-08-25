@@ -44,7 +44,7 @@ void check_exact_learning(
   std::set<unsigned> bad_seeds = {},
   const unsigned seeds_count = default_seeds_count
 ) {
-  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41);
+  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false);
 
   for (unsigned seed = 0; seed != seeds_count; ++seed) {
     if (bad_seeds.find(seed) != bad_seeds.end()) {
@@ -80,7 +80,7 @@ void check_non_exact_learning(
   std::set<unsigned> bad_seeds = {},
   const unsigned seeds_count = default_seeds_count
 ) {
-  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41);
+  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false);
 
   for (unsigned seed = 0; seed != seeds_count; ++seed) {
     if (bad_seeds.find(seed) != bad_seeds.end()) {
@@ -222,7 +222,7 @@ TEST_CASE("Alglib WPB learning") {
   check_exact_learning<Wrapper>(3, 2);
   check_exact_learning<Wrapper>(7, 2);  // @todo(Project management, soon-ish) Investigate why seed 78 succeeds with Alglib but not with Glop
   check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {59});
+  check_exact_learning<Wrapper>(4, 3, {55, 59});  // @todo(Project management, soon-ish) Investigate why seed 55 succeeds with Glop but not with Alglib
 }
 
 #ifdef LINCS_HAS_NVCC

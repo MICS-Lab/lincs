@@ -298,13 +298,14 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   const unsigned profile_index,
   const unsigned criterion_index
 ) {
-  // WARNING: We're assuming all criteria have values in [0, 1]
   const float lowest_destination =
-    profile_index == 0 ? 0. :
-    host_learning_data.profiles[criterion_index][profile_index - 1][model_index];
+    profile_index == 0 ?
+      host_learning_data.problem.criteria[criterion_index].min_value :
+      host_learning_data.profiles[criterion_index][profile_index - 1][model_index];
   const float highest_destination =
-    profile_index == host_learning_data.categories_count - 2 ? 1. :
-    host_learning_data.profiles[criterion_index][profile_index + 1][model_index];
+    profile_index == host_learning_data.categories_count - 2 ?
+      host_learning_data.problem.criteria[criterion_index].max_value :
+      host_learning_data.profiles[criterion_index][profile_index + 1][model_index];
 
   if (lowest_destination == highest_destination) {
     assert(host_learning_data.profiles[criterion_index][profile_index][model_index] == lowest_destination);

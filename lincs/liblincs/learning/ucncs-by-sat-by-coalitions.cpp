@@ -235,7 +235,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
         if (solution[above[criterion_index][boundary_index][value_index]]) {
           if (value_index == 0) {
-            profile[criterion_index] = unique_values[criterion_index][value_index];
+            profile[criterion_index] = problem.criteria[criterion_index].min_value;
           } else {
             profile[criterion_index] = (unique_values[criterion_index][value_index - 1] + unique_values[criterion_index][value_index]) / 2;
           }
@@ -244,11 +244,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
         }
       }
       if (!found) {
-        // @todo(Feature, soon) Use the max value for the criterion
-        // Same in "max-SAT by coalitions" approach
-        // Same in "SAT by separation" approach
-        // Same in "max-SAT by separation" approach
-        profile[criterion_index] = 1;
+        profile[criterion_index] = problem.criteria[criterion_index].max_value;
       }
     }
 
