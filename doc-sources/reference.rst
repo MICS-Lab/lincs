@@ -50,6 +50,9 @@ The alternatives file
 Command-line interface
 ======================
 
+.. @todo(Documentation, later) Ensure that ranges appear in the doc like they do in the CLI's --help
+.. Example: 0.0<=x<=1.0 for --mrsort.weights-profiles-breed.target-accuracy
+
 .. click:: lincs.command_line_interface:main
    :prog: lincs
    :nested: full
