@@ -10,9 +10,16 @@
 
 namespace lincs {
 
-Problem generate_classification_problem(unsigned criteria_count, unsigned categories_count, unsigned random_seed);
+// @todo(Feature, later) Use structures to hold generation options?
+// This would allow calls like:
+// generate_classification_problem(4, 3, 42, {.normalized_min_max = true}})
+// generate_mrsort_classification_model(problem, 42, {.fixed_weights_sum = 2.0f}})
 
-Model generate_mrsort_classification_model(const Problem&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
+Problem generate_classification_problem(
+  unsigned criteria_count, unsigned categories_count, unsigned random_seed, bool normalized_min_max=true);
+
+Model generate_mrsort_classification_model(
+  const Problem&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);
 
 class BalancedAlternativesGenerationException : public std::exception {
  public:

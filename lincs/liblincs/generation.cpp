@@ -24,8 +24,18 @@ const bool skip_long = env_is_true("LINCS_DEV_SKIP_LONG");
 
 namespace lincs {
 
-Problem generate_classification_problem(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed) {
-  // There is nothing random yet. There will be when other value types and category correlations are added.
+Problem generate_classification_problem(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed, bool normalized_min_max) {
+  float min_value = 0;
+  float max_value = 1;
+  if (!normalized_min_max) {
+    std::mt19937 gen(random_seed);
+    std::uniform_real_distribution<float> min_max_distribution(-100, 100);
+    min_value = min_max_distribution(gen);
+    max_value = min_max_distribution(gen);
+    if (min_value > max_value) {
+      std::swap(min_value, max_value);
+    }
+  }
 
   std::vector<Criterion> criteria;
   criteria.reserve(criteria_count);
@@ -34,7 +44,7 @@ Problem generate_classification_problem(const unsigned criteria_count, const uns
       "Criterion " + std::to_string(criterion_index + 1),
       Criterion::ValueType::real,
       Criterion::CategoryCorrelation::growing,
-      0, 1
+      min_value, max_value
     );
   }
 
@@ -55,11 +65,12 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
 
   std::mt19937 gen(random_seed);
 
-  // Profile can take any values. We arbitrarily generate them uniformly
-  std::uniform_real_distribution<float> values_distribution(0.01f, 0.99f);
-  // (Values clamped strictly inside ']0, 1[' to make it easier to generate balanced learning sets)
   std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
-  for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    const auto& criterion = problem.criteria[criterion_index];
+    // Profile can take any values. We arbitrarily generate them uniformly
+    std::uniform_real_distribution<float> values_distribution(criterion.min_value + 0.01f, criterion.max_value - 0.01f);
+    // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
     // Profiles must be ordered on each criterion, so we generate a random column...
     std::vector<float> column(categories_count - 1);
     std::generate(
@@ -69,7 +80,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
     std::sort(column.begin(), column.end());
     // ... and assign that column across all profiles.
     for (unsigned profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
-      profiles[profile_index][crit_index] = column[profile_index];
+      profiles[profile_index][criterion_index] = column[profile_index];
     }
   }
 
@@ -155,14 +166,22 @@ Alternatives generate_uniform_classified_alternatives(
   alternatives.reserve(alternatives_count);
 
   // We don't do anything to ensure homogeneous repartition amongst categories.
-  // We just generate random profiles uniformly in [0, 1]
-  std::uniform_real_distribution<float> values_distribution(0.0f, 1.0f);
+  // We just generate random profiles uniformly in [min, max] for each criterion
+  std::vector<std::uniform_real_distribution<float>> values_distributions;
+  values_distributions.reserve(criteria_count);
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    const auto& criterion = problem.criteria[criterion_index];
+    assert(criterion.value_type == Criterion::ValueType::real);
+    assert(criterion.category_correlation == Criterion::CategoryCorrelation::growing);
+
+    values_distributions.emplace_back(criterion.min_value, criterion.max_value);
+  }
 
   for (unsigned alt_index = 0; alt_index != alternatives_count; ++alt_index) {
     std::vector<float> criteria_values(criteria_count);
-    std::generate(
-      criteria_values.begin(), criteria_values.end(),
-      [&values_distribution, &gen]() { return values_distribution(gen); });
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      criteria_values[criterion_index] = values_distributions[criterion_index](gen);
+    }
 
     alternatives.push_back(Alternative{
       "Alternative " + std::to_string(alt_index + 1),
@@ -400,6 +419,17 @@ TEST_CASE("Generate balanced classified alternatives - many seeds") {
       }
     }
   }
+}
+
+TEST_CASE("Random min/max") {
+  Problem problem = generate_classification_problem(1, 2, 42, false);
+  Model model = generate_mrsort_classification_model(problem, 42);
+  Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
+
+  CHECK(problem.criteria[0].min_value == doctest::Approx(-25.092));
+  CHECK(problem.criteria[0].max_value == doctest::Approx(59.3086));
+  CHECK(model.boundaries[0].profile[0] == doctest::Approx(6.52194));
+  CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(45.3692));
 }
 
 TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
