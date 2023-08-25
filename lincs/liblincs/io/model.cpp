@@ -61,7 +61,7 @@ properties:
                     items:
                       type: integer
                     minItems: 0
-                  minItems: 1
+                  minItems: 0
               required:
                 - kind
                 - upset_roots
@@ -116,8 +116,13 @@ void Model::dump(const Problem&, std::ostream& os) const {
           out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << boundary.sufficient_coalitions.criterion_weights;
           break;
         case SufficientCoalitions::Kind::roots:
-          out << YAML::Key << "upset_roots" << YAML::Value << YAML::BeginSeq;
-          for (const auto& root : boundary.sufficient_coalitions.get_upset_roots()) {
+          out << YAML::Key << "upset_roots" << YAML::Value;
+          const auto upset_roots = boundary.sufficient_coalitions.get_upset_roots();
+          if (upset_roots.empty()) {
+            out << YAML::Flow;
+          }
+          out << YAML::BeginSeq;
+          for (const auto& root : upset_roots) {
             out << YAML::Flow << root;
           }
           out << YAML::EndSeq;
@@ -215,6 +220,35 @@ boundaries:
       upset_roots:
         - [0]
         - [1, 2]
+)");
+
+  Model model2 = Model::load(problem, ss);
+  CHECK(model2.boundaries == model.boundaries);
+}
+
+TEST_CASE("dumping empty roots uses flow style") {
+  Problem problem{
+    {
+      {"Criterion", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+    },
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  Model model{
+    problem,
+    {{{0.5}, {SufficientCoalitions::roots, 3, {}}}},
+  };
+
+  std::stringstream ss;
+  model.dump(problem, ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile: [0.5]
+    sufficient_coalitions:
+      kind: roots
+      upset_roots: []
 )");
 
   Model model2 = Model::load(problem, ss);
