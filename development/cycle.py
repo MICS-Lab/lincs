@@ -251,6 +251,7 @@ def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
     env = dict(os.environ)
     env["LINCS_DEV_PYTHON_VERSIONS"] = " ".join(python_versions)
 
+    ok = True
     for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
         test_name = test_file_name[18:-7]
 
@@ -264,13 +265,22 @@ def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
 
         print_title(test_name, '-')
 
-        subprocess.run(
-            ["bash", "run.sh"],
-            cwd=os.path.dirname(test_file_name),
-            check=True,
-            env=env,
-        )
-        print()
+        try:
+            subprocess.run(
+                ["bash", "run.sh"],
+                cwd=os.path.dirname(test_file_name),
+                check=True,
+                env=env,
+            )
+        except subprocess.CalledProcessError as e:
+            print("FAILED")
+            print(flush=True)
+            ok = False
+        else:
+            print()
+    if not ok:
+        print("INTEGRATION TESTS FAILED")
+        exit(1)
 
 
 if __name__ == "__main__":
