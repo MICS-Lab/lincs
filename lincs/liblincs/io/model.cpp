@@ -86,7 +86,7 @@ JsonValidator validator(schema);
 
 }  // namespace
 
-void Model::dump(const Problem&, std::ostream& os) const {
+void Model::dump(const Problem& problem, std::ostream& os) const {
   YAML::Emitter out(os);
 
   bool use_coalitions_alias =
@@ -117,13 +117,19 @@ void Model::dump(const Problem&, std::ostream& os) const {
           break;
         case SufficientCoalitions::Kind::roots:
           out << YAML::Key << "upset_roots" << YAML::Value;
-          const auto upset_roots = boundary.sufficient_coalitions.get_upset_roots();
+          const auto upset_roots = boundary.sufficient_coalitions.upset_roots;
           if (upset_roots.empty()) {
             out << YAML::Flow;
           }
           out << YAML::BeginSeq;
           for (const auto& root : upset_roots) {
-            out << YAML::Flow << root;
+            out << YAML::Flow << YAML::BeginSeq;
+            for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
+              if (root[criterion_index]) {
+                out << criterion_index;
+              }
+            }
+            out << YAML::EndSeq;
           }
           out << YAML::EndSeq;
           break;

@@ -17,7 +17,7 @@ class MaxSatCoalitionsUcncsLearning {
     criteria_count(problem.criteria.size()),
     categories_count(problem.categories.size()),
     boundaries_count(categories_count - 1),
-    subsets_count(1 << criteria_count),
+    coalitions_count(1 << criteria_count),
     alternatives_count(learning_set.alternatives.size()),
     goal_weight(1),
     unique_values(),
@@ -38,6 +38,7 @@ class MaxSatCoalitionsUcncsLearning {
 
  private:
   void sort_values();
+  void create_all_coalitions();
   void create_variables();
   void add_structural_constraints();
   void add_learning_set_constraints();
@@ -49,15 +50,15 @@ class MaxSatCoalitionsUcncsLearning {
   const unsigned criteria_count;
   const unsigned categories_count;
   const unsigned boundaries_count;
-  const unsigned subsets_count;
+  const unsigned coalitions_count;
+  typedef boost::dynamic_bitset<> Coalition;
+  std::vector<Coalition> all_coalitions;
   const unsigned alternatives_count;
   const typename MaxSatProblem::weight_type goal_weight;
   std::vector<std::vector<float>> unique_values;
   // above[criterion_index][boundary_index][value_index]: value is above profile on criterion
   std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> above;
-  // A subset of criteria (i.e. a coalition) is represented as an unsigned int where
-  // bit i is set if and only if criteria i is in the subset
-  // sufficient[subset]: subset is a sufficient coalition
+  // sufficient[coalition.to_ulong()]: coalition is sufficient
   std::vector<typename MaxSatProblem::variable_type> sufficient;
   // correct[alternative_index]: alternative is correctly classified
   std::vector<typename MaxSatProblem::variable_type> correct;

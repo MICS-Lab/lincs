@@ -269,7 +269,7 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     }
   }
 
-  std::set<std::vector<unsigned>> roots_;
+  std::set<boost::dynamic_bitset<>> sufficient_coalitions;
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     for (unsigned good_alternative_index : better_alternative_indexes[boundary_index]) {
       if (!solution[correct[good_alternative_index]]) {
@@ -277,21 +277,33 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
         continue;
       }
 
-      std::vector<unsigned> root;
+      boost::dynamic_bitset<> coalition(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (learning_set.alternatives[good_alternative_index].profile[criterion_index] >= profiles[boundary_index][criterion_index]) {
-          root.push_back(criterion_index);
+          coalition.set(criterion_index);
         }
       }
-      roots_.insert(root);
+      sufficient_coalitions.insert(coalition);
     }
   }
-  std::vector<std::vector<unsigned>> roots(roots_.begin(), roots_.end());
+  std::vector<boost::dynamic_bitset<>> roots;
+  for (const auto& coalition_a : sufficient_coalitions) {
+    bool coalition_a_is_root = true;
+    for (const auto& coalition_b : sufficient_coalitions) {
+      if (coalition_b.is_proper_subset_of(coalition_a)) {
+        coalition_a_is_root = false;
+        break;
+      }
+    }
+    if (coalition_a_is_root) {
+      roots.push_back(coalition_a);
+    }
+  }
 
   std::vector<Model::Boundary> boundaries;
   boundaries.reserve(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-    boundaries.emplace_back(profiles[boundary_index], SufficientCoalitions{SufficientCoalitions::roots, criteria_count, roots});
+    boundaries.emplace_back(profiles[boundary_index], SufficientCoalitions{SufficientCoalitions::roots, roots});
   }
 
   return Model{problem, boundaries};

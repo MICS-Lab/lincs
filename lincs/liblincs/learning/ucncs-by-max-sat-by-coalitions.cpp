@@ -21,6 +21,7 @@ std::vector<V> implies(V a, V b) {
 template<typename MaxSatProblem>
 Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::perform() {
   sort_values();
+  create_all_coalitions();
   create_variables();
   add_structural_constraints();
   add_learning_set_constraints();
@@ -52,6 +53,14 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::sort_values() {
   }
 }
 
+template<typename MaxSatProblem>
+void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_all_coalitions() {
+  all_coalitions.reserve(coalitions_count);
+  for (unsigned coalition_index = 0; coalition_index != coalitions_count; ++coalition_index) {
+    all_coalitions.emplace_back(criteria_count, coalition_index);
+  }
+}
+
 // This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
 // specifically its section 5.1, with the special case for Uc-NCS at the end of the section.
 
@@ -70,9 +79,9 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
   }
 
   // Variables "t" in the article
-  sufficient.resize(subsets_count);
-  for (unsigned subset = 0; subset != subsets_count; ++subset) {
-    sufficient[subset] = sat.create_variable();
+  sufficient.resize(coalitions_count);
+  for (const Coalition& coalition : all_coalitions) {
+    sufficient[coalition.to_ulong()] = sat.create_variable();
   }
 
   // Variables "z" in the article
@@ -114,11 +123,10 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
 
   // Clauses "C3" in the article
   // Coalitions form an upset so if a coalition is sufficient, then all coalitions that include it are sufficient too
-  for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
-    for (unsigned subset_b = 0; subset_b != subsets_count; ++subset_b) {
-      // "subset_a included in subset_b" <=> "all bits set in subset_a are set in subset_b"
-      if ((subset_a & subset_b) == subset_a && subset_a != subset_b) {
-        sat.add_clause(implies(sufficient[subset_a], sufficient[subset_b]));
+  for (const Coalition& coalition_a : all_coalitions) {
+    for (const Coalition& coalition_b : all_coalitions) {
+      if (coalition_a.is_proper_subset_of(coalition_b)) {
+        sat.add_clause(implies(sufficient[coalition_a.to_ulong()], sufficient[coalition_b.to_ulong()]));
       }
     }
   }
@@ -141,12 +149,12 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
     // This boundary is *just above* the alternative, so the alternative can't be above it on a sufficient coalition
     const unsigned boundary_index = category_index;
 
-    for (unsigned subset = 0; subset != subsets_count; ++subset) {
+    for (const Coalition& coalition : all_coalitions) {
       std::vector<typename MaxSatProblem::variable_type> clause;
       // Either the coalition is not sufficient...
-      clause.push_back(-sufficient[subset]);
+      clause.push_back(-sufficient[coalition.to_ulong()]);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-        if (subset & (1 << criterion_index)) { // "criterion_index in subset" <=> "bit criterion_index is set in subset"
+        if (coalition[criterion_index]) {
           const auto lb = std::lower_bound(
             unique_values[criterion_index].begin(), unique_values[criterion_index].end(),
             alternative.profile[criterion_index]
@@ -177,12 +185,12 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
     // This boundary is *just below* the alternative, so the alternative has to be above it on a sufficient coalition
     const unsigned boundary_index = category_index - 1;
 
-    for (unsigned subset = 0; subset != subsets_count; ++subset) {
+    for (const Coalition& coalition : all_coalitions) {
       std::vector<typename MaxSatProblem::variable_type> clause;
-      const unsigned subset_complement = ~subset & (subsets_count - 1);
-      clause.push_back(sufficient[subset_complement]);
+      const Coalition coalition_complement = ~coalition;
+      clause.push_back(sufficient[coalition_complement.to_ulong()]);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-        if (subset & (1 << criterion_index)) {
+        if (coalition[criterion_index]) {
           const auto lb = std::lower_bound(
             unique_values[criterion_index].begin(), unique_values[criterion_index].end(),
             alternative.profile[criterion_index]
@@ -207,25 +215,20 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
 
 template<typename MaxSatProblem>
 Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<bool>& solution) {
-  std::vector<std::vector<unsigned>> roots;
-  for (unsigned subset_a = 0; subset_a != subsets_count; ++subset_a) {
-    if (solution[sufficient[subset_a]]) {
-      bool is_root = true;
-      for (unsigned subset_b = 0; subset_b != subsets_count; ++subset_b) {
-        if (solution[sufficient[subset_b]]) {
-          if ((subset_a & subset_b) == subset_b && subset_a != subset_b) {
-            is_root = false;
+  std::vector<boost::dynamic_bitset<>> roots;
+  for (const Coalition& coalition_a : all_coalitions) {
+    if (solution[sufficient[coalition_a.to_ulong()]]) {
+      bool coalition_a_is_root = true;
+      for (const Coalition& coalition_b : all_coalitions) {
+        if (solution[sufficient[coalition_b.to_ulong()]]) {
+          if (coalition_b.is_proper_subset_of(coalition_a)) {
+            coalition_a_is_root = false;
             break;
           }
         }
       }
-      if (is_root) {
-        roots.emplace_back();
-        for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-          if (subset_a & (1 << criterion_index)) {
-            roots.back().push_back(criterion_index);
-          }
-        }
+      if (coalition_a_is_root) {
+        roots.push_back(coalition_a);
       }
     }
   }
@@ -252,7 +255,7 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
       }
     }
 
-    boundaries.emplace_back(profile, SufficientCoalitions{SufficientCoalitions::roots, criteria_count, roots});
+    boundaries.emplace_back(profile, SufficientCoalitions{SufficientCoalitions::roots, roots});
   }
 
   return Model{problem, boundaries};

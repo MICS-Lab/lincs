@@ -43,22 +43,13 @@ struct SufficientCoalitions {
     }
   }
 
+  SufficientCoalitions(Roots, const std::vector<boost::dynamic_bitset<>>& upset_roots_) :
+    kind(Kind::roots),
+    upset_roots(upset_roots_)
+  {}
+
   bool operator==(const SufficientCoalitions& other) const {
     return kind == other.kind && criterion_weights == other.criterion_weights && upset_roots == other.upset_roots;
-  }
-
-  std::vector<std::vector<unsigned>> get_upset_roots() const {
-    std::vector<std::vector<unsigned>> result;
-    result.reserve(upset_roots.size());
-    for (const auto& root: upset_roots) {
-      result.emplace_back();
-      for (unsigned criterion_index = 0; criterion_index != root.size(); ++criterion_index) {
-        if (root[criterion_index]) {
-          result.back().push_back(criterion_index);
-        }
-      }
-    }
-    return result;
   }
 };
 
