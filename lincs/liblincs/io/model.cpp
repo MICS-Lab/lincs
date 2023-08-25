@@ -60,7 +60,7 @@ properties:
                     type: array
                     items:
                       type: integer
-                    minItems: 1
+                    minItems: 0
                   minItems: 1
               required:
                 - kind
