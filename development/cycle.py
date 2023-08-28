@@ -125,7 +125,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_
         ######################
 
         print_title("Running integration tests")
-        run_integration_tests(python_versions=python_versions, skip_long=skip_long, forbid_gpu=forbid_gpu)
+        run_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -249,7 +249,7 @@ def build_sphinx_documentation():
         f.write(original_content)
 
 
-def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
+def run_integration_tests(*, skip_long, forbid_gpu):
     ok = True
     for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
         test_name = test_file_name[18:-7]
