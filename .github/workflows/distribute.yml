@@ -41,6 +41,7 @@ jobs:
           sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends cuda-cudart-dev-12-1 cuda-nvcc-12-1
+          echo "/usr/local/cuda-12.1/bin" >>$GITHUB_PATH
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
