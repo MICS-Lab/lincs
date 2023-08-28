@@ -82,6 +82,7 @@ The command-line interface is the easiest way to get started with *lincs*, start
       classification-accuracy  Compute a classification accuracy.
       classify                 Classify alternatives.
       generate                 Generate synthetic data.
+      info                     Get information about lincs itself.
       learn                    Learn a model.
       visualize                Make graphs from data.
 

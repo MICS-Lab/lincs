@@ -19,8 +19,9 @@ from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
 from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu
 try:
     from liblincs import ImproveProfilesWithAccuracyHeuristicOnGpu
+    has_gpu = True
 except ImportError:
-    pass
+    has_gpu = False
 from liblincs import ReinitializeLeastAccurate
 from liblincs import TerminateAtAccuracy, TerminateAfterSeconds, TerminateAfterIterations, TerminateWhenAny
 

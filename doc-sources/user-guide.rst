@@ -91,6 +91,8 @@ Note that the general improvements will undoubtedly worsen the situation for som
 
     cp ../command-line-example/{problem.yml,learning-set.csv} .
     cp ../command-line-example/expected-trained-model.yml .
+
+    diff <(echo "lincs was compiled with CUDA support") <(lincs info has-gpu)
 .. STOP
 
 .. START other-learnings/uses-gpu
@@ -99,9 +101,13 @@ Note that the general improvements will undoubtedly worsen the situation for som
 .. START other-learnings/is-long
 .. STOP
 
-The following example assumes you've followed our :doc:`"Get started" guide <get-started>` and have ``problem.yml`` and ``learning-set.csv`` in your current directory.
-It also assumes you have an NVidia GPU with CUDA support and its drivers correctly installed.
-If you're using the Docker image, it further assumes you're running it with NVidia Docker Runtime properly configured and activated (*e.g.* with the ``--gpus all`` option of ``docker run``).
+The following example makes a few assumptions:
+
+- you've followed our :doc:`"Get started" guide <get-started>` and have ``problem.yml`` and ``learning-set.csv`` in your current directory
+- your installed version of lincs was built with CUDA support (check with ``lincs info has-gpu``)
+- you have an NVidia GPU with CUDA support and its drivers correctly installed
+- if you're using the Docker image, you're running it with NVidia Docker Runtime properly configured and activated (*e.g.* with the ``--gpus all`` option of ``docker run``)
+
 If those conditions are verified, you can tweak the "weights, profiles, breed" learning process to:
 
 - use your GPU for the improvement of the profiles
