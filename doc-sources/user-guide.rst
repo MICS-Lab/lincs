@@ -178,10 +178,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
         sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
-            - [0, 1, 2]
-            - [0, 1, 2, 3]
             - [1, 2]
-            - [1, 2, 3]
       - profile: [1, 0.3252118, 0.6726626, 0.9967546]
         sufficient_coalitions: *coalitions
 .. STOP

@@ -1043,11 +1043,11 @@ classify_alternatives( (Problem)problem, (Model)model, (Alternatives)alternative
 lincs.generate_classification_problem: function
 -----------------------------------------------
 
-generate_classification_problem( (int)criteria_count, (int)categories_count, (int)random_seed) -> Problem :
+generate_classification_problem( (int)criteria_count, (int)categories_count, (int)random_seed [, (bool)normalized_min_max=True]) -> Problem :
     Generate a problem with `criteria_count` criteria and `categories_count` categories.
 
     C++ signature :
-        lincs::Problem generate_classification_problem(unsigned int,unsigned int,unsigned int)
+        lincs::Problem generate_classification_problem(unsigned int,unsigned int,unsigned int [,bool=True])
 
 lincs.generate_classified_alternatives: function
 ------------------------------------------------
