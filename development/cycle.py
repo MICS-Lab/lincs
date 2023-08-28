@@ -47,9 +47,16 @@ import click
     """),
 )
 def main(with_docs, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
+    if forbid_gpu:
+        os.environ["LINCS_DEV_FORBID_GPU"] = "true"
+        os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
+    if skip_long:
+        os.environ["LINCS_DEV_SKIP_LONG"] = "true"
+
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
     if skip_long or unit_coverage:
         python_versions = [python_versions[0]]
+        os.environ["LINCS_DEV_PYTHON_VERSIONS"] = python_versions[0]
 
     shutil.rmtree("build", ignore_errors=True)
 
@@ -72,12 +79,12 @@ def main(with_docs, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
         print()
 
     print_title("Running C++ unit tests")
-    run_cpp_tests(python_version=python_versions[0], skip_long=skip_long, forbid_gpu=forbid_gpu)
+    run_cpp_tests(python_version=python_versions[0])
     print()
 
     for python_version in python_versions:
         print_title(f"Running Python {python_version} unit tests")
-        run_python_tests(python_version=python_version, forbid_gpu=forbid_gpu)
+        run_python_tests(python_version=python_version)
         print()
 
     if unit_coverage:
@@ -131,7 +138,7 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, python_version, skip_long, forbid_gpu):
+def run_cpp_tests(*, python_version,):
     suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
@@ -143,17 +150,10 @@ def run_cpp_tests(*, python_version, skip_long, forbid_gpu):
     )
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
-    if skip_long:
-        env["LINCS_DEV_SKIP_LONG"] = "true"
-    if forbid_gpu:
-        env["LINCS_DEV_FORBID_GPU"] = "true"
     subprocess.run(["/tmp/lincs-tests"], check=True, env=env)
 
 
-def run_python_tests(*, python_version, forbid_gpu):
-    env = dict(os.environ)
-    if forbid_gpu:
-        env["LINCS_DEV_FORBID_GPU"] = "true"
+def run_python_tests(*, python_version):
     subprocess.run(
         [
             f"python{python_version}", "-m", "unittest", "discover",
@@ -161,7 +161,6 @@ def run_python_tests(*, python_version, forbid_gpu):
             "--start-directory", "lincs", "--top-level-directory", ".",
         ],
         check=True,
-        env=env,
     )
 
 
@@ -248,9 +247,6 @@ def build_sphinx_documentation():
 
 
 def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
-    env = dict(os.environ)
-    env["LINCS_DEV_PYTHON_VERSIONS"] = " ".join(python_versions)
-
     ok = True
     for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
         test_name = test_file_name[18:-7]
@@ -270,7 +266,6 @@ def run_integration_tests(*, python_versions, skip_long, forbid_gpu):
                 ["bash", "run.sh"],
                 cwd=os.path.dirname(test_file_name),
                 check=True,
-                env=env,
             )
         except subprocess.CalledProcessError as e:
             print("FAILED")
