@@ -13,8 +13,34 @@ Commands:
   classification-accuracy  Compute a classification accuracy.
   classify                 Classify alternatives.
   generate                 Generate synthetic data.
+  info                     Get information about lincs itself.
   learn                    Learn a model.
   visualize                Make graphs from data.
+
+lincs info
+==========
+
+Usage: lincs info [OPTIONS] COMMAND [ARGS]...
+
+  Get information about lincs itself.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  has-gpu  Check whether lincs was compiled with CUDA support.
+
+lincs info has-gpu
+==================
+
+Usage: lincs info has-gpu [OPTIONS]
+
+  Check whether lincs was compiled with CUDA support. Return code is 0 if CUDA
+  is supported, 1 otherwise.
+
+Options:
+  --quiet  Don't print anything, just return the exit code.
+  --help   Show this message and exit.
 
 lincs generate
 ==============

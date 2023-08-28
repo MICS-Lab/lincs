@@ -159,6 +159,29 @@ def help_all():
 
 
 @main.group(
+    help="Get information about lincs itself."
+)
+def info():
+    pass
+
+@info.command(
+    help="Check whether lincs was compiled with CUDA support. Return code is 0 if CUDA is supported, 1 otherwise."
+)
+@click.option(
+    "--quiet", is_flag=True,
+    help="Don't print anything, just return the exit code.",
+)
+def has_gpu(quiet):
+    if lincs.has_gpu:
+        if not quiet:
+            print("lincs was compiled with CUDA support")
+    else:
+        if not quiet:
+            print("lincs was compiled WITHOUT CUDA support")
+        exit(1)
+
+
+@main.group(
     help="Generate synthetic data.",
 )
 def generate():
