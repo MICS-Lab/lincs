@@ -88,7 +88,10 @@ jobs:
             rm *.tar.gz
 
       # Build the wheel
+      # @todo(Project management, now) Ensure 'nvcc' is available when building wheels on GHA
       - run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
+        env:
+          LINCS_DEV_FORCE_NVCC: "true"
       - run: auditwheel repair --plat manylinux_2_31_x86_64 --strip local-dist/*.whl --wheel-dir dist
       - run: twine check dist/*
 

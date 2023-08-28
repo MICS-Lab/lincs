@@ -24,6 +24,12 @@ with open("requirements.txt") as f:
 
 has_nvcc = os.environ.get("LINCS_DEV_FORBID_NVCC", "false") != "true" and shutil.which("nvcc") is not None
 
+if not has_nvcc:
+    if os.environ.get("LINCS_DEV_FORCE_NVCC", "false") == "true":
+        raise Exception("nvcc is not available but LINCS_DEV_FORCE_NVCC is true")
+    else:
+        print("WARNING: 'nvcc' was not found, lincs will be compiled without CUDA support", file=sys.stderr)
+
 coverage_compile_args = []
 coverage_link_args = []
 if os.environ.get("LINCS_DEV_COVERAGE", "false") == "true":
