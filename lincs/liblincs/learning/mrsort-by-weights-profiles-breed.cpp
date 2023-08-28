@@ -117,6 +117,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     }
 
     // Breed
+    // @todo(Feature, later) Keep the best model and reinit half of the others
     breeding_strategy.breed();
 
     // Observe

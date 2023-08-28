@@ -1,5 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
+# @todo(Feature, now) Log all effective seeds when no --...seed option is used
+
 from __future__ import annotations
 import math
 import os
