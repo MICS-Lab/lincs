@@ -1067,6 +1067,9 @@ generate_mrsort_classification_model( (Problem)problem, (int)random_seed [, (obj
     C++ signature :
         lincs::Model generate_mrsort_classification_model(lincs::Problem,unsigned int [,std::optional<float>=None])
 
+lincs.has_gpu: bool
+-------------------
+
 lincs.misclassify_alternatives: function
 ----------------------------------------
 

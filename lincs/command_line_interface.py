@@ -62,7 +62,7 @@ def options_tree(name, kwds, dependents):
                 if help is None:
                     help = conditions__
                 else:
-                    assert help.endswith(".")
+                    assert help.endswith(".") or help.endswith(")")
                     help = f"{help} {conditions__}"
 
             click.option(
@@ -125,7 +125,7 @@ def help_all():
         if type_name is not None:
             return
 
-        if type(node) in [str, dict, property]:
+        if type(node) in [str, bool, dict, property]:
             print()
             return
 
@@ -538,8 +538,9 @@ def learn():
                                     (
                                         "processor",
                                         dict(
-                                            help="The processor to use to improve the profiles of the MRSort models.",
-                                            type=click.Choice(["cpu", "gpu"]),
+                                            help="The processor to use to improve the profiles of the MRSort models."
+                                            + ("" if lincs.has_gpu else " (Only 'cpu' is available because lincs was compiled without 'nvcc')"),
+                                            type=click.Choice(["cpu"] + (["gpu"] if lincs.has_gpu else [])),
                                             default="cpu",
                                             show_default=True,
                                         ),
@@ -638,6 +639,7 @@ def classification_model(
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
                     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
                 elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
+                    assert lincs.has_gpu
                     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
 
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
