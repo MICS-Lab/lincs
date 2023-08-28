@@ -130,6 +130,7 @@ If those conditions are verified, you can tweak the "weights, profiles, breed" l
 This should output a similar model, with slight numerical differences.
 
 .. START other-learnings/expected-gpu+alglib-trained-model.yml
+    # Reproduction command: lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver alglib --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
     kind: ncs-classification-model
     format_version: 1
     boundaries:
@@ -163,6 +164,7 @@ You can also use an entirely different approach using SAT and max-SAT solvers::
 
 It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
+    # Reproduction command: lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-coalitions
     kind: ncs-classification-model
     format_version: 1
     boundaries:
@@ -177,6 +179,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
 .. STOP
 
 .. START other-learnings/expected-minisat-separation-trained-model.yml
+    # Reproduction command: lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-separation
     kind: ncs-classification-model
     format_version: 1
     boundaries:
@@ -228,7 +231,7 @@ This ensures that the two following commands output exactly the same model::
 
 .. EXTEND other-learnings/run.sh
     diff expected-trained-model.yml cpu-trained-model.yml
-    diff expected-trained-model.yml gpu-trained-model.yml
+    diff <(sed s/cpu/gpu/ expected-trained-model.yml) gpu-trained-model.yml
 .. STOP
 
 Through the Python API

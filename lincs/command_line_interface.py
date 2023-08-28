@@ -221,6 +221,9 @@ def classification_problem(
     output_problem,
     random_seed
 ):
+    command_line = ["lincs", "generate", "classification-problem", criteria_count, categories_count, "--random-seed", random_seed]
+    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_problem, flush=True)
+
     problem = lincs.generate_classification_problem(
         criteria_count,
         categories_count,
@@ -282,6 +285,11 @@ def classification_model(
     model_type,
     mrsort__fixed_weights_sum,
 ):
+    command_line = ["lincs", "generate", "classification-model", get_input_file_name(problem), "--random-seed", random_seed, "--model-type", model_type]
+    if mrsort__fixed_weights_sum is not None:
+        command_line += ["--mrsort.fixed-weights-sum", mrsort__fixed_weights_sum]
+    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_model, flush=True)
+
     problem = lincs.Problem.load(problem)
     assert model_type == "mrsort"
     model = lincs.generate_mrsort_classification_model(
@@ -290,6 +298,12 @@ def classification_model(
         fixed_weights_sum=mrsort__fixed_weights_sum,
     )
     model.dump(problem, output_model)
+
+
+def get_input_file_name(input_file):
+    if input_file.name == "<stdin>":
+        return "-"
+    return input_file.name
 
 
 @generate.command(
@@ -345,6 +359,12 @@ def classified_alternatives(
     misclassified_count,
     random_seed,
 ):
+    command_line = ["lincs", "generate", "classified-alternatives", get_input_file_name(problem), get_input_file_name(model), alternatives_count, "--random--seed", random_seed]
+    if max_imbalance is not None:
+        command_line += ["--max-imbalance", max_imbalance]
+    command_line += ["--misclassified-count", misclassified_count]
+    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_classified_alternatives, flush=True)
+
     problem = lincs.Problem.load(problem)
     model = lincs.Model.load(problem, model)
     alternatives = lincs.generate_classified_alternatives(
@@ -642,40 +662,56 @@ def classification_model(
     mrsort__weights_profiles_breed__verbose,
     ucncs__approach,
 ):
+    command_line = ["lincs", "learn", "classification-model", get_input_file_name(problem), get_input_file_name(learning_set), "--model-type", model_type]
+
     problem = lincs.Problem.load(problem)
     learning_set = lincs.Alternatives.load(problem, learning_set)
 
     if model_type == "mrsort":
+        command_line += ["--mrsort.strategy", mrsort__strategy]
         if mrsort__strategy == "weights-profiles-breed":
+            command_line += ["--mrsort.weights-profiles-breed.models-count", mrsort__weights_profiles_breed__models_count]
+            command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed", mrsort__weights_profiles_breed__accuracy_heuristic__random_seed]
+
             learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
+            command_line += ["--mrsort.weights-profiles-breed.initialization-strategy", mrsort__weights_profiles_breed__initialization_strategy]
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
                 profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 
+            command_line += ["--mrsort.weights-profiles-breed.weights-strategy", mrsort__weights_profiles_breed__weights_strategy]
             if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
+                command_line += ["--mrsort.weights-profiles-breed.linear-program.solver", mrsort__weights_profiles_breed__linear_program__solver]
                 if mrsort__weights_profiles_breed__linear_program__solver == "glop":
                     weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(learning_data)
                 elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
                     weights_optimization_strategy = lincs.OptimizeWeightsUsingAlglib(learning_data)
 
+            command_line += ["--mrsort.weights-profiles-breed.profiles-strategy", mrsort__weights_profiles_breed__profiles_strategy]
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
+                command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.processor", mrsort__weights_profiles_breed__accuracy_heuristic__processor]
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
                     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
                 elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
                     assert lincs.has_gpu
                     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
 
+            command_line += ["--mrsort.weights-profiles-breed.breed-strategy", mrsort__weights_profiles_breed__breed_strategy]
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
+                command_line += ["--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion", mrsort__weights_profiles_breed__reinitialize_least_accurate__portion]
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
                 breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
 
+            command_line += ["--mrsort.weights-profiles-breed.target-accuracy", mrsort__weights_profiles_breed__target_accuracy]
             termination_strategies = [lincs.TerminateAtAccuracy(
                 learning_data,
                 math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
             )]
             if mrsort__weights_profiles_breed__max_iterations is not None:
+                command_line += ["--mrsort.weights-profiles-breed.max-iterations", mrsort__weights_profiles_breed__max_iterations]
                 termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
             if mrsort__weights_profiles_breed__max_duration_seconds is not None:
+                command_line += ["--mrsort.weights-profiles-breed.max-duration-seconds", mrsort__weights_profiles_breed__max_duration_seconds]
                 termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration_seconds))
             if len(termination_strategies) == 1:
                 termination_strategy = termination_strategies[0]
@@ -704,6 +740,7 @@ def classification_model(
                 observers,
             )
     elif model_type == "ucncs":
+        command_line += ["--ucncs.approach", ucncs__approach]
         if ucncs__approach == "sat-by-coalitions":
             learning = lincs.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
         elif ucncs__approach == "sat-by-separation":
@@ -712,6 +749,8 @@ def classification_model(
             learning = lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
         elif ucncs__approach == "max-sat-by-separation":
             learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
+
+    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_model, flush=True)
 
     model = learning.perform()
     model.dump(problem, output_model)

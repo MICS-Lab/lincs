@@ -44,7 +44,13 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
   // So, read the whole stream into a string and construct the document from that.
   std::string s(std::istreambuf_iterator<char>(is), {});
   std::istringstream iss(s);
-  rapidcsv::Document doc(iss);
+  rapidcsv::Document doc(
+    iss,
+    rapidcsv::LabelParams(),
+    rapidcsv::SeparatorParams(),
+    rapidcsv::ConverterParams(),
+    rapidcsv::LineReaderParams(true, '#')  // Skip comments
+  );
 
   std::vector<Alternative> alternatives;
   const unsigned alternatives_count = doc.GetRowCount();

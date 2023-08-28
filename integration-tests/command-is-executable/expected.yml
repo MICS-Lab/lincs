@@ -1,3 +1,4 @@
+# Reproduction command: lincs generate classification-problem 4 3 --random-seed 135778591
 kind: classification-problem
 format_version: 1
 criteria:

@@ -1,0 +1,10 @@
+# Reproduction command: lincs generate classification-model - --random-seed 45 --model-type mrsort
+kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile: [0.3084457, 0.5485539, 0.2858183, 0.08574378]
+    sufficient_coalitions: &coalitions
+      kind: weights
+      criterion_weights: [0.9242951, 0.05893122, 0.9188116, 0.177509]
+  - profile: [0.9792313, 0.6680501, 0.4217357, 0.9481074]
+    sufficient_coalitions: *coalitions

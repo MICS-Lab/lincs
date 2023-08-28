@@ -114,6 +114,7 @@ Generate a classification problem with 4 criteria and 3 categories (@todo(Docume
 
 The generated ``problem.yml`` should look like::
 
+    # Reproduction command: lincs generate classification-problem 4 3 --random-seed 40
     kind: classification-problem
     format_version: 1
     criteria:
@@ -167,6 +168,7 @@ Then generate an NCS classification model (@todo(Documentation, soon) Link to co
 
 It should look like::
 
+    # Reproduction command: lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort
     kind: ncs-classification-model
     format_version: 1
     boundaries:
@@ -225,6 +227,7 @@ Then we'll need to think about the how the ``--max-imbalance`` option interacts 
 
 It should start with something like this, and contain 1000 alternatives::
 
+    # Reproduction command: lincs generate classified-alternatives problem.yml model.yml 1000 --random--seed 42 --misclassified-count 0
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
     "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Category 3"
     "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Category 2"
@@ -235,7 +238,7 @@ It should start with something like this, and contain 1000 alternatives::
 .. STOP
 
 .. EXTEND command-line-example/run.sh
-    diff expected-learning-set.csv <(head -n 6 learning-set.csv)
+    diff expected-learning-set.csv <(head -n 7 learning-set.csv)
 .. STOP
 
 .. highlight:: shell
@@ -282,6 +285,7 @@ The learning set doesn't contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
 so it is numerically different::
 
+    # Reproduction command: lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
     kind: ncs-classification-model
     format_version: 1
     boundaries:
@@ -328,7 +332,7 @@ And ask the trained model to classify it::
 
 There are a few differences between the original testing set and the reclassified one::
 
-    diff testing-set.csv reclassified-testing-set.csv
+    diff <(tail -n +2 testing-set.csv) reclassified-testing-set.csv
 
 .. APPEND-TO-LAST-LINE >classification-diff.txt || true
 .. STOP
