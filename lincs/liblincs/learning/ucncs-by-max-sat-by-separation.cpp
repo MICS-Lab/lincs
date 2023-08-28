@@ -72,7 +72,7 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::partition_alternatives() {
 }
 
 // This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
-// specifically its section B2.
+// specifically its section B2. That article is a summary of this thesis: https://www.theses.fr/2022UPAST071.
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::create_variables() {

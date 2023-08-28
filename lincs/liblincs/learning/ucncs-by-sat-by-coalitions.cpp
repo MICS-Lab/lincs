@@ -65,6 +65,7 @@ void SatCoalitionsUcncsLearning<SatProblem>::create_all_coalitions() {
 
 // This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
 // specifically its "Definition 4.1", with the special case for Uc-NCS at the end of section 4.1.
+// That article is a summary of this thesis: https://www.theses.fr/2022UPAST071.
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::create_variables() {

@@ -74,6 +74,7 @@ void SatSeparationUcncsLearning<SatProblem>::partition_alternatives() {
 // This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
 // specifically its "Definition A.2", which references its "Definition 4.4".
 // These definitions are based on its "Theorem 4.2".
+// That article is a summary of this thesis: https://www.theses.fr/2022UPAST071.
 
 template<typename SatProblem>
 void SatSeparationUcncsLearning<SatProblem>::create_variables() {

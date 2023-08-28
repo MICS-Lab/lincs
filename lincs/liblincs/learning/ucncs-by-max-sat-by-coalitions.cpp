@@ -63,6 +63,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_all_coalitions() {
 
 // This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
 // specifically its section 5.1, with the special case for Uc-NCS at the end of the section.
+// That article is a summary of this thesis: https://www.theses.fr/2022UPAST071.
 
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
