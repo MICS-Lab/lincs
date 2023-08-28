@@ -304,29 +304,35 @@ TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - non-exact - long" *
 TEST_CASE("SAT by separation using Minisat learning") {
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
+}
+
+TEST_CASE("SAT by separation using Minisat learning - long" * doctest::skip(skip_long)) {
+  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
   check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 5);
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - exact") {
   check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
   check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
   check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
   check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
+}
+
+TEST_CASE("Max-SAT by separation using EvalMaxSat learning - exact - long" * doctest::skip(skip_long)) {
+  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
   check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - non-exact") {
   check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
   check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - non-exact - long" * doctest::skip(skip_long)) {
+  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
+  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
   check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
   check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
 }

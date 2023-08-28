@@ -23,20 +23,20 @@ import click
     """)
 )
 @click.option(
+    "--single-python-version", is_flag=True,
+    help="Run tests under a single Python version to save time. Please run the full development cycle at least once before submitting your changes.",
+)
+@click.option(
     "--unit-coverage", is_flag=True,
-    help="Measure coverage of unit tests, stop right after that. Quite long.",
+    help="Measure coverage of unit tests, stop right after that. Implies --single-python-version. Quite long.",
 )
 @click.option(
     "--skip-long", is_flag=True,
-    help="Skip long tests. We all know what it is to be in a hurry. But please run the full development cycle at least once before submitting your changes.",
+    help="Skip long tests to save time. Implies --single-python-version. Please run the full development cycle at least once before submitting your changes.",
 )
 @click.option(
     "--stop-after-unit", is_flag=True,
-    help=textwrap.dedent("""\
-        Stop before installing the package.
-        For when you're even more in a hurry.
-        Or when you've changed the dependencies in the Dockerfile but not yet in the "Getting started" guide.
-    """),
+    help="Stop before integration tests to save time. Please run the full development cycle at least once before submitting your changes.",
 )
 @click.option(
     "--forbid-gpu", is_flag=True,
@@ -46,15 +46,18 @@ import click
         Using this option explicitly avoids the warning.
     """),
 )
-def main(with_docs, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
+def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
     if forbid_gpu:
         os.environ["LINCS_DEV_FORBID_GPU"] = "true"
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
     if skip_long:
         os.environ["LINCS_DEV_SKIP_LONG"] = "true"
+        single_python_version = True
+    if unit_coverage:
+        single_python_version = True
 
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
-    if skip_long or unit_coverage:
+    if single_python_version:
         python_versions = [python_versions[0]]
         os.environ["LINCS_DEV_PYTHON_VERSIONS"] = python_versions[0]
 
