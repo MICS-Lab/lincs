@@ -11,6 +11,20 @@
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
+TEST_CASE("libyaml-cpp uses sufficient precision for floats") {
+  // This test passes with libyaml-cpp version 0.7 but fails with version 0.6
+
+  const float f = 0x1.c78b0cp-2f;
+
+  std::stringstream ss;
+  YAML::Emitter out(ss);
+  out << f;
+
+  CHECK(ss.str() == "0.444866359");
+
+  CHECK(YAML::Load(ss).as<float>() == 0x1.c78b0cp-2f);  // No approximation: no loss of precision
+}
+
 namespace lincs {
 
 const std::string Model::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
@@ -225,6 +239,40 @@ boundaries:
       upset_roots:
         - [0]
         - [1, 2]
+)");
+
+  Model model2 = Model::load(problem, ss);
+  CHECK(model2.boundaries == model.boundaries);
+}
+
+TEST_CASE("dumping then loading model preserves data - numerical values requiring more decimal digits") {
+  Problem problem{
+    {
+      {"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1},
+    },
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  Model model{
+    problem,
+    {{
+      {0x1.259b36p-6, 0x1.652bf4p-2, 0x1.87662ap-3},
+      {SufficientCoalitions::weights, {0x1.c78b0cp-2, 0x1.1d7974p-2, 0x1.b22782p-2}},
+    }},
+  };
+
+  std::stringstream ss;
+  model.dump(problem, ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+boundaries:
+  - profile: [0.017920306, 0.34880048, 0.191112831]
+    sufficient_coalitions:
+      kind: weights
+      criterion_weights: [0.444866359, 0.278783619, 0.423978835]
 )");
 
   Model model2 = Model::load(problem, ss);
