@@ -1,0 +1,28 @@
+# Reproduction command: lincs generate classification-problem 4 3 --random-seed 42 --denormalized-min-max
+kind: classification-problem
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: real
+    category_correlation: growing
+    min_value: -25.0919724
+    max_value: 59.3085938
+  - name: Criterion 2
+    value_type: real
+    category_correlation: growing
+    min_value: -25.0919724
+    max_value: 59.3085938
+  - name: Criterion 3
+    value_type: real
+    category_correlation: growing
+    min_value: -25.0919724
+    max_value: 59.3085938
+  - name: Criterion 4
+    value_type: real
+    category_correlation: growing
+    min_value: -25.0919724
+    max_value: 59.3085938
+categories:
+  - name: Category 1
+  - name: Category 2
+  - name: Category 3

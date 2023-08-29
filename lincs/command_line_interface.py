@@ -202,6 +202,11 @@ def generate():
     type=click.IntRange(min=1),
 )
 @click.option(
+    "--denormalized-min-max",
+    is_flag=True,
+    help="Generate criteria with random denormalized min and max values. (By default, min and max value are 0 and 1)",
+)
+@click.option(
     "--output-problem",
     type=click.File(mode="w"),
     default="-",
@@ -216,16 +221,20 @@ def generate():
 def classification_problem(
     criteria_count,
     categories_count,
+    denormalized_min_max,
     output_problem,
     random_seed
 ):
     command_line = ["lincs", "generate", "classification-problem", criteria_count, categories_count, "--random-seed", random_seed]
+    if denormalized_min_max:
+        command_line += ["--denormalized-min-max"]
     print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_problem, flush=True)
 
     problem = lincs.generate_classification_problem(
         criteria_count,
         categories_count,
         random_seed=random_seed,
+        normalized_min_max=not denormalized_min_max,
     )
     problem.dump(output_problem)
 

@@ -69,6 +69,9 @@ Usage: lincs generate classification-problem [OPTIONS] CRITERIA_COUNT
   categories.
 
 Options:
+  --denormalized-min-max       Generate criteria with random denormalized min
+                               and max values. (By default, min and max value
+                               are 0 and 1)
   --output-problem FILENAME    Write generated problem to this file instead of
                                standard output.
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
