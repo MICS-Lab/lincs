@@ -10,7 +10,7 @@
 #include <ios>
 #include <memory>
 
-#include "yaml-cpp/dll.h"
+#include "dll.h"
 
 namespace YAML {
 class EventHandler;

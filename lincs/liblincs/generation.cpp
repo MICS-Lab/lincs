@@ -131,10 +131,10 @@ TEST_CASE("Generate MR-Sort model - random weights sum") {
   CHECK(oss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.3770493, 0.7906122, 0.9417]
+  - profile: [0.377049327, 0.790612161, 0.941700041]
     sufficient_coalitions:
       kind: weights
-      criterion_weights: [0.235266, 0.7035596, 0.3437337]
+      criterion_weights: [0.235266, 0.703559637, 0.343733728]
 )");
 }
 
@@ -147,10 +147,10 @@ TEST_CASE("Generate MR-Sort model - fixed weights sum") {
   CHECK(oss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.3770493, 0.7906122, 0.9417]
+  - profile: [0.377049327, 0.790612161, 0.941700041]
     sufficient_coalitions:
       kind: weights
-      criterion_weights: [0.3668696, 1.097118, 0.5360122]
+      criterion_weights: [0.366869569, 1.09711826, 0.536012173]
 )");
 }
 

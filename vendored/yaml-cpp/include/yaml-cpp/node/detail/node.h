@@ -7,11 +7,11 @@
 #pragma once
 #endif
 
-#include "yaml-cpp/dll.h"
-#include "yaml-cpp/emitterstyle.h"
-#include "yaml-cpp/node/detail/node_ref.h"
-#include "yaml-cpp/node/ptr.h"
-#include "yaml-cpp/node/type.h"
+#include "../../dll.h"
+#include "../../emitterstyle.h"
+#include "node_ref.h"
+#include "../ptr.h"
+#include "../type.h"
 #include <set>
 #include <atomic>
 

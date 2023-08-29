@@ -7,7 +7,7 @@
 #pragma once
 #endif
 
-#include "yaml-cpp/mark.h"
+#include "mark.h"
 #include <iostream>
 #include <string>
 #include <vector>

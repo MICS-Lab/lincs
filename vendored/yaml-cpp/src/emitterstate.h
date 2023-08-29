@@ -8,8 +8,8 @@
 #endif
 
 #include "setting.h"
-#include "yaml-cpp/emitterdef.h"
-#include "yaml-cpp/emittermanip.h"
+#include "emitterdef.h"
+#include "emittermanip.h"
 
 #include <cassert>
 #include <memory>

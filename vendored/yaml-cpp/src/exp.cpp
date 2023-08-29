@@ -2,7 +2,7 @@
 
 #include "exp.h"
 #include "stream.h"
-#include "yaml-cpp/exceptions.h"  // IWYU pragma: keep
+#include "exceptions.h"  // IWYU pragma: keep
 
 namespace YAML {
 struct Mark;

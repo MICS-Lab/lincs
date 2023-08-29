@@ -2,10 +2,10 @@
 
 #include "emitterutils.h"
 #include "indentation.h"  // IWYU pragma: keep
-#include "yaml-cpp/emitter.h"
-#include "yaml-cpp/emitterdef.h"
-#include "yaml-cpp/emittermanip.h"
-#include "yaml-cpp/exceptions.h"  // IWYU pragma: keep
+#include "emitter.h"
+#include "emitterdef.h"
+#include "emittermanip.h"
+#include "exceptions.h"  // IWYU pragma: keep
 
 namespace YAML {
 class Binary;

@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-#include "yaml-cpp/anchor.h"
+#include "anchor.h"
 
 namespace YAML {
 class CollectionStack;

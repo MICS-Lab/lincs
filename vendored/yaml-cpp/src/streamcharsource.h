@@ -7,7 +7,7 @@
 #pragma once
 #endif
 
-#include "yaml-cpp/noexcept.h"
+#include "noexcept.h"
 #include "stream.h"
 #include <cstddef>
 

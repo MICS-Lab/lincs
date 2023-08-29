@@ -1,7 +1,7 @@
-#include "yaml-cpp/node/emit.h"
+#include "node/emit.h"
 #include "nodeevents.h"
-#include "yaml-cpp/emitfromevents.h"
-#include "yaml-cpp/emitter.h"
+#include "emitfromevents.h"
+#include "emitter.h"
 
 namespace YAML {
 Emitter& operator<<(Emitter& out, const Node& node) {

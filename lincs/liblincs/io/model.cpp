@@ -4,9 +4,8 @@
 
 #include <cassert>
 
-#include <yaml-cpp/yaml.h>
-
 #include "../vendored/magic_enum.hpp"
+#include "../vendored/yaml-cpp/yaml.h"
 #include "validation.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -189,10 +188,10 @@ TEST_CASE("dumping then loading model preserves data - weights") {
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.4]
+  - profile: [0.400000006]
     sufficient_coalitions:
       kind: weights
-      criterion_weights: [0.7]
+      criterion_weights: [0.699999988]
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -220,7 +219,7 @@ TEST_CASE("dumping then loading model preserves data - roots") {
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.4, 0.5, 0.6]
+  - profile: [0.400000006, 0.5, 0.600000024]
     sufficient_coalitions:
       kind: roots
       upset_roots:
@@ -286,15 +285,15 @@ TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.4, 0.5, 0.6]
+  - profile: [0.400000006, 0.5, 0.600000024]
     sufficient_coalitions: &coalitions
       kind: roots
       upset_roots:
         - [0]
         - [1, 2]
-  - profile: [0.5, 0.6, 0.7]
+  - profile: [0.5, 0.600000024, 0.699999988]
     sufficient_coalitions: *coalitions
-  - profile: [0.6, 0.7, 0.8]
+  - profile: [0.600000024, 0.699999988, 0.800000012]
     sufficient_coalitions: *coalitions
 )");
 
@@ -327,19 +326,19 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.4, 0.5, 0.6]
+  - profile: [0.400000006, 0.5, 0.600000024]
     sufficient_coalitions:
       kind: roots
       upset_roots:
         - [0]
         - [1, 2]
-  - profile: [0.5, 0.6, 0.7]
+  - profile: [0.5, 0.600000024, 0.699999988]
     sufficient_coalitions:
       kind: roots
       upset_roots:
         - [1]
         - [0, 2]
-  - profile: [0.6, 0.7, 0.8]
+  - profile: [0.600000024, 0.699999988, 0.800000012]
     sufficient_coalitions:
       kind: roots
       upset_roots:
