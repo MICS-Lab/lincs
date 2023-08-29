@@ -213,7 +213,7 @@ You should use this option when you need deterministic results from the learning
 
 .. EXTEND other-learnings/run.sh
 
-When possible when we supply several implementations of the same heuristic, we make them behave the same way when they're given the same random seed.
+When possible when we provide several implementations of the same heuristic, we make them behave the same way when they're given the same random seed.
 This is the case for example for the CPU and GPU versions of the "accuracy heuristic" profiles improvement strategy of the "weights, profiles, breed" learning strategy.
 This ensures that the two following commands output exactly the same model::
 
