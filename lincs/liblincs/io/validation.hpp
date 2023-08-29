@@ -3,9 +3,8 @@
 #ifndef LINCS__IO__VALIDATION_HPP
 #define LINCS__IO__VALIDATION_HPP
 
-#include <yaml-cpp/yaml.h>
-
 #include "../vendored/valijson/schema.hpp"
+#include "../vendored/yaml-cpp/yaml.h"
 
 namespace lincs {
 

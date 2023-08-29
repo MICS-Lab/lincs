@@ -26,7 +26,7 @@
 #pragma once
 
 #include <string>
-#include <yaml-cpp/yaml.h>
+#include "../../yaml-cpp/yaml.h"
 
 #include <utility>
 #include "../internal/adapter.hpp"

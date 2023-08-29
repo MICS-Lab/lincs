@@ -134,11 +134,11 @@ This should output a similar model, with slight numerical differences.
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [0.007700569, 0.05495565, 0.1626169, 0.1931279]
+      - profile: [0.00770056946, 0.0549556538, 0.162616938, 0.193127945]
         sufficient_coalitions: &coalitions
           kind: weights
-          criterion_weights: [0.01812871, 0.9818703, 0.9818703, 9.925777e-13]
-      - profile: [0.03420721, 0.3244802, 0.6724876, 0.4270518]
+          criterion_weights: [0.0181287061, 0.981870294, 0.981870294, 9.92577656e-13]
+      - profile: [0.0342072099, 0.324480206, 0.672487617, 0.427051842]
         sufficient_coalitions: *coalitions
 .. STOP
 
@@ -168,12 +168,12 @@ It should produce a different kind of model, with the sufficient coalitions spec
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [1, 0.05526805, 0.1619191, 0.9954021]
+      - profile: [1, 0.0552680492, 0.161919117, 0.995402098]
         sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
             - [1, 2]
-      - profile: [1, 0.3252118, 0.6726626, 0.9967546]
+      - profile: [1, 0.325211823, 0.672662616, 0.996754646]
         sufficient_coalitions: *coalitions
 
 .. STOP
@@ -183,12 +183,12 @@ It should produce a different kind of model, with the sufficient coalitions spec
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [0.1682088, 0.05526805, 0.1619191, 0.9954021]
+      - profile: [0.168208823, 0.0552680492, 0.161919117, 0.995402098]
         sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
             - [1, 2]
-      - profile: [1, 0.3252118, 0.6726626, 0.9967546]
+      - profile: [1, 0.325211823, 0.672662616, 0.996754646]
         sufficient_coalitions: *coalitions
 .. STOP
 

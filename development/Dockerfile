@@ -79,7 +79,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       git \
       gpg-agent \
       graphviz \
-      libyaml-cpp-dev \
       python3-dev \
       python3-venv \
       software-properties-common \

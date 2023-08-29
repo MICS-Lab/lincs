@@ -34,7 +34,6 @@ jobs:
       # Install dependencies
       - run: sudo apt-get update
       - run: sudo apt-get install --yes --no-install-recommends
-              libyaml-cpp-dev
               wget
       - run: |
           sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
@@ -111,8 +110,6 @@ jobs:
         python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
       # Install dependencies
-      - run: brew install
-              yaml-cpp
       - run: |
             mkdir openmp
             cd openmp

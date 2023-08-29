@@ -4,9 +4,8 @@
 
 #include <cassert>
 
-#include <yaml-cpp/yaml.h>
-
 #include "../vendored/magic_enum.hpp"
+#include "../vendored/yaml-cpp/yaml.h"
 #include "validation.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -37,7 +36,7 @@ struct convert<lincs::Criterion> {
     node["name"] = criterion.name;
     node["value_type"] = std::string(magic_enum::enum_name(criterion.value_type));
     node["category_correlation"] = std::string(magic_enum::enum_name(criterion.category_correlation));
-    // This produces strings "-inf" and "inf" for infinite values
+    // This produces "-.inf" and ".inf" for infinite values, which is handled correctly by the decoder
     node["min_value"] = criterion.min_value;
     node["max_value"] = criterion.max_value;
 
@@ -48,16 +47,9 @@ struct convert<lincs::Criterion> {
     criterion.name = node["name"].as<std::string>();
     criterion.value_type = *magic_enum::enum_cast<lincs::Criterion::ValueType>(node["value_type"].as<std::string>());
     criterion.category_correlation = *magic_enum::enum_cast<lincs::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>());
-    if (node["min_value"].as<std::string>() == "-inf") {
-      criterion.min_value = -std::numeric_limits<float>::infinity();
-    } else {
-      criterion.min_value = node["min_value"].as<float>();
-    }
-    if (node["max_value"].as<std::string>() == "inf") {
-      criterion.max_value = std::numeric_limits<float>::infinity();
-    } else {
-      criterion.max_value = node["max_value"].as<float>();
-    }
+    // This handles "-.inf" and ".inf" for infinite values, which are produced by the encoder
+    criterion.min_value = node["min_value"].as<float>();
+    criterion.max_value = node["max_value"].as<float>();
 
     return true;
   }
@@ -91,15 +83,9 @@ properties:
           type: string
           enum: [growing]
         min_value:
-          oneOf:
-            - type: number
-            - type: string
-              const: -inf
+          type: number
         max_value:
-          oneOf:
-            - type: number
-            - type: string
-              const: inf
+          type: number
       required:
         - name
         - value_type
@@ -203,8 +189,8 @@ criteria:
   - name: Criterion 1
     value_type: real
     category_correlation: growing
-    min_value: -inf
-    max_value: inf
+    min_value: -.inf
+    max_value: .inf
 categories:
   - name: Category 1
   - name: Category 2
