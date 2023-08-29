@@ -2,9 +2,9 @@
 kind: ncs-classification-model
 format_version: 1
 boundaries:
-  - profile: [0.3084457, 0.5485539, 0.2858183, 0.08574378]
+  - profile: [0.308445692, 0.548553884, 0.285818338, 0.0857437775]
     sufficient_coalitions: &coalitions
       kind: weights
-      criterion_weights: [0.9242951, 0.05893122, 0.9188116, 0.177509]
-  - profile: [0.9792313, 0.6680501, 0.4217357, 0.9481074]
+      criterion_weights: [0.924295127, 0.058931224, 0.91881156, 0.177508995]
+  - profile: [0.979231298, 0.668050051, 0.421735734, 0.948107421]
     sufficient_coalitions: *coalitions

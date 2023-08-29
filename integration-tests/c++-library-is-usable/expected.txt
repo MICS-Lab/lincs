@@ -21,7 +21,7 @@ boundaries:
   - profile: [10, 10]
     sufficient_coalitions:
       kind: weights
-      criterion_weights: [0.4, 0.7]
+      criterion_weights: [0.400000006, 0.699999988]
 
 name,"Physics grade","Literature grade",category
 Alice,11,12,Good

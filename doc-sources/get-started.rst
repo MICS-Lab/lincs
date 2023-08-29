@@ -172,11 +172,11 @@ It should look like::
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [0.2559052, 0.0551739, 0.1622522, 0.05260009]
+      - profile: [0.255905151, 0.0551739037, 0.162252158, 0.0526000932]
         sufficient_coalitions: &coalitions
           kind: weights
-          criterion_weights: [0.1477713, 0.6186877, 0.4067865, 0.09600859]
-      - profile: [0.6769613, 0.3245539, 0.6732799, 0.5985559]
+          criterion_weights: [0.147771254, 0.618687689, 0.406786472, 0.0960085914]
+      - profile: [0.676961303, 0.324553937, 0.673279881, 0.598555863]
         sufficient_coalitions: *coalitions
 
 .. STOP
@@ -289,11 +289,11 @@ so it is numerically different::
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [0.007518337, 0.05495565, 0.1626169, 0.1931279]
+      - profile: [0.00751833664, 0.0549556538, 0.162616938, 0.193127945]
         sufficient_coalitions: &coalitions
           kind: weights
-          criterion_weights: [0.499999, 0.5, 0.5, 0]
-      - profile: [0.03402985, 0.3244802, 0.6724876, 0.4270518]
+          criterion_weights: [0.499998987, 0.5, 0.5, 0]
+      - profile: [0.0340298451, 0.324480206, 0.672487617, 0.427051842]
         sufficient_coalitions: *coalitions
 
 .. STOP
