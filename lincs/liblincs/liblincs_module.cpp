@@ -526,10 +526,12 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   struct ObserverWrap : lincs::LearnMrsortByWeightsProfilesBreed::Observer, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::Observer> {
     void after_iteration() override { this->get_override("after_iteration")(); }
+    void before_return() override { this->get_override("before_return")(); }
   };
 
   learn_wbp_class.attr("Observer") = bp::class_<ObserverWrap, boost::noncopyable>("Observer")
     .def("after_iteration", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration))
+    .def("before_return", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return))
   ;
 
 

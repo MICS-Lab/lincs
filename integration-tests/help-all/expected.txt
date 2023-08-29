@@ -594,6 +594,19 @@ after_iteration( (Observer)arg1) -> None :
     C++ signature :
         void after_iteration(init_module_liblincs()::ObserverWrap {lvalue})
 
+lincs.LearnMrsortByWeightsProfilesBreed.Observer.before_return: function
+------------------------------------------------------------------------
+
+before_return( (Observer)arg1) -> None :
+
+    C++ signature :
+        void before_return(lincs::LearnMrsortByWeightsProfilesBreed::Observer {lvalue})
+
+before_return( (Observer)arg1) -> None :
+
+    C++ signature :
+        void before_return(init_module_liblincs()::ObserverWrap {lvalue})
+
 lincs.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy: class
 --------------------------------------------------------------------------
 

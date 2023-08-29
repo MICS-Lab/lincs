@@ -113,6 +113,9 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 
     // Succeed?
     if (new_best_accuracy == learning_data.learning_alternatives_count || termination_strategy.terminate()) {
+      for (auto observer : observers) {
+        observer->before_return();
+      }
       return learning_data.get_model(learning_data.model_indexes.back());
     }
 

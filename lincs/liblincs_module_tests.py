@@ -405,9 +405,13 @@ class LearningTestCase(unittest.TestCase):
                 super().__init__()
                 self.learning_data = learning_data
                 self.best_accuracies = []
+                self.final_accuracy = None
 
             def after_iteration(self):
                 self.best_accuracies.append(self.learning_data.get_best_accuracy())
+
+            def before_return(self):
+                self.final_accuracy = self.learning_data.get_best_accuracy()
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
@@ -427,6 +431,7 @@ class LearningTestCase(unittest.TestCase):
         ).perform()
 
         self.assertEqual(observer.best_accuracies, [176, 186, 193, 193, 199, 199, 199])
+        self.assertEqual(observer.final_accuracy, 200)
 
     def test_alglib_mrsort_learning(self):
         problem = generate_classification_problem(5, 3, 41)

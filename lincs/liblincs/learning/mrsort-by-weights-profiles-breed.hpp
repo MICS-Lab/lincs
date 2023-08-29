@@ -130,6 +130,7 @@ struct LearnMrsortByWeightsProfilesBreed::Observer {
   virtual ~Observer() {}
 
   virtual void after_iteration() = 0;
+  virtual void before_return() = 0;
 };
 
 }  // namespace lincs

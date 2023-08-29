@@ -728,6 +728,9 @@ def classification_model(
                     def after_iteration(self):
                         print("Best accuracy:", self.learning_data.get_best_accuracy(), file=sys.stderr)
 
+                    def before_return(self):
+                        print("Final accuracy:", self.learning_data.get_best_accuracy(), file=sys.stderr)
+
                 observers.append(VerboseObserver(learning_data))
 
             learning = lincs.LearnMrsortByWeightsProfilesBreed(
