@@ -20,7 +20,7 @@ struct Criterion {
 
   enum class CategoryCorrelation {
     growing,
-    // @todo(Feature, soon) Add decreasing
+    decreasing,
     // @todo(Feature, later) Add single-peaked
     // @todo(Feature, later) Add single-valleyed
     // @todo(Feature, much later) Add unknown
