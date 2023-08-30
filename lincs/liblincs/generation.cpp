@@ -89,8 +89,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
     std::generate(
       column.begin(), column.end(),
       [&values_distribution, &gen]() { return values_distribution(gen); });
-    // ... sort it...
-    std::sort(column.begin(), column.end());
+    // ... sort it according to the criterion's correlation to categories...
+    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return criterion.better_or_equal(right, left); });
     // ... and assign that column across all profiles.
     for (unsigned profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
       profiles[profile_index][criterion_index] = column[profile_index];
@@ -185,7 +185,6 @@ Alternatives generate_uniform_classified_alternatives(
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const auto& criterion = problem.criteria[criterion_index];
     assert(criterion.value_type == Criterion::ValueType::real);
-    assert(criterion.category_correlation == Criterion::CategoryCorrelation::growing);
 
     values_distributions.emplace_back(criterion.min_value, criterion.max_value);
   }
@@ -448,6 +447,26 @@ TEST_CASE("Random min/max") {
   CHECK(problem.criteria[1].max_value == doctest::Approx(46.3988));
   CHECK(model.boundaries[0].profile[1] == doctest::Approx(24.0712));
   CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(-15.8581));
+}
+
+TEST_CASE("Decreasing criterion") {
+  Problem problem = generate_classification_problem(1, 3, 44, true, true);
+  Model model = generate_mrsort_classification_model(problem, 42);
+  Alternatives alternatives = generate_classified_alternatives(problem, model, 10, 44);
+
+  CHECK(problem.criteria[0].category_correlation == Criterion::CategoryCorrelation::decreasing);
+  // Profiles are in decreasing order
+  CHECK(model.boundaries[0].profile[0] == doctest::Approx(0.790612));
+  CHECK(model.boundaries[1].profile[0] == doctest::Approx(0.377049));
+
+  CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(0.834842));
+  CHECK(*alternatives.alternatives[0].category_index == 0);
+
+  CHECK(alternatives.alternatives[1].profile[0] == doctest::Approx(0.432542));
+  CHECK(*alternatives.alternatives[1].category_index == 1);
+
+  CHECK(alternatives.alternatives[2].profile[0] == doctest::Approx(0.104796));
+  CHECK(*alternatives.alternatives[2].category_index == 2);
 }
 
 TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
