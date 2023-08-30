@@ -246,7 +246,13 @@ BOOST_PYTHON_MODULE(liblincs) {
   bp::def(
     "generate_classification_problem",
     &lincs::generate_classification_problem,
-    (bp::arg("criteria_count"), "categories_count", "random_seed", bp::arg("normalized_min_max")=true),
+    (
+      bp::arg("criteria_count"),
+      "categories_count",
+      "random_seed",
+      bp::arg("normalized_min_max")=true,
+      bp::arg("allow_decreasing_criteria")=false
+    ),
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 

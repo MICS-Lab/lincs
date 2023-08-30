@@ -207,6 +207,11 @@ def generate():
     help="Generate criteria with random denormalized min and max values. (By default, min and max value are 0 and 1)",
 )
 @click.option(
+    "--allow-decreasing-criteria",
+    is_flag=True,
+    help="Allow criteria to have decreasing correlation to categories. (By default, all criteria have growing correlation)",
+)
+@click.option(
     "--output-problem",
     type=click.File(mode="w"),
     default="-",
@@ -222,12 +227,15 @@ def classification_problem(
     criteria_count,
     categories_count,
     denormalized_min_max,
+    allow_decreasing_criteria,
     output_problem,
     random_seed
 ):
     command_line = ["lincs", "generate", "classification-problem", criteria_count, categories_count, "--random-seed", random_seed]
     if denormalized_min_max:
         command_line += ["--denormalized-min-max"]
+    if allow_decreasing_criteria:
+        command_line += ["--allow-decreasing-criteria"]
     print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_problem, flush=True)
 
     problem = lincs.generate_classification_problem(
@@ -235,6 +243,7 @@ def classification_problem(
         categories_count,
         random_seed=random_seed,
         normalized_min_max=not denormalized_min_max,
+        allow_decreasing_criteria=allow_decreasing_criteria,
     )
     problem.dump(output_problem)
 

@@ -72,6 +72,9 @@ Options:
   --denormalized-min-max       Generate criteria with random denormalized min
                                and max values. (By default, min and max value
                                are 0 and 1)
+  --allow-decreasing-criteria  Allow criteria to have decreasing correlation
+                               to categories. (By default, all criteria have
+                               growing correlation)
   --output-problem FILENAME    Write generated problem to this file instead of
                                standard output.
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
@@ -442,6 +445,8 @@ lincs.Criterion.CategoryCorrelation: type
 
 lincs.Criterion.CategoryCorrelation.growing: value
 --------------------------------------------------
+lincs.Criterion.CategoryCorrelation.decreasing: value
+-----------------------------------------------------
 lincs.Criterion.ValueType: type
 -------------------------------
 
@@ -1085,11 +1090,11 @@ classify_alternatives( (Problem)problem, (Model)model, (Alternatives)alternative
 lincs.generate_classification_problem: function
 -----------------------------------------------
 
-generate_classification_problem( (int)criteria_count, (int)categories_count, (int)random_seed [, (bool)normalized_min_max=True]) -> Problem :
+generate_classification_problem( (int)criteria_count, (int)categories_count, (int)random_seed [, (bool)normalized_min_max=True [, (bool)allow_decreasing_criteria=False]]) -> Problem :
     Generate a problem with `criteria_count` criteria and `categories_count` categories.
 
     C++ signature :
-        lincs::Problem generate_classification_problem(unsigned int,unsigned int,unsigned int [,bool=True])
+        lincs::Problem generate_classification_problem(unsigned int,unsigned int,unsigned int [,bool=True [,bool=False]])
 
 lincs.generate_classified_alternatives: function
 ------------------------------------------------

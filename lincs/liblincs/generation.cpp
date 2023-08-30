@@ -24,9 +24,16 @@ const bool skip_long = env_is_true("LINCS_DEV_SKIP_LONG");
 
 namespace lincs {
 
-Problem generate_classification_problem(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed, bool normalized_min_max) {
+Problem generate_classification_problem(
+  const unsigned criteria_count,
+  const unsigned categories_count,
+  const unsigned random_seed,
+  bool normalized_min_max,
+  bool allow_decreasing_criteria
+) {
   std::mt19937 gen(random_seed);
   std::uniform_real_distribution<float> min_max_distribution(-100, 100);
+  std::uniform_int_distribution<unsigned> category_correlation_distribution(0, allow_decreasing_criteria ? 1 : 0);
 
   std::vector<Criterion> criteria;
   criteria.reserve(criteria_count);
@@ -41,10 +48,15 @@ Problem generate_classification_problem(const unsigned criteria_count, const uns
       }
     }
 
+    const Criterion::CategoryCorrelation correlation =
+      category_correlation_distribution(gen) == 0 ?
+      Criterion::CategoryCorrelation::growing :
+      Criterion::CategoryCorrelation::decreasing;
+
     criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
       Criterion::ValueType::real,
-      Criterion::CategoryCorrelation::growing,
+      correlation,
       min_value, max_value
     );
   }
@@ -433,9 +445,9 @@ TEST_CASE("Random min/max") {
   CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(45.3692));
 
   CHECK(problem.criteria[1].min_value == doctest::Approx(-63.313));
-  CHECK(problem.criteria[1].max_value == doctest::Approx(90.1429));
-  CHECK(model.boundaries[0].profile[1] == doctest::Approx(58.9152));
-  CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(3.06303));
+  CHECK(problem.criteria[1].max_value == doctest::Approx(46.3988));
+  CHECK(model.boundaries[0].profile[1] == doctest::Approx(24.0712));
+  CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(-15.8581));
 }
 
 TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
