@@ -36,8 +36,10 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.criteria[0].category_correlation, Criterion.CategoryCorrelation.growing)
 
     def test_assign_criterion_attributes(self):
-        # @todo(Feature, when there are more values in ValueType and CategoryCorrelation) Use other values in constructor
-        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.growing, 0, 1)], [])
+        # @todo(Feature, when there are more values in ValueType) Use other value in constructor
+        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.CategoryCorrelation.decreasing, 0, 1)], [])
+        self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
+        self.assertEqual(problem.criteria[0].category_correlation, Criterion.CategoryCorrelation.decreasing)
         problem.criteria[0].name = "Criterion name"
         problem.criteria[0].value_type = Criterion.ValueType.real
         problem.criteria[0].category_correlation = Criterion.CategoryCorrelation.growing
