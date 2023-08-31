@@ -373,9 +373,9 @@ TEST_CASE("Non-exact WPB learning") {
   };
 
   check_non_exact_learning<Wrapper>(1, 2);
-  check_non_exact_learning<Wrapper>(3, 2, {21});
+  check_non_exact_learning<Wrapper>(3, 2, {21, 45});
   check_non_exact_learning<Wrapper>(1, 3);
-  check_non_exact_learning<Wrapper>(4, 3, {86, 97});
+  check_non_exact_learning<Wrapper>(4, 3, {55, 97});
 }
 
 }  // namespace lincs
