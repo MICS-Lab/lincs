@@ -25,21 +25,22 @@ const bool skip_long = env_is_true("LINCS_DEV_SKIP_LONG");
 namespace lincs {
 
 Problem generate_classification_problem(const unsigned criteria_count, const unsigned categories_count, const unsigned random_seed, bool normalized_min_max) {
-  float min_value = 0;
-  float max_value = 1;
-  if (!normalized_min_max) {
-    std::mt19937 gen(random_seed);
-    std::uniform_real_distribution<float> min_max_distribution(-100, 100);
-    min_value = min_max_distribution(gen);
-    max_value = min_max_distribution(gen);
-    if (min_value > max_value) {
-      std::swap(min_value, max_value);
-    }
-  }
+  std::mt19937 gen(random_seed);
+  std::uniform_real_distribution<float> min_max_distribution(-100, 100);
 
   std::vector<Criterion> criteria;
   criteria.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    float min_value = 0;
+    float max_value = 1;
+    if (!normalized_min_max) {
+      min_value = min_max_distribution(gen);
+      max_value = min_max_distribution(gen);
+      if (min_value > max_value) {
+        std::swap(min_value, max_value);
+      }
+    }
+
     criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
       Criterion::ValueType::real,
@@ -422,7 +423,7 @@ TEST_CASE("Generate balanced classified alternatives - many seeds") {
 }
 
 TEST_CASE("Random min/max") {
-  Problem problem = generate_classification_problem(1, 2, 42, false);
+  Problem problem = generate_classification_problem(2, 2, 42, false);
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
@@ -430,6 +431,11 @@ TEST_CASE("Random min/max") {
   CHECK(problem.criteria[0].max_value == doctest::Approx(59.3086));
   CHECK(model.boundaries[0].profile[0] == doctest::Approx(6.52194));
   CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(45.3692));
+
+  CHECK(problem.criteria[1].min_value == doctest::Approx(-63.313));
+  CHECK(problem.criteria[1].max_value == doctest::Approx(90.1429));
+  CHECK(model.boundaries[0].profile[1] == doctest::Approx(58.9152));
+  CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(3.06303));
 }
 
 TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {

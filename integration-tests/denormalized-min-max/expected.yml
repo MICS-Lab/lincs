@@ -10,18 +10,18 @@ criteria:
   - name: Criterion 2
     value_type: real
     category_correlation: growing
-    min_value: -25.0919724
-    max_value: 59.3085938
+    min_value: -63.3130417
+    max_value: 90.1428528
   - name: Criterion 3
     value_type: real
     category_correlation: growing
-    min_value: -25.0919724
-    max_value: 59.3085938
+    min_value: 46.3987885
+    max_value: 55.9382019
   - name: Criterion 4
     value_type: real
     category_correlation: growing
-    min_value: -25.0919724
-    max_value: 59.3085938
+    min_value: 19.3700333
+    max_value: 19.7316971
 categories:
   - name: Category 1
   - name: Category 2
