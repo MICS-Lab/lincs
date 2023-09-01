@@ -20,7 +20,7 @@ struct Desirability {
   #ifdef __CUDACC__
   __host__ __device__
   #endif
-  float value() const{
+  float value() const {
     if (v + w + t + q + r == 0) {
       return zero_value;
     } else {

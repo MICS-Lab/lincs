@@ -100,6 +100,7 @@ public:
 #define NOT_LOG if(false) std::cout
 
 
+#if false  // Too generic, interferes with doctest
 
 // Afficher le continue d'un vector
 template <class T>
@@ -115,6 +116,7 @@ std::ostream& operator<< (std::ostream &output, const std::vector<T> &v) {
     return output;
 }
 
+#endif
 
 // Afficher le continue d'un array
 template <class T, unsigned long I>

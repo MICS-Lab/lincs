@@ -168,15 +168,15 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
   // phase keeping the maximum 'category_index' that passes the weight threshold.
   for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
     const unsigned profile_index = category_index - 1;
-    float weight_at_or_above_profile = 0;
+    float weight_at_or_better_than_profile = 0;
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
       const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
       const float profile_value = learning_data.profiles[criterion_index][profile_index][model_index];
-      if (alternative_value >= profile_value) {
-        weight_at_or_above_profile += learning_data.weights[criterion_index][model_index];
+      if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
+        weight_at_or_better_than_profile += learning_data.weights[criterion_index][model_index];
       }
     }
-    if (weight_at_or_above_profile >= 1) {
+    if (weight_at_or_better_than_profile >= 1) {
       return category_index;
     }
   }

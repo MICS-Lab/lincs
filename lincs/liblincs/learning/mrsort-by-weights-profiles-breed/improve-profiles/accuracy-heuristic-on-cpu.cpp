@@ -1,6 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
 #include "accuracy-heuristic-on-cpu.hpp"
+
 #include "../../../randomness-utils.hpp"
 
 
@@ -45,18 +46,27 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned profile_index,
   const unsigned criterion_index
 ) {
+  const Criterion& criterion = learning_data.problem.criteria[criterion_index];
+  const bool is_growing = criterion.category_correlation == Criterion::CategoryCorrelation::growing;
+  assert(is_growing || criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
+
+  const int delta_profile = is_growing ? +1 : -1;
+  const unsigned lowest_profile_index = is_growing ? 0 : learning_data.categories_count - 2;
+  const unsigned highest_profile_index = is_growing ? learning_data.categories_count - 2 : 0;
+
   const float lowest_destination =
-    profile_index == 0 ?
+    profile_index == lowest_profile_index ?
       learning_data.problem.criteria[criterion_index].min_value :
-      learning_data.profiles[criterion_index][profile_index - 1][model_index];
+      learning_data.profiles[criterion_index][profile_index - delta_profile][model_index];
   const float highest_destination =
-    profile_index == learning_data.categories_count - 2 ?
+    profile_index == highest_profile_index ?
       learning_data.problem.criteria[criterion_index].max_value :
-      learning_data.profiles[criterion_index][profile_index + 1][model_index];
+      learning_data.profiles[criterion_index][profile_index + delta_profile][model_index];
 
   float best_destination = learning_data.profiles[criterion_index][profile_index][model_index];
   float best_desirability = Desirability().value();
 
+  assert(lowest_destination <= highest_destination);
   if (lowest_destination == highest_destination) {
     assert(best_destination == lowest_destination);
     return;
@@ -122,6 +132,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const unsigned alternative_index,
   Desirability* desirability
 ) {
+  const Criterion& criterion = learning_data.problem.criteria[criterion_index];
+
   const float current_position = learning_data.profiles[criterion_index][profile_index][model_index];
   const float weight = learning_data.weights[criterion_index][model_index];
 
@@ -131,12 +143,14 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
 
   // @todo(Project management, later) Factorize with get_assignment
   // (Same remark in accuracy-heuristic-on-gpu.cu)
-  float weight_at_or_above_profile = 0;
-  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-    const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-    const float profile_value = learning_data.profiles[criterion_index][profile_index][model_index];
-    if (alternative_value >= profile_value) {
-      weight_at_or_above_profile += learning_data.weights[criterion_index][model_index];
+  float weight_at_or_better_than_profile = 0;
+  // There is a criterion parameter above, *and* a local criterion just here
+  for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
+    const Criterion& crit = learning_data.problem.criteria[crit_index];
+    const float alternative_value = learning_data.learning_alternatives[crit_index][alternative_index];
+    const float profile_value = learning_data.profiles[crit_index][profile_index][model_index];
+    if (crit.better_or_equal(alternative_value, profile_value)) {
+      weight_at_or_better_than_profile += learning_data.weights[crit_index][model_index];
     }
   }
 
@@ -149,86 +163,96 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   // - destination: b_j +/- \delta
   // - current_position: b_j
   // - value: a_j
-  // - weight_at_or_above_profile: \sigma
+  // - weight_at_or_better_than_profile: \sigma
   // - weight: w_j
   // - 1: \lambda
-  if (destination > current_position) {
+  if (criterion.strictly_better(destination, current_position)) {
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight < 1) {
-        ++desirability->v;
+      && criterion.strictly_better(destination, value)
+      && criterion.better_or_equal(value, current_position)
+      && weight_at_or_better_than_profile - weight < 1
+    ) {
+      ++desirability->v;
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight >= 1) {
-        ++desirability->w;
+      && criterion.strictly_better(destination, value)
+      && criterion.better_or_equal(value, current_position)
+      && weight_at_or_better_than_profile - weight >= 1
+    ) {
+      ++desirability->w;
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight < 1) {
-        ++desirability->q;
+      && criterion.strictly_better(destination, value)
+      && criterion.better_or_equal(value, current_position)
+      && weight_at_or_better_than_profile - weight < 1
+    ) {
+      ++desirability->q;
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && destination > value
-      && value >= current_position) {
-        ++desirability->r;
+      && criterion.strictly_better(destination, value)
+      && criterion.better_or_equal(value, current_position)
+    ) {
+      ++desirability->r;
     }
     if (
       learning_assignment < profile_index
       && model_assignment > profile_index
-      && destination > value
-      && value >= current_position) {
-        ++desirability->t;
+      && criterion.strictly_better(destination, value)
+      && criterion.better_or_equal(value, current_position)
+    ) {
+      ++desirability->t;
     }
   } else {
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight >= 1) {
-        ++desirability->v;
+      && criterion.strictly_better(value, destination)
+      && criterion.strictly_better(current_position, value)
+      && weight_at_or_better_than_profile + weight >= 1
+    ) {
+      ++desirability->v;
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight < 1) {
-        ++desirability->w;
+      && criterion.strictly_better(value, destination)
+      && criterion.strictly_better(current_position, value)
+      && weight_at_or_better_than_profile + weight < 1
+    ) {
+      ++desirability->w;
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight >= 1) {
-        ++desirability->q;
+      && criterion.strictly_better(value, destination)
+      && criterion.strictly_better(current_position, value)
+      && weight_at_or_better_than_profile + weight >= 1
+    ) {
+      ++desirability->q;
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && destination <= value
-      && value < current_position) {
-        ++desirability->r;
+      && criterion.better_or_equal(value, destination)
+      && criterion.strictly_better(current_position, value)
+    ) {
+      ++desirability->r;
     }
     if (
       learning_assignment > profile_index + 1
       && model_assignment < profile_index + 1
-      && destination < value
-      && value <= current_position) {
-        ++desirability->t;
+      && criterion.strictly_better(value, destination)
+      && criterion.better_or_equal(current_position, value)
+    ) {
+      ++desirability->t;
     }
   }
 }

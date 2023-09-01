@@ -23,7 +23,7 @@ class MaxSatSeparationUcncsLearning {
     unique_values(),
     better_alternative_indexes(),
     worse_alternative_indexes(),
-    above(),
+    better(),
     separates(),
     sat()
   {}
@@ -49,12 +49,12 @@ class MaxSatSeparationUcncsLearning {
   const typename MaxSatProblem::weight_type subgoal_weight;
   const typename MaxSatProblem::weight_type goal_weight;
   std::vector<std::vector<float>> unique_values;
-  // Alternatives above category k
+  // Alternatives better than category k
   std::vector<std::vector<unsigned>> better_alternative_indexes;
-  // Alternatives in category k or below
+  // Alternatives in category k or worse
   std::vector<std::vector<unsigned>> worse_alternative_indexes;
-  // above[criterion_index][boundary_index][value_index]: value is above profile on criterion
-  std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> above;
+  // better[criterion_index][boundary_index][value_index]: value is better profile on criterion
+  std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> better;
   // separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index]:
   // criterion separates alternatives 'good' and 'bad' with regards to profiles 'a' and 'b'
   std::vector<std::vector<std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>>>> separates;

@@ -21,7 +21,7 @@ class MaxSatCoalitionsUcncsLearning {
     alternatives_count(learning_set.alternatives.size()),
     goal_weight(1),
     unique_values(),
-    above(),
+    better(),
     sufficient(),
     sat()
   {}
@@ -56,8 +56,8 @@ class MaxSatCoalitionsUcncsLearning {
   const unsigned alternatives_count;
   const typename MaxSatProblem::weight_type goal_weight;
   std::vector<std::vector<float>> unique_values;
-  // above[criterion_index][boundary_index][value_index]: value is above profile on criterion
-  std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> above;
+  // better[criterion_index][boundary_index][value_index]: value is better than profile on criterion
+  std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> better;
   // sufficient[coalition.to_ulong()]: coalition is sufficient
   std::vector<typename MaxSatProblem::variable_type> sufficient;
   // correct[alternative_index]: alternative is correctly classified

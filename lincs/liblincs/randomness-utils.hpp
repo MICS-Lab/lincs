@@ -38,7 +38,10 @@ class ProbabilityWeightedGenerator {
 
  public:
   ProbabilityWeightedGenerator(const std::map<T, double>& value_probabilities) :
-    ProbabilityWeightedGenerator(map_keys(value_probabilities), map_values(value_probabilities)) {}
+    ProbabilityWeightedGenerator(map_keys(value_probabilities), map_values(value_probabilities))
+  {
+    assert(!value_probabilities.empty());
+  }
 
   template<typename Generator>
   T operator()(Generator& gen) const {

@@ -38,17 +38,19 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::perform() {
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::sort_values() {
   unique_values.resize(criteria_count);
-  for (unsigned i = 0; i != criteria_count; ++i) {
-    unique_values[i].reserve(alternatives_count);
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    unique_values[criterion_index].reserve(alternatives_count);
   }
   for (const auto& alternative : learning_set.alternatives) {
-    for (unsigned i = 0; i != criteria_count; ++i) {
-      unique_values[i].push_back(alternative.profile[i]);
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      unique_values[criterion_index].push_back(alternative.profile[criterion_index]);
     }
   }
 
-  for (auto& v : unique_values) {
-    std::sort(v.begin(), v.end());
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    const Criterion& criterion = problem.criteria[criterion_index];
+    std::vector<float>& v = unique_values[criterion_index];
+    std::sort(v.begin(), v.end(), [&criterion](float lhs, float rhs) { return criterion.strictly_better(rhs, lhs); });
     v.erase(std::unique(v.begin(), v.end()), v.end());
   }
 }
@@ -68,13 +70,13 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_all_coalitions() {
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
   // Variables "a" in the article
-  above.resize(criteria_count);
+  better.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    above[criterion_index].resize(categories_count);
+    better[criterion_index].resize(categories_count);
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-      above[criterion_index][boundary_index].resize(unique_values[criterion_index].size());
+      better[criterion_index][boundary_index].resize(unique_values[criterion_index].size());
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        above[criterion_index][boundary_index][value_index] = sat.create_variable();
+        better[criterion_index][boundary_index][value_index] = sat.create_variable();
       }
     }
   }
@@ -97,26 +99,26 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() {
   // Clauses "C1" in the article
-  // Values are ordered so if a value is above a profile, then values above it are also above that profile
+  // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
       for (unsigned value_index = 1; value_index != unique_values[criterion_index].size(); ++value_index) {
         sat.add_clause(implies(
-          above[criterion_index][boundary_index][value_index - 1],
-          above[criterion_index][boundary_index][value_index]
+          better[criterion_index][boundary_index][value_index - 1],
+          better[criterion_index][boundary_index][value_index]
         ));
       }
     }
   }
 
   // Clauses "C2" in the article
-  // Profiles are ordered so if a value is above a profile, then it is also above lower profiles
+  // Profiles are ordered so if a value is better than a profile, then it is also better than lower profiles
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
       for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
         sat.add_clause(implies(
-          above[criterion_index][boundary_index][value_index],
-          above[criterion_index][boundary_index - 1][value_index]
+          better[criterion_index][boundary_index][value_index],
+          better[criterion_index][boundary_index - 1][value_index]
         ));
       }
     }
@@ -138,7 +140,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
 template<typename MaxSatProblem>
 void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints() {
   // Clauses "C5~" in the article
-  // Alternatives are outranked by the boundary above them
+  // Alternatives are outranked by the boundary better than them
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const auto& alternative = learning_set.alternatives[alternative_index];
 
@@ -147,7 +149,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       continue;
     }
 
-    // This boundary is *just above* the alternative, so the alternative can't be above it on a sufficient coalition
+    // This boundary is *just better than* the alternative, so the alternative can't be better than it on a sufficient coalition
     const unsigned boundary_index = category_index;
 
     for (const Coalition& coalition : all_coalitions) {
@@ -156,15 +158,17 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       clause.push_back(-sufficient[coalition.to_ulong()]);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
+          const Criterion& criterion = problem.criteria[criterion_index];
           const auto lb = std::lower_bound(
             unique_values[criterion_index].begin(), unique_values[criterion_index].end(),
-            alternative.profile[criterion_index]
+            alternative.profile[criterion_index],
+            [&criterion](float lhs, float rhs) { return criterion.strictly_better(rhs, lhs); }
           );
           assert(lb != unique_values[criterion_index].end());
-          const unsigned value_index = lb - unique_values[criterion_index].begin();
-          assert(value_index < above[criterion_index][boundary_index].size());
-          // ... or the alternative is below the profile on at least one necessary criterion
-          clause.push_back(-above[criterion_index][boundary_index][value_index]);
+          const unsigned value_index = std::distance(unique_values[criterion_index].begin(), lb);
+          assert(value_index < better[criterion_index][boundary_index].size());
+          // ... or the alternative is worse than the profile on at least one necessary criterion
+          clause.push_back(-better[criterion_index][boundary_index][value_index]);
         }
       }
       // ... or it's not correctly classified
@@ -174,7 +178,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
   }
 
   // Clauses "C6~" in the article
-  // Alternatives outrank the boundary below them
+  // Alternatives outrank the boundary worse than them
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const auto& alternative = learning_set.alternatives[alternative_index];
 
@@ -183,7 +187,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       continue;
     }
 
-    // This boundary is *just below* the alternative, so the alternative has to be above it on a sufficient coalition
+    // This boundary is *just worse than* the alternative, so the alternative has to be better than it on a sufficient coalition
     const unsigned boundary_index = category_index - 1;
 
     for (const Coalition& coalition : all_coalitions) {
@@ -192,14 +196,16 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       clause.push_back(sufficient[coalition_complement.to_ulong()]);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
+          const Criterion& criterion = problem.criteria[criterion_index];
           const auto lb = std::lower_bound(
             unique_values[criterion_index].begin(), unique_values[criterion_index].end(),
-            alternative.profile[criterion_index]
+            alternative.profile[criterion_index],
+            [&criterion](float lhs, float rhs) { return criterion.strictly_better(rhs, lhs); }
           );
           assert(lb != unique_values[criterion_index].end());
-          const unsigned value_index = lb - unique_values[criterion_index].begin();
-          assert(value_index < above[criterion_index][boundary_index].size());
-          clause.push_back(above[criterion_index][boundary_index][value_index]);
+          const unsigned value_index = std::distance(unique_values[criterion_index].begin(), lb);
+          assert(value_index < better[criterion_index][boundary_index].size());
+          clause.push_back(better[criterion_index][boundary_index][value_index]);
         }
       }
       clause.push_back(-correct[alternative_index]);
@@ -239,11 +245,16 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<float> profile(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      const bool is_growing = problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing;
+      assert(is_growing || problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing);
+      const float best_value = is_growing ? problem.criteria[criterion_index].max_value : problem.criteria[criterion_index].min_value;
+      const float worst_value = is_growing ? problem.criteria[criterion_index].min_value : problem.criteria[criterion_index].max_value;
+
       bool found = false;
       for (unsigned value_index = 0; value_index != unique_values[criterion_index].size(); ++value_index) {
-        if (solution[above[criterion_index][boundary_index][value_index]]) {
+        if (solution[better[criterion_index][boundary_index][value_index]]) {
           if (value_index == 0) {
-            profile[criterion_index] = problem.criteria[criterion_index].min_value;
+            profile[criterion_index] = worst_value;
           } else {
             profile[criterion_index] = (unique_values[criterion_index][value_index - 1] + unique_values[criterion_index][value_index]) / 2;
           }
@@ -252,7 +263,7 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
         }
       }
       if (!found) {
-        profile[criterion_index] = problem.criteria[criterion_index].max_value;
+        profile[criterion_index] = best_value;
       }
     }
 

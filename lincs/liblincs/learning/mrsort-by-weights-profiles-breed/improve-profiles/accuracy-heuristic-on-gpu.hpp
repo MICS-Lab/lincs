@@ -16,6 +16,7 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
   struct GpuLearningData {
     unsigned categories_count;
     unsigned criteria_count;
+    Array1D<Device, bool> criterion_is_growing;
     unsigned learning_alternatives_count;
     Array2D<Device, float> learning_alternatives;
     Array1D<Device, unsigned> learning_assignments;

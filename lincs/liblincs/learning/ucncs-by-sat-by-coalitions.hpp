@@ -20,7 +20,7 @@ class SatCoalitionsUcncsLearning {
     coalitions_count(1 << criteria_count),
     alternatives_count(learning_set.alternatives.size()),
     unique_values(),
-    above(),
+    better(),
     sufficient(),
     sat()
   {}
@@ -57,8 +57,8 @@ class SatCoalitionsUcncsLearning {
   std::vector<Coalition> all_coalitions;
   const unsigned alternatives_count;
   std::vector<std::vector<float>> unique_values;
-  // above[criterion_index][boundary_index][value_index]: value is above profile on criterion
-  std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> above;
+  // better[criterion_index][boundary_index][value_index]: value is better than profile on criterion
+  std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> better;
   // sufficient[coalition.to_ulong()]: coalition is sufficient
   std::vector<typename SatProblem::variable_type> sufficient;
   SatProblem sat;
