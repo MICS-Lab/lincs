@@ -20,7 +20,7 @@ struct Criterion {
 
   enum class CategoryCorrelation {
     growing,
-    // @todo(Feature, soon) Add decreasing
+    decreasing,
     // @todo(Feature, later) Add single-peaked
     // @todo(Feature, later) Add single-valleyed
     // @todo(Feature, much later) Add unknown
@@ -46,6 +46,26 @@ struct Criterion {
     min_value(min_value_),
     max_value(max_value_)
   {}
+
+  bool better_or_equal(float lhs, float rhs) const {
+    switch (category_correlation) {
+      case CategoryCorrelation::growing:
+        return lhs >= rhs;
+      case CategoryCorrelation::decreasing:
+        return lhs <= rhs;
+    }
+    __builtin_unreachable();
+  }
+
+  bool strictly_better(float lhs, float rhs) const {
+    switch (category_correlation) {
+      case CategoryCorrelation::growing:
+        return lhs > rhs;
+      case CategoryCorrelation::decreasing:
+        return lhs < rhs;
+    }
+    __builtin_unreachable();
+  }
 
   // @todo(Project management, later) Remove this operator
   // The struct is usable without it in C++, and it was added only to allow using bp::vector_indexing_suite in the Python module

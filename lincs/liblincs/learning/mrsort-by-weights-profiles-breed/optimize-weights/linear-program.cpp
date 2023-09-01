@@ -58,7 +58,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
         const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
         const float profile_value = learning_data.profiles[criterion_index][category_index - 1][model_index];
-        if (alternative_value >= profile_value) {
+        if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
@@ -72,7 +72,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
         const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
         const float profile_value = learning_data.profiles[criterion_index][category_index][model_index];
-        if (alternative_value >= profile_value) {
+        if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }

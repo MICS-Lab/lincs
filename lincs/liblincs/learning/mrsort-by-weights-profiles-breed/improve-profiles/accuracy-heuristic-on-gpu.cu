@@ -1,6 +1,7 @@
 // Copyright 2023 Vincent Jacques
 
 #include "accuracy-heuristic-on-gpu.hpp"
+
 #include "../../../randomness-utils.hpp"
 
 
@@ -11,6 +12,7 @@ typedef GridFactory2D<256, 4> grid;
 __device__
 unsigned get_assignment(
   const ArrayView2D<Device, const float> learning_alternatives,
+  const ArrayView1D<Device, const bool> criterion_is_growing,
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
@@ -24,15 +26,15 @@ unsigned get_assignment(
   // phase keeping the maximum 'category_index' that passes the weight threshold.
   for (unsigned category_index = categories_count - 1; category_index != 0; --category_index) {
     const unsigned profile_index = category_index - 1;
-    float weight_at_or_above_profile = 0;
+    float weight_at_or_better_than_profile = 0;
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       const float alternative_value = learning_alternatives[criterion_index][alternative_index];
       const float profile_value = profiles[criterion_index][profile_index][model_index];
-      if (alternative_value >= profile_value) {
-        weight_at_or_above_profile += weights[criterion_index][model_index];
+      if (criterion_is_growing[criterion_index] ? alternative_value >= profile_value : alternative_value <= profile_value) {
+        weight_at_or_better_than_profile += weights[criterion_index][model_index];
       }
     }
-    if (weight_at_or_above_profile >= 1) {
+    if (weight_at_or_better_than_profile >= 1) {
       return category_index;
     }
   }
@@ -43,6 +45,7 @@ __device__
 void update_move_desirability(
   const ArrayView2D<Device, const float> learning_alternatives,
   const ArrayView1D<Device, const unsigned> learning_assignments,
+  const ArrayView1D<Device, const bool> criterion_is_growing,
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
@@ -62,17 +65,19 @@ void update_move_desirability(
   const unsigned learning_assignment = learning_assignments[alternative_index];
   const unsigned model_assignment = get_assignment(
     learning_alternatives,
+    criterion_is_growing,
     weights,
     profiles,
     model_index,
     alternative_index);
 
-  float weight_at_or_above_profile = 0;
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const float alternative_value = learning_alternatives[criterion_index][alternative_index];
-    const float profile_value = profiles[criterion_index][profile_index][model_index];
-    if (alternative_value >= profile_value) {
-      weight_at_or_above_profile += weights[criterion_index][model_index];
+  float weight_at_or_better_than_profile = 0;
+  // There is a criterion parameter above, *and* a local criterion just here
+  for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
+    const float alternative_value = learning_alternatives[crit_index][alternative_index];
+    const float profile_value = profiles[crit_index][profile_index][model_index];
+    if (criterion_is_growing[crit_index] ? alternative_value >= profile_value : alternative_value <= profile_value) {
+      weight_at_or_better_than_profile += weights[crit_index][model_index];
     }
   }
 
@@ -85,86 +90,96 @@ void update_move_desirability(
   // - destination: b_j +/- \delta
   // - current_position: b_j
   // - value: a_j
-  // - weight_at_or_above_profile: \sigma
+  // - weight_at_or_better_than_profile: \sigma
   // - weight: w_j
   // - 1: \lambda
-  if (destination > current_position) {
+  if (criterion_is_growing[criterion_index] ? destination > current_position : destination < current_position) {
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight < 1) {
-        atomicInc(&desirability->v, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination > value : destination < value)
+      && (criterion_is_growing[criterion_index] ? value >= current_position : value <= current_position)
+      && weight_at_or_better_than_profile - weight < 1
+    ) {
+      atomicInc(&desirability->v, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight >= 1) {
-        atomicInc(&desirability->w, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination > value : destination < value)
+      && (criterion_is_growing[criterion_index] ? value >= current_position : value <= current_position)
+      && weight_at_or_better_than_profile - weight >= 1
+    ) {
+      atomicInc(&desirability->w, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index + 1
-      && destination > value
-      && value >= current_position
-      && weight_at_or_above_profile - weight < 1) {
-        atomicInc(&desirability->q, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination > value : destination < value)
+      && (criterion_is_growing[criterion_index] ? value >= current_position : value <= current_position)
+      && weight_at_or_better_than_profile - weight < 1
+    ) {
+      atomicInc(&desirability->q, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && destination > value
-      && value >= current_position) {
-        atomicInc(&desirability->r, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination > value : destination < value)
+      && (criterion_is_growing[criterion_index] ? value >= current_position : value <= current_position)
+    ) {
+      atomicInc(&desirability->r, learning_alternatives_count);
     }
     if (
       learning_assignment < profile_index
       && model_assignment > profile_index
-      && destination > value
-      && value >= current_position) {
-        atomicInc(&desirability->t, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination > value : destination < value)
+      && (criterion_is_growing[criterion_index] ? value >= current_position : value <= current_position)
+    ) {
+      atomicInc(&desirability->t, learning_alternatives_count);
     }
   } else {
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight >= 1) {
-        atomicInc(&desirability->v, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination < value : destination > value)
+      && (criterion_is_growing[criterion_index] ? value < current_position : value > current_position)
+      && weight_at_or_better_than_profile + weight >= 1
+    ) {
+      atomicInc(&desirability->v, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight < 1) {
-        atomicInc(&desirability->w, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination < value : destination > value)
+      && (criterion_is_growing[criterion_index] ? value < current_position : value > current_position)
+      && weight_at_or_better_than_profile + weight < 1
+    ) {
+      atomicInc(&desirability->w, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index
-      && destination < value
-      && value < current_position
-      && weight_at_or_above_profile + weight >= 1) {
-        atomicInc(&desirability->q, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination < value : destination > value)
+      && (criterion_is_growing[criterion_index] ? value < current_position : value > current_position)
+      && weight_at_or_better_than_profile + weight >= 1
+    ) {
+      atomicInc(&desirability->q, learning_alternatives_count);
     }
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && destination <= value
-      && value < current_position) {
-        atomicInc(&desirability->r, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination <= value : destination >= value)
+      && (criterion_is_growing[criterion_index] ? value < current_position : value > current_position)
+    ) {
+      atomicInc(&desirability->r, learning_alternatives_count);
     }
     if (
       learning_assignment > profile_index + 1
       && model_assignment < profile_index + 1
-      && destination < value
-      && value <= current_position) {
-        atomicInc(&desirability->t, learning_alternatives_count);
+      && (criterion_is_growing[criterion_index] ? destination < value : destination > value)
+      && (criterion_is_growing[criterion_index] ? value <= current_position : value >= current_position)
+    ) {
+      atomicInc(&desirability->t, learning_alternatives_count);
     }
   }
 }
@@ -174,6 +189,7 @@ __global__
 void compute_move_desirabilities__kernel(
   const ArrayView2D<Device, const float> learning_alternatives,
   const ArrayView1D<Device, const unsigned> learning_assignments,
+  const ArrayView1D<Device, const bool> criterion_is_growing,
   const ArrayView2D<Device, const float> weights,
   const ArrayView3D<Device, const float> profiles,
   const unsigned model_index,
@@ -192,6 +208,7 @@ void compute_move_desirabilities__kernel(
     update_move_desirability(
       learning_alternatives,
       learning_assignments,
+      criterion_is_growing,
       weights,
       profiles,
       model_index,
@@ -237,9 +254,20 @@ void apply_best_move__kernel(
 namespace lincs {
 
 ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::make(const LearningData& learning_data) {
+  Array1D<Host, bool> criterion_is_growing(learning_data.criteria_count, uninitialized);
+  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
+    if (learning_data.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing) {
+      criterion_is_growing[criterion_index] = true;
+    } else {
+      assert(learning_data.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing);
+      criterion_is_growing[criterion_index] = false;
+    }
+  }
+
   return {
     learning_data.categories_count,
     learning_data.criteria_count,
+    criterion_is_growing.template clone_to<Device>(),
     learning_data.learning_alternatives_count,
     learning_data.learning_alternatives.template clone_to<Device>(),
     learning_data.learning_assignments.template clone_to<Device>(),
@@ -298,15 +326,24 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   const unsigned profile_index,
   const unsigned criterion_index
 ) {
-  const float lowest_destination =
-    profile_index == 0 ?
-      host_learning_data.problem.criteria[criterion_index].min_value :
-      host_learning_data.profiles[criterion_index][profile_index - 1][model_index];
-  const float highest_destination =
-    profile_index == host_learning_data.categories_count - 2 ?
-      host_learning_data.problem.criteria[criterion_index].max_value :
-      host_learning_data.profiles[criterion_index][profile_index + 1][model_index];
+  const Criterion& criterion = host_learning_data.problem.criteria[criterion_index];
+  const bool is_growing = criterion.category_correlation == Criterion::CategoryCorrelation::growing;
+  assert(is_growing || criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
 
+  const int delta_profile = is_growing ? +1 : -1;
+  const unsigned lowest_profile_index = is_growing ? 0 : host_learning_data.categories_count - 2;
+  const unsigned highest_profile_index = is_growing ? host_learning_data.categories_count - 2 : 0;
+
+  const float lowest_destination =
+    profile_index == lowest_profile_index ?
+      host_learning_data.problem.criteria[criterion_index].min_value :
+      host_learning_data.profiles[criterion_index][profile_index - delta_profile][model_index];
+  const float highest_destination =
+    profile_index == highest_profile_index ?
+      host_learning_data.problem.criteria[criterion_index].max_value :
+      host_learning_data.profiles[criterion_index][profile_index + delta_profile][model_index];
+
+  assert(lowest_destination <= highest_destination);
   if (lowest_destination == highest_destination) {
     assert(host_learning_data.profiles[criterion_index][profile_index][model_index] == lowest_destination);
     return;
@@ -331,6 +368,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   compute_move_desirabilities__kernel<<<LOVE_CONFIG(grid)>>>(
     gpu_learning_data.learning_alternatives,
     gpu_learning_data.learning_assignments,
+    gpu_learning_data.criterion_is_growing,
     gpu_learning_data.weights,
     gpu_learning_data.profiles,
     model_index,

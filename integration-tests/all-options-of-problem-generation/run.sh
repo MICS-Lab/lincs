@@ -6,6 +6,6 @@ set -o pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 
-lincs generate classification-problem 4 3 --denormalized-min-max --random-seed 42 >actual.yml
+lincs generate classification-problem 4 3 --denormalized-min-max --allow-decreasing-criteria --random-seed 42 >actual.yml
 
 diff expected.yml actual.yml

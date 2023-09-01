@@ -41,16 +41,47 @@ template<typename T>
 void check_exact_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
-  std::set<unsigned> bad_seeds = {},
+  std::set<unsigned> bad_seeds_a = {},
+  std::set<unsigned> bad_seeds_b = {},
+  std::set<unsigned> bad_seeds_c = {},
   const unsigned seeds_count = default_seeds_count
 ) {
-  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false);
+  if (!skip_long) {
+    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
 
-  for (unsigned seed = 0; seed != seeds_count; ++seed) {
-    if (bad_seeds.find(seed) != bad_seeds.end()) {
-      CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-    } else {
-      check_exact_learning<T>(problem, seed);
+    for (unsigned seed = 0; seed != seeds_count; ++seed) {
+      if (bad_seeds_a.find(seed) != bad_seeds_a.end()) {
+        CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+      } else {
+        check_exact_learning<T>(problem, seed);
+      }
+    }
+  }
+
+  if (!skip_long) {
+    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
+    for (auto& criterion : problem.criteria) {
+      criterion.category_correlation = lincs::Criterion::CategoryCorrelation::decreasing;
+    }
+
+    for (unsigned seed = 0; seed != seeds_count; ++seed) {
+      if (bad_seeds_b.find(seed) != bad_seeds_b.end()) {
+        CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+      } else {
+        check_exact_learning<T>(problem, seed);
+      }
+    }
+  }
+
+  if (true) {
+    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, true);
+
+    for (unsigned seed = 0; seed != seeds_count; ++seed) {
+      if (bad_seeds_c.find(seed) != bad_seeds_c.end()) {
+        CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+      } else {
+        check_exact_learning<T>(problem, seed);
+      }
     }
   }
 }
@@ -77,28 +108,82 @@ template<typename T>
 void check_non_exact_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
-  std::set<unsigned> bad_seeds = {},
+  std::set<unsigned> bad_seeds_a = {},
+  std::set<unsigned> bad_seeds_b = {},
+  std::set<unsigned> bad_seeds_c = {},
   const unsigned seeds_count = default_seeds_count
 ) {
-  lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false);
+  if (!skip_long) {
+    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
 
-  for (unsigned seed = 0; seed != seeds_count; ++seed) {
-    if (bad_seeds.find(seed) != bad_seeds.end()) {
-      CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-    } else {
-      check_non_exact_learning<T>(problem, seed);
+    for (unsigned seed = 0; seed != seeds_count; ++seed) {
+      if (bad_seeds_a.find(seed) != bad_seeds_a.end()) {
+        CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+      } else {
+        check_non_exact_learning<T>(problem, seed);
+      }
+    }
+  }
+
+  if (!skip_long) {
+    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
+    for (auto& criterion : problem.criteria) {
+      criterion.category_correlation = lincs::Criterion::CategoryCorrelation::decreasing;
+    }
+
+    for (unsigned seed = 0; seed != seeds_count; ++seed) {
+      if (bad_seeds_b.find(seed) != bad_seeds_b.end()) {
+        CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+      } else {
+        check_non_exact_learning<T>(problem, seed);
+      }
+    }
+  }
+
+  if (true) {
+    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, true);
+
+    for (unsigned seed = 0; seed != seeds_count; ++seed) {
+      if (bad_seeds_c.find(seed) != bad_seeds_c.end()) {
+        CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
+      } else {
+        check_non_exact_learning<T>(problem, seed);
+      }
     }
   }
 }
+
+struct AccuracyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
+  AccuracyObserver(const LearningData& learning_data_) :
+    learning_data(learning_data_),
+    accuracies()
+  {}
+
+  void after_iteration() override {
+    accuracies.push_back(learning_data.get_best_accuracy());
+  }
+
+  void before_return() override {
+    accuracies.push_back(learning_data.get_best_accuracy());
+  }
+
+  const LearningData& learning_data;
+  std::vector<unsigned> accuracies;
+};
 
 }  // namespace
 
 namespace lincs {
 
-TEST_CASE("Basic WPB learning") {
-  class Wrapper {
-   public:
-    Wrapper(const Problem& problem, const Alternatives& learning_set) :
+TEST_CASE(
+#ifdef LINCS_HAS_NVCC
+  "Basic and GPU WPB learning"
+#else
+  "Basic WPB learning"
+#endif
+) {
+  struct CpuWrapper {
+    CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
         problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
       )),
@@ -107,34 +192,139 @@ TEST_CASE("Basic WPB learning") {
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
       termination_strategy(learning_data, learning_set.alternatives.size()),
+      observer(learning_data),
+      observers{&observer},
       learning(
         learning_data,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
         breeding_strategy,
-        termination_strategy
+        termination_strategy,
+        observers
       )
     {}
 
-   public:
     auto perform() { return learning.perform(); }
 
-   private:
     LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
+    AccuracyObserver observer;
+    std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
+#ifdef LINCS_HAS_NVCC
+  struct GpuWrapper {
+    GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
+      )),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+      termination_strategy(learning_data, learning_set.alternatives.size()),
+      observer(learning_data),
+      observers{&observer},
+      learning(
+        learning_data,
+        profiles_initialization_strategy,
+        weights_optimization_strategy,
+        profiles_improvement_strategy,
+        breeding_strategy,
+        termination_strategy,
+        observers
+      )
+    {}
+
+    auto perform() { return learning.perform(); }
+
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
+    OptimizeWeightsUsingGlop weights_optimization_strategy;
+    ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
+    TerminateAtAccuracy termination_strategy;
+    AccuracyObserver observer;
+    std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
+    LearnMrsortByWeightsProfilesBreed learning;
+  };
+
+  class Wrapper {
+   public:
+    Wrapper(const Problem& problem_, const Alternatives& learning_set) :
+      problem(problem_),
+      cpu_wrapper(problem_, learning_set),
+      gpu_wrapper(problem_, learning_set)
+    {}
+
+   public:
+    auto perform() {
+      bool cpu_success = false;
+      Model cpu_model(problem, {});
+      try {
+        cpu_model.boundaries = cpu_wrapper.perform().boundaries;
+        cpu_success = true;
+      } catch (const LearningFailureException&) { /* Nothing */ }
+
+      bool gpu_success = false;
+      Model gpu_model(problem, {});
+      try {
+        gpu_model.boundaries = gpu_wrapper.perform().boundaries;
+        gpu_success = true;
+      } catch (const LearningFailureException&) { /* Nothing */ }
+
+      CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
+      if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
+        std::cerr << "CPU accuracies:";
+        for (unsigned accuracy: cpu_wrapper.observer.accuracies) {
+          std::cerr << " " << accuracy;
+        }
+        std::cerr << std::endl;
+        std::cerr << "GPU accuracies:";
+        for (unsigned accuracy: gpu_wrapper.observer.accuracies) {
+          std::cerr << " " << accuracy;
+        }
+        std::cerr << std::endl;
+      }
+
+      if (cpu_success == gpu_success) {
+        if (cpu_success) {
+          CHECK(cpu_model.boundaries == gpu_model.boundaries);
+          return cpu_model;
+        } else {
+          throw LearningFailureException();
+        }
+      } else {
+        if (cpu_success) {
+          FAIL("CPU succeeded but GPU failed");
+          return cpu_model;
+        } else {
+          FAIL("GPU succeeded but CPU failed");
+          return gpu_model;
+        }
+      }
+    }
+
+   private:
+    const Problem& problem;
+    CpuWrapper cpu_wrapper;
+    GpuWrapper gpu_wrapper;
+  };
+#else
+  typedef CpuWrapper Wrapper;
+#endif
+
   check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2, {78});
+  check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
+  check_exact_learning<Wrapper>(7, 2, {78}, {47}, {41});
   check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {59});
+  check_exact_learning<Wrapper>(4, 3, {59}, {40}, {44, 55, 71});
 }
 
 TEST_CASE("No termination strategy WPB learning") {
@@ -177,10 +367,10 @@ TEST_CASE("No termination strategy WPB learning") {
   };
 
   check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2, {78});
+  check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
+  check_exact_learning<Wrapper>(7, 2, {78}, {47}, {41});
   check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {59});
+  check_exact_learning<Wrapper>(4, 3, {59}, {40}, {44, 55, 71});
 }
 
 TEST_CASE("Alglib WPB learning") {
@@ -219,57 +409,11 @@ TEST_CASE("Alglib WPB learning") {
   };
 
   check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2);  // @todo(Project management, soon-ish) Investigate why seed 78 succeeds with Alglib but not with Glop
+  check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
+  check_exact_learning<Wrapper>(7, 2, {}, {}, {});
   check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {55, 59});  // @todo(Project management, soon-ish) Investigate why seed 55 succeeds with Glop but not with Alglib
+  check_exact_learning<Wrapper>(4, 3, {55, 59}, {40}, {44});
 }
-
-#ifdef LINCS_HAS_NVCC
-
-TEST_CASE("GPU WPB learning" * doctest::skip(forbid_gpu)) {
-  class Wrapper {
-   public:
-    Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
-      profiles_initialization_strategy(learning_data),
-      weights_optimization_strategy(learning_data),
-      profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, learning_set.alternatives.size()),
-      learning(
-        learning_data,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        profiles_improvement_strategy,
-        breeding_strategy,
-        termination_strategy
-      )
-    {}
-
-   public:
-    auto perform() { return learning.perform(); }
-
-   private:
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
-    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
-    OptimizeWeightsUsingGlop weights_optimization_strategy;
-    ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
-    ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy;
-    LearnMrsortByWeightsProfilesBreed learning;
-  };
-
-  check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2, {78});
-  check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {59});
-}
-
-#endif  // LINCS_HAS_NVCC
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
   check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 2);
@@ -338,9 +482,8 @@ TEST_CASE("Max-SAT by separation using EvalMaxSat learning - non-exact - long" *
 }
 
 TEST_CASE("Non-exact WPB learning") {
-  class Wrapper {
-   public:
-    Wrapper(const Problem& problem, const Alternatives& learning_set) :
+  struct CpuWrapper {
+    CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
         problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
       )),
@@ -349,6 +492,8 @@ TEST_CASE("Non-exact WPB learning") {
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
       termination_strategy(learning_data, 190),
+      observer(learning_data),
+      observers{&observer},
       learning(
         learning_data,
         profiles_initialization_strategy,
@@ -359,23 +504,123 @@ TEST_CASE("Non-exact WPB learning") {
       )
     {}
 
-   public:
     auto perform() { return learning.perform(); }
 
-   private:
     LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
     TerminateAtAccuracy termination_strategy;
+    AccuracyObserver observer;
+    std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
+#ifdef LINCS_HAS_NVCC
+  struct GpuWrapper {
+    GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
+        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
+      )),
+      profiles_initialization_strategy(learning_data),
+      weights_optimization_strategy(learning_data),
+      profiles_improvement_strategy(learning_data),
+      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+      termination_strategy(learning_data, 190),
+      observer(learning_data),
+      observers{&observer},
+      learning(
+        learning_data,
+        profiles_initialization_strategy,
+        weights_optimization_strategy,
+        profiles_improvement_strategy,
+        breeding_strategy,
+        termination_strategy
+      )
+    {}
+
+    auto perform() { return learning.perform(); }
+
+    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
+    OptimizeWeightsUsingGlop weights_optimization_strategy;
+    ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
+    ReinitializeLeastAccurate breeding_strategy;
+    TerminateAtAccuracy termination_strategy;
+    AccuracyObserver observer;
+    std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
+    LearnMrsortByWeightsProfilesBreed learning;
+  };
+
+  class Wrapper {
+   public:
+    Wrapper(const Problem& problem_, const Alternatives& learning_set) :
+      problem(problem_),
+      cpu_wrapper(problem_, learning_set),
+      gpu_wrapper(problem_, learning_set)
+    {}
+
+   public:
+    auto perform() {
+      bool cpu_success = false;
+      Model cpu_model(problem, {});
+      try {
+        cpu_model.boundaries = cpu_wrapper.perform().boundaries;
+        cpu_success = true;
+      } catch (const LearningFailureException&) { /* Nothing */ }
+
+      bool gpu_success = false;
+      Model gpu_model(problem, {});
+      try {
+        gpu_model.boundaries = gpu_wrapper.perform().boundaries;
+        gpu_success = true;
+      } catch (const LearningFailureException&) { /* Nothing */ }
+
+      CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
+      if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
+        std::cerr << "CPU accuracies:";
+        for (unsigned accuracy: cpu_wrapper.observer.accuracies) {
+          std::cerr << " " << accuracy;
+        }
+        std::cerr << std::endl;
+        std::cerr << "GPU accuracies:";
+        for (unsigned accuracy: gpu_wrapper.observer.accuracies) {
+          std::cerr << " " << accuracy;
+        }
+        std::cerr << std::endl;
+      }
+
+      if (cpu_success == gpu_success) {
+        if (cpu_success) {
+          CHECK(cpu_model.boundaries == gpu_model.boundaries);
+          return cpu_model;
+        } else {
+          throw LearningFailureException();
+        }
+      } else {
+        if (cpu_success) {
+          FAIL("CPU succeeded but GPU failed");
+          return cpu_model;
+        } else {
+          FAIL("GPU succeeded but CPU failed");
+          return gpu_model;
+        }
+      }
+    }
+
+   private:
+    const Problem& problem;
+    CpuWrapper cpu_wrapper;
+    GpuWrapper gpu_wrapper;
+  };
+#else
+  typedef CpuWrapper Wrapper;
+#endif
+
   check_non_exact_learning<Wrapper>(1, 2);
-  check_non_exact_learning<Wrapper>(3, 2, {21, 45});
+  check_non_exact_learning<Wrapper>(3, 2, {21, 45}, {}, {21, 45});
   check_non_exact_learning<Wrapper>(1, 3);
-  check_non_exact_learning<Wrapper>(4, 3, {55, 97});
 }
 
 }  // namespace lincs

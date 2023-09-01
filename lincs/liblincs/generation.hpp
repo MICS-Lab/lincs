@@ -16,7 +16,7 @@ namespace lincs {
 // generate_mrsort_classification_model(problem, 42, {.fixed_weights_sum = 2.0f}})
 
 Problem generate_classification_problem(
-  unsigned criteria_count, unsigned categories_count, unsigned random_seed, bool normalized_min_max=true);
+  unsigned criteria_count, unsigned categories_count, unsigned random_seed, bool normalized_min_max=true, bool allow_decreasing_criteria=false);
 
 Model generate_mrsort_classification_model(
   const Problem&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);

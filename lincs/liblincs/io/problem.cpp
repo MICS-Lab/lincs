@@ -81,7 +81,7 @@ properties:
           enum: [real]
         category_correlation:
           type: string
-          enum: [growing]
+          enum: [growing, decreasing]
         min_value:
           type: number
         max_value:
@@ -176,7 +176,7 @@ categories:
 TEST_CASE("dumping then loading problem preserves data - infinite min/max") {
   const float inf = std::numeric_limits<float>::infinity();
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, -inf, inf}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::decreasing, -inf, inf}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -188,7 +188,7 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: real
-    category_correlation: growing
+    category_correlation: decreasing
     min_value: -.inf
     max_value: .inf
 categories:
