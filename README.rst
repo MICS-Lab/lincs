@@ -47,26 +47,26 @@ The concept of the NCS model was first introduced by Denis Bouyssou and Thierry 
 Particular cases of the NCS model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :math:`U^c \textsf{-} NCS` model is a particular case of the NCS model.
+The Uc-NCS model is a particular case of the NCS model.
 
-The MR-Sort model is a particular case of the :math:`U^c \textsf{-} NCS` model introduced by Agnès Leroy *et al.* in `Learning the Parameters of a Multiple Criteria Sorting Method <https://link.springer.com/chapter/10.1007/978-3-642-24873-3_17>`_.
+The MR-Sort model is a particular case of the Uc-NCS model introduced by Agnès Leroy *et al.* in `Learning the Parameters of a Multiple Criteria Sorting Method <https://link.springer.com/chapter/10.1007/978-3-642-24873-3_17>`_.
 
-Although *lincs* can sort alternatives acording to general NCS models (without veto), it only implements learning :math:`U^c \textsf{-} NCS` and MR-Sort models.
+Although *lincs* can sort alternatives according to general NCS models (without veto), it only implements learning Uc-NCS and MR-Sort models.
 
 Learning algorithms
 -------------------
 
 *lincs* provides new implementations of the following algorithms:
 
-Learning :math:`U^c \textsf{-} NCS` models with a SAT-based approaches
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Learning Uc-NCS models with a SAT-based approaches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following learning algorithms were implemented using their description by Ali Tlili, Khaled Belahcène *et al.* in `Learning non-compensatory sorting models using efficient SAT/MaxSAT formulations <https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858>`_:
 
-- learning exact :math:`U^c \textsf{-} NCS` models with a "SAT by coalitions" approach
-- learning approximate :math:`U^c \textsf{-} NCS` models with a "max-SAT by coalitions" approach
-- learning exact :math:`U^c \textsf{-} NCS` models with a "SAT by separation" approach
-- learning approximate :math:`U^c \textsf{-} NCS` models with a "max-SAT by separation" approach
+- learning exact Uc-NCS models with a "SAT by coalitions" approach
+- learning approximate Uc-NCS models with a "max-SAT by coalitions" approach
+- learning exact Uc-NCS models with a "SAT by separation" approach
+- learning approximate Uc-NCS models with a "max-SAT by separation" approach
 
 Note that they were introduced in previous articles, and that this article conveniently gathers them in a single place.
 
@@ -74,7 +74,7 @@ Learning approximate MR-Sort with a heuristic approach
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This approach, described by `Olivier Sobrie <http://olivier.sobrie.be/>`_ in his `Ph.D thesis <http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf>`_,
-is based on splitting the learning into three phases: optimize the weights (linear programmming), improve the profiles (heuristic) and breed the population of intermediate models.
+is based on splitting the learning into three phases: optimize the weights (linear programming), improve the profiles (heuristic) and breed the population of intermediate models.
 We call it the "weights, profiles, breed" learning strategy in *lincs*.
 
 It was originaly `implemented in Python <https://github.com/oso/pymcda>`_ by Olivier Sobrie.
