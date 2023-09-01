@@ -39,11 +39,11 @@
 <p>Bugfixes:</p>
 <ul>
 <li><p>Fix the Linux wheels: make sure they are built with GPU support</p></li>
-<li><p>Improve building <em>lincs</em> without <cite>nvcc</cite> (<em>e.g.</em> on macOS):</p>
+<li><p>Improve building <em>lincs</em> without <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> (<em>e.g.</em> on macOS):</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>provide the <cite>lincs info has-gpu</cite> command</p></li>
-<li><p>adapt <cite>lincs learn classification-model –help</cite></p></li>
+<li><p>provide the <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">info</span> <span class="pre">has-gpu</span></code> command</p></li>
+<li><p>adapt <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span> <span class="pre">--help</span></code></p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -55,7 +55,7 @@
 <li><p>Specifying the minimum and maximum values for each criterion in the problem file:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Generate synthetic data using these attributes (<cite>–denormalized-min-max</cite>)</p></li>
+<li><p>Generate synthetic data using these attributes (<code class="docutils literal notranslate"><span class="pre">--denormalized-min-max</span></code>)</p></li>
 <li><p>Adapt the learning algorithms to use these attributes</p></li>
 </ul>
 </div></blockquote>
@@ -64,14 +64,14 @@
 <blockquote>
 <div><ul class="simple">
 <li><p>in the problem file</p></li>
-<li><p>when generating synthetic data (<cite>–allow-decreasing-criteria</cite>)</p></li>
+<li><p>when generating synthetic data (<code class="docutils literal notranslate"><span class="pre">--allow-decreasing-criteria</span></code>)</p></li>
 <li><p>in the learning algorithms</p></li>
 </ul>
 </div></blockquote>
 </li>
 <li><p>Add a comment to all generated files stating the command-line to use to re-generate them</p></li>
 <li><p>Use enough decimals when storing floating point values in models to avoid any loss of precision</p></li>
-<li><p>Log final accuracy with ‘–mrsort.weights-profiles-breed.verbose’</p></li>
+<li><p>Log final accuracy with <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.verbose</span></code></p></li>
 <li><p>Improve tests</p></li>
 </ul>
 </section>
