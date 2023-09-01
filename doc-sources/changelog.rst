@@ -10,10 +10,10 @@ Version 0.7.0
 Bugfixes:
 
 - Fix the Linux wheels: make sure they are built with GPU support
-- Improve building *lincs* without `nvcc` (*e.g.* on macOS):
+- Improve building *lincs* without ``nvcc`` (*e.g.* on macOS):
 
-    - provide the `lincs info has-gpu` command
-    - adapt `lincs learn classification-model --help`
+    - provide the ``lincs info has-gpu`` command
+    - adapt ``lincs learn classification-model --help``
 
 Features:
 
@@ -21,18 +21,18 @@ Features:
 - Use YAML anchors and aliases to limit repetitions in the model file format when describing :math:`U^c \textsf{-} NCS` models
 - Specifying the minimum and maximum values for each criterion in the problem file:
 
-    - Generate synthetic data using these attributes (`--denormalized-min-max`)
+    - Generate synthetic data using these attributes (``--denormalized-min-max``)
     - Adapt the learning algorithms to use these attributes
 
 - Support criteria with decreasing correlation with the categories:
 
     - in the problem file
-    - when generating synthetic data (`--allow-decreasing-criteria`)
+    - when generating synthetic data (``--allow-decreasing-criteria``)
     - in the learning algorithms
 
 - Add a comment to all generated files stating the command-line to use to re-generate them
 - Use enough decimals when storing floating point values in models to avoid any loss of precision
-- Log final accuracy with '--mrsort.weights-profiles-breed.verbose'
+- Log final accuracy with ``--mrsort.weights-profiles-breed.verbose``
 - Improve tests
 
 Version 0.6.0

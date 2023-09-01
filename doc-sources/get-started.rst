@@ -11,6 +11,7 @@ Get *lincs*
 Your options:
 
 - install *lincs* using binary wheels (on fairly recent Linux distributions and on macOS on Intel processors)
+
 .. - run *lincs* using our Docker image (on any machine with Docker installed, including Windows machines with Docker for Desktop)
 
 We recommend you don't try to build *lincs* from sources, as this requires installing quite a few dependencies.
