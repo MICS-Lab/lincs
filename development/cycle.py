@@ -153,7 +153,11 @@ def run_cpp_tests(*, python_version,):
     )
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
-    subprocess.run(["/tmp/lincs-tests"], check=True, env=env)
+    subprocess.run(
+        ["/tmp/lincs-tests"] + (["-d"] if os.environ.get("LINCS_DEV_SKIP_LONG", "false") == "false" else []),
+        check=True,
+        env=env,
+    )
 
 
 def run_python_tests(*, python_version):
