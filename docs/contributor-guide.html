@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Contributor guide &#8212; lincs 0.6.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b3523f8e" />
+    <title>Contributor guide &#8212; lincs 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=add265a1"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=dc072ff8"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -74,7 +74,7 @@ because dependencies are installed inside the Docker container.
 You can even contribute to <em>lincs</em> on an OS that is not supported to run it directly,
 <em>e.g.</em> macOS with <a class="reference external" href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>.
 If you have an CUDA-compatible NVidia GPU and want to run code that uses it, you need to configure the NVidia Docker runtime.
-&#64;todo Add pointers to the documentation of the NVidia Docker runtime</p>
+&#64;todo(Documentation, soon) Add pointers to the documentation of the NVidia Docker runtime</p>
 </section>
 <section id="development-cycle">
 <h2>Development cycle<a class="headerlink" href="#development-cycle" title="Permalink to this heading">¶</a></h2>
@@ -106,23 +106,27 @@ Use this option to see the impact of your changes on the documentation, but do n
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-single-python-version">
+<span class="sig-name descname"><span class="pre">--single-python-version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-single-python-version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run tests under a single Python version to save time. Please run the full development cycle at least once before submitting your changes.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-unit-coverage">
 <span class="sig-name descname"><span class="pre">--unit-coverage</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-unit-coverage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Measure coverage of unit tests, stop right after that. Quite long.</p>
+<dd><p>Measure coverage of unit tests, stop right after that. Implies –single-python-version. Quite long.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-long">
 <span class="sig-name descname"><span class="pre">--skip-long</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-long" title="Permalink to this definition">¶</a></dt>
-<dd><p>Skip long tests. We all know what it is to be in a hurry. But please run the full development cycle at least once before submitting your changes.</p>
+<dd><p>Skip long tests to save time. Implies –single-python-version. Please run the full development cycle at least once before submitting your changes.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-stop-after-unit">
 <span class="sig-name descname"><span class="pre">--stop-after-unit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-stop-after-unit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop before installing the package.
-For when you’re even more in a hurry.
-Or when you’ve changed the dependencies in the Dockerfile but not yet in the “Getting started” guide.</p>
+<dd><p>Stop before integration tests to save time. Please run the full development cycle at least once before submitting your changes.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -136,7 +140,7 @@ Using this option explicitly avoids the warning.</p>
 </section>
 <section id="publish-sh">
 <h3>./publish.sh<a class="headerlink" href="#publish-sh" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./publish.sh<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">{</span>patch<span class="p">|</span>minor<span class="p">|</span>major<span class="p">|</span>dry-run<span class="o">}</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./publish.sh<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">{</span>patch<span class="p">|</span>minor<span class="p">|</span>major<span class="o">}</span>
 </pre></div>
 </div>
 <p class="rubric">Arguments</p>
@@ -165,10 +169,10 @@ This is done by the <code class="docutils literal notranslate"><span class="pre"
 </section>
 <section id="general-design">
 <h2>General design<a class="headerlink" href="#general-design" title="Permalink to this heading">¶</a></h2>
-<p>&#64;todo Write</p>
+<p>&#64;todo(Documentation, soon) Write</p>
 <section id="focus-on-interfaces">
 <h3>Focus on interfaces<a class="headerlink" href="#focus-on-interfaces" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo Write</p>
+<p>&#64;todo(Documentation, soon) Write</p>
 </section>
 <section id="strategies">
 <h3>Strategies<a class="headerlink" href="#strategies" title="Permalink to this heading">¶</a></h3>
@@ -321,11 +325,11 @@ This will make it easy to compare the new and old strategies, and then choose th
 </section>
 <section id="definition-of-an-dynamic-extension-point">
 <h4>Definition of an dynamic extension point<a class="headerlink" href="#definition-of-an-dynamic-extension-point" title="Permalink to this heading">¶</a></h4>
-<p>&#64;todo Write</p>
+<p>&#64;todo(Documentation, soon) Write</p>
 </section>
 <section id="definition-of-an-static-extension-point">
 <h4>Definition of an static extension point<a class="headerlink" href="#definition-of-an-static-extension-point" title="Permalink to this heading">¶</a></h4>
-<p>&#64;todo Write</p>
+<p>&#64;todo(Documentation, soon) Write</p>
 </section>
 <section id="default-behavior-for-backward-compatibility">
 <h4>Default behavior for backward compatibility<a class="headerlink" href="#default-behavior-for-backward-compatibility" title="Permalink to this heading">¶</a></h4>
@@ -445,7 +449,7 @@ So their interface is not specified explicitly (<em>e.g.</em> by an abstract bas
       &copy;Copyright 2023 Vincent Jacques.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

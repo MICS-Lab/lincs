@@ -5,13 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; lincs 0.6.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b3523f8e" />
+    <title>Changelog &#8212; lincs 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=add265a1"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=dc072ff8"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Contributor guide" href="contributor-guide.html" />
@@ -33,6 +34,47 @@
             
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
+<section id="version-0-7-0">
+<h2>Version 0.7.0<a class="headerlink" href="#version-0-7-0" title="Permalink to this heading">¶</a></h2>
+<p>Bugfixes:</p>
+<ul>
+<li><p>Fix the Linux wheels: make sure they are built with GPU support</p></li>
+<li><p>Improve building <em>lincs</em> without <cite>nvcc</cite> (<em>e.g.</em> on macOS):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>provide the <cite>lincs info has-gpu</cite> command</p></li>
+<li><p>adapt <cite>lincs learn classification-model –help</cite></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>Features:</p>
+<ul>
+<li><p>Add “max-SAT by coalitions” and “max-SAT by separation” learning approaches (hopefully correct this time!)</p></li>
+<li><p>Use YAML anchors and aliases to limit repetitions in the model file format when describing <span class="math notranslate nohighlight">\(U^c \textsf{-} NCS\)</span> models</p></li>
+<li><p>Specifying the minimum and maximum values for each criterion in the problem file:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Generate synthetic data using these attributes (<cite>–denormalized-min-max</cite>)</p></li>
+<li><p>Adapt the learning algorithms to use these attributes</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Support criteria with decreasing correlation with the categories:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>in the problem file</p></li>
+<li><p>when generating synthetic data (<cite>–allow-decreasing-criteria</cite>)</p></li>
+<li><p>in the learning algorithms</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Add a comment to all generated files stating the command-line to use to re-generate them</p></li>
+<li><p>Use enough decimals when storing floating point values in models to avoid any loss of precision</p></li>
+<li><p>Log final accuracy with ‘–mrsort.weights-profiles-breed.verbose’</p></li>
+<li><p>Improve tests</p></li>
+</ul>
+</section>
 <section id="version-0-6-0">
 <h2>Version 0.6.0<a class="headerlink" href="#version-0-6-0" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
@@ -166,6 +208,7 @@
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-7-0">Version 0.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-6-0">Version 0.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-5-1">Version 0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-5-0">Version 0.5.0</a></li>
@@ -219,7 +262,7 @@
       &copy;Copyright 2023 Vincent Jacques.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

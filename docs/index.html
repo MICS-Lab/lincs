@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>README &#8212; lincs 0.6.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b3523f8e" />
+    <title>README &#8212; lincs 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=add265a1"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=dc072ff8"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -35,9 +35,10 @@
 </div>
 <section id="readme">
 <h1>README<a class="headerlink" href="#readme" title="Permalink to this heading">¶</a></h1>
-<p><em>lincs</em> (Learn and Infer Non Compensatory Sortings) is a collection of MCDA algorithms, usable as a C++ library, a Python (3.7+) package and a command-line utility.</p>
+<p><em>lincs</em> (Learn and Infer Non Compensatory Sortings) is a collection of MCDA algorithms, usable as a command-line utility.
+We plan to make it usable as a C++ library and a Python (3.7+) package as well. (&#64;todo(Feature, later))</p>
 <p><em>lincs</em> is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files <a class="reference external" href="COPYING">COPYING</a> and <a class="reference external" href="COPYING.LESSER">COPYING.LESSER</a>.</p>
-<p>&#64;todo (When we have a paper to actually cite) Add a note asking academics to kindly cite our work.</p>
+<p>&#64;todo(Project management, when we publish a paper) Add a note asking academics to kindly cite our work.</p>
 <p><em>lincs</em> is available for install from the <a class="reference external" href="https://pypi.org/project/lincs/">Python package index</a>.
 Its <a class="reference external" href="http://mics-lab.github.io/lincs/">documentation</a>
 and its <a class="reference external" href="https://github.com/mics-lab/lincs/">source code</a> are on GitHub.</p>
@@ -52,13 +53,46 @@ and its <a class="reference external" href="https://github.com/mics-lab/lincs/">
 <li><p><a class="reference external" href="https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D">Vincent Mousseau</a> (domain expertise)</p></li>
 <li><p><a class="reference external" href="https://wassilaouerdane.github.io/">Wassila Ouerdane</a> (domain expertise)</p></li>
 </ul>
-<p>It’s based on work by:</p>
+<section id="fondamental-concepts">
+<h3>Fondamental concepts<a class="headerlink" href="#fondamental-concepts" title="Permalink to this heading">¶</a></h3>
+<p><em>lincs</em> is based on the following concepts.
+Note that we describe them in our <a class="reference internal" href="conceptual-overview.html"><span class="doc">conceptual overview documentation</span></a>.
+This section is here to give credit to their authors.</p>
+<section id="the-non-compensatory-sorting-ncs-model">
+<h4>The Non-Compensatory Sorting (NCS) model<a class="headerlink" href="#the-non-compensatory-sorting-ncs-model" title="Permalink to this heading">¶</a></h4>
+<p>The concept of the NCS model was first introduced by Denis Bouyssou and Thierry Marchant in their articles <a class="reference external" href="https://hal.science/hal-00958022">An axiomatic approach to noncompensatory sorting methods in MCDM I: The case of two categories</a> and <a class="reference external" href="https://hal.science/hal-00013762v1">… II: More than two categories</a>.</p>
+</section>
+<section id="particular-cases-of-the-ncs-model">
+<h4>Particular cases of the NCS model<a class="headerlink" href="#particular-cases-of-the-ncs-model" title="Permalink to this heading">¶</a></h4>
+<p>The Uc-NCS model is a particular case of the NCS model.</p>
+<p>The MR-Sort model is a particular case of the Uc-NCS model introduced by Agnès Leroy <em>et al.</em> in <a class="reference external" href="https://link.springer.com/chapter/10.1007/978-3-642-24873-3_17">Learning the Parameters of a Multiple Criteria Sorting Method</a>.</p>
+<p>Although <em>lincs</em> can sort alternatives according to general NCS models (without veto), it only implements learning Uc-NCS and MR-Sort models.</p>
+</section>
+</section>
+<section id="learning-algorithms">
+<h3>Learning algorithms<a class="headerlink" href="#learning-algorithms" title="Permalink to this heading">¶</a></h3>
+<p><em>lincs</em> provides new implementations of the following algorithms:</p>
+<section id="learning-uc-ncs-models-with-a-sat-based-approaches">
+<h4>Learning Uc-NCS models with a SAT-based approaches<a class="headerlink" href="#learning-uc-ncs-models-with-a-sat-based-approaches" title="Permalink to this heading">¶</a></h4>
+<p>The following learning algorithms were implemented using their description by Ali Tlili, Khaled Belahcène <em>et al.</em> in <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858">Learning non-compensatory sorting models using efficient SAT/MaxSAT formulations</a>:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="http://olivier.sobrie.be/">Olivier Sobrie</a> (The “weights, profiles, breed” learning strategy for MR-Sort models, and the profiles improvement heuristic, developed in his <a class="reference external" href="http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf">Ph.D thesis</a>, and <a class="reference external" href="https://github.com/oso/pymcda">implemented in Python</a>)</p></li>
-<li><p>Emma Dixneuf, Thibault Monsel and Thomas Vindard (<a class="reference external" href="https://github.com/Mostah/fastPL/">C++ implementation of Sobrie’s heuristic</a>)</p></li>
+<li><p>learning exact Uc-NCS models with a “SAT by coalitions” approach</p></li>
+<li><p>learning approximate Uc-NCS models with a “max-SAT by coalitions” approach</p></li>
+<li><p>learning exact Uc-NCS models with a “SAT by separation” approach</p></li>
+<li><p>learning approximate Uc-NCS models with a “max-SAT by separation” approach</p></li>
 </ul>
-<p>&#64;todo Add links to the fundamental articles for NCS.</p>
-<p>&#64;todo Add links to the articles that define other learning methods we re-implement.</p>
+<p>Note that they were introduced in previous articles, and that this article conveniently gathers them in a single place.</p>
+</section>
+<section id="learning-approximate-mr-sort-with-a-heuristic-approach">
+<h4>Learning approximate MR-Sort with a heuristic approach<a class="headerlink" href="#learning-approximate-mr-sort-with-a-heuristic-approach" title="Permalink to this heading">¶</a></h4>
+<p>This approach, described by <a class="reference external" href="http://olivier.sobrie.be/">Olivier Sobrie</a> in his <a class="reference external" href="http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf">Ph.D thesis</a>,
+is based on splitting the learning into three phases: optimize the weights (linear programming), improve the profiles (heuristic) and breed the population of intermediate models.
+We call it the “weights, profiles, breed” learning strategy in <em>lincs</em>.</p>
+<p>It was originaly <a class="reference external" href="https://github.com/oso/pymcda">implemented in Python</a> by Olivier Sobrie.
+Emma Dixneuf, Thibault Monsel and Thomas Vindard then provided a sequential <a class="reference external" href="https://github.com/Mostah/fastPL/">C++ implementation of Sobrie’s heuristic</a>.
+<em>lincs</em> provides two parallel implementations of this approach (using OpenMP and CUDA).</p>
+</section>
+</section>
 </section>
 <section id="project-goals">
 <h2>Project goals<a class="headerlink" href="#project-goals" title="Permalink to this heading">¶</a></h2>
@@ -71,14 +105,9 @@ Just follow the <a class="reference external" href="#get-started">Get started</a
 <h3>Provide a base for developing new MCDA algorithms<a class="headerlink" href="#provide-a-base-for-developing-new-mcda-algorithms" title="Permalink to this heading">¶</a></h3>
 <p><em>lincs</em> is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
 See our <a class="reference internal" href="contributor-guide.html"><span class="doc">contributor guide</span></a> for more details.</p>
-<p><em>lincs</em> also provides a benchmark framework to compare algorithms (&#64;todo Implement and document).
+<p><em>lincs</em> will also provide a benchmark framework to compare algorithms (&#64;todo(Feature, later)).
 This should make it easier to understand the relative strengths and weaknesses of each algorithm.</p>
 </section>
-</section>
-<section id="versioning">
-<h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this heading">¶</a></h2>
-<p>Starting with version 1.0.0, <em>lincs</em> tries to apply <a class="reference external" href="https://semver.org/">semantic versioning</a> at a <em>code</em> level:
-upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.</p>
 </section>
 <section id="id1">
 <h2>Get started<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
@@ -89,6 +118,11 @@ If in doubt, start with the conceptual overview.
 We highly recommend you read the other one just after.</p>
 <p>Once you’ve used <em>lincs</em> a bit, you can follow up with our <a class="reference internal" href="user-guide.html"><span class="doc">user guide</span></a>
 and <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>.</p>
+</section>
+<section id="versioning">
+<h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this heading">¶</a></h2>
+<p>Starting with version 1.0.0, <em>lincs</em> tries to apply <a class="reference external" href="https://semver.org/">semantic versioning</a> at a <em>code</em> level:
+upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.</p>
 </section>
 <section id="develop-lincs-itself">
 <h2>Develop <em>lincs</em> itself<a class="headerlink" href="#develop-lincs-itself" title="Permalink to this heading">¶</a></h2>
@@ -157,7 +191,7 @@ and <a class="reference internal" href="reference.html"><span class="doc">refere
       &copy;Copyright 2023 Vincent Jacques.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

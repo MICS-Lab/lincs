@@ -44,8 +44,8 @@ properties:
                     type: array
                     items:
                       type: integer
-                    minItems: 1
-                  minItems: 1
+                    minItems: 0
+                  minItems: 0
               required:
                 - kind
                 - upset_roots

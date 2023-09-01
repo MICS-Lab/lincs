@@ -20,11 +20,17 @@ properties:
           enum: [real]
         category_correlation:
           type: string
-          enum: [growing]
+          enum: [growing, decreasing]
+        min_value:
+          type: number
+        max_value:
+          type: number
       required:
         - name
         - value_type
         - category_correlation
+        - min_value
+        - max_value
       additionalProperties: false
     minItems: 1
   categories:
