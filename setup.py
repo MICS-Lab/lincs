@@ -93,7 +93,7 @@ liblincs = setuptools.Extension(
         f"boost_python{sys.version_info.major}{sys.version_info.minor}",
         "ortools",
     ] + optional_libraries,
-    define_macros=[("DOCTEST_CONFIG_DISABLE", None)] + ([("LINCS_HAS_NVCC", None)] if has_nvcc else []),
+    define_macros=[("NDEBUG", None), ("DOCTEST_CONFIG_DISABLE", None)] + ([("LINCS_HAS_NVCC", None)] if has_nvcc else []),
     # @todo(Project management, later) Support several versions of CUDA?
     include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
     library_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/lib"],
