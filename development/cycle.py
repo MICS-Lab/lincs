@@ -69,6 +69,8 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_
     if unit_coverage:
         os.environ["LINCS_DEV_COVERAGE"] = "true"
 
+    for file_name in glob.glob("liblincs.cpython-*-x86_64-linux-gnu.so"):
+        os.unlink(file_name)
     for python_version in python_versions:
         print_title(f"Building extension module in debug mode for Python {python_version}")
         subprocess.run(
