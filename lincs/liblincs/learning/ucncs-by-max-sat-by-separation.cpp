@@ -121,7 +121,7 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::create_variables() {
   // Variables "y" in the article
   proper.resize(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-    proper[boundary_index].reserve(alternatives_count);
+    proper[boundary_index].resize(alternatives_count);
     for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
       proper[boundary_index][alternative_index] = sat.create_variable();
     }
