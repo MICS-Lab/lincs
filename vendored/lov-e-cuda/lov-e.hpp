@@ -78,7 +78,6 @@ inline void check_last_cuda_error_sync_device_(const char* const file, const uns
   check_last_cuda_error_no_sync_(file, line);
 }
 
-HOST_DEVICE_DECORATORS
 inline void check_last_cuda_error_sync_stream_(cudaStream_t stream, const char* const file, const unsigned line) {
   cudaStreamSynchronize(stream);
   check_last_cuda_error_no_sync_(file, line);

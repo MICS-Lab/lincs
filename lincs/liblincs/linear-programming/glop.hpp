@@ -55,7 +55,10 @@ class GlopLinearProgram {
     parameters.set_provide_strong_optimal_guarantee(true);
     solver.SetParameters(parameters);
 
-    auto status = solver.Solve(program);
+    #ifndef NDEBUG
+    auto status =
+    #endif
+    solver.Solve(program);
     assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
     auto values = solver.variable_values();
 
