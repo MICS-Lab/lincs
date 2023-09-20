@@ -1,22 +1,22 @@
-Best accuracy: 180
-Best accuracy: 182
-Best accuracy: 189
-Best accuracy: 188
-Best accuracy: 193
-Best accuracy: 194
-Best accuracy: 197
-Best accuracy: 197
-Best accuracy: 193
-Best accuracy: 197
-Best accuracy: 197
-Best accuracy: 197
-Best accuracy: 193
-Best accuracy: 193
-Best accuracy: 194
-Best accuracy: 192
-Best accuracy: 191
-Best accuracy: 194
-Best accuracy: 198
-Best accuracy: 199
-Best accuracy: 198
-Final accuracy: 200
+Best accuracy (after 1 iterations): 180
+Best accuracy (after 2 iterations): 182
+Best accuracy (after 3 iterations): 189
+Best accuracy (after 4 iterations): 188
+Best accuracy (after 5 iterations): 193
+Best accuracy (after 6 iterations): 194
+Best accuracy (after 7 iterations): 197
+Best accuracy (after 8 iterations): 197
+Best accuracy (after 9 iterations): 193
+Best accuracy (after 10 iterations): 197
+Best accuracy (after 11 iterations): 197
+Best accuracy (after 12 iterations): 197
+Best accuracy (after 13 iterations): 193
+Best accuracy (after 14 iterations): 193
+Best accuracy (after 15 iterations): 194
+Best accuracy (after 16 iterations): 192
+Best accuracy (after 17 iterations): 191
+Best accuracy (after 18 iterations): 194
+Best accuracy (after 19 iterations): 198
+Best accuracy (after 20 iterations): 199
+Best accuracy (after 21 iterations): 198
+Final accuracy (after 22 iterations): 200

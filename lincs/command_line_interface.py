@@ -742,10 +742,10 @@ def classification_model(
                         self.learning_data = learning_data
 
                     def after_iteration(self):
-                        print("Best accuracy:", self.learning_data.get_best_accuracy(), file=sys.stderr)
+                        print(f"Best accuracy (after {self.learning_data.iteration_index + 1} iterations): {self.learning_data.get_best_accuracy()}", file=sys.stderr)
 
                     def before_return(self):
-                        print("Final accuracy:", self.learning_data.get_best_accuracy(), file=sys.stderr)
+                        print(f"Final accuracy (after {self.learning_data.iteration_index + 1} iterations): {self.learning_data.get_best_accuracy()}", file=sys.stderr)
 
                 observers.append(VerboseObserver(learning_data))
 

@@ -570,6 +570,9 @@ get_best_accuracy( (LearningData)arg1) -> int :
     C++ signature :
         unsigned int get_best_accuracy(lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue})
 
+lincs.LearnMrsortByWeightsProfilesBreed.LearningData.iteration_index: property
+------------------------------------------------------------------------------
+
 lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make: function
 -------------------------------------------------------------------
 
