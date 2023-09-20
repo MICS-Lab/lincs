@@ -1,0 +1,2 @@
+ERROR: lincs is unable to learn from this learning set using this algorithm and these parameters.
+Reproduction command: lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-coalitions

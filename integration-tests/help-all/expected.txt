@@ -808,6 +808,29 @@ perform( (LearnUcncsBySatBySeparationUsingMinisat)arg1) -> Model :
     C++ signature :
         lincs::Model perform(lincs::SatSeparationUcncsLearning<lincs::MinisatSatProblem> {lvalue})
 
+lincs.LearningFailureException: type
+------------------------------------
+
+lincs.LearningFailureException.__init__: wrapper_descriptor
+-----------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
+lincs.LearningFailureException.args: getset_descriptor
+------------------------------------------------------
+
+lincs.LearningFailureException.args.__init__: method-wrapper
+------------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
+lincs.LearningFailureException.with_traceback: method_descriptor
+----------------------------------------------------------------
+Exception.with_traceback(tb) --
+    set self.__traceback__ to tb and return self.
+
+lincs.LearningFailureException.with_traceback.__init__: method-wrapper
+----------------------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
 lincs.Model: class
 ------------------
 

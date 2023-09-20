@@ -12,6 +12,9 @@ from liblincs import generate_classification_problem, generate_mrsort_classifica
 # Classification
 from liblincs import classify_alternatives
 
+# Learning
+from liblincs import LearningFailureException
+
 # Learning - weights-profiles-breed
 from liblincs import LearnMrsortByWeightsProfilesBreed
 from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion

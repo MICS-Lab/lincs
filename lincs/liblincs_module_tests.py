@@ -1,6 +1,5 @@
 # Copyright 2023 Vincent Jacques
 
-import time
 import unittest
 import os
 
@@ -557,3 +556,14 @@ class LearningTestCase(unittest.TestCase):
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 24)
         self.assertEqual(result.unchanged, 976)
+
+    def test_learning_failure_exception(self):
+        problem = generate_classification_problem(2, 2, 42)
+        model = generate_mrsort_classification_model(problem, 42)
+        learning_set = generate_classified_alternatives(problem, model, 100, 42)
+        misclassify_alternatives(problem, learning_set, 10, 42 + 27)
+
+        learning = LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
+
+        with self.assertRaises(LearningFailureException):
+            learned_model = learning.perform()

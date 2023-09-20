@@ -356,6 +356,16 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Classify the provided `alternatives` according to the provided `model`."
   );
 
+  PyObject* LearningFailureException_wrapper = PyErr_NewException("liblincs.LearningFailureException", PyExc_RuntimeError, NULL);
+
+  bp::register_exception_translator<lincs::LearningFailureException>(
+    [LearningFailureException_wrapper](const lincs::LearningFailureException& e) {
+      PyErr_SetString(LearningFailureException_wrapper, e.what());
+    }
+  );
+
+  bp::scope().attr("LearningFailureException") = bp::handle<>(bp::borrowed(LearningFailureException_wrapper));
+
   auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>("LearnMrsortByWeightsProfilesBreed", bp::no_init)
     .def(bp::init<
       lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,

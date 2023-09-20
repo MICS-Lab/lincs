@@ -11,7 +11,7 @@ namespace lincs {
 class LearningFailureException : public std::exception {
  public:
   const char* what() const noexcept override {
-    return "Unable to learn from this dataset. Try to learn with a lower accuracy target? (Not supported by all learning strategies)";
+    return "Unable to learn from this dataset using this algorithm.";
   }
 };
 

@@ -769,10 +769,17 @@ def classification_model(
         elif ucncs__approach == "max-sat-by-separation":
             learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
 
-    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_model, flush=True)
+    command_line = ' '.join(str(c) for c in command_line)
 
-    model = learning.perform()
-    model.dump(problem, output_model)
+    try:
+        model = learning.perform()
+    except lincs.LearningFailureException:
+        print("ERROR: lincs is unable to learn from this learning set using this algorithm and these parameters.", file=sys.stderr)
+        print(f"Reproduction command: {command_line}", file=sys.stderr)
+        exit(1)
+    else:
+        print(f"# Reproduction command: {command_line}", file=output_model, flush=True)
+        model.dump(problem, output_model)
 
 
 @main.command(

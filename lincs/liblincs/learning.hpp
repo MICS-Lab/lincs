@@ -3,6 +3,7 @@
 #ifndef LINCS__LEARNING_HPP
 #define LINCS__LEARNING_HPP
 
+#include "learning/exception.hpp"
 #include "learning/mrsort-by-weights-profiles-breed.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/breed/reinitialize-least-accurate.hpp"
 #include "learning/mrsort-by-weights-profiles-breed/improve-profiles/accuracy-heuristic-on-cpu.hpp"
