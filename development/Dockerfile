@@ -141,6 +141,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       sphinx-jsonschema \
       sphinxcontrib-details-directive \
       twine \
+      Chrones \
  && for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       build \
     || exit 1; done

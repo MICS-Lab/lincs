@@ -75,18 +75,7 @@ class AlglibLinearProgram {
     return Constraint(state);
   }
 
-  auto solve() {
-    alglib::real_1d_array c;
-    c.setcontent(objective_coefficients.size(), objective_coefficients.data());
-    alglib::minlpsetcost(state, c);
-
-    alglib::minlpoptimize(state);
-    alglib::real_1d_array x;
-    alglib::minlpreport rep;
-    alglib::minlpresults(state, x, rep);
-
-    return x;
-  }
+  alglib::real_1d_array solve();
 
  private:
   variable_type next_variable_index;

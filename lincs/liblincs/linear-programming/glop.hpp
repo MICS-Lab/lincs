@@ -49,21 +49,7 @@ class GlopLinearProgram {
     return Constraint(program);
   }
 
-  auto solve() {
-    operations_research::glop::LPSolver solver;
-    operations_research::glop::GlopParameters parameters;
-    parameters.set_provide_strong_optimal_guarantee(true);
-    solver.SetParameters(parameters);
-
-    #ifndef NDEBUG
-    auto status =
-    #endif
-    solver.Solve(program);
-    assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
-    auto values = solver.variable_values();
-
-    return values;
-  }
+  operations_research::glop::DenseRow solve();
 
  private:
   operations_research::glop::LinearProgram program;

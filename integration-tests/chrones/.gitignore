@@ -1,0 +1,8 @@
+/problem.yml
+/model.yml
+/learning-set.csv
+/learned-model-without-chrones.yml
+/learned-model-with-chrones.yml
+/run-result.json
+/lincs.*.chrones.csv
+/report.png

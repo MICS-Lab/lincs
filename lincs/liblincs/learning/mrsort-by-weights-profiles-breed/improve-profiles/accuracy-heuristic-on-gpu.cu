@@ -2,6 +2,8 @@
 
 #include "accuracy-heuristic-on-gpu.hpp"
 
+#include <chrones.hpp>
+
 #include "../../../randomness-utils.hpp"
 
 
@@ -280,6 +282,8 @@ ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData ImproveProfilesWithAc
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
+  CHRONE();
+
   // Get optimized weights
   copy(host_learning_data.weights, ref(gpu_learning_data.weights));
   // Get (re-)initialized profiles

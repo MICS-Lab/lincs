@@ -1,9 +1,12 @@
 // Copyright 2023 Vincent Jacques
 
+#include "validation.hpp"
+
+#include <chrones.hpp>
+
 #include "../vendored/valijson/adapters/yaml_cpp_adapter.hpp"
 #include "../vendored/valijson/schema_parser.hpp"
 #include "../vendored/valijson/validator.hpp"
-#include "validation.hpp"
 
 
 namespace lincs {
@@ -15,6 +18,8 @@ JsonValidator::JsonValidator(const YAML::Node& schema_node) {
 }
 
 void JsonValidator::validate(const YAML::Node& document) const {
+  CHRONE();
+
   valijson::adapters::YamlCppAdapter document_adapter(document);
 
   valijson::Validator validator;

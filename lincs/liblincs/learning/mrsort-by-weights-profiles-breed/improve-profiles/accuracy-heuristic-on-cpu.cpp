@@ -2,12 +2,16 @@
 
 #include "accuracy-heuristic-on-cpu.hpp"
 
+#include <chrones.hpp>
+
 #include "../../../randomness-utils.hpp"
 
 
 namespace lincs {
 
 void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles() {
+  CHRONE();
+
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != learning_data.models_count; ++model_index) {
     improve_model_profiles(model_index);

@@ -77,7 +77,7 @@ jobs:
             sudo cp bin/patchelf /usr/local/bin
             cd ..
             rm -r patchelf
-      - run: pip${{ matrix.python_version }} install build auditwheel twine
+      - run: pip${{ matrix.python_version }} install build auditwheel twine Chrones
 
       # Get the source distribution
       - uses: actions/download-artifact@v3
@@ -144,7 +144,7 @@ jobs:
             sudo cp -r or-tools_*/lib/* /usr/local/lib
             cd ..
             rm -r or-tools
-      - run: pip3 install build delocate twine
+      - run: pip3 install build delocate twine Chrones
 
       # Get the source distribution
       - uses: actions/download-artifact@v3

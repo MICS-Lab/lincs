@@ -46,17 +46,7 @@ class EvalmaxsatMaxSatProblem {
     solver.addWeightedClause(clause, weight);
   }
 
-  std::optional<std::vector<bool>> solve() {
-    if (solver.solve()) {
-      std::vector<bool> solution(variables.back() + 1);
-      for (const int v : variables) {
-        solution[v] = solver.getValue(v);
-      }
-      return solution;
-    } else {
-      return std::nullopt;
-    }
-  }
+  std::optional<std::vector<bool>> solve();
 
  private:
   EvalMaxSAT solver;

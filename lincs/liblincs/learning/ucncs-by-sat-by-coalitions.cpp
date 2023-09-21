@@ -6,6 +6,8 @@
 #include <map>
 #include <type_traits>
 
+#include <chrones.hpp>
+
 #include "exception.hpp"
 #include "../sat/minisat.hpp"
 
@@ -22,6 +24,8 @@ std::vector<V> implies(V a, V b) {
 
 template<typename SatProblem>
 Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
+  CHRONE();
+
   sort_values();
   create_all_coalitions();
   create_variables();
@@ -39,6 +43,8 @@ Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::sort_values() {
+  CHRONE();
+
   unique_values.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     unique_values[criterion_index].reserve(alternatives_count);
@@ -59,6 +65,8 @@ void SatCoalitionsUcncsLearning<SatProblem>::sort_values() {
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::create_all_coalitions() {
+  CHRONE();
+
   all_coalitions.reserve(coalitions_count);
   for (unsigned coalition_index = 0; coalition_index != coalitions_count; ++coalition_index) {
     all_coalitions.emplace_back(criteria_count, coalition_index);
@@ -71,6 +79,8 @@ void SatCoalitionsUcncsLearning<SatProblem>::create_all_coalitions() {
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::create_variables() {
+  CHRONE();
+
   // Variables "a" in the article
   better.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -94,6 +104,8 @@ void SatCoalitionsUcncsLearning<SatProblem>::create_variables() {
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
+  CHRONE();
+
   // Clauses "C1" in the article
   // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -138,6 +150,8 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
+  CHRONE();
+
   // Clauses "C5" in the article
   // Alternatives are outranked by the boundary better than them
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
@@ -212,6 +226,8 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
 
 template<typename SatProblem>
 Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
+  CHRONE();
+
   std::vector<Coalition> roots;
   for (const auto& coalition_a : all_coalitions) {
     if (solution[sufficient[coalition_a.to_ulong()]]) {

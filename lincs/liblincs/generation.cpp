@@ -6,6 +6,8 @@
 #include <cassert>
 #include <random>
 
+#include <chrones.hpp>
+
 #include "classification.hpp"
 
 #include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -31,6 +33,8 @@ Problem generate_classification_problem(
   bool normalized_min_max,
   bool allow_decreasing_criteria
 ) {
+  CHRONE();
+
   std::mt19937 gen(random_seed);
   std::uniform_real_distribution<float> min_max_distribution(-100, 100);
   std::uniform_int_distribution<unsigned> category_correlation_distribution(0, allow_decreasing_criteria ? 1 : 0);
@@ -73,6 +77,8 @@ Problem generate_classification_problem(
 }
 
 Model generate_mrsort_classification_model(const Problem& problem, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
+  CHRONE();
+
   const unsigned categories_count = problem.categories.size();
   const unsigned criteria_count = problem.criteria.size();
 
@@ -173,6 +179,8 @@ Alternatives generate_uniform_classified_alternatives(
   const unsigned alternatives_count,
   std::mt19937& gen
 ) {
+  CHRONE();
+
   const unsigned criteria_count = problem.criteria.size();
 
   std::vector<Alternative> alternatives;
@@ -251,6 +259,8 @@ Alternatives generate_balanced_classified_alternatives(
   const float max_imbalance,
   std::mt19937& gen
 ) {
+  CHRONE();
+
   assert(max_imbalance >= 0);
   assert(max_imbalance <= 1);
 
@@ -348,6 +358,8 @@ Alternatives generate_classified_alternatives(
   const unsigned random_seed,
   const std::optional<float> max_imbalance
 ) {
+  CHRONE();
+
   std::mt19937 gen(random_seed);
 
   if (max_imbalance) {
@@ -486,6 +498,8 @@ TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
 }
 
 void misclassify_alternatives(const Problem& problem, Alternatives* alternatives, const unsigned count, const unsigned random_seed) {
+  CHRONE();
+
   const unsigned categories_count = problem.categories.size();
   const unsigned alternatives_count = alternatives->alternatives.size();
 

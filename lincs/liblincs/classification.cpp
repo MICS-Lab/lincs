@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cassert>
 
+#include <chrones.hpp>
+
 #include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
@@ -48,6 +50,8 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
 }
 
 ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
+  CHRONE();
+
   assert(&(model.problem) == &problem);
   assert(&(alternatives->problem) == &problem);
 

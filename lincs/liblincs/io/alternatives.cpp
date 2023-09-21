@@ -2,12 +2,16 @@
 
 #include "alternatives.hpp"
 
+#include <chrones.hpp>
+
 #include "../vendored/rapidcsv.h"
 
 
 namespace lincs {
 
 void Alternatives::dump(const Problem& problem, std::ostream& os) const {
+  CHRONE();
+
   const unsigned criteria_count = problem.criteria.size();
   const unsigned alternatives_count = alternatives.size();
 
@@ -34,6 +38,8 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
 }
 
 Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
+  CHRONE();
+
   const unsigned criteria_count = problem.criteria.size();
   std::map<std::string, unsigned> category_indexes;
   for (const auto& category: problem.categories) {

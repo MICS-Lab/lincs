@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include <chrones.hpp>
+
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
 #include "validation.hpp"
@@ -100,6 +102,8 @@ JsonValidator validator(schema);
 }  // namespace
 
 void Model::dump(const Problem& problem, std::ostream& os) const {
+  CHRONE();
+
   YAML::Emitter out(os);
 
   bool use_coalitions_alias =
@@ -170,6 +174,8 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
 }
 
 Model Model::load(const Problem& problem, std::istream& is) {
+  CHRONE();
+
   YAML::Node node = YAML::Load(is);
 
   validator.validate(node);

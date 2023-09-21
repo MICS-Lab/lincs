@@ -7,6 +7,8 @@
 #include <set>
 #include <type_traits>
 
+#include <chrones.hpp>
+
 #include "exception.hpp"
 #include "../sat/eval-max-sat.hpp"
 
@@ -21,6 +23,8 @@ std::vector<V> implies(V a, V b) {
 
 template<typename MaxSatProblem>
 Model MaxSatSeparationUcncsLearning<MaxSatProblem>::perform() {
+  CHRONE();
+
   sort_values();
   partition_alternatives();
   create_variables();
@@ -38,6 +42,8 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::perform() {
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::sort_values() {
+  CHRONE();
+
   unique_values.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     unique_values[criterion_index].reserve(alternatives_count);
@@ -58,6 +64,8 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::sort_values() {
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::partition_alternatives() {
+  CHRONE();
+
   better_alternative_indexes.resize(categories_count);
   worse_alternative_indexes.resize(categories_count);
   for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
@@ -82,6 +90,8 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::partition_alternatives() {
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::create_variables() {
+  CHRONE();
+
   // Variables "a" in the article
   better.resize(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -132,6 +142,8 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::create_variables() {
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_structural_constraints() {
+  CHRONE();
+
   // Clauses "P'1" in the article
   // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -161,6 +173,8 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_structural_constraints() 
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_learning_set_constraints() {
+  CHRONE();
+
   // Clauses "P'C3" in the article
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const Criterion& criterion = problem.criteria[criterion_index];
@@ -254,6 +268,8 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
 
 template<typename MaxSatProblem>
 Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<bool>& solution) {
+  CHRONE();
+
   std::vector<std::vector<float>> profiles(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<float>& profile = profiles[boundary_index];

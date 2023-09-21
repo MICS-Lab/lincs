@@ -2,6 +2,8 @@
 
 #include "linear-program.hpp"
 
+#include <chrones.hpp>
+
 #include "../../../linear-programming/glop.hpp"
 #include "../../../linear-programming/alglib.hpp"
 
@@ -9,6 +11,8 @@ namespace lincs {
 
 template<typename LinearProgram>
 void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_weights() {
+  CHRONE();
+
   #pragma omp parallel for
   for (unsigned model_index = 0; model_index != learning_data.models_count; ++model_index) {
     optimize_model_weights(model_index);

@@ -3,10 +3,11 @@
 import glob
 import itertools
 import os
-import shutil
-import sys
 import setuptools
 import setuptools.command.build_ext
+import shutil
+import subprocess
+import sys
 
 
 version = "0.7.1-dev"
@@ -83,6 +84,10 @@ elif sys.platform == "darwin":
 else:
     assert False, f"Unsupported platform: {sys.platform}"
 
+chrones_dir = subprocess.run(
+    ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True
+).stdout.strip()
+
 liblincs = setuptools.Extension(
     "liblincs",
     sources=list(itertools.chain.from_iterable(
@@ -95,7 +100,10 @@ liblincs = setuptools.Extension(
     ] + optional_libraries,
     define_macros=[("NDEBUG", None), ("DOCTEST_CONFIG_DISABLE", None)] + ([("LINCS_HAS_NVCC", None)] if has_nvcc else []),
     # @todo(Project management, later) Support several versions of CUDA?
-    include_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/include"],
+    include_dirs=[
+        "/usr/local/cuda-12.1/targets/x86_64-linux/include",
+        chrones_dir,
+    ],
     library_dirs=["/usr/local/cuda-12.1/targets/x86_64-linux/lib"],
     # Non-standard: the dict is accessed in `customize_compiler_for_nvcc`
     # to get the standard form for `extra_compile_args`

@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include <chrones.hpp>
+
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
 #include "validation.hpp"
@@ -122,6 +124,8 @@ JsonValidator validator(schema);
 }  // namespace
 
 void Problem::dump(std::ostream& os) const {
+  CHRONE();
+
   YAML::Node node;
   node["kind"] = "classification-problem";
   node["format_version"] = 1;
@@ -136,6 +140,8 @@ void Problem::dump(std::ostream& os) const {
 }
 
 Problem Problem::load(std::istream& is) {
+  CHRONE();
+
   YAML::Node node = YAML::Load(is);
 
   validator.validate(node);

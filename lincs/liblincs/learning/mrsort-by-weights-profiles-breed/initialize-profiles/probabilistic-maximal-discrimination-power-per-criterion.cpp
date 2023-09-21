@@ -2,10 +2,14 @@
 
 #include "probabilistic-maximal-discrimination-power-per-criterion.hpp"
 
+#include <chrones.hpp>
+
 
 namespace lincs {
 
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_) : learning_data(learning_data_) {
+  CHRONE();
+
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
     generators.emplace_back();
     for (unsigned profile_index = 0; profile_index != learning_data.categories_count - 1; ++profile_index) {
@@ -18,6 +22,8 @@ std::map<float, double> InitializeProfilesForProbabilisticMaximalDiscriminationP
   unsigned criterion_index,
   unsigned profile_index
 ) {
+  CHRONE();
+
   const Criterion& criterion = learning_data.problem.criteria[criterion_index];
 
   std::vector<float> values_worse;
@@ -68,6 +74,8 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
   unsigned model_indexes_begin,
   const unsigned model_indexes_end
 ) {
+  CHRONE();
+
   // Embarrassingly parallel
   for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
     const unsigned model_index = learning_data.model_indexes[model_indexes_begin];

@@ -4,12 +4,16 @@
 
 #include <map>
 
+#include <chrones.hpp>
+
 #include "exception.hpp"
 
 
 namespace lincs {
 
 LearnMrsortByWeightsProfilesBreed::LearningData LearnMrsortByWeightsProfilesBreed::LearningData::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
+  CHRONE();
+
   const unsigned criteria_count = problem.criteria.size();
   const unsigned categories_count = problem.categories.size();
   const unsigned alternatives_count = learning_set.alternatives.size();
@@ -57,6 +61,8 @@ LearnMrsortByWeightsProfilesBreed::LearningData LearnMrsortByWeightsProfilesBree
 }
 
 Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned model_index) const {
+  CHRONE();
+
   assert(model_index < models_count);
 
   std::vector<float> model_weights;
@@ -81,6 +87,8 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
 }
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {
+  CHRONE();
+
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 
   unsigned iterations_without_progress = 0;
