@@ -112,6 +112,8 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     }
 
     // Succeed?
+    // @todo(Feature, later) Let the user know which exit condition was reached
+    // (Maybe via a comment in the output file, like the "Reproduction command:" line)
     if (new_best_accuracy == learning_data.learning_alternatives_count || termination_strategy.terminate()) {
       for (auto observer : observers) {
         observer->before_return();
@@ -132,6 +134,8 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
   }
 
   // Fail
+  // @todo(Feature, later) Exit consistently with the other exit conditions:
+  // Don't fail, return the best model so far, and let the user know which exit condition was reached
   throw LearningFailureException();
 }
 
