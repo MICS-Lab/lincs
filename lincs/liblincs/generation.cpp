@@ -295,6 +295,8 @@ Alternatives generate_balanced_classified_alternatives(
   while (min_size > 0) {
     ++iterations_with_no_effect;
 
+    // @todo(Bug, soon) Fix naming of generated alternatives:
+    // index starts at zero in each call to 'generate_uniform_classified_alternatives' so names are duplicated
     Alternatives candidates = generate_uniform_classified_alternatives(problem, model, multiplier * alternatives_count, gen);
 
     for (const auto& candidate : candidates.alternatives) {
