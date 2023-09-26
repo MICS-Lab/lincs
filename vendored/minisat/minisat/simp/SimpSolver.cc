@@ -20,7 +20,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include "../mtl/Sort.h"
 #include "SimpSolver.h"
+/* Removed for lincs
 #include "../utils/System.h"
+*/  // Removed for lincs
 
 using namespace Minisat;
 
@@ -30,6 +32,7 @@ using namespace Minisat;
 
 static const char* _cat = "SIMP";
 
+/* Removed for lincs
 static BoolOption   opt_use_asymm        (_cat, "asymm",        "Shrink clauses by asymmetric branching.", false);
 static BoolOption   opt_use_rcheck       (_cat, "rcheck",       "Check if a clause is already implied. (costly)", false);
 static BoolOption   opt_use_elim         (_cat, "elim",         "Perform variable elimination.", true);
@@ -37,6 +40,7 @@ static IntOption    opt_grow             (_cat, "grow",         "Allow a variabl
 static IntOption    opt_clause_lim       (_cat, "cl-lim",       "Variables are not eliminated if it produces a resolvent with a length above this limit. -1 means no limit", 20,   IntRange(-1, INT32_MAX));
 static IntOption    opt_subsumption_lim  (_cat, "sub-lim",      "Do not check if subsumption against a clause larger than this. -1 means no limit.", 1000, IntRange(-1, INT32_MAX));
 static DoubleOption opt_simp_garbage_frac(_cat, "simp-gc-frac", "The fraction of wasted memory allowed before a garbage collection is triggered during simplification.",  0.5, DoubleRange(0, false, HUGE_VAL, false));
+*/  // Removed for lincs
 
 
 //=================================================================================================
@@ -44,13 +48,13 @@ static DoubleOption opt_simp_garbage_frac(_cat, "simp-gc-frac", "The fraction of
 
 
 SimpSolver::SimpSolver() :
-    grow               (opt_grow)
-  , clause_lim         (opt_clause_lim)
-  , subsumption_lim    (opt_subsumption_lim)
-  , simp_garbage_frac  (opt_simp_garbage_frac)
-  , use_asymm          (opt_use_asymm)
-  , use_rcheck         (opt_use_rcheck)
-  , use_elim           (opt_use_elim)
+    grow               (0)
+  , clause_lim         (20)
+  , subsumption_lim    (1000)
+  , simp_garbage_frac  (0.5)
+  , use_asymm          (false)
+  , use_rcheck         (false)
+  , use_elim           (true)
   , extend_model       (true)
   , merges             (0)
   , asymm_lits         (0)
@@ -129,8 +133,10 @@ lbool SimpSolver::solve_(bool do_simp, bool turn_off_simp)
 
     if (result == l_True)
         result = Solver::solve_();
+    /* Removed for lincs
     else if (verbosity >= 1)
         printf("===============================================================================\n");
+    */  // Removed for lincs
 
     if (result == l_True && extend_model)
         extendModel();
@@ -365,8 +371,10 @@ bool SimpSolver::backwardSubsumptionCheck(bool verbose)
 
         if (c.mark()) continue;
 
+        /* Removed for lincs
         if (verbose && verbosity >= 2 && cnt++ % 1000 == 0)
             printf("subsumption left: %10d (%10d subsumed, %10d deleted literals)\r", subsumption_queue.size(), subsumed, deleted_literals);
+        */  // Removed for lincs
 
         assert(c.size() > 1 || value(c[0]) == l_True);    // Unit-clauses should have been propagated before this point.
 
@@ -625,8 +633,10 @@ bool SimpSolver::eliminate(bool turn_off_elim)
 
             if (isEliminated(elim) || value(elim) != l_Undef) continue;
 
+            /* Removed for lincs
             if (verbosity >= 2 && cnt % 100 == 0)
                 printf("elimination left: %10d\r", elim_heap.size());
+            */  // Removed for lincs
 
             if (use_asymm){
                 // Temporarily freeze variable. Otherwise, it would immediately end up on the queue again:
@@ -669,9 +679,11 @@ bool SimpSolver::eliminate(bool turn_off_elim)
         checkGarbage();
     }
 
+    /* Removed for lincs
     if (verbosity >= 1 && elimclauses.size() > 0)
         printf("|  Eliminated clauses:     %10.2f Mb                                      |\n", 
                double(elimclauses.size() * sizeof(uint32_t)) / (1024*1024));
+    */  // Removed for lincs
 
     return ok;
 }
@@ -718,8 +730,10 @@ void SimpSolver::garbageCollect()
     to.extra_clause_field = ca.extra_clause_field; // NOTE: this is important to keep (or lose) the extra fields.
     relocAll(to);
     Solver::relocAll(to);
+    /* Removed for lincs
     if (verbosity >= 2)
         printf("|  Garbage collection:   %12d bytes => %12d bytes             |\n", 
                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+    */  // Removed for lincs
     to.moveTo(ca);
 }

@@ -22,7 +22,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 #include "../mtl/Alg.h"
 #include "../mtl/Sort.h"
+/* Removed for lincs
 #include "../utils/System.h"
+*/  // Removed for lincs
 #include "Solver.h"
 
 using namespace Minisat;
@@ -30,7 +32,7 @@ using namespace Minisat;
 //=================================================================================================
 // Options:
 
-
+/* Removed for lincs
 static const char* _cat = "CORE";
 
 static DoubleOption  opt_var_decay         (_cat, "var-decay",   "The variable activity decay factor",            0.95,     DoubleRange(0, false, 1, false));
@@ -45,7 +47,7 @@ static IntOption     opt_restart_first     (_cat, "rfirst",      "The base resta
 static DoubleOption  opt_restart_inc       (_cat, "rinc",        "Restart interval increase factor", 2, DoubleRange(1, false, HUGE_VAL, false));
 static DoubleOption  opt_garbage_frac      (_cat, "gc-frac",     "The fraction of wasted memory allowed before a garbage collection is triggered",  0.20, DoubleRange(0, false, HUGE_VAL, false));
 static IntOption     opt_min_learnts_lim   (_cat, "min-learnts", "Minimum learnt clause limit",  0, IntRange(0, INT32_MAX));
-
+*/  // Removed for lincs
 
 //=================================================================================================
 // Constructor/Destructor:
@@ -56,19 +58,19 @@ Solver::Solver() :
     // Parameters (user settable):
     //
     verbosity        (0)
-  , var_decay        (opt_var_decay)
-  , clause_decay     (opt_clause_decay)
-  , random_var_freq  (opt_random_var_freq)
-  , random_seed      (opt_random_seed)
-  , luby_restart     (opt_luby_restart)
-  , ccmin_mode       (opt_ccmin_mode)
-  , phase_saving     (opt_phase_saving)
+  , var_decay        (0.95)
+  , clause_decay     (0.999)
+  , random_var_freq  (0)
+  , random_seed      (91648253)
+  , luby_restart     (true)
+  , ccmin_mode       (2)
+  , phase_saving     (2)
   , rnd_pol          (false)
-  , rnd_init_act     (opt_rnd_init_act)
-  , garbage_frac     (opt_garbage_frac)
-  , min_learnts_lim  (opt_min_learnts_lim)
-  , restart_first    (opt_restart_first)
-  , restart_inc      (opt_restart_inc)
+  , rnd_init_act     (false)
+  , garbage_frac     (0.20)
+  , min_learnts_lim  (0)
+  , restart_first    (100)
+  , restart_inc      (2)
 
     // Parameters (the rest):
     //
@@ -736,11 +738,13 @@ lbool Solver::search(int nof_conflicts)
                 learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
                 max_learnts             *= learntsize_inc;
 
+                /* Removed for lincs
                 if (verbosity >= 1)
                     printf("| %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% |\n", 
                            (int)conflicts, 
                            (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
                            (int)max_learnts, nLearnts(), (double)learnts_literals/nLearnts(), progressEstimate()*100);
+                */  // Removed for lincs
             }
 
         }else{
@@ -852,12 +856,14 @@ lbool Solver::solve_()
     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
     lbool   status            = l_Undef;
 
+    /* Removed for lincs
     if (verbosity >= 1){
         printf("============================[ Search Statistics ]==============================\n");
         printf("| Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
         printf("|           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
         printf("===============================================================================\n");
     }
+    */ // Removed for lincs
 
     // Search:
     int curr_restarts = 0;
@@ -868,8 +874,10 @@ lbool Solver::solve_()
         curr_restarts++;
     }
 
+    /* Removed for lincs
     if (verbosity >= 1)
         printf("===============================================================================\n");
+    */ // Removed for lincs
 
 
     if (status == l_True){
@@ -924,7 +932,7 @@ static Var mapVar(Var x, vec<Var>& map, Var& max)
     return map[x];
 }
 
-
+/* Removed for lincs
 void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
 {
     if (satisfied(c)) return;
@@ -1000,7 +1008,7 @@ void Solver::printStats() const
     if (mem_used != 0) printf("Memory used           : %.2f MB\n", mem_used);
     printf("CPU time              : %g s\n", cpu_time);
 }
-
+*/  // Removed for lincs
 
 //=================================================================================================
 // Garbage Collection methods:
@@ -1059,8 +1067,10 @@ void Solver::garbageCollect()
     ClauseAllocator to(ca.size() - ca.wasted()); 
 
     relocAll(to);
+    /* Removed for lincs
     if (verbosity >= 2)
         printf("|  Garbage collection:   %12d bytes => %12d bytes             |\n", 
                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+    */ // Removed for lincs
     to.moveTo(ca);
 }
