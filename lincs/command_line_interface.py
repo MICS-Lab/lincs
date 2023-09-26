@@ -376,7 +376,7 @@ def classified_alternatives(
     misclassified_count,
     random_seed,
 ):
-    command_line = ["lincs", "generate", "classified-alternatives", get_input_file_name(problem), get_input_file_name(model), alternatives_count, "--random--seed", random_seed]
+    command_line = ["lincs", "generate", "classified-alternatives", get_input_file_name(problem), get_input_file_name(model), alternatives_count, "--random-seed", random_seed]
     if max_imbalance is not None:
         command_line += ["--max-imbalance", max_imbalance]
     command_line += ["--misclassified-count", misclassified_count]
