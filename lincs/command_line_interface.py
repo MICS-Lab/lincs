@@ -524,7 +524,7 @@ def learn():
                             {},
                         ),
                         (
-                            "max-duration-seconds",
+                            "max-duration",
                             dict(
                                 help="The maximum duration to learn the MRSort model, in seconds.",
                                 type=click.FloatRange(min=0),
@@ -666,7 +666,7 @@ def classification_model(
     mrsort__strategy,
     mrsort__weights_profiles_breed__target_accuracy,
     mrsort__weights_profiles_breed__max_iterations,
-    mrsort__weights_profiles_breed__max_duration_seconds,
+    mrsort__weights_profiles_breed__max_duration,
     mrsort__weights_profiles_breed__models_count,
     mrsort__weights_profiles_breed__initialization_strategy,
     mrsort__weights_profiles_breed__weights_strategy,
@@ -727,9 +727,9 @@ def classification_model(
             if mrsort__weights_profiles_breed__max_iterations is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-iterations", mrsort__weights_profiles_breed__max_iterations]
                 termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
-            if mrsort__weights_profiles_breed__max_duration_seconds is not None:
-                command_line += ["--mrsort.weights-profiles-breed.max-duration-seconds", mrsort__weights_profiles_breed__max_duration_seconds]
-                termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration_seconds))
+            if mrsort__weights_profiles_breed__max_duration is not None:
+                command_line += ["--mrsort.weights-profiles-breed.max-duration", mrsort__weights_profiles_breed__max_duration]
+                termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration))
             if len(termination_strategies) == 1:
                 termination_strategy = termination_strategies[0]
             else:
