@@ -5,6 +5,7 @@
 #include <map>
 
 #include "../chrones.hpp"
+#include "../unreachable.hpp"
 #include "exception.hpp"
 
 
@@ -126,7 +127,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     ++learning_data.iteration_index;
   }
 
-  __builtin_unreachable();
+  unreachable();
 }
 
 unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned model_index) {
