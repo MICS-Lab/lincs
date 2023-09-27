@@ -69,16 +69,12 @@ def make_liblincs_extension():
     sources += glob.glob(f"lincs/liblincs/**/*.cc", recursive=True)
     sources += glob.glob(f"lincs/liblincs/**/*.cpp", recursive=True)
 
-    chrones_dir = subprocess.run(
-        ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True
-    ).stdout.strip()
-
     # Non-standard: the dict is accessed in `customize_compiler_for_nvcc`
     # to get the standard form for `extra_compile_args`
     extra_compile_args = {}
 
     libraries = []
-    include_dirs = [chrones_dir]
+    include_dirs = []
     library_dirs = []
     extra_link_args=[]
 
@@ -95,6 +91,21 @@ def make_liblincs_extension():
             raise Exception("nvcc is not available but LINCS_DEV_FORCE_NVCC is true")
         else:
             print("WARNING: 'nvcc' was not found, lincs will be compiled without CUDA support", file=sys.stderr)
+
+    try:
+        chrones_dir = subprocess.run(
+            ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True
+        ).stdout.strip()
+    except subprocess.CalledProcessError:
+        chrones_dir = None
+
+    if os.environ.get("LINCS_DEV_FORBID_CHRONES", "false") != "true" and chrones_dir is not None:
+        include_dirs += [chrones_dir]
+    else:
+        if os.environ.get("LINCS_DEV_FORCE_CHRONES", "false") == "true":
+            raise Exception("Chrones is not available but LINCS_DEV_FORCE_CHRONES is true")
+        else:
+            print("WARNING: 'chrones' was not found, lincs will be compiled without Chrones", file=sys.stderr)
 
     if sys.platform == "linux":
         extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp"]

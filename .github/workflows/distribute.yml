@@ -91,6 +91,7 @@ jobs:
       - run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
         env:
           LINCS_DEV_FORCE_NVCC: "true"
+          LINCS_DEV_FORCE_CHRONES: "true"
       - run: auditwheel repair --plat manylinux_2_31_x86_64 --strip local-dist/*.whl --wheel-dir dist
       - run: twine check dist/*
 
@@ -156,6 +157,8 @@ jobs:
 
       # Build the wheel
       - run: python3 -m build --wheel --outdir local-dist lincs-*
+        env:
+          LINCS_DEV_FORCE_CHRONES: "true"
       - run: delocate-wheel --wheel-dir dist local-dist/*.whl
       - run: twine check dist/*.whl
 
