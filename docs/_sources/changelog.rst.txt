@@ -4,7 +4,7 @@
 Changelog
 =========
 
-Versions 0.8.0 to 0.8.3
+Versions 0.8.0 to 0.8.4
 =======================
 
 - Rename option ``--...max-duration-seconds`` to ``--...max-duration``

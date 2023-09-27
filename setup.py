@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 
-version = "0.8.4-dev"
+version = "0.8.4"
 
 
 with open("README.rst") as f:
