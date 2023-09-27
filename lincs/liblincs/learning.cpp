@@ -161,13 +161,12 @@ struct AccuracyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
 
 namespace lincs {
 
-TEST_CASE(
 #ifdef LINCS_HAS_NVCC
-  "Basic and GPU WPB learning"
+TEST_CASE("Basic and GPU WPB learning")
 #else
-  "Basic WPB learning"
+TEST_CASE("Basic WPB learning")
 #endif
-) {
+{
   struct CpuWrapper {
     CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
