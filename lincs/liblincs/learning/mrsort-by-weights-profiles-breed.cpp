@@ -91,11 +91,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 
-  unsigned iterations_without_progress = 0;
-  // Limit is arbitrary; unit tests show 40 is required, so 100 seems OK with some margin
-  while (iterations_without_progress < 100) {
-    const unsigned previous_best_accuracy = learning_data.get_best_accuracy();
-
+  while (true) {
     // Improve
     weights_optimization_strategy.optimize_weights();
     profiles_improvement_strategy.improve_profiles();
@@ -111,18 +107,10 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
       }
     );
 
-    // Interrupt if no progress
-    const unsigned new_best_accuracy = learning_data.get_best_accuracy();
-    if (new_best_accuracy > previous_best_accuracy) {
-      iterations_without_progress = 0;
-    } else {
-      ++iterations_without_progress;
-    }
-
     // Succeed?
     // @todo(Feature, later) Let the user know which exit condition was reached
     // (Maybe via a comment in the output file, like the "Reproduction command:" line)
-    if (new_best_accuracy == learning_data.learning_alternatives_count || termination_strategy.terminate()) {
+    if (learning_data.get_best_accuracy() == learning_data.learning_alternatives_count || termination_strategy.terminate()) {
       for (auto observer : observers) {
         observer->before_return();
       }
@@ -141,10 +129,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     ++learning_data.iteration_index;
   }
 
-  // Fail
-  // @todo(Feature, later) Exit consistently with the other exit conditions:
-  // Don't fail, return the best model so far, and let the user know which exit condition was reached
-  throw LearningFailureException();
+  __builtin_unreachable();
 }
 
 unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned model_index) {
