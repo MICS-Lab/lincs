@@ -186,6 +186,10 @@ Usage: lincs learn classification-model [OPTIONS] PROBLEM LEARNING_SET
   model for. LEARNING_SET is a *classified alternatives* file for that
   problem. It's used as a source of truth to learn the model.
 
+  If you use the --mrsort.weights-profiles-breed strategy, you SHOULD specify
+  at least one termination strategy, e.g. --mrsort.weights-profiles-breed.max-
+  duration.
+
 Options:
   --output-model FILENAME         Write the learned classification model to
                                   this file instead of standard output.
@@ -229,9 +233,29 @@ Options:
                                   - '--mrsort.strategy' is 'weights-profiles-breed'
                                   
                                      [x>=1]
-  --mrsort.weights-profiles-breed.max-duration-seconds FLOAT RANGE
+  --mrsort.weights-profiles-breed.max-iterations-without-progress INTEGER RANGE
+                                  The maximum number of iterations to try
+                                  learning the MRSort model without
+                                  progressing before giving up.
+                                  
+                                  Only valid if:
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                     [x>=1]
+  --mrsort.weights-profiles-breed.max-duration FLOAT RANGE
                                   The maximum duration to learn the MRSort
                                   model, in seconds.
+                                  
+                                  Only valid if:
+                                  - '--model-type' is 'mrsort'
+                                  - '--mrsort.strategy' is 'weights-profiles-breed'
+                                  
+                                     [x>=0]
+  --mrsort.weights-profiles-breed.max-duration-without-progress FLOAT RANGE
+                                  The maximum duration to try learning the
+                                  MRSort model without progressing before
+                                  giving up, in seconds.
                                   
                                   Only valid if:
                                   - '--model-type' is 'mrsort'
@@ -1047,6 +1071,25 @@ terminate( (TerminateAfterIterations)arg1) -> bool :
     C++ signature :
         bool terminate(lincs::TerminateAfterIterations {lvalue})
 
+lincs.TerminateAfterIterationsWithoutProgress: class
+----------------------------------------------------
+
+lincs.TerminateAfterIterationsWithoutProgress.__init__: function
+----------------------------------------------------------------
+
+__init__( (object)arg1, (LearningData)arg2, (int)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},unsigned int)
+
+lincs.TerminateAfterIterationsWithoutProgress.terminate: function
+-----------------------------------------------------------------
+
+terminate( (TerminateAfterIterationsWithoutProgress)arg1) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::TerminateAfterIterationsWithoutProgress {lvalue})
+
 lincs.TerminateAfterSeconds: class
 ----------------------------------
 
@@ -1065,6 +1108,25 @@ terminate( (TerminateAfterSeconds)arg1) -> bool :
 
     C++ signature :
         bool terminate(lincs::TerminateAfterSeconds {lvalue})
+
+lincs.TerminateAfterSecondsWithoutProgress: class
+-------------------------------------------------
+
+lincs.TerminateAfterSecondsWithoutProgress.__init__: function
+-------------------------------------------------------------
+
+__init__( (object)arg1, (LearningData)arg2, (float)arg3) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::LearnMrsortByWeightsProfilesBreed::LearningData {lvalue},float)
+
+lincs.TerminateAfterSecondsWithoutProgress.terminate: function
+--------------------------------------------------------------
+
+terminate( (TerminateAfterSecondsWithoutProgress)arg1) -> bool :
+
+    C++ signature :
+        bool terminate(lincs::TerminateAfterSecondsWithoutProgress {lvalue})
 
 lincs.TerminateAtAccuracy: class
 --------------------------------

@@ -26,7 +26,10 @@ try:
 except ImportError:
     has_gpu = False
 from liblincs import ReinitializeLeastAccurate
-from liblincs import TerminateAtAccuracy, TerminateAfterSeconds, TerminateAfterIterations, TerminateWhenAny
+from liblincs import TerminateAtAccuracy
+from liblincs import TerminateAfterSeconds, TerminateAfterSecondsWithoutProgress
+from liblincs import TerminateAfterIterations, TerminateAfterIterationsWithoutProgress
+from liblincs import TerminateWhenAny
 
 # Learning - SAT by coalitions
 from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat

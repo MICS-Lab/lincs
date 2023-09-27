@@ -228,7 +228,7 @@ Then we'll need to think about the how the ``--max-imbalance`` option interacts 
 
 It should start with something like this, and contain 1000 alternatives::
 
-    # Reproduction command: lincs generate classified-alternatives problem.yml model.yml 1000 --random--seed 42 --misclassified-count 0
+    # Reproduction command: lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
     "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Category 3"
     "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Category 2"

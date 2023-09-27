@@ -467,6 +467,9 @@ def learn():
         PROBLEM is a *classification problem* file describing the problem to learn a model for.
         LEARNING_SET is a *classified alternatives* file for that problem.
         It's used as a source of truth to learn the model.
+
+        If you use the --mrsort.weights-profiles-breed strategy, you SHOULD specify at least one
+        termination strategy, e.g. --mrsort.weights-profiles-breed.max-duration.
     """,
 )
 @click.argument(
@@ -524,9 +527,29 @@ def learn():
                             {},
                         ),
                         (
+                            "max-iterations-without-progress",
+                            dict(
+                                help="The maximum number of iterations to try learning the MRSort model without progressing before giving up.",
+                                type=click.IntRange(min=1),
+                                default=None,
+                                show_default=True,
+                            ),
+                            {},
+                        ),
+                        (
                             "max-duration",
                             dict(
                                 help="The maximum duration to learn the MRSort model, in seconds.",
+                                type=click.FloatRange(min=0),
+                                default=None,
+                                show_default=True,
+                            ),
+                            {},
+                        ),
+                        (
+                            "max-duration-without-progress",
+                            dict(
+                                help="The maximum duration to try learning the MRSort model without progressing before giving up, in seconds.",
                                 type=click.FloatRange(min=0),
                                 default=None,
                                 show_default=True,
@@ -666,7 +689,9 @@ def classification_model(
     mrsort__strategy,
     mrsort__weights_profiles_breed__target_accuracy,
     mrsort__weights_profiles_breed__max_iterations,
+    mrsort__weights_profiles_breed__max_iterations_without_progress,
     mrsort__weights_profiles_breed__max_duration,
+    mrsort__weights_profiles_breed__max_duration_without_progress,
     mrsort__weights_profiles_breed__models_count,
     mrsort__weights_profiles_breed__initialization_strategy,
     mrsort__weights_profiles_breed__weights_strategy,
@@ -727,9 +752,15 @@ def classification_model(
             if mrsort__weights_profiles_breed__max_iterations is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-iterations", mrsort__weights_profiles_breed__max_iterations]
                 termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
+            if mrsort__weights_profiles_breed__max_iterations_without_progress is not None:
+                command_line += ["--mrsort.weights-profiles-breed.max-iterations-without-progress", mrsort__weights_profiles_breed__max_iterations_without_progress]
+                termination_strategies.append(lincs.TerminateAfterIterationsWithoutProgress(learning_data, mrsort__weights_profiles_breed__max_iterations_without_progress))
             if mrsort__weights_profiles_breed__max_duration is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-duration", mrsort__weights_profiles_breed__max_duration]
                 termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration))
+            if mrsort__weights_profiles_breed__max_duration_without_progress is not None:
+                command_line += ["--mrsort.weights-profiles-breed.max-duration-without-progress", mrsort__weights_profiles_breed__max_duration_without_progress]
+                termination_strategies.append(lincs.TerminateAfterSecondsWithoutProgress(mrsort__weights_profiles_breed__max_duration_without_progress))
             if len(termination_strategies) == 1:
                 termination_strategy = termination_strategies[0]
             else:
