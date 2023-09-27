@@ -811,6 +811,23 @@ def classification_model(
         exit(1)
     else:
         print(f"# Reproduction command: {command_line}", file=output_model, flush=True)
+        if model_type == "mrsort" and mrsort__strategy == "weights-profiles-breed":
+            for termination_strategy in termination_strategies:
+                if termination_strategy.terminate():
+                    termination_condition = {
+                        lincs.TerminateAtAccuracy: "target accuracy reached",
+                        lincs.TerminateAfterIterations: "maximum total number of iterations reached",
+                        lincs.TerminateAfterIterationsWithoutProgress: "maximum number of iterations without progress reached",
+                        lincs.TerminateAfterSeconds: "maximum total duration reached",
+                        lincs.TerminateAfterSecondsWithoutProgress: "maximum duration without progress reached",
+                    }.get(
+                        termination_strategy.__class__,
+                        f"{termination_strategy.__class__.__name__} (Unexpected, please let the lincs maintainers know about this)"
+                    )
+                    break
+            else:
+                termination_condition = "unknown (Unexpected, please let the lincs maintainers know about this)"
+            print(f"# Termination condition: {termination_condition}", file=output_model, flush=True)
         model.dump(problem, output_model)
 
 
