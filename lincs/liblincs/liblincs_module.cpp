@@ -1,7 +1,5 @@
 // Copyright 2023 Vincent Jacques
 
-#include "lincs.hpp"
-
 #include <iostream>
 
 #include <boost/python.hpp>
@@ -10,6 +8,7 @@
 #include <boost/iostreams/stream.hpp>
 
 #include "chrones.hpp"
+#include "lincs.hpp"  // Kepp after boost/python.hpp because of a conflict with OR-Tools on Windows (not investigated)
 #include "vendored/magic_enum.hpp"
 
 #ifndef DOCTEST_CONFIG_DISABLE
