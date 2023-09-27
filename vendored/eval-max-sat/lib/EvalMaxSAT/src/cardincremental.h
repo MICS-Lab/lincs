@@ -6,7 +6,9 @@
 #include <cassert>
 #include <memory>
 #include <deque>
+/* Removed for lincs
 #include <iostream>
+*/  // Removed for lincs
 
 #include "lazyvariable.h"
 
@@ -69,11 +71,13 @@ public:
     }
 
 
+    /* Removed for lincs
     void print(std::ostream& os) const override {
         os << "[";
         _tree->print(os, true);
         os << "]";
     }
+    */  // Removed for lincs
 
     unsigned int size() const override {
         return _maxVars;

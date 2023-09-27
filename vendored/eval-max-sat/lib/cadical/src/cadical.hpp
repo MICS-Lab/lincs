@@ -821,8 +821,7 @@ private:
   //
   // TODO: support for other compilers (beside 'gcc' and 'clang').
 
-# define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION,VARIADIC_ARGUMENT_POSITION) \
-    __attribute__ ((format (PRINTF_FORMAT, FORMAT_POSITION, VARIADIC_ARGUMENT_POSITION)))
+# define CADICAL_ATTRIBUTE_FORMAT(FORMAT_POSITION,VARIADIC_ARGUMENT_POSITION)
 
   // Messages in a common style.
   //

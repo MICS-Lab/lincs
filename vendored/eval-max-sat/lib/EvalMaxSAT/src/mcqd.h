@@ -24,7 +24,9 @@
 #ifndef MCQD
 #define MCQD
 
+/* Removed for lincs
 #include <iostream>
+*/  // Removed for lincs
 #include <algorithm>
 #include <assert.h>
 #ifdef DBG

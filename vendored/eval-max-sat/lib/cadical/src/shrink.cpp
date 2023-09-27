@@ -1,5 +1,7 @@
 #include "internal.hpp"
+/* Removed for lincs
 #include "reap.hpp"
+*/  // Removed for lincs
 
 namespace CaDiCaL {
 
@@ -89,11 +91,13 @@ namespace CaDiCaL {
     f.shrinkable = true;
     f.poison = false;
     shrinkable.push_back(lit);
+    /* Removed for lincs
     if (opts.shrinkreap) {
       assert (max_trail < trail.size());
       const unsigned dist = max_trail - v.trail;
       reap.push(dist);
     }
+    */  // Removed for lincs
     return 1;
   }
 
@@ -180,6 +184,7 @@ namespace CaDiCaL {
 
   unsigned inline Internal::shrink_next(unsigned &open, unsigned& max_trail)
   {
+    /* Removed for lincs
     if(opts.shrinkreap) {
       assert(!reap.empty());
       const unsigned dist = reap.pop();
@@ -191,7 +196,9 @@ namespace CaDiCaL {
       assert(val(uip) > 0);
       LOG("trying to shrink literal %d at trail[%u]", uip, pos);
       return uip;
-    } else {
+    } else
+    */  // Removed for lincs
+    {
       int uip;
 #ifndef NDEBUG
       unsigned init_max_trail = max_trail;
@@ -260,8 +267,10 @@ namespace CaDiCaL {
 
     LOG("trying to shrink %u literals on level %u", open, blevel);
     LOG("maximum trail position %zd on level %u", trail.size(), blevel);
+    /* Removed for lincs
     if (opts.shrinkreap)
       LOG ("shrinking up to %u", max_trail);
+    */  // Removed for lincs
 
     const bool resolve_large_clauses = (opts.shrink > 2);
     bool failed = (opts.shrink == 0);
@@ -272,11 +281,15 @@ namespace CaDiCaL {
 
     if(!failed) {
       push_literals_of_block(rbegin_lits, rend_block, blevel, max_trail);
+      /* Removed for lincs
       assert(!opts.shrinkreap || reap.size() == open);
+      */  // Removed for lincs
 
       assert(open > 0);
       while (!failed) {
+        /* Removed for lincs
         assert(!opts.shrinkreap || reap.size() == open);
+        */  // Removed for lincs
         uip = shrink_next(open, max_trail);
         if(open == 0) {
           break;
@@ -296,8 +309,10 @@ namespace CaDiCaL {
     else
       block_shrunken = shrunken_block_uip(uip, blevel, rbegin_lits, rend_block, minimized_start, uip0);
 
+    /* Removed for lincs
     if(opts.shrinkreap)
       reap.clear();
+    */  // Removed for lincs
     shrinkable.clear();
     return block_shrunken;
   }

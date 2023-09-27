@@ -33,9 +33,13 @@ Internal::Internal ()
   no_conflict_until (0),
   unsat_constraint (false),
   marked_failed (true),
+  /* Removed for lincs
   proof (0),
+  */  // Removed for lincs
   checker (0),
+  /* Removed for lincs
   tracer (0),
+  */  // Removed for lincs
   opts (this),
 #ifndef QUIET
   profiles (this),
@@ -55,8 +59,10 @@ Internal::Internal ()
 Internal::~Internal () {
   for (const auto & c : clauses)
     delete_clause (c);
+  /* Removed for lincs
   if (proof) delete proof;
   if (tracer) delete tracer;
+  */  // Removed for lincs
   if (checker) delete checker;
   if (vals) { vals -= vsize; delete [] vals; }
 }
@@ -176,7 +182,9 @@ void Internal::add_original_lit (int lit) {
   if (lit) {
     original.push_back (lit);
   } else {
+    /* Removed for lincs
     if (proof) proof->add_original_clause (original);
+    */  // Removed for lincs
     add_new_original_clause ();
     original.clear ();
   }

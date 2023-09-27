@@ -5,34 +5,31 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <map>
 
 #include "MaLib/communicationlist.h"
 #include "MaLib/Chrono.h"
+/* Removed for lincs
 #include "MaLib/coutUtil.h"
+*/  // Removed for lincs
 #include "virtualmaxsat.h"
 #include "virtualsat.h"
 #include "cadicalinterface.h"
 #include "mcqd.h"
+/* Removed for lincs
 #include "MaLib/coutUtil.h"
+*/  // Removed for lincs
 
 using namespace MaLib;
 
-#ifdef EVALMAXSAT_IMPLEMENT
+/* Removed for lincs
 MaLib::Chrono C_solve("c Cumulative time spent solving SAT formulas");
 MaLib::Chrono C_fastMinimize("c Cumulative time spent for fastMinimize");
 MaLib::Chrono C_fullMinimize("c Cumulative time spent for fullMinimize");
 MaLib::Chrono C_extractAM("c Cumulative time spent for extractAM");
 MaLib::Chrono C_harden("c Cumulative time spent for harden");
 MaLib::Chrono C_extractAMAfterHarden("c Cumulative time spent for extractAM afterHarden");
-#else
-extern MaLib::Chrono C_solve;
-extern MaLib::Chrono C_fastMinimize;
-extern MaLib::Chrono C_fullMinimize;
-extern MaLib::Chrono C_extractAM;
-extern MaLib::Chrono C_harden;
-extern MaLib::Chrono C_extractAMAfterHarden;
-#endif
-
+*/  // Removed for lincs
 
 template<class B>
 static void readClause(B& in, std::vector<int>& lits) {
@@ -45,7 +42,7 @@ static void readClause(B& in, std::vector<int>& lits) {
     }
 }
 
-
+/* Removed for lincs
 inline t_weight calculateCost(const std::string & file, const std::vector<bool> &result) {
     t_weight cost = 0;
     auto in_ = gzopen(file.c_str(), "rb");
@@ -121,7 +118,7 @@ inline t_weight calculateCost(const std::string & file, const std::vector<bool> 
     gzclose(in_);
     return cost;
 }
-
+*/  // Removed for lincs
 
 class EvalMaxSAT : public VirtualMAXSAT {
     unsigned int nbMinimizeThread;
@@ -200,7 +197,9 @@ class EvalMaxSAT : public VirtualMAXSAT {
    }
 
    bool adapt_am1_FastHeuristicV7() {
+       /* Removed for lincs
        MonPrint("adapt_am1_FastHeuristic : (_weight.size() = ", _weight.size(), " )");
+       */  // Removed for lincs
 
        Chrono chrono;
        std::vector<int> prop;
@@ -250,7 +249,9 @@ class EvalMaxSAT : public VirtualMAXSAT {
            }
        }
 
+       /* Removed for lincs
        MonPrint(nbCliqueFound, " cliques found in ", chrono.tac() / 1000, "ms.");
+       */  // Removed for lincs
        return true;
    }
 
@@ -267,14 +268,20 @@ class EvalMaxSAT : public VirtualMAXSAT {
            }
        }
 
+       /* Removed for lincs
        MonPrint("Nombre d'assumption: ", assumption.size());
+       */  // Removed for lincs
 
        if(assumption.size() > 30000) { // hyper paramétre
+           /* Removed for lincs
            MonPrint("skip");
+           */  // Removed for lincs
            return false;
        }
 
+       /* Removed for lincs
        MonPrint("Create graph for searching clique...");
+       */  // Removed for lincs
        unsigned int size = assumption.size();
        bool **conn = new bool*[size];
        for(unsigned int i=0; i<size; i++) {
@@ -283,7 +290,9 @@ class EvalMaxSAT : public VirtualMAXSAT {
                conn[i][x] = false;
        }
 
+       /* Removed for lincs
        MonPrint("Create link in graph...");
+       */  // Removed for lincs
        for(unsigned int i=0; i<size; ) {
            int lit1 = assumption[i];
 
@@ -342,7 +351,9 @@ class EvalMaxSAT : public VirtualMAXSAT {
                delete [] conn;
                delete [] qmax;
 
+               /* Removed for lincs
                MonPrint(nbCliqueFound, " cliques found in ", (chrono.tac() / 1000), "ms.");
+               */  // Removed for lincs
                return true;
            }
            nbCliqueFound++;
@@ -436,7 +447,9 @@ class EvalMaxSAT : public VirtualMAXSAT {
                    i++;
                }
            }
+           /* Removed for lincs
            MonPrint("AM1: cost = ", cost, " + ", w * (t_weight)(saveClause.size()-1));
+           */  // Removed for lincs
            cost += w * (t_weight)(saveClause.size()-1);
 
            assert(saveClause.size() > 1);
@@ -469,12 +482,14 @@ public:
         mapAssum2cardAndK.push_back({-1, 0});   //
 
 
+        /* Removed for lincs
         C_solve.pause(true);
         C_fastMinimize.pause(true);
         C_fullMinimize.pause(true);
         C_extractAM.pause(true);
         C_harden.pause(true);
         C_extractAMAfterHarden.pause(true);
+        */  // Removed for lincs
     }
 
     virtual ~EvalMaxSAT();
@@ -512,14 +527,17 @@ public:
 
     virtual bool solve(const std::vector<int> &assumption) {
         assert(!"TODO");
+        return false;
     }
 
     virtual int solveLimited(const std::vector<int> &assumption, int confBudget) {
         assert(!"TODO");
+        return 0;
     }
 
     virtual std::vector<int> getConflict() {
         assert(!"TODO");
+        return {};
     }
 
 
@@ -550,7 +568,9 @@ public:
                 completed = fullMinimizeOneIT(S, conflict, uselessLit);
             }
         } else {
+            /* Removed for lincs
             MonPrint("FullMinimize: skip");
+            */  // Removed for lincs
         }
 
         for(auto lit: conflict) {
@@ -574,7 +594,9 @@ public:
             }
         }
 
+        /* Removed for lincs
         MonPrint("\t\t\tMain Thread: cost = ", cost, " + ", minWeight);
+        */  // Removed for lincs
         cost += minWeight;
 
         CL_LitToUnrelax.pushAll(uselessLit);
@@ -582,13 +604,17 @@ public:
             CL_CardToAdd.push({L, !completed, minWeight});
         }
 
+        /* Removed for lincs
         MonPrint("size conflict after Minimize: ", conflict.size());
+        */  // Removed for lincs
     }
 
     void threadMinimize(unsigned int num, VirtualSAT* solverForMinimize, bool fastMinimize) {
         for(;;) {
             auto element = CL_ConflictToMinimize.pop();
+            /* Removed for lincs
             MonPrint("threadMinimize[",num,"]: Run...");
+            */  // Removed for lincs
 
             if(!element) {
                 break;
@@ -708,10 +734,14 @@ public:
 
         nVarsInSolver = nVars(); // Freeze nVarsInSolver in time
 
+        /* Removed for lincs
         MonPrint("\t\t\tMain Thread: extractAM...");
         C_extractAM.pause(false);
+        */  // Removed for lincs
         extractAM();
+        /* Removed for lincs
         C_extractAM.pause(true);
+        */  // Removed for lincs
 
         t_weight minWeightToConsider = chooseNextMinWeight();
         initializeAssumptions(minWeightToConsider);
@@ -730,20 +760,32 @@ public:
             bool firstSolve = true;
             for(;;) {
                 chronoLastSolve.tic();
+                /* Removed for lincs
                 MonPrint("\t\t\tMain Thread: Solve...");
+                */  // Removed for lincs
                 int resultSolve;
+                /* Removed for lincs
                 C_solve.pause(false);
+                */  // Removed for lincs
                 if(firstSolve) {
+                    /* Removed for lincs
                     MonPrint("solve(",_assumption.size(),")...");
+                    */  // Removed for lincs
                     resultSolve = solver->solve(_assumption); // 1 for SAT, 0 for UNSAT
                 } else {
+                    /* Removed for lincs
                     MonPrint("solveLimited(",_assumption.size(),")...");
+                    */  // Removed for lincs
                     resultSolve = solver->solveLimited(_assumption, 10000); // 1 for SAT, 0 for UNSAT, -1 for UNKNOW
                 }
+                /* Removed for lincs
                 C_solve.pause(true);
+                */  // Removed for lincs
 
                 if(resultSolve != 0) { // If last solve is not UNSAT
+                    /* Removed for lincs
                     MonPrint("\t\t\tMain Thread: Solve() is not false!");
+                    */  // Removed for lincs
 
                     if(firstSolve && minWeightToConsider==1) {
                         assert( resultSolve == 1 );
@@ -774,18 +816,26 @@ public:
 */
 
                     chronoLastSolve.pause(true);
+                    /* Removed for lincs
                     MonPrint("\t\t\tMain Thread: CL_ConflictToMinimize.wait(nbMinimizeThread=",nbMinimizeThread,", true)...");
+                    */  // Removed for lincs
                     CL_ConflictToMinimize.areWaiting(vMinimizeThread.size());
+                    /* Removed for lincs
                     MonPrint("\t\t\tMain Thread: Fin boucle d'attente");
+                    */  // Removed for lincs
 
                     ///////////////
                     /// HARDEN ////
                     if(resultSolve == 1) { // If last solve is SAT
                         if(isWeighted()) {
                             if(harden()) {
+                                /* Removed for lincs
                                 C_extractAMAfterHarden.pause(false);
+                                */  // Removed for lincs
                                 adapt_am1_FastHeuristicV7();
+                                /* Removed for lincs
                                 C_extractAMAfterHarden.pause(true);
+                                */  // Removed for lincs
                             }
                         }
                     } else {
@@ -808,20 +858,28 @@ public:
 
                     // If no variables are left to be unrelaxed, we are ready to consider the new cardinality constraints
                     if(CL_LitToUnrelax.size()==0) {
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: CL_LitToUnrelax.size()==0");
 
                         MonPrint("\t\t\tMain Thread: CL_LitToRelax.size() = ", CL_LitToRelax.size());
+                        */  // Removed for lincs
                         apply_CL_LitToRelax();
 
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: CL_CardToAdd.size() = ", CL_CardToAdd.size());
+                        */  // Removed for lincs
                         apply_CL_CardToAdd();
 
                         break;
                     }
 
+                    /* Removed for lincs
                     MonPrint("\t\t\tMain Thread: CL_LitToUnrelax.size()!=0");
+                    */  // Removed for lincs
                 } else { // Conflict found
+                    /* Removed for lincs
                     MonPrint("\t\t\tMain Thread: Solve = false");
+                    */  // Removed for lincs
                     chronoLastSolve.pause(true);
 
                     std::vector<int> bestUnminimizedConflict = solver->getConflict(_assumption);
@@ -834,8 +892,10 @@ public:
 
                     if(bestUnminimizedConflict.size() == 1) {
                         // TODO : si c'est une card, essayer de exhaust !!!
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: conflict size = 1");
                         MonPrint("\t\t\tMain Thread: cost = ", cost, " + ", _weight[ abs(bestUnminimizedConflict[0]) ]);
+                        */  // Removed for lincs
                         cost += _weight[ abs(bestUnminimizedConflict[0]) ];
 
                         assert( mapWeight2Assum[_weight[abs(bestUnminimizedConflict[0])]].count( bestUnminimizedConflict[0] ) );
@@ -855,9 +915,13 @@ public:
                     unsigned int nbSecondSolve = 0;
 
                     if(_assumption.size() > 100000) {
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: Skip second solve...");
+                        */  // Removed for lincs
                     } else {
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: Second solve...");
+                        */  // Removed for lincs
 
                         // Shuffle assumptions in a loop to hopefully get a smaller core from the SatSolver
                         std::vector<int> forSolve(_assumption.begin(), _assumption.end());
@@ -887,20 +951,28 @@ public:
 
                     bool doFullMinimize = true;
                     if((_assumption.size() < 100000) && (conflictMin.size() > 1)) {
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: fastMinimize(", conflictMin.size(), ")");
+                        */  // Removed for lincs
                         // If the fastMinimize is timed out, don't execute the full one as it would be too long
                         doFullMinimize = fastMinimize(solver, conflictMin);
                     }
 
+                    /* Removed for lincs
                     MonPrint("\t\t\tMain Thread: taille final du conflict = ", conflictMin.size());
+                    */  // Removed for lincs
 
                     if(conflictMin.size() == 1) {
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: Optimal found, no need to fullMinimize");
+                        */  // Removed for lincs
                         doFullMinimize = false;
                     }
 
                     if(doFullMinimize) {
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: call CL_ConflictToMinimize.push");
+                        */  // Removed for lincs
 
                         // Remove problematic literals from the assumptions
                         for(auto lit: conflictMin) {
@@ -922,7 +994,9 @@ public:
                     } else {
 
                         t_weight minWeight = _weight[abs(*(conflictMin.begin()))];
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: new card");
+                        */  // Removed for lincs
                         std::vector<int> L;
                         for(auto lit: conflictMin) {
                             L.push_back(-lit);
@@ -962,7 +1036,9 @@ public:
                         }
 
                         assert(minWeight > 0);
+                        /* Removed for lincs
                         MonPrint("\t\t\tMain Thread: cost = ", cost, " + ", minWeight);
+                        */  // Removed for lincs
                         cost += minWeight;
                     }
 
@@ -1106,7 +1182,9 @@ private:
     bool fullMinimize(VirtualSAT* solverForMinimize, std::set<int> &conflict, std::vector<int> &uselessLit, long timeRef) {
         std::mt19937 rng((std::random_device()()));
 
+        /* Removed for lincs
         C_fullMinimize.pause(false);
+        */  // Removed for lincs
         MaLib::Chrono chrono;
         bool minimum = true;
 
@@ -1118,7 +1196,9 @@ private:
         }
 
         std::vector<int> removable;
+        /* Removed for lincs
         MonPrint("\t\t\t\t\tfullMinimize: Calculer Removable....");
+        */  // Removed for lincs
         for(auto it = conflict.begin(); it != conflict.end(); ++it) {
             auto lit = *it;
 
@@ -1137,7 +1217,9 @@ private:
                 assert(false);
             }
         }
+        /* Removed for lincs
         MonPrint("\t\t\t\t\tfullMinimize: removable = ", removable.size(), "/", conflict.size());
+        */  // Removed for lincs
 
         if(removable.size() <= 1) {
             uselessLit = removable;
@@ -1183,18 +1265,24 @@ private:
             }
 
             if(tmp_uselessLit.size() > uselessLit.size()) {
+                /* Removed for lincs
                 MonPrint("\t\t\t\t\tfullMinimize: newBest: ", tmp_uselessLit.size(), " removes.");
+                */  // Removed for lincs
                 uselessLit = tmp_uselessLit;
             }
 
             if(uselessLit.size() >= removable.size()-1) {
+                /* Removed for lincs
                 MonPrint("\t\t\t\t\tfullMinimize: Optimal trouvé.");
+                */  // Removed for lincs
                 break;
             }
 
             if((i>=2) // Au moins 3 loops
                     && (timeRef*(1+maximumNumberOfActiveMinimizingThread) <= chrono.tac())) {
+                /* Removed for lincs
                 MonPrint("\t\t\t\t\tfullMinimize: TimeOut after ", (i+1), " loops");
+                */  // Removed for lincs
                 break;
             }
 
@@ -1205,13 +1293,17 @@ private:
             conflict.erase(lit);
         }
 
+        /* Removed for lincs
         C_fullMinimize.pause(true);
+        */  // Removed for lincs
         return minimum;
     }
 
 
     bool fullMinimizeOneIT(VirtualSAT* solverForMinimize, std::list<int> &conflict, std::vector<int> &uselessLit ) {
+        /* Removed for lincs
         C_fullMinimize.pause(false);
+        */  // Removed for lincs
         int B = 1000;
         //int B = 10000;
 
@@ -1244,7 +1336,9 @@ private:
     }
 
     bool fastMinimize(VirtualSAT* solverForMinimize, std::list<int> &conflict) {
+        /* Removed for lincs
         C_fastMinimize.pause(false);
+        */  // Removed for lincs
 
         if(isWeighted()) {
             conflict.sort([&](int litA, int litB){
@@ -1257,8 +1351,10 @@ private:
         for(auto it = conflict.begin(); it != conflict.end(); ++it) {
 
             if(chrono.tacSec() > _timeOutFastMinimize) {  // Hyperparameter
+                /* Removed for lincs
                 MonPrint("TIMEOUT fastMinimize!");
                 C_fastMinimize.pause(true);
+                */  // Removed for lincs
                 return false;
             }
 
@@ -1279,7 +1375,9 @@ private:
             }
         }
 
+        /* Removed for lincs
         C_fastMinimize.pause(true);
+        */  // Removed for lincs
         return true;
     }
 
@@ -1407,11 +1505,14 @@ private:
 
     // All soft variables whose cost is higher than the current solution can be considered as hard.
     unsigned int harden() {
+        /* Removed for lincs
         C_harden.pause(false);
+        */  // Removed for lincs
 
         auto costRemovedAssumLOCAL = currentSolutionCost();
 
-        assert(savePourTest_file == "" || [&](){
+        /* Removed for lincs
+        assert([&](){
             C_harden.pause(true);
             std::vector<bool> assign;
             assign.push_back(0); // fake var_0
@@ -1429,6 +1530,7 @@ private:
 
             return costRemovedAssumLOCAL == costCalculated;
         }()); // POUR DEBUG : On vérifi que currentSolutionCost() estime corectement le cout
+        */  // Removed for lincs
         costRemovedAssumLOCAL = costRemovedAssumLOCAL- cost;
         std::vector<int> unitClausesToAdd;
         for(auto it=mapWeight2Assum.rbegin(); it!=mapWeight2Assum.rend(); ++it) {
@@ -1446,10 +1548,14 @@ private:
         for(auto lit: unitClausesToAdd) {
             addClause({lit});
         }
+        /* Removed for lincs
         C_harden.pause(true);
+        */  // Removed for lincs
 
         if(unitClausesToAdd.size()) {
+            /* Removed for lincs
             MonPrint("\t\t\tMain Thread: ", unitClausesToAdd.size(), " harden !");
+            */  // Removed for lincs
             assert(solver->solve(_assumption) == 1);
             //assert( harden() == 0 );
         }
@@ -1500,7 +1606,9 @@ private:
             return result;
             */
             if(nbSoft == nbAlreadyConsidered) { // Should not hapen
+                /* Removed for lincs
                 MonPrint("\t\t\tMain Thread: chooseNextMinWeight = 1");
+                */  // Removed for lincs
                 return 1;
             }
 
@@ -1512,7 +1620,9 @@ private:
                     assert(remainingLevel == 1);
                     break;
                 }
+                /* Removed for lincs
                 MonPrint("\t\t\tMain Thread: chooseNextMinWeight = ", result);
+                */  // Removed for lincs
                 return result;
             }
 
@@ -1530,7 +1640,9 @@ private:
             */
         }
 
+        /* Removed for lincs
         MonPrint("\t\t\tMain Thread: chooseNextMinWeight = 1");
+        */  // Removed for lincs
         return 1;
     }
 

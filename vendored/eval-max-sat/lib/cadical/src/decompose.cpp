@@ -273,10 +273,12 @@ bool Internal::decompose_round () {
       LOG ("simply shrinking clause since watches did not change");
       assert (c->size > 2);
       if (!c->redundant) mark_removed (c);
+      /* Removed for lincs
       if (proof) {
         proof->add_derived_clause (clause);
         proof->delete_clause (c);
       }
+      */  // Removed for lincs
       size_t l;
       for (l = 2; l < clause.size (); l++)
         c->literals[l] = clause[l];

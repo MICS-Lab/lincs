@@ -1,6 +1,8 @@
 #include "lazyvariable.h"
 
+/* Removed for lincs
 #include "MaLib/coutUtil.h"
+*/  // Removed for lincs
 #include "virtualsat.h"
 
 // Gets value of current LazyVariable

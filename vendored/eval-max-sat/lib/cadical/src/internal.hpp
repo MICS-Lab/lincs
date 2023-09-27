@@ -23,7 +23,9 @@
 // Less common 'C' header.
 
 extern "C" {
+/* Removed for lincs
 #include <unistd.h>
+*/  // Removed for lincs
 }
 
 /*------------------------------------------------------------------------*/
@@ -58,7 +60,9 @@ extern "C" {
 #include "elim.hpp"
 #include "ema.hpp"
 #include "external.hpp"
+/* Removed for lincs
 #include "file.hpp"
+*/  // Removed for lincs
 #include "flags.hpp"
 #include "format.hpp"
 #include "heap.hpp"
@@ -74,18 +78,24 @@ extern "C" {
 #include "parse.hpp"
 #include "phases.hpp"
 #include "profile.hpp"
+/* Removed for lincs
 #include "proof.hpp"
+*/  // Removed for lincs
 #include "queue.hpp"
 #include "radix.hpp"
 #include "random.hpp"
 #include "range.hpp"
+/* Removed for lincs
 #include "reap.hpp"
+*/  // Removed for lincs
 #include "reluctant.hpp"
 #include "resources.hpp"
 #include "score.hpp"
 #include "stats.hpp"
+/* Removed for lincs
 #include "terminal.hpp"
 #include "tracer.hpp"
+*/  // Removed for lincs
 #include "util.hpp"
 #include "var.hpp"
 #include "version.hpp"
@@ -195,7 +205,9 @@ struct Internal {
   vector<int> analyzed;         // analyzed literals in 'analyze'
   vector<int> minimized;        // removable or poison in 'minimize'
   vector<int> shrinkable;       // removable or poison in 'shrink'
+  /* Removed for lincs
   Reap reap;                    // radix heap for shrink
+  */  // Removed for lincs
 
   vector<int> probes;           // remaining scheduled probes
   vector<Level> control;        // 'level + 1 == control.size ()'
@@ -204,9 +216,13 @@ struct Internal {
   Limit lim;                    // limits for various phases
   Last last;                    // statistics at last occurrence
   Inc inc;                      // increments on limits
+  /* Removed for lincs
   Proof * proof;                // clausal proof observers if non zero
+  */  // Removed for lincs
   Checker * checker;            // online proof checker observing proof
+  /* Removed for lincs
   Tracer * tracer;              // proof to file tracer observing proof
+  */  // Removed for lincs
   Options opts;                 // run-time options
   Stats stats;                  // statistics
 #ifndef QUIET

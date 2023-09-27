@@ -34,9 +34,11 @@ public:
         return nbLit;
     }
 
+    /* Removed for lincs
     virtual void print(std::ostream& os) const {
         os << "VirtualCard(size: "<<nbLit<<", bound: " << bound << ")";
     }
+    */  // Removed for lincs
 
     virtual int atMost(unsigned int k) = 0;
 

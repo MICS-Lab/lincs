@@ -231,8 +231,10 @@ void Internal::delete_clause (Clause * c) {
     // from the proof perspective is that the deletion of these binary
     // clauses occurs later in the proof file.
     //
+    /* Removed for lincs
     if (proof && c->size == 2)
       proof->delete_clause (c);
+    */  // Removed for lincs
   }
   deallocate_clause (c);
 }
@@ -260,8 +262,10 @@ void Internal::mark_garbage (Clause * c) {
   // Delay tracing deletion of binary clauses.  See the discussion above in
   // 'delete_clause' and also in 'propagate'.
   //
+  /* Removed for lincs
   if (proof && c->size != 2)
     proof->delete_clause (c);
+  */  // Removed for lincs
 
   assert (stats.current.total > 0);
   stats.current.total--;
@@ -347,7 +351,9 @@ void Internal::add_new_original_clause () {
       unmark (lit);
   }
   if (skip) {
+    /* Removed for lincs
     if (proof) proof->delete_clause (original);
+    */  // Removed for lincs
   } else {
     size_t size = clause.size ();
     if (!size) {
@@ -364,10 +370,12 @@ void Internal::add_new_original_clause () {
     }
     if (original.size () > size) {
       external->check_learned_clause ();
+      /* Removed for lincs
       if (proof) {
         proof->add_derived_clause (clause);
         proof->delete_clause (original);
       }
+      */  // Removed for lincs
     }
   }
   clause.clear ();
@@ -386,7 +394,9 @@ Clause * Internal::new_learned_redundant_clause (int glue) {
 #endif
   external->check_learned_clause ();
   Clause * res = new_clause (true, glue);
+  /* Removed for lincs
   if (proof) proof->add_derived_clause (res);
+  */  // Removed for lincs
   assert (watching ());
   watch_clause (res);
   return res;
@@ -397,7 +407,9 @@ Clause * Internal::new_learned_redundant_clause (int glue) {
 Clause * Internal::new_hyper_binary_resolved_clause (bool red, int glue) {
   external->check_learned_clause ();
   Clause * res = new_clause (red, glue);
+  /* Removed for lincs
   if (proof) proof->add_derived_clause (res);
+  */  // Removed for lincs
   assert (watching ());
   watch_clause (res);
   return res;
@@ -409,7 +421,9 @@ Clause * Internal::new_hyper_ternary_resolved_clause (bool red) {
   external->check_learned_clause ();
   size_t size = clause.size ();
   Clause * res = new_clause (red, size);
+  /* Removed for lincs
   if (proof) proof->add_derived_clause (res);
+  */  // Removed for lincs
   assert (!watching ());
   return res;
 }
@@ -422,7 +436,9 @@ Clause * Internal::new_clause_as (const Clause * orig) {
   const int new_glue = orig->glue;
   Clause * res = new_clause (orig->redundant, new_glue);
   assert (!orig->redundant || !orig->keep || res->keep);
+  /* Removed for lincs
   if (proof) proof->add_derived_clause (res);
+  */  // Removed for lincs
   assert (watching ());
   watch_clause (res);
   return res;
@@ -434,7 +450,9 @@ Clause * Internal::new_clause_as (const Clause * orig) {
 Clause * Internal::new_resolved_irredundant_clause () {
   external->check_learned_clause ();
   Clause * res = new_clause (false);
+  /* Removed for lincs
   if (proof) proof->add_derived_clause (res);
+  */  // Removed for lincs
   assert (!watching ());
   return res;
 }

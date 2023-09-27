@@ -13,11 +13,13 @@ namespace MaLib
     {
         public :
 
+            /* Removed for lincs
             Chrono(std::string name, bool afficherQuandDetruit=true)
                 : _name(name), _duree(0),_dureeSec(0), _pause(false), _afficherQuandDetruit(afficherQuandDetruit)
             {
                 gettimeofday(&depart, &tz);
             }
+            */  // Removed for lincs
 
             Chrono()
                 : _duree(0),_dureeSec(0), _pause(false)
@@ -25,6 +27,7 @@ namespace MaLib
                 gettimeofday(&depart, &tz);
             }
 
+            /* Removed for lincs
             ~Chrono() {
                 if(_name.size())
                     if(_afficherQuandDetruit)
@@ -36,6 +39,7 @@ namespace MaLib
                 _duree= sec * 1000000L + microSec;
                 _dureeSec=sec;
             }
+            */  // Removed for lincs
 
             void tic()
             {
@@ -67,6 +71,7 @@ namespace MaLib
                 return _duree;
             }
 
+            /* Removed for lincs
             long pauseSec(bool val)
             {
                 if(val)
@@ -88,6 +93,7 @@ namespace MaLib
                 }
                 return _dureeSec;
             }
+            */  // Removed for lincs
 
             long tac()
             {
@@ -113,9 +119,9 @@ namespace MaLib
                 }
             }
 
+            /* Removed for lincs
             void print()
             {
-                #if false
                 double val = tac();
                 if(_name.size())
                     std::cout << _name << ": ";
@@ -125,25 +131,28 @@ namespace MaLib
                     std::cout << val/1000.0 << " ms" << std::endl;
                 else
                     std::cout << val/1000000.0 << " sec" << std::endl;
-                #endif
                 //static double total; total+=val/1000000.0; std::cout<<"Total : "<<total<<" s"<<std::endl; // TODO: Remove this line
             }
 
             void afficherQuandDetruit(bool val) {
                 _afficherQuandDetruit = val;
             }
+            */  // Removed for lincs
 
         private :
 
-
+        /* Removed for lincs
         std::string _name;
+        */  // Removed for lincs
         struct timeval depart, fin;
         struct timezone tz;
         long _duree;
         long _dureeSec;
 
         bool _pause;
+        /* Removed for lincs
         bool _afficherQuandDetruit;
+        */  // Removed for lincs
     };
 }
 
