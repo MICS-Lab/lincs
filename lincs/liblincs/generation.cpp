@@ -6,8 +6,7 @@
 #include <cassert>
 #include <random>
 
-#include <chrones.hpp>
-
+#include "chrones.hpp"
 #include "classification.hpp"
 
 #include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers

@@ -3,7 +3,7 @@
 #define EVALMAXSAT_IMPLEMENT
 #include "eval-max-sat.hpp"
 
-#include <chrones.hpp>
+#include "../chrones.hpp"
 
 
 namespace lincs {

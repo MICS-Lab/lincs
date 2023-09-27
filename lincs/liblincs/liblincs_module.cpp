@@ -8,8 +8,8 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <chrones.hpp>
 
+#include "chrones.hpp"
 #include "vendored/magic_enum.hpp"
 
 #ifndef DOCTEST_CONFIG_DISABLE

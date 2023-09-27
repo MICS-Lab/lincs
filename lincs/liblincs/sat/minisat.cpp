@@ -2,7 +2,8 @@
 
 #include "minisat.hpp"
 
-#include <chrones.hpp>
+#include "../chrones.hpp"
+
 
 namespace lincs {
 

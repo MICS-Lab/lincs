@@ -2,7 +2,7 @@
 
 #include "alglib.hpp"
 
-#include <chrones.hpp>
+#include "../chrones.hpp"
 
 
 namespace lincs {

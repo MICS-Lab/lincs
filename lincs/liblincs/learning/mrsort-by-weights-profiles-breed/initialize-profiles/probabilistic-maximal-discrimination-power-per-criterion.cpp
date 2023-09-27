@@ -2,7 +2,7 @@
 
 #include "probabilistic-maximal-discrimination-power-per-criterion.hpp"
 
-#include <chrones.hpp>
+#include "../../../chrones.hpp"
 
 
 namespace lincs {

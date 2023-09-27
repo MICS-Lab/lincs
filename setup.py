@@ -101,6 +101,7 @@ def make_liblincs_extension():
 
     if os.environ.get("LINCS_DEV_FORBID_CHRONES", "false") != "true" and chrones_dir is not None:
         include_dirs += [chrones_dir]
+        define_macros += [("LINCS_HAS_CHRONES", None)]
     else:
         if os.environ.get("LINCS_DEV_FORCE_CHRONES", "false") == "true":
             raise Exception("Chrones is not available but LINCS_DEV_FORCE_CHRONES is true")

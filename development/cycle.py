@@ -46,10 +46,20 @@ import click
         Using this option explicitly avoids the warning.
     """),
 )
-def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_unit, forbid_gpu):
+@click.option(
+    "--forbid-chrones", is_flag=True,
+    help=textwrap.dedent("Build lincs without Chrones."),
+)
+def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_unit, forbid_gpu, forbid_chrones):
     if forbid_gpu:
         os.environ["LINCS_DEV_FORBID_GPU"] = "true"
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
+    else:
+        os.environ["LINCS_DEV_FORCE_NVCC"] = "true"
+    if forbid_chrones:
+        os.environ["LINCS_DEV_FORBID_CHRONES"] = "true"
+    else:
+        os.environ["LINCS_DEV_FORCE_CHRONES"] = "true"
     if skip_long:
         os.environ["LINCS_DEV_SKIP_LONG"] = "true"
         single_python_version = True

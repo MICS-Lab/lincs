@@ -2,7 +2,7 @@
 
 #include "reinitialize-least-accurate.hpp"
 
-#include <chrones.hpp>
+#include "../../../chrones.hpp"
 
 
 namespace lincs {

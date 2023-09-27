@@ -2,8 +2,7 @@
 
 #include "accuracy-heuristic-on-cpu.hpp"
 
-#include <chrones.hpp>
-
+#include "../../../chrones.hpp"
 #include "../../../randomness-utils.hpp"
 
 

@@ -7,10 +7,9 @@
 #include <set>
 #include <type_traits>
 
-#include <chrones.hpp>
-
-#include "exception.hpp"
+#include "../chrones.hpp"
 #include "../sat/eval-max-sat.hpp"
+#include "exception.hpp"
 
 
 namespace lincs {

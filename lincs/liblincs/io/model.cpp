@@ -4,8 +4,7 @@
 
 #include <cassert>
 
-#include <chrones.hpp>
-
+#include "../chrones.hpp"
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
 #include "validation.hpp"

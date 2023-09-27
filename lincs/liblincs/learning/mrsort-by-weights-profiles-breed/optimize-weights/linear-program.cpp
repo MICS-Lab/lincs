@@ -2,10 +2,10 @@
 
 #include "linear-program.hpp"
 
-#include <chrones.hpp>
-
-#include "../../../linear-programming/glop.hpp"
+#include "../../../chrones.hpp"
 #include "../../../linear-programming/alglib.hpp"
+#include "../../../linear-programming/glop.hpp"
+
 
 namespace lincs {
 
