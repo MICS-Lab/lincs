@@ -145,7 +145,7 @@ jobs:
             sudo cp -r or-tools_*/lib/* /usr/local/lib
             cd ..
             rm -r or-tools
-      - run: pip3 install build delocate twine Chrones
+      - run: pip3 install build delocate twine
 
       # Get the source distribution
       - uses: actions/download-artifact@v3
@@ -157,8 +157,6 @@ jobs:
 
       # Build the wheel
       - run: python3 -m build --wheel --outdir local-dist lincs-*
-        env:
-          LINCS_DEV_FORCE_CHRONES: "true"
       - run: delocate-wheel --wheel-dir dist local-dist/*.whl
       - run: twine check dist/*.whl
 
