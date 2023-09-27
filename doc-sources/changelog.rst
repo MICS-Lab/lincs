@@ -4,6 +4,16 @@
 Changelog
 =========
 
+Version 0.8.0
+=============
+
+- Rename option ``--...max-duration-seconds`` to ``--...max-duration``
+- Display termination condition after learning using the ``weights-profiles-breed`` approach
+- Make termination of the ``weights-profiles-breed`` approach more consistent
+- Integrate `Chrones <https://pypi.org/project/Chrones/>`_
+- Display iterations in ``--...verbose`` mode
+- Fix pernicious memory bug
+
 Version 0.7.0
 =============
 

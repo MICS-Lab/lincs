@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reference &#8212; lincs 0.7.0 documentation</title>
+    <title>Reference &#8212; lincs 0.8.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=dc072ff8"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6a14807c"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -587,6 +587,8 @@ MODEL is a <em>classification model</em> file for that problem describing the mo
 <p>PROBLEM is a <em>classification problem</em> file describing the problem to learn a model for.
 LEARNING_SET is a <em>classified alternatives</em> file for that problem.
 It’s used as a source of truth to learn the model.</p>
+<p>If you use the –mrsort.weights-profiles-breed strategy, you SHOULD specify at least one
+termination strategy, e.g. –mrsort.weights-profiles-breed.max-duration.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>LEARNING_SET
 </pre></div>
 </div>
@@ -683,9 +685,35 @@ It’s used as a source of truth to learn the model.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-duration-seconds">
-<span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.max-duration-seconds</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__max_duration_seconds&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-duration-seconds" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-iterations-without-progress">
+<span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.max-iterations-without-progress</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__max_iterations_without_progress&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-iterations-without-progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum number of iterations to try learning the MRSort model without progressing before giving up.</p>
+<div class="line-block">
+<div class="line">Only valid if:</div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--model-type</span></code> is <code class="docutils literal notranslate"><span class="pre">mrsort</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span></code> is <code class="docutils literal notranslate"><span class="pre">weights-profiles-breed</span></code></p></li>
+</ul>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-duration">
+<span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.max-duration</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__max_duration&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-duration" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum duration to learn the MRSort model, in seconds.</p>
+<div class="line-block">
+<div class="line">Only valid if:</div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--model-type</span></code> is <code class="docutils literal notranslate"><span class="pre">mrsort</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span></code> is <code class="docutils literal notranslate"><span class="pre">weights-profiles-breed</span></code></p></li>
+</ul>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-duration-without-progress">
+<span class="sig-name descname"><span class="pre">--mrsort.weights-profiles-breed.max-duration-without-progress</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mrsort__weights_profiles_breed__max_duration_without_progress&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-mrsort.weights-profiles-breed.max-duration-without-progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum duration to try learning the MRSort model without progressing before giving up, in seconds.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>
 </div>
