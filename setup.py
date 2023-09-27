@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 
-version = "0.8.2-dev"
+version = "0.8.2"
 
 
 with open("README.rst") as f:
@@ -96,7 +96,7 @@ def make_liblincs_extension():
         chrones_dir = subprocess.run(
             ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True
         ).stdout.strip()
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         chrones_dir = None
 
     if os.environ.get("LINCS_DEV_FORBID_CHRONES", "false") != "true" and chrones_dir is not None:
