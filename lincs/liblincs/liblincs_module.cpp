@@ -534,11 +534,25 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("terminate", &lincs::TerminateAfterIterations::terminate)
   ;
 
+  bp::class_<lincs::TerminateAfterIterationsWithoutProgress, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
+    "TerminateAfterIterationsWithoutProgress",
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>()
+  )
+    .def("terminate", &lincs::TerminateAfterIterationsWithoutProgress::terminate)
+  ;
+
   bp::class_<lincs::TerminateAfterSeconds, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterSeconds",
     bp::init<float>()
   )
     .def("terminate", &lincs::TerminateAfterSeconds::terminate)
+  ;
+
+  bp::class_<lincs::TerminateAfterSecondsWithoutProgress, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
+    "TerminateAfterSecondsWithoutProgress",
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, float>()
+  )
+    .def("terminate", &lincs::TerminateAfterSecondsWithoutProgress::terminate)
   ;
 
   bp::class_<lincs::TerminateWhenAny, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(

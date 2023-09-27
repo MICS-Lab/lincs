@@ -22,7 +22,7 @@ const bool coverage = env_is_true("LINCS_DEV_COVERAGE");
 const unsigned default_seeds_count = coverage ? 1 : (skip_long ? 10 : 100);
 
 template<typename T>
-void check_exact_learning(const lincs::Problem& problem, unsigned seed) {
+void check_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   CAPTURE(problem.criteria.size());
   CAPTURE(problem.categories.size());
   CAPTURE(seed);
@@ -34,27 +34,28 @@ void check_exact_learning(const lincs::Problem& problem, unsigned seed) {
 
   lincs::Model learned_model = learning.perform();
 
-  CHECK(lincs::classify_alternatives(problem, learned_model, &learning_set).changed == 0);
+  const unsigned changed = lincs::classify_alternatives(problem, learned_model, &learning_set).changed;
+  if (should_succeed) {
+    CHECK(changed == 0);
+  } else {
+    CHECK(changed != 0);
+  }
 }
 
 template<typename T>
 void check_exact_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
-  std::set<unsigned> bad_seeds_a = {},
-  std::set<unsigned> bad_seeds_b = {},
-  std::set<unsigned> bad_seeds_c = {},
+  const std::set<unsigned> bad_seeds_a = {},
+  const std::set<unsigned> bad_seeds_b = {},
+  const std::set<unsigned> bad_seeds_c = {},
   const unsigned seeds_count = default_seeds_count
 ) {
   if (!skip_long) {
     lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      if (bad_seeds_a.find(seed) != bad_seeds_a.end()) {
-        CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-      } else {
-        check_exact_learning<T>(problem, seed);
-      }
+      check_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
     }
   }
 
@@ -65,11 +66,7 @@ void check_exact_learning(
     }
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      if (bad_seeds_b.find(seed) != bad_seeds_b.end()) {
-        CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-      } else {
-        check_exact_learning<T>(problem, seed);
-      }
+      check_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
     }
   }
 
@@ -77,17 +74,13 @@ void check_exact_learning(
     lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, true);
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      if (bad_seeds_c.find(seed) != bad_seeds_c.end()) {
-        CHECK_THROWS_AS(check_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-      } else {
-        check_exact_learning<T>(problem, seed);
-      }
+      check_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
     }
   }
 }
 
 template<typename T>
-void check_non_exact_learning(const lincs::Problem& problem, unsigned seed) {
+void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   CAPTURE(problem.criteria.size());
   CAPTURE(problem.categories.size());
   CAPTURE(seed);
@@ -101,7 +94,12 @@ void check_non_exact_learning(const lincs::Problem& problem, unsigned seed) {
   lincs::Model learned_model = learning.perform();
 
   // The original model would classify with .changed == 10, so the best model must have .changed <= 10
-  CHECK(lincs::classify_alternatives(problem, learned_model, &learning_set).changed <= 10);
+  const unsigned changed = lincs::classify_alternatives(problem, learned_model, &learning_set).changed;
+  if (should_succeed) {
+    CHECK(changed <= 10);
+  } else {
+    CHECK(changed > 10);
+  }
 }
 
 template<typename T>
@@ -117,11 +115,7 @@ void check_non_exact_learning(
     lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      if (bad_seeds_a.find(seed) != bad_seeds_a.end()) {
-        CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-      } else {
-        check_non_exact_learning<T>(problem, seed);
-      }
+      check_non_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
     }
   }
 
@@ -132,11 +126,7 @@ void check_non_exact_learning(
     }
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      if (bad_seeds_b.find(seed) != bad_seeds_b.end()) {
-        CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-      } else {
-        check_non_exact_learning<T>(problem, seed);
-      }
+      check_non_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
     }
   }
 
@@ -144,11 +134,7 @@ void check_non_exact_learning(
     lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, true);
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      if (bad_seeds_c.find(seed) != bad_seeds_c.end()) {
-        CHECK_THROWS_AS(check_non_exact_learning<T>(problem, seed), lincs::LearningFailureException);
-      } else {
-        check_non_exact_learning<T>(problem, seed);
-      }
+      check_non_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
     }
   }
 }
@@ -191,7 +177,7 @@ TEST_CASE(
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, learning_set.alternatives.size()),
+      termination_strategy(learning_data, 200),
       observer(learning_data),
       observers{&observer},
       learning(
@@ -212,7 +198,7 @@ TEST_CASE(
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy;
+    TerminateAfterIterationsWithoutProgress termination_strategy;
     AccuracyObserver observer;
     std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
@@ -228,7 +214,7 @@ TEST_CASE(
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, learning_set.alternatives.size()),
+      termination_strategy(learning_data, 200),
       observer(learning_data),
       observers{&observer},
       learning(
@@ -249,7 +235,7 @@ TEST_CASE(
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy;
+    TerminateAfterIterationsWithoutProgress termination_strategy;
     AccuracyObserver observer;
     std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
@@ -327,52 +313,6 @@ TEST_CASE(
   check_exact_learning<Wrapper>(4, 3, {59}, {40}, {44, 55, 71});
 }
 
-TEST_CASE("No termination strategy WPB learning") {
-  struct NeverTerminate : LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
-    bool terminate() override { return false; }
-  };
-
-  class Wrapper {
-   public:
-    Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
-      profiles_initialization_strategy(learning_data),
-      weights_optimization_strategy(learning_data),
-      profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(),
-      learning(
-        learning_data,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        profiles_improvement_strategy,
-        breeding_strategy,
-        termination_strategy
-      )
-    {}
-
-   public:
-    auto perform() { return learning.perform(); }
-
-   private:
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
-    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
-    OptimizeWeightsUsingGlop weights_optimization_strategy;
-    ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
-    ReinitializeLeastAccurate breeding_strategy;
-    NeverTerminate termination_strategy;
-    LearnMrsortByWeightsProfilesBreed learning;
-  };
-
-  check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
-  check_exact_learning<Wrapper>(7, 2, {78}, {47}, {41});
-  check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {59}, {40}, {44, 55, 71});
-}
-
 TEST_CASE("Alglib WPB learning") {
   class Wrapper {
    public:
@@ -384,7 +324,7 @@ TEST_CASE("Alglib WPB learning") {
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, learning_set.alternatives.size()),
+      termination_strategy(learning_data, 200),
       learning(
         learning_data,
         profiles_initialization_strategy,
@@ -404,13 +344,13 @@ TEST_CASE("Alglib WPB learning") {
     OptimizeWeightsUsingAlglib weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy;
+    TerminateAfterIterationsWithoutProgress termination_strategy;
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
   check_exact_learning<Wrapper>(1, 2);
   check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
-  check_exact_learning<Wrapper>(7, 2, {}, {}, {});
+  check_exact_learning<Wrapper>(7, 2, {59}, {}, {});
   check_exact_learning<Wrapper>(1, 3);
   check_exact_learning<Wrapper>(4, 3, {55, 59}, {40}, {44});
 }
@@ -491,7 +431,9 @@ TEST_CASE("Non-exact WPB learning") {
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, 190),
+      termination_strategy_accuracy(learning_data, 190),
+      termination_strategy_progress(learning_data, 200),
+      termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
       observer(learning_data),
       observers{&observer},
       learning(
@@ -511,7 +453,9 @@ TEST_CASE("Non-exact WPB learning") {
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy;
+    TerminateAtAccuracy termination_strategy_accuracy;
+    TerminateAfterIterationsWithoutProgress termination_strategy_progress;
+    TerminateWhenAny termination_strategy;
     AccuracyObserver observer;
     std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
@@ -527,7 +471,9 @@ TEST_CASE("Non-exact WPB learning") {
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, 190),
+      termination_strategy_accuracy(learning_data, 190),
+      termination_strategy_progress(learning_data, 200),
+      termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
       observer(learning_data),
       observers{&observer},
       learning(
@@ -547,7 +493,9 @@ TEST_CASE("Non-exact WPB learning") {
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy;
+    TerminateAtAccuracy termination_strategy_accuracy;
+    TerminateAfterIterationsWithoutProgress termination_strategy_progress;
+    TerminateWhenAny termination_strategy;
     AccuracyObserver observer;
     std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
