@@ -3,6 +3,7 @@
 #include "mrsort-by-weights-profiles-breed.hpp"
 
 #include <map>
+#include <numeric>
 
 #include "../chrones.hpp"
 #include "../unreachable.hpp"
