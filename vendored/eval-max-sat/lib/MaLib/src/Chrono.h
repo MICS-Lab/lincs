@@ -2,7 +2,7 @@
 
 #define CHRONO_R7U52KTM
 
-#include <sys/time.h>
+#include <chrono>
 #include <cstdio>
 #include <iostream>
 
@@ -24,7 +24,7 @@ namespace MaLib
             Chrono()
                 : _duree(0),_dureeSec(0), _pause(false)
             {
-                gettimeofday(&depart, &tz);
+                depart = std::chrono::steady_clock::now();
             }
 
             /* Removed for lincs
@@ -46,7 +46,7 @@ namespace MaLib
                 _pause=false;
                 _duree=0;
                 _dureeSec=0;
-                gettimeofday(&depart, &tz);
+                depart = std::chrono::steady_clock::now();
             }
 
             long pause(bool val)
@@ -55,16 +55,16 @@ namespace MaLib
                 {
                     if(!_pause)
                     {
-                        gettimeofday(&fin, &tz);
-                        _duree += (fin.tv_sec-depart.tv_sec) * 1000000L + (fin.tv_usec-depart.tv_usec);
-                        _dureeSec += fin.tv_sec-depart.tv_sec ;
+                        fin = std::chrono::steady_clock::now();
+                        _duree += std::chrono::duration_cast<std::chrono::microseconds>(fin - depart).count();
+                        _dureeSec += std::chrono::duration_cast<std::chrono::seconds>(fin - depart).count();
                         _pause=true;
                     }
                 }else
                 {
                     if(_pause)
                     {
-                        gettimeofday(&depart, &tz);
+                        depart = std::chrono::steady_clock::now();
                         _pause=false;
                     }
                 }
@@ -99,8 +99,8 @@ namespace MaLib
             {
                 if(_pause==false)
                 {
-                    gettimeofday(&fin, &tz);
-                    return (fin.tv_sec-depart.tv_sec) * 1000000L + (fin.tv_usec-depart.tv_usec) + _duree;
+                    fin = std::chrono::steady_clock::now();
+                    return std::chrono::duration_cast<std::chrono::microseconds>(fin - depart).count() + _duree;
                 }else
                 {
                     return _duree;
@@ -111,8 +111,8 @@ namespace MaLib
             {
                 if(_pause==false)
                 {
-                    gettimeofday(&fin, &tz);
-                    return (fin.tv_sec-depart.tv_sec) + _dureeSec;
+                    fin = std::chrono::steady_clock::now();
+                    return std::chrono::duration_cast<std::chrono::seconds>(fin - depart).count() + _dureeSec;
                 }else
                 {
                     return _dureeSec;
@@ -144,8 +144,7 @@ namespace MaLib
         /* Removed for lincs
         std::string _name;
         */  // Removed for lincs
-        struct timeval depart, fin;
-        struct timezone tz;
+        std::chrono::steady_clock::time_point depart, fin;
         long _duree;
         long _dureeSec;
 
