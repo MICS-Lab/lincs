@@ -200,9 +200,9 @@ void compute_move_desirabilities__kernel(
   ArrayView1D<Device, lincs::Desirability> desirabilities
 ) {
   const unsigned alt_index = grid::x();
-  assert(alt_index < learning_alternatives.s0() + grid::blockDim.x);
+  assert(alt_index < learning_alternatives.s0() + grid::blockDim().x);
   const unsigned destination_index = grid::y();
-  assert(destination_index < destinations.s0() + grid::blockDim.y);
+  assert(destination_index < destinations.s0() + grid::blockDim().y);
 
   // Map (embarrassingly parallel)
   if (alt_index < learning_alternatives.s0() && destination_index < destinations.s0()) {
@@ -289,7 +289,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
   copy(host_learning_data.profiles, ref(gpu_learning_data.profiles));
 
   #pragma omp parallel for
-  for (unsigned model_index = 0; model_index != gpu_learning_data.models_count; ++model_index) {
+  for (int model_index = 0; model_index < gpu_learning_data.models_count; ++model_index) {
     improve_model_profiles(model_index);
   }
 

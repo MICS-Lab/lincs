@@ -120,6 +120,13 @@ jobs:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
         run: pip install build delvewheel twine
+      # The 'Jimver/cuda-toolkit' action seems to work, but takes 20 minutes
+      # @todo(Project management, soon) Find a quicker way to install CUDA on Windows
+      - name: Install CUDA
+        uses: Jimver/cuda-toolkit@v0.2.11
+        id: cuda-toolkit
+        with:
+          cuda: '12.1.0'
       - name: Install MSys2
         uses: msys2/setup-msys2@v2
         with:
@@ -169,7 +176,7 @@ jobs:
       - name: Build the wheel
         run: python -m build --wheel --outdir local-dist (get-item lincs-*)
         env:
-          # @todo(Project management, soon) Install CUDA and add LINCS_DEV_FORCE_NVCC: "true"
+          LINCS_DEV_FORCE_NVCC: "true"
           LINCS_DEV_DEPENDENCIES: d:\lincs-deps
           LINCS_DEV_VC_VERSION: 142
       - name: Make the wheel machine-independent

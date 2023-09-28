@@ -1375,7 +1375,7 @@ struct GridFactory1D {
         1,
         1
       },
-      blockDim,
+      blockDim(),
     };
   }
 
@@ -1383,7 +1383,7 @@ struct GridFactory1D {
   static Grid fixed(unsigned x) {
     return Grid {
       {x, 1, 1},
-      blockDim,
+      blockDim(),
     };
   }
 
@@ -1394,7 +1394,10 @@ struct GridFactory1D {
   }
 #endif  // __NVCC__
 
-  static constexpr dim3 blockDim = {BLOCKDIM_X, 1, 1};
+  HOST_DEVICE_DECORATORS
+  static dim3 blockDim() {
+    return {BLOCKDIM_X, 1, 1};
+  }
 };
 
 template<unsigned BLOCKDIM_X, unsigned BLOCKDIM_Y>
@@ -1407,7 +1410,7 @@ struct GridFactory2D {
         (y + BLOCKDIM_Y - 1) / BLOCKDIM_Y,
         1
       },
-      blockDim,
+      blockDim(),
     };
   }
 
@@ -1415,7 +1418,7 @@ struct GridFactory2D {
   static Grid fixed(unsigned x, unsigned y) {
     return Grid {
       {x, y, 1},
-      blockDim,
+      blockDim(),
     };
   }
 
@@ -1431,7 +1434,10 @@ struct GridFactory2D {
   }
 #endif  // __NVCC__
 
-  static constexpr dim3 blockDim = {BLOCKDIM_X, BLOCKDIM_Y, 1};
+  HOST_DEVICE_DECORATORS
+  static dim3 blockDim() {
+    return {BLOCKDIM_X, BLOCKDIM_Y, 1};
+  }
 };
 
 template<unsigned BLOCKDIM_X, unsigned BLOCKDIM_Y, unsigned BLOCKDIM_Z>
@@ -1444,7 +1450,7 @@ struct GridFactory3D {
         (y + BLOCKDIM_Y - 1) / BLOCKDIM_Y,
         (z + BLOCKDIM_Z - 1) / BLOCKDIM_Z
       },
-      blockDim,
+      blockDim(),
     };
   }
 
@@ -1452,7 +1458,7 @@ struct GridFactory3D {
   static Grid fixed(unsigned x, unsigned y, unsigned z) {
     return Grid {
       {x, y, z},
-      blockDim,
+      blockDim(),
     };
   }
 
@@ -1473,7 +1479,10 @@ struct GridFactory3D {
   }
 #endif  // __NVCC__
 
-  static constexpr dim3 blockDim = {BLOCKDIM_X, BLOCKDIM_Y, BLOCKDIM_Z};
+  HOST_DEVICE_DECORATORS
+  static dim3 blockDim() {
+    return {BLOCKDIM_X, BLOCKDIM_Y, BLOCKDIM_Z};
+  }
 };
 
 #endif  // LINCS_HAS_NVCC

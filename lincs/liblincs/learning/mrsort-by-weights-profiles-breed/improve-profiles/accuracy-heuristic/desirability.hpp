@@ -31,8 +31,6 @@ struct Desirability {
 
 } // namespace lincs
 
-#ifdef __GNUC__
-
 template<>
 __inline__
 lincs::Desirability* Host::alloc<lincs::Desirability>(const std::size_t n) {
@@ -60,7 +58,5 @@ void Device::memset<lincs::Desirability>(const std::size_t n, const char v, linc
 }
 
 #endif  // LINCS_HAS_NVCC
-
-#endif  // __GNUC__
 
 #endif  // LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__IMPROVE_PROFILES__ACCURACY_HEURISTIC__DESIRABILITY_HPP
