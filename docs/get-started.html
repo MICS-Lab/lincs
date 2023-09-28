@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Get started &#8212; lincs 0.8.4 documentation</title>
+    <title>Get started &#8212; lincs 0.8.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=96659adb"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=321d1ec2"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -36,20 +36,13 @@
 <h1>Get started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h1>
 <section id="get-lincs">
 <h2>Get <em>lincs</em><a class="headerlink" href="#get-lincs" title="Permalink to this heading">¶</a></h2>
-<p>Your options:</p>
-<ul class="simple">
-<li><p>install <em>lincs</em> using binary wheels (on fairly recent Linux distributions and on macOS on Intel processors)</p></li>
-</ul>
-<p>We recommend you don’t try to build <em>lincs</em> from sources, as this requires installing quite a few dependencies.
-If you really want to go that route, you may want to start by reading the [GitHub Actions workflow](<a class="reference external" href="https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml">https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml</a>) we use to build the binary wheels.</p>
-<p>We don’t plan to support Windows in the short term, but we would accept a contribution that builds wheels for Windows on GitHub Actions.</p>
-<section id="option-1-install-lincs-on-your-linux-or-macos-intel-system-using-binary-wheels">
-<h3>Option 1: Install <em>lincs</em> on your Linux or macOS (Intel) system, using binary wheels<a class="headerlink" href="#option-1-install-lincs-on-your-linux-or-macos-intel-system-using-binary-wheels" title="Permalink to this heading">¶</a></h3>
-<p>Just run:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>lincs<span class="w"> </span>--only-binary<span class="w"> </span>lincs
-</pre></div>
-</div>
-</section>
+<p>We provide binary wheels for <em>lincs</em> on Linux, Windows and macOS for x86_64 processors,
+so running <cite>pip install lincs –only-binary lincs</cite> should be enough.</p>
+<p>If you’re on a platform for which we don’t make wheels, you’ll need to build <em>lincs</em> from sources.
+We don’t recommend you do that, because it can be a lot of work.
+If you really want to go that route, you may want to start by reading the [GitHub Actions workflow](<a class="reference external" href="https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml">https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml</a>) we use to build the binary wheels.
+You’ll probably start by trying <cite>pip install lincs</cite>, see what dependency is missing, install it and iterate from there.
+If you end up modifying <em>lincs</em> to make it work on your platform, we kindly ask you to contribute your changes back to the project.</p>
 </section>
 <section id="start-using-lincs-command-line-interface">
 <span id="start-command-line"></span><h2>Start using <em>lincs</em>’ command-line interface<a class="headerlink" href="#start-using-lincs-command-line-interface" title="Permalink to this heading">¶</a></h2>
@@ -260,10 +253,7 @@ See the <a class="reference internal" href="user-guide.html#user-learning-strate
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Get started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#get-lincs">Get <em>lincs</em></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#option-1-install-lincs-on-your-linux-or-macos-intel-system-using-binary-wheels">Option 1: Install <em>lincs</em> on your Linux or macOS (Intel) system, using binary wheels</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#get-lincs">Get <em>lincs</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#start-using-lincs-command-line-interface">Start using <em>lincs</em>’ command-line interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-now">What now?</a></li>
 </ul>

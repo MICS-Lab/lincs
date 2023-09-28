@@ -8,47 +8,14 @@ Get started
 Get *lincs*
 ===========
 
-Your options:
+We provide binary wheels for *lincs* on Linux, Windows and macOS for x86_64 processors,
+so running `pip install lincs --only-binary lincs` should be enough.
 
-- install *lincs* using binary wheels (on fairly recent Linux distributions and on macOS on Intel processors)
-
-.. - run *lincs* using our Docker image (on any machine with Docker installed, including Windows machines with Docker for Desktop)
-
-We recommend you don't try to build *lincs* from sources, as this requires installing quite a few dependencies.
+If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
+We don't recommend you do that, because it can be a lot of work.
 If you really want to go that route, you may want to start by reading the [GitHub Actions workflow](https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml) we use to build the binary wheels.
-
-We don't plan to support Windows in the short term, but we would accept a contribution that builds wheels for Windows on GitHub Actions.
-
-Option 1: Install *lincs* on your Linux or macOS (Intel) system, using binary wheels
--------------------------------------------------------------------------------------
-
-.. highlight:: shell
-
-Just run::
-
-    pip install lincs --only-binary lincs
-
-..
-    Option 2: Get and run the Docker image
-    --------------------------------------
-
-    Get the image::
-
-        docker pull jacquev6/lincs
-
-    Run the image::
-
-        docker run --rm -it jacquev6/lincs bash
-
-    This will put you in a basic Ubuntu shell with the ``lincs`` command-line interface installed.
-
-    More details about the Docker image: the default tag ``latest`` always points at the latest published version of *lincs*.
-    `Other tags <https://hub.docker.com/repository/docker/jacquev6/lincs/tags>`_ are available for specific versions, *e.g.* ``jacquev6/lincs:0.3.7``.
-
-    Make sure to get familiar with Docker and containers: in particular, all changes you make in the container will be lost when you exit it.
-    You'll need to use the ``--volume`` option to access your local filesystem from within the container.
-    See `Docker documentation <https://docs.docker.com/>`_ for more information.
-
+You'll probably start by trying `pip install lincs`, see what dependency is missing, install it and iterate from there.
+If you end up modifying *lincs* to make it work on your platform, we kindly ask you to contribute your changes back to the project.
 
 .. _start-command-line:
 
