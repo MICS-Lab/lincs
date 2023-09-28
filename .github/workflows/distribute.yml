@@ -111,11 +111,10 @@ jobs:
     needs:
       - make-source-dist
     strategy:
-      fail-fast: false
       matrix:
         python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
-      - name: Install Python ${{ matrix.python_version }}
+      - name: Install Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
