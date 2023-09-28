@@ -4,6 +4,12 @@
 Changelog
 =========
 
+Version 0.8.7
+=============
+
+- Integrate CUDA parts on Windows
+- Compile with OpenMP on Windows
+
 Versions 0.8.5 to 0.8.6
 =======================
 
