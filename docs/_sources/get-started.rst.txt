@@ -9,12 +9,12 @@ Get *lincs*
 ===========
 
 We provide binary wheels for *lincs* on Linux, Windows and macOS for x86_64 processors,
-so running `pip install lincs --only-binary lincs` should be enough.
+so running ``pip install lincs --only-binary lincs`` should be enough.
 
 If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
-If you really want to go that route, you may want to start by reading the [GitHub Actions workflow](https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml) we use to build the binary wheels.
-You'll probably start by trying `pip install lincs`, see what dependency is missing, install it and iterate from there.
+If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml>`_ we use to build the binary wheels.
+You'll probably start by trying ``pip install lincs``, see what dependency is missing, install it and iterate from there.
 If you end up modifying *lincs* to make it work on your platform, we kindly ask you to contribute your changes back to the project.
 
 .. _start-command-line:

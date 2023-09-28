@@ -231,7 +231,11 @@ def make_integration_tests_from_doc():
 
 
 def build_sphinx_documentation():
-    subprocess.run([f"python3", "-m", "pip", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
+    env = dict(os.environ)
+    env["LINCS_DEV_FORBID_GPU"] = "false"
+    env["LINCS_DEV_FORBID_NVCC"] = "false"
+    env["LINCS_DEV_FORCE_NVCC"] = "true"
+    subprocess.run([f"python3", "-m", "pip", "install", "--user", "."], env=env, stdout=subprocess.DEVNULL, check=True)
 
     with open("README.rst") as f:
         original_content = f.read()
