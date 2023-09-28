@@ -828,6 +828,7 @@ def classification_model(
             else:
                 termination_condition = "unknown (Unexpected, please let the lincs maintainers know about this)"
             print(f"# Termination condition: {termination_condition}", file=output_model, flush=True)
+            # @todo(Feature, soon) print(f"# Number of iterations: {learning_data.iteration_index + 1}", file=output_model, flush=True)
         model.dump(problem, output_model)
 
 
