@@ -110,7 +110,6 @@ jobs:
     runs-on: windows-2019
     needs:
       - make-source-dist
-      - build-for-linux
     strategy:
       fail-fast: false
       matrix:
@@ -189,7 +188,6 @@ jobs:
     runs-on: macos-11
     needs:
       - make-source-dist
-      - build-for-windows
     strategy:
       matrix:
         python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
