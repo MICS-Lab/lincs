@@ -40,10 +40,12 @@ void Solver::transition_to_unknown_state () {
   if (state () == CONFIGURING) {
     LOG ("API leaves state %sCONFIGURING%s",
       tout.emph_code (), tout.normal_code ());
+    /* Removed for lincs
     if (internal->opts.check &&
         internal->opts.checkproof) {
       internal->check ();
     }
+    */  // Removed for lincs
   } else if (state () == SATISFIED) {
     LOG ("API leaves state %sSATISFIED%s",
       tout.emph_code (), tout.normal_code ());
@@ -845,6 +847,7 @@ bool Solver::frozen (int lit) const {
 }
 
 /*------------------------------------------------------------------------*/
+/* Removed for lincs
 
 bool Solver::trace_proof (FILE * external_file, const char * name) {
   LOG_API_CALL_BEGIN ("trace_proof", name);
@@ -891,9 +894,11 @@ void Solver::close_proof_trace () {
   internal->close_trace ();
   LOG_API_CALL_END ("close_proof_trace");
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
+/* Removed for lincs
 void Solver::build (FILE * file, const char * prefix) {
 
   assert (file == stdout || file == stderr);
@@ -947,6 +952,7 @@ void Solver::build (FILE * file, const char * prefix) {
 
   fflush (file);
 }
+*/  // Removed for lincs
 
 const char * Solver::version () { return CaDiCaL::version (); }
 
@@ -979,6 +985,7 @@ void Solver::resources () {
 
 /*------------------------------------------------------------------------*/
 
+/* Removed for lincs
 const char * Solver::read_dimacs (File * file, int & vars, int strict,
                                   bool * incremental, vector<int> * cubes)
 {
@@ -1071,6 +1078,7 @@ const char * Solver::read_solution (const char * path) {
   LOG_API_CALL_RETURNS ("read_solution", path, err);
   return err;
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
@@ -1128,6 +1136,7 @@ public:
   }
 };
 
+/* Removed for lincs
 class ClauseWriter : public ClauseIterator {
   File * file;
 public:
@@ -1182,9 +1191,11 @@ const char * Solver::write_dimacs (const char * path, int min_max_var) {
   LOG_API_CALL_RETURNS ("write_dimacs", path, min_max_var, res);
   return res;
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
+/* Removed for lincs
 struct WitnessWriter : public WitnessIterator {
   File * file;
   int64_t witnesses;
@@ -1233,6 +1244,7 @@ const char * Solver::write_extension (const char * path) {
   LOG_API_CALL_RETURNS ("write_extension", path, res);
   return res;
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 

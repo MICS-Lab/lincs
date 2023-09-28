@@ -6,8 +6,10 @@
 #include <set>
 #include <fstream>
 #include "cadical/cadical.hpp"
+/* Removed for lincs
 #include "cadical/file.hpp"
 #include "ParseUtils.h"
+*/  // Removed for lincs
 
 
 typedef unsigned long long int t_weight;
@@ -72,6 +74,7 @@ public:
     }
 
 
+/* Removed for lincs
    std::string savePourTest_file;
    bool parse(const std::string& filePath) {
        auto gz = gzopen( filePath.c_str(), "rb");
@@ -155,6 +158,7 @@ private :
 
 
 
+*/  // Removed for lincs
 };
 inline VirtualMAXSAT::~VirtualMAXSAT() {}
 

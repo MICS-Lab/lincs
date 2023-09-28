@@ -128,6 +128,7 @@ void Internal::phase (const char * phase,
 /*------------------------------------------------------------------------*/
 
 void Internal::warning (const char *fmt, ...) {
+  /* Removed for lincs
   fflush (stdout);
   terr.bold ();
   fputs ("cadical: ", stderr);
@@ -141,11 +142,13 @@ void Internal::warning (const char *fmt, ...) {
   va_end (ap);
   fputc ('\n', stderr);
   fflush (stderr);
+  */  // Removed for lincs
 }
 
 /*------------------------------------------------------------------------*/
 
 void Internal::error_message_start () {
+  /* Removed for lincs
   fflush (stdout);
   terr.bold ();
   fputs ("cadical: ", stderr);
@@ -153,31 +156,39 @@ void Internal::error_message_start () {
   fputs ("error:", stderr);
   terr.normal ();
   fputc (' ', stderr);
+  */  // Removed for lincs
 }
 
 void Internal::error_message_end () {
+  /* Removed for lincs
   fputc ('\n', stderr);
   fflush (stderr);
   // TODO add possibility to use call back instead.
   exit (1);
+  */  // Removed for lincs
 }
 
 void Internal::verror (const char *fmt, va_list & ap) {
+  /* Removed for lincs
   error_message_start ();
   vfprintf (stderr, fmt, ap);
   error_message_end ();
+  */  // Removed for lincs
 }
 
 void Internal::error (const char *fmt, ...) {
+  /* Removed for lincs
   va_list ap;
   va_start (ap, fmt);
   verror (fmt, ap);
   va_end (ap);                          // unreachable
+  */  // Removed for lincs
 }
 
 /*------------------------------------------------------------------------*/
 
 void fatal_message_start () {
+  /* Removed for lincs
   fflush (stdout);
   terr.bold ();
   fputs ("cadical: ", stderr);
@@ -185,15 +196,19 @@ void fatal_message_start () {
   fputs ("fatal error:", stderr);
   terr.normal ();
   fputc (' ', stderr);
+  */  // Removed for lincs
 }
 
 void fatal_message_end () {
+  /* Removed for lincs
   fputc ('\n', stderr);
   fflush (stderr);
   abort ();
+  */  // Removed for lincs
 }
 
 void fatal (const char *fmt, ...) {
+  /* Removed for lincs
   fatal_message_start ();
   va_list ap;
   va_start (ap, fmt);
@@ -201,6 +216,7 @@ void fatal (const char *fmt, ...) {
   va_end (ap);
   fatal_message_end ();
   abort ();
+  */  // Removed for lincs
 }
 
 }

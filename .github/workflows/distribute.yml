@@ -1,3 +1,7 @@
+# About caching: this workflow is typically run every two weeks,
+# and GitHub Actions evict caches unsused for 7 days,
+# so for simplicity we don't cache anything.
+
 name: Distribute
 on:
   push:
@@ -7,18 +11,19 @@ jobs:
   make-source-dist:
     runs-on: ubuntu-20.04
     steps:
-      # Install dependencies
-      - run: pip3 install build twine
+      - name: Install dependencies
+        run: pip3 install build twine
 
-      # Get the code
-      - uses: actions/checkout@v3
+      - name: Get the code
+        uses: actions/checkout@v3
 
-      # Build the source distribution
-      - run: python3 -m build --sdist
-      - run: twine check dist/*
+      - name: Build the source distribution
+        run: python3 -m build --sdist
+      - name: Check the source distribution
+        run: twine check dist/*
 
-      # Upload the source distribution
-      - uses: actions/upload-artifact@v3
+      - name: Upload the source distribution to GitHub Actions artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: source-dist
           path: dist
@@ -31,72 +36,151 @@ jobs:
       matrix:
         python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
-      # Install dependencies
-      - run: sudo apt-get update
-      - run: sudo apt-get install --yes --no-install-recommends
-              wget
-      - run: |
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install Python packages
+        run: pip${{ matrix.python_version }} install build auditwheel twine Chrones
+      - name: Install CUDA
+        run: |
           sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
           sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends cuda-cudart-dev-12-1 cuda-nvcc-12-1
           echo "/usr/local/cuda-12.1/bin" >>$GITHUB_PATH
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python_version }}
-      - run: |
-            mkdir boost
-            cd boost
+      - name: Install Boost
+        run: |
+            cd /home/runner/work
             wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
-            tar xf *.tar.gz
-            rm *.tar.gz
+            tar xf boost_*.tar.gz
+            rm boost_*.tar.gz
             cd boost_*
             echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
-            ./bootstrap.sh --with-libraries=python
-            ./b2 python=${{ matrix.python_version }}
+            ./bootstrap.sh
+            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage
             sudo cp -r boost /usr/local/include
             sudo cp -r stage/lib/* /usr/local/lib
             sudo ldconfig
-            cd ../..
-            rm -r boost
-      - run: |
-            mkdir or-tools
-            cd or-tools
+      - name: Install OR-Tools
+        run: |
+            cd /home/runner/work
             wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
-            tar xf *.tar.gz
-            sudo cp -r or-tools_*/include/* /usr/local/include
-            sudo cp -r or-tools_*/lib/* /usr/local/lib
+            tar xf or-tools_*.tar.gz
+            rm or-tools_*.tar.gz
+            cd or-tools_*
+            sudo cp -r include/* /usr/local/include
+            sudo cp -r lib/* /usr/local/lib
             sudo ldconfig
-            cd ..
-            rm -r or-tools
-      - run: |
+      - name: Install patchelf
+        run: |
+            cd /home/runner/work
             mkdir patchelf
             cd patchelf
             wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz
             tar xf *.tar.gz
             sudo cp bin/patchelf /usr/local/bin
-            cd ..
-            rm -r patchelf
-      - run: pip${{ matrix.python_version }} install build auditwheel twine Chrones
 
-      # Get the source distribution
-      - uses: actions/download-artifact@v3
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
         with:
           name: source-dist
-      - run: |
+      - name: Unzip the source distribution
+        run: |
             tar xf *.tar.gz
             rm *.tar.gz
 
-      # Build the wheel
-      - run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
+      - name: Build the wheel
+        run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
         env:
           LINCS_DEV_FORCE_NVCC: "true"
           LINCS_DEV_FORCE_CHRONES: "true"
-      - run: auditwheel repair --plat manylinux_2_31_x86_64 --strip local-dist/*.whl --wheel-dir dist
-      - run: twine check dist/*
+      - name: Make the wheel machine-independent
+        run: auditwheel repair --plat manylinux_2_31_x86_64 --strip local-dist/*.whl --wheel-dir dist
+      - name: Check the wheel
+        run: twine check dist/*.whl
 
-      # Upload the wheel
-      - uses: actions/upload-artifact@v3
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels-dist
+          path: dist
+
+  build-for-windows:
+    runs-on: windows-2019
+    needs:
+      - make-source-dist
+      - build-for-linux
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+    steps:
+      - name: Install Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install Python packages
+        run: pip install build delvewheel twine
+      - name: Install MSys2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          msystem: UCRT64
+          install: >-
+              gzip
+              tar
+              unzip
+              wget
+      - name: Install boost
+        shell: msys2 {0}
+        run: |
+            cd /d/a
+            wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+            tar xf boost_*.tar.gz
+            rm boost_*.tar.gz
+            mv boost_* boost
+            cd boost
+            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
+            ./bootstrap.bat
+            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage || true
+            mkdir -p /d/lincs-deps/include /d/lincs-deps/lib
+            cp -r boost /d/lincs-deps/include
+            cp -r stage/lib/* /d/lincs-deps/lib
+      - name: Install OR-Tools
+        shell: msys2 {0}
+        run: |
+            cd /d/a
+            wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_VisualStudio2019-64bit_v8.2.8710.zip
+            unzip or-tools_*.zip
+            rm or-tools_*.zip
+            cd or-tools_*
+            cp -r include/* /d/lincs-deps/include
+            cp -r lib/* /d/lincs-deps/lib
+
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: source-dist
+      - name: Unzip the source distribution
+        shell: msys2 {0}
+        run: |
+            tar xf *.tar.gz
+            rm *.tar.gz
+
+      - name: Build the wheel
+        run: python -m build --wheel --outdir local-dist (get-item lincs-*)
+        env:
+          # @todo(Project management, soon) Install CUDA and add LINCS_DEV_FORCE_NVCC: "true"
+          LINCS_DEV_DEPENDENCIES: d:\lincs-deps
+          LINCS_DEV_VC_VERSION: 142
+      - name: Make the wheel machine-independent
+        run: delvewheel repair --strip (get-item local-dist\*.whl) --wheel-dir dist --add-path d:\lincs-deps\lib
+      - name: Check the wheel
+        run: twine check (get-item dist\*.whl)
+
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: wheels-dist
           path: dist
@@ -105,63 +189,66 @@ jobs:
     runs-on: macos-11
     needs:
       - make-source-dist
+      - build-for-windows
     strategy:
       matrix:
         python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
-      # Install dependencies
-      - run: |
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install Python packages
+        run: pip3 install build delocate twine
+      - name: Install OpenMP
+        run: |
+            cd /Users/runner/work
             mkdir openmp
             cd openmp
             wget https://mac.r-project.org/openmp/openmp-10.0.0-darwin17-Release.tar.gz
             tar xf *.tar.gz
             sudo cp usr/local/lib/* /usr/local/lib
             sudo cp usr/local/include/* /usr/local/include
-            cd ..
-            rm -r openmp
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python_version }}
-      - run: |
-            mkdir boost
-            cd boost
+      - name: Install Boost
+        run: |
+            cd /Users/runner/work
             wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
-            tar xf *.tar.gz
-            rm *.tar.gz
+            tar xf boost_*.tar.gz
+            rm boost_*.tar.gz
             cd boost_*
             echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
-            ./bootstrap.sh --with-libraries=python
-            ./b2 python=${{ matrix.python_version }}
+            ./bootstrap.sh
+            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage
             sudo cp -r boost /usr/local/include
             sudo cp -r stage/lib/* /usr/local/lib
-            cd ../..
-            rm -r boost
-      - run: |
-            mkdir or-tools
-            cd or-tools
+      - name: Install OR-Tools
+        run: |
+            cd /Users/runner/work
             wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_MacOsX-11.2.1_v8.2.8710.tar.gz
-            tar xf *.tar.gz
-            sudo cp -r or-tools_*/include/* /usr/local/include
-            sudo cp -r or-tools_*/lib/* /usr/local/lib
-            cd ..
-            rm -r or-tools
-      - run: pip3 install build delocate twine
+            tar xf or-tools_*.tar.gz
+            rm or-tools_*.tar.gz
+            cd or-tools_*
+            sudo cp -r include/* /usr/local/include
+            sudo cp -r lib/* /usr/local/lib
 
-      # Get the source distribution
-      - uses: actions/download-artifact@v3
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
         with:
           name: source-dist
-      - run: |
+      - name: Unzip the source distribution
+        run: |
             tar xf *.tar.gz
             rm *.tar.gz
 
-      # Build the wheel
-      - run: python3 -m build --wheel --outdir local-dist lincs-*
-      - run: delocate-wheel --wheel-dir dist local-dist/*.whl
-      - run: twine check dist/*.whl
+      - name: Build the wheel
+        run: python3 -m build --wheel --outdir local-dist lincs-*
+      - name: Make the wheel machine-independent
+        run: delocate-wheel --wheel-dir dist local-dist/*.whl
+      - name: Check the wheel
+        run: twine check dist/*.whl
 
-      # Upload the wheel
-      - uses: actions/upload-artifact@v3
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: wheels-dist
           path: dist
@@ -170,30 +257,38 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
       - build-for-linux
+      - build-for-windows
       - build-for-macos
     strategy:
       matrix:
-        os: ['ubuntu-20.04', 'ubuntu-22.04', 'macos-11', 'macos-12', 'macos-13']
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - windows-2019
+          - windows-2022
+          - macos-11
+          - macos-12
+          - macos-13
         python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
-      # DO NOT install dependencies
-      - uses: actions/setup-python@v4
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
+      # DO NOT install any other dependencies, to test that the whells are self-contained
 
-      # Get the wheels
-      - uses: actions/download-artifact@v3
+      - name: Dowload the wheels from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
         with:
           name: wheels-dist
-      - run: find .
 
-      # Install
-      - run: pip${{ matrix.python_version }} install --find-links . --pre lincs
+      - name: Install the wheel
+        run: pip${{ matrix.python_version }} install --find-links . --pre lincs
 
-      # Run
-      - run: which lincs
-      - run: lincs --help
-      - run: lincs generate classification-problem 3 2
+      - name: Run lincs
+        run: lincs --help
+      - name: Run lincs
+        run: lincs generate classification-problem 3 2
 
   publish:
     runs-on: ubuntu-latest
@@ -205,16 +300,17 @@ jobs:
     permissions:
       id-token: write
     steps:
-      # Get the source distribution and the wheels
-      - uses: actions/download-artifact@v3
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
         with:
           name: source-dist
-      - uses: actions/download-artifact@v3
+      - name: Dowload the wheels from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
         with:
           name: wheels-dist
 
-      # Publish them on PyPI
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish all distributions to the Python Package Index
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: .
           verify-metadata: false

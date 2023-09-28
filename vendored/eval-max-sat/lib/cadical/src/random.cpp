@@ -44,6 +44,7 @@ do { \
 // does not have any effect.  TODO: add a similar machine identity hashing
 // function for other operating systems (Windows and macOS).
 
+/* Removed for lincs
 namespace CaDiCaL {
 
 static uint64_t hash_machine_identifier () {
@@ -65,6 +66,7 @@ static uint64_t hash_machine_identifier () {
 }
 
 }
+*/ // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
@@ -76,6 +78,7 @@ static uint64_t hash_machine_identifier () {
 // work.  As an additional measure to increase the possibility to get
 // different seeds we are now also using network addresses (explicitly).
 
+/* Removed for lincs
 #ifndef __WIN32
 
 extern "C" {
@@ -129,11 +132,13 @@ static uint64_t hash_network_addresses () {
 }
 
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
 // Hash the current wall-clock time in seconds.
 
+/* Removed for lincs
 extern "C" {
 #include <time.h>
 }
@@ -147,11 +152,13 @@ static uint64_t hash_time () {
 }
 
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
 // Hash the process identified.
 
+/* Removed for lincs
 extern "C" {
 #include <sys/types.h>
 #include <unistd.h>
@@ -165,7 +172,9 @@ static uint64_t hash_process () {
   return res;
 }
 
+
 }
+*/  // Removed for lincs
 
 /*------------------------------------------------------------------------*/
 
@@ -188,11 +197,15 @@ static uint64_t hash_clock_cycles () {
 namespace CaDiCaL {
 
 Random::Random () : state (1) {
+  /* Removed for lincs
   add (hash_machine_identifier ());
   add (hash_network_addresses ());
+  */  // Removed for lincs
   add (hash_clock_cycles ());
+  /* Removed for lincs
   add (hash_process ());
   add (hash_time ());
+  */  // Removed for lincs
 #ifdef DO_PRINT_HASH
   printf ("c PRINT_HASH %32s    = %020" PRIu64 "\n", "combined", state);
   fflush (stdout);

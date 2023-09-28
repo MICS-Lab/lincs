@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "../unreachable.hpp"
+
 
 namespace lincs {
 
@@ -54,7 +56,7 @@ struct Criterion {
       case CategoryCorrelation::decreasing:
         return lhs <= rhs;
     }
-    __builtin_unreachable();
+    unreachable();
   }
 
   bool strictly_better(float lhs, float rhs) const {
@@ -64,7 +66,7 @@ struct Criterion {
       case CategoryCorrelation::decreasing:
         return lhs < rhs;
     }
-    __builtin_unreachable();
+    unreachable();
   }
 
   // @todo(Project management, later) Remove this operator

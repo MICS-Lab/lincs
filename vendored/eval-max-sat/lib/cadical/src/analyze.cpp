@@ -16,14 +16,18 @@ void Internal::learn_empty_clause () {
   assert (!unsat);
   LOG ("learned empty clause");
   external->check_learned_empty_clause ();
+  /* Removed for lincs
   if (proof) proof->add_derived_empty_clause ();
+  */  // Removed for lincs
   unsat = true;
 }
 
 void Internal::learn_unit_clause (int lit) {
   LOG ("learned unit clause %d", lit);
   external->check_learned_unit_clause (lit);
+  /* Removed for lincs
   if (proof) proof->add_derived_unit_clause (lit);
+  */  // Removed for lincs
   mark_fixed (lit);
 }
 

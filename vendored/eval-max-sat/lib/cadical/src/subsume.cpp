@@ -160,7 +160,9 @@ void Internal::strengthen_clause (Clause * c, int lit) {
   stats.strengthened++;
   assert (c->size > 2);
   LOG (c, "removing %d in", lit);
+  /* Removed for lincs
   if (proof) proof->strengthen_clause (c, lit);
+  */  // Removed for lincs
   if (!c->redundant) mark_removed (lit);
   auto new_end = remove (c->begin (), c->end (), lit);
   assert (new_end + 1 == c->end ()), (void) new_end;

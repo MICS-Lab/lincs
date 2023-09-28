@@ -82,6 +82,7 @@ inline void Internal::search_assign (int lit, Clause * reason) {
   else LOG (reason, "search assign %d @ %d", lit, lit_level);
 #endif
 
+  /* Removed for lincs
   if (watching ()) {
     const Watches & ws = watches (-lit);
     if (!ws.empty ()) {
@@ -89,6 +90,7 @@ inline void Internal::search_assign (int lit, Clause * reason) {
       __builtin_prefetch (&w, 0, 1);
     }
   }
+  */  // Removed for lincs
 }
 
 /*------------------------------------------------------------------------*/

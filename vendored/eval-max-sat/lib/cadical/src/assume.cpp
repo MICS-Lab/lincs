@@ -174,18 +174,22 @@ void Internal::failing () {
     //
     if (!unsat_constraint) {
       external->check_learned_clause ();
+      /* Removed for lincs
       if (proof) {
         proof->add_derived_clause(clause);
         proof->delete_clause(clause);
       }
+      */  // Removed for lincs
     } else {
       for (auto lit : constraint) {
         clause.push_back(-lit);
         external->check_learned_clause ();
+        /* Removed for lincs
         if (proof) {
           proof->add_derived_clause(clause);
           proof->delete_clause(clause);
         }
+        */  // Removed for lincs
         clause.pop_back();
       }
     }

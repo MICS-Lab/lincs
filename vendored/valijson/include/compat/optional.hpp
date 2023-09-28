@@ -17,7 +17,7 @@
 # include <functional>
 # include <string>
 # include <stdexcept>
-# include <valijson/exceptions.hpp>
+# include "../exceptions.hpp"
 
 # define TR2_OPTIONAL_REQUIRES(...) typename enable_if<__VA_ARGS__::value, bool>::type = false
 

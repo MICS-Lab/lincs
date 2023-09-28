@@ -9,6 +9,6 @@ namespace opt = std;
 #    endif
 #  endif
 #else
-#  include <compat/optional.hpp>
+#  include "../compat/optional.hpp"
 namespace opt = std::experimental;
 #endif

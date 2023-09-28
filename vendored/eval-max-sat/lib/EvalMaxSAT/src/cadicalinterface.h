@@ -5,8 +5,10 @@
 
 #include "cadical/cadical.hpp"
 
+/* Removed for lincs
 #include "MaLib/coutUtil.h"
 #include "MaLib/Chrono.h"
+*/  // Removed for lincs
 
 #include <thread>
 #include <future>

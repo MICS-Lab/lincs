@@ -25,7 +25,9 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "../mtl/Heap.h"
 #include "../mtl/Alg.h"
 #include "../mtl/IntMap.h"
+/* Removed for lincs
 #include "../utils/Options.h"
+*/  // Removed for lincs
 #include "SolverTypes.h"
 
 
@@ -75,6 +77,7 @@ public:
     TrailIterator  trailBegin()   const;
     TrailIterator  trailEnd  ()   const;
 
+    /* Removed for lincs
     void    toDimacs     (FILE* f, const vec<Lit>& assumps);            // Write CNF to file in DIMACS-format.
     void    toDimacs     (const char *file, const vec<Lit>& assumps);
     void    toDimacs     (FILE* f, Clause& c, vec<Var>& map, Var& max);
@@ -84,6 +87,7 @@ public:
     void    toDimacs     (const char* file, Lit p);
     void    toDimacs     (const char* file, Lit p, Lit q);
     void    toDimacs     (const char* file, Lit p, Lit q, Lit r);
+    */  // Removed for lincs
     
     // Variable mode:
     // 
@@ -101,7 +105,9 @@ public:
     int     nLearnts   ()      const;       // The current number of learnt clauses.
     int     nVars      ()      const;       // The current number of variables.
     int     nFreeVars  ()      const;
+    /* Removed for lincs
     void    printStats ()      const;       // Print some current statistics to standard output.
+    */  // Removed for lincs
 
     // Resource contraints:
     //
@@ -393,10 +399,12 @@ inline TrailIterator  Solver::trailBegin  () const { return TrailIterator(&trail
 inline TrailIterator  Solver::trailEnd    () const { 
     return TrailIterator(&trail[decisionLevel() == 0 ? trail.size() : trail_lim[0]]); }
 
+/* Removed for lincs
 inline void     Solver::toDimacs     (const char* file){ vec<Lit> as; toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p){ vec<Lit> as; as.push(p); toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q){ vec<Lit> as; as.push(p); as.push(q); toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r){ vec<Lit> as; as.push(p); as.push(q); as.push(r); toDimacs(file, as); }
+*/  // Removed for lincs
 
 
 //=================================================================================================

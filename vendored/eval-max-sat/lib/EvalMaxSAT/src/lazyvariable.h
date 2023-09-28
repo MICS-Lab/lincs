@@ -7,7 +7,9 @@
 #include <cassert>
 
 #include "virtualcard.h"
+/* Removed for lincs
 #include "MaLib/coutUtil.h"
+*/  // Removed for lincs
 
 class VirtualSAT;
 

@@ -51,6 +51,9 @@ def customize_compiler_for_nvcc(self):
             self.compiler_so = default_compiler_so
 
         self._compile = _compile
+    elif self.compiler_type == "msvc":
+        pass
+        # @todo(Project management, SOON) Support CUDA under Windows
     else:
         assert False, f"Unsupported compiler type: {self.compiler_type}"
 
@@ -121,6 +124,21 @@ def make_liblincs_extension():
         if os.environ.get("LINCS_DEV_COVERAGE", "false") == "true":
             extra_compile_args["c++"] += ["--coverage", "-O0"]
             extra_link_args += ["--coverage"]
+    elif sys.platform == "win32":
+        define_macros += [
+            ("__WIN32", None),  # For Cadical inside EvalMaxSat
+            ("_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS", None),  # Silence a few warnings for OR-Tools
+        ]
+        extra_compile_args = ["/std:c++17", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]
+        lincs_dependencies = os.environ.get("LINCS_DEV_DEPENDENCIES", os.path.join("c:", "lincs-deps"))
+        include_dirs += [os.path.join(lincs_dependencies, "include")]
+        library_dirs += [os.path.join(lincs_dependencies, "lib")]
+        vc_version = os.environ.get("LINCS_DEV_VC_VERSION", "143")
+        libraries += [
+            f"boost_python{sys.version_info.major}{sys.version_info.minor}-vc{vc_version}-mt-x64-1_82",
+            "ortools",
+            f"python{sys.version_info.major}{sys.version_info.minor}",
+        ]
     elif sys.platform == "darwin":
         extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-Xclang", "-fopenmp"]
         extra_compile_args["vendored-c++"] = ["-std=c++17", "-Werror=switch", "-w", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]

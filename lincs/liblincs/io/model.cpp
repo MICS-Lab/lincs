@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "../chrones.hpp"
+#include "../unreachable.hpp"
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
 #include "validation.hpp"
@@ -169,7 +170,7 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
     case SufficientCoalitions::Kind::roots:
       return SufficientCoalitions(SufficientCoalitions::roots, problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
   }
-  __builtin_unreachable();
+  unreachable();
 }
 
 Model Model::load(const Problem& problem, std::istream& is) {

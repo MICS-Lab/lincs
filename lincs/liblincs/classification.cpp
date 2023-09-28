@@ -6,6 +6,7 @@
 #include <cassert>
 
 #include "chrones.hpp"
+#include "unreachable.hpp"
 #include "vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
@@ -45,7 +46,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       return false;
     }
   }
-  __builtin_unreachable();
+  unreachable();
 }
 
 ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
