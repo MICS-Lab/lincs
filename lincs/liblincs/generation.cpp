@@ -399,12 +399,13 @@ TEST_CASE("Generate balanced classified alternatives - many seeds") {
   // Assert that we can generate a balanced learning set for all generated models
 
   const unsigned alternatives_seed = 42;  // If we succeed with this arbitrary seed, we're confident we'll succeed with any seed
+  const unsigned max_model_seed = skip_long ? 10 : 100;
 
   // (dynamic OpenMP scheduling because iteration durations vary a lot)
   #pragma omp parallel for collapse(3) schedule(dynamic, 1)
-  for (unsigned criteria_count = 1; criteria_count != 7; ++criteria_count) {
-    for (unsigned categories_count = 2; categories_count != 7; ++categories_count) {
-      for (unsigned model_seed = 0; model_seed != (skip_long ? 10 : 100); ++model_seed) {
+  for (int criteria_count = 1; criteria_count < 7; ++criteria_count) {
+    for (int categories_count = 2; categories_count < 7; ++categories_count) {
+      for (int model_seed = 0; model_seed < max_model_seed; ++model_seed) {
         Problem problem = generate_classification_problem(criteria_count, categories_count, 42);
 
         CAPTURE(criteria_count);
