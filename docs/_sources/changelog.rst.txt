@@ -4,8 +4,8 @@
 Changelog
 =========
 
-Version 0.8.5
-=============
+Versions 0.8.5 to 0.8.6
+=======================
 
 - Distribute binary wheels for Windows!
 
