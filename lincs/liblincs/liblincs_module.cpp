@@ -1,5 +1,10 @@
 // Copyright 2023 Vincent Jacques
 
+#include <Python.h>
+// https://bugs.python.org/issue36020#msg371558
+#undef snprintf
+#undef vsnprintf
+
 #include <iostream>
 
 #include <boost/python.hpp>
