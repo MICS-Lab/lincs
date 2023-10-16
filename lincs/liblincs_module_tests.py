@@ -247,6 +247,8 @@ class LearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
+        self.assertEqual(learning_data.iteration_index, 7)
+
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
