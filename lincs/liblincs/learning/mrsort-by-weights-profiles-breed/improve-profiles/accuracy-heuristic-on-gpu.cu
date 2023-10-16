@@ -391,8 +391,17 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     std::uniform_real_distribution<float>(0, 1)(host_learning_data.urbgs[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
-  // @todo(Project management, soon) Double-check and document why we don't need [model_index] here
-  copy(gpu_learning_data.profiles[criterion_index][profile_index], host_learning_data.profiles[criterion_index][profile_index]);
+  // @todo(Performance, later) Can we group this copying somehow?
+  // Currently we copy just one float from device memory to host memory
+  // (because just one float is potentialy modified by 'apply_best_move__kernel',
+  // and we need it back on the device for the next iteration)
+
+  // Lov-e-CUDA doesn't provide a way to copy scalars, so we're back to the basics, using cudaMemcpy directly and doing pointer arithmetic.
+  check_cuda_error(cudaMemcpy(
+    host_learning_data.profiles[criterion_index][profile_index].data() + model_index,
+    gpu_learning_data.profiles[criterion_index][profile_index].data() + model_index,
+    1 * sizeof(float),
+    cudaMemcpyDeviceToHost));
 }
 
 }  // namespace lincs
