@@ -7,6 +7,7 @@ from liblincs import SufficientCoalitions, Model
 from liblincs import Alternative, Alternatives
 
 # Generation (incl. misclassification)
+from liblincs import BalancedAlternativesGenerationException
 from liblincs import generate_classification_problem, generate_mrsort_classification_model, generate_classified_alternatives, misclassify_alternatives
 
 # Classification

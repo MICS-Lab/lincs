@@ -376,30 +376,36 @@ def classified_alternatives(
     misclassified_count,
     random_seed,
 ):
-    # @todo(Project management, soon) Add an integration test capturing what happens when balanced generation fails
     command_line = ["lincs", "generate", "classified-alternatives", get_input_file_name(problem), get_input_file_name(model), alternatives_count, "--random-seed", random_seed]
     if max_imbalance is not None:
         command_line += ["--max-imbalance", max_imbalance]
     command_line += ["--misclassified-count", misclassified_count]
-    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_classified_alternatives, flush=True)
+    command_line = ' '.join(str(c) for c in command_line)
 
     problem = lincs.Problem.load(problem)
     model = lincs.Model.load(problem, model)
-    alternatives = lincs.generate_classified_alternatives(
-        problem,
-        model,
-        alternatives_count,
-        random_seed=random_seed,
-        max_imbalance=max_imbalance,
-    )
-    if misclassified_count:
-        lincs.misclassify_alternatives(
+    try:
+        alternatives = lincs.generate_classified_alternatives(
             problem,
-            alternatives,
-            misclassified_count,
-            random_seed=random_seed + 27,  # Arbitrary, does not hurt
+            model,
+            alternatives_count,
+            random_seed=random_seed,
+            max_imbalance=max_imbalance,
         )
-    alternatives.dump(problem, output_classified_alternatives)
+    except lincs.BalancedAlternativesGenerationException:
+        print("ERROR: lincs is unable to generate a balanced set of classified alternatives. Try to increase the allowed imbalance, or use a more lenient model?", file=sys.stderr)
+        print(f"Reproduction command: {command_line}", file=sys.stderr)
+        exit(1)
+    else:
+        if misclassified_count:
+            lincs.misclassify_alternatives(
+                problem,
+                alternatives,
+                misclassified_count,
+                random_seed=random_seed + 27,  # Arbitrary, does not hurt
+            )
+        print(f"# Reproduction command: {command_line}", file=output_classified_alternatives, flush=True)
+        alternatives.dump(problem, output_classified_alternatives)
 
 
 @main.group(

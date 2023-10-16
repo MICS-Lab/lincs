@@ -447,6 +447,29 @@ load( (Problem)problem, (object)in) -> Alternatives :
     C++ signature :
         lincs::Alternatives load(lincs::Problem,boost::python::api::object {lvalue})
 
+lincs.BalancedAlternativesGenerationException: type
+---------------------------------------------------
+
+lincs.BalancedAlternativesGenerationException.__init__: wrapper_descriptor
+--------------------------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
+lincs.BalancedAlternativesGenerationException.args: getset_descriptor
+---------------------------------------------------------------------
+
+lincs.BalancedAlternativesGenerationException.args.__init__: method-wrapper
+---------------------------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
+lincs.BalancedAlternativesGenerationException.with_traceback: method_descriptor
+-------------------------------------------------------------------------------
+Exception.with_traceback(tb) --
+    set self.__traceback__ to tb and return self.
+
+lincs.BalancedAlternativesGenerationException.with_traceback.__init__: method-wrapper
+-------------------------------------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
 lincs.Category: class
 ---------------------
 

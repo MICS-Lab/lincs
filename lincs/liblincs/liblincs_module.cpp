@@ -314,6 +314,16 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate an MR-Sort model for the provided `problem`."
   );
 
+  PyObject* BalancedAlternativesGenerationException_wrapper = PyErr_NewException("liblincs.BalancedAlternativesGenerationException", PyExc_RuntimeError, NULL);
+
+  bp::register_exception_translator<lincs::BalancedAlternativesGenerationException>(
+    [BalancedAlternativesGenerationException_wrapper](const lincs::BalancedAlternativesGenerationException& e) {
+      PyErr_SetString(BalancedAlternativesGenerationException_wrapper, e.what());
+    }
+  );
+
+  bp::scope().attr("BalancedAlternativesGenerationException") = bp::handle<>(bp::borrowed(BalancedAlternativesGenerationException_wrapper));
+
   bp::class_<lincs::Alternative>(
     "Alternative",
     bp::init<std::string, std::vector<float>, std::optional<unsigned>>(
