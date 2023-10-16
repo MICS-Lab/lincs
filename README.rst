@@ -11,7 +11,7 @@ We plan to make it usable as a C++ library and a Python (3.7+) package as well. 
 
 *lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files `COPYING <COPYING>`_ and `COPYING.LESSER <COPYING.LESSER>`_.
 
-@todo(Project management, when we publish a paper) Add a note asking academics to kindly cite our work.
+@todo(Project management, when we publish a paper, later) Add a note asking academics to kindly cite our work.
 
 *lincs* is available for install from the `Python package index <https://pypi.org/project/lincs/>`_.
 Its `documentation <http://mics-lab.github.io/lincs/>`_
@@ -19,6 +19,8 @@ and its `source code <https://github.com/mics-lab/lincs/>`_ are on GitHub.
 
 Questions? Remarks? Bugs? Want to contribute? Open `an issue <https://github.com/MICS-Lab/lincs/issues>`_ or `a discussion <https://github.com/MICS-Lab/lincs/discussions>`_!
 
+
+@todo(Doc, soon) Add array summerizing the support of each OS
 
 Contributors and previous work
 ==============================
@@ -57,6 +59,8 @@ Learning algorithms
 -------------------
 
 *lincs* provides new implementations of the following algorithms:
+
+@todo(Doc, soon) Change this section into an array with each alogorithm's caracteristics
 
 Learning Uc-NCS models with a SAT-based approaches
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -97,9 +101,6 @@ Provide a base for developing new MCDA algorithms
 *lincs* is designed to be easy to extend with new algorithms of even replace parts of existing algorithms.
 See our `contributor guide <https://mics-lab.github.io/lincs/contributor-guide.html>`_ for more details.
 
-*lincs* will also provide a benchmark framework to compare algorithms (@todo(Feature, later)).
-This should make it easier to understand the relative strengths and weaknesses of each algorithm.
-
 
 Get started
 ===========
@@ -119,6 +120,8 @@ Versioning
 
 Starting with version 1.0.0, *lincs* tries to apply `semantic versioning <https://semver.org/>`_ at a *code* level:
 upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.
+
+@todo(Doc, v1) Be explicit about the semver contract
 
 
 Develop *lincs* itself

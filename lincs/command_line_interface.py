@@ -237,7 +237,7 @@ def classification_problem(
     if allow_decreasing_criteria:
         command_line += ["--allow-decreasing-criteria"]
     print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_problem, flush=True)
-    # @todo(Feature, later) Add a line saying which version of lincs was used
+    # @todo(Feature, soon) Add a line saying which version of lincs was used. Same in all commands.
 
     problem = lincs.generate_classification_problem(
         criteria_count,
@@ -376,6 +376,7 @@ def classified_alternatives(
     misclassified_count,
     random_seed,
 ):
+    # @todo(Project management, soon) Add an integration test capturing what happens when balanced generation fails
     command_line = ["lincs", "generate", "classified-alternatives", get_input_file_name(problem), get_input_file_name(model), alternatives_count, "--random-seed", random_seed]
     if max_imbalance is not None:
         command_line += ["--max-imbalance", max_imbalance]

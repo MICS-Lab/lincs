@@ -121,7 +121,7 @@ jobs:
       - name: Install Python packages
         run: pip install build delvewheel twine
       # The 'Jimver/cuda-toolkit' action seems to work, but takes 20 minutes
-      # @todo(Project management, soon) Find a quicker way to install CUDA on Windows
+      # @todo(Project management, later) Find a quicker way to install CUDA on Windows
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
@@ -320,7 +320,9 @@ jobs:
           verify-metadata: false
           verbose: true
 
-  # @todo(Project Management, soon) Restore (requires a token with appropriate permissions on the org-owned repo)
+  # @todo(Project Management, later) Purge previous artifacts to avoid using storage on MISCLab's account
+  # This requires a token with appropriate permissions on the org-owned repo.
+  # In the mean time, do it manualy. Ideally after each release.
   # purge:
   #   runs-on: ubuntu-latest
   #   needs:
@@ -330,13 +332,3 @@ jobs:
   #       with:
   #         token: ${{ secrets.TOKEN_FOR_PURGE_ARTIFACTS_ACTION }}
   #         expire-in: 0  # Purge all artifacts from previous runs, keep the new ones from this run
-
-  # @todo(Project Management, soon) Publish a Docker image
-  # With a Dockerfile like:
-  #   FROM python:3.11-slim
-  #   ARG LINCS_VERSION
-  #   RUN pip3 install --only-binary lincs lincs==$LINCS_VERSION
-  # docker build docker --build-arg LINCS_VERSION=$new_version --tag jacquev6/lincs:$new_version
-  # docker tag jacquev6/lincs:$new_version jacquev6/lincs:latest
-  # docker push jacquev6/lincs:$new_version
-  # docker push jacquev6/lincs:latest

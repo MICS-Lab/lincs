@@ -13,7 +13,7 @@
 
 namespace lincs {
 
-// @todo(Project management, soon-ish) Factorize common parts of all SAT approaches
+// @todo(Project management, later) Factorize common parts of all SAT approaches
 
 template<typename V>
 std::vector<V> implies(V a, V b) {

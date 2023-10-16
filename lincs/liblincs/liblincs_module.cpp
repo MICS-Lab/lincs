@@ -267,7 +267,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );
 
-  // @todo(Project management, soon-ish) Double-check why we need both an enum 'Kind' and two tag classes 'Weights' and 'Roots'; simplify or document
+  // @todo(Project management, later) Double-check why we need both an enum 'Kind' and two tag classes 'Weights' and 'Roots'; simplify or document
   bp::class_<lincs::SufficientCoalitions::Weights>("Weights", bp::no_init);
   bp::class_<lincs::SufficientCoalitions::Roots>("Roots", bp::no_init);
   auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
