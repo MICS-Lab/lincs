@@ -12,7 +12,7 @@ do
     --forbid-gpu)
       forbid_gpu=true;;
     *)
-      cycle_arguments+=($1);;
+      cycle_arguments+=("$1");;
   esac
   shift
 done

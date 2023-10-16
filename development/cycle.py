@@ -48,9 +48,13 @@ import click
 )
 @click.option(
     "--forbid-chrones", is_flag=True,
-    help=textwrap.dedent("Build lincs without Chrones."),
+    help="Build lincs without Chrones.",
 )
-def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_unit, forbid_gpu, forbid_chrones):
+@click.option(
+    "--doctest-option", multiple=True,
+    help="Pass an option verbatim to doctest. Can be used multiple times.",
+)
+def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_unit, forbid_gpu, forbid_chrones, doctest_option):
     if forbid_gpu:
         os.environ["LINCS_DEV_FORBID_GPU"] = "true"
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
@@ -94,7 +98,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_
         print()
 
     print_title("Running C++ unit tests")
-    run_cpp_tests(python_version=python_versions[0])
+    run_cpp_tests(python_version=python_versions[0], doctest_options=doctest_option)
     print()
 
     for python_version in python_versions:
@@ -153,7 +157,7 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, python_version,):
+def run_cpp_tests(*, python_version, doctest_options):
     suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
@@ -165,11 +169,11 @@ def run_cpp_tests(*, python_version,):
     )
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
-    subprocess.run(
-        ["/tmp/lincs-tests"] + (["-d"] if os.environ.get("LINCS_DEV_SKIP_LONG", "false") == "false" else []),
-        check=True,
-        env=env,
-    )
+    command = ["/tmp/lincs-tests"]
+    if os.environ.get("LINCS_DEV_SKIP_LONG", "false") == "false":
+        command += ["-d"]
+    command += list(doctest_options)
+    subprocess.run(command, check=True, env=env)
 
 
 def run_python_tests(*, python_version):
