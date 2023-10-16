@@ -15,13 +15,13 @@ import sys
 project = "lincs"
 copyright = "Copyright 2023 Vincent Jacques"
 author = "Vincent Jacques"
-with open("../setup.py") as f:
+with open("../lincs/__init__.py") as f:
     for line in f.readlines():
-        if line.startswith("version = "):
-            release = line[11:-2]
+        if line.startswith("__version__ = "):
+            release = line[15:-2]
             break
     else:
-        assert False, "Release not found in setup.py"
+        assert False, "Release not found in lincs/__init__.py"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

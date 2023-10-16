@@ -1,2 +1,2 @@
 ERROR: lincs is unable to generate a balanced set of classified alternatives. Try to increase the allowed imbalance, or use a more lenient model?
-Reproduction command: lincs generate classified-alternatives problem.yml model.yml 100 --random-seed 42 --max-imbalance 0.0 --misclassified-count 0
+Reproduction command (with lincs version LINCS_VERSION): lincs generate classified-alternatives problem.yml model.yml 100 --random-seed 42 --max-imbalance 0.0 --misclassified-count 0

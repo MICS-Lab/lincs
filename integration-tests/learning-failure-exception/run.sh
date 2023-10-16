@@ -18,7 +18,7 @@ then
   false
 fi
 
-diff expected-stderr.txt stderr.txt
+diff <(sed "s/LINCS_VERSION/$(lincs --version)/" expected-stderr.txt) stderr.txt
 
 if [ -e learned-model.yml ]
 then

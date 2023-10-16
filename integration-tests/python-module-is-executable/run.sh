@@ -12,5 +12,5 @@ do
 
   python$python_version -m lincs generate classification-problem 4 3 --random-seed 208978669 >actual-$python_version.yml
 
-  diff expected.yml actual-$python_version.yml
+  diff <(sed "s/LINCS_VERSION/$(lincs --version)/" expected.yml) actual-$python_version.yml
 done

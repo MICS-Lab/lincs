@@ -10,7 +10,13 @@ import subprocess
 import sys
 
 
-version = "0.8.8-dev"
+with open("lincs/__init__.py") as f:
+    for line in f.readlines():
+        if line.startswith("__version__ = "):
+            version = line[15:-2]
+            break
+    else:
+        assert False, "Version not found in lincs/__init__.py"
 
 
 with open("README.rst") as f:

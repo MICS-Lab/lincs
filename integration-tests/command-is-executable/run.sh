@@ -8,4 +8,4 @@ trap 'echo "Error on line $LINENO"' ERR
 
 lincs generate classification-problem 4 3 --random-seed 135778591 >actual.yml
 
-diff expected.yml actual.yml
+diff <(sed "s/LINCS_VERSION/$(lincs --version)/" expected.yml) actual.yml

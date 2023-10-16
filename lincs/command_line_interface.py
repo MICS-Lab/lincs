@@ -4,7 +4,6 @@ from __future__ import annotations
 import math
 import os
 import random
-import subprocess
 import sys
 
 import click
@@ -84,6 +83,7 @@ def options_tree(name, kwds, dependents):
         lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for training and using MCDA models.
     """,
 )
+@click.version_option(version=lincs.__version__, message="%(version)s")
 def main():
     pass
 
@@ -236,8 +236,7 @@ def classification_problem(
         command_line += ["--denormalized-min-max"]
     if allow_decreasing_criteria:
         command_line += ["--allow-decreasing-criteria"]
-    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_problem, flush=True)
-    # @todo(Feature, soon) Add a line saying which version of lincs was used. Same in all commands.
+    print(f"# {make_reproduction_command(command_line)}", file=output_problem, flush=True)
 
     problem = lincs.generate_classification_problem(
         criteria_count,
@@ -305,7 +304,7 @@ def classification_model(
     command_line = ["lincs", "generate", "classification-model", get_input_file_name(problem), "--random-seed", random_seed, "--model-type", model_type]
     if mrsort__fixed_weights_sum is not None:
         command_line += ["--mrsort.fixed-weights-sum", mrsort__fixed_weights_sum]
-    print(f"# Reproduction command: {' '.join(str(c) for c in command_line)}", file=output_model, flush=True)
+    print(f"# {make_reproduction_command(command_line)}", file=output_model, flush=True)
 
     problem = lincs.Problem.load(problem)
     assert model_type == "mrsort"
@@ -380,7 +379,6 @@ def classified_alternatives(
     if max_imbalance is not None:
         command_line += ["--max-imbalance", max_imbalance]
     command_line += ["--misclassified-count", misclassified_count]
-    command_line = ' '.join(str(c) for c in command_line)
 
     problem = lincs.Problem.load(problem)
     model = lincs.Model.load(problem, model)
@@ -394,7 +392,7 @@ def classified_alternatives(
         )
     except lincs.BalancedAlternativesGenerationException:
         print("ERROR: lincs is unable to generate a balanced set of classified alternatives. Try to increase the allowed imbalance, or use a more lenient model?", file=sys.stderr)
-        print(f"Reproduction command: {command_line}", file=sys.stderr)
+        print(make_reproduction_command(command_line), file=sys.stderr)
         exit(1)
     else:
         if misclassified_count:
@@ -404,7 +402,7 @@ def classified_alternatives(
                 misclassified_count,
                 random_seed=random_seed + 27,  # Arbitrary, does not hurt
             )
-        print(f"# Reproduction command: {command_line}", file=output_classified_alternatives, flush=True)
+        print(f"# {make_reproduction_command(command_line)}", file=output_classified_alternatives, flush=True)
         alternatives.dump(problem, output_classified_alternatives)
 
 
@@ -808,16 +806,14 @@ def classification_model(
         elif ucncs__approach == "max-sat-by-separation":
             learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
 
-    command_line = ' '.join(str(c) for c in command_line)
-
     try:
         model = learning.perform()
     except lincs.LearningFailureException:
         print("ERROR: lincs is unable to learn from this learning set using this algorithm and these parameters.", file=sys.stderr)
-        print(f"Reproduction command: {command_line}", file=sys.stderr)
+        print(make_reproduction_command(command_line), file=sys.stderr)
         exit(1)
     else:
-        print(f"# Reproduction command: {command_line}", file=output_model, flush=True)
+        print(f"# {make_reproduction_command(command_line)}", file=output_model, flush=True)
         if model_type == "mrsort" and mrsort__strategy == "weights-profiles-breed":
             for termination_strategy in termination_strategies:
                 if termination_strategy.terminate():
@@ -912,3 +908,7 @@ def classification_accuracy(
     testing_set = lincs.Alternatives.load(problem, testing_set)
     result = lincs.classify_alternatives(problem, model, testing_set)
     print(f"{result.unchanged}/{result.changed + result.unchanged}")
+
+
+def make_reproduction_command(command):
+    return f"Reproduction command (with lincs version {lincs.__version__}): {' '.join(str(c) for c in command)}"

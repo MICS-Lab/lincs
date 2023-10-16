@@ -1,6 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
+import glob
 import subprocess
 
 import click
@@ -36,17 +37,10 @@ def check_cleanliness():
 
 
 def bump_version(level):
-    with open("setup.py") as f:
-        setup_lines = f.readlines()
-    for line in setup_lines:
-        if line.startswith("version = "):
-            dev_version = semver.VersionInfo.parse(line[11:-2])
+    dev_version = read_version()
 
     assert dev_version.prerelease == "dev"
     assert dev_version.build is None
-
-    if level == "dry-run":
-        return str(dev_version).replace("-dev", ".dev0")
 
     print("Development version:", dev_version)
     if level == "patch":
@@ -59,12 +53,7 @@ def bump_version(level):
         assert False
     print("New version:", new_version)
 
-    with open("setup.py", "w") as f:
-        for line in setup_lines:
-            if line.startswith("version = "):
-                f.write(f"version = \"{new_version}\"\n")
-            else:
-                f.write(line)
+    write_version(new_version)
 
     return new_version
 
@@ -112,28 +101,49 @@ def update_changelog(new_version):
 
 def publish(new_version):
     print_title("Publishing to GitHub")
-    subprocess.run(["git", "add", "setup.py", "doc-sources/changelog.rst", "docs"], check=True)
+    subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", f"Publish version {new_version}"], stdout=subprocess.DEVNULL, check=True)
     subprocess.run(["git", "tag", f"v{new_version}"], check=True)
     subprocess.run(["git", "push", f"--tags"], check=True)
 
 
 def prepare_next_version(new_version):
-    with open("setup.py") as f:
-        setup_lines = f.readlines()
-
     next_version = new_version.bump_patch().replace(prerelease="dev")
 
-    with open("setup.py", "w") as f:
-        for line in setup_lines:
-            if line.startswith("version = "):
-                f.write(f"version = \"{next_version}\"\n")
+    write_version(new_version, next_version)
+
+    subprocess.run(["git", "add", "."], check=True)
+    subprocess.run(["git", "commit", "-m", f"Start working on next version"], stdout=subprocess.DEVNULL, check=True)
+    subprocess.run(["git", "push"], check=True)
+
+
+def read_version():
+    with open("lincs/__init__.py") as f:
+        for line in f.readlines():
+            if line.startswith("__version__ = "):
+                return semver.VersionInfo.parse(line[15:-2])
+
+
+def write_version(old_version, new_version):
+    old_version = str(old_version)
+    new_version = str(new_version)
+
+    with open("lincs/__init__.py") as f:
+        lines = f.readlines()
+    with open("lincs/__init__.py", "w") as f:
+        for line in lines:
+            if line.startswith("__version__ = "):
+                f.write(f"__version__ = \"{new_version}\"\n")
             else:
                 f.write(line)
 
-    subprocess.run(["git", "add", "setup.py"], check=True)
-    subprocess.run(["git", "commit", "-m", f"Start working on next version"], stdout=subprocess.DEVNULL, check=True)
-    subprocess.run(["git", "push"], check=True)
+    for file_name in glob.glob("doc-sources/*.rst"):
+        with open(file_name) as f:
+            lines = f.readlines()
+        lines = [line.replace(old_version, new_version) for line in lines]
+        with open(file_name, "w") as f:
+            for line in lines:
+                f.write(line)
 
 
 if __name__ == "__main__":

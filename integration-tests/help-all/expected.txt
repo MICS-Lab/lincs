@@ -7,7 +7,8 @@ Usage: lincs [OPTIONS] COMMAND [ARGS]...
   training and using MCDA models.
 
 Options:
-  --help  Show this message and exit.
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 Commands:
   classification-accuracy  Compute a classification accuracy.

@@ -1,4 +1,4 @@
-# Reproduction command: lincs generate classification-model - --random-seed 45 --model-type mrsort
+# Reproduction command (with lincs version LINCS_VERSION): lincs generate classification-model - --random-seed 45 --model-type mrsort
 kind: ncs-classification-model
 format_version: 1
 boundaries:
