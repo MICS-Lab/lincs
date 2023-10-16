@@ -20,7 +20,7 @@ and its `source code <https://github.com/mics-lab/lincs/>`_ are on GitHub.
 Questions? Remarks? Bugs? Want to contribute? Open `an issue <https://github.com/MICS-Lab/lincs/issues>`_ or `a discussion <https://github.com/MICS-Lab/lincs/discussions>`_!
 
 
-@todo(Doc, soon) Add array summerizing the support of each OS
+@todo(Documentation, soon) Add array summerizing the support of each OS
 
 Contributors and previous work
 ==============================
@@ -60,7 +60,7 @@ Learning algorithms
 
 *lincs* provides new implementations of the following algorithms:
 
-@todo(Doc, soon) Change this section into an array with each alogorithm's caracteristics
+@todo(Documentation, soon) Change this section into an array with each alogorithm's caracteristics
 
 Learning Uc-NCS models with a SAT-based approaches
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,7 +121,7 @@ Versioning
 Starting with version 1.0.0, *lincs* tries to apply `semantic versioning <https://semver.org/>`_ at a *code* level:
 upgrading patch and minor releases should not require changes in client code but may require you to recompile and link it.
 
-@todo(Doc, v1) Be explicit about the semver contract
+@todo(Documentation, v1) Be explicit about the semver contract
 
 
 Develop *lincs* itself

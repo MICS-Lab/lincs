@@ -105,7 +105,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
     }
   }
 
-  // @todo(Feature, soon) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
+  // @todo(Project management, later) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
   if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
     learning_data.profiles[criterion_index][profile_index][model_index] = best_destination;
   }

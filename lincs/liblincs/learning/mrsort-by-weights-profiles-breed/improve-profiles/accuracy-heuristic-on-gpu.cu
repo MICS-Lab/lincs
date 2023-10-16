@@ -391,7 +391,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     std::uniform_real_distribution<float>(0, 1)(host_learning_data.urbgs[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
-  // @todo(Feature, soon) Double-check and document why we don't need [model_index] here
+  // @todo(Project management, soon) Double-check and document why we don't need [model_index] here
   copy(gpu_learning_data.profiles[criterion_index][profile_index], host_learning_data.profiles[criterion_index][profile_index]);
 }
 
