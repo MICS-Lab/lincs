@@ -36,9 +36,9 @@ struct SufficientCoalitions {
   SufficientCoalitions(Roots, const unsigned criteria_count, const std::vector<std::vector<unsigned>>& upset_roots_) : kind(Kind::roots), upset_roots() {
     upset_roots.reserve(upset_roots_.size());
     for (const auto& root: upset_roots_) {
-      upset_roots.emplace_back(criteria_count);
+      boost::dynamic_bitset<>& upset_root = upset_roots.emplace_back(criteria_count);
       for (unsigned criterion_index: root) {
-        upset_roots.back()[criterion_index] = true;
+        upset_root[criterion_index] = true;
       }
     }
   }
@@ -47,6 +47,8 @@ struct SufficientCoalitions {
     kind(Kind::roots),
     upset_roots(upset_roots_)
   {}
+
+  std::vector<std::vector<unsigned>> get_upset_roots() const;
 
   bool operator==(const SufficientCoalitions& other) const {
     return kind == other.kind && criterion_weights == other.criterion_weights && upset_roots == other.upset_roots;

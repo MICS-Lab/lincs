@@ -88,41 +88,79 @@ lincs::Alternatives load_alternatives(const lincs::Problem& problem, bp::object&
   return lincs::Alternatives::load(problem, in_stream);
 }
 
-// @todo(Project management, soon) Thoroughly review all conversions between Python and C++ types.
-// - read Boost.Python doc in details and understand the contract
-// - homogenize converters (some were copy-pasted from SO answers and even ChatGPT)
-// - double-check if/when we need to increment reference counts on Python objects
-// https://stackoverflow.com/a/15940413/905845
-// https://misspent.wordpress.com/2009/09/27/how-to-write-boost-python-converters/
-struct iterable_converter {
-  template <typename Container>
-  iterable_converter& from_python() {
-    bp::converter::registry::push_back(
-      &iterable_converter::convertible,
-      &iterable_converter::construct<Container>,
-      bp::type_id<Container>());
-
-    return *this;
+template<typename T>
+struct std_vector_converter {
+  static void* convertible(PyObject* obj) {
+    if (PyObject_GetIter(obj)) {
+      return obj;
+    } else {
+      return nullptr;
+    }
   }
 
-  static void* convertible(PyObject* object) {
-    return PyObject_GetIter(object) ? object : NULL;
-  }
+  static void construct(PyObject* obj, bp::converter::rvalue_from_python_stage1_data* data) {
+    bp::handle<> handle(bp::borrowed(obj));
 
-  template <typename Container>
-  static void construct(
-    PyObject* object,
-    bp::converter::rvalue_from_python_stage1_data* data
-  ) {
-    bp::handle<> handle(bp::borrowed(object));
-
-    typedef bp::converter::rvalue_from_python_storage<Container> storage_type;
+    typedef bp::converter::rvalue_from_python_storage<std::vector<T>> storage_type;
     void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
 
-    typedef bp::stl_input_iterator<typename Container::value_type> iterator;
+    typedef bp::stl_input_iterator<typename std::vector<T>::value_type> iterator;
 
-    new (storage) Container(iterator(bp::object(handle)), iterator());
+    new (storage) std::vector<T>(iterator(bp::object(handle)), iterator());
     data->convertible = storage;
+  }
+
+  static void enroll() {
+    // No need for 'bp::to_python_converter': already implemented by Boost.Python
+    bp::converter::registry::push_back(
+      &std_vector_converter<T>::convertible,
+      &std_vector_converter<T>::construct,
+      bp::type_id<std::vector<T>>()
+    );
+  }
+};
+
+template<typename T>
+struct std_vector_converter<std::vector<T>> {
+  static PyObject* convert(const std::vector<std::vector<T>>& vvv) {
+    bp::list result;
+    for (const std::vector<T>& vv : vvv) {
+      bp::list sublist;
+      for (const T& v : vv) {
+        sublist.append(v);
+      }
+      result.append(sublist);
+    }
+    return bp::incref(result.ptr());
+  }
+
+  static void* convertible(PyObject* obj) {
+    if (PyObject_GetIter(obj)) {
+      return obj;
+    } else {
+      return nullptr;
+    }
+  }
+
+  static void construct(PyObject* obj, bp::converter::rvalue_from_python_stage1_data* data) {
+    bp::handle<> handle(bp::borrowed(obj));
+
+    typedef bp::converter::rvalue_from_python_storage<std::vector<std::vector<T>>> storage_type;
+    void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
+
+    typedef bp::stl_input_iterator<typename std::vector<std::vector<T>>::value_type> iterator;
+
+    new (storage) std::vector<std::vector<T>>(iterator(bp::object(handle)), iterator());
+    data->convertible = storage;
+  }
+
+  static void enroll() {
+    bp::to_python_converter<std::vector<std::vector<T>>, std_vector_converter<std::vector<T>>>();
+    bp::converter::registry::push_back(
+      &std_vector_converter<std::vector<T>>::convertible,
+      &std_vector_converter<std::vector<T>>::construct,
+      bp::type_id<std::vector<std::vector<T>>>()
+    );
   }
 };
 
@@ -196,18 +234,16 @@ auto auto_enum(const std::string& name) {
 }
 
 BOOST_PYTHON_MODULE(liblincs) {
-  iterable_converter()
-    .from_python<std::vector<float>>()
-    .from_python<std::vector<unsigned>>()
-    .from_python<std::vector<std::vector<unsigned>>>()
-    .from_python<std::vector<lincs::Category>>()
-    .from_python<std::vector<lincs::Criterion>>()
-    .from_python<std::vector<lincs::Model::Boundary>>()
-    .from_python<std::vector<lincs::SufficientCoalitions>>()
-    .from_python<std::vector<lincs::Alternative>>()
-    .from_python<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>()
-    .from_python<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>()
-  ;
+  std_vector_converter<float>::enroll();
+  std_vector_converter<unsigned>::enroll();
+  std_vector_converter<std::vector<unsigned>>::enroll();
+  std_vector_converter<lincs::Category>::enroll();
+  std_vector_converter<lincs::Criterion>::enroll();
+  std_vector_converter<lincs::Model::Boundary>::enroll();
+  std_vector_converter<lincs::SufficientCoalitions>::enroll();
+  std_vector_converter<lincs::Alternative>::enroll();
+  std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>::enroll();
+  std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>::enroll();
 
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();
@@ -275,6 +311,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def(bp::init<lincs::SufficientCoalitions::Roots, unsigned, std::vector<std::vector<unsigned>>>())
     .def_readwrite("kind", &lincs::SufficientCoalitions::kind)
     .def_readwrite("criterion_weights", &lincs::SufficientCoalitions::criterion_weights)
+    .add_property("upset_roots", &lincs::SufficientCoalitions::get_upset_roots)
   ;
   sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>("Kind");
   sufficient_coalitions_class.attr("weights") = lincs::SufficientCoalitions::weights;

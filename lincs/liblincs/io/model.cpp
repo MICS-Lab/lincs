@@ -101,6 +101,22 @@ JsonValidator validator(schema);
 
 }  // namespace
 
+std::vector<std::vector<unsigned>> SufficientCoalitions::get_upset_roots() const {
+  std::vector<std::vector<unsigned>> roots;
+
+  roots.reserve(upset_roots.size());
+  for (const auto& upset_root : upset_roots) {
+    std::vector<unsigned>& root = roots.emplace_back();
+    for (unsigned criterion_index = 0; criterion_index != upset_root.size(); ++criterion_index) {
+      if (upset_root[criterion_index]) {
+        root.emplace_back(criterion_index);
+      }
+    }
+  }
+
+  return roots;
+}
+
 void Model::dump(const Problem& problem, std::ostream& os) const {
   CHRONE();
 
@@ -134,19 +150,13 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
           break;
         case SufficientCoalitions::Kind::roots:
           out << YAML::Key << "upset_roots" << YAML::Value;
-          const auto upset_roots = boundary.sufficient_coalitions.upset_roots;
+          const std::vector<std::vector<unsigned>> upset_roots = boundary.sufficient_coalitions.get_upset_roots();
           if (upset_roots.empty()) {
             out << YAML::Flow;
           }
           out << YAML::BeginSeq;
-          for (const auto& root : upset_roots) {
-            out << YAML::Flow << YAML::BeginSeq;
-            for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
-              if (root[criterion_index]) {
-                out << criterion_index;
-              }
-            }
-            out << YAML::EndSeq;
+          for (const std::vector<unsigned>& upset_root : upset_roots) {
+            out << YAML::Flow << upset_root;
           }
           out << YAML::EndSeq;
           break;

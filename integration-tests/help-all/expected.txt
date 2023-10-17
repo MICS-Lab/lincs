@@ -1067,6 +1067,9 @@ Raises an exception
 This class cannot be instantiated from Python
 
 
+lincs.SufficientCoalitions.upset_roots: property
+------------------------------------------------
+
 lincs.SufficientCoalitions.weights: Weights
 -------------------------------------------
 

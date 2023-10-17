@@ -130,7 +130,7 @@ class ModelTestCase(unittest.TestCase):
             [
                 Model.Boundary(
                     [5., 5., 5],
-                    SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.7, 1])
+                    SufficientCoalitions(SufficientCoalitions.weights, [0.5, 0.25, 1])
                 ),
             ],
         )
@@ -138,7 +138,10 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.boundaries[0].profile), 3)
         self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.weights)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 3)
-        # @todo(Feature, when upset_roots are exposed, v1) self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 0)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.criterion_weights[0], 0.5)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.criterion_weights[1], 0.25)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.criterion_weights[2], 1)
+        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 0)
 
     def test_init_three_criteria_two_categories_roots_boundary(self):
         problem = Problem(
@@ -164,7 +167,12 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.boundaries[0].profile), 3)
         self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.roots)
         self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
-        # @todo(Feature, when upset_roots are exposed, v1) self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 2)
+        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 2)
+        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots[0]), 2)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[0][0], 0)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[0][1], 1)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[1][0], 0)
+        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[1][1], 2)
 
     def test_assign_model_attributes(self):
         problem = Problem([], [])
