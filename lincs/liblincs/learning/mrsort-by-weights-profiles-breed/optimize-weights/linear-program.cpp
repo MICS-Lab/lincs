@@ -63,13 +63,6 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
         const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
         const unsigned profile_rank = learning_data.profile_ranks[criterion_index][category_index - 1][model_index];
         const bool is_better = alternative_rank >= profile_rank;
-        #ifndef NDEBUG  // Check pre-processing
-        const float alternative_value = learning_data.sorted_values[criterion_index][alternative_rank];
-        assert(alternative_value == learning_data.learning_alternatives[criterion_index][alternative_index]);
-        const float profile_value = learning_data.sorted_values[criterion_index][profile_rank];
-        assert(profile_value == learning_data.profile_values[criterion_index][category_index - 1][model_index]);
-        assert(is_better == learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value));
-        #endif  // Check pre-processing
         if (is_better) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
@@ -85,13 +78,6 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
         const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
         const unsigned profile_rank = learning_data.profile_ranks[criterion_index][category_index][model_index];
         const bool is_better = alternative_rank >= profile_rank;
-        #ifndef NDEBUG  // Check pre-processing
-        const float alternative_value = learning_data.sorted_values[criterion_index][alternative_rank];
-        assert(alternative_value == learning_data.learning_alternatives[criterion_index][alternative_index]);
-        const float profile_value = learning_data.sorted_values[criterion_index][profile_rank];
-        assert(profile_value == learning_data.profile_values[criterion_index][category_index][model_index]);
-        assert(is_better == learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value));
-        #endif  // Check pre-processing
         if (is_better) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }

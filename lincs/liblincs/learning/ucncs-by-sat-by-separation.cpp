@@ -143,17 +143,6 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
     for (unsigned boundary_index_a = 0; boundary_index_a != learning_set.boundaries_count; ++boundary_index_a) {
       for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
         const unsigned bad_value_index = learning_set.performance_ranks[criterion_index][bad_alternative_index];
-        #ifndef NDEBUG  // Check pre-processing
-        const Criterion& criterion = learning_set.problem.criteria[criterion_index];
-        const auto lb = std::lower_bound(
-          learning_set.sorted_values[criterion_index].begin(),
-          learning_set.sorted_values[criterion_index].end(),
-          learning_set.learning_set.alternatives[bad_alternative_index].profile[criterion_index],
-          [&criterion](float lhs, float rhs) { return criterion.strictly_better(rhs, lhs); }
-        );
-        assert(lb != learning_set.sorted_values[criterion_index].end());
-        assert(bad_value_index == std::distance(learning_set.sorted_values[criterion_index].begin(), lb));
-        #endif  // Check pre-processing
         for (unsigned boundary_index_b = 0; boundary_index_b != learning_set.boundaries_count; ++boundary_index_b) {
           for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
             sat.add_clause(implies(
@@ -171,17 +160,6 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
     for (unsigned boundary_index_b = 0; boundary_index_b != learning_set.boundaries_count; ++boundary_index_b) {
       for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
         const unsigned good_value_index = learning_set.performance_ranks[criterion_index][good_alternative_index];
-        #ifndef NDEBUG  // Check pre-processing
-        const Criterion& criterion = learning_set.problem.criteria[criterion_index];
-        const auto lb = std::lower_bound(
-          learning_set.sorted_values[criterion_index].begin(),
-          learning_set.sorted_values[criterion_index].end(),
-          learning_set.learning_set.alternatives[good_alternative_index].profile[criterion_index],
-          [&criterion](float lhs, float rhs) { return criterion.strictly_better(rhs, lhs); }
-        );
-        assert(lb != learning_set.sorted_values[criterion_index].end());
-        assert(good_value_index == std::distance(learning_set.sorted_values[criterion_index].begin(), lb));
-        #endif  // Check pre-processing
         for (unsigned boundary_index_a = 0; boundary_index_a != learning_set.boundaries_count; ++boundary_index_a) {
           for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
             sat.add_clause(implies(
@@ -254,7 +232,6 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
       boost::dynamic_bitset<> coalition(learning_set.criteria_count);
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         const bool is_better = learning_set.performance_ranks[criterion_index][good_alternative_index] >= profile_ranks[boundary_index][criterion_index];
-        assert(is_better == learning_set.problem.criteria[criterion_index].better_or_equal(learning_set.learning_set.alternatives[good_alternative_index].profile[criterion_index], profile_values[boundary_index][criterion_index]));
         if (is_better) {
           coalition.set(criterion_index);
         }

@@ -17,15 +17,8 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   categories_count(problem.categories.size()),
   boundaries_count(categories_count - 1),
   alternatives_count(learning_set.alternatives.size()),
-  #ifndef NDEBUG  // Check pre-processing
-  sorted_values(criteria_count),
-  #else
   sorted_values(criteria_count, alternatives_count + 2, uninitialized),
-  #endif
   values_counts(criteria_count, uninitialized),
-  #ifndef NDEBUG  // Check pre-processing
-  value_ranks(criteria_count),
-  #endif
   performance_ranks(criteria_count, alternatives_count, uninitialized),
   assignments(alternatives_count, uninitialized)
 {
@@ -42,12 +35,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
     }
 
     assert(unique_values.size() <= alternatives_count + 2);
-    #ifndef NDEBUG  // Check pre-processing
-    sorted_values[criterion_index].resize(unique_values.size());
-    std::map<float, unsigned>& value_ranks_for_criterion = value_ranks[criterion_index];
-    #else
     std::map<float, unsigned> value_ranks_for_criterion;
-    #endif
     for (float value : unique_values) {
       const unsigned value_rank = is_growing ? value_ranks_for_criterion.size() : unique_values.size() - value_ranks_for_criterion.size() - 1;
       sorted_values[criterion_index][value_rank] = value;

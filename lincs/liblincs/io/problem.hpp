@@ -48,28 +48,6 @@ struct Criterion {
     max_value(max_value_)
   {}
 
-#ifndef NDEBUG  // Check pre-processing
-  bool better_or_equal(float lhs, float rhs) const {
-    switch (category_correlation) {
-      case CategoryCorrelation::growing:
-        return lhs >= rhs;
-      case CategoryCorrelation::decreasing:
-        return lhs <= rhs;
-    }
-    unreachable();
-  }
-
-  bool strictly_better(float lhs, float rhs) const {
-    switch (category_correlation) {
-      case CategoryCorrelation::growing:
-        return lhs > rhs;
-      case CategoryCorrelation::decreasing:
-        return lhs < rhs;
-    }
-    unreachable();
-  }
-  #endif  // Check pre-processing
-
   // @todo(Project management, later) Remove this operator
   // The struct is usable without it in C++, and it was added only to allow using bp::vector_indexing_suite in the Python module
   // (Do it for other structs as well)

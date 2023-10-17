@@ -63,17 +63,11 @@ class LearnMrsortByWeightsProfilesBreed {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLearningSet {
-  #ifndef NDEBUG  // Check pre-processing
-  Array2D<Host, float> learning_alternatives;  // Indexed by [criterion_index][alternative_index]
-  #endif  // Check pre-processing
   unsigned iteration_index;
   unsigned models_count;
   std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes
   Array2D<Host, float> weights;  // [criterion_index][model_index]
   Array3D<Host, unsigned> profile_ranks;  // [criterion_index][profile_index][model_index]
-  #ifndef NDEBUG  // Check pre-processing
-  Array3D<Host, float> profile_values;  // [criterion_index][profile_index][model_index]
-  #endif  // Check pre-processing
   Array1D<Host, unsigned> accuracies;  // [model_index]
   // @todo(Performance, later) Add models' ages
   std::vector<std::mt19937> urbgs;  // [model_index]

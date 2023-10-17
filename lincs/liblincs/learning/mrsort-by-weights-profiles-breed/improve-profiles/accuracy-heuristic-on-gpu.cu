@@ -263,16 +263,6 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
 
   // Set improved profiles
   copy(gpu_learning_data.profile_ranks, ref(host_learning_data.profile_ranks));
-  #ifndef NDEBUG  // Check pre-processing
-  for (unsigned criterion_index = 0; criterion_index != host_learning_data.criteria_count; ++criterion_index) {
-    for (unsigned profile_index = 0; profile_index != host_learning_data.boundaries_count; ++profile_index) {
-      for (unsigned model_index = 0; model_index != host_learning_data.models_count; ++model_index) {
-        const unsigned rank = host_learning_data.profile_ranks[criterion_index][profile_index][model_index];
-        host_learning_data.profile_values[criterion_index][profile_index][model_index] = host_learning_data.sorted_values[criterion_index][rank];
-      }
-    }
-  }
-  #endif  // Check pre-processing
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {

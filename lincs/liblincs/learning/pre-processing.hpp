@@ -29,16 +29,8 @@ struct PreProcessedLearningSet {
   const unsigned categories_count;
   const unsigned boundaries_count;
   const unsigned alternatives_count;
-  // @todo(in branch topics/pre-process-learning-set, soon) Remove all '#ifndef NDEBUG  // Check pre-processing' sections
-  #ifndef NDEBUG  // Check pre-processing
-  std::vector<std::vector<float>> sorted_values;  // Indexed by [criterion_index][value_rank]
-  #else
   Array2D<Host, float> sorted_values;  // Indexed by [criterion_index][value_rank]
-  #endif
   Array1D<Host, unsigned> values_counts;  // [criterion_index]
-  #ifndef NDEBUG  // Check pre-processing
-  std::vector<std::map<float, unsigned>> value_ranks;  // [criterion_index][value]
-  #endif  // Check pre-processing
   Array2D<Host, unsigned> performance_ranks;  // [criterion_index][alternative_index]
   Array1D<Host, unsigned> assignments;  // [alternative_index]
 };
