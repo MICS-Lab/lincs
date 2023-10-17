@@ -35,8 +35,11 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,
-    const unsigned destination_rank,
+    const unsigned destination_rank
+    #ifndef NDEBUG  // Check pre-processing
+    ,
     const float destination_value
+    #endif  // Check pre-processing
   );
 
   void update_move_desirability(
@@ -44,7 +47,9 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
     const unsigned profile_index,
     const unsigned criterion_index,
     const unsigned destination_rank,
+    #ifndef NDEBUG  // Check pre-processing
     const float destination_value,
+    #endif  // Check pre-processing
     const unsigned alternative_index,
     Desirability* desirability
   );

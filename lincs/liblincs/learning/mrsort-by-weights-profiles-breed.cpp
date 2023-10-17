@@ -19,18 +19,23 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
     const unsigned random_seed
 ) :
   PreProcessedLearningSet(problem_, learning_set),
+  #ifndef NDEBUG  // Check pre-processing
   learning_alternatives(criteria_count, alternatives_count, uninitialized),
+  #endif  // Check pre-processing
   iteration_index(0),
   models_count(models_count_),
   model_indexes(models_count),
   weights(criteria_count, models_count, uninitialized),
   profile_ranks(criteria_count, boundaries_count, models_count, uninitialized),
+  #ifndef NDEBUG  // Check pre-processing
   profile_values(criteria_count, boundaries_count, models_count, uninitialized),
+  #endif  // Check pre-processing
   accuracies(models_count, zeroed),
   urbgs(models_count)
 {
   CHRONE();
 
+  #ifndef NDEBUG  // Check pre-processing
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const Alternative& alt = learning_set.alternatives[alternative_index];
 
@@ -38,6 +43,7 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
       learning_alternatives[criterion_index][alternative_index] = alt.profile[criterion_index];
     }
   }
+  #endif  // Check pre-processing
 
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
 
@@ -157,11 +163,13 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
       const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
       const unsigned profile_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
       const bool is_better = alternative_rank >= profile_rank;
+      #ifndef NDEBUG  // Check pre-processing
       const float alternative_value = learning_data.sorted_values[criterion_index][alternative_rank];
       assert(alternative_value == learning_data.learning_alternatives[criterion_index][alternative_index]);
       const float profile_value = learning_data.sorted_values[criterion_index][profile_rank];
       assert(profile_value == learning_data.profile_values[criterion_index][profile_index][model_index]);
       assert(is_better == learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value));
+      #endif  // Check pre-processing
       if (is_better) {
         weight_at_or_better_than_profile += learning_data.weights[criterion_index][model_index];
       }

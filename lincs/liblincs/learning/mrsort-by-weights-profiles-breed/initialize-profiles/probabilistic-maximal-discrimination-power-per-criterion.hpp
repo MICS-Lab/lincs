@@ -18,7 +18,11 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   void initialize_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
+  #ifndef NDEBUG  // Check pre-processing
   std::pair<std::map<unsigned, double>, std::map<float, double>>
+  #else
+  std::map<unsigned, double>
+  #endif  // Check pre-processing
   get_candidate_probabilities(
     unsigned criterion_index,
     unsigned profile_index
@@ -27,7 +31,9 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
  private:
   LearningData& learning_data;
   std::vector<std::vector<ProbabilityWeightedGenerator<unsigned>>> rank_generators;
+  #ifndef NDEBUG  // Check pre-processing
   std::vector<std::vector<ProbabilityWeightedGenerator<float>>> value_generators;
+  #endif  // Check pre-processing
 };
 
 }  // namespace lincs

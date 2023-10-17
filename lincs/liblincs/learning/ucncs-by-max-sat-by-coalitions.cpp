@@ -149,6 +149,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
           const unsigned value_index = learning_set.performance_ranks[criterion_index][alternative_index];
+          #ifndef NDEBUG  // Check pre-processing
           const Criterion& criterion = learning_set.problem.criteria[criterion_index];
           const auto lb = std::lower_bound(
             learning_set.sorted_values[criterion_index].begin(), learning_set.sorted_values[criterion_index].end(),
@@ -157,6 +158,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
           );
           assert(lb != learning_set.sorted_values[criterion_index].end());
           assert(value_index == std::distance(learning_set.sorted_values[criterion_index].begin(), lb));
+          #endif  // Check pre-processing
           assert(value_index < better[criterion_index][boundary_index].size());
           // ... or the alternative is worse than the profile on at least one necessary criterion
           clause.push_back(-better[criterion_index][boundary_index][value_index]);
@@ -188,6 +190,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
           const unsigned value_index = learning_set.performance_ranks[criterion_index][alternative_index];
+          #ifndef NDEBUG  // Check pre-processing
           const Criterion& criterion = learning_set.problem.criteria[criterion_index];
           const auto lb = std::lower_bound(
             learning_set.sorted_values[criterion_index].begin(), learning_set.sorted_values[criterion_index].end(),
@@ -196,6 +199,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
           );
           assert(lb != learning_set.sorted_values[criterion_index].end());
           assert(value_index == std::distance(learning_set.sorted_values[criterion_index].begin(), lb));
+          #endif  // Check pre-processing
           assert(value_index < better[criterion_index][boundary_index].size());
           clause.push_back(better[criterion_index][boundary_index][value_index]);
         }
@@ -239,10 +243,12 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     std::vector<float> profile(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
+      #ifndef NDEBUG  // Check pre-processing
       const bool is_growing = learning_set.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing;
       assert(is_growing || learning_set.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing);
       const float best_value = is_growing ? learning_set.problem.criteria[criterion_index].max_value : learning_set.problem.criteria[criterion_index].min_value;
       const float worst_value = is_growing ? learning_set.problem.criteria[criterion_index].min_value : learning_set.problem.criteria[criterion_index].max_value;
+      #endif  // Check pre-processing
 
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {

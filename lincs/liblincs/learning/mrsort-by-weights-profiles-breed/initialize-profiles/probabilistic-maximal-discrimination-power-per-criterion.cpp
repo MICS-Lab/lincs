@@ -14,26 +14,40 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::Initia
   CHRONE();
 
   rank_generators.reserve(learning_data.criteria_count);
+  #ifndef NDEBUG  // Check pre-processing
   value_generators.reserve(learning_data.criteria_count);
+  #endif  // Check pre-processing
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
     auto& rank_generator = rank_generators.emplace_back();
     rank_generator.reserve(learning_data.boundaries_count);
+    #ifndef NDEBUG  // Check pre-processing
     auto& value_generator = value_generators.emplace_back();
     value_generator.reserve(learning_data.boundaries_count);
+    #endif  // Check pre-processing
 
     // @todo(in branch topics/pre-process-learning-set, soon) Remove 'reversed': it was added only to keep an identical behavior, but it only impacts pseudo-random behavior.
     const bool reversed = learning_data.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing;
     assert(reversed || learning_data.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing);
 
     for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
+      #ifndef NDEBUG  // Check pre-processing
       auto [rank_probabilities, value_probabilities] = get_candidate_probabilities(criterion_index, profile_index);
+      #else
+      auto rank_probabilities = get_candidate_probabilities(criterion_index, profile_index);
+      #endif  // Check pre-processing
       rank_generator.emplace_back(rank_probabilities, reversed);
+      #ifndef NDEBUG  // Check pre-processing
       value_generator.emplace_back(value_probabilities, false);
+      #endif  // Check pre-processing
     }
   }
 }
 
+#ifndef NDEBUG  // Check pre-processing
 std::pair<std::map<unsigned, double>, std::map<float, double>>
+#else
+std::map<unsigned, double>
+#endif  // Check pre-processing
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities(
   unsigned criterion_index,
   unsigned profile_index
@@ -67,10 +81,16 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_ca
     // which corresponds to either rank 0 or last rank depending on the category correlation.
     const unsigned rank = criterion.category_correlation == Criterion::CategoryCorrelation::growing ? 0 : learning_data.values_counts[criterion_index] - 1;
     assert(learning_data.sorted_values[criterion_index][rank] == learning_data.problem.criteria[criterion_index].min_value);
+    #ifndef NDEBUG  // Check pre-processing
     return {{{rank, 1.0}}, {{criterion.min_value, 1.0}}};
+    #else
+    return {{{rank, 1.0}}};
+    #endif  // Check pre-processing
   } else {
     std::map<unsigned, double> rank_probabilities;
+    #ifndef NDEBUG  // Check pre-processing
     std::map<float, double> value_probabilities;
+    #endif  // Check pre-processing
 
     for (auto candidates : { candidates_worse, candidates_better }) {
       for (auto [candidate_rank, candidate_value] : candidates) {
@@ -101,14 +121,20 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_ca
         }
         const double probability = static_cast<double>(correctly_classified_count) / candidates.size();
         rank_probabilities[candidate_rank] = probability;
+        #ifndef NDEBUG  // Check pre-processing
         value_probabilities[candidate_value] = probability;
+        #endif  // Check pre-processing
       }
     }
 
     assert(!rank_probabilities.empty());
+    #ifndef NDEBUG  // Check pre-processing
     assert(!value_probabilities.empty());
     assert(value_probabilities.size() == rank_probabilities.size());
     return {rank_probabilities, value_probabilities};
+    #else
+    return rank_probabilities;
+    #endif  // Check pre-processing
   }
 }
 
@@ -128,30 +154,40 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
       // Not parallel because of the profiles ordering constraint
       for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
         const unsigned profile_index = category_index - 1;
+        #ifndef NDEBUG  // Check pre-processing
         std::mt19937 urbg(learning_data.urbgs[model_index]);  // Copy before using, to get the same random values
+        #endif  // Check pre-processing
         unsigned rank = rank_generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
+        #ifndef NDEBUG  // Check pre-processing
         float value = value_generators[criterion_index][profile_index](urbg);
         assert(value == learning_data.sorted_values[criterion_index][rank]);
+        #endif  // Check pre-processing
 
         // Enforce profiles ordering constraint
         if (criterion.category_correlation == Criterion::CategoryCorrelation::growing) {
           if (profile_index != learning_data.boundaries_count - 1) {
             rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
+            #ifndef NDEBUG  // Check pre-processing
             value = std::min(value, learning_data.profile_values[criterion_index][profile_index + 1][model_index]);
             assert(learning_data.sorted_values[criterion_index][rank] == value);
+            #endif  // Check pre-processing
           }
         } else {
           assert(criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
           if (profile_index != learning_data.boundaries_count - 1) {
             rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
+            #ifndef NDEBUG  // Check pre-processing
             value = std::max(value, learning_data.profile_values[criterion_index][profile_index + 1][model_index]);
             assert(learning_data.sorted_values[criterion_index][rank] == value);
+            #endif  // Check pre-processing
           }
         }
 
         assert(learning_data.sorted_values[criterion_index][rank] == value);
         learning_data.profile_ranks[criterion_index][profile_index][model_index] = rank;
+        #ifndef NDEBUG  // Check pre-processing
         learning_data.profile_values[criterion_index][profile_index][model_index] = value;
+        #endif  // Check pre-processing
       }
     }
   }
