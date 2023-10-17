@@ -8,6 +8,8 @@
 
 namespace lincs {
 
+bool better_or_equal(Criterion::CategoryCorrelation category_correlation, float lhs, float rhs);
+
 struct ClassificationResult {
   unsigned unchanged;
   unsigned changed;

@@ -12,6 +12,16 @@
 
 namespace lincs {
 
+bool better_or_equal(Criterion::CategoryCorrelation category_correlation, float lhs, float rhs) {
+  switch (category_correlation) {
+    case Criterion::CategoryCorrelation::growing:
+      return lhs >= rhs;
+    case Criterion::CategoryCorrelation::decreasing:
+      return lhs <= rhs;
+  }
+  __builtin_unreachable();
+}
+
 bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, const Alternative& alternative) {
   const unsigned criteria_count = problem.criteria.size();
 
@@ -21,7 +31,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
         const float profile_value = boundary.profile[criterion_index];
-        if (problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
+        if (better_or_equal(problem.criteria[criterion_index].category_correlation, alternative_value, profile_value)) {
           weight_at_or_better_than_profile += boundary.sufficient_coalitions.criterion_weights[criterion_index];
         }
       }
@@ -32,7 +42,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
         const float profile_value = boundary.profile[criterion_index];
-        if (problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
+        if (better_or_equal(problem.criteria[criterion_index].category_correlation, alternative_value, profile_value)) {
           at_or_better_than_profile[criterion_index] = true;
         }
       }

@@ -29,6 +29,30 @@ TEST_CASE("ProbabilityWeightedGenerator") {
   CHECK(counts["d"] == 4024);
 }
 
+TEST_CASE("ProbabilityWeightedGenerator reversed") {
+  std::map<std::string, double> value_probabilities = {
+    {"a", 0.1},
+    {"b", 0.2},
+    {"c", 0.3},
+    {"d", 0.4},
+  };
+
+  auto generator = ProbabilityWeightedGenerator(value_probabilities, true);
+
+  std::mt19937 mt(42);
+  std::map<std::string, unsigned> counts;
+  for (unsigned i = 0; i < 10000; ++i) {
+    const std::string value = generator(mt);
+    counts[value] += 1;
+  }
+
+  CHECK(counts.size() == 4);
+  CHECK(counts["a"] == 949);
+  CHECK(counts["b"] == 2062);
+  CHECK(counts["c"] == 3052);
+  CHECK(counts["d"] == 3937);
+}
+
 TEST_CASE("Equivalent 'ProbabilityWeightedGenerator's with copied generators generate equivalent values") {
   std::mt19937 mt1(42);
   std::mt19937 mt2(mt1);
@@ -68,4 +92,24 @@ TEST_CASE("Equivalent 'ProbabilityWeightedGenerator's with copied generators gen
   CHECK(generator2(mt2) == '2');
   CHECK(generator2(mt2) == '1');
   CHECK(generator2(mt2) == '3');
+}
+
+TEST_CASE("ProbabilityWeightedGenerator reversed generates equivalent values") {
+  std::mt19937 mt1(42);
+  std::mt19937 mt2(mt1);
+
+  auto generator1 = ProbabilityWeightedGenerator<int>({
+    {1, 0.2},
+    {2, 0.3},
+    {3, 0.4},
+  });
+  auto generator2 = ProbabilityWeightedGenerator<int>({
+    {-1, 0.2},
+    {-2, 0.3},
+    {-3, 0.4},
+  }, true);
+
+  for (unsigned long i = 0; i != 1000; ++i) {
+    CHECK(generator1(mt1) == -generator2(mt2));
+  }
 }

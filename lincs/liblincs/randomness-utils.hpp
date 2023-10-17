@@ -3,6 +3,7 @@
 #ifndef LINCS__RANDOMNESS_UTILS_HPP
 #define LINCS__RANDOMNESS_UTILS_HPP
 
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <random>
@@ -21,25 +22,31 @@ class ProbabilityWeightedGenerator {
   {}
 
   // I tried using ranges and all but I failed
-  std::vector<T> map_keys(const std::map<T, double>& value_probabilities) {
+  std::vector<T> map_keys(const std::map<T, double>& value_probabilities, const bool reversed) {
     std::vector<T> keys;
     for (const auto& [k, v] : value_probabilities) {
       keys.push_back(k);
     }
+    if (reversed) {
+      std::reverse(keys.begin(), keys.end());
+    }
     return keys;
   }
 
-  std::vector<double> map_values(const std::map<T, double>& value_probabilities) {
+  std::vector<double> map_values(const std::map<T, double>& value_probabilities, const bool reversed) {
     std::vector<double> values;
     for (const auto& [k, v] : value_probabilities) {
       values.push_back(v);
+    }
+    if (reversed) {
+      std::reverse(values.begin(), values.end());
     }
     return values;
   }
 
  public:
-  ProbabilityWeightedGenerator(const std::map<T, double>& value_probabilities) :
-    ProbabilityWeightedGenerator(map_keys(value_probabilities), map_values(value_probabilities))
+  ProbabilityWeightedGenerator(const std::map<T, double>& value_probabilities, const bool reversed = false) :
+    ProbabilityWeightedGenerator(map_keys(value_probabilities, reversed), map_values(value_probabilities, reversed))
   {
     assert(!value_probabilities.empty());
   }
