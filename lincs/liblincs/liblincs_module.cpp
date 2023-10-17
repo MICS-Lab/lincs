@@ -462,7 +462,6 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   learn_wbp_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
-    // @todo(Feature, soon) Expose all attributes to allow non-trivial Python strategies and observers
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
     .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index)
   ;
