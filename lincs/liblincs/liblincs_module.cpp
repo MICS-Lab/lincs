@@ -218,10 +218,6 @@ void set_alternative_category_index(lincs::Alternative& alt, std::optional<unsig
   alt.category_index = category_index;
 }
 
-unsigned get_learning_data_iteration_index(const lincs::LearnMrsortByWeightsProfilesBreed::LearningData& learning_data) {
-  return learning_data.iteration_index;
-}
-
 }  // namespace
 
 template <typename T>
@@ -468,7 +464,7 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
     // @todo(Feature, soon) Expose all attributes to allow non-trivial Python strategies and observers
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
-    .add_property("iteration_index", &get_learning_data_iteration_index)
+    .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index)
   ;
 
   struct ProfilesInitializationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy> {
