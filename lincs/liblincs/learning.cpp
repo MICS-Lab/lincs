@@ -302,10 +302,10 @@ TEST_CASE("Basic WPB learning")
 #endif
 
   check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
-  check_exact_learning<Wrapper>(7, 2, {78}, {47}, {41});
+  check_exact_learning<Wrapper>(3, 2);
+  check_exact_learning<Wrapper>(7, 2, {}, {19}, {22});
   check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {59}, {40}, {44, 55, 71});
+  check_exact_learning<Wrapper>(4, 3, {5, 59}, {40}, {14, 55});
 }
 
 TEST_CASE("Alglib WPB learning") {
@@ -342,10 +342,10 @@ TEST_CASE("Alglib WPB learning") {
   };
 
   check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2, {}, {9}, {});
-  check_exact_learning<Wrapper>(7, 2, {59}, {}, {});
+  check_exact_learning<Wrapper>(3, 2);
+  check_exact_learning<Wrapper>(7, 2);
   check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {55, 59}, {40}, {44});
+  check_exact_learning<Wrapper>(4, 3, {55, 59}, {40}, {});
 }
 
 TEST_CASE("SAT by coalitions using Minisat learning") {
@@ -556,7 +556,7 @@ TEST_CASE("Non-exact WPB learning") {
 #endif
 
   check_non_exact_learning<Wrapper>(1, 2);
-  check_non_exact_learning<Wrapper>(3, 2, {21, 45}, {}, {21, 45});
+  check_non_exact_learning<Wrapper>(3, 2, {45}, {}, {45});
   check_non_exact_learning<Wrapper>(1, 3);
 }
 

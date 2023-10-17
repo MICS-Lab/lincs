@@ -35,20 +35,24 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,
-    const float destination
+    const unsigned destination_rank,
+    const float destination_value
   );
 
   void update_move_desirability(
     const unsigned model_index,
     const unsigned profile_index,
     const unsigned criterion_index,
-    const float destination,
+    const unsigned destination_rank,
+    const float destination_value,
     const unsigned alternative_index,
     Desirability* desirability
   );
 
  private:
   LearningData& learning_data;
+
+  static const unsigned max_destinations_count = 64;
 };
 
 }  // namespace lincs

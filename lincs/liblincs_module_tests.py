@@ -255,7 +255,7 @@ class LearningTestCase(unittest.TestCase):
             termination_strategy,
         ).perform()
 
-        self.assertEqual(learning_data.iteration_index, 7)
+        self.assertEqual(learning_data.iteration_index, 8)
 
         result = classify_alternatives(problem, learned_model, learning_set)
         self.assertEqual(result.changed, 0)
@@ -319,7 +319,7 @@ class LearningTestCase(unittest.TestCase):
         ).perform()
 
         self.assertEqual(my_termination_strategy.called_count, 6)
-        self.assertEqual(classify_alternatives(problem, learned_model, learning_set).changed, 1)
+        self.assertEqual(classify_alternatives(problem, learned_model, learning_set).changed, 6)
 
     def test_python_strategies(self):
         problem = generate_classification_problem(5, 3, 41)
@@ -395,16 +395,16 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(weights_optimization_strategy.called_count, 2)
         self.assertEqual(profiles_improvement_strategy.called_count, 2)
         self.assertEqual(breeding_strategy.called_count, 1)
-        self.assertEqual(termination_strategy.accuracies, [176, 186])
+        self.assertEqual(termination_strategy.accuracies, [182, 192])
 
         result = classify_alternatives(problem, learned_model, learning_set)
-        self.assertEqual(result.changed, 14)
-        self.assertEqual(result.unchanged, 186)
+        self.assertEqual(result.changed, 8)
+        self.assertEqual(result.unchanged, 192)
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 96)
-        self.assertEqual(result.unchanged, 904)
+        self.assertEqual(result.changed, 68)
+        self.assertEqual(result.unchanged, 932)
 
     def test_observers(self):
         problem = generate_classification_problem(5, 3, 41)
@@ -441,7 +441,7 @@ class LearningTestCase(unittest.TestCase):
             [observer],
         ).perform()
 
-        self.assertEqual(observer.best_accuracies, [176, 186, 193, 193, 199, 199, 199])
+        self.assertEqual(observer.best_accuracies, [182, 192, 192, 193, 193, 194, 193, 199])
         self.assertEqual(observer.final_accuracy, 200)
 
     def test_alglib_mrsort_learning(self):
@@ -470,8 +470,8 @@ class LearningTestCase(unittest.TestCase):
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 24)
-        self.assertEqual(result.unchanged, 976)
+        self.assertEqual(result.changed, 21)
+        self.assertEqual(result.unchanged, 979)
 
     @unittest.skipIf(forbid_gpu, "Can't use GPU")
     def test_gpu_mrsort_learning(self):
