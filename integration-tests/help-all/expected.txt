@@ -604,11 +604,13 @@ breed( (BreedingStrategy)arg1) -> None :
 lincs.LearnMrsortByWeightsProfilesBreed.LearningData: class
 -----------------------------------------------------------
 
-lincs.LearnMrsortByWeightsProfilesBreed.LearningData.__init__: builtin_function_or_method
------------------------------------------------------------------------------------------
-Raises an exception
-This class cannot be instantiated from Python
+lincs.LearnMrsortByWeightsProfilesBreed.LearningData.__init__: function
+-----------------------------------------------------------------------
 
+__init__( (object)arg1, (Problem)arg2, (Alternatives)arg3, (int)arg4, (int)arg5) -> None :
+
+    C++ signature :
+        void __init__(_object*,lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
 
 lincs.LearnMrsortByWeightsProfilesBreed.LearningData.get_best_accuracy: function
 --------------------------------------------------------------------------------
@@ -620,14 +622,6 @@ get_best_accuracy( (LearningData)arg1) -> int :
 
 lincs.LearnMrsortByWeightsProfilesBreed.LearningData.iteration_index: property
 ------------------------------------------------------------------------------
-
-lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make: function
--------------------------------------------------------------------
-
-make( (Problem)arg1, (Alternatives)arg2, (int)arg3, (int)arg4) -> LearningData :
-
-    C++ signature :
-        lincs::LearnMrsortByWeightsProfilesBreed::LearningData* make(lincs::Problem,lincs::Alternatives,unsigned int,unsigned int)
 
 lincs.LearnMrsortByWeightsProfilesBreed.Observer: class
 -------------------------------------------------------

@@ -12,53 +12,43 @@
 
 namespace lincs {
 
-LearnMrsortByWeightsProfilesBreed::LearningData LearnMrsortByWeightsProfilesBreed::LearningData::make(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed) {
+LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
+    const Problem& problem_,
+    const Alternatives& learning_set,
+    const unsigned models_count_,
+    const unsigned random_seed
+) :
+  problem(problem_),
+  categories_count(problem.categories.size()),
+  criteria_count(problem.criteria.size()),
+  boundaries_count(categories_count - 1),
+  alternatives_count(learning_set.alternatives.size()),
+  learning_alternatives(criteria_count, alternatives_count, uninitialized),
+  assignments(alternatives_count, uninitialized),
+  iteration_index(0),
+  models_count(models_count_),
+  model_indexes(models_count),
+  weights(criteria_count, models_count, uninitialized),
+  profile_values(criteria_count, boundaries_count, models_count, uninitialized),
+  accuracies(models_count, zeroed),
+  urbgs(models_count)
+{
   CHRONE();
-
-  const unsigned criteria_count = problem.criteria.size();
-  const unsigned categories_count = problem.categories.size();
-  const unsigned alternatives_count = learning_set.alternatives.size();
-
-  Array2D<Host, float> alternatives(criteria_count, alternatives_count, uninitialized);
-  Array1D<Host, unsigned> assignments(alternatives_count, uninitialized);
 
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const Alternative& alt = learning_set.alternatives[alternative_index];
 
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      alternatives[criterion_index][alternative_index] = alt.profile[criterion_index];
+      learning_alternatives[criterion_index][alternative_index] = alt.profile[criterion_index];
     }
-
     assignments[alternative_index] = *alt.category_index;
   }
 
-  std::vector<unsigned> model_indexes(models_count);
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
 
-  Array2D<Host, float> weights(criteria_count, models_count, uninitialized);
-  Array3D<Host, float> profiles(criteria_count, (categories_count - 1), models_count, uninitialized);
-  Array1D<Host, unsigned> accuracies(models_count, zeroed);
-
-  std::vector<std::mt19937> urbgs(models_count);
   for (unsigned model_index = 0; model_index != models_count; ++model_index) {
     urbgs[model_index].seed(random_seed * (model_index + 1));
   }
-
-  return {
-    problem,
-    categories_count,
-    criteria_count,
-    alternatives_count,
-    std::move(alternatives),
-    std::move(assignments),
-    0,
-    models_count,
-    std::move(model_indexes),
-    std::move(weights),
-    std::move(profiles),
-    std::move(accuracies),
-    std::move(urbgs),
-  };
 }
 
 Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned model_index) const {
@@ -74,12 +64,12 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   SufficientCoalitions coalitions{SufficientCoalitions::weights, model_weights};
 
   std::vector<Model::Boundary> boundaries;
-  boundaries.reserve(categories_count - 1);
-  for (unsigned cat_index = 0; cat_index != categories_count - 1; ++cat_index) {
+  boundaries.reserve(boundaries_count);
+  for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<float> boundary_profile;
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      boundary_profile.push_back(profiles[criterion_index][cat_index][model_index]);
+      boundary_profile.push_back(profile_values[criterion_index][boundary_index][model_index]);
     }
     boundaries.emplace_back(boundary_profile, coalitions);
   }
@@ -109,7 +99,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     );
 
     // Succeed?
-    if (learning_data.get_best_accuracy() == learning_data.learning_alternatives_count || termination_strategy.terminate()) {
+    if (learning_data.get_best_accuracy() == learning_data.alternatives_count || termination_strategy.terminate()) {
       for (auto observer : observers) {
         observer->before_return();
       }
@@ -134,7 +124,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned model_index) {
   unsigned accuracy = 0;
 
-  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     if (is_correctly_assigned(model_index, alternative_index)) {
       ++accuracy;
     }
@@ -146,7 +136,7 @@ unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned mode
 bool LearnMrsortByWeightsProfilesBreed::is_correctly_assigned(
     const unsigned model_index,
     const unsigned alternative_index) {
-  const unsigned expected_assignment = learning_data.learning_assignments[alternative_index];
+  const unsigned expected_assignment = learning_data.assignments[alternative_index];
   const unsigned actual_assignment = get_assignment(learning_data, model_index, alternative_index);
 
   return actual_assignment == expected_assignment;
@@ -157,7 +147,7 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
   // (instead of recomputing them here)
   // Same question in accuracy-heuristic-on-gpu.cu
   assert(model_index < learning_data.models_count);
-  assert(alternative_index < learning_data.learning_alternatives_count);
+  assert(alternative_index < learning_data.alternatives_count);
 
   // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
   // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
@@ -167,7 +157,7 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
     float weight_at_or_better_than_profile = 0;
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
       const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-      const float profile_value = learning_data.profiles[criterion_index][profile_index][model_index];
+      const float profile_value = learning_data.profile_values[criterion_index][profile_index][model_index];
       if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
         weight_at_or_better_than_profile += learning_data.weights[criterion_index][model_index];
       }

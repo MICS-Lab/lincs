@@ -13,17 +13,18 @@ namespace lincs {
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_) : learning_data(learning_data_) {
   CHRONE();
 
-  generators.reserve(learning_data.criteria_count);
+  value_generators.reserve(learning_data.criteria_count);
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-    auto& generator = generators.emplace_back();
-    generator.reserve(learning_data.categories_count - 1);
-    for (unsigned profile_index = 0; profile_index != learning_data.categories_count - 1; ++profile_index) {
-      generator.emplace_back(get_candidate_probabilities(criterion_index, profile_index));
+    auto& value_generator = value_generators.emplace_back();
+    value_generator.reserve(learning_data.boundaries_count);
+    for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
+      value_generator.emplace_back(get_candidate_probabilities(criterion_index, profile_index));
     }
   }
 }
 
-std::map<float, double> InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities(
+std::map<float, double>
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities(
   unsigned criterion_index,
   unsigned profile_index
 ) {
@@ -35,13 +36,13 @@ std::map<float, double> InitializeProfilesForProbabilisticMaximalDiscriminationP
   // The size used for 'reserve' is a few times larger than the actual final size,
   // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
   // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
-  values_worse.reserve(learning_data.learning_alternatives_count);
+  values_worse.reserve(learning_data.alternatives_count);
   std::vector<float> values_better;
-  values_better.reserve(learning_data.learning_alternatives_count);
+  values_better.reserve(learning_data.alternatives_count);
   // This loop could/should be done once outside this function
-  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     const float value = learning_data.learning_alternatives[criterion_index][alternative_index];
-    const unsigned assignment = learning_data.learning_assignments[alternative_index];
+    const unsigned assignment = learning_data.assignments[alternative_index];
     if (assignment == profile_index) {
       values_worse.push_back(value);
     } else if (assignment == profile_index + 1) {
@@ -91,21 +92,21 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
       // Not parallel because of the profiles ordering constraint
       for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
         const unsigned profile_index = category_index - 1;
-        float value = generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
+        float value = value_generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
 
         // Enforce profiles ordering constraint
         if (criterion.category_correlation == Criterion::CategoryCorrelation::growing) {
-          if (profile_index != learning_data.categories_count - 2) {
-            value = std::min(value, learning_data.profiles[criterion_index][profile_index + 1][model_index]);
+          if (profile_index != learning_data.boundaries_count - 1) {
+            value = std::min(value, learning_data.profile_values[criterion_index][profile_index + 1][model_index]);
           }
         } else {
           assert(criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
-          if (profile_index != learning_data.categories_count - 2) {
-            value = std::max(value, learning_data.profiles[criterion_index][profile_index + 1][model_index]);
+          if (profile_index != learning_data.boundaries_count - 1) {
+            value = std::max(value, learning_data.profile_values[criterion_index][profile_index + 1][model_index]);
           }
         }
 
-        learning_data.profiles[criterion_index][profile_index][model_index] = value;
+        learning_data.profile_values[criterion_index][profile_index][model_index] = value;
       }
     }
   }
@@ -135,14 +136,14 @@ TEST_CASE("Initialize profiles - respect ordering") {
   };
   Model model = generate_mrsort_classification_model(problem, 42);
   auto learning_set = generate_classified_alternatives(problem, model, 1000, 42, 0.1);
-  auto learning_data = LearnMrsortByWeightsProfilesBreed::LearningData::make(problem, learning_set, 1, 42);
+  LearnMrsortByWeightsProfilesBreed::LearningData learning_data(problem, learning_set, 1, 42);
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion initializer(learning_data);
 
   for (unsigned iteration = 0; iteration != 10; ++iteration) {
     initializer.initialize_profiles(0, 1);
     // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint' code is removed
-    CHECK(learning_data.profiles[0][0][0] <= learning_data.profiles[0][1][0]);
-    CHECK(learning_data.profiles[1][0][0] >= learning_data.profiles[1][1][0]);
+    CHECK(learning_data.profile_values[0][0][0] <= learning_data.profile_values[0][1][0]);
+    CHECK(learning_data.profile_values[1][0][0] >= learning_data.profile_values[1][1][0]);
   }
 }
 

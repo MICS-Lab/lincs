@@ -26,7 +26,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profiles(const uns
 
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned profile_index = 0; profile_index != learning_data.categories_count - 1; ++profile_index) {
+  for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
     shuffle(learning_data.urbgs[model_index], ref(criterion_indexes));
     improve_model_profile(model_index, profile_index, criterion_indexes);
   }
@@ -54,19 +54,19 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   assert(is_growing || criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
 
   const int delta_profile = is_growing ? +1 : -1;
-  const unsigned lowest_profile_index = is_growing ? 0 : learning_data.categories_count - 2;
-  const unsigned highest_profile_index = is_growing ? learning_data.categories_count - 2 : 0;
+  const unsigned lowest_profile_index = is_growing ? 0 : learning_data.boundaries_count - 1;
+  const unsigned highest_profile_index = is_growing ? learning_data.boundaries_count - 1 : 0;
 
   const float lowest_destination =
     profile_index == lowest_profile_index ?
       learning_data.problem.criteria[criterion_index].min_value :
-      learning_data.profiles[criterion_index][profile_index - delta_profile][model_index];
+      learning_data.profile_values[criterion_index][profile_index - delta_profile][model_index];
   const float highest_destination =
     profile_index == highest_profile_index ?
       learning_data.problem.criteria[criterion_index].max_value :
-      learning_data.profiles[criterion_index][profile_index + delta_profile][model_index];
+      learning_data.profile_values[criterion_index][profile_index + delta_profile][model_index];
 
-  float best_destination = learning_data.profiles[criterion_index][profile_index][model_index];
+  float best_destination = learning_data.profile_values[criterion_index][profile_index][model_index];
   float best_desirability = Desirability().value();
 
   assert(lowest_destination <= highest_destination);
@@ -107,7 +107,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
 
   // @todo(Project management, later) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
   if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
-    learning_data.profiles[criterion_index][profile_index][model_index] = best_destination;
+    learning_data.profile_values[criterion_index][profile_index][model_index] = best_destination;
   }
 }
 
@@ -119,7 +119,7 @@ Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirabilit
 ) {
   Desirability d;
 
-  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     update_move_desirability(
       model_index, profile_index, criterion_index, destination, alternative_index, &d);
   }
@@ -137,11 +137,11 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
 ) {
   const Criterion& criterion = learning_data.problem.criteria[criterion_index];
 
-  const float current_position = learning_data.profiles[criterion_index][profile_index][model_index];
+  const float current_position = learning_data.profile_values[criterion_index][profile_index][model_index];
   const float weight = learning_data.weights[criterion_index][model_index];
 
   const float value = learning_data.learning_alternatives[criterion_index][alternative_index];
-  const unsigned learning_assignment = learning_data.learning_assignments[alternative_index];
+  const unsigned learning_assignment = learning_data.assignments[alternative_index];
   const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(learning_data, model_index, alternative_index);
 
   // @todo(Project management, later) Factorize with get_assignment
@@ -151,7 +151,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
     const Criterion& crit = learning_data.problem.criteria[crit_index];
     const float alternative_value = learning_data.learning_alternatives[crit_index][alternative_index];
-    const float profile_value = learning_data.profiles[crit_index][profile_index][model_index];
+    const float profile_value = learning_data.profile_values[crit_index][profile_index][model_index];
     if (crit.better_or_equal(alternative_value, profile_value)) {
       weight_at_or_better_than_profile += learning_data.weights[crit_index][model_index];
     }

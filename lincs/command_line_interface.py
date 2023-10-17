@@ -720,7 +720,7 @@ def classification_model(
             command_line += ["--mrsort.weights-profiles-breed.models-count", mrsort__weights_profiles_breed__models_count]
             command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed", mrsort__weights_profiles_breed__accuracy_heuristic__random_seed]
 
-            learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData.make(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             command_line += ["--mrsort.weights-profiles-breed.initialization-strategy", mrsort__weights_profiles_breed__initialization_strategy]
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":

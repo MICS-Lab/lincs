@@ -169,9 +169,7 @@ TEST_CASE("Basic WPB learning")
 {
   struct CpuWrapper {
     CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
+      learning_data(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
@@ -206,9 +204,7 @@ TEST_CASE("Basic WPB learning")
 #ifdef LINCS_HAS_NVCC
   struct GpuWrapper {
     GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
@@ -316,9 +312,7 @@ TEST_CASE("Alglib WPB learning") {
   class Wrapper {
    public:
     Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
@@ -423,9 +417,7 @@ TEST_CASE("Max-SAT by separation using EvalMaxSat learning - non-exact - long" *
 TEST_CASE("Non-exact WPB learning") {
   struct CpuWrapper {
     CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
@@ -463,9 +455,7 @@ TEST_CASE("Non-exact WPB learning") {
 #ifdef LINCS_HAS_NVCC
   struct GpuWrapper {
     GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData::make(
-        problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44
-      )),
+      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
       profiles_initialization_strategy(learning_data),
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),

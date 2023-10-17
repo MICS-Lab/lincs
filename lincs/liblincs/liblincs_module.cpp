@@ -200,16 +200,6 @@ struct std_optional_converter {
   }
 };
 
-lincs::LearnMrsortByWeightsProfilesBreed::LearningData* make_learning_data(
-  const lincs::Problem& problem,
-  const lincs::Alternatives& learning_set,
-  const unsigned models_count,
-  const unsigned random_seed
-) {
-  return new lincs::LearnMrsortByWeightsProfilesBreed::LearningData(std::move(
-    lincs::LearnMrsortByWeightsProfilesBreed::LearningData::make(problem, learning_set, models_count, random_seed)));
-}
-
 std::optional<unsigned> get_alternative_category_index(const lincs::Alternative& alt) {
   return alt.category_index;
 }
@@ -460,8 +450,11 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform)
   ;
 
-  learn_wbp_class.attr("LearningData") = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>("LearningData", bp::no_init)
-    .def("make", &make_learning_data, bp::return_value_policy<bp::manage_new_object>()).staticmethod("make")
+  learn_wbp_class.attr("LearningData") =
+    bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>(
+      "LearningData",
+      bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>()
+    )
     .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
     .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index)
   ;

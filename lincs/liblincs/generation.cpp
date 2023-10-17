@@ -80,25 +80,26 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
   CHRONE();
 
   const unsigned categories_count = problem.categories.size();
+  const unsigned boundaries_count = categories_count - 1;
   const unsigned criteria_count = problem.criteria.size();
 
   std::mt19937 gen(random_seed);
 
-  std::vector<std::vector<float>> profiles(categories_count - 1, std::vector<float>(criteria_count));
+  std::vector<std::vector<float>> profiles(boundaries_count, std::vector<float>(criteria_count));
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const auto& criterion = problem.criteria[criterion_index];
     // Profile can take any values. We arbitrarily generate them uniformly
     std::uniform_real_distribution<float> values_distribution(criterion.min_value + 0.01f, criterion.max_value - 0.01f);
     // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
     // Profiles must be ordered on each criterion, so we generate a random column...
-    std::vector<float> column(categories_count - 1);
+    std::vector<float> column(boundaries_count);
     std::generate(
       column.begin(), column.end(),
       [&values_distribution, &gen]() { return values_distribution(gen); });
     // ... sort it according to the criterion's correlation to categories...
     std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return criterion.better_or_equal(right, left); });
     // ... and assign that column across all profiles.
-    for (unsigned profile_index = 0; profile_index != categories_count - 1; ++profile_index) {
+    for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
       profiles[profile_index][criterion_index] = column[profile_index];
     }
   }
@@ -133,8 +134,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
   SufficientCoalitions coalitions{SufficientCoalitions::weights, denormalized_weights};
 
   std::vector<Model::Boundary> boundaries;
-  boundaries.reserve(categories_count - 1);
-  for (unsigned category_index = 0; category_index != categories_count - 1; ++category_index) {
+  boundaries.reserve(boundaries_count);
+  for (unsigned category_index = 0; category_index != boundaries_count; ++category_index) {
     boundaries.emplace_back(profiles[category_index], coalitions);
   }
 

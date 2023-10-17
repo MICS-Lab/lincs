@@ -35,11 +35,11 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
     weight_variables.push_back(program.create_variable());
   }
 
-  x_variables.reserve(learning_data.learning_alternatives_count);
-  xp_variables.reserve(learning_data.learning_alternatives_count);
-  y_variables.reserve(learning_data.learning_alternatives_count);
-  yp_variables.reserve(learning_data.learning_alternatives_count);
-  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
+  x_variables.reserve(learning_data.alternatives_count);
+  xp_variables.reserve(learning_data.alternatives_count);
+  y_variables.reserve(learning_data.alternatives_count);
+  yp_variables.reserve(learning_data.alternatives_count);
+  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     x_variables.push_back(program.create_variable());
     xp_variables.push_back(program.create_variable());
     y_variables.push_back(program.create_variable());
@@ -48,11 +48,11 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
 
   program.mark_all_variables_created();
 
-  for (unsigned alternative_index = 0; alternative_index != learning_data.learning_alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     program.set_objective_coefficient(xp_variables[alternative_index], 1);
     program.set_objective_coefficient(yp_variables[alternative_index], 1);
 
-    const unsigned category_index = learning_data.learning_assignments[alternative_index];
+    const unsigned category_index = learning_data.assignments[alternative_index];
 
     if (category_index != 0) {
       auto c = program.create_constraint();
@@ -61,7 +61,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_coefficient(xp_variables[alternative_index], 1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
         const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-        const float profile_value = learning_data.profiles[criterion_index][category_index - 1][model_index];
+        const float profile_value = learning_data.profile_values[criterion_index][category_index - 1][model_index];
         if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
@@ -75,7 +75,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_coefficient(yp_variables[alternative_index], -1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
         const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-        const float profile_value = learning_data.profiles[criterion_index][category_index][model_index];
+        const float profile_value = learning_data.profile_values[criterion_index][category_index][model_index];
         if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }

@@ -16,14 +16,15 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   void initialize_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
-  std::map<float, double> get_candidate_probabilities(
+  std::map<float, double>
+  get_candidate_probabilities(
     unsigned criterion_index,
     unsigned profile_index
   );
 
  private:
   LearningData& learning_data;
-  std::vector<std::vector<ProbabilityWeightedGenerator<float>>> generators;
+  std::vector<std::vector<ProbabilityWeightedGenerator<float>>> value_generators;
 };
 
 }  // namespace lincs

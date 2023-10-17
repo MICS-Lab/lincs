@@ -14,15 +14,11 @@ namespace lincs {
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  private:
   struct GpuLearningData {
-    unsigned categories_count;
-    unsigned criteria_count;
     Array1D<Device, bool> criterion_is_growing;
-    unsigned learning_alternatives_count;
     Array2D<Device, float> learning_alternatives;
-    Array1D<Device, unsigned> learning_assignments;
-    unsigned models_count;
+    Array1D<Device, unsigned> assignments;
     Array2D<Device, float> weights;
-    Array3D<Device, float> profiles;
+    Array3D<Device, float> profile_values;
 
     Array2D<Device, Desirability> desirabilities;
     Array2D<Device, float> destinations;
