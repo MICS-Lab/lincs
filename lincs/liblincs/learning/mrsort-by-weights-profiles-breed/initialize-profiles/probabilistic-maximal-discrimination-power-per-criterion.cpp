@@ -18,13 +18,9 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::Initia
     auto& rank_generator = rank_generators.emplace_back();
     rank_generator.reserve(learning_data.boundaries_count);
 
-    // @todo(in branch topics/pre-process-learning-set, soon) Remove 'reversed': it was added only to keep an identical behavior, but it only impacts pseudo-random behavior.
-    const bool reversed = learning_data.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing;
-    assert(reversed || learning_data.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing);
-
     for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
       auto rank_probabilities = get_candidate_probabilities(criterion_index, profile_index);
-      rank_generator.emplace_back(rank_probabilities, reversed);
+      rank_generator.emplace_back(rank_probabilities);
     }
   }
 }
@@ -57,11 +53,7 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
   }
 
   if (candidates_better.empty() && candidates_worse.empty()) {
-    // @todo(in branch topics/pre-process-learning-set) Always use rank = 0: this is a remnant of a previous weirdness where we always used min_value,
-    // which corresponds to either rank 0 or last rank depending on the category correlation.
-    const unsigned rank = criterion.category_correlation == Criterion::CategoryCorrelation::growing ? 0 : learning_data.values_counts[criterion_index] - 1;
-    assert(learning_data.sorted_values[criterion_index][rank] == learning_data.problem.criteria[criterion_index].min_value);
-    return {{{rank, 1.0}}};
+    return {{{0, 1.0}}};
   } else {
     std::map<unsigned, double> rank_probabilities;
 
