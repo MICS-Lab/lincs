@@ -8,20 +8,11 @@ Before you read this document, we strongly recommend you read our :doc:`conceptu
 We also recommend you follow our :doc:`"Get started" guide <get-started>` to get a first hands-on experience with *lincs*.
 
 This guide is organized following what you can do with *lincs*, *i.e.* the problems you can solve with it.
-Each section describes how to to it using *lincs* command-line interface, Python API and C++ API.
-
-Temporary note: this guide is not complete yet.
-It is a work in progress.
-In particular, APIs are not covered.
-You may find it useful to read ``lincs/command_line_interface.py`` to see how the command-line interface uses the Python API.
-Similarly, reading ``lincs/liblincs/liblincs_module.cpp`` may help you understand how the Python API exposes the C++ API is, and thus how to use it.
+Each section describes how to to it using *lincs*'s command-line interface.
 
 
 Generate synthetic data
 =======================
-
-From the command-line interface
--------------------------------
 
 @todo(Documentation, soon) Write about ``lincs generate``
 
@@ -29,22 +20,9 @@ From the command-line interface
 
 @todo(Documentation, soon) Write about outputting to the standard output by default
 
-Through the Python API
-----------------------
-
-@todo(Documentation, later) Write
-
-Through the C++ API
--------------------
-
-@todo(Documentation, later) Write
-
 
 Learn a model
 =============
-
-From the command-line interface
--------------------------------
 
 The basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
 Its ``--help`` option gives you a list of the numerous options it accepts.
@@ -53,7 +31,7 @@ The first one is ``--model-type``; it tells *lincs* what type of model you want 
 .. _user-learning-strategies:
 
 Learning strategies
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 There can be several methods to learn a given type of model.
 These methods are called "strategies" in *lincs*.
@@ -200,13 +178,13 @@ It should produce a different kind of model, with the sufficient coalitions spec
 .. STOP
 
 Output location
-~~~~~~~~~~~~~~~
+---------------
 
 Like synthetic data generation command, ``lincs learn classification-model`` outputs to the standard output by default,
 that is if you don't specify the ``--output-model`` option, it will simply print the learned model to your console.
 
 Randomness in heuristic strategies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 Some learning (sub-)strategies implement heuristic algorithms.
 In that case, they accept a ``.random-seed`` option to initialize the pseudo-random number generator they use.
@@ -236,35 +214,12 @@ This ensures that the two following commands output exactly the same model::
     diff <(sed s/cpu/gpu/ expected-trained-model.yml) gpu-trained-model.yml
 .. STOP
 
-Through the Python API
-----------------------
-
-@todo(Documentation, later) Write
-
-Through the C++ API
--------------------
-
-@todo(Documentation, later) Write
-
 
 Use a model
 ===========
-
-From the command-line interface
--------------------------------
 
 @todo(Documentation, soon) Write about ``lincs classify`` (outputting to stdout by default)
 
 @todo(Documentation, soon) Write about ``lincs classification-accuracy`` (always outputting to stdout)
 
 @todo(Documentation, soon) Write about ``lincs visualize classification-model`` (mandatory output parameter, use - to output to stdout)
-
-Through the Python API
-----------------------
-
-@todo(Documentation, later) Write
-
-Through the C++ API
--------------------
-
-@todo(Documentation, later) Write
