@@ -1,6 +1,6 @@
 # Copyright 2023 Vincent Jacques
 
-__version__ = "0.8.8-dev"
+__version__ = "0.9.0"
 
 # I/O
 from liblincs import Criterion, Category, Problem

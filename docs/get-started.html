@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Get started &#8212; lincs 0.8.7 documentation</title>
+    <title>Get started &#8212; lincs 0.9.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=a19d10b1"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=1bc1ca25"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -53,7 +53,8 @@ If you end up modifying <em>lincs</em> to make it work on your platform, we kind
   training and using MCDA models.
 
 Options:
-  --help  Show this message and exit.
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 Commands:
   classification-accuracy  Compute a classification accuracy.
@@ -70,7 +71,7 @@ Commands:
 </pre></div>
 </div>
 <p>The generated <code class="docutils literal notranslate"><span class="pre">problem.yml</span></code> should look like:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command: lincs generate classification-problem 4 3 --random-seed 40</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 0.9.0): lincs generate classification-problem 4 3 --random-seed 40</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-problem</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">criteria</span><span class="p">:</span>
@@ -106,7 +107,7 @@ Commands:
 </pre></div>
 </div>
 <p>It should look like:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command: lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 0.9.0): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">boundaries</span><span class="p">:</span>
@@ -134,7 +135,7 @@ All <code class="docutils literal notranslate"><span class="pre">*coalitions</sp
 Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
 Then we’ll need to think about the how the <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span></code> option interacts with that feature.</p>
 <p>It should start with something like this, and contain 1000 alternatives:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Reproduction command: lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Reproduction command (with lincs version 0.9.0): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
 name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,&quot;Criterion 4&quot;,category
 &quot;Alternative 1&quot;,0.37454012,0.796543002,0.95071429,0.183434784,&quot;Category 3&quot;
 &quot;Alternative 2&quot;,0.731993914,0.779690981,0.598658502,0.596850157,&quot;Category 2&quot;
@@ -159,16 +160,17 @@ name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,&qu
 The learning set doesn’t contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
 so it is numerically different:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command: lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 0.9.0): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0</span>
 <span class="c1"># Termination condition: target accuracy reached</span>
+<span class="c1"># Number of iterations: 22</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">boundaries</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.00751833664</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0549556538</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.162616938</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.193127945</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.339874953</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0556534864</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.162616938</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0878681168</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">sufficient_coalitions</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
 <span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
-<span class="w">      </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.499998987</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0340298451</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.324480206</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.672487617</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.427051842</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.01327896e-06</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.999998987</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.421424538</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.326433569</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.67343241</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.252649099</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">sufficient_coalitions</span><span class="p">:</span><span class="w"> </span><span class="nv">*coalitions</span>
 </pre></div>
 </div>
@@ -187,22 +189,54 @@ To see how close a trained model is to the original one, you can reclassify a te
 </pre></div>
 </div>
 <p>That command should show a few alternatives that are not classified the same way by the original and the trained model:</p>
-<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>2595c2595
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>521c521
+<span class="gd">&lt; &quot;Alternative 520&quot;,0.617141366,0.326259822,0.901315808,0.460642993,&quot;Category 3&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 520&quot;,0.617141366,0.326259822,0.901315808,0.460642993,&quot;Category 2&quot;</span>
+614c614
+<span class="gd">&lt; &quot;Alternative 613&quot;,0.547554553,0.0552174859,0.690436542,0.511019647,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 613&quot;,0.547554553,0.0552174859,0.690436542,0.511019647,&quot;Category 1&quot;</span>
+2595c2595
 <span class="gd">&lt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Category 2&quot;</span>
 <span class="gs">---</span>
 <span class="gi">&gt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Category 1&quot;</span>
-5000c5000
-<span class="gd">&lt; &quot;Alternative 4999&quot;,0.074135974,0.496049821,0.672853291,0.782560945,&quot;Category 2&quot;</span>
+2609c2609
+<span class="gd">&lt; &quot;Alternative 2608&quot;,0.881479025,0.055544015,0.82936728,0.853676081,&quot;Category 2&quot;</span>
 <span class="gs">---</span>
-<span class="gi">&gt; &quot;Alternative 4999&quot;,0.074135974,0.496049821,0.672853291,0.782560945,&quot;Category 3&quot;</span>
+<span class="gi">&gt; &quot;Alternative 2608&quot;,0.881479025,0.055544015,0.82936728,0.853676081,&quot;Category 1&quot;</span>
+3128c3128
+<span class="gd">&lt; &quot;Alternative 3127&quot;,0.146532759,0.324625522,0.926948965,0.817662537,&quot;Category 3&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 3127&quot;,0.146532759,0.324625522,0.926948965,0.817662537,&quot;Category 2&quot;</span>
+3691c3691
+<span class="gd">&lt; &quot;Alternative 3690&quot;,0.157966524,0.326220334,0.925864339,0.844398499,&quot;Category 3&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 3690&quot;,0.157966524,0.326220334,0.925864339,0.844398499,&quot;Category 2&quot;</span>
+3774c3774
+<span class="gd">&lt; &quot;Alternative 3773&quot;,0.484662831,0.325856268,0.966965079,0.980859697,&quot;Category 3&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 3773&quot;,0.484662831,0.325856268,0.966965079,0.980859697,&quot;Category 2&quot;</span>
+4214c4214
+<span class="gd">&lt; &quot;Alternative 4213&quot;,0.254853547,0.32587868,0.809560299,0.554913938,&quot;Category 3&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 4213&quot;,0.254853547,0.32587868,0.809560299,0.554913938,&quot;Category 2&quot;</span>
+4265c4265
+<span class="gd">&lt; &quot;Alternative 4264&quot;,0.533336997,0.0553873181,0.735466599,0.457309902,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 4264&quot;,0.533336997,0.0553873181,0.735466599,0.457309902,&quot;Category 1&quot;</span>
 5346c5346
 <span class="gd">&lt; &quot;Alternative 5345&quot;,0.815349102,0.580399215,0.162403136,0.995580792,&quot;Category 2&quot;</span>
 <span class="gs">---</span>
 <span class="gi">&gt; &quot;Alternative 5345&quot;,0.815349102,0.580399215,0.162403136,0.995580792,&quot;Category 1&quot;</span>
-9639c9639
-<span class="gd">&lt; &quot;Alternative 9638&quot;,0.939305425,0.0550933145,0.247014269,0.265170485,&quot;Category 1&quot;</span>
+5781c5781
+<span class="gd">&lt; &quot;Alternative 5780&quot;,0.333638728,0.325458288,0.69509089,0.761675119,&quot;Category 3&quot;</span>
 <span class="gs">---</span>
-<span class="gi">&gt; &quot;Alternative 9638&quot;,0.939305425,0.0550933145,0.247014269,0.265170485,&quot;Category 2&quot;</span>
+<span class="gi">&gt; &quot;Alternative 5780&quot;,0.333638728,0.325458288,0.69509089,0.761675119,&quot;Category 2&quot;</span>
+8032c8032
+<span class="gd">&lt; &quot;Alternative 8031&quot;,0.602598071,0.0554222316,0.920983374,0.00566159375,&quot;Category 2&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 8031&quot;,0.602598071,0.0554222316,0.920983374,0.00566159375,&quot;Category 1&quot;</span>
 9689c9689
 <span class="gd">&lt; &quot;Alternative 9688&quot;,0.940304875,0.885046899,0.162586793,0.515185535,&quot;Category 2&quot;</span>
 <span class="gs">---</span>
@@ -218,7 +252,7 @@ To see how close a trained model is to the original one, you can reclassify a te
 </pre></div>
 </div>
 <p>It should be close to 100%:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>9994/10000
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>9986/10000
 </pre></div>
 </div>
 </section>

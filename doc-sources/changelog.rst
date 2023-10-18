@@ -4,6 +4,22 @@
 Changelog
 =========
 
+Version 0.9.0
+=============
+
+- Pre-process the learning set before all learning algorithms.
+  Learning algorithms now see all criteria as:
+    - having increasing correlation with the categories
+    - having values in a range of integers
+  This is a simplification for implementers of learning algorithms,
+  and improves the performance of the weights-profiles-breed approach.
+- Expose ``SufficientCoalitions::upset_roots`` to Python
+- Fix alternative names when using the ``--max-imbalance`` option of ``lincs generate classified-alternatives``
+- Produce cleaner error when ``--max-imbalance`` is too tight
+- Print number of iterations at the end of WPB learnings
+- Display *lincs*' version in the "Reproduction command" comment in generated files
+- Various improvements to the code's readability
+
 Version 0.8.7
 =============
 

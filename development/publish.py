@@ -53,7 +53,7 @@ def bump_version(level):
         assert False
     print("New version:", new_version)
 
-    write_version(new_version)
+    write_version(dev_version, new_version)
 
     return new_version
 
