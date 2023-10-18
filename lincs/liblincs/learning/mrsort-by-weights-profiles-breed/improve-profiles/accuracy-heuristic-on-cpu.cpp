@@ -53,61 +53,57 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const bool is_growing = criterion.category_correlation == Criterion::CategoryCorrelation::growing;
   assert(is_growing || criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
 
-  const int delta_profile = is_growing ? +1 : -1;
-  const unsigned lowest_profile_index = is_growing ? 0 : learning_data.boundaries_count - 1;
-  const unsigned highest_profile_index = is_growing ? learning_data.boundaries_count - 1 : 0;
+  const float lowest_destination_rank =
+    profile_index == 0 ?
+      0 :
+      learning_data.profile_ranks[criterion_index][profile_index - 1][model_index];
+  const float highest_destination_rank =
+    profile_index == learning_data.boundaries_count - 1 ?
+      learning_data.values_counts[criterion_index] - 1 :
+      learning_data.profile_ranks[criterion_index][profile_index + 1][model_index];
 
-  const float lowest_destination =
-    profile_index == lowest_profile_index ?
-      learning_data.problem.criteria[criterion_index].min_value :
-      learning_data.profile_values[criterion_index][profile_index - delta_profile][model_index];
-  const float highest_destination =
-    profile_index == highest_profile_index ?
-      learning_data.problem.criteria[criterion_index].max_value :
-      learning_data.profile_values[criterion_index][profile_index + delta_profile][model_index];
-
-  float best_destination = learning_data.profile_values[criterion_index][profile_index][model_index];
-  float best_desirability = Desirability().value();
-
-  assert(lowest_destination <= highest_destination);
-  if (lowest_destination == highest_destination) {
-    assert(best_destination == lowest_destination);
+  assert(lowest_destination_rank <= highest_destination_rank);
+  if (lowest_destination_rank == highest_destination_rank) {
+    assert(learning_data.profile_ranks[criterion_index][profile_index][model_index] == lowest_destination_rank);
     return;
   }
 
-  // Not sure about this part: we're considering an arbitrary number of possible moves as described in
-  // Mousseau's prez-mics-2018(8).pdf, but:
-  //  - this is wasteful when there are fewer alternatives in the interval
-  //  - this is not strictly consistent with, albeit much simpler than, Sobrie's thesis
-  // @todo(Performance, later) Ask Vincent Mousseau about the following:
-  // We could consider only a finite set of values for b_j described as follows:
-  // - sort all the 'a_j's
-  // - compute all midpoints between two successive 'a_j'
-  // - add two extreme values (0 and 1, or above the greatest a_j and below the smallest a_j)
-  // Then instead of taking a random values in [lowest_destination, highest_destination],
-  // we'd take a random subset of the intersection of these midpoints with that interval.
-  for (unsigned n = 0; n < 64; ++n) {
-    // Map (embarrassingly parallel)
-    float destination = highest_destination;
-    // By specification, std::uniform_real_distribution should never return its highest value,
-    // but "most existing implementations have a bug where they may occasionally" return it,
-    // so we work around that bug by calling it again until it doesn't.
-    // Ref: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
-    while (destination == highest_destination) {
-      destination = std::uniform_real_distribution<float>(lowest_destination, highest_destination)(learning_data.urbgs[model_index]);
+  unsigned best_destination_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
+  float best_desirability = Desirability().value();
+
+  if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
+    // We could try uniformly spread-out destinations instead of uniform random ones
+    for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
+      const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.urbgs[model_index]);
+      const float desirability = compute_move_desirability(
+        model_index,
+        profile_index,
+        criterion_index,
+        destination_rank).value();
+      // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
+      if (desirability > best_desirability) {
+        best_desirability = desirability;
+        best_destination_rank = destination_rank;
+      }
     }
-    const float desirability = compute_move_desirability(
-      model_index, profile_index, criterion_index, destination).value();
-    // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
-    if (desirability > best_desirability) {
-      best_desirability = desirability;
-      best_destination = destination;
+  } else {
+    for (unsigned destination_rank = lowest_destination_rank; destination_rank <= highest_destination_rank; ++destination_rank) {
+      const float desirability = compute_move_desirability(
+        model_index,
+        profile_index,
+        criterion_index,
+        destination_rank).value();
+      // Single-key reduce (divide and conquer?) (atomic compare-and-swap?)
+      if (desirability > best_desirability) {
+        best_desirability = desirability;
+        best_destination_rank = destination_rank;
+      }
     }
   }
 
   // @todo(Project management, later) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
   if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
-    learning_data.profile_values[criterion_index][profile_index][model_index] = best_destination;
+    learning_data.profile_ranks[criterion_index][profile_index][model_index] = best_destination_rank;
   }
 }
 
@@ -115,13 +111,18 @@ Desirability ImproveProfilesWithAccuracyHeuristicOnCpu::compute_move_desirabilit
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
-  const float destination
+  const unsigned destination_rank
 ) {
   Desirability d;
 
   for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     update_move_desirability(
-      model_index, profile_index, criterion_index, destination, alternative_index, &d);
+      model_index,
+      profile_index,
+      criterion_index,
+      destination_rank,
+      alternative_index,
+      &d);
   }
 
   return d;
@@ -131,16 +132,14 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const unsigned model_index,
   const unsigned profile_index,
   const unsigned criterion_index,
-  const float destination,
+  const unsigned destination_rank,
   const unsigned alternative_index,
   Desirability* desirability
 ) {
-  const Criterion& criterion = learning_data.problem.criteria[criterion_index];
-
-  const float current_position = learning_data.profile_values[criterion_index][profile_index][model_index];
+  const unsigned current_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
   const float weight = learning_data.weights[criterion_index][model_index];
 
-  const float value = learning_data.learning_alternatives[criterion_index][alternative_index];
+  const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = learning_data.assignments[alternative_index];
   const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(learning_data, model_index, alternative_index);
 
@@ -149,10 +148,10 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   float weight_at_or_better_than_profile = 0;
   // There is a criterion parameter above, *and* a local criterion just here
   for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
-    const Criterion& crit = learning_data.problem.criteria[crit_index];
-    const float alternative_value = learning_data.learning_alternatives[crit_index][alternative_index];
-    const float profile_value = learning_data.profile_values[crit_index][profile_index][model_index];
-    if (crit.better_or_equal(alternative_value, profile_value)) {
+    const unsigned alternative_rank = learning_data.performance_ranks[crit_index][alternative_index];
+    const unsigned profile_rank = learning_data.profile_ranks[crit_index][profile_index][model_index];
+    const bool is_better = alternative_rank >= profile_rank;
+    if (is_better) {
       weight_at_or_better_than_profile += learning_data.weights[crit_index][model_index];
     }
   }
@@ -163,18 +162,18 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   // - learning_assignment: bottom index of A*
   // - model_assignment: top index of A*
   // - profile_index: h
-  // - destination: b_j +/- \delta
-  // - current_position: b_j
-  // - value: a_j
+  // - destination_value: b_j +/- \delta
+  // - current_value: b_j
+  // - alternative_value: a_j
   // - weight_at_or_better_than_profile: \sigma
   // - weight: w_j
   // - 1: \lambda
-  if (criterion.strictly_better(destination, current_position)) {
+  if (destination_rank > current_rank) {
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && criterion.strictly_better(destination, value)
-      && criterion.better_or_equal(value, current_position)
+      && destination_rank > alternative_rank
+      && alternative_rank >= current_rank
       && weight_at_or_better_than_profile - weight < 1
     ) {
       ++desirability->v;
@@ -182,8 +181,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && criterion.strictly_better(destination, value)
-      && criterion.better_or_equal(value, current_position)
+      && destination_rank > alternative_rank
+      && alternative_rank >= current_rank
       && weight_at_or_better_than_profile - weight >= 1
     ) {
       ++desirability->w;
@@ -191,8 +190,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index + 1
-      && criterion.strictly_better(destination, value)
-      && criterion.better_or_equal(value, current_position)
+      && destination_rank > alternative_rank
+      && alternative_rank >= current_rank
       && weight_at_or_better_than_profile - weight < 1
     ) {
       ++desirability->q;
@@ -200,16 +199,16 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && criterion.strictly_better(destination, value)
-      && criterion.better_or_equal(value, current_position)
+      && destination_rank > alternative_rank
+      && alternative_rank >= current_rank
     ) {
       ++desirability->r;
     }
     if (
       learning_assignment < profile_index
       && model_assignment > profile_index
-      && criterion.strictly_better(destination, value)
-      && criterion.better_or_equal(value, current_position)
+      && destination_rank > alternative_rank
+      && alternative_rank >= current_rank
     ) {
       ++desirability->t;
     }
@@ -217,8 +216,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && criterion.strictly_better(value, destination)
-      && criterion.strictly_better(current_position, value)
+      && alternative_rank > destination_rank
+      && current_rank > alternative_rank
       && weight_at_or_better_than_profile + weight >= 1
     ) {
       ++desirability->v;
@@ -226,8 +225,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index + 1
       && model_assignment == profile_index
-      && criterion.strictly_better(value, destination)
-      && criterion.strictly_better(current_position, value)
+      && alternative_rank > destination_rank
+      && current_rank > alternative_rank
       && weight_at_or_better_than_profile + weight < 1
     ) {
       ++desirability->w;
@@ -235,8 +234,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index
-      && criterion.strictly_better(value, destination)
-      && criterion.strictly_better(current_position, value)
+      && alternative_rank > destination_rank
+      && current_rank > alternative_rank
       && weight_at_or_better_than_profile + weight >= 1
     ) {
       ++desirability->q;
@@ -244,16 +243,16 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     if (
       learning_assignment == profile_index
       && model_assignment == profile_index + 1
-      && criterion.better_or_equal(value, destination)
-      && criterion.strictly_better(current_position, value)
+      && alternative_rank >= destination_rank
+      && current_rank > alternative_rank
     ) {
       ++desirability->r;
     }
     if (
       learning_assignment > profile_index + 1
       && model_assignment < profile_index + 1
-      && criterion.strictly_better(value, destination)
-      && criterion.better_or_equal(current_position, value)
+      && alternative_rank > destination_rank
+      && current_rank >= alternative_rank
     ) {
       ++desirability->t;
     }

@@ -13,18 +13,19 @@ namespace lincs {
 InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_) : learning_data(learning_data_) {
   CHRONE();
 
-  value_generators.reserve(learning_data.criteria_count);
+  rank_generators.reserve(learning_data.criteria_count);
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-    auto& value_generator = value_generators.emplace_back();
-    value_generator.reserve(learning_data.boundaries_count);
+    auto& rank_generator = rank_generators.emplace_back();
+    rank_generator.reserve(learning_data.boundaries_count);
+
     for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
-      value_generator.emplace_back(get_candidate_probabilities(criterion_index, profile_index));
+      auto rank_probabilities = get_candidate_probabilities(criterion_index, profile_index);
+      rank_generator.emplace_back(rank_probabilities);
     }
   }
 }
 
-std::map<float, double>
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities(
+std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities(
   unsigned criterion_index,
   unsigned profile_index
 ) {
@@ -32,47 +33,61 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_ca
 
   const Criterion& criterion = learning_data.problem.criteria[criterion_index];
 
-  std::vector<float> values_worse;
+  std::vector<std::pair<unsigned, float>> candidates_worse;
   // The size used for 'reserve' is a few times larger than the actual final size,
   // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
   // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
-  values_worse.reserve(learning_data.alternatives_count);
-  std::vector<float> values_better;
-  values_better.reserve(learning_data.alternatives_count);
+  candidates_worse.reserve(learning_data.alternatives_count);
+  std::vector<std::pair<unsigned, float>> candidates_better;
+  candidates_better.reserve(learning_data.alternatives_count);
   // This loop could/should be done once outside this function
   for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
-    const float value = learning_data.learning_alternatives[criterion_index][alternative_index];
+    const unsigned rank = learning_data.performance_ranks[criterion_index][alternative_index];
+    const float value = learning_data.sorted_values[criterion_index][rank];
     const unsigned assignment = learning_data.assignments[alternative_index];
     if (assignment == profile_index) {
-      values_worse.push_back(value);
+      candidates_worse.push_back({rank, value});
     } else if (assignment == profile_index + 1) {
-      values_better.push_back(value);
+      candidates_better.push_back({rank, value});
     }
   }
 
-  if (values_better.empty() && values_worse.empty()) {
-    return {{criterion.min_value, 1.0}};
+  if (candidates_better.empty() && candidates_worse.empty()) {
+    return {{{0, 1.0}}};
   } else {
-    std::map<float, double> candidate_probabilities;
+    std::map<unsigned, double> rank_probabilities;
 
-    for (auto candidates : { values_worse, values_better }) {
-      for (auto candidate : candidates) {
-        if (candidate_probabilities.find(candidate) != candidate_probabilities.end()) {
+    for (auto candidates : { candidates_worse, candidates_better }) {
+      for (auto [candidate_rank, candidate_value] : candidates) {
+        assert(learning_data.sorted_values[criterion_index][candidate_rank] == candidate_value);
+        const bool already_evaluated = rank_probabilities.find(candidate_rank) != rank_probabilities.end();
+        if (already_evaluated) {
           // Candidate value has already been evaluated (because it appears several times)
           continue;
         }
 
         unsigned correctly_classified_count = 0;
-        // @todo(Performance, later) Could we somehow sort 'values_worse' and 'values_better' and walk the values only once?
+        // @todo(Performance, later) Could we somehow sort 'candidates_worse' and 'candidates_better' and walk the values only once?
         // (Transforming this O(n²) loop in O(n*log n) + O(n))
-        for (auto value : values_worse) if (criterion.strictly_better(candidate, value)) ++correctly_classified_count;
-        for (auto value : values_better) if (criterion.better_or_equal(value, candidate)) ++correctly_classified_count;
-        candidate_probabilities[candidate] = static_cast<double>(correctly_classified_count) / candidates.size();
+        for (auto [rank, value] : candidates_worse) {
+          const bool is_better = candidate_rank > rank;
+          if (is_better) {
+            ++correctly_classified_count;
+          }
+        }
+        for (auto [rank, value] : candidates_better) {
+          const bool is_better = rank >= candidate_rank;
+          if (is_better) {
+            ++correctly_classified_count;
+          }
+        }
+        const double probability = static_cast<double>(correctly_classified_count) / candidates.size();
+        rank_probabilities[candidate_rank] = probability;
       }
     }
 
-    assert(!candidate_probabilities.empty());
-    return candidate_probabilities;
+    assert(!rank_probabilities.empty());
+    return rank_probabilities;
   }
 }
 
@@ -92,21 +107,21 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
       // Not parallel because of the profiles ordering constraint
       for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
         const unsigned profile_index = category_index - 1;
-        float value = value_generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
+        unsigned rank = rank_generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
 
         // Enforce profiles ordering constraint
         if (criterion.category_correlation == Criterion::CategoryCorrelation::growing) {
           if (profile_index != learning_data.boundaries_count - 1) {
-            value = std::min(value, learning_data.profile_values[criterion_index][profile_index + 1][model_index]);
+            rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
           }
         } else {
           assert(criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
           if (profile_index != learning_data.boundaries_count - 1) {
-            value = std::max(value, learning_data.profile_values[criterion_index][profile_index + 1][model_index]);
+            rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
           }
         }
 
-        learning_data.profile_values[criterion_index][profile_index][model_index] = value;
+        learning_data.profile_ranks[criterion_index][profile_index][model_index] = rank;
       }
     }
   }
@@ -142,8 +157,8 @@ TEST_CASE("Initialize profiles - respect ordering") {
   for (unsigned iteration = 0; iteration != 10; ++iteration) {
     initializer.initialize_profiles(0, 1);
     // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint' code is removed
-    CHECK(learning_data.profile_values[0][0][0] <= learning_data.profile_values[0][1][0]);
-    CHECK(learning_data.profile_values[1][0][0] >= learning_data.profile_values[1][1][0]);
+    CHECK(learning_data.profile_ranks[0][0][0] <= learning_data.profile_ranks[0][1][0]);
+    CHECK(learning_data.profile_ranks[1][0][0] <= learning_data.profile_ranks[1][1][0]);
   }
 }
 

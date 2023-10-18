@@ -132,15 +132,15 @@ This should output a similar model, with slight numerical differences.
 .. START other-learnings/expected-gpu+alglib-trained-model.yml
     # Reproduction command (with lincs version 0.8.8-dev): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver alglib --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
     # Termination condition: target accuracy reached
-    # Number of iterations: 6
+    # Number of iterations: 9
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [0.00770056946, 0.0549556538, 0.162616938, 0.193127945]
+      - profile: [0.924693644, 0.0556534864, 0.162616938, 0.942387044]
         sufficient_coalitions: &coalitions
           kind: weights
-          criterion_weights: [0.0181287061, 0.981870294, 0.981870294, 9.92577656e-13]
-      - profile: [0.0342072099, 0.324480206, 0.672487617, 0.427051842]
+          criterion_weights: [0.293799639, 0.386859566, 0.613140464, 0.304567546]
+      - profile: [0.971395075, 0.326433569, 0.671892762, 0.988728762]
         sufficient_coalitions: *coalitions
 .. STOP
 
@@ -170,12 +170,12 @@ It should produce a different kind of model, with the sufficient coalitions spec
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [1, 0.0552680492, 0.161919117, 0.995402098]
+      - profile: [0.999706864, 0.0552680492, 0.161919117, 0.995402098]
         sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
             - [1, 2]
-      - profile: [1, 0.325211823, 0.672662616, 0.996754646]
+      - profile: [0.999706864, 0.325211823, 0.672662616, 0.996754646]
         sufficient_coalitions: *coalitions
 
 .. STOP
@@ -185,12 +185,12 @@ It should produce a different kind of model, with the sufficient coalitions spec
     kind: ncs-classification-model
     format_version: 1
     boundaries:
-      - profile: [0.168208823, 0.0552680492, 0.161919117, 0.995402098]
+      - profile: [0.0198908672, 0.0552680492, 0.161919117, 0.995402098]
         sufficient_coalitions: &coalitions
           kind: roots
           upset_roots:
             - [1, 2]
-      - profile: [1, 0.325211823, 0.672662616, 0.996754646]
+      - profile: [0.999706864, 0.325211823, 0.672662616, 0.996754646]
         sufficient_coalitions: *coalitions
 .. STOP
 

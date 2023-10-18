@@ -18,31 +18,16 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
     const unsigned models_count_,
     const unsigned random_seed
 ) :
-  problem(problem_),
-  categories_count(problem.categories.size()),
-  criteria_count(problem.criteria.size()),
-  boundaries_count(categories_count - 1),
-  alternatives_count(learning_set.alternatives.size()),
-  learning_alternatives(criteria_count, alternatives_count, uninitialized),
-  assignments(alternatives_count, uninitialized),
+  PreProcessedLearningSet(problem_, learning_set),
   iteration_index(0),
   models_count(models_count_),
   model_indexes(models_count),
   weights(criteria_count, models_count, uninitialized),
-  profile_values(criteria_count, boundaries_count, models_count, uninitialized),
+  profile_ranks(criteria_count, boundaries_count, models_count, uninitialized),
   accuracies(models_count, zeroed),
   urbgs(models_count)
 {
   CHRONE();
-
-  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-    const Alternative& alt = learning_set.alternatives[alternative_index];
-
-    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      learning_alternatives[criterion_index][alternative_index] = alt.profile[criterion_index];
-    }
-    assignments[alternative_index] = *alt.category_index;
-  }
 
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
 
@@ -69,7 +54,9 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     std::vector<float> boundary_profile;
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      boundary_profile.push_back(profile_values[criterion_index][boundary_index][model_index]);
+      const unsigned profile_rank = profile_ranks[criterion_index][boundary_index][model_index];
+      const float profile_value = sorted_values[criterion_index][profile_rank];
+      boundary_profile.push_back(profile_value);
     }
     boundaries.emplace_back(boundary_profile, coalitions);
   }
@@ -156,9 +143,10 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
     const unsigned profile_index = category_index - 1;
     float weight_at_or_better_than_profile = 0;
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-      const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-      const float profile_value = learning_data.profile_values[criterion_index][profile_index][model_index];
-      if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
+      const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
+      const unsigned profile_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
+      const bool is_better = alternative_rank >= profile_rank;
+      if (is_better) {
         weight_at_or_better_than_profile += learning_data.weights[criterion_index][model_index];
       }
     }

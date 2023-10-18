@@ -97,7 +97,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
       column.begin(), column.end(),
       [&values_distribution, &gen]() { return values_distribution(gen); });
     // ... sort it according to the criterion's correlation to categories...
-    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return criterion.better_or_equal(right, left); });
+    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.category_correlation, right, left); });
     // ... and assign that column across all profiles.
     for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
       profiles[profile_index][criterion_index] = column[profile_index];

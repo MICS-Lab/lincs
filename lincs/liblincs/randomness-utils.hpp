@@ -3,6 +3,7 @@
 #ifndef LINCS__RANDOMNESS_UTILS_HPP
 #define LINCS__RANDOMNESS_UTILS_HPP
 
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <random>

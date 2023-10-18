@@ -60,9 +60,10 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_coefficient(x_variables[alternative_index], -1);
       c.set_coefficient(xp_variables[alternative_index], 1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-        const float profile_value = learning_data.profile_values[criterion_index][category_index - 1][model_index];
-        if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
+        const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
+        const unsigned profile_rank = learning_data.profile_ranks[criterion_index][category_index - 1][model_index];
+        const bool is_better = alternative_rank >= profile_rank;
+        if (is_better) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
@@ -74,9 +75,10 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_coefficient(y_variables[alternative_index], 1);
       c.set_coefficient(yp_variables[alternative_index], -1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        const float alternative_value = learning_data.learning_alternatives[criterion_index][alternative_index];
-        const float profile_value = learning_data.profile_values[criterion_index][category_index][model_index];
-        if (learning_data.problem.criteria[criterion_index].better_or_equal(alternative_value, profile_value)) {
+        const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
+        const unsigned profile_rank = learning_data.profile_ranks[criterion_index][category_index][model_index];
+        const bool is_better = alternative_rank >= profile_rank;
+        if (is_better) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }

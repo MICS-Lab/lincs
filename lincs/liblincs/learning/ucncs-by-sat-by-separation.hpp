@@ -4,6 +4,7 @@
 #define LINCS__LEARNING__UCNCS_BY_SAT_BY_SEPARATION_HPP
 
 #include "../io.hpp"
+#include "pre-processing.hpp"
 
 
 namespace lincs {
@@ -11,14 +12,8 @@ namespace lincs {
 template<typename SatProblem>
 class SatSeparationUcncsLearning {
  public:
-  SatSeparationUcncsLearning(const Problem& problem_, const Alternatives& learning_set_) :
-    problem(problem_),
-    learning_set(learning_set_),
-    criteria_count(problem.criteria.size()),
-    categories_count(problem.categories.size()),
-    boundaries_count(categories_count - 1),
-    alternatives_count(learning_set.alternatives.size()),
-    unique_values(),
+  SatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_) :
+    learning_set(problem, learning_set_),
     better_alternative_indexes(),
     worse_alternative_indexes(),
     better(),
@@ -30,7 +25,6 @@ class SatSeparationUcncsLearning {
   Model perform();
 
  private:
-  void sort_values();
   void partition_alternatives();
   void create_variables();
   void add_structural_constraints();
@@ -38,13 +32,7 @@ class SatSeparationUcncsLearning {
   Model decode(const std::vector<bool>& solution);
 
  private:
-  const Problem& problem;
-  const Alternatives& learning_set;
-  const unsigned criteria_count;
-  const unsigned categories_count;
-  const unsigned boundaries_count;
-  const unsigned alternatives_count;
-  std::vector<std::vector<float>> unique_values;
+  PreProcessedLearningSet learning_set;
   // Alternatives better than category k
   std::vector<std::vector<unsigned>> better_alternative_indexes;
   // Alternatives in category k or worse

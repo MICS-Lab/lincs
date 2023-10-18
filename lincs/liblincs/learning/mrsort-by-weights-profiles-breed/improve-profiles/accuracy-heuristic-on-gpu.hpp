@@ -14,20 +14,19 @@ namespace lincs {
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  private:
   struct GpuLearningData {
-    Array1D<Device, bool> criterion_is_growing;
-    Array2D<Device, float> learning_alternatives;
-    Array1D<Device, unsigned> assignments;
-    Array2D<Device, float> weights;
-    Array3D<Device, float> profile_values;
+    GpuLearningData(const LearningData&);
 
-    Array2D<Device, Desirability> desirabilities;
-    Array2D<Device, float> destinations;
+    Array2D<Device, unsigned> performance_ranks;  // Indexed by [criterion_index][alternative_index]
+    Array1D<Device, unsigned> assignments;  // [alternative_index]
+    Array2D<Device, float> weights;  // [criterion_index][model_index]
+    Array3D<Device, unsigned> profile_ranks;  // [criterion_index][profile_index][model_index]
 
-    static GpuLearningData make(const LearningData&);
+    Array2D<Device, Desirability> desirabilities;  // [model_index][desination_index]
+    Array2D<Device, unsigned> destination_ranks;  // [model_index][desination_index]
   };
 
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(LearningData& host_learning_data_) : host_learning_data(host_learning_data_), gpu_learning_data(std::move(GpuLearningData::make(host_learning_data))) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(LearningData& host_learning_data_) : host_learning_data(host_learning_data_), gpu_learning_data(host_learning_data) {}
 
  public:
   void improve_profiles() override;
@@ -51,7 +50,7 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
   LearningData& host_learning_data;
   GpuLearningData gpu_learning_data;
 
-  static const unsigned destinations_count = 64;
+  static const unsigned max_destinations_count = 64;
 };
 
 #endif  // LINCS_HAS_NVCC
