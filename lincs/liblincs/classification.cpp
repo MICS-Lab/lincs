@@ -19,7 +19,7 @@ bool better_or_equal(Criterion::CategoryCorrelation category_correlation, float 
     case Criterion::CategoryCorrelation::decreasing:
       return lhs <= rhs;
   }
-  __builtin_unreachable();
+ unreachable();
 }
 
 bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, const Alternative& alternative) {
