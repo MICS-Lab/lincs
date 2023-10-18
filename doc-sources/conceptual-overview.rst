@@ -17,6 +17,8 @@ For a given set :math:`S`, we denote the set of all its subsets (*a.k.a.* its po
 For example :math:`\mathcal{P}(\{0, 1, 2\}) = \{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}`.
 
 
+.. _overview-about-classification:
+
 About classification
 ====================
 
@@ -491,6 +493,7 @@ It was originaly `implemented in Python <https://github.com/oso/pymcda>`_ by Oli
 Emma Dixneuf, Thibault Monsel and Thomas Vindard then provided a sequential `C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_,
 and *lincs* provides two parallel implementations (using OpenMP and CUDA).
 
+.. _overview-synthetic-data:
 
 Synthetic data
 ==============
