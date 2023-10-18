@@ -44,7 +44,7 @@ class MaxSatCoalitionsUcncsLearning {
   typedef boost::dynamic_bitset<> Coalition;
   std::vector<Coalition> all_coalitions;
   const typename MaxSatProblem::weight_type goal_weight;
-  // better[criterion_index][boundary_index][value_index]: value is better than profile on criterion
+  // better[criterion_index][boundary_index][value_rank]: value is better than profile on criterion
   std::vector<std::vector<std::vector<typename MaxSatProblem::variable_type>>> better;
   // sufficient[coalition.to_ulong()]: coalition is sufficient
   std::vector<typename MaxSatProblem::variable_type> sufficient;

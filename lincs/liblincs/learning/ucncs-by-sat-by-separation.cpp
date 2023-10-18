@@ -76,8 +76,8 @@ void SatSeparationUcncsLearning<SatProblem>::create_variables() {
     better[criterion_index].resize(learning_set.boundaries_count);
     for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
       better[criterion_index][boundary_index].resize(learning_set.values_counts[criterion_index]);
-      for (unsigned value_index = 0; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
-        better[criterion_index][boundary_index][value_index] = sat.create_variable();
+      for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
+        better[criterion_index][boundary_index][value_rank] = sat.create_variable();
       }
     }
   }
@@ -111,10 +111,10 @@ void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
   // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-      for (unsigned value_index = 1; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
+      for (unsigned value_rank = 1; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
         sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_index - 1],
-          better[criterion_index][boundary_index][value_index]
+          better[criterion_index][boundary_index][value_rank - 1],
+          better[criterion_index][boundary_index][value_rank]
         ));
       }
     }
@@ -123,11 +123,11 @@ void SatSeparationUcncsLearning<SatProblem>::add_structural_constraints() {
   // Clauses "P'2" in the article
   // Profiles are ordered so if a value is better than a profile, then it is also better than lower profiles
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    for (unsigned value_index = 0; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
+    for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
       for (unsigned boundary_index = 1; boundary_index != learning_set.boundaries_count; ++boundary_index) {
         sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_index],
-          better[criterion_index][boundary_index - 1][value_index]
+          better[criterion_index][boundary_index][value_rank],
+          better[criterion_index][boundary_index - 1][value_rank]
         ));
       }
     }
@@ -142,12 +142,12 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
     for (unsigned boundary_index_a = 0; boundary_index_a != learning_set.boundaries_count; ++boundary_index_a) {
       for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
-        const unsigned bad_value_index = learning_set.performance_ranks[criterion_index][bad_alternative_index];
+        const unsigned bad_value_rank = learning_set.performance_ranks[criterion_index][bad_alternative_index];
         for (unsigned boundary_index_b = 0; boundary_index_b != learning_set.boundaries_count; ++boundary_index_b) {
           for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
             sat.add_clause(implies(
               separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
-              -better[criterion_index][boundary_index_a][bad_value_index]
+              -better[criterion_index][boundary_index_a][bad_value_rank]
             ));
           }
         }
@@ -159,12 +159,12 @@ void SatSeparationUcncsLearning<SatProblem>::add_learning_set_constraints() {
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
     for (unsigned boundary_index_b = 0; boundary_index_b != learning_set.boundaries_count; ++boundary_index_b) {
       for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
-        const unsigned good_value_index = learning_set.performance_ranks[criterion_index][good_alternative_index];
+        const unsigned good_value_rank = learning_set.performance_ranks[criterion_index][good_alternative_index];
         for (unsigned boundary_index_a = 0; boundary_index_a != learning_set.boundaries_count; ++boundary_index_a) {
           for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
             sat.add_clause(implies(
               separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
-              better[criterion_index][boundary_index_b][good_value_index]
+              better[criterion_index][boundary_index_b][good_value_rank]
             ));
           }
         }
@@ -207,13 +207,13 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
       const float worst_value = is_growing ? learning_set.problem.criteria[criterion_index].min_value : learning_set.problem.criteria[criterion_index].max_value;
 
       bool found = false;
-      for (unsigned value_index = 0; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
-        if (solution[better[criterion_index][boundary_index][value_index]]) {
-          ranks[criterion_index] = value_index;
-          if (value_index == 0) {
+      for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
+        if (solution[better[criterion_index][boundary_index][value_rank]]) {
+          ranks[criterion_index] = value_rank;
+          if (value_rank == 0) {
             values[criterion_index] = worst_value;
           } else {
-            values[criterion_index] = (learning_set.sorted_values[criterion_index][value_index - 1] + learning_set.sorted_values[criterion_index][value_index]) / 2;
+            values[criterion_index] = (learning_set.sorted_values[criterion_index][value_rank - 1] + learning_set.sorted_values[criterion_index][value_rank]) / 2;
           }
           found = true;
           break;

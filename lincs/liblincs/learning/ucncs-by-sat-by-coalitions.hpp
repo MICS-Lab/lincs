@@ -45,7 +45,7 @@ class SatCoalitionsUcncsLearning {
   // Same in "max-SAT by coalitions"
   typedef boost::dynamic_bitset<> Coalition;
   std::vector<Coalition> all_coalitions;
-  // better[criterion_index][boundary_index][value_index]: value is better than profile on criterion
+  // better[criterion_index][boundary_index][value_rank]: value is better than profile on criterion
   std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> better;
   // sufficient[coalition.to_ulong()]: coalition is sufficient
   std::vector<typename SatProblem::variable_type> sufficient;

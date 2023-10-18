@@ -37,7 +37,7 @@ class SatSeparationUcncsLearning {
   std::vector<std::vector<unsigned>> better_alternative_indexes;
   // Alternatives in category k or worse
   std::vector<std::vector<unsigned>> worse_alternative_indexes;
-  // better[criterion_index][boundary_index][value_index]: value is better than profile on criterion
+  // better[criterion_index][boundary_index][value_rank]: value is better than profile on criterion
   std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> better;
   // separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index]:
   // criterion separates alternatives 'good' and 'bad' with regards to profiles 'a' and 'b'

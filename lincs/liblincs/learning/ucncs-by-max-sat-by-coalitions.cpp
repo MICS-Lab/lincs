@@ -61,8 +61,8 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::create_variables() {
     better[criterion_index].resize(learning_set.categories_count);
     for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
       better[criterion_index][boundary_index].resize(learning_set.values_counts[criterion_index]);
-      for (unsigned value_index = 0; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
-        better[criterion_index][boundary_index][value_index] = sat.create_variable();
+      for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
+        better[criterion_index][boundary_index][value_rank] = sat.create_variable();
       }
     }
   }
@@ -90,10 +90,10 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
   // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
     for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-      for (unsigned value_index = 1; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
+      for (unsigned value_rank = 1; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
         sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_index - 1],
-          better[criterion_index][boundary_index][value_index]
+          better[criterion_index][boundary_index][value_rank - 1],
+          better[criterion_index][boundary_index][value_rank]
         ));
       }
     }
@@ -102,11 +102,11 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
   // Clauses "C2" in the article
   // Profiles are ordered so if a value is better than a profile, then it is also better than lower profiles
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    for (unsigned value_index = 0; value_index != learning_set.values_counts[criterion_index]; ++value_index) {
+    for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
       for (unsigned boundary_index = 1; boundary_index != learning_set.boundaries_count; ++boundary_index) {
         sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_index],
-          better[criterion_index][boundary_index - 1][value_index]
+          better[criterion_index][boundary_index][value_rank],
+          better[criterion_index][boundary_index - 1][value_rank]
         ));
       }
     }
@@ -148,10 +148,10 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       clause.push_back(-sufficient[coalition.to_ulong()]);
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
-          const unsigned value_index = learning_set.performance_ranks[criterion_index][alternative_index];
-          assert(value_index < better[criterion_index][boundary_index].size());
+          const unsigned value_rank = learning_set.performance_ranks[criterion_index][alternative_index];
+          assert(value_rank < better[criterion_index][boundary_index].size());
           // ... or the alternative is worse than the profile on at least one necessary criterion
-          clause.push_back(-better[criterion_index][boundary_index][value_index]);
+          clause.push_back(-better[criterion_index][boundary_index][value_rank]);
         }
       }
       // ... or it's not correctly classified
@@ -179,9 +179,9 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
       clause.push_back(sufficient[coalition_complement.to_ulong()]);
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
-          const unsigned value_index = learning_set.performance_ranks[criterion_index][alternative_index];
-          assert(value_index < better[criterion_index][boundary_index].size());
-          clause.push_back(better[criterion_index][boundary_index][value_index]);
+          const unsigned value_rank = learning_set.performance_ranks[criterion_index][alternative_index];
+          assert(value_rank < better[criterion_index][boundary_index].size());
+          clause.push_back(better[criterion_index][boundary_index][value_rank]);
         }
       }
       clause.push_back(-correct[alternative_index]);
