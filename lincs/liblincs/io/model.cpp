@@ -29,6 +29,12 @@ TEST_CASE("libyaml-cpp uses sufficient precision for floats") {
 
 namespace lincs {
 
+// @todo(Feature, v1) Generalize the notion of "good" and "bad" values in boundaries:
+// Currently, we just have an "above profile" or "below profile" notion.
+// For single peaked, we'll need a "between two profiles" notion,
+// and we could envision an "explicit list of good values" for enumerated criteria.
+// For criteria with unknown correlation with the categories, we also need to put "above profile"
+// or "below profile" *in* the model file instead of just in the problem file.
 const std::string Model::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
 title: NCS classification model
 type: object
