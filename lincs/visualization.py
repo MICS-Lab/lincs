@@ -31,7 +31,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
             )
 
     ax.legend()
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 1)  # @todo(Feature, soon) Set vertical limits according to min and max values of all criteria
 
     fig.savefig(out, format="png", dpi=100)
     plt.close(fig)

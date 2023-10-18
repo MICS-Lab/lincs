@@ -4,17 +4,18 @@
 Conceptual overview
 ===================
 
-
-@todo(Documentation, soon) Double-check strictness of inequalities (:math:`\lt` *vs.* :math:`\le`) and inclusions (:math:`\subset` *vs.* :math:`\subseteq`) in all formal definitions in this document
-
 Notation
 ========
 
 In this document, we denote the interval of integers from :math:`a` to :math:`b - 1` included by :math:`[a..b)`.
 Most often, :math:`a` will be zero.
 This choice matches the indexing convention used in most modern programming language, so our documentation is as close as possible to our implementation.
+For example, :math:`[0..4) = \{0, 1, 2, 3\}`.
+Note that :math:`[0..n)` contains :math:`n` elements.
 
 For a given set :math:`S`, we denote the set of all its subsets (*a.k.a.* its power set) by :math:`\mathcal{P}(S)`.
+For example :math:`\mathcal{P}(\{0, 1, 2\}) = \{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}`.
+
 
 About classification
 ====================
@@ -39,9 +40,9 @@ The same vocabulary could apply to triaging patients in an hospital based on vit
   A problem is defined by:
 
   - its number of criteria :math:`n \in \mathbb{N}`
-  - its set of criteria :math:`\{X_i\}_{i \in [0..n)}`. Each criterion is a set of values :math:`X_i` with a total pre-order :math:`\preccurlyeq_i`, for :math:`i \in [0..n)`
+  - its set of criteria :math:`\{X_i\}_{i \in [0..n)}`. Each criterion :math:`X_i` (for :math:`i \in [0..n)`) is a set of values with a total pre-order :math:`\preccurlyeq_i`
   - its number of categories :math:`p \in \mathbb{N}`
-  - its set of categories :math:`C = \{C^h\}_{h \in [0..p)}`, ordered by :math:`C^0 \prec ... \prec C^{p-1}`
+  - its set of categories :math:`C = \{C^h\}_{h \in [0..p)}`, ordered by :math:`C^0 \prec ... \prec C^{p-1}`. Do not confuse :math:`h` for an exponent; it's just an index.
 
   In that setting, alternatives are the Cartesian product of the criteria: :math:`X = \prod_{i \in [0..n)} X_i`.
   For a given alternative :math:`x = (x_0, ..., x_{n-1}) \in X`, its performance on criterion :math:`i` is :math:`x_i \in X_i`.
@@ -55,9 +56,11 @@ Learning and classifying
 
 *lincs* provides algorithms to automate the classification of alternatives into categories.
 Its approach is to first "learn" a "model" from a set of already classified alternatives, and then use that model to classify new alternatives.
-The set of pre-classified alternatives is called the "training set"; it constitutes the ground truth for the learning phase.
+The set of already classified alternatives is called the "training set"; it constitutes the ground truth for the learning phase.
 
-Formally, models are functions from alternatives to category indexes: :math:`f: X \rightarrow [0..p)`.
+.. admonition:: Formal definition
+
+  Formally, models are functions from alternatives to category indexes: :math:`f: X \rightarrow [0..p)`.
 
 Most models are parametric functions of a given form, and the learning phase consists in finding the parameters that best fit the training set.
 
@@ -72,6 +75,8 @@ Non-compensatory sorting models are a way to capture that idea.
 There are many "families" of models, *i.e.* sets of models that share the same general parametric form with varying parameters.
 NCS models are one such family.
 
+They were first introduced by Denis Bouyssou and Thierry Marchant in their articles `An axiomatic approach to noncompensatory sorting methods in MCDM I: The case of two categories <https://hal.science/hal-00958022>`_ and `... II: More than two categories <https://hal.science/hal-00013762v1>`_.
+
 An NCS model defines a "lower performance profile" for each category.
 It then assigns an alternative to a good category if that alternative has performances above that category's lower profiles on a sufficient set of the criteria.
 Sets of criteria are called "coalitions".
@@ -85,7 +90,7 @@ Additionally, this set of coalitions can be different for each category.
 
   - for each category but the first, *i.e.* for :math:`C^h` for :math:`h \in [1..p)`:
 
-    - its lower performance profile :math:`b^h = (b^h_0, ..., b^h_{n-1}) \in X` (do not confuse :math:`h` for an exponent; it's just an index)
+    - its lower performance profile :math:`b^h = (b^h_0, ..., b^h_{n-1}) \in X` (:math:`h` is still just an index)
     - its sufficient coalitions :math:`\mathcal{F}^h \subseteq \mathcal{P}([0..n))`
 
   With the following constraints:
@@ -103,12 +108,10 @@ Additionally, this set of coalitions can be different for each category.
     f: x \mapsto \max (\{0\} \cup \{ h \in [1..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \})
 
 Note that this definition extends naturally if we denote :math:`\mathcal{F}^0 = [0..n)` and :math:`b^0 = (\min(X_0), ..., \min(X_{n-1}))`.
-The definition of :math:`f` then simplifies to :math:`x \mapsto \max \{ h \in [1..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \}`.
+The definition of :math:`f` then simplifies to :math:`x \mapsto \max \{ h \in [0..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \}`.
 
 This definition may differ slightly from the one you're used to, but it should be formally equivalent.
 We use it in *lincs* because it is somewhat simple and matches the implementation quite well.
-We detail its equivalence to other common definitions in the following appendix:
-@todo(Documentation, soon) Write appendix about equivalence of definitions (:math:`h` is shifted by 1, assignment to category is a max instead of two conditions)
 
 The constraints in the definition all ensure NDS models behave according to intuition:
 
@@ -359,21 +362,23 @@ If yes, they get a partial scholarship.
     E,1,1,0,0,"No scholarship"
 .. STOP
 
-=======   ============================================   ======================   ========================   ========================   ========================   ===========
-Student   Grades                                         Above :math:`b^2`        In :math:`\mathcal{F}^2`   Above :math:`b^1`          In :math:`\mathcal{F}^1`   Scholarship
-=======   ============================================   ======================   ========================   ========================   ========================   ===========
-A         :math:`(1, 1, 1, 1)`                           :math:`\{M, P, L, H\}`   Yes                        (:math:`\{M, P, L, H\}`)   (Yes)                      Full
-B         :math:`(1, 1, 1, 0)`                           :math:`\{M, P, L\}`      Yes                        (:math:`\{M, P, L\}`)      (Yes)                      Full
-C         :math:`(0.8, 0.7, 0.85, 0.6)`                  :math:`\{M, L\}`         No                         :math:`\{M, P, L, H\}`     Yes                        Partial
-D         :math:`(1, 0, 1, 0)`                           :math:`\{M, L\}`         No                         :math:`\{M, L\}`           Yes                        Partial
-E         :math:`(1, 1, 0, 0)`                           :math:`\{M, P\}`         No                         :math:`\{M, P\}`           No                         None
-=======   ============================================   ======================   ========================   ========================   ========================   ===========
+=======   ============================================   ======================   ========================   ===============================   ========================   ===========
+Student   Grades                                         Above :math:`b^2`        In :math:`\mathcal{F}^2`   Above :math:`b^1`                 In :math:`\mathcal{F}^1`   Scholarship
+=======   ============================================   ======================   ========================   ===============================   ========================   ===========
+A         :math:`(1, 1, 1, 1)`                           :math:`\{M, P, L, H\}`   Yes                        :math:`\{M, P, L, H\}` (unused)   Yes (unused)               Full
+B         :math:`(1, 1, 1, 0)`                           :math:`\{M, P, L\}`      Yes                        :math:`\{M, P, L\}` (unused)      Yes (unused)               Full
+C         :math:`(0.8, 0.7, 0.85, 0.6)`                  :math:`\{M, L\}`         No                         :math:`\{M, P, L, H\}`            Yes                        Partial
+D         :math:`(1, 0, 1, 0)`                           :math:`\{M, L\}`         No                         :math:`\{M, L\}`                  Yes                        Partial
+E         :math:`(1, 1, 0, 0)`                           :math:`\{M, P\}`         No                         :math:`\{M, P\}`                  No                         None
+=======   ============================================   ======================   ========================   ===============================   ========================   ===========
 
 In prose, this model can be formulated as follows:
 
 - students who have excellent grades (above :math:`b^2`) in at least three subjects get a full scholarship
 - students who have good grades (above :math:`b^1`) in at least one scientific subject (:math:`M` and :math:`P`) and at least one literary subject (:math:`L` and :math:`H`) get a partial scholarship
 - other students get no scholarship
+
+Back to the concepts!
 
 Particular cases
 ----------------
@@ -387,7 +392,7 @@ Here are a few that are used in *lincs*:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A :math:`U^c \textsf{-} NCS` model is an NCS model where all :math:`\mathcal{F}^h` are the same.
-This simplification captures the idea that in many cases, the same criteria are sufficient for all categories, and that categories are mostly defined by their lower performance profile.
+This simplification captures the idea that in many cases, the same criteria are sufficient for all categories, and that categories differ by their lower performance profile.
 
 .. admonition:: Formal definition
 
@@ -403,6 +408,8 @@ In the previous model example, :math:`\mathcal{F}^1 \ne \mathcal{F}^2`, so it is
 An MR-Sort model is a :math:`U^c \textsf{-} NCS` model with the additional simplification that :math:`\mathcal{F}` is defined using weights on criteria and a threshold.
 A coalition is sufficient if the sum of the weights of its criteria is above 1.
 
+It was introduced by Agnès Leroy *et al.* in `Learning the Parameters of a Multiple Criteria Sorting Method <https://link.springer.com/chapter/10.1007/978-3-642-24873-3_17>`_.
+
 .. admonition:: Formal definition
 
   An MR-Sort model is a :math:`U^c \textsf{-} NCS` model with the following additional parameters:
@@ -415,12 +422,11 @@ A coalition is sufficient if the sum of the weights of its criteria is above 1.
 
   - :math:`\mathcal{F} = \{ S \in \mathcal{P}([0..n)): \sum_{i \in S} w_i \geq 1 \}`
 
-Again, this definition differs slightly from others in the literature.
-We detail their equivalence in this appendix:
-@todo(Documentation, soon) Write appendix about equivalence of definitions (weights are de-normalized, :math:`\lambda` is 1)
+Again, this definition differs slightly from others in the literature but is formally equivalent,
+and is used because it matches our implementation more closely.
 
 Example
-.......
+-------
 
 Let's consider a simplified form of our previous model example, with only the two categories :math:`C^0` and :math:`C^1`,
 and the same profile :math:`b^1` and sufficient coalitions :math:`\mathcal{F}^1` as before.
@@ -446,6 +452,46 @@ and coalitions of at least 3 criteria have weights sums greater than 1.
 Intuitively, MR-Sort models can express slightly fewer differences in the importance of criteria than :math:`U^c \textsf{-} NCS` models.
 
 
+Classification accuracy
+=======================
+
+The success of a learning algorithm can be measured according to two main metrics:
+
+- the duration of the learning (the quicker the better)
+- the accuracy of the learned model (the higher the better)
+
+The accuracy of the learned model is defined as the portion of alternatives that are classified by the learned model into the same category as in the learning set.
+
+Real-world data is often noisy: the learning set often contains inconsistencies that prevents it from being the result of an NCS classification.
+In those cases, it's impossible to find an NCS model with 100% accuracy, but it's still useful to find a model with a good accuracy.
+
+Here is a summary of the learning methods implemented in *lincs*:
+
+========================================  ==========================  ================  ==========================================  =====================
+Algorithm                                 Model learned               Typical duration  Result on success                           Result on failure
+========================================  ==========================  ================  ==========================================  =====================
+SAT (by coalitions or by separation)      :math:`U^c \textsf{-} NCS`  Quickest          A model with 100% accuracy                  Nothing
+WPB heuristic                             MR-Sort                     Intermediate      A model with accuracy above specified goal  The best model so far
+max-SAT (by coalitions or by separation)  :math:`U^c \textsf{-} NCS`  Longest           A model with maximum accuracy               (no failure)
+========================================  ==========================  ================  ==========================================  =====================
+
+Note that none of these algorithm produced "the" model: there is no such thing as a single best model.
+
+The SAT approaches are often the quickest, but when a model with 100% accuracy doesn't exist, they simply fail to produce anything.
+
+The WPB approach can be configured to produce its "best model so far" if it takes too long to reach the specified accuracy goal.
+
+Provided enough computing resources (time and memory), the max-SAT approaches always reach the best possible accuracy, but can be longer than practical.
+
+The SAT and max-SAT approaches were implemented using their description by Ali Tlili, Khaled Belahcène *et al.* in `Learning non-compensatory sorting models using efficient SAT/MaxSAT formulations <https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858>`_.
+Note that they were introduced in previous articles, and that this article conveniently gathers them in a single place.
+
+The WPB heuristic was described by `Olivier Sobrie <http://olivier.sobrie.be/>`_ in his `Ph.D thesis <http://olivier.sobrie.be/papers/phd_2016_sobrie.pdf>`_.
+It was originaly `implemented in Python <https://github.com/oso/pymcda>`_ by Olivier Sobrie.
+Emma Dixneuf, Thibault Monsel and Thomas Vindard then provided a sequential `C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_,
+and *lincs* provides two parallel implementations (using OpenMP and CUDA).
+
+
 Synthetic data
 ==============
 
@@ -455,7 +501,7 @@ They then generate pseudo-random alternatives classified according to that origi
 and use them as a training set to learn a new model.
 Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the algorithm.
 
-*lincs* provides ways to generate synthetic pseudo-random problems, models and training sets.
+*lincs* provides ways to generate synthetic pseudo-random problems, models and training sets (noisy or clean).
 The same file formats are used for synthetic and real-world data.
 
 
