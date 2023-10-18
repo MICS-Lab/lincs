@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; lincs 0.9.0 documentation</title>
+    <title>Changelog &#8212; lincs 0.9.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=1bc1ca25"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=bfb94e3c"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -34,20 +34,20 @@
             
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
-<section id="version-0-9-0">
-<h2>Version 0.9.0<a class="headerlink" href="#version-0-9-0" title="Permalink to this heading">¶</a></h2>
-<ul>
-<li><p>Pre-process the learning set before all learning algorithms.
-Learning algorithms now see all criteria as:</p>
+<section id="versions-0-9-0-to-0-9-1">
+<h2>Versions 0.9.0 to 0.9.1<a class="headerlink" href="#versions-0-9-0-to-0-9-1" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Pre-process the learning set before all learning algorithms.</p></li>
+</ul>
+<p>Possible values for each criterion are listed and sorted before the actual learning starts so that learning algorithms now see all criteria as:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>having increasing correlation with the categories</p></li>
 <li><p>having values in a range of integers</p></li>
 </ul>
 </div></blockquote>
-<p>This is a simplification for implementers of learning algorithms,
-and improves the performance of the weights-profiles-breed approach.</p>
-</li>
+<p>This is a simplification for implementers of learning algorithms, and improves the performance of the weights-profiles-breed approach.</p>
+<ul class="simple">
 <li><p>Expose <code class="docutils literal notranslate"><span class="pre">SufficientCoalitions::upset_roots</span></code> to Python</p></li>
 <li><p>Fix alternative names when using the <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span></code> option of <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classified-alternatives</span></code></p></li>
 <li><p>Produce cleaner error when <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span></code> is too tight</p></li>
@@ -254,7 +254,7 @@ and improves the performance of the weights-profiles-breed approach.</p>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-9-0">Version 0.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#versions-0-9-0-to-0-9-1">Versions 0.9.0 to 0.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-8-7">Version 0.8.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#versions-0-8-5-to-0-8-6">Versions 0.8.5 to 0.8.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#versions-0-8-0-to-0-8-4">Versions 0.8.0 to 0.8.4</a></li>
