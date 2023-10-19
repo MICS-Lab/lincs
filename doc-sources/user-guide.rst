@@ -17,6 +17,8 @@ You may find it useful to read ``lincs/command_line_interface.py`` to see how th
 Similarly, reading ``lincs/liblincs/liblincs_module.cpp`` may help you understand how the Python API exposes the C++ API is, and thus how to use it.
 
 
+@todo(Documentation, soon) Add a section "Format data for *lincs*" describing the problem, model and alternatives files in prose, and linking to their reference documentation.
+
 Generate synthetic data
 =======================
 
@@ -135,13 +137,20 @@ This should output a similar model, with slight numerical differences.
     # Number of iterations: 9
     kind: ncs-classification-model
     format_version: 1
-    boundaries:
-      - profile: [0.924693644, 0.0556534864, 0.162616938, 0.942387044]
-        sufficient_coalitions: &coalitions
-          kind: weights
-          criterion_weights: [0.293799639, 0.386859566, 0.613140464, 0.304567546]
-      - profile: [0.971395075, 0.326433569, 0.671892762, 0.988728762]
-        sufficient_coalitions: *coalitions
+    accepted_values:
+      - kind: thresholds
+        thresholds: [0.924693644, 0.971395075]
+      - kind: thresholds
+        thresholds: [0.0556534864, 0.326433569]
+      - kind: thresholds
+        thresholds: [0.162616938, 0.671892762]
+      - kind: thresholds
+        thresholds: [0.942387044, 0.988728762]
+    sufficient_coalitions:
+      - &coalitions
+        kind: weights
+        criterion_weights: [0.293799639, 0.386859566, 0.613140464, 0.304567546]
+      - *coalitions
 .. STOP
 
 .. EXTEND other-learnings/run.sh
@@ -169,14 +178,21 @@ It should produce a different kind of model, with the sufficient coalitions spec
     # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-coalitions
     kind: ncs-classification-model
     format_version: 1
-    boundaries:
-      - profile: [0.999706864, 0.0552680492, 0.161919117, 0.995402098]
-        sufficient_coalitions: &coalitions
-          kind: roots
-          upset_roots:
-            - [1, 2]
-      - profile: [0.999706864, 0.325211823, 0.672662616, 0.996754646]
-        sufficient_coalitions: *coalitions
+    accepted_values:
+      - kind: thresholds
+        thresholds: [0.999706864, 0.999706864]
+      - kind: thresholds
+        thresholds: [0.0552680492, 0.325211823]
+      - kind: thresholds
+        thresholds: [0.161919117, 0.672662616]
+      - kind: thresholds
+        thresholds: [0.995402098, 0.996754646]
+    sufficient_coalitions:
+      - &coalitions
+        kind: roots
+        upset_roots:
+          - [1, 2]
+      - *coalitions
 
 .. STOP
 
@@ -184,14 +200,21 @@ It should produce a different kind of model, with the sufficient coalitions spec
     # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-separation
     kind: ncs-classification-model
     format_version: 1
-    boundaries:
-      - profile: [0.0198908672, 0.0552680492, 0.161919117, 0.995402098]
-        sufficient_coalitions: &coalitions
-          kind: roots
-          upset_roots:
-            - [1, 2]
-      - profile: [0.999706864, 0.325211823, 0.672662616, 0.996754646]
-        sufficient_coalitions: *coalitions
+    accepted_values:
+      - kind: thresholds
+        thresholds: [0.0198908672, 0.999706864]
+      - kind: thresholds
+        thresholds: [0.0552680492, 0.325211823]
+      - kind: thresholds
+        thresholds: [0.161919117, 0.672662616]
+      - kind: thresholds
+        thresholds: [0.995402098, 0.996754646]
+    sufficient_coalitions:
+      - &coalitions
+        kind: roots
+        upset_roots:
+          - [1, 2]
+      - *coalitions
 .. STOP
 
 .. EXTEND other-learnings/run.sh

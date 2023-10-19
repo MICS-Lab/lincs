@@ -146,15 +146,21 @@ TEST_CASE("Generate MR-Sort model - random weights sum") {
   Problem problem = generate_classification_problem(3, 2, 42);
   Model model = generate_mrsort_classification_model(problem, 42);
 
+  // @todo(Project Management, later) Don't dump, test the structured model, to avoid breaking the test if the dump format changes
   std::ostringstream oss;
   model.dump(problem, oss);
   CHECK(oss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.377049327, 0.790612161, 0.941700041]
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights: [0.235266, 0.703559637, 0.343733728]
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.377049327]
+  - kind: thresholds
+    thresholds: [0.790612161]
+  - kind: thresholds
+    thresholds: [0.941700041]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.235266, 0.703559637, 0.343733728]
 )");
 }
 
@@ -162,15 +168,21 @@ TEST_CASE("Generate MR-Sort model - fixed weights sum") {
   Problem problem = generate_classification_problem(3, 2, 42);
   Model model = generate_mrsort_classification_model(problem, 42, 2);
 
+  // @todo(Project Management, later) Don't dump, test the structured model, to avoid breaking the test if the dump format changes
   std::ostringstream oss;
   model.dump(problem, oss);
   CHECK(oss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.377049327, 0.790612161, 0.941700041]
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights: [0.366869569, 1.09711826, 0.536012173]
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.377049327]
+  - kind: thresholds
+    thresholds: [0.790612161]
+  - kind: thresholds
+    thresholds: [0.941700041]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.366869569, 1.09711826, 0.536012173]
 )");
 }
 
