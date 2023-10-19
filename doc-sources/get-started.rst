@@ -145,13 +145,20 @@ It should look like::
     # Reproduction command (with lincs version 0.9.1): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort
     kind: ncs-classification-model
     format_version: 1
-    boundaries:
-      - profile: [0.255905151, 0.0551739037, 0.162252158, 0.0526000932]
-        sufficient_coalitions: &coalitions
-          kind: weights
-          criterion_weights: [0.147771254, 0.618687689, 0.406786472, 0.0960085914]
-      - profile: [0.676961303, 0.324553937, 0.673279881, 0.598555863]
-        sufficient_coalitions: *coalitions
+    accepted_values:
+      - kind: thresholds
+        thresholds: [0.255905151, 0.676961303]
+      - kind: thresholds
+        thresholds: [0.0551739037, 0.324553937]
+      - kind: thresholds
+        thresholds: [0.162252158, 0.673279881]
+      - kind: thresholds
+        thresholds: [0.0526000932, 0.598555863]
+    sufficient_coalitions:
+      - &coalitions
+        kind: weights
+        criterion_weights: [0.147771254, 0.618687689, 0.406786472, 0.0960085914]
+      - *coalitions
 
 .. STOP
 
@@ -266,13 +273,20 @@ so it is numerically different::
     # Number of iterations: 22
     kind: ncs-classification-model
     format_version: 1
-    boundaries:
-      - profile: [0.339874953, 0.0556534864, 0.162616938, 0.0878681168]
-        sufficient_coalitions: &coalitions
-          kind: weights
-          criterion_weights: [0, 1.01327896e-06, 0.999998987, 0]
-      - profile: [0.421424538, 0.326433569, 0.67343241, 0.252649099]
-        sufficient_coalitions: *coalitions
+    accepted_values:
+      - kind: thresholds
+        thresholds: [0.339874953, 0.421424538]
+      - kind: thresholds
+        thresholds: [0.0556534864, 0.326433569]
+      - kind: thresholds
+        thresholds: [0.162616938, 0.67343241]
+      - kind: thresholds
+        thresholds: [0.0878681168, 0.252649099]
+    sufficient_coalitions:
+      - &coalitions
+        kind: weights
+        criterion_weights: [0, 1.01327896e-06, 0.999998987, 0]
+      - *coalitions
 
 .. STOP
 

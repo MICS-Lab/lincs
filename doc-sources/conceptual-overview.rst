@@ -196,23 +196,28 @@ The profiles for this model look like this:
 .. START concept-example/model.yml
     kind: ncs-classification-model
     format_version: 1
-    boundaries:
-      - profile: [0.6, 0.55, 0.7, 0.5]
-        sufficient_coalitions:
-          kind: roots
-          upset_roots:
-            - [0, 2]
-            - [1, 2]
-            - [0, 3]
-            - [1, 3]
-      - profile: [0.75, 0.9, 0.8, 0.65]
-        sufficient_coalitions:
-          kind: roots
-          upset_roots:
-            - [0, 1, 2]
-            - [0, 1, 3]
-            - [0, 2, 3]
-            - [1, 2, 3]
+    accepted_values:
+      - kind: thresholds
+        thresholds: [0.6, 0.75]
+      - kind: thresholds
+        thresholds: [0.55, 0.9]
+      - kind: thresholds
+        thresholds: [0.7, 0.8]
+      - kind: thresholds
+        thresholds: [0.5, 0.65]
+    sufficient_coalitions:
+      - kind: roots
+        upset_roots:
+          - [0, 2]
+          - [1, 2]
+          - [0, 3]
+          - [1, 3]
+      - kind: roots
+        upset_roots:
+          - [0, 1, 2]
+          - [0, 1, 3]
+          - [0, 2, 3]
+          - [1, 2, 3]
 .. STOP
 
 .. image:: concept-example-model.png
