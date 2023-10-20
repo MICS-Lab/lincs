@@ -182,7 +182,7 @@ You can visualize it using::
 .. STOP
 
 .. EXTEND command-line-example/run.sh
-    cp model.png ../../../doc-sources
+    cp model.png ../../../../doc-sources
 .. STOP
 
 It should output something like:
@@ -237,7 +237,7 @@ You can visualize its first five alternatives using::
 .. STOP
 
 .. EXTEND command-line-example/run.sh
-    cp alternatives.png ../../../doc-sources
+    cp alternatives.png ../../../../doc-sources
 .. STOP
 
 It should output something like:
