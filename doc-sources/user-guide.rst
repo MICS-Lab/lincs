@@ -21,7 +21,7 @@ Formatting data for *lincs*
 The concept of classification problem is defined in our :ref:`conceptual overview <overview-about-classification>`.
 To describe problems, *lincs* uses YAML files conforming to the `JSON schema <https://json-schema.org/>`_ you'll find in our :ref:`reference documentation <ref-file-problem>`.
 
-.. START check-user-guide/run.sh
+.. START file-formats/run.sh
     set -o errexit
     set -o nounset
     set -o pipefail
@@ -37,7 +37,7 @@ To describe problems, *lincs* uses YAML files conforming to the `JSON schema <ht
     diff classified-alternatives.csv expected-classified-alternatives.csv
 .. STOP
 
-.. START check-user-guide/problem.yml
+.. START file-formats/problem.yml
 
 Here is an example of a problem file::
 
@@ -112,7 +112,7 @@ referencing the problem file by name would not be robust because files can be re
 and referencing the problem file by content (using a hash) would forbid any change in the problem file.
 So it's the user's responsibility to keep track of that information and always give *lincs* the correct problem file along with a model file.
 
-.. START check-user-guide/expected-mrsort-model.yml
+.. START file-formats/expected-mrsort-model.yml
 
 Here is an example of a model file corresponding to the problem file above::
 
@@ -192,7 +192,7 @@ Sufficient coalitions ``kind``  Sufficient coalitions attributes
 ``roots``                       ``upset_roots``
 ==============================  ================================
 
-.. START check-user-guide/ncs-model.yml
+.. START file-formats/ncs-model.yml
 
 Here is another model corresponding to the problem file above, but this time using the ``roots`` kind of sufficient coalitions,
 and using different coalitions for the two boundaries (so, no YAML anchor)::
@@ -222,7 +222,7 @@ It's a CSV file with a header line and one line per alternative.
 
 Like model files, alternatives files are always associated to a problem file.
 
-.. START check-user-guide/expected-classified-alternatives.csv
+.. START file-formats/expected-classified-alternatives.csv
 
 Here is an example corresponding to the problem above::
 
@@ -240,7 +240,7 @@ Its first column, ``name``, contains the names of the alternatives.
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, ``category``, contains the names of the categories in which each alternative is classified.
 
-.. START check-user-guide/unclassified-alternatives.csv
+.. START file-formats/unclassified-alternatives.csv
 
 Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
 
@@ -253,6 +253,8 @@ Values in the ``category`` column can be empty to describe alternatives that are
 
 .. STOP
 
+.. _user-comments-in-generated-files:
+
 Comments in generated files
 ---------------------------
 
@@ -263,11 +265,97 @@ These comments are informative and can help reproducing results, but they are no
 Generating synthetic data
 =========================
 
-@todo(Documentation, soon) Write about ``lincs generate``
+The previous section described how to format your data to use it with *lincs*.
+As explained in our :ref:`conceptual overview <overview-synthetic-data>`,
+you can skip this step and use *lincs* to generate synthetic data.
 
-@todo(Documentation, soon) Write about randomness and the ``--random-seed`` option
+The parent command to generate synthetic data is ``lincs generate``.
+Its sub-commands specify what to generate.
+Like all *lincs* commands, they output on the standard output by default,
+and you can change that behavior using options to output to files.
 
-@todo(Documentation, soon) Write about outputting to the standard output by default
+About randomness
+----------------
+
+Most sub-commands of ``lincs generate`` use pseudo-randomness to generate their output.
+By default, the pseudo-random number generator is initialized with a seed based on the current machine, time, *etc.* to favor originality.
+
+When you need reproducibility, you can specify the seed to use with the ``--random-seed`` option.
+
+In all cases, the :ref:`comments <user-comments-in-generated-files>` left by *lincs* in the generated files specify the seed that was used.
+
+Generating a problem
+--------------------
+
+.. START synthetic-data/run.sh
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
+
+With ``lincs generate classification-problem``, you can generate a classification problem file.
+Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`::
+
+    lincs generate classification-problem 4 3
+
+.. APPEND-TO-LAST-LINE --output-problem problem.yml
+.. STOP
+
+The ``--help`` option on the command-line and our :ref:`reference documentation <ref-cli>` describe the options available to tweak the generated problem.
+Most notably:
+
+- ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
+- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``category_corelation`` of each criterion between ``growing`` and ``decreasing``. By default, all criteria have ``growing`` correlation.
+
+Generating a model
+------------------
+
+.. EXTEND synthetic-data/run.sh
+
+With ``lincs generate classification-model``, you can generate a classification model file.
+Using its default settings, you just have to pass it the problem file you want to use::
+
+    lincs generate classification-model problem.yml
+
+.. APPEND-TO-LAST-LINE --output-model model.yml
+.. STOP
+
+For now, *lincs* can only generate MR-Sort models, so the ``--model-type`` option can only take its default value: ``mrsort``.
+We expect this could change if we implement the generation of other types of models.
+
+By default, the sum of MR-Sort weights of the criteria is pseudo-random and greater than or equal to 1.
+With the ``--mrsort.fixed-weight-sum`` option, you can specify a fixed value for this sum.
+This effectively impacts how hard it is for alternatives to get into upper categories.
+
+Generating alternatives
+-----------------------
+
+.. EXTEND synthetic-data/run.sh
+
+With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate::
+
+    lincs generate classified-alternatives problem.yml model.yml 100
+
+.. APPEND-TO-LAST-LINE --output-classified-alternatives classified-alternatives.csv
+.. STOP
+
+This generates 100 random alternatives, and then classifies them according to the model.
+
+By default, no effort is made to balance the number of alternatives in each category.
+The ``--max-imbalance`` option can be used to ensure that: it accepts a number between 0 and 1,
+and ensures that the number of alternatives in each category differs from the perfectly balanced size by at most this fraction.
+
+For example, when generating 600 alternatives for a model with 3 categories, the perfectly balanced size is 200 alternatives per category.
+With ``--max-imbalance 0.2``, the number of alternatives in each category is allowed to differ by at most 20% from that perfectly balanced size,
+so each category will have between 160 and 240 alternatives.
+
+Using this option with very selective models can significantly increase the time required to generate the alternatives.
+In some cases, *lincs* will even give up when it makes no progress trying to populate categories that are too hard to reach.
+In that case, you can either increase the value passed to ``--max-imbalance`` or use a more lenient model.
+
+By default, alternatives are classified exactly according to the given model.
+You can introduce noise using the ``--misclassified-count`` option.
+After alternatives are generated and classified, this option randomly selects the given number of alternatives and classifies them in other categories.
 
 
 Learning a model
@@ -316,8 +404,8 @@ Note that the general improvements will undoubtedly worsen the situation for som
     set -o pipefail
     trap 'echo "Error on line $LINENO"' ERR
 
-    cp ../command-line-example/{problem.yml,learning-set.csv} .
-    cp ../command-line-example/expected-trained-model.yml .
+    cp ../..get-started/command-line-example/{problem.yml,learning-set.csv} .
+    cp ../..get-started/command-line-example/expected-trained-model.yml .
 
     diff <(echo "lincs was compiled with CUDA support") <(lincs info has-gpu)
 .. STOP

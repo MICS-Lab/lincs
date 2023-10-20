@@ -191,7 +191,8 @@ def make_integration_tests_from_doc():
     output_files = {}
     current_prefix = ""
     current_output_file_name = None
-    for input_file_name in ["README.rst"] + glob.glob("doc-sources/*.rst"):
+    for input_file_name in glob.glob("doc-sources/*.rst"):
+        output_prefix = input_file_name[12:-4]
         with open(input_file_name) as f:
             lines = f.readlines()
         for line in lines:
@@ -217,7 +218,7 @@ def make_integration_tests_from_doc():
             if m:
                 assert current_output_file_name is None, (input_file_name, current_output_file_name)
                 current_prefix = m.group(1)
-                current_output_file_name = m.group(3)
+                current_output_file_name = os.path.join(output_prefix, m.group(3))
                 if m.group(2) == "START":
                     output_files[current_output_file_name] = []
         assert current_output_file_name is None, (input_file_name, current_output_file_name)
