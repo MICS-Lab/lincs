@@ -4,7 +4,7 @@
 Changelog
 =========
 
-Versions 0.9.0 to 0.9.1
+Versions 0.9.0 to 0.9.2-dev
 =======================
 
 - Pre-process the learning set before all learning algorithms.

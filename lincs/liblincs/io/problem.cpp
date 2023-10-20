@@ -71,6 +71,7 @@ properties:
     type: integer
     const: 1
   criteria:
+    description: Structural information about criteria used in the classification problem.
     type: array
     items:
       type: object
@@ -78,9 +79,11 @@ properties:
         name:
           type: string
         value_type:
+          description: May be extended in the future to handle criteria with integer values, or explicitely enumarated values.
           type: string
           enum: [real]
         category_correlation:
+          description: May be extended in the future to handle single-peaked criteria, or criteria with unknown correlation.
           type: string
           enum: [growing, decreasing]
         min_value:
@@ -96,6 +99,7 @@ properties:
       additionalProperties: false
     minItems: 1
   categories:
+    description: Structural information about categories in the classification problem.
     type: array
     items:
       type: object

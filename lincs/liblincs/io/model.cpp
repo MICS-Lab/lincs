@@ -39,57 +39,68 @@ properties:
   format_version:
     type: integer
     const: 1
-  boundaries:
+  accepted_values:
+    description: For each criterion in the classification problem, a way to determine the accepted values for each category.
     type: array
     items:
       type: object
-      properties:
-        profile:
-          type: array
-          items:
-            type: number
-          minItems: 1
-        sufficient_coalitions:
-          type: object
-          oneOf:
-            - properties:
-                kind:
-                  type: string
-                  const: weights
-                criterion_weights:
-                  type: array
-                  items:
-                    type: number
-                  minItems: 1
-              required:
-                - kind
-                - criterion_weights
-              additionalProperties: false
-            - properties:
-                kind:
-                  type: string
-                  const: roots
-                upset_roots:
-                  type: array
-                  items:
-                    type: array
-                    items:
-                      type: integer
-                    minItems: 0
-                  minItems: 0
-              required:
-                - kind
-                - upset_roots
-              additionalProperties: false
-      required:
-        - profile
-        - sufficient_coalitions
-      additionalProperties: false
+      oneOf:
+        - properties:
+            kind:
+              type: string
+              const: thresholds
+            thresholds:
+              description: For each category but the lowest, the threshold to be accepted in that category according to that criterion.
+              type: array
+              items:
+                type: number
+              minItems: 1
+          required:
+            - kind
+            - thresholds
+          additionalProperties: false
+    minItems: 1
+  sufficient_coalitions:
+    description: For each category but the lowest, a description of the sufficient coalitions for that category.
+    type: array
+    items:
+      type: object
+      oneOf:
+        - properties:
+            kind:
+              type: string
+              const: weights
+            criterion_weights:
+              type: array
+              items:
+                type: number
+              minItems: 1
+          required:
+            - kind
+            - criterion_weights
+          additionalProperties: false
+        - properties:
+            kind:
+              type: string
+              const: roots
+            upset_roots:
+              type: array
+              items:
+                type: array
+                items:
+                  type: integer
+                minItems: 0
+              minItems: 0
+          required:
+            - kind
+            - upset_roots
+          additionalProperties: false
     minItems: 1
 required:
   - kind
   - format_version
-  - boundaries
+  - accepted_values
+  - sufficient_coalitions
 additionalProperties: false
 )");
 
@@ -120,7 +131,12 @@ std::vector<std::vector<unsigned>> SufficientCoalitions::get_upset_roots() const
 void Model::dump(const Problem& problem, std::ostream& os) const {
   CHRONE();
 
+  #ifdef NDEBUG
   YAML::Emitter out(os);
+  #else
+  std::stringstream ss;
+  YAML::Emitter out(ss);
+  #endif
 
   bool use_coalitions_alias =
     boundaries.size() > 1
@@ -131,13 +147,23 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
   out << YAML::BeginMap;
   out << YAML::Key << "kind" << YAML::Value << "ncs-classification-model";
   out << YAML::Key << "format_version" << YAML::Value << 1;
-  out << YAML::Key << "boundaries" << YAML::Value << YAML::BeginSeq;
+
+  out << YAML::Key << "accepted_values" << YAML::Value << YAML::BeginSeq;
+  for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
+    out << YAML::BeginMap;
+    out << YAML::Key << "kind" << YAML::Value << "thresholds";
+    out << YAML::Key << "thresholds" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+    for (const Boundary& boundary : boundaries) {
+      out << boundary.profile[criterion_index];
+    }
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+  }
+  out << YAML::EndSeq;
+
+  out << YAML::Key << "sufficient_coalitions" << YAML::Value << YAML::BeginSeq;
   for (unsigned boundary_index = 0; boundary_index != boundaries.size(); ++boundary_index) {
     const Boundary& boundary = boundaries[boundary_index];
-
-    out << YAML::BeginMap;
-    out << YAML::Key << "profile" << YAML::Value << YAML::Flow << boundary.profile;
-    out << YAML::Key << "sufficient_coalitions";
     if (use_coalitions_alias && boundary_index == 0) {
       out << YAML::Anchor("coalitions");
     }
@@ -165,10 +191,14 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
     } else if (use_coalitions_alias) {
       out << YAML::Value << YAML::Alias("coalitions");
     }
-    out << YAML::EndMap;
   }
   out << YAML::EndSeq;
   out << YAML::EndMap;
+
+  #ifndef NDEBUG
+  validator.validate(YAML::Load(ss));
+  os << ss.str();
+  #endif
 
   os << '\n';
 }
@@ -190,12 +220,28 @@ Model Model::load(const Problem& problem, std::istream& is) {
 
   validator.validate(node);
 
+  std::vector<std::vector<float>> profiles(problem.categories.size() - 1, std::vector<float>(problem.criteria.size()));
+  {
+    unsigned criterion_index = 0;
+    for (const YAML::Node& accepted_values : node["accepted_values"]) {
+      assert(accepted_values["kind"].as<std::string>() == "thresholds");
+      const std::vector<float>& thresholds = accepted_values["thresholds"].as<std::vector<float>>();
+      assert(thresholds.size() == profiles.size());
+      for (unsigned profile_index = 0; profile_index != profiles.size(); ++profile_index) {
+        profiles[profile_index][criterion_index] = thresholds[profile_index];
+      }
+      ++criterion_index;
+    }
+  }
+
+  std::reverse(profiles.begin(), profiles.end());
   std::vector<Model::Boundary> boundaries;
-  for (const YAML::Node& boundary : node["boundaries"]) {
+  for (const YAML::Node& sufficient_coalitions : node["sufficient_coalitions"]) {
     boundaries.emplace_back(
-      boundary["profile"].as<std::vector<float>>(),
-      load_sufficient_coalitions(problem, boundary["sufficient_coalitions"])
+      profiles.back(),
+      load_sufficient_coalitions(problem, sufficient_coalitions)
     );
+    profiles.pop_back();
   }
 
   return Model(problem, boundaries);
@@ -217,11 +263,12 @@ TEST_CASE("dumping then loading model preserves data - weights") {
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.400000006]
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights: [0.699999988]
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.400000006]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.699999988]
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -248,13 +295,18 @@ TEST_CASE("dumping then loading model preserves data - roots") {
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.400000006, 0.5, 0.600000024]
-    sufficient_coalitions:
-      kind: roots
-      upset_roots:
-        - [0]
-        - [1, 2]
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.400000006]
+  - kind: thresholds
+    thresholds: [0.5]
+  - kind: thresholds
+    thresholds: [0.600000024]
+sufficient_coalitions:
+  - kind: roots
+    upset_roots:
+      - [0]
+      - [1, 2]
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -284,11 +336,16 @@ TEST_CASE("dumping then loading model preserves data - numerical values requirin
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.017920306, 0.34880048, 0.191112831]
-    sufficient_coalitions:
-      kind: weights
-      criterion_weights: [0.444866359, 0.278783619, 0.423978835]
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.017920306]
+  - kind: thresholds
+    thresholds: [0.34880048]
+  - kind: thresholds
+    thresholds: [0.191112831]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.444866359, 0.278783619, 0.423978835]
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -313,11 +370,12 @@ TEST_CASE("dumping empty roots uses flow style") {
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.5]
-    sufficient_coalitions:
-      kind: roots
-      upset_roots: []
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.5]
+sufficient_coalitions:
+  - kind: roots
+    upset_roots: []
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -337,8 +395,8 @@ TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions
   Model model{
     problem,
     {
+      {{0.2, 0.3, 0.4}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
       {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
-      {{0.5, 0.6, 0.7}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
       {{0.6, 0.7, 0.8}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
     },
   };
@@ -348,17 +406,21 @@ TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.400000006, 0.5, 0.600000024]
-    sufficient_coalitions: &coalitions
-      kind: roots
-      upset_roots:
-        - [0]
-        - [1, 2]
-  - profile: [0.5, 0.600000024, 0.699999988]
-    sufficient_coalitions: *coalitions
-  - profile: [0.600000024, 0.699999988, 0.800000012]
-    sufficient_coalitions: *coalitions
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.200000003, 0.400000006, 0.600000024]
+  - kind: thresholds
+    thresholds: [0.300000012, 0.5, 0.699999988]
+  - kind: thresholds
+    thresholds: [0.400000006, 0.600000024, 0.800000012]
+sufficient_coalitions:
+  - &coalitions
+    kind: roots
+    upset_roots:
+      - [0]
+      - [1, 2]
+  - *coalitions
+  - *coalitions
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -378,8 +440,8 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
   Model model{
     problem,
     {
-      {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
-      {{0.5, 0.6, 0.7}, {SufficientCoalitions::roots, 3, {{1}, {0, 2}}}},
+      {{0.2, 0.3, 0.4}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+      {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{1}, {0, 2}}}},
       {{0.6, 0.7, 0.8}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
     },
   };
@@ -389,25 +451,26 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
 
   CHECK(ss.str() == R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.400000006, 0.5, 0.600000024]
-    sufficient_coalitions:
-      kind: roots
-      upset_roots:
-        - [0]
-        - [1, 2]
-  - profile: [0.5, 0.600000024, 0.699999988]
-    sufficient_coalitions:
-      kind: roots
-      upset_roots:
-        - [1]
-        - [0, 2]
-  - profile: [0.600000024, 0.699999988, 0.800000012]
-    sufficient_coalitions:
-      kind: roots
-      upset_roots:
-        - [0]
-        - [1, 2]
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.200000003, 0.400000006, 0.600000024]
+  - kind: thresholds
+    thresholds: [0.300000012, 0.5, 0.699999988]
+  - kind: thresholds
+    thresholds: [0.400000006, 0.600000024, 0.800000012]
+sufficient_coalitions:
+  - kind: roots
+    upset_roots:
+      - [0]
+      - [1, 2]
+  - kind: roots
+    upset_roots:
+      - [1]
+      - [0, 2]
+  - kind: roots
+    upset_roots:
+      - [0]
+      - [1, 2]
 )");
 
   Model model2 = Model::load(problem, ss);
@@ -451,25 +514,25 @@ TEST_CASE("Validation error - missing weights") {
 
   std::istringstream iss(R"(kind: ncs-classification-model
 format_version: 1
-boundaries:
-  - profile: [0.5]
-    sufficient_coalitions:
-      kind: weights
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.5]
+sufficient_coalitions:
+  - kind: weights
 )");
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
     R"(JSON validation failed:
- - <root> [boundaries] [0] [sufficient_coalitions]: Missing required property 'criterion_weights'.
- - <root> [boundaries] [0] [sufficient_coalitions]: Failed to validate against child schema #0.
- - <root> [boundaries] [0] [sufficient_coalitions] [kind]: Failed to match expected value set by 'const' constraint.
- - <root> [boundaries] [0] [sufficient_coalitions]: Failed to validate against schema associated with property name 'kind'.
- - <root> [boundaries] [0] [sufficient_coalitions]: Missing required property 'upset_roots'.
- - <root> [boundaries] [0] [sufficient_coalitions]: Failed to validate against child schema #1.
- - <root> [boundaries] [0] [sufficient_coalitions]: Failed to validate against any child schemas allowed by oneOf constraint.
- - <root> [boundaries] [0]: Failed to validate against schema associated with property name 'sufficient_coalitions'.
- - <root> [boundaries]: Failed to validate item #0 in array.
- - <root>: Failed to validate against schema associated with property name 'boundaries'.)",
+ - <root> [sufficient_coalitions] [0]: Missing required property 'criterion_weights'.
+ - <root> [sufficient_coalitions] [0]: Failed to validate against child schema #0.
+ - <root> [sufficient_coalitions] [0] [kind]: Failed to match expected value set by 'const' constraint.
+ - <root> [sufficient_coalitions] [0]: Failed to validate against schema associated with property name 'kind'.
+ - <root> [sufficient_coalitions] [0]: Missing required property 'upset_roots'.
+ - <root> [sufficient_coalitions] [0]: Failed to validate against child schema #1.
+ - <root> [sufficient_coalitions] [0]: Failed to validate against any child schemas allowed by oneOf constraint.
+ - <root> [sufficient_coalitions]: Failed to validate item #0 in array.
+ - <root>: Failed to validate against schema associated with property name 'sufficient_coalitions'.)",
     JsonValidationException);
 }
 

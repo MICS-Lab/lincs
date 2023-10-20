@@ -59,7 +59,7 @@ struct Model {
   const Problem& problem;
 
   struct Boundary {
-    std::vector<float> profile;
+    std::vector<float> profile;  // @todo(Project management, later) Refactor to match the JSON schema
     SufficientCoalitions sufficient_coalitions;
 
     Boundary(const std::vector<float>& profile_, const SufficientCoalitions& sufficient_coalitions_): profile(profile_), sufficient_coalitions(sufficient_coalitions_) {}
