@@ -7,14 +7,108 @@ User Guide
 Before you read this document, we strongly recommend you read our :doc:`conceptual overview <conceptual-overview>` as it establishes the bases for this guide.
 We also recommend you follow our :doc:`"Get started" guide <get-started>` to get a first hands-on experience with *lincs*.
 
-This guide is organized following what you can do with *lincs*, *i.e.* the problems you can solve with it.
-Each section describes how to to it using *lincs*'s command-line interface.
 
-@todo(Documentation, soon) Add a section "Format data for *lincs*" describing the problem, model and alternatives files in prose, and linking to their reference documentation.
+Formatting data for *lincs*
+===========================
+
+*lincs* manipulates files for three types of data.
+
+"Problem" files
+---------------
+
+The concept of classification problem is defined in our :ref:`conceptual overview <overview-about-classification>`.
+To describe problems, *lincs* uses YAML files conforming to the `JSON schema <https://json-schema.org/>`_ you'll find in our :ref:`reference documentation <ref-file-problem>`.
+
+.. START check-user-guide/run.sh
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
+
+    lincs generate classification-model problem-example.yml --random-seed 42 --output-model model.yml
+    diff model.yml expected-model.yml
+.. STOP
+
+.. START check-user-guide/problem-example.yml
+
+Here is an example of a problem file::
+
+    kind: classification-problem
+    format_version: 1
+    criteria:
+      - name: Criterion 1
+        value_type: real
+        category_correlation: growing
+        min_value: 0
+        max_value: 20
+      - name: Criterion 2
+        value_type: real
+        category_correlation: decreasing
+        min_value: -5
+        max_value: 5
+    categories:
+      - name: Low
+      - name: Medium
+      - name: High
+
+.. STOP
+
+The two first keys, ``kind`` and ``format_version`` are here to identify exactly the file format.
+For now, they must always be set to ``classification-problem`` and ``1`` respectively.
+
+Criteria
+^^^^^^^^
+
+The third key, ``criteria``, is a list of the descriptions of the criteria of the problem.
+This list must contain at least one element because classification problems must have at least one criterion.
+
+Each criterion gets a ``name`` for convenience.
+
+Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
+We expect this could evolve to also support criteria with integer or explicitly enumerated values.
+
+Then, the ``category_correlation`` key describe what makes "good values" for this criterion.
+If it is ``growing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
+Note that this correlation comes from expert knowledge about the structure of the problem,
+and has nothing to do with learning a model for this problem.
+We expect this could evolve to also support criteria with single-peaked correlation,
+where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
+We also expect this could evolve to support criteria with unknown correlation,
+to support the case where no expert knowledge is available and delegate this choice to the learning process.
+
+Finally, for criteria with numerical ``value_type`` (currently all of them),
+the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
+
+Categories
+^^^^^^^^^^
+
+The fourth key in the problem file, ``categories``, is a list of the descriptions of the categories of the problem.
+It must contain at least two elements because classification problems must have at least two categories.
+
+It must be sorted in increasing order: lower categories first and upper categories last.
+
+Its elements are relatively simple as they only get a convenience ``name`` attribute.
+
+"Model" files
+-------------
+
+The concept of NCS classification model is defined in our :ref:`conceptual overview <overview-ncs>`.
+To describe models, *lincs* uses YAML files conforming to the JSON schema you'll find in our :ref:`reference documentation <ref-file-ncs-model>`.
+
+"Alternatives" files
+--------------------
+
+@todo(Documentation, soon) Write
+
+Comments in generated files
+---------------------------
+
+When the *lincs* command-line generates a file, it add a few comments describing how this file was made.
+These comments are informative and can help reproducing results, but are not part of the file formats.
 
 
-Generate synthetic data
-=======================
+Generating synthetic data
+=========================
 
 @todo(Documentation, soon) Write about ``lincs generate``
 
@@ -23,8 +117,8 @@ Generate synthetic data
 @todo(Documentation, soon) Write about outputting to the standard output by default
 
 
-Learn a model
-=============
+Learning a model
+================
 
 The basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
 Its ``--help`` option gives you a list of the numerous options it accepts.
@@ -238,8 +332,8 @@ This ensures that the two following commands output exactly the same model::
 .. STOP
 
 
-Use a model
-===========
+Using a model
+=============
 
 @todo(Documentation, soon) Write about ``lincs classify`` (outputting to stdout by default)
 

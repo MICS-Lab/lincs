@@ -41,9 +41,9 @@ The same vocabulary could apply to triaging patients in an hospital based on vit
 
   A problem is defined by:
 
-  - its number of criteria :math:`n \in \mathbb{N}`
+  - its number of criteria :math:`n \in \mathbb{N}`, with :math:`n \geq 1`
   - its set of criteria :math:`\{X_i\}_{i \in [0..n)}`. Each criterion :math:`X_i` (for :math:`i \in [0..n)`) is a set of values with a total pre-order :math:`\preccurlyeq_i`
-  - its number of categories :math:`p \in \mathbb{N}`
+  - its number of categories :math:`p \in \mathbb{N}`, with :math:`p \geq 2`
   - its set of categories :math:`C = \{C^h\}_{h \in [0..p)}`, ordered by :math:`C^0 \prec ... \prec C^{p-1}`. Do not confuse :math:`h` for an exponent; it's just an index.
 
   In that setting, alternatives are the Cartesian product of the criteria: :math:`X = \prod_{i \in [0..n)} X_i`.
@@ -66,6 +66,7 @@ The set of already classified alternatives is called the "training set"; it cons
 
 Most models are parametric functions of a given form, and the learning phase consists in finding the parameters that best fit the training set.
 
+.. _overview-ncs:
 
 Non-compensatory sorting (NCS)
 ==============================
