@@ -410,6 +410,8 @@ This simplification captures the idea that in many cases, the same criteria are 
 
 In the previous model example, :math:`\mathcal{F}^1 \ne \mathcal{F}^2`, so it is not a :math:`U^c \textsf{-} NCS` model.
 
+.. _overview-mrsort:
+
 :math:`1 \textsf{-} U^c \textsf{-} NCS` *a.k.a.* MR-Sort
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

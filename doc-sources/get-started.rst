@@ -118,7 +118,7 @@ The generated ``problem.yml`` should look like::
 .. STOP
 
 You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
-That format is documented in our :ref:`reference documentation <ref-file-problem>`.
+That format is explained in details in our :ref:`user guide <user-file-problem>`.
 The concept of "classification problem" is described in our :ref:`conceptual overview documentation <overview-about-classification>`.
 
 .. EXTEND command-line-example/run.sh
@@ -165,7 +165,7 @@ It should look like::
 Note that *lincs* uses `YAML anchors and references <https://yaml.org/spec/1.2-old/spec.html#id2765878>`_ to avoid repeating the same sufficient coalitions in all profiles.
 All ``*coalitions`` means is "use the same value as the ``&coalitions`` anchor".
 
-The file format is documented in our :ref:`reference documentation <ref-file-ncs-model>`.
+The file format is documented in our :ref:`user guide <user-file-ncs-model>`.
 
 .. EXTEND command-line-example/run.sh
     diff expected-model.yml model.yml

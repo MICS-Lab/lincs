@@ -872,6 +872,7 @@ def classify(
     model = lincs.Model.load(problem, model)
     alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.classify_alternatives(problem, model, alternatives)
+    # @todo(Feature, soon) Add "reproduction" comments consistently with other commands
     alternatives.dump(problem, output_classified_alternatives)
 
 

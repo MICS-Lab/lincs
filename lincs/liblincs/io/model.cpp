@@ -219,6 +219,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
   YAML::Node node = YAML::Load(is);
 
   validator.validate(node);
+  // @todo(Feature, soon) Validate consistency with the problem file (sizes must match number of categories and criteria, etc.)
 
   std::vector<std::vector<float>> profiles(problem.categories.size() - 1, std::vector<float>(problem.criteria.size()));
   {

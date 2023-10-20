@@ -13,6 +13,8 @@ Formatting data for *lincs*
 
 *lincs* manipulates files for three types of data.
 
+.. _user-file-problem:
+
 "Problem" files
 ---------------
 
@@ -25,11 +27,17 @@ To describe problems, *lincs* uses YAML files conforming to the `JSON schema <ht
     set -o pipefail
     trap 'echo "Error on line $LINENO"' ERR
 
-    lincs generate classification-model problem-example.yml --random-seed 42 --output-model model.yml
-    diff model.yml expected-model.yml
+    lincs generate classification-model problem.yml --random-seed 42 --output-model mrsort-model.yml
+    diff <(tail -n +2 mrsort-model.yml) expected-mrsort-model.yml
+
+    # Check that the NCS model is correct (we don't have explicit commands for that, so we use generate classified-alternatives)
+    lincs generate classified-alternatives problem.yml ncs-model.yml 1 >/dev/null
+
+    lincs classify problem.yml mrsort-model.yml unclassified-alternatives.csv --output-classified-alternatives classified-alternatives.csv
+    diff classified-alternatives.csv expected-classified-alternatives.csv
 .. STOP
 
-.. START check-user-guide/problem-example.yml
+.. START check-user-guide/problem.yml
 
 Here is an example of a problem file::
 
@@ -62,7 +70,7 @@ Criteria
 The third key, ``criteria``, is a list of the descriptions of the criteria of the problem.
 This list must contain at least one element because classification problems must have at least one criterion.
 
-Each criterion gets a ``name`` for convenience.
+Each criterion has a ``name``.
 
 Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
@@ -87,7 +95,9 @@ It must contain at least two elements because classification problems must have 
 
 It must be sorted in increasing order: lower categories first and upper categories last.
 
-Its elements are relatively simple as they only get a convenience ``name`` attribute.
+Its elements are relatively simple as they only get a ``name``.
+
+.. _user-file-ncs-model:
 
 "Model" files
 -------------
@@ -95,16 +105,159 @@ Its elements are relatively simple as they only get a convenience ``name`` attri
 The concept of NCS classification model is defined in our :ref:`conceptual overview <overview-ncs>`.
 To describe models, *lincs* uses YAML files conforming to the JSON schema you'll find in our :ref:`reference documentation <ref-file-ncs-model>`.
 
+A model file is always associated to a problem file because a model exists only relatively to a given problem.
+This fact is not captured by our file format for technical reasons:
+embedding the problem in the model file would lead to unwanted repetitions,
+referencing the problem file by name would not be robust because files can be renamed,
+and referencing the problem file by content (using a hash) would forbid any change in the problem file.
+So it's the user's responsibility to keep track of that information and always give *lincs* the correct problem file along with a model file.
+
+.. START check-user-guide/expected-mrsort-model.yml
+
+Here is an example of a model file corresponding to the problem file above::
+
+    kind: ncs-classification-model
+    format_version: 1
+    accepted_values:
+      - kind: thresholds
+        thresholds: [7.49331188, 15.9249287]
+      - kind: thresholds
+        thresholds: [4.49812794, -3.15932083]
+    sufficient_coalitions:
+      - &coalitions
+        kind: weights
+        criterion_weights: [0.938825667, 0.343733728]
+      - *coalitions
+
+.. STOP
+
+Like for problem files, the two first keys must take exactly these values.
+
+Accepted values
+^^^^^^^^^^^^^^^
+
+The third key, ``accepted_values``, lists the descriptions of the accepted values according to each criterion of the problem.
+It must contain exactly as many elements as the ``criteria`` list in the problem file.
+
+For NCS models as currently defined in our conceptual overview, accepted values are simply above a profile.
+The profile is a list of thresholds, one for each criterion, that separates two categories.
+But this lacks generality, and we expect this could evolve, for example for single-peaked criteria.
+For such a criterion, the determination of the accepted values will require two limits (upper and lower) instead of just one threshold.
+
+So our file format takes an transposed approach and focusses on criteria instead of profiles:
+for each criterion, it describes the method used to accept values at different category levels.
+
+For current criteria (with ``growing`` or ``decreasing`` correlation), the method is always ``kind: thresholds``,
+and the ``thresholds`` attribute lists the successive values required to enter an upper category.
+It must have as many elements as there are boundaries between categories, *i.e.* as there are categories minus one.
+It's always sorted, in increasing order for ``growing`` criteria and in decreasing order for ``decreasing`` criteria.
+
+Note that this list is not a profile: it does not describe the limits between categories.
+The matrix made of these lists is the transposed of the matrix made of the profiles.
+
+When we support criteria with single-peaked or unknown correlation,
+we'll introduce other ``kinds`` of accepted values with new attributes instead of ``thresholds``.
+
+==================================  ========================  ==========================
+Criterion ``category_correlation``  Accepted values ``kind``  Accepted values attributes
+==================================  ========================  ==========================
+``growing``                         ``thresholds``            ``thresholds``
+``decreasing``                      ``thresholds``            ``thresholds``
+==================================  ========================  ==========================
+
+Sufficient coalitions
+^^^^^^^^^^^^^^^^^^^^^
+
+The fourth key, ``sufficient_coalitions``, describes the subsets of criteria required to get into upper categories.
+It contains as many items as there are boundaries between categories, *i.e.* as there are categories minus one.
+
+*lincs* only manipulates :math:`U^c \textsf{-} NCS` models for now, so the sufficient coalitions are identical for all categories.
+To avoid repetitions in the model files, we use `YAML anchors and references <https://yaml.org/spec/1.2-old/spec.html#id2765878>`_.
+All ``*coalitions`` means in the example above is "the same value as the ``&coalitions`` anchor".
+
+Each item in the list has a first attribute, ``kind``, that tells the method used to determine the sufficient coalitions.
+
+If its ``kind`` is ``weights``, then the sufficient coalitions are computed using an MR-sort approach,
+as described in our :ref:`conceptual overview <overview-mrsort>`.
+In that case, the ``criterion_weights`` attribute is a list of the criteria's weights.
+
+If its ``kind`` is ``roots``, then the sufficient coalitions are listed explicitly as the roots of the upset they form.
+This is the generic case for NCS models.
+In that case, the ``upset_roots`` attribute is a list of roots, where each root is the list of the indices of the criteria in that root.
+
+==============================  ================================
+Sufficient coalitions ``kind``  Sufficient coalitions attributes
+==============================  ================================
+``weights``                     ``criterion_weights``
+``roots``                       ``upset_roots``
+==============================  ================================
+
+.. START check-user-guide/ncs-model.yml
+
+Here is another model corresponding to the problem file above, but this time using the ``roots`` kind of sufficient coalitions,
+and using different coalitions for the two boundaries (so, no YAML anchor)::
+
+    kind: ncs-classification-model
+    format_version: 1
+    accepted_values:
+      - kind: thresholds
+        thresholds: [7.49331188, 15.9249287]
+      - kind: thresholds
+        thresholds: [4.49812794, -3.15932083]
+    sufficient_coalitions:
+      - kind: roots
+        upset_roots:
+          - [2]
+      - kind: roots
+        upset_roots:
+          - [1, 2]
+
+.. STOP
+
 "Alternatives" files
 --------------------
 
-@todo(Documentation, soon) Write
+The last file format used by *lincs* is for the description of alternatives.
+It's a CSV file with a header line and one line per alternative.
+
+Like model files, alternatives files are always associated to a problem file.
+
+.. START check-user-guide/expected-classified-alternatives.csv
+
+Here is an example corresponding to the problem above::
+
+    name,"Criterion 1","Criterion 2",category
+    "Alternative 1",10.8156891,4.39045048,Medium
+    "Alternative 2",0.25551182,-1.45864725,Low
+    "Alternative 3",18.4786396,4.31117153,Medium
+    "Alternative 4",18.0154629,1.33949804,Medium
+    "Alternative 5",9.30789757,2.66963387,Medium
+
+.. STOP
+
+Its header line contains the names of its columns.
+Its first column, ``name``, contains the names of the alternatives.
+Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
+Its last column, ``category``, contains the names of the categories in which each alternative is classified.
+
+.. START check-user-guide/unclassified-alternatives.csv
+
+Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
+
+    name,"Criterion 1","Criterion 2",category
+    "Alternative 1",10.8156891,4.39045048,
+    "Alternative 2",0.25551182,-1.45864725,
+    "Alternative 3",18.4786396,4.31117153,
+    "Alternative 4",18.0154629,1.33949804,
+    "Alternative 5",9.30789757,2.66963387,
+
+.. STOP
 
 Comments in generated files
 ---------------------------
 
-When the *lincs* command-line generates a file, it add a few comments describing how this file was made.
-These comments are informative and can help reproducing results, but are not part of the file formats.
+When the *lincs* command-line generates a file, it adds a few comment lines (starting with ``#``) at the beginning describing how this file was made.
+These comments are informative and can help reproducing results, but they are not part of the file formats.
 
 
 Generating synthetic data
