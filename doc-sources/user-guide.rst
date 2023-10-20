@@ -476,11 +476,11 @@ You can also use an entirely different approach using SAT and max-SAT solvers::
 
     lincs learn classification-model problem.yml learning-set.csv \
       --output-model minisat-coalitions-trained-model.yml \
-      --model-type ucncs --ucncs.approach sat-by-coalitions
+      --model-type ucncs --ucncs.strategy sat-by-coalitions
 
     lincs learn classification-model problem.yml learning-set.csv \
       --output-model minisat-separation-trained-model.yml \
-      --model-type ucncs --ucncs.approach sat-by-separation
+      --model-type ucncs --ucncs.strategy sat-by-separation
 
 .. STOP
 
@@ -488,7 +488,7 @@ You can also use an entirely different approach using SAT and max-SAT solvers::
 
 It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
-    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-coalitions
+    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
@@ -510,7 +510,7 @@ It should produce a different kind of model, with the sufficient coalitions spec
 .. STOP
 
 .. START other-learnings/expected-minisat-separation-trained-model.yml
-    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-separation
+    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-separation
     kind: ncs-classification-model
     format_version: 1
     accepted_values:

@@ -196,7 +196,7 @@ Options:
                                   this file instead of standard output.
   --model-type [mrsort|ucncs]     The type of classification model to learn.
                                   [default: mrsort]
-  --ucncs.approach [sat-by-coalitions|sat-by-separation|max-sat-by-coalitions|max-sat-by-separation]
+  --ucncs.strategy [sat-by-coalitions|sat-by-separation|max-sat-by-coalitions|max-sat-by-separation]
                                   The general approach to transform the
                                   learning problem into a satisfiability
                                   problem.
