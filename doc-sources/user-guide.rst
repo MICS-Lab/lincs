@@ -511,10 +511,10 @@ This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with ``lincs info has-gpu``.
 
-.. START gpu-learnings/uses-gpu
+.. START gpu-learning/uses-gpu
 .. STOP
 
-.. START gpu-learnings/run.sh
+.. START gpu-learning/run.sh
     set -o errexit
     set -o nounset
     set -o pipefail
