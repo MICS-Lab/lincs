@@ -10,11 +10,15 @@ This will help you contribute in a way that is consistent with the rest of the p
 We also recommend that you find and read the code pointed at by the examples in this document.
 It will give a much more concrete idea of what we are talking about.
 
+Finally, please be aware that this document is a work in progress.
+Writing a contributor guide is kind of an exercise in clairvoyance: we have to predict what you will try to do.
+So, if we got that part wrong, do not hesitate to contact us as explained at the beginning of the :doc:`Readme <index>`.
+
 
 Do contribute!
 ==============
 
-We value contributions of any scale, from minor details to major refactorings.
+We value contributions of any scale, from minor details to major refactoring.
 If you see a typo, please fix that typo! Using the GitHub web interface spares you the need to even clone the repository.
 If you think our entire architecture deserves a rewrite, please... discuss it with us `<https://github.com/MICS-Lab/lincs/discussions>`_.
 (Don't spend time on something that we might reject for reasons not entirely apparent to you at the moment.)
@@ -33,11 +37,6 @@ to help you make changes everywhere ``TheNewThing`` is needed.
 You can also use ``git blame`` to identify a commit that changed something similar,
 and see what else was changed in that commit or the next few.
 
-Also, please keep in mind this document is quite young.
-It may very well miss interesting cases, be incomplete or inaccurate in covered cases, or may even plain wrong in some places.
-Please contribute to this document!
-Suggest changes, ask questions, *etc.*
-
 
 Development dependencies
 ========================
@@ -48,12 +47,7 @@ To modify *lincs*, you need reasonably recent versions of:
 - Git
 - Docker
 
-This is less than what you need to install and use it directly on a machine (see our :doc:`"Get started" guide <get-started>`),
-because dependencies are installed inside the Docker container.
-You can even contribute to *lincs* on an OS that is not supported to run it directly,
-*e.g.* macOS with `Docker Desktop <https://www.docker.com/products/docker-desktop/>`_.
-If you have an CUDA-compatible NVidia GPU and want to run code that uses it, you need to configure the NVidia Docker runtime.
-@todo(Documentation, soon) Add pointers to the documentation of the NVidia Docker runtime
+If you have an CUDA-compatible NVidia GPU and want to run code that uses it, you'll need to configure the `NVidia Docker runtime <https://github.com/NVIDIA/nvidia-container-runtime>`_.
 
 
 Development cycle
@@ -68,7 +62,7 @@ The main loop when working on *lincs* is:
 The ``./run-development-cycle.sh`` script first `builds a Docker image <https://github.com/MICS-Lab/lincs/blob/main/development/Dockerfile>`_ with the development dependencies.
 It can take a long time the first time you run it, but the Docker cache makes subsequent builds much faster.
 It then runs that image as a Docker container to build the library, run its C++ and Python unit tests, install it, run its integration tests, *etc.*
-It provides a few options to speed things up, see its ``--help`` option.
+It provides a few options to speed things up; see its ``--help`` option.
 
 Eventually, if you are a maintainer of the PyPI package, you can publish a new version of the package using... ``./publish.sh``.
 Else, please `open a pull request <https://github.com/MICS-Lab/lincs/pulls>`_ on GitHub!
@@ -91,11 +85,12 @@ The ``development`` directory contains scripts and files used for development.
 Scripts ``./run-development-cycle.sh`` and ``./publish.sh`` at the root are thin wrappers for scripts in that directory.
 
 The root directory also contains basic packaging files like the ``README.rst``, ``setup.py``, ``MANIFEST.in`` files, as well as the licence files.
-See comments in ``.gitignore`` for details about temporary files and directories.
 
 Documentation sources are in ``doc-sources``, and built documentation is in ``docs``, to be published in GitHub Pages.
 Published documentation should only be committed when publishing a new version.
-You can build it locally to check how your changes are rendered using ``./run-development-cycle.sh --with-docs``, but you must commit only ``doc-sources`` and not ``docs``.
+You can build it locally to check how your changes are rendered using ``./run-development-cycle.sh --with-docs``.
+If you do that, ``docs`` will contains documentation for your current ``-dev`` version of *lincs*.
+We don't want that published, so you must commit only ``doc-sources`` and not ``docs``.
 
 Integration tests are in... ``integration-tests``.
 Each test consists of a ``run.sh`` script and accompanying files.
@@ -105,13 +100,6 @@ This is done by the ``./run-development-cycle.sh`` script before it runs them.
 
 General design
 ==============
-
-@todo(Documentation, soon) Write
-
-Focus on interfaces
--------------------
-
-@todo(Documentation, soon) Write
 
 Strategies
 ----------
@@ -262,6 +250,7 @@ For example, from the Python side, it's possible to add a termination strategy, 
 
 That explains why we use virtual functions where we do.
 
+
 How-tos
 =======
 
@@ -282,6 +271,9 @@ Open ``docs/index.html`` in your browser to check the result.
 
 Choose Python or C++ for your change
 ------------------------------------
+
+This section is an anticipation for when we do publish the Python and C++ APIs of *lincs*.
+This should happen in 2024 (famous last words...), so we like to keep it in mind.
 
 *lincs* is written partly in C++ and partly in Python.
 One important reason for a Python part is usability: Python is arguably easier to get started with than C++,
@@ -346,12 +338,12 @@ By default, you should start with a dynamic extension point unless it's very cle
 Definition of an dynamic extension point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@todo(Documentation, soon) Write
+@todo(Documentation, later) Write
 
 Definition of an static extension point
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@todo(Documentation, soon) Write
+@todo(Documentation, later) Write
 
 Default behavior for backward compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -365,7 +357,8 @@ Add an external solver
 ----------------------
 
 As explained above, solvers are injected statically via template parameters.
-So their interface is not specified explicitly (*e.g.* by an abstract base class), but relies on `duck-typing <https://en.wikipedia.org/wiki/Duck_typing>`_.
+So their interface is not specified explicitly (*e.g.* by an abstract base class),
+but relies on `duck-typing <https://en.wikipedia.org/wiki/Duck_typing>`_.
 
 To add a new one, you have to:
 
@@ -379,8 +372,11 @@ To add a new one, you have to:
 - expose typedefs in the Python module ``.../liblincs/liblincs_module.cpp``
 - import it in ``lincs/__init__.py``
 - add options to use it in ``lincs/command_line_interface.py``
-- document the installation of the solver in ``doc-sources/get-started.rst``
-- install the solver in the public Docker image (``docker/Dockerfile``)
 - run and fix integration tests; expect failure of the ``help-all`` test, and update its ``expected.txt`` file accordingly
 
+The procedure above gives examples for linear programming solvers, but the same ideas apply to SAT and max-SAT solvers.
+
 Here is the commit that introduced the Alglib linear programming solver: `0a790ef <https://github.com/MICS-Lab/lincs/commit/0a790ef>`_.
+The modifications we had to make to the "Get started" guide are no longer needed now that we publish binary wheels,
+and the user guide has been entirely restructured since this commit.
+Besides that, changes to the code still look like what you'd have to do to add a new solver.
