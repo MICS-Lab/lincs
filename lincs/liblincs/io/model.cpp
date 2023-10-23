@@ -8,6 +8,7 @@
 #include "../unreachable.hpp"
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
+#include "exception.hpp"
 #include "validation.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -216,19 +217,28 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
 Model Model::load(const Problem& problem, std::istream& is) {
   CHRONE();
 
+  const unsigned criteria_count = problem.criteria.size();
+  const unsigned categories_count = problem.categories.size();
+  const unsigned boundaries_count = categories_count - 1;
+
   YAML::Node node = YAML::Load(is);
 
   validator.validate(node);
-  // @todo(Feature, soon) Validate consistency with the problem file (sizes must match number of categories and criteria, etc.)
 
-  std::vector<std::vector<float>> profiles(problem.categories.size() - 1, std::vector<float>(problem.criteria.size()));
+  std::vector<std::vector<float>> profiles(boundaries_count, std::vector<float>(criteria_count));
   {
     unsigned criterion_index = 0;
-    for (const YAML::Node& accepted_values : node["accepted_values"]) {
+    const YAML::Node& accepted_values = node["accepted_values"];
+    if (accepted_values.size() != criteria_count) {
+      throw DataValidationException("Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file");
+    }
+    for (const YAML::Node& accepted_values : accepted_values) {
       assert(accepted_values["kind"].as<std::string>() == "thresholds");
       const std::vector<float>& thresholds = accepted_values["thresholds"].as<std::vector<float>>();
-      assert(thresholds.size() == profiles.size());
-      for (unsigned profile_index = 0; profile_index != profiles.size(); ++profile_index) {
+      if (thresholds.size() != boundaries_count) {
+        throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
+      }
+      for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
         profiles[profile_index][criterion_index] = thresholds[profile_index];
       }
       ++criterion_index;
@@ -236,8 +246,14 @@ Model Model::load(const Problem& problem, std::istream& is) {
   }
 
   std::reverse(profiles.begin(), profiles.end());
+
+  const YAML::Node& sufficient_coalitions = node["sufficient_coalitions"];
+  if (sufficient_coalitions.size() != boundaries_count) {
+    throw DataValidationException("Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file");
+  }
   std::vector<Model::Boundary> boundaries;
-  for (const YAML::Node& sufficient_coalitions : node["sufficient_coalitions"]) {
+  boundaries.reserve(boundaries_count);
+  for (const YAML::Node& sufficient_coalitions : sufficient_coalitions) {
     boundaries.emplace_back(
       profiles.back(),
       load_sufficient_coalitions(problem, sufficient_coalitions)
@@ -504,7 +520,7 @@ TEST_CASE("Validation error - not an object") {
     Model::load(problem, iss),
     R"(JSON validation failed:
  - <root>: Value type not permitted by 'type' constraint.)",
-    JsonValidationException);
+    DataValidationException);
 }
 
 TEST_CASE("Validation error - missing weights") {
@@ -534,7 +550,77 @@ sufficient_coalitions:
  - <root> [sufficient_coalitions] [0]: Failed to validate against any child schemas allowed by oneOf constraint.
  - <root> [sufficient_coalitions]: Failed to validate item #0 in array.
  - <root>: Failed to validate against schema associated with property name 'sufficient_coalitions'.)",
-    JsonValidationException);
+    DataValidationException);
+}
+
+TEST_CASE("Validation error - size mismatch - accepted_values") {
+  Problem problem{
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::istringstream iss(R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.4]
+  - kind: thresholds
+    thresholds: [0.4]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.7]
+)");
+
+  CHECK_THROWS_WITH_AS(
+    Model::load(problem, iss),
+    "Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file",
+    DataValidationException);
+}
+
+TEST_CASE("Validation error - size mismatch - sufficient_coalitions") {
+  Problem problem{
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::istringstream iss(R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.4]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.7]
+  - kind: weights
+    criterion_weights: [0.7]
+)");
+
+  CHECK_THROWS_WITH_AS(
+    Model::load(problem, iss),
+    "Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file",
+    DataValidationException);
+}
+
+TEST_CASE("Validation error - size mismatch - thresholds") {
+  Problem problem{
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::istringstream iss(R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [0.4, 0.5]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.7]
+)");
+
+  CHECK_THROWS_WITH_AS(
+    Model::load(problem, iss),
+    "Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file",
+    DataValidationException);
 }
 
 }  // namespace lincs

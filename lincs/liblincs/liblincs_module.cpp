@@ -258,6 +258,16 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def(bp::vector_indexing_suite<std::vector<lincs::Criterion>>())
   ;
 
+  PyObject* DataValidationException_wrapper = PyErr_NewException("liblincs.DataValidationException", PyExc_RuntimeError, NULL);
+
+  bp::register_exception_translator<lincs::DataValidationException>(
+    [DataValidationException_wrapper](const lincs::DataValidationException& e) {
+      PyErr_SetString(DataValidationException_wrapper, e.what());
+    }
+  );
+
+  bp::scope().attr("DataValidationException") = bp::handle<>(bp::borrowed(DataValidationException_wrapper));
+
   auto problem_class = bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>())
     .def_readwrite("criteria", &lincs::Problem::criteria)
     .def_readwrite("categories", &lincs::Problem::categories)

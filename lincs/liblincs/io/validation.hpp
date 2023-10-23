@@ -8,11 +8,6 @@
 
 namespace lincs {
 
-class JsonValidationException : public std::runtime_error {
- public:
-  JsonValidationException(const std::string& message) : std::runtime_error(message) {}
-};
-
 class JsonValidator {
  public:
   JsonValidator(const YAML::Node& schema);

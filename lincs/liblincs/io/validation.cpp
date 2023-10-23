@@ -6,6 +6,7 @@
 #include "../vendored/valijson/adapters/yaml_cpp_adapter.hpp"
 #include "../vendored/valijson/schema_parser.hpp"
 #include "../vendored/valijson/validator.hpp"
+#include "exception.hpp"
 
 
 namespace lincs {
@@ -36,7 +37,7 @@ void JsonValidator::validate(const YAML::Node& document) const {
       oss << ": " << error.description;
     }
 
-    throw JsonValidationException(oss.str());
+    throw DataValidationException(oss.str());
   }
 }
 

@@ -7,6 +7,7 @@
 #include "../chrones.hpp"
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
+#include "exception.hpp"
 #include "validation.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -225,7 +226,7 @@ TEST_CASE("Validation error - not an object") {
   CHECK_THROWS_WITH_AS(
     Problem::load(iss),
     "JSON validation failed:\n - <root>: Value type not permitted by 'type' constraint.",
-    JsonValidationException);
+    DataValidationException);
 }
 
 TEST_CASE("Validation error - bad enum") {
@@ -249,7 +250,7 @@ categories:
  - <root> [criteria] [0]: Failed to validate against schema associated with property name 'value_type'.
  - <root> [criteria]: Failed to validate item #0 in array.
  - <root>: Failed to validate against schema associated with property name 'criteria'.)",
-    JsonValidationException);
+    DataValidationException);
 }
 
 }  // namespace lincs

@@ -1,6 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
+import contextlib
 import math
 import os
 import random
@@ -306,7 +307,9 @@ def classification_model(
         command_line += ["--mrsort.fixed-weights-sum", mrsort__fixed_weights_sum]
     print(f"# {make_reproduction_command(command_line)}", file=output_model, flush=True)
 
-    problem = lincs.Problem.load(problem)
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+
     assert model_type == "mrsort"
     model = lincs.generate_mrsort_classification_model(
         problem,
@@ -314,12 +317,6 @@ def classification_model(
         fixed_weights_sum=mrsort__fixed_weights_sum,
     )
     model.dump(problem, output_model)
-
-
-def get_input_file_name(input_file):
-    if input_file.name == "<stdin>":
-        return "-"
-    return input_file.name
 
 
 @generate.command(
@@ -380,8 +377,10 @@ def classified_alternatives(
         command_line += ["--max-imbalance", max_imbalance]
     command_line += ["--misclassified-count", misclassified_count]
 
-    problem = lincs.Problem.load(problem)
-    model = lincs.Model.load(problem, model)
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+        model = lincs.Model.load(problem, model)
+
     try:
         alternatives = lincs.generate_classified_alternatives(
             problem,
@@ -451,10 +450,11 @@ def classification_model(
     alternatives_count,
     output,
 ):
-    problem = lincs.Problem.load(problem)
-    model = lincs.Model.load(problem, model)
-    if alternatives is not None:
-        alternatives = lincs.Alternatives.load(problem, alternatives)
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+        model = lincs.Model.load(problem, model)
+        if alternatives is not None:
+            alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.visualization.visualize_model(problem, model, alternatives, alternatives_count, output)
 
 
@@ -711,8 +711,9 @@ def classification_model(
 ):
     command_line = ["lincs", "learn", "classification-model", get_input_file_name(problem), get_input_file_name(learning_set), "--model-type", model_type]
 
-    problem = lincs.Problem.load(problem)
-    learning_set = lincs.Alternatives.load(problem, learning_set)
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+        learning_set = lincs.Alternatives.load(problem, learning_set)
 
     if model_type == "mrsort":
         command_line += ["--mrsort.strategy", mrsort__strategy]
@@ -869,9 +870,12 @@ def classify(
     output_classified_alternatives,
 ):
     command_line = ["lincs", "classify", get_input_file_name(problem), get_input_file_name(model), get_input_file_name(alternatives)]
-    problem = lincs.Problem.load(problem)
-    model = lincs.Model.load(problem, model)
-    alternatives = lincs.Alternatives.load(problem, alternatives)
+
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+        model = lincs.Model.load(problem, model)
+        alternatives = lincs.Alternatives.load(problem, alternatives)
+
     lincs.classify_alternatives(problem, model, alternatives)
     print(f"# {make_reproduction_command(command_line)}", file=output_classified_alternatives, flush=True)
     alternatives.dump(problem, output_classified_alternatives)
@@ -905,11 +909,28 @@ def classification_accuracy(
     model,
     testing_set,
 ):
-    problem = lincs.Problem.load(problem)
-    model = lincs.Model.load(problem, model)
-    testing_set = lincs.Alternatives.load(problem, testing_set)
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+        model = lincs.Model.load(problem, model)
+        testing_set = lincs.Alternatives.load(problem, testing_set)
+
     result = lincs.classify_alternatives(problem, model, testing_set)
     print(f"{result.unchanged}/{result.changed + result.unchanged}")
+
+
+@contextlib.contextmanager
+def loading_guard():
+    try:
+        yield
+    except lincs.DataValidationException as e:
+        print(f"ERROR: lincs found an issue with the input files: {e}", file=sys.stderr)
+        exit(1)
+
+
+def get_input_file_name(input_file):
+    if input_file.name == "<stdin>":
+        return "-"
+    return input_file.name
 
 
 def make_reproduction_command(command):

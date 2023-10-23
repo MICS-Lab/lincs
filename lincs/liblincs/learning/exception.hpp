@@ -3,16 +3,13 @@
 #ifndef LINCS__LEARNING__EXCEPTION_HPP
 #define LINCS__LEARNING__EXCEPTION_HPP
 
-#include <exception>
+#include <stdexcept>
 
 
 namespace lincs {
 
-class LearningFailureException : public std::exception {
- public:
-  const char* what() const noexcept override {
-    return "Unable to learn from this dataset using this algorithm.";
-  }
+struct LearningFailureException : public std::runtime_error {
+ LearningFailureException() : std::runtime_error("Unable to learn from this dataset using this algorithm.") {}
 };
 
 }  // namespace lincs

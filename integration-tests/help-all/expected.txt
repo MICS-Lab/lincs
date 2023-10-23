@@ -517,6 +517,29 @@ lincs.Criterion.name: property
 lincs.Criterion.value_type: property
 ------------------------------------
 
+lincs.DataValidationException: type
+-----------------------------------
+
+lincs.DataValidationException.__init__: wrapper_descriptor
+----------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
+lincs.DataValidationException.args: getset_descriptor
+-----------------------------------------------------
+
+lincs.DataValidationException.args.__init__: method-wrapper
+-----------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
+lincs.DataValidationException.with_traceback: method_descriptor
+---------------------------------------------------------------
+Exception.with_traceback(tb) --
+    set self.__traceback__ to tb and return self.
+
+lincs.DataValidationException.with_traceback.__init__: method-wrapper
+---------------------------------------------------------------------
+Initialize self.  See help(type(self)) for accurate signature.
+
 lincs.ImproveProfilesWithAccuracyHeuristicOnCpu: class
 ------------------------------------------------------
 

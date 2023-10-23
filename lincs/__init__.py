@@ -3,6 +3,8 @@
 __version__ = "0.9.2-dev"
 
 # I/O
+from liblincs import DataValidationException
+
 from liblincs import Criterion, Category, Problem
 
 from liblincs import SufficientCoalitions, Model
