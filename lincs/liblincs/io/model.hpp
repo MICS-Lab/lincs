@@ -69,7 +69,9 @@ struct Model {
 
   std::vector<Boundary> boundaries;  // boundary_index 0 is between category_index 0 and category_index 1
 
-  Model(const Problem& problem_, const std::vector<Boundary>& boundaries_) : problem(problem_), boundaries(boundaries_) {}
+  Model(const Problem& problem_, const std::vector<Boundary>& boundaries_) : problem(problem_), boundaries(boundaries_) {
+    // @todo(Feature, soon) Check the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
+  }
 
   static const std::string json_schema;
   void dump(const Problem&, std::ostream&) const;

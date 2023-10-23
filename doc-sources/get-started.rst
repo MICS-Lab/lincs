@@ -9,12 +9,12 @@ Get *lincs*
 ===========
 
 We provide binary wheels for *lincs* on Linux, Windows and macOS for x86_64 processors,
-so running ``pip install lincs --only-binary lincs`` should be enough.
+so running ``pip install lincs --only-binary lincs`` should be enough on those systems.
 
 If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
 If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml>`_ we use to build the binary wheels.
-You'll probably start by trying ``pip install lincs``, see what dependency is missing, install it and iterate from there.
+You'll probably start by trying ``pip install lincs``, see what dependencies are missing, install them and iterate from there.
 If you end up modifying *lincs* to make it work on your platform, we kindly ask you to contribute your changes back to the project.
 
 .. _start-command-line:
@@ -57,7 +57,10 @@ The command-line interface is the easiest way to get started with *lincs*, start
 
 .. STOP
 
-It's organized using sub-commands, the first one being ``generate``, to generate synthetic pseudo-random data.
+It's organized into sub-commands, the first one being ``generate``, to generate synthetic pseudo-random data.
+
+*lincs* is designed to handle real-world data, but it's often easier to start with synthetic data to get familiar with the tooling and required file formats.
+Synthetic data is described in our :ref:`conceptual overview documentation <overview-synthetic-data>`.
 
 .. START command-line-example/run.sh
     set -o errexit
@@ -70,7 +73,7 @@ It's organized using sub-commands, the first one being ``generate``, to generate
 
 .. EXTEND command-line-example/run.sh
 
-Generate a classification problem with 4 criteria and 3 categories (@todo(Documentation, soon) Link to concepts and file formats)::
+So, start by generating a classification problem with 4 criteria and 3 categories::
 
     lincs generate classification-problem 4 3 --output-problem problem.yml
 
@@ -115,6 +118,8 @@ The generated ``problem.yml`` should look like::
 .. STOP
 
 You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
+That format is explained in details in our :ref:`user guide <user-file-problem>`.
+The concept of "classification problem" is described in our :ref:`conceptual overview documentation <overview-about-classification>`.
 
 .. EXTEND command-line-example/run.sh
     diff expected-problem.yml problem.yml
@@ -124,7 +129,7 @@ You can edit this file to change the criteria names, the number of categories, *
 
 .. EXTEND command-line-example/run.sh
 
-Then generate an NCS classification model (@todo(Documentation, soon) Link to concepts and file formats)::
+Then generate an NCS classification model::
 
     lincs generate classification-model problem.yml --output-model model.yml
 
@@ -157,8 +162,10 @@ It should look like::
 
 .. STOP
 
-Note that *lincs* uses [YAML anchors and references](https://yaml.org/spec/1.2-old/spec.html#id2765878) to avoid repeating the same sufficient coalitions in all profiles.
+Note that *lincs* uses `YAML anchors and references <https://yaml.org/spec/1.2-old/spec.html#id2765878>`_ to avoid repeating the same sufficient coalitions in all profiles.
 All ``*coalitions`` means is "use the same value as the ``&coalitions`` anchor".
+
+The file format is documented in our :ref:`user guide <user-file-ncs-model>`.
 
 .. EXTEND command-line-example/run.sh
     diff expected-model.yml model.yml
@@ -175,7 +182,7 @@ You can visualize it using::
 .. STOP
 
 .. EXTEND command-line-example/run.sh
-    cp model.png ../../../doc-sources
+    cp model.png ../../../../doc-sources
 .. STOP
 
 It should output something like:
@@ -186,12 +193,14 @@ It should output something like:
 
 .. EXTEND command-line-example/run.sh
 
-And finally generate a set of classified alternatives (@todo(Documentation, soon) Link to concepts and file formats)::
+And finally generate a set of classified alternatives::
 
     lincs generate classified-alternatives problem.yml model.yml 1000 --output-classified-alternatives learning-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
+
+The file format is documented in our :ref:`reference documentation <ref-file-alternatives>`.
 
 @todo(Feature, later) Should we provide utilities to split a set of alternatives into a training set and a testing set?
 Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
@@ -228,7 +237,7 @@ You can visualize its first five alternatives using::
 .. STOP
 
 .. EXTEND command-line-example/run.sh
-    cp alternatives.png ../../../doc-sources
+    cp alternatives.png ../../../../doc-sources
 .. STOP
 
 It should output something like:
@@ -239,13 +248,11 @@ It should output something like:
 
 @todo(Feature, later) Remove the legend, place names (categories and alternatives) directly on the graph
 
-You now have a (synthetic) learning set.
-
 .. highlight:: shell
 
 .. EXTEND command-line-example/run.sh
 
-You can use it to train a new model::
+You now have a (synthetic) learning set. You can use it to train a new model::
 
     lincs learn classification-model problem.yml learning-set.csv --output-model trained-model.yml
 
@@ -422,8 +429,7 @@ What now?
 
 If you haven't done so yet, we recommend you now read our :doc:`conceptual overview documentation <conceptual-overview>`.
 
-Keep in mind that we've only demonstrated the default learning strategy in this guide.
-This package implements several strategies accessible via options of ``lincs learn``.
-See the :ref:`learning strategies documentation <user-learning-strategies>` in our user guide for more details.
+Keep in mind that we've only demonstrated the default learning approach in this guide.
+See the :ref:`learning documentation <user-learning-a-model>` in our user guide for more details.
 
 Once you're comfortable with the concepts and tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.

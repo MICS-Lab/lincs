@@ -35,6 +35,10 @@ import click
     help="Skip long tests to save time. Implies --single-python-version. Please run the full development cycle at least once before submitting your changes.",
 )
 @click.option(
+    "--skip-unit", is_flag=True,
+    help="Skip unit tests to save time. Please run the full development cycle at least once before submitting your changes.",
+)
+@click.option(
     "--stop-after-unit", is_flag=True,
     help="Stop before integration tests to save time. Please run the full development cycle at least once before submitting your changes.",
 )
@@ -54,7 +58,7 @@ import click
     "--doctest-option", multiple=True,
     help="Pass an option verbatim to doctest. Can be used multiple times.",
 )
-def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_unit, forbid_gpu, forbid_chrones, doctest_option):
+def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, stop_after_unit, forbid_gpu, forbid_chrones, doctest_option):
     if forbid_gpu:
         os.environ["LINCS_DEV_FORBID_GPU"] = "true"
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
@@ -80,47 +84,48 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, stop_after_
     # With lincs not installed
     ##########################
 
-    if unit_coverage:
-        os.environ["LINCS_DEV_COVERAGE"] = "true"
+    if not skip_unit:
+        if unit_coverage:
+            os.environ["LINCS_DEV_COVERAGE"] = "true"
 
-    for file_name in glob.glob("liblincs.cpython-*-x86_64-linux-gnu.so"):
-        os.unlink(file_name)
-    for python_version in python_versions:
-        print_title(f"Building extension module in debug mode for Python {python_version}")
-        subprocess.run(
-            [
-                f"python{python_version}", "setup.py", "build_ext",
-                "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
-                "--parallel", str(multiprocessing.cpu_count() - 1),
-            ],
-            check=True,
-        )
+        for file_name in glob.glob("liblincs.cpython-*-x86_64-linux-gnu.so"):
+            os.unlink(file_name)
+        for python_version in python_versions:
+            print_title(f"Building extension module in debug mode for Python {python_version}")
+            subprocess.run(
+                [
+                    f"python{python_version}", "setup.py", "build_ext",
+                    "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
+                    "--parallel", str(multiprocessing.cpu_count() - 1),
+                ],
+                check=True,
+            )
+            print()
+
+        print_title("Running C++ unit tests")
+        run_cpp_tests(python_version=python_versions[0], doctest_options=doctest_option)
         print()
 
-    print_title("Running C++ unit tests")
-    run_cpp_tests(python_version=python_versions[0], doctest_options=doctest_option)
-    print()
+        for python_version in python_versions:
+            print_title(f"Running Python {python_version} unit tests")
+            run_python_tests(python_version=python_version)
+            print()
 
-    for python_version in python_versions:
-        print_title(f"Running Python {python_version} unit tests")
-        run_python_tests(python_version=python_version)
-        print()
+        if unit_coverage:
+            print_title(f"Making report of unit tests coverage")
+            gcovr = ["gcovr", "--exclude-directories", "ccache", "--html-details", "build/coverage.html", "--print-summary", "--sort-uncovered"]
+            # 'gcovr --exclude' doesn't work as advertised, so I'm using many '--filter' instead
+            for source_name in glob.glob("lincs/liblincs/**/*.*", recursive=True):
+                if not source_name.startswith("lincs/liblincs/vendored/") and not source_name.endswith("/liblincs_module.cpp"):
+                    gcovr += ["--filter", source_name]
+            subprocess.run(gcovr, check=True)
 
-    if unit_coverage:
-        print_title(f"Making report of unit tests coverage")
-        gcovr = ["gcovr", "--exclude-directories", "ccache", "--html-details", "build/coverage.html", "--print-summary", "--sort-uncovered"]
-        # 'gcovr --exclude' doesn't work as advertised, so I'm using many '--filter' instead
-        for source_name in glob.glob("lincs/liblincs/**/*.*", recursive=True):
-            if not source_name.startswith("lincs/liblincs/vendored/") and not source_name.endswith("/liblincs_module.cpp"):
-                gcovr += ["--filter", source_name]
-        subprocess.run(gcovr, check=True)
-
-        # Remove branch coverage (unreliable in C++ due to exception handling)
-        with open("build/coverage.html") as f:
-            lines = f.readlines()
-        with open("build/coverage.html", "w") as f:
-            f.writelines(line for line in lines if not "branch-coverage" in line)
-        return
+            # Remove branch coverage (unreliable in C++ due to exception handling)
+            with open("build/coverage.html") as f:
+                lines = f.readlines()
+            with open("build/coverage.html", "w") as f:
+                f.writelines(line for line in lines if not "branch-coverage" in line)
+            return
 
     if stop_after_unit:
         pass
@@ -191,7 +196,8 @@ def make_integration_tests_from_doc():
     output_files = {}
     current_prefix = ""
     current_output_file_name = None
-    for input_file_name in ["README.rst"] + glob.glob("doc-sources/*.rst"):
+    for input_file_name in glob.glob("doc-sources/*.rst"):
+        output_prefix = input_file_name[12:-4]
         with open(input_file_name) as f:
             lines = f.readlines()
         for line in lines:
@@ -217,7 +223,7 @@ def make_integration_tests_from_doc():
             if m:
                 assert current_output_file_name is None, (input_file_name, current_output_file_name)
                 current_prefix = m.group(1)
-                current_output_file_name = m.group(3)
+                current_output_file_name = os.path.join(output_prefix, m.group(3))
                 if m.group(2) == "START":
                     output_files[current_output_file_name] = []
         assert current_output_file_name is None, (input_file_name, current_output_file_name)
@@ -279,7 +285,8 @@ def build_sphinx_documentation():
 
 def run_integration_tests(*, skip_long, forbid_gpu):
     ok = True
-    for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
+    # Sorted: alphabetical order just happens to match a dependency order between a few tests.
+    for test_file_name in sorted(glob.glob("integration-tests/**/run.sh", recursive=True)):
         test_name = test_file_name[18:-7]
 
         if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):

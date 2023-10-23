@@ -17,6 +17,8 @@ For a given set :math:`S`, we denote the set of all its subsets (*a.k.a.* its po
 For example :math:`\mathcal{P}(\{0, 1, 2\}) = \{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}`.
 
 
+.. _overview-about-classification:
+
 About classification
 ====================
 
@@ -39,9 +41,9 @@ The same vocabulary could apply to triaging patients in an hospital based on vit
 
   A problem is defined by:
 
-  - its number of criteria :math:`n \in \mathbb{N}`
+  - its number of criteria :math:`n \in \mathbb{N}`, with :math:`n \geq 1`
   - its set of criteria :math:`\{X_i\}_{i \in [0..n)}`. Each criterion :math:`X_i` (for :math:`i \in [0..n)`) is a set of values with a total pre-order :math:`\preccurlyeq_i`
-  - its number of categories :math:`p \in \mathbb{N}`
+  - its number of categories :math:`p \in \mathbb{N}`, with :math:`p \geq 2`
   - its set of categories :math:`C = \{C^h\}_{h \in [0..p)}`, ordered by :math:`C^0 \prec ... \prec C^{p-1}`. Do not confuse :math:`h` for an exponent; it's just an index.
 
   In that setting, alternatives are the Cartesian product of the criteria: :math:`X = \prod_{i \in [0..n)} X_i`.
@@ -64,6 +66,7 @@ The set of already classified alternatives is called the "training set"; it cons
 
 Most models are parametric functions of a given form, and the learning phase consists in finding the parameters that best fit the training set.
 
+.. _overview-ncs:
 
 Non-compensatory sorting (NCS)
 ==============================
@@ -155,7 +158,7 @@ The profiles for this model look like this:
     trap 'echo "Error on line $LINENO"' ERR
 
     lincs visualize classification-model problem.yml model.yml concept-example-model.png
-    cp concept-example-model.png ../../../doc-sources
+    cp concept-example-model.png ../../../../doc-sources
 
     lincs classify problem.yml model.yml alternatives.csv --output-classified-alternatives classified-alternatives.csv
     diff classified-alternatives.csv expected-classified-alternatives.csv
@@ -407,6 +410,8 @@ This simplification captures the idea that in many cases, the same criteria are 
 
 In the previous model example, :math:`\mathcal{F}^1 \ne \mathcal{F}^2`, so it is not a :math:`U^c \textsf{-} NCS` model.
 
+.. _overview-mrsort:
+
 :math:`1 \textsf{-} U^c \textsf{-} NCS` *a.k.a.* MR-Sort
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -470,6 +475,8 @@ The accuracy of the learned model is defined as the portion of alternatives that
 Real-world data is often noisy: the learning set often contains inconsistencies that prevents it from being the result of an NCS classification.
 In those cases, it's impossible to find an NCS model with 100% accuracy, but it's still useful to find a model with a good accuracy.
 
+.. _overview-learning-methods:
+
 Here is a summary of the learning methods implemented in *lincs*:
 
 ========================================  ==========================  ================  ==========================================  =====================
@@ -480,7 +487,7 @@ WPB heuristic                             MR-Sort                     Intermedia
 max-SAT (by coalitions or by separation)  :math:`U^c \textsf{-} NCS`  Longest           A model with maximum accuracy               (no failure)
 ========================================  ==========================  ================  ==========================================  =====================
 
-Note that none of these algorithm produced "the" model: there is no such thing as a single best model.
+Note that none of these algorithms produces "the" model: there is no such thing as a single best model.
 
 The SAT approaches are often the quickest, but when a model with 100% accuracy doesn't exist, they simply fail to produce anything.
 
@@ -496,6 +503,7 @@ It was originaly `implemented in Python <https://github.com/oso/pymcda>`_ by Oli
 Emma Dixneuf, Thibault Monsel and Thomas Vindard then provided a sequential `C++ implementation of Sobrie's heuristic <https://github.com/Mostah/fastPL/>`_,
 and *lincs* provides two parallel implementations (using OpenMP and CUDA).
 
+.. _overview-synthetic-data:
 
 Synthetic data
 ==============

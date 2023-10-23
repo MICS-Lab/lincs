@@ -76,11 +76,36 @@ Starting with version 1.0.0, *lincs* uses `semantic versioning <https://semver.o
 **at a code level**: we consider a change as backward compatible if the client code doesn't need to be modified to keep working,
 even if that change requires recompiling the client code in some cases.
 
-A backward compatible change might change *lincs*' behavior, especially with regards to pseudo-random behavior.
+Future backward compatible changes might change *lincs*' behavior, especially with regards to pseudo-random behavior.
 
 Note that we plan to make *lincs* usable as Python and C++ libraries.
 When we do that, we'll add these interfaces to the public API.
 In the mean time, if you chose to use *lincs* that way, you must expect unanticipated changes to these interfaces.
+
+Exceptions
+----------
+
+Default values
+^^^^^^^^^^^^^^
+
+Default values of optional arguments are not considered part of the public API.
+They might change in future releases if we find values that perform better for most use-cases.
+
+We advice you write your scripts in an explicit way where it matters to you,
+and rely on implicit default values only where you want the potential future improvements.
+
+File formats
+^^^^^^^^^^^^
+
+The same specification applies to files read and produced by *lincs*.
+This leads to an issue about backward compatibility:
+if we allow more flexibility in input files, new versions of *lincs* will be able to read both the old and the new format, in a backward-compatible way.
+But if *lincs* produces a file in the new format, existing client scripts might not be able to read it, making this change backward-incompatible.
+
+To solve this issue, we impose an additional constraint to *lincs*' public API:
+*lincs* will produce files in a new format only when the client uses the new feature that motivated the new format.
+
+That way, we know that the client already needs to modify their scripts, so they can adapt to the new format.
 
 
 Develop *lincs* itself

@@ -674,7 +674,7 @@ def learn():
         ],
         "ucncs": [
             (
-                "approach",
+                "strategy",
                 dict(
                     help="The general approach to transform the learning problem into a satisfiability problem.",
                     type=click.Choice(["sat-by-coalitions", "sat-by-separation", "max-sat-by-coalitions", "max-sat-by-separation"]),
@@ -707,7 +707,7 @@ def classification_model(
     mrsort__weights_profiles_breed__breed_strategy,
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
     mrsort__weights_profiles_breed__verbose,
-    ucncs__approach,
+    ucncs__strategy,
 ):
     command_line = ["lincs", "learn", "classification-model", get_input_file_name(problem), get_input_file_name(learning_set), "--model-type", model_type]
 
@@ -796,14 +796,14 @@ def classification_model(
                 observers,
             )
     elif model_type == "ucncs":
-        command_line += ["--ucncs.approach", ucncs__approach]
-        if ucncs__approach == "sat-by-coalitions":
+        command_line += ["--ucncs.strategy", ucncs__strategy]
+        if ucncs__strategy == "sat-by-coalitions":
             learning = lincs.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
-        elif ucncs__approach == "sat-by-separation":
+        elif ucncs__strategy == "sat-by-separation":
             learning = lincs.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
-        elif ucncs__approach == "max-sat-by-coalitions":
+        elif ucncs__strategy == "max-sat-by-coalitions":
             learning = lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
-        elif ucncs__approach == "max-sat-by-separation":
+        elif ucncs__strategy == "max-sat-by-separation":
             learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
 
     try:
@@ -872,6 +872,7 @@ def classify(
     model = lincs.Model.load(problem, model)
     alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.classify_alternatives(problem, model, alternatives)
+    # @todo(Feature, soon) Add "reproduction" comments consistently with other commands
     alternatives.dump(problem, output_classified_alternatives)
 
 

@@ -11,7 +11,7 @@ lincs generate classification-model problem.yml --random-seed 42 >model.yml
 lincs generate classified-alternatives problem.yml model.yml 100 --misclassified-count 10 --random-seed 42 >learning-set.csv
 
 if lincs learn classification-model problem.yml learning-set.csv \
-  --model-type ucncs --ucncs.approach sat-by-coalitions \
+  --model-type ucncs --ucncs.strategy sat-by-coalitions \
   --output-model learned-model.yml \
   2>stderr.txt
 then
