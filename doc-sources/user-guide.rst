@@ -637,8 +637,37 @@ They should produce a different kind of model, with the sufficient coalitions sp
 Using a model
 =============
 
-@todo(Documentation, soon) Write about ``lincs classify`` (outputting to stdout by default)
+Classifying alternatives
+------------------------
 
-@todo(Documentation, soon) Write about ``lincs classification-accuracy`` (always outputting to stdout)
+When you finally have a model (learned, generated or hand-crafted),
+you can use it to classify alternatives with ``lincs classify problem.yml model.yml alternatives.csv``.
 
-@todo(Documentation, soon) Write about ``lincs visualize classification-model`` (mandatory output parameter, use - to output to stdout)
+The ``category`` column in the input alternatives file is ignored and may be empty.
+
+Note that the input files will not be modified: the classified alternatives will be printed on the standard output
+or written in the file specified by ``--output-classified-alternatives``.
+
+Computing a classification accuracy
+-----------------------------------
+
+Similarly, you can use ``lincs classification-accuracy problem.yml model.yml learning-set.csv`` to compute the accuracy of a model on a learning set.
+
+In that case, the ``category`` column must be populated as it serves as a reference to compute the accuracy.
+
+That command displays the number of alternatives that were correctly classified and the total number of alternatives in the learning set.
+
+Visualizing a model and alternatives
+------------------------------------
+
+And you can use ``lincs visualize classification-model problem.yml model.yml`` to create a graphical representation of a model (a ``.png`` file),
+and its ``--alternatives`` and ``--alternatives-count`` options to add alternatives to the graph.
+You've seen an example in our "Get started" guide.
+
+
+What's next?
+============
+
+You now know pretty much everything you need to use *lincs*.
+You may find some additional details in our :doc:`reference documentation <reference>`.
+Feel free to reach out to us if you have any question or feedback, as said at the top of the :doc:`Readme <index>`.
