@@ -4,6 +4,17 @@
 Changelog
 =========
 
+Version 0.10.0
+==============
+
+This is the first release candidate for version 1.0.0.
+
+- **Breaking**: Allow more flexible description of accepted values in the model json schema. See user guide for details.
+- **Breaking**: Rename option ``--ucncs.approach`` to ``--ucncs.strategy``
+- Validate consistency with problem when loading alternatives or model files
+- Output "reproduction command" in ``lincs classify``
+- Improve documentation
+
 Versions 0.9.0 to 0.9.2
 =======================
 

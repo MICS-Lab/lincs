@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reference &#8212; lincs 0.9.1 documentation</title>
+    <title>Reference &#8212; lincs 0.10.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=bfb94e3c"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=fa439637"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -34,17 +34,12 @@
             
   <section id="reference">
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this heading">¶</a></h1>
-<p>&#64;todo(Documentation, later) Generate a reference documentation using Sphinx:</p>
-<ul class="simple">
-<li><p>Python using autodoc</p></li>
-<li><p>C++ using Doxygen+Breath</p></li>
-<li><p>YAML file formats using JSON Schema and <a class="reference external" href="https://sphinx-jsonschema.readthedocs.io/en/latest/">https://sphinx-jsonschema.readthedocs.io/en/latest/</a></p></li>
-</ul>
 <section id="file-formats">
 <h2>File formats<a class="headerlink" href="#file-formats" title="Permalink to this heading">¶</a></h2>
 <p><em>lincs</em> uses text-based (YAML and CSV) file formats.
+The same formats are used when <em>lincs</em> reads files or when it outputs to files.
 The same formats are used for synthetic and real-world data.
-The same formats are used when the <code class="docutils literal notranslate"><span class="pre">lincs</span></code> command lines outputs to actual files or to its standard output.</p>
+The same formats are used when <em>lincs</em> outputs to actual files or to the standard output.</p>
 <section id="the-problem-file">
 <span id="ref-file-problem"></span><h3>The problem file<a class="headerlink" href="#the-problem-file" title="Permalink to this heading">¶</a></h3>
 <p>The problem file is a YAML file specified by the following <a class="reference download internal" download="" href="_downloads/88ec4004d09b5e85c9e1ff9b908b40ad/problem-schema.yml"><code class="xref download docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Schema</span></code></a>:</p>
@@ -77,71 +72,79 @@ The same formats are used when the <code class="docutils literal notranslate"><s
 <tr class="row-odd"><td><p>const</p></td>
 <td colspan="3"><p>1</p></td>
 </tr>
-<tr class="row-even"><td rowspan="12"><ul class="simple">
+<tr class="row-even"><td rowspan="15"><ul class="simple">
 <li><p><strong>criteria</strong></p></li>
 </ul>
 </td>
-<td><p>type</p></td>
+<td colspan="4"><p>Structural information about criteria used in the classification problem.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="3"><p><em>array</em></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="10"><p>items</p></td>
+<tr class="row-even"><td rowspan="12"><p>items</p></td>
 <td><p>type</p></td>
 <td colspan="2"><p><em>object</em></p></td>
 </tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-odd"><td><ul class="simple">
+<tr class="row-even"><td><ul class="simple">
 <li><p><strong>name</strong></p></li>
 </ul>
 </td>
 <td><p>type</p></td>
 <td><p><em>string</em></p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p><strong>value_type</strong></p></li>
 </ul>
 </td>
-<td><p>type</p></td>
+<td colspan="2"><p>May be extended in the future to handle criteria with integer values, or explicitely enumarated values.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>enum</p></td>
 <td><p>real</p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p><strong>category_correlation</strong></p></li>
 </ul>
 </td>
-<td><p>type</p></td>
+<td colspan="2"><p>May be extended in the future to handle single-peaked criteria, or criteria with unknown correlation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
 <td><p><em>string</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>enum</p></td>
+<tr class="row-even"><td><p>enum</p></td>
 <td><p>growing, decreasing</p></td>
 </tr>
-<tr class="row-even"><td><ul class="simple">
+<tr class="row-odd"><td><ul class="simple">
 <li><p><strong>min_value</strong></p></li>
 </ul>
 </td>
 <td><p>type</p></td>
 <td><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td><ul class="simple">
+<tr class="row-even"><td><ul class="simple">
 <li><p><strong>max_value</strong></p></li>
 </ul>
 </td>
 <td><p>type</p></td>
 <td><p><em>number</em></p></td>
 </tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td><p>minItems</p></td>
+<tr class="row-even"><td><p>minItems</p></td>
 <td colspan="3"><p>1</p></td>
 </tr>
-<tr class="row-even"><td rowspan="6"><ul class="simple">
+<tr class="row-odd"><td rowspan="7"><ul class="simple">
 <li><p><strong>categories</strong></p></li>
 </ul>
 </td>
-<td><p>type</p></td>
+<td colspan="4"><p>Structural information about categories in the classification problem.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
 <td colspan="3"><p><em>array</em></p></td>
 </tr>
 <tr class="row-odd"><td rowspan="4"><p>items</p></td>
@@ -174,64 +177,91 @@ The same formats are used when the <code class="docutils literal notranslate"><s
 <p>The model file is a YAML file specified by the following <a class="reference download internal" download="" href="_downloads/03deec4b0f63d30bca7548e47d373fce/model-schema.yml"><code class="xref download docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Schema</span></code></a>:</p>
 <table class="docutils align-default">
 <tbody>
-<tr class="row-odd"><td colspan="9"><p><em>NCS classification model</em></p></td>
+<tr class="row-odd"><td colspan="8"><p><em>NCS classification model</em></p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
-<td colspan="8"><p><em>object</em></p></td>
+<td colspan="7"><p><em>object</em></p></td>
 </tr>
-<tr class="row-odd"><td colspan="9"><p>properties</p></td>
+<tr class="row-odd"><td colspan="8"><p>properties</p></td>
 </tr>
 <tr class="row-even"><td rowspan="2"><ul class="simple">
 <li><p><strong>kind</strong></p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="7"><p><em>string</em></p></td>
+<td colspan="6"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>const</p></td>
-<td colspan="7"><p>ncs-classification-model</p></td>
+<td colspan="6"><p>ncs-classification-model</p></td>
 </tr>
 <tr class="row-even"><td rowspan="2"><ul class="simple">
 <li><p><strong>format_version</strong></p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="7"><p><em>integer</em></p></td>
+<td colspan="6"><p><em>integer</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>const</p></td>
-<td colspan="7"><p>1</p></td>
+<td colspan="6"><p>1</p></td>
 </tr>
-<tr class="row-even"><td rowspan="25"><ul class="simple">
-<li><p><strong>boundaries</strong></p></li>
+<tr class="row-even"><td rowspan="12"><ul class="simple">
+<li><p><strong>accepted_values</strong></p></li>
+</ul>
+</td>
+<td colspan="7"><p>For each criterion in the classification problem, a way to determine the accepted values for each category.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="6"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="9"><p>items</p></td>
+<td><p>type</p></td>
+<td colspan="5"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="8"><p>oneOf</p></td>
+<td colspan="5"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>kind</strong></p></li>
 </ul>
 </td>
 <td><p>type</p></td>
-<td colspan="7"><p><em>array</em></p></td>
+<td colspan="3"><p><em>string</em></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="23"><p>items</p></td>
-<td><p>type</p></td>
-<td colspan="6"><p><em>object</em></p></td>
+<tr class="row-odd"><td><p>const</p></td>
+<td colspan="3"><p>thresholds</p></td>
 </tr>
-<tr class="row-even"><td colspan="7"><p>properties</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p><strong>profile</strong></p></li>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p><strong>thresholds</strong></p></li>
 </ul>
 </td>
-<td><p>type</p></td>
-<td colspan="5"><p><em>array</em></p></td>
+<td colspan="4"><p>For each category but the lowest, the threshold to be accepted in that category according to that criterion.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>array</em></p></td>
 </tr>
 <tr class="row-even"><td><p>items</p></td>
 <td><p>type</p></td>
-<td colspan="4"><p><em>number</em></p></td>
+<td colspan="2"><p><em>number</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>minItems</p></td>
-<td colspan="5"><p>1</p></td>
+<td colspan="3"><p>1</p></td>
 </tr>
-<tr class="row-even"><td rowspan="17"><ul class="simple">
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="4"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>minItems</p></td>
+<td colspan="6"><p>1</p></td>
+</tr>
+<tr class="row-even"><td rowspan="20"><ul class="simple">
 <li><p><strong>sufficient_coalitions</strong></p></li>
 </ul>
 </td>
+<td colspan="7"><p>For each category but the lowest, a description of the sufficient coalitions for that category.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="6"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="17"><p>items</p></td>
 <td><p>type</p></td>
 <td colspan="5"><p><em>object</em></p></td>
 </tr>
@@ -301,21 +331,33 @@ The same formats are used when the <code class="docutils literal notranslate"><s
 <tr class="row-even"><td><p>additionalProperties</p></td>
 <td colspan="4"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="6"><p>False</p></td>
+<tr class="row-odd"><td><p>minItems</p></td>
+<td colspan="6"><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p>minItems</p></td>
-<td colspan="7"><p>1</p></td>
-</tr>
-<tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="8"><p>False</p></td>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="7"><p>False</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="the-alternatives-file">
 <span id="ref-file-alternatives"></span><h3>The alternatives file<a class="headerlink" href="#the-alternatives-file" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, soon) Write</p>
+<p>The alternatives file is a CSV file.</p>
+<p>Separator: the separator is an actual comma: <code class="docutils literal notranslate"><span class="pre">,</span></code>.</p>
+<p>Comments: lines starting with a <code class="docutils literal notranslate"><span class="pre">#</span></code> are ignored.</p>
+<p>Quotes: strings can be quoted using <code class="docutils literal notranslate"><span class="pre">&quot;</span></code>.
+Strings containing commas or whitespace must be quoted.</p>
+<p>Header line: the first non-comment line is a header.
+It must contain the names of the columns, separated by commas.</p>
+<p>Data lines: the following non-comment lines are data lines.
+Each line represents an alternative.</p>
+<p>First column: its name is <code class="docutils literal notranslate"><span class="pre">name</span></code>.
+Its values are the names of the alternatives.</p>
+<p>Intermediate columns: their names are the names of the criteria, as found in the associated problem file.
+Their values are the values of the alternatives for the criteria.</p>
+<p>Last column: its name is <code class="docutils literal notranslate"><span class="pre">category</span></code>.
+Its values can either be empty strings (for unclassified alternatives),
+or the names of the categories, as found in the associated problem file.</p>
 </section>
 </section>
 <section id="command-line-interface">
@@ -621,8 +663,8 @@ termination strategy, e.g. –mrsort.weights-profiles-breed.max-duration.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-ucncs.approach">
-<span class="sig-name descname"><span class="pre">--ucncs.approach</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ucncs__approach&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-ucncs.approach" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-lincs-learn-classification-model-ucncs.strategy">
+<span class="sig-name descname"><span class="pre">--ucncs.strategy</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ucncs__strategy&gt;</span></span><a class="headerlink" href="#cmdoption-lincs-learn-classification-model-ucncs.strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The general approach to transform the learning problem into a satisfiability problem.</p>
 <div class="line-block">
 <div class="line">Only valid if:</div>

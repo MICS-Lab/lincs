@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>README &#8212; lincs 0.9.1 documentation</title>
+    <title>README &#8212; lincs 0.10.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=bfb94e3c"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=fa439637"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -85,10 +85,30 @@ and <a class="reference internal" href="reference.html"><span class="doc">refere
 <p><em>lincs</em>’ public API (that “must be declared” according to SemVer) is constituted exclusively by its <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>,
 <strong>at a code level</strong>: we consider a change as backward compatible if the client code doesn’t need to be modified to keep working,
 even if that change requires recompiling the client code in some cases.</p>
-<p>A backward compatible change might change <em>lincs</em>’ behavior, especially with regards to pseudo-random behavior.</p>
+<p>Future backward compatible changes might change <em>lincs</em>’ behavior, especially with regards to pseudo-random behavior.</p>
 <p>Note that we plan to make <em>lincs</em> usable as Python and C++ libraries.
 When we do that, we’ll add these interfaces to the public API.
 In the mean time, if you chose to use <em>lincs</em> that way, you must expect unanticipated changes to these interfaces.</p>
+<section id="exceptions">
+<h3>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this heading">¶</a></h3>
+<section id="default-values">
+<h4>Default values<a class="headerlink" href="#default-values" title="Permalink to this heading">¶</a></h4>
+<p>Default values of optional arguments are not considered part of the public API.
+They might change in future releases if we find values that perform better for most use-cases.</p>
+<p>We advice you write your scripts in an explicit way where it matters to you,
+and rely on implicit default values only where you want the potential future improvements.</p>
+</section>
+<section id="file-formats">
+<h4>File formats<a class="headerlink" href="#file-formats" title="Permalink to this heading">¶</a></h4>
+<p>The same specification applies to files read and produced by <em>lincs</em>.
+This leads to an issue about backward compatibility:
+if we allow more flexibility in input files, new versions of <em>lincs</em> will be able to read both the old and the new format, in a backward-compatible way.
+But if <em>lincs</em> produces a file in the new format, existing client scripts might not be able to read it, making this change backward-incompatible.</p>
+<p>To solve this issue, we impose an additional constraint to <em>lincs</em>’ public API:
+<em>lincs</em> will produce files in a new format only when the client uses the new feature that motivated the new format.</p>
+<p>That way, we know that the client already needs to modify their scripts, so they can adapt to the new format.</p>
+</section>
+</section>
 </section>
 <section id="develop-lincs-itself">
 <h2>Develop <em>lincs</em> itself<a class="headerlink" href="#develop-lincs-itself" title="Permalink to this heading">¶</a></h2>

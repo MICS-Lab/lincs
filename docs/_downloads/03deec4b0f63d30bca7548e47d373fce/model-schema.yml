@@ -8,55 +8,66 @@ properties:
   format_version:
     type: integer
     const: 1
-  boundaries:
+  accepted_values:
+    description: For each criterion in the classification problem, a way to determine the accepted values for each category.
     type: array
     items:
       type: object
-      properties:
-        profile:
-          type: array
-          items:
-            type: number
-          minItems: 1
-        sufficient_coalitions:
-          type: object
-          oneOf:
-            - properties:
-                kind:
-                  type: string
-                  const: weights
-                criterion_weights:
-                  type: array
-                  items:
-                    type: number
-                  minItems: 1
-              required:
-                - kind
-                - criterion_weights
-              additionalProperties: false
-            - properties:
-                kind:
-                  type: string
-                  const: roots
-                upset_roots:
-                  type: array
-                  items:
-                    type: array
-                    items:
-                      type: integer
-                    minItems: 0
-                  minItems: 0
-              required:
-                - kind
-                - upset_roots
-              additionalProperties: false
-      required:
-        - profile
-        - sufficient_coalitions
-      additionalProperties: false
+      oneOf:
+        - properties:
+            kind:
+              type: string
+              const: thresholds
+            thresholds:
+              description: For each category but the lowest, the threshold to be accepted in that category according to that criterion.
+              type: array
+              items:
+                type: number
+              minItems: 1
+          required:
+            - kind
+            - thresholds
+          additionalProperties: false
+    minItems: 1
+  sufficient_coalitions:
+    description: For each category but the lowest, a description of the sufficient coalitions for that category.
+    type: array
+    items:
+      type: object
+      oneOf:
+        - properties:
+            kind:
+              type: string
+              const: weights
+            criterion_weights:
+              type: array
+              items:
+                type: number
+              minItems: 1
+          required:
+            - kind
+            - criterion_weights
+          additionalProperties: false
+        - properties:
+            kind:
+              type: string
+              const: roots
+            upset_roots:
+              type: array
+              items:
+                type: array
+                items:
+                  type: integer
+                minItems: 0
+              minItems: 0
+          required:
+            - kind
+            - upset_roots
+          additionalProperties: false
     minItems: 1
 required:
   - kind
   - format_version
-  - boundaries
+  - accepted_values
+  - sufficient_coalitions
 additionalProperties: false

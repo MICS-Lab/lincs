@@ -4,19 +4,13 @@
 Reference
 =========
 
-@todo(Documentation, later) Generate a reference documentation using Sphinx:
-
-- Python using autodoc
-- C++ using Doxygen+Breath
-- YAML file formats using JSON Schema and https://sphinx-jsonschema.readthedocs.io/en/latest/
-
-
 File formats
 ============
 
 *lincs* uses text-based (YAML and CSV) file formats.
+The same formats are used when *lincs* reads files or when it outputs to files.
 The same formats are used for synthetic and real-world data.
-The same formats are used when the ``lincs`` command lines outputs to actual files or to its standard output.
+The same formats are used when *lincs* outputs to actual files or to the standard output.
 
 .. _ref-file-problem:
 
@@ -43,7 +37,30 @@ The model file is a YAML file specified by the following :download:`JSON Schema 
 The alternatives file
 ---------------------
 
-@todo(Documentation, soon) Write
+The alternatives file is a CSV file.
+
+Separator: the separator is an actual comma: ``,``.
+
+Comments: lines starting with a ``#`` are ignored.
+
+Quotes: strings can be quoted using ``"``.
+Strings containing commas or whitespace must be quoted.
+
+Header line: the first non-comment line is a header.
+It must contain the names of the columns, separated by commas.
+
+Data lines: the following non-comment lines are data lines.
+Each line represents an alternative.
+
+First column: its name is ``name``.
+Its values are the names of the alternatives.
+
+Intermediate columns: their names are the names of the criteria, as found in the associated problem file.
+Their values are the values of the alternatives for the criteria.
+
+Last column: its name is ``category``.
+Its values can either be empty strings (for unclassified alternatives),
+or the names of the categories, as found in the associated problem file.
 
 .. _ref-cli:
 

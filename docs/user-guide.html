@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>User Guide &#8212; lincs 0.9.1 documentation</title>
+    <title>User Guide &#8212; lincs 0.10.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=bfb94e3c"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=fa439637"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -37,158 +37,440 @@
 <h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading">¶</a></h1>
 <p>Before you read this document, we strongly recommend you read our <a class="reference internal" href="conceptual-overview.html"><span class="doc">conceptual overview</span></a> as it establishes the bases for this guide.
 We also recommend you follow our <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a> to get a first hands-on experience with <em>lincs</em>.</p>
-<p>This guide is organized following what you can do with <em>lincs</em>, <em>i.e.</em> the problems you can solve with it.
-Each section describes how to to it using <em>lincs</em> command-line interface, Python API and C++ API.</p>
-<p>Temporary note: this guide is not complete yet.
-It is a work in progress.
-In particular, APIs are not covered.
-You may find it useful to read <code class="docutils literal notranslate"><span class="pre">lincs/command_line_interface.py</span></code> to see how the command-line interface uses the Python API.
-Similarly, reading <code class="docutils literal notranslate"><span class="pre">lincs/liblincs/liblincs_module.cpp</span></code> may help you understand how the Python API exposes the C++ API is, and thus how to use it.</p>
-<section id="generate-synthetic-data">
-<h2>Generate synthetic data<a class="headerlink" href="#generate-synthetic-data" title="Permalink to this heading">¶</a></h2>
-<section id="from-the-command-line-interface">
-<h3>From the command-line interface<a class="headerlink" href="#from-the-command-line-interface" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, soon) Write about <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span></code></p>
-<p>&#64;todo(Documentation, soon) Write about randomness and the <code class="docutils literal notranslate"><span class="pre">--random-seed</span></code> option</p>
-<p>&#64;todo(Documentation, soon) Write about outputting to the standard output by default</p>
+<section id="formatting-data-for-lincs">
+<h2>Formatting data for <em>lincs</em><a class="headerlink" href="#formatting-data-for-lincs" title="Permalink to this heading">¶</a></h2>
+<p><em>lincs</em> manipulates files for three types of data.</p>
+<section id="problem-files">
+<span id="user-file-problem"></span><h3>“Problem” files<a class="headerlink" href="#problem-files" title="Permalink to this heading">¶</a></h3>
+<p>The concept of classification problem is defined in our <a class="reference internal" href="conceptual-overview.html#overview-about-classification"><span class="std std-ref">conceptual overview</span></a>.
+To describe problems, <em>lincs</em> uses YAML files conforming to the <a class="reference external" href="https://json-schema.org/">JSON schema</a> you’ll find in our <a class="reference internal" href="reference.html#ref-file-problem"><span class="std std-ref">reference documentation</span></a>.</p>
+<p>Here is an example of a problem file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kind</span><span class="p">:</span> <span class="n">classification</span><span class="o">-</span><span class="n">problem</span>
+<span class="n">format_version</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">criteria</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Criterion</span> <span class="mi">1</span>
+    <span class="n">value_type</span><span class="p">:</span> <span class="n">real</span>
+    <span class="n">category_correlation</span><span class="p">:</span> <span class="n">growing</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="mi">20</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Criterion</span> <span class="mi">2</span>
+    <span class="n">value_type</span><span class="p">:</span> <span class="n">real</span>
+    <span class="n">category_correlation</span><span class="p">:</span> <span class="n">decreasing</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="mi">5</span>
+<span class="n">categories</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Low</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Medium</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">High</span>
+</pre></div>
+</div>
+<p>The two first keys, <code class="docutils literal notranslate"><span class="pre">kind</span></code> and <code class="docutils literal notranslate"><span class="pre">format_version</span></code> are here to identify exactly the file format.
+For now, they must always be set to <code class="docutils literal notranslate"><span class="pre">classification-problem</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span></code> respectively.</p>
+<section id="criteria">
+<h4>Criteria<a class="headerlink" href="#criteria" title="Permalink to this heading">¶</a></h4>
+<p>The third key, <code class="docutils literal notranslate"><span class="pre">criteria</span></code>, is a list of the descriptions of the criteria of the problem.
+This list must contain at least one element because classification problems must have at least one criterion.</p>
+<p>Each criterion has a <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+<p>Currently, criteria can only take floating point values, so their <code class="docutils literal notranslate"><span class="pre">value_type</span></code> is always <code class="docutils literal notranslate"><span class="pre">real</span></code>.
+We expect this could evolve to also support criteria with integer or explicitly enumerated values.</p>
+<p>Then, the <code class="docutils literal notranslate"><span class="pre">category_correlation</span></code> key describe what makes “good values” for this criterion.
+If it is <code class="docutils literal notranslate"><span class="pre">growing</span></code> (resp. <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>), then higher (resp. lower) numerical values correspond to upper categories.
+Note that this correlation comes from expert knowledge about the structure of the problem,
+and has nothing to do with learning a model for this problem.
+We expect this could evolve to also support criteria with single-peaked correlation,
+where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
+We also expect this could evolve to support criteria with unknown correlation,
+to support the case where no expert knowledge is available and delegate this choice to the learning process.</p>
+<p>Finally, for criteria with numerical <code class="docutils literal notranslate"><span class="pre">value_type</span></code> (currently all of them),
+the <code class="docutils literal notranslate"><span class="pre">min_value</span></code> and <code class="docutils literal notranslate"><span class="pre">max_value</span></code> keys describe the range of values the criterion can take.</p>
 </section>
-<section id="through-the-python-api">
-<h3>Through the Python API<a class="headerlink" href="#through-the-python-api" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, later) Write</p>
+<section id="categories">
+<h4>Categories<a class="headerlink" href="#categories" title="Permalink to this heading">¶</a></h4>
+<p>The fourth key in the problem file, <code class="docutils literal notranslate"><span class="pre">categories</span></code>, is a list of the descriptions of the categories of the problem.
+It must contain at least two elements because classification problems must have at least two categories.</p>
+<p>It must be sorted in increasing order: lower categories first and upper categories last.</p>
+<p>Its elements are relatively simple as they only get a <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
 </section>
-<section id="through-the-c-api">
-<h3>Through the C++ API<a class="headerlink" href="#through-the-c-api" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, later) Write</p>
+</section>
+<section id="model-files">
+<span id="user-file-ncs-model"></span><h3>“Model” files<a class="headerlink" href="#model-files" title="Permalink to this heading">¶</a></h3>
+<p>The concept of NCS classification model is defined in our <a class="reference internal" href="conceptual-overview.html#overview-ncs"><span class="std std-ref">conceptual overview</span></a>.
+To describe models, <em>lincs</em> uses YAML files conforming to the JSON schema you’ll find in our <a class="reference internal" href="reference.html#ref-file-ncs-model"><span class="std std-ref">reference documentation</span></a>.</p>
+<p>A model file is always associated to a problem file because a model exists only relatively to a given problem.
+This fact is not captured by our file format for technical reasons:
+embedding the problem in the model file would lead to unwanted repetitions,
+referencing the problem file by name would not be robust because files can be renamed,
+and referencing the problem file by content (using a hash) would forbid any change in the problem file.
+So it’s the user’s responsibility to keep track of that information and always give <em>lincs</em> the correct problem file along with a model file.</p>
+<p>Here is an example of a model file corresponding to the problem file above:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kind</span><span class="p">:</span> <span class="n">ncs</span><span class="o">-</span><span class="n">classification</span><span class="o">-</span><span class="n">model</span>
+<span class="n">format_version</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">accepted_values</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">7.49331188</span><span class="p">,</span> <span class="mf">15.9249287</span><span class="p">]</span>
+  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.49812794</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.15932083</span><span class="p">]</span>
+<span class="n">sufficient_coalitions</span><span class="p">:</span>
+  <span class="o">-</span> <span class="o">&amp;</span><span class="n">coalitions</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">weights</span>
+    <span class="n">criterion_weights</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.938825667</span><span class="p">,</span> <span class="mf">0.343733728</span><span class="p">]</span>
+  <span class="o">-</span> <span class="o">*</span><span class="n">coalitions</span>
+</pre></div>
+</div>
+<p>Like for problem files, the two first keys must take exactly these values.</p>
+<section id="accepted-values">
+<h4>Accepted values<a class="headerlink" href="#accepted-values" title="Permalink to this heading">¶</a></h4>
+<p>The third key, <code class="docutils literal notranslate"><span class="pre">accepted_values</span></code>, lists the descriptions of the accepted values according to each criterion of the problem.
+It must contain exactly as many elements as the <code class="docutils literal notranslate"><span class="pre">criteria</span></code> list in the problem file.</p>
+<p>For NCS models as currently defined in our conceptual overview, accepted values are simply above a profile.
+The profile is a list of thresholds, one for each criterion, that separates two categories.
+But this lacks generality, and we expect this could evolve, for example for single-peaked criteria.
+For such a criterion, the determination of the accepted values will require two limits (upper and lower) instead of just one threshold.</p>
+<p>So our file format takes an transposed approach and focusses on criteria instead of profiles:
+for each criterion, it describes the method used to accept values at different category levels.</p>
+<p>For current criteria (with <code class="docutils literal notranslate"><span class="pre">growing</span></code> or <code class="docutils literal notranslate"><span class="pre">decreasing</span></code> correlation), the method is always <code class="docutils literal notranslate"><span class="pre">kind:</span> <span class="pre">thresholds</span></code>,
+and the <code class="docutils literal notranslate"><span class="pre">thresholds</span></code> attribute lists the successive values required to enter an upper category.
+It must have as many elements as there are boundaries between categories, <em>i.e.</em> as there are categories minus one.
+It’s always sorted, in increasing order for <code class="docutils literal notranslate"><span class="pre">growing</span></code> criteria and in decreasing order for <code class="docutils literal notranslate"><span class="pre">decreasing</span></code> criteria.</p>
+<p>Note that this list is not a profile: it does not describe the limits between categories.
+The matrix made of these lists is the transposed of the matrix made of the profiles.</p>
+<p>When we support criteria with single-peaked or unknown correlation,
+we’ll introduce other <code class="docutils literal notranslate"><span class="pre">kinds</span></code> of accepted values with new attributes instead of <code class="docutils literal notranslate"><span class="pre">thresholds</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Criterion <code class="docutils literal notranslate"><span class="pre">category_correlation</span></code></p></th>
+<th class="head"><p>Accepted values <code class="docutils literal notranslate"><span class="pre">kind</span></code></p></th>
+<th class="head"><p>Accepted values attributes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">growing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">thresholds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">thresholds</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">decreasing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">thresholds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">thresholds</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sufficient-coalitions">
+<h4>Sufficient coalitions<a class="headerlink" href="#sufficient-coalitions" title="Permalink to this heading">¶</a></h4>
+<p>The fourth key, <code class="docutils literal notranslate"><span class="pre">sufficient_coalitions</span></code>, describes the subsets of criteria required to get into upper categories.
+It contains as many items as there are boundaries between categories, <em>i.e.</em> as there are categories minus one.</p>
+<p><em>lincs</em> only manipulates <span class="math notranslate nohighlight">\(U^c \textsf{-} NCS\)</span> models for now, so the sufficient coalitions are identical for all categories.
+To avoid repetitions in the model files, we use <a class="reference external" href="https://yaml.org/spec/1.2-old/spec.html#id2765878">YAML anchors and references</a>.
+All <code class="docutils literal notranslate"><span class="pre">*coalitions</span></code> means in the example above is “the same value as the <code class="docutils literal notranslate"><span class="pre">&amp;coalitions</span></code> anchor”.</p>
+<p>Each item in the list has a first attribute, <code class="docutils literal notranslate"><span class="pre">kind</span></code>, that tells the method used to determine the sufficient coalitions.</p>
+<p>If its <code class="docutils literal notranslate"><span class="pre">kind</span></code> is <code class="docutils literal notranslate"><span class="pre">weights</span></code>, then the sufficient coalitions are computed using an MR-sort approach,
+as described in our <a class="reference internal" href="conceptual-overview.html#overview-mrsort"><span class="std std-ref">conceptual overview</span></a>.
+In that case, the <code class="docutils literal notranslate"><span class="pre">criterion_weights</span></code> attribute is a list of the criteria’s weights.</p>
+<p>If its <code class="docutils literal notranslate"><span class="pre">kind</span></code> is <code class="docutils literal notranslate"><span class="pre">roots</span></code>, then the sufficient coalitions are listed explicitly as the roots of the upset they form.
+This is the generic case for NCS models.
+In that case, the <code class="docutils literal notranslate"><span class="pre">upset_roots</span></code> attribute is a list of roots, where each root is the list of the indices of the criteria in that root.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Sufficient coalitions <code class="docutils literal notranslate"><span class="pre">kind</span></code></p></th>
+<th class="head"><p>Sufficient coalitions attributes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">weights</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">criterion_weights</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roots</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">upset_roots</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here is another model corresponding to the problem file above, but this time using the <code class="docutils literal notranslate"><span class="pre">roots</span></code> kind of sufficient coalitions,
+and using different coalitions for the two boundaries (so, no YAML anchor):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kind</span><span class="p">:</span> <span class="n">ncs</span><span class="o">-</span><span class="n">classification</span><span class="o">-</span><span class="n">model</span>
+<span class="n">format_version</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">accepted_values</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">7.49331188</span><span class="p">,</span> <span class="mf">15.9249287</span><span class="p">]</span>
+  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.49812794</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.15932083</span><span class="p">]</span>
+<span class="n">sufficient_coalitions</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">roots</span>
+    <span class="n">upset_roots</span><span class="p">:</span>
+      <span class="o">-</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">roots</span>
+    <span class="n">upset_roots</span><span class="p">:</span>
+      <span class="o">-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
 </section>
 </section>
-<section id="learn-a-model">
-<h2>Learn a model<a class="headerlink" href="#learn-a-model" title="Permalink to this heading">¶</a></h2>
-<section id="id1">
-<h3>From the command-line interface<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
-<p>The basic command to learn a classification model with <em>lincs</em> is <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code>.
-Its <code class="docutils literal notranslate"><span class="pre">--help</span></code> option gives you a list of the numerous options it accepts.
-The first one is <code class="docutils literal notranslate"><span class="pre">--model-type</span></code>; it tells <em>lincs</em> what type of model you want it to learn, <em>e.g.</em> MR-Sort or <span class="math notranslate nohighlight">\(U^c \textsf{-} NCS\)</span>.</p>
-<section id="learning-strategies">
-<span id="user-learning-strategies"></span><h4>Learning strategies<a class="headerlink" href="#learning-strategies" title="Permalink to this heading">¶</a></h4>
-<p>There can be several methods to learn a given type of model.
-These methods are called “strategies” in <em>lincs</em>.
-If you’ve chosen to learn a MR-Sort model, you can specify the learning strategy with the <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span></code> option,
-which can <em>e.g.</em> take the value <code class="docutils literal notranslate"><span class="pre">weights-profiles-breed</span></code> to select the “weights, profiles, breed” learning strategy.</p>
-<p>Then, learning strategies can have parameters.
-For example, the “weights, profiles, breed” strategy supports stopping the learning process when the accuracy of the model being learned is good enough.
-The “good enough” value is specified using the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.target-accuracy</span></code> option.</p>
-<p>You may notice an emerging pattern in the naming of these options:
-when an option makes sense only when a more general option is set to a specific value,
-then the name of this more specific option starts with the value of the more general one,
-followed by a dot and a name suffix for the specific option.
-This naming pattern assuredly makes for some long long option names,
-but it’s explicit and easy to expand in a backward-compatible manner.
-(And it could be worse, <em>e.g</em> if we repeated the general option name as well as its value.
-So this seems like a good compromise.)</p>
-<p>Some strategies even accept sub-strategies.
-For example, the “weights, profiles, breed” strategy is a general approach where the weights and profiles of an MR-Sort model are improved alternatively, independently from each other.
-It naturally accept a strategy for each of these two sub-problems, respectively through the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.weights-strategy</span></code> and <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.profiles-strategy</span></code> options.
-And if the weights strategy is <code class="docutils literal notranslate"><span class="pre">linear-program</span></code>, then you can chose a solver using <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.linear-program.solver</span></code>.</p>
-<p>All these options have default values that we believe are the most likely to provide good results in the general case.
-These default values <em>will change</em> in future releases of <em>lincs</em> when we develop better algorithms.
-So, you should specify explicitly the ones that matter to your use-case, and use the default values when you want to benefit implicitly from future improvements.
-Note that the general improvements will undoubtedly worsen the situation for some corner cases, but there is nothing anyone can do about that.</p>
-<p>The following example makes a few assumptions:</p>
+<section id="alternatives-files">
+<h3>“Alternatives” files<a class="headerlink" href="#alternatives-files" title="Permalink to this heading">¶</a></h3>
+<p>The last file format used by <em>lincs</em> is for the description of alternatives.
+It’s a CSV file with a header line and one line per alternative.</p>
+<p>Like model files, alternatives files are always associated to a problem file.</p>
+<p>Here is an example corresponding to the problem above:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;Criterion 1&quot;</span><span class="p">,</span><span class="s2">&quot;Criterion 2&quot;</span><span class="p">,</span><span class="n">category</span>
+<span class="s2">&quot;Alternative 1&quot;</span><span class="p">,</span><span class="mf">10.8156891</span><span class="p">,</span><span class="mf">4.39045048</span><span class="p">,</span><span class="n">Medium</span>
+<span class="s2">&quot;Alternative 2&quot;</span><span class="p">,</span><span class="mf">0.25551182</span><span class="p">,</span><span class="o">-</span><span class="mf">1.45864725</span><span class="p">,</span><span class="n">Low</span>
+<span class="s2">&quot;Alternative 3&quot;</span><span class="p">,</span><span class="mf">18.4786396</span><span class="p">,</span><span class="mf">4.31117153</span><span class="p">,</span><span class="n">Medium</span>
+<span class="s2">&quot;Alternative 4&quot;</span><span class="p">,</span><span class="mf">18.0154629</span><span class="p">,</span><span class="mf">1.33949804</span><span class="p">,</span><span class="n">Medium</span>
+<span class="s2">&quot;Alternative 5&quot;</span><span class="p">,</span><span class="mf">9.30789757</span><span class="p">,</span><span class="mf">2.66963387</span><span class="p">,</span><span class="n">Medium</span>
+</pre></div>
+</div>
+<p>Its header line contains the names of its columns.
+Its first column, <code class="docutils literal notranslate"><span class="pre">name</span></code>, contains the names of the alternatives.
+Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
+Its last column, <code class="docutils literal notranslate"><span class="pre">category</span></code>, contains the names of the categories in which each alternative is classified.</p>
+<p>Values in the <code class="docutils literal notranslate"><span class="pre">category</span></code> column can be empty to describe alternatives that are not (yet) classified:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;Criterion 1&quot;</span><span class="p">,</span><span class="s2">&quot;Criterion 2&quot;</span><span class="p">,</span><span class="n">category</span>
+<span class="s2">&quot;Alternative 1&quot;</span><span class="p">,</span><span class="mf">10.8156891</span><span class="p">,</span><span class="mf">4.39045048</span><span class="p">,</span>
+<span class="s2">&quot;Alternative 2&quot;</span><span class="p">,</span><span class="mf">0.25551182</span><span class="p">,</span><span class="o">-</span><span class="mf">1.45864725</span><span class="p">,</span>
+<span class="s2">&quot;Alternative 3&quot;</span><span class="p">,</span><span class="mf">18.4786396</span><span class="p">,</span><span class="mf">4.31117153</span><span class="p">,</span>
+<span class="s2">&quot;Alternative 4&quot;</span><span class="p">,</span><span class="mf">18.0154629</span><span class="p">,</span><span class="mf">1.33949804</span><span class="p">,</span>
+<span class="s2">&quot;Alternative 5&quot;</span><span class="p">,</span><span class="mf">9.30789757</span><span class="p">,</span><span class="mf">2.66963387</span><span class="p">,</span>
+</pre></div>
+</div>
+</section>
+<section id="comments-in-generated-files">
+<span id="user-comments-in-generated-files"></span><h3>Comments in generated files<a class="headerlink" href="#comments-in-generated-files" title="Permalink to this heading">¶</a></h3>
+<p>When the <em>lincs</em> command-line generates a file, it adds a few comment lines (starting with <code class="docutils literal notranslate"><span class="pre">#</span></code>) at the beginning describing how this file was made.
+These comments are informative and can help reproducing results, but they are not part of the file formats.</p>
+</section>
+</section>
+<section id="generating-synthetic-data">
+<h2>Generating synthetic data<a class="headerlink" href="#generating-synthetic-data" title="Permalink to this heading">¶</a></h2>
+<p>The previous section described how to format your data to use it with <em>lincs</em>.
+As explained in our <a class="reference internal" href="conceptual-overview.html#overview-synthetic-data"><span class="std std-ref">conceptual overview</span></a>,
+you can skip this step and use <em>lincs</em> to generate synthetic data.</p>
+<p>The parent command to generate synthetic data is <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span></code>.
+Its sub-commands specify what to generate.
+Like all <em>lincs</em> commands, they output on the standard output by default,
+and you can change that behavior using options to output to files.</p>
+<section id="about-randomness">
+<h3>About randomness<a class="headerlink" href="#about-randomness" title="Permalink to this heading">¶</a></h3>
+<p>Most sub-commands of <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span></code> use pseudo-randomness to generate their output.
+By default, the pseudo-random number generator is initialized with a seed based on the current machine, time, <em>etc.</em> to favor originality.</p>
+<p>When you need reproducibility, you can specify the seed to use with the <code class="docutils literal notranslate"><span class="pre">--random-seed</span></code> option.</p>
+<p>In all cases, the <a class="reference internal" href="#user-comments-in-generated-files"><span class="std std-ref">comments</span></a> left by <em>lincs</em> in the generated files specify the seed that was used.</p>
+</section>
+<section id="generating-a-problem">
+<h3>Generating a problem<a class="headerlink" href="#generating-a-problem" title="Permalink to this heading">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-problem</span></code>, you can generate a classification problem file.
+Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our <a class="reference internal" href="get-started.html"><span class="doc">get started guide</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">generate</span> <span class="n">classification</span><span class="o">-</span><span class="n">problem</span> <span class="mi">4</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> option on the command-line and our <a class="reference internal" href="reference.html#ref-cli"><span class="std std-ref">reference documentation</span></a> describe the options available to tweak the generated problem.
+Most notably:</p>
 <ul class="simple">
-<li><p>you’ve followed our <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a> and have <code class="docutils literal notranslate"><span class="pre">problem.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">learning-set.csv</span></code> in your current directory</p></li>
-<li><p>your installed version of lincs was built with CUDA support (check with <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">info</span> <span class="pre">has-gpu</span></code>)</p></li>
-<li><p>you have an NVidia GPU with CUDA support and its drivers correctly installed</p></li>
-<li><p>if you’re using the Docker image, you’re running it with NVidia Docker Runtime properly configured and activated (<em>e.g.</em> with the <code class="docutils literal notranslate"><span class="pre">--gpus</span> <span class="pre">all</span></code> option of <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--denormalized-min-max</span></code> generates problems with pseudo-random <code class="docutils literal notranslate"><span class="pre">min_value</span></code> and <code class="docutils literal notranslate"><span class="pre">max_value</span></code> for each criterion. By default, they are always set at 0 and 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--allow-decreasing-criteria</span></code> chooses pseudo-randomly the <code class="docutils literal notranslate"><span class="pre">category_corelation</span></code> of each criterion between <code class="docutils literal notranslate"><span class="pre">growing</span></code> and <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>. By default, all criteria have <code class="docutils literal notranslate"><span class="pre">growing</span></code> correlation.</p></li>
 </ul>
-<p>If those conditions are verified, you can tweak the “weights, profiles, breed” learning process to:</p>
+</section>
+<section id="generating-a-model">
+<h3>Generating a model<a class="headerlink" href="#generating-a-model" title="Permalink to this heading">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-model</span></code>, you can generate a classification model file.
+Using its default settings, you just have to pass it the problem file you want to use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">generate</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
+</div>
+<p>For now, <em>lincs</em> can only generate MR-Sort models, so the <code class="docutils literal notranslate"><span class="pre">--model-type</span></code> option can only take its default value: <code class="docutils literal notranslate"><span class="pre">mrsort</span></code>.
+We expect this could change if we implement the generation of other types of models.</p>
+<p>By default, the sum of MR-Sort weights of the criteria is pseudo-random and greater than or equal to 1.
+With the <code class="docutils literal notranslate"><span class="pre">--mrsort.fixed-weight-sum</span></code> option, you can specify a fixed value for this sum.
+This effectively impacts how hard it is for alternatives to get into upper categories.</p>
+</section>
+<section id="generating-alternatives">
+<h3>Generating alternatives<a class="headerlink" href="#generating-alternatives" title="Permalink to this heading">¶</a></h3>
+<p>With its default settings, <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classified-alternatives</span></code> requires only the problem and model files and the number of alternatives to generate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">generate</span> <span class="n">classified</span><span class="o">-</span><span class="n">alternatives</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">model</span><span class="o">.</span><span class="n">yml</span> <span class="mi">100</span>
+</pre></div>
+</div>
+<p>This generates 100 random alternatives, and then classifies them according to the model.</p>
+<p>By default, no effort is made to balance the number of alternatives in each category.
+The <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span></code> option can be used to ensure that: it accepts a number between 0 and 1,
+and ensures that the number of alternatives in each category differs from the perfectly balanced size by at most this fraction.</p>
+<p>For example, when generating 600 alternatives for a model with 3 categories, the perfectly balanced size is 200 alternatives per category.
+With <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span> <span class="pre">0.2</span></code>, the number of alternatives in each category is allowed to differ by at most 20% from that perfectly balanced size,
+so each category will have between 160 and 240 alternatives.</p>
+<p>Using this option with very selective models can significantly increase the time required to generate the alternatives.
+In some cases, <em>lincs</em> will even give up when it makes no progress trying to populate categories that are too hard to reach.
+In that case, you can either increase the value passed to <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span></code> or use a more lenient model.</p>
+<p>By default, alternatives are classified exactly according to the given model.
+You can introduce noise using the <code class="docutils literal notranslate"><span class="pre">--misclassified-count</span></code> option.
+After alternatives are generated and classified, this option randomly selects the given number of alternatives and classifies them in other categories.</p>
+</section>
+</section>
+<section id="learning-a-model">
+<span id="user-learning-a-model"></span><h2>Learning a model<a class="headerlink" href="#learning-a-model" title="Permalink to this heading">¶</a></h2>
+<p>As you’ve seen in our get started guide, the basic command to learn a classification model with <em>lincs</em> is <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code>.
+With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">learn</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">learning</span><span class="o">-</span><span class="nb">set</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+<p>Its <code class="docutils literal notranslate"><span class="pre">--help</span></code> option and our reference documentation give you a list of the numerous options it accepts.</p>
+<section id="an-whole-tree-of-options">
+<h3>An whole tree of options<a class="headerlink" href="#an-whole-tree-of-options" title="Permalink to this heading">¶</a></h3>
+<p>The first option is <code class="docutils literal notranslate"><span class="pre">--model-type</span></code>.
+It tells <em>lincs</em> what type of model you want it to learn, <em>e.g.</em> <code class="docutils literal notranslate"><span class="pre">mrsort</span></code> for MR-Sort or <code class="docutils literal notranslate"><span class="pre">ucncs</span></code> for <span class="math notranslate nohighlight">\(U^c \textsf{-} NCS\)</span>.
+Then, each model type has its own set of options that are valid only for this type of model,
+and this pattern goes on to form a tree of options that make sense only on a specific branch.</p>
+<p>To capture this reality in a somewhat simple but consistent way, <em>lincs</em> uses a dot-separated naming scheme for its options:
+option <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span></code> is a sub-option of <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">mrsort</span></code>
+and <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.target-accuracy</span></code> is a sub-option of <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span> <span class="pre">weights-profiles-breed</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">model-type</span></code> and <code class="docutils literal notranslate"><span class="pre">strategy</span></code> parts are not repeated to reduce verbosity a bit, but this relies on our ability to avoid naming collisions.
+Each sub-option name is formed by joining with dots (<code class="docutils literal notranslate"><span class="pre">.</span></code>) the values of the options it depends on.</p>
+<p>This pattern is arguably quite verbose, but it’s explicit and relatively easy to extend in a backward-compatible manner.</p>
+<p>Note that you already saw an example of this scheme above, at a smaller scale, in <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-model</span></code>,
+with its <code class="docutils literal notranslate"><span class="pre">--mrsort.fixed-weight-sum</span></code> option being a sub-option of <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">mrsort</span></code>.</p>
+</section>
+<section id="strategies">
+<h3>Strategies<a class="headerlink" href="#strategies" title="Permalink to this heading">¶</a></h3>
+<p>Some problems can be solved using different methods.
+In software, these methods are often called <a class="reference external" href="https://en.wikipedia.org/wiki/Strategy_pattern">“strategies”</a>.
+<code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code> accepts several options named like <code class="docutils literal notranslate"><span class="pre">--...strategy</span></code> to let you choose amongst different methods for a given part of the learning.</p>
+<p>A few of them let you choose amongst only one strategy… but we expect it will change when we implement more strategies.</p>
+</section>
+<section id="available-learning-sub-strategies">
+<h3>Available learning (sub-)strategies<a class="headerlink" href="#available-learning-sub-strategies" title="Permalink to this heading">¶</a></h3>
+<p>Examples in this section will reuse the <code class="docutils literal notranslate"><span class="pre">problem.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">learning-set.csv</span></code> files you have generated in our <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a>;
+please make sure you have them in your current directory.</p>
+<section id="weights-profiles-breed">
+<h4>Weights, profiles, breed<a class="headerlink" href="#weights-profiles-breed" title="Permalink to this heading">¶</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span> <span class="pre">weights-profiles-breed</span></code> strategy is the default for MR-Sort models.
+This methods uses a small population of models, repeating the following three steps:</p>
 <ul class="simple">
-<li><p>use your GPU for the improvement of the profiles</p></li>
-<li><p>use the Alglib linear programming solver (instead of GLOP) for the improvement of the weights</p></li>
+<li><p>improve their MR-Sort weights</p></li>
+<li><p>improve their boundary profiles</p></li>
+<li><p>breed them to keep the best models and generate new ones</p></li>
 </ul>
+<section id="general-options">
+<h5>General options<a class="headerlink" href="#general-options" title="Permalink to this heading">¶</a></h5>
+<p>The size of that population is controlled by the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.models-count</span></code> option.
+Finding the optimal size is a difficult problem.
+<em>lincs</em> uses a parrallel implementation of the WPB loop,
+so we recommend you set it to the number of physical CPU cores available on you machine.
+Or maybe a small multiple of that numer.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.verbose</span></code> option can be used to make <em>lincs</em> display information about the progress of the learning.</p>
+</section>
+<section id="termination">
+<h5>Termination<a class="headerlink" href="#termination" title="Permalink to this heading">¶</a></h5>
+<p>The WPB loop terminates when one of the following conditions is met:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.target-accuracy</span></code> is reached</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.max-duration</span></code> is exceeded: the total duration of the learning is greater than that duration</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.max-duration-without-progress</span></code> is exceeded: the accuracy of the best model so far has not improved for that duration</p></li>
+</ul>
+<p>In all those cases, <em>lincs</em> outputs the best model it found so far.</p>
+<p>Then, each step is controlled by its own set of options.</p>
+</section>
+<section id="weights-step">
+<h5>“Weights” step<a class="headerlink" href="#weights-step" title="Permalink to this heading">¶</a></h5>
+<p>Using <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.weights-strategy</span> <span class="pre">linear-program</span></code> (the default and only value for that option),
+the “weights” step is actually an optimization, not just an improvement.
+That strategy uses a linear program, and lets you choose amongst several solvers with the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.linear-program.solver</span></code> option.</p>
+<p>By default, it uses GLOP, which is a part of <a class="reference external" href="https://developers.google.com/optimization/">Google’s OR-Tools</a>.</p>
+<p>Here is an example using the <a class="reference external" href="https://www.alglib.net/">Alglib</a> solver:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">learn</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">learning</span><span class="o">-</span><span class="nb">set</span><span class="o">.</span><span class="n">csv</span> \
+  <span class="o">--</span><span class="n">mrsort</span><span class="o">.</span><span class="n">weights</span><span class="o">-</span><span class="n">profiles</span><span class="o">-</span><span class="n">breed</span><span class="o">.</span><span class="n">linear</span><span class="o">-</span><span class="n">program</span><span class="o">.</span><span class="n">solver</span> <span class="n">alglib</span>
+</pre></div>
+</div>
+<p>It should produce a very similar model, with slight numerical differences.</p>
+</section>
+<section id="profiles-step">
+<h5>“Profiles” step<a class="headerlink" href="#profiles-step" title="Permalink to this heading">¶</a></h5>
+<p>The “profiles” step currently only has one strategy (<code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.profiles-strategy</span> <span class="pre">accuracy-heuristic</span></code>),
+which is controlled by two options.</p>
+<p>The first one is a random seed for reproductibility (<code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed</span></code>).
+The remarks about randomness above also apply here.</p>
+<p>The second option lets you use your CUDA-capable GPU for increased performance: <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.accuracy-heuristic.processor</span></code>.
+Note that <em>lincs</em> can be built without GPU support.
+This is the case for example on macOS, where CUDA is not supported.
+Binary wheels for Linux and Windows do support it though.
+You can check with <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">info</span> <span class="pre">has-gpu</span></code>.</p>
+<p>Here is an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">learn</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">learning</span><span class="o">-</span><span class="nb">set</span><span class="o">.</span><span class="n">csv</span> \
+  <span class="o">--</span><span class="n">mrsort</span><span class="o">.</span><span class="n">weights</span><span class="o">-</span><span class="n">profiles</span><span class="o">-</span><span class="n">breed</span><span class="o">.</span><span class="n">accuracy</span><span class="o">-</span><span class="n">heuristic</span><span class="o">.</span><span class="n">processor</span> <span class="n">gpu</span>
+</pre></div>
+</div>
+<p>It should produce the exact same model as when using the CPU;
+this is an important feature of <em>lincs</em>, that the GPU code has the same behavior as the CPU code.</p>
+</section>
+<section id="breed-step">
+<h5>“Breed” step<a class="headerlink" href="#breed-step" title="Permalink to this heading">¶</a></h5>
+<p>The “breed” step currently has only one strategy, that simply reinitializes the least accurate models to random ones picked according to the only <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.initialization-strategy</span></code> currently available.
+Not much to be said here, but we anticipe this could evolve.</p>
+<p>The portion of the population that is reinitialized is controlled by the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion</span></code> option.</p>
+</section>
+</section>
+<section id="sat-based-strategies">
+<h4>SAT-based strategies<a class="headerlink" href="#sat-based-strategies" title="Permalink to this heading">¶</a></h4>
+<p>You can also use entirely different approaches using SAT and max-SAT solvers.
+The tradoffs offered by these methods are highligted in our <a class="reference internal" href="conceptual-overview.html#overview-learning-methods"><span class="std std-ref">conceptual overview</span></a>.</p>
+<p>These strategies let you learn <span class="math notranslate nohighlight">\(U^c \textsf{-} NCS\)</span> models, so you have to start with <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">ucncs</span></code>.
+Here are two examples:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>gpu+alglib-trained-model.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.processor<span class="w"> </span>gpu<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--mrsort.weights-profiles-breed.linear-program.solver<span class="w"> </span>alglib
+<span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.strategy<span class="w"> </span>sat-by-coalitions
 </pre></div>
 </div>
-<p>This should output a similar model, with slight numerical differences.</p>
-<p>You can also use an entirely different approach using SAT and max-SAT solvers:</p>
+<p>And:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>minisat-coalitions-trained-model.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.approach<span class="w"> </span>sat-by-coalitions
-
-lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>minisat-separation-trained-model.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.approach<span class="w"> </span>sat-by-separation
+<span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.strategy<span class="w"> </span>max-sat-by-separation
 </pre></div>
 </div>
-<p>It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 0.9.1): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.approach sat-by-coalitions</span>
-kind:<span class="w"> </span>ncs-classification-model
-format_version:<span class="w"> </span><span class="m">1</span>
-boundaries:
-<span class="w">  </span>-<span class="w"> </span>profile:<span class="w"> </span><span class="o">[</span><span class="m">0</span>.999706864,<span class="w"> </span><span class="m">0</span>.0552680492,<span class="w"> </span><span class="m">0</span>.161919117,<span class="w"> </span><span class="m">0</span>.995402098<span class="o">]</span>
-<span class="w">    </span>sufficient_coalitions:<span class="w"> </span><span class="p">&amp;</span>coalitions
-<span class="w">      </span>kind:<span class="w"> </span>roots
-<span class="w">      </span>upset_roots:
-<span class="w">        </span>-<span class="w"> </span><span class="o">[</span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span><span class="o">]</span>
-<span class="w">  </span>-<span class="w"> </span>profile:<span class="w"> </span><span class="o">[</span><span class="m">0</span>.999706864,<span class="w"> </span><span class="m">0</span>.325211823,<span class="w"> </span><span class="m">0</span>.672662616,<span class="w"> </span><span class="m">0</span>.996754646<span class="o">]</span>
-<span class="w">    </span>sufficient_coalitions:<span class="w"> </span>*coalitions
-</pre></div>
-</div>
-</section>
-<section id="output-location">
-<h4>Output location<a class="headerlink" href="#output-location" title="Permalink to this heading">¶</a></h4>
-<p>Like synthetic data generation command, <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code> outputs to the standard output by default,
-that is if you don’t specify the <code class="docutils literal notranslate"><span class="pre">--output-model</span></code> option, it will simply print the learned model to your console.</p>
-</section>
-<section id="randomness-in-heuristic-strategies">
-<h4>Randomness in heuristic strategies<a class="headerlink" href="#randomness-in-heuristic-strategies" title="Permalink to this heading">¶</a></h4>
-<p>Some learning (sub-)strategies implement heuristic algorithms.
-In that case, they accept a <code class="docutils literal notranslate"><span class="pre">.random-seed</span></code> option to initialize the pseudo-random number generator they use.
-If this option is not specified, the pseudo-random number generator is initialized with a random seed.
-You should use this option when you need deterministic results from the learning process, <em>e.g.</em> when you’re comparing two strategies.</p>
-<p>When possible when we provide several implementations of the same heuristic, we make them behave the same way when they’re given the same random seed.
-This is the case for example for the CPU and GPU versions of the “accuracy heuristic” profiles improvement strategy of the “weights, profiles, breed” learning strategy.
-This ensures that the two following commands output exactly the same model:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>cpu-trained-model.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.processor<span class="w"> </span>cpu<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed<span class="w"> </span><span class="m">43</span>
-
-lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--output-model<span class="w"> </span>gpu-trained-model.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.processor<span class="w"> </span>gpu<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed<span class="w"> </span><span class="m">43</span>
+<p>They should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 0.10.0): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.999706864</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.999706864</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0552680492</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.325211823</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.161919117</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.672662616</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.995402098</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.996754646</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
+<span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
 </pre></div>
 </div>
 </section>
 </section>
-<section id="id2">
-<h3>Through the Python API<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, later) Write</p>
 </section>
-<section id="id3">
-<h3>Through the C++ API<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, later) Write</p>
+<section id="using-a-model">
+<h2>Using a model<a class="headerlink" href="#using-a-model" title="Permalink to this heading">¶</a></h2>
+<section id="classifying-alternatives">
+<h3>Classifying alternatives<a class="headerlink" href="#classifying-alternatives" title="Permalink to this heading">¶</a></h3>
+<p>When you finally have a model (learned, generated or hand-crafted),
+you can use it to classify alternatives with <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">classify</span> <span class="pre">problem.yml</span> <span class="pre">model.yml</span> <span class="pre">alternatives.csv</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">category</span></code> column in the input alternatives file is ignored and may be empty.</p>
+<p>Note that the input files will not be modified: the classified alternatives will be printed on the standard output
+or written in the file specified by <code class="docutils literal notranslate"><span class="pre">--output-classified-alternatives</span></code>.</p>
+</section>
+<section id="computing-a-classification-accuracy">
+<h3>Computing a classification accuracy<a class="headerlink" href="#computing-a-classification-accuracy" title="Permalink to this heading">¶</a></h3>
+<p>Similarly, you can use <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">classification-accuracy</span> <span class="pre">problem.yml</span> <span class="pre">model.yml</span> <span class="pre">learning-set.csv</span></code> to compute the accuracy of a model on a learning set.</p>
+<p>In that case, the <code class="docutils literal notranslate"><span class="pre">category</span></code> column must be populated as it serves as a reference to compute the accuracy.</p>
+<p>That command displays the number of alternatives that were correctly classified and the total number of alternatives in the learning set.</p>
+</section>
+<section id="visualizing-a-model-and-alternatives">
+<h3>Visualizing a model and alternatives<a class="headerlink" href="#visualizing-a-model-and-alternatives" title="Permalink to this heading">¶</a></h3>
+<p>And you can use <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span> <span class="pre">classification-model</span> <span class="pre">problem.yml</span> <span class="pre">model.yml</span></code> to create a graphical representation of a model (a <code class="docutils literal notranslate"><span class="pre">.png</span></code> file),
+and its <code class="docutils literal notranslate"><span class="pre">--alternatives</span></code> and <code class="docutils literal notranslate"><span class="pre">--alternatives-count</span></code> options to add alternatives to the graph.
+You’ve seen an example in our “Get started” guide.</p>
 </section>
 </section>
-<section id="use-a-model">
-<h2>Use a model<a class="headerlink" href="#use-a-model" title="Permalink to this heading">¶</a></h2>
-<section id="id4">
-<h3>From the command-line interface<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, soon) Write about <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">classify</span></code> (outputting to stdout by default)</p>
-<p>&#64;todo(Documentation, soon) Write about <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">classification-accuracy</span></code> (always outputting to stdout)</p>
-<p>&#64;todo(Documentation, soon) Write about <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span> <span class="pre">classification-model</span></code> (mandatory output parameter, use - to output to stdout)</p>
-</section>
-<section id="id5">
-<h3>Through the Python API<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, later) Write</p>
-</section>
-<section id="id6">
-<h3>Through the C++ API<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, later) Write</p>
-</section>
+<section id="what-s-next">
+<h2>What’s next?<a class="headerlink" href="#what-s-next" title="Permalink to this heading">¶</a></h2>
+<p>You now know pretty much everything you need to use <em>lincs</em>.
+You may find some additional details in our <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>.
+Feel free to reach out to us if you have any question or feedback, as said at the top of the <a class="reference internal" href="index.html"><span class="doc">Readme</span></a>.</p>
 </section>
 </section>
 
@@ -214,24 +496,33 @@ lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<s
 <li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#generate-synthetic-data">Generate synthetic data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#from-the-command-line-interface">From the command-line interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#through-the-python-api">Through the Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#through-the-c-api">Through the C++ API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#formatting-data-for-lincs">Formatting data for <em>lincs</em></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-files">“Problem” files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-files">“Model” files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alternatives-files">“Alternatives” files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comments-in-generated-files">Comments in generated files</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#learn-a-model">Learn a model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">From the command-line interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Through the Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Through the C++ API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-synthetic-data">Generating synthetic data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#about-randomness">About randomness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-a-problem">Generating a problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-a-model">Generating a model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-alternatives">Generating alternatives</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#use-a-model">Use a model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id4">From the command-line interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Through the Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Through the C++ API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learning-a-model">Learning a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#an-whole-tree-of-options">An whole tree of options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#strategies">Strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-learning-sub-strategies">Available learning (sub-)strategies</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-model">Using a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#classifying-alternatives">Classifying alternatives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-a-classification-accuracy">Computing a classification accuracy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visualizing-a-model-and-alternatives">Visualizing a model and alternatives</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-next">What’s next?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
