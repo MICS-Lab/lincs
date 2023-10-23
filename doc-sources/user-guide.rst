@@ -336,7 +336,7 @@ With its default settings, ``lincs generate classified-alternatives`` requires o
 
     lincs generate classified-alternatives problem.yml model.yml 100
 
-.. APPEND-TO-LAST-LINE --output-classified-alternatives classified-alternatives.csv
+.. APPEND-TO-LAST-LINE --output-classified-alternatives learning-set.csv
 .. STOP
 
 This generates 100 random alternatives, and then classifies them according to the model.
@@ -358,94 +358,124 @@ You can introduce noise using the ``--misclassified-count`` option.
 After alternatives are generated and classified, this option randomly selects the given number of alternatives and classifies them in other categories.
 
 
+.. _user-learning-a-model:
+
 Learning a model
 ================
 
-The basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
-Its ``--help`` option gives you a list of the numerous options it accepts.
-The first one is ``--model-type``; it tells *lincs* what type of model you want it to learn, *e.g.* MR-Sort or :math:`U^c \textsf{-} NCS`.
+.. EXTEND synthetic-data/run.sh
 
-.. _user-learning-strategies:
+As you've seen in our get started guide, the basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
+With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives)::
 
-Learning strategies
--------------------
+    lincs learn classification-model problem.yml learning-set.csv
 
-There can be several methods to learn a given type of model.
-These methods are called "strategies" in *lincs*.
-If you've chosen to learn a MR-Sort model, you can specify the learning strategy with the ``--mrsort.strategy`` option,
-which can *e.g.* take the value ``weights-profiles-breed`` to select the "weights, profiles, breed" learning strategy.
+.. APPEND-TO-LAST-LINE --output-model learned-model.yml
+.. STOP
 
-Then, learning strategies can have parameters.
-For example, the "weights, profiles, breed" strategy supports stopping the learning process when the accuracy of the model being learned is good enough.
-The "good enough" value is specified using the ``--mrsort.weights-profiles-breed.target-accuracy`` option.
+Its ``--help`` option and our reference documentation give you a list of the numerous options it accepts.
 
-You may notice an emerging pattern in the naming of these options:
-when an option makes sense only when a more general option is set to a specific value,
-then the name of this more specific option starts with the value of the more general one,
-followed by a dot and a name suffix for the specific option.
-This naming pattern assuredly makes for some long long option names,
-but it's explicit and easy to expand in a backward-compatible manner.
-(And it could be worse, *e.g* if we repeated the general option name as well as its value.
-So this seems like a good compromise.)
+An whole tree of options
+------------------------
 
-Some strategies even accept sub-strategies.
-For example, the "weights, profiles, breed" strategy is a general approach where the weights and profiles of an MR-Sort model are improved alternatively, independently from each other.
-It naturally accept a strategy for each of these two sub-problems, respectively through the ``--mrsort.weights-profiles-breed.weights-strategy`` and ``--mrsort.weights-profiles-breed.profiles-strategy`` options.
-And if the weights strategy is ``linear-program``, then you can chose a solver using ``--mrsort.weights-profiles-breed.linear-program.solver``.
+The first option is ``--model-type``.
+It tells *lincs* what type of model you want it to learn, *e.g.* ``mrsort`` for MR-Sort or ``ucncs`` for :math:`U^c \textsf{-} NCS`.
+Then, each model type has its own set of options that are valid only for this type of model,
+and this pattern goes on to form a tree of options that make sense only on a specific branch.
 
-All these options have default values that we believe are the most likely to provide good results in the general case.
-These default values *will change* in future releases of *lincs* when we develop better algorithms.
-So, you should specify explicitly the ones that matter to your use-case, and use the default values when you want to benefit implicitly from future improvements.
-Note that the general improvements will undoubtedly worsen the situation for some corner cases, but there is nothing anyone can do about that.
+To capture this reality in a somewhat simple but consistent way, *lincs* uses a dot-separated naming scheme for its options:
+option ``--mrsort.strategy`` is a sub-option of ``--model-type mrsort``
+and ``--mrsort.weights-profiles-breed.target-accuracy`` is a sub-option of ``--mrsort.strategy weights-profiles-breed``.
+The ``model-type`` and ``strategy`` parts are not repeated to reduce verbosity a bit, but this relies on our ability to avoid naming collisions.
+Each sub-option name is formed by joining with dots (``.``) the values of the options it depends on.
 
-.. START other-learnings/run.sh
+This pattern is arguably quite verbose, but it's explicit and relatively easy to extend in a backward-compatible manner.
+
+Note that you already saw an example of this scheme above, at a smaller scale, in ``lincs generate classification-model``,
+with its ``--mrsort.fixed-weight-sum`` option being a sub-option of ``--model-type mrsort``.
+
+Strategies
+----------
+
+Some problems can be solved using different methods.
+In software, these methods are often called `"strategies" <https://en.wikipedia.org/wiki/Strategy_pattern>`_.
+``lincs learn classification-model`` accepts several options named like ``--...strategy`` to let you choose amongst different methods for a given part of the learning.
+
+A few of them let you choose amongst only one strategy... but we expect it will change when we implement more strategies.
+
+Available learning (sub-)strategies
+-----------------------------------
+
+Examples in this section will reuse the ``problem.yml`` and ``learning-set.csv`` files you have generated in our :doc:`"Get started" guide <get-started>`;
+please make sure you have them in your current directory.
+
+Weights, profiles, breed
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``--mrsort.strategy weights-profiles-breed`` strategy is the default for MR-Sort models.
+This methods uses a small population of models, repeating the following three steps:
+
+- improve their MR-Sort weights
+- improve their boundary profiles
+- breed them to keep the best models and generate new ones
+
+General options
+...............
+
+The size of that population is controlled by the ``--mrsort.weights-profiles-breed.models-count`` option.
+Finding the optimal size is a difficult problem.
+*lincs* uses a parrallel implementation of the WPB loop,
+so we recommend you set it to the number of physical CPU cores available on you machine.
+Or maybe a small multiple of that numer.
+
+The ``--mrsort.weights-profiles-breed.verbose`` option can be used to make *lincs* display information about the progress of the learning.
+
+Termination
+...........
+
+The WPB loop terminates when one of the following conditions is met:
+
+- the ``--mrsort.weights-profiles-breed.target-accuracy`` is reached
+- the ``--mrsort.weights-profiles-breed.max-duration`` is exceeded: the total duration of the learning is greater than that duration
+- the ``--mrsort.weights-profiles-breed.max-duration-without-progress`` is exceeded: the accuracy of the best model so far has not improved for that duration
+
+In all those cases, *lincs* outputs the best model it found so far.
+
+Then, each step is controlled by its own set of options.
+
+"Weights" step
+..............
+
+Using ``--mrsort.weights-profiles-breed.weights-strategy linear-program`` (the default and only value for that option),
+the "weights" step is actually an optimization, not just an improvement.
+That strategy uses a linear program, and lets you choose amongst several solvers with the ``--mrsort.weights-profiles-breed.linear-program.solver`` option.
+
+By default, it uses GLOP, which is a part of `Google's OR-Tools <https://developers.google.com/optimization/>`_.
+
+.. START alglib-learning/run.sh
     set -o errexit
     set -o nounset
     set -o pipefail
     trap 'echo "Error on line $LINENO"' ERR
 
-    cp ../..get-started/command-line-example/{problem.yml,learning-set.csv} .
-    cp ../..get-started/command-line-example/expected-trained-model.yml .
+    cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
 
-    diff <(echo "lincs was compiled with CUDA support") <(lincs info has-gpu)
-.. STOP
-
-.. START other-learnings/uses-gpu
-.. STOP
-
-.. START other-learnings/is-long
-.. STOP
-
-The following example makes a few assumptions:
-
-- you've followed our :doc:`"Get started" guide <get-started>` and have ``problem.yml`` and ``learning-set.csv`` in your current directory
-- your installed version of lincs was built with CUDA support (check with ``lincs info has-gpu``)
-- you have an NVidia GPU with CUDA support and its drivers correctly installed
-- if you're using the Docker image, you're running it with NVidia Docker Runtime properly configured and activated (*e.g.* with the ``--gpus all`` option of ``docker run``)
-
-If those conditions are verified, you can tweak the "weights, profiles, breed" learning process to:
-
-- use your GPU for the improvement of the profiles
-- use the Alglib linear programming solver (instead of GLOP) for the improvement of the weights
-
-.. highlight:: shell
-
-.. EXTEND other-learnings/run.sh
-
-::
+Here is an example using the `Alglib <https://www.alglib.net/>`_ solver::
 
     lincs learn classification-model problem.yml learning-set.csv \
-      --output-model gpu+alglib-trained-model.yml \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu \
       --mrsort.weights-profiles-breed.linear-program.solver alglib
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
+.. APPEND-TO-LAST-LINE --output-model alglib-trained-model.yml
+
+    diff expected-alglib-trained-model.yml alglib-trained-model.yml
+
 .. STOP
 
-This should output a similar model, with slight numerical differences.
+It should produce a very similar model, with slight numerical differences.
 
-.. START other-learnings/expected-gpu+alglib-trained-model.yml
-    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver alglib --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
+.. START alglib-learning/expected-alglib-trained-model.yml
+    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver alglib --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
     # Termination condition: target accuracy reached
     # Number of iterations: 9
     kind: ncs-classification-model
@@ -466,27 +496,100 @@ This should output a similar model, with slight numerical differences.
       - *coalitions
 .. STOP
 
-.. EXTEND other-learnings/run.sh
-    diff expected-gpu+alglib-trained-model.yml gpu+alglib-trained-model.yml
+"Profiles" step
+...............
+
+The "profiles" step currently only has one strategy (``--mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic``),
+which is controlled by two options.
+
+The first one is a random seed for reproductibility (``--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed``).
+The remarks about randomness above also apply here.
+
+The second option lets you use your CUDA-capable GPU for increased performance: ``--mrsort.weights-profiles-breed.accuracy-heuristic.processor``.
+Note that *lincs* can be built without GPU support.
+This is the case for example on macOS, where CUDA is not supported.
+Binary wheels for Linux and Windows do support it though.
+You can check with ``lincs info has-gpu``.
+
+.. START gpu-learnings/uses-gpu
 .. STOP
 
-.. EXTEND other-learnings/run.sh
+.. START gpu-learnings/run.sh
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
 
-You can also use an entirely different approach using SAT and max-SAT solvers::
+    cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
+    cp ../../get-started/command-line-example/expected-trained-model.yml .
+
+    diff <(echo "lincs was compiled with CUDA support") <(lincs info has-gpu)
+
+Here is an example::
 
     lincs learn classification-model problem.yml learning-set.csv \
-      --output-model minisat-coalitions-trained-model.yml \
+      --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu \
+
+.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
+.. APPEND-TO-LAST-LINE --output-model gpu-trained-model.yml
+
+    diff expected-trained-model.yml gpu-trained-model.yml
+
+.. STOP
+
+It should produce the exact same model as when using the CPU;
+this is an important feature of *lincs*, that the GPU code has the same behavior as the CPU code.
+
+"Breed" step
+............
+
+The "breed" step currently has only one strategy, that simply reinitializes the least accurate models to random ones picked according to the only ``--mrsort.weights-profiles-breed.initialization-strategy`` currently available.
+Not much to be said here, but we anticipe this could evolve.
+
+The portion of the population that is reinitialized is controlled by the ``--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion`` option.
+
+SAT-based strategies
+^^^^^^^^^^^^^^^^^^^^
+
+.. highlight:: shell
+
+.. START sat-learnings/run.sh
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    trap 'echo "Error on line $LINENO"' ERR
+
+    cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
+
+You can also use entirely different approaches using SAT and max-SAT solvers.
+The tradoffs offered by these methods are highligted in our :ref:`conceptual overview <overview-learning-methods>`.
+
+These strategies let you learn :math:`U^c \textsf{-} NCS` models, so you have to start with ``--model-type ucncs``.
+Here are two examples::
+
+    lincs learn classification-model problem.yml learning-set.csv \
       --model-type ucncs --ucncs.strategy sat-by-coalitions
 
+.. APPEND-TO-LAST-LINE --output-model sat-by-coalitions-trained-model.yml
+
+And::
+
     lincs learn classification-model problem.yml learning-set.csv \
-      --output-model minisat-separation-trained-model.yml \
-      --model-type ucncs --ucncs.strategy sat-by-separation
+      --model-type ucncs --ucncs.strategy max-sat-by-separation
+
+.. APPEND-TO-LAST-LINE --output-model max-sat-by-separation-trained-model.yml
+
+..
+    diff expected-sat-by-coalitions-trained-model.yml sat-by-coalitions-trained-model.yml
+    diff expected-max-sat-by-separation-trained-model.yml max-sat-by-separation-trained-model.yml
 
 .. STOP
 
-.. START other-learnings/expected-minisat-coalitions-trained-model.yml
+.. highlight:: yaml
 
-It should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
+.. START sat-learnings/expected-sat-by-coalitions-trained-model.yml
+
+They should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
     # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model
@@ -509,67 +612,25 @@ It should produce a different kind of model, with the sufficient coalitions spec
 
 .. STOP
 
-.. START other-learnings/expected-minisat-separation-trained-model.yml
-    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-separation
+.. START sat-learnings/expected-max-sat-by-separation-trained-model.yml
+    # Reproduction command (with lincs version 0.9.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy max-sat-by-separation
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
       - kind: thresholds
-        thresholds: [0.0198908672, 0.999706864]
+        thresholds: [0.944162905, 0.944440365]
       - kind: thresholds
         thresholds: [0.0552680492, 0.325211823]
       - kind: thresholds
         thresholds: [0.161919117, 0.672662616]
       - kind: thresholds
-        thresholds: [0.995402098, 0.996754646]
+        thresholds: [0.000378949801, 0.224962443]
     sufficient_coalitions:
       - &coalitions
         kind: roots
         upset_roots:
           - [1, 2]
       - *coalitions
-.. STOP
-
-.. EXTEND other-learnings/run.sh
-    diff expected-minisat-coalitions-trained-model.yml minisat-coalitions-trained-model.yml
-    diff expected-minisat-separation-trained-model.yml minisat-separation-trained-model.yml
-.. STOP
-
-Output location
----------------
-
-Like synthetic data generation command, ``lincs learn classification-model`` outputs to the standard output by default,
-that is if you don't specify the ``--output-model`` option, it will simply print the learned model to your console.
-
-Randomness in heuristic strategies
-----------------------------------
-
-Some learning (sub-)strategies implement heuristic algorithms.
-In that case, they accept a ``.random-seed`` option to initialize the pseudo-random number generator they use.
-If this option is not specified, the pseudo-random number generator is initialized with a random seed.
-You should use this option when you need deterministic results from the learning process, *e.g.* when you're comparing two strategies.
-
-.. EXTEND other-learnings/run.sh
-
-When possible when we provide several implementations of the same heuristic, we make them behave the same way when they're given the same random seed.
-This is the case for example for the CPU and GPU versions of the "accuracy heuristic" profiles improvement strategy of the "weights, profiles, breed" learning strategy.
-This ensures that the two following commands output exactly the same model::
-
-    lincs learn classification-model problem.yml learning-set.csv \
-      --output-model cpu-trained-model.yml \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
-
-    lincs learn classification-model problem.yml learning-set.csv \
-      --output-model gpu-trained-model.yml \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
-
-.. STOP
-
-.. EXTEND other-learnings/run.sh
-    diff expected-trained-model.yml cpu-trained-model.yml
-    diff <(sed s/cpu/gpu/ expected-trained-model.yml) gpu-trained-model.yml
 .. STOP
 
 

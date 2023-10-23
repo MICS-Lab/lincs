@@ -123,7 +123,7 @@ You can then implement several algorithms for the same task, and easily switch b
 This is particularly fitting for experimenting with different algorithms and their variants, and for benchmarking them.
 
 *lincs* makes an extensive use of strategies.
-They are described from a user perspective in our :ref:`user guide <user-learning-strategies>`.
+They are described from a user perspective in our :ref:`user guide <user-learning-a-model>`.
 
 From a contributor perspective, it's important to make the distinction between:
 

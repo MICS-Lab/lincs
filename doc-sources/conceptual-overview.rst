@@ -475,6 +475,8 @@ The accuracy of the learned model is defined as the portion of alternatives that
 Real-world data is often noisy: the learning set often contains inconsistencies that prevents it from being the result of an NCS classification.
 In those cases, it's impossible to find an NCS model with 100% accuracy, but it's still useful to find a model with a good accuracy.
 
+.. _overview-learning-methods:
+
 Here is a summary of the learning methods implemented in *lincs*:
 
 ========================================  ==========================  ================  ==========================================  =====================
@@ -485,7 +487,7 @@ WPB heuristic                             MR-Sort                     Intermedia
 max-SAT (by coalitions or by separation)  :math:`U^c \textsf{-} NCS`  Longest           A model with maximum accuracy               (no failure)
 ========================================  ==========================  ================  ==========================================  =====================
 
-Note that none of these algorithm produced "the" model: there is no such thing as a single best model.
+Note that none of these algorithms produces "the" model: there is no such thing as a single best model.
 
 The SAT approaches are often the quickest, but when a model with 100% accuracy doesn't exist, they simply fail to produce anything.
 

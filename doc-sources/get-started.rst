@@ -429,8 +429,7 @@ What now?
 
 If you haven't done so yet, we recommend you now read our :doc:`conceptual overview documentation <conceptual-overview>`.
 
-Keep in mind that we've only demonstrated the default learning strategy in this guide.
-*lincs* implements several strategies accessible via options of ``lincs learn``.
-See the :ref:`learning strategies documentation <user-learning-strategies>` in our user guide for more details.
+Keep in mind that we've only demonstrated the default learning approach in this guide.
+See the :ref:`learning documentation <user-learning-a-model>` in our user guide for more details.
 
 Once you're comfortable with the concepts and tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.
