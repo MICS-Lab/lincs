@@ -324,7 +324,7 @@ And ask the trained model to classify it::
 
 There are a few differences between the original testing set and the reclassified one::
 
-    diff <(tail -n +2 testing-set.csv) reclassified-testing-set.csv
+    diff <(tail -n +2 testing-set.csv) <(tail -n +2 reclassified-testing-set.csv)
 
 .. APPEND-TO-LAST-LINE >classification-diff.txt || true
 .. STOP

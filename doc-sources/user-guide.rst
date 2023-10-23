@@ -34,7 +34,7 @@ To describe problems, *lincs* uses YAML files conforming to the `JSON schema <ht
     lincs generate classified-alternatives problem.yml ncs-model.yml 1 >/dev/null
 
     lincs classify problem.yml mrsort-model.yml unclassified-alternatives.csv --output-classified-alternatives classified-alternatives.csv
-    diff classified-alternatives.csv expected-classified-alternatives.csv
+    diff <(tail -n +2 classified-alternatives.csv) expected-classified-alternatives.csv
 .. STOP
 
 .. START file-formats/problem.yml

@@ -868,11 +868,12 @@ def classify(
     alternatives,
     output_classified_alternatives,
 ):
+    command_line = ["lincs", "classify", get_input_file_name(problem), get_input_file_name(model), get_input_file_name(alternatives)]
     problem = lincs.Problem.load(problem)
     model = lincs.Model.load(problem, model)
     alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.classify_alternatives(problem, model, alternatives)
-    # @todo(Feature, soon) Add "reproduction" comments consistently with other commands
+    print(f"# {make_reproduction_command(command_line)}", file=output_classified_alternatives, flush=True)
     alternatives.dump(problem, output_classified_alternatives)
 
 
