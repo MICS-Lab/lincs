@@ -138,6 +138,8 @@ def write_version(old_version, new_version):
                 f.write(line)
 
     for file_name in glob.glob("doc-sources/*.rst"):
+        if file_name == "doc-sources/changelog.rst":
+            continue
         with open(file_name) as f:
             lines = f.readlines()
         lines = [line.replace(old_version, new_version) for line in lines]
