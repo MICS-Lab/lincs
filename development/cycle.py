@@ -285,7 +285,8 @@ def build_sphinx_documentation():
 
 def run_integration_tests(*, skip_long, forbid_gpu):
     ok = True
-    for test_file_name in glob.glob("integration-tests/**/run.sh", recursive=True):
+    # Sorted: alphabetical order just happens to match a dependency order between a few tests.
+    for test_file_name in sorted(glob.glob("integration-tests/**/run.sh", recursive=True)):
         test_name = test_file_name[18:-7]
 
         if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):
