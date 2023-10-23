@@ -528,12 +528,12 @@ You can check with ``lincs info has-gpu``.
 Here is an example::
 
     lincs learn classification-model problem.yml learning-set.csv \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu \
+      --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
 
 .. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
 .. APPEND-TO-LAST-LINE --output-model gpu-trained-model.yml
 
-    diff expected-trained-model.yml gpu-trained-model.yml
+    diff <(sed s/cpu/gpu/ expected-trained-model.yml) gpu-trained-model.yml
 
 .. STOP
 
