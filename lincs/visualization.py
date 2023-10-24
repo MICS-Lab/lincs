@@ -37,9 +37,14 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
             )
 
     ax.legend()
-    ax.set_ylim(0, 1)
+    ax.set_ylim(-0.05, 1.05)
     ax.set_yticks([0, 1])
     ax.set_yticklabels(["worst", "best"])
+
+    for y in [0, 1]:
+        ax.axhline(y=y, color="black", alpha=0.2)
+    for x in xs:
+        ax.axvline(x=x, color="black", alpha=0.2)
 
     fig.savefig(out, format="png", dpi=100)
     plt.close(fig)
