@@ -162,7 +162,7 @@ It should look like::
 
 .. STOP
 
-Note that *lincs* uses `YAML anchors and references <https://yaml.org/spec/1.2-old/spec.html#id2765878>`_ to avoid repeating the same sufficient coalitions in all profiles.
+Note that *lincs* uses `YAML anchors and references <https://yaml.org/spec/1.2-old/spec.html#id2765878>`_ to avoid repeating the same sufficient coalitions again and again.
 All ``*coalitions`` means is "use the same value as the ``&coalitions`` anchor".
 
 The file format is documented in our :ref:`user guide <user-file-ncs-model>`.
@@ -301,9 +301,9 @@ To see how close a trained model is to the original one, you can reclassify a te
 
 .. EXTEND command-line-example/run.sh
 
-First, generate a testing set::
+First, generate a testing set from the original model::
 
-    lincs generate classified-alternatives problem.yml model.yml 10000 --output-alternatives testing-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 3000 --output-alternatives testing-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 44
 .. STOP
@@ -312,7 +312,7 @@ First, generate a testing set::
 
 .. EXTEND command-line-example/run.sh
 
-And ask the trained model to classify it::
+Then ask the trained model to classify it::
 
     lincs classify problem.yml trained-model.yml testing-set.csv --output-alternatives reclassified-testing-set.csv
 
@@ -324,9 +324,9 @@ And ask the trained model to classify it::
 
 There are a few differences between the original testing set and the reclassified one::
 
-    diff <(tail -n +2 testing-set.csv) <(tail -n +2 reclassified-testing-set.csv)
+    diff testing-set.csv reclassified-testing-set.csv
 
-.. APPEND-TO-LAST-LINE >classification-diff.txt || true
+.. APPEND-TO-LAST-LINE | tail -n +5 >classification-diff.txt || true
 .. STOP
 
 .. highlight:: diff
@@ -335,62 +335,22 @@ There are a few differences between the original testing set and the reclassifie
 
 That command should show a few alternatives that are not classified the same way by the original and the trained model::
 
-    521c521
+    522c522
     < "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Category 3"
     ---
     > "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Category 2"
-    614c614
+    615c615
     < "Alternative 613",0.547554553,0.0552174859,0.690436542,0.511019647,"Category 2"
     ---
     > "Alternative 613",0.547554553,0.0552174859,0.690436542,0.511019647,"Category 1"
-    2595c2595
+    2596c2596
     < "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 2"
     ---
     > "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 1"
-    2609c2609
+    2610c2610
     < "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Category 2"
     ---
     > "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Category 1"
-    3128c3128
-    < "Alternative 3127",0.146532759,0.324625522,0.926948965,0.817662537,"Category 3"
-    ---
-    > "Alternative 3127",0.146532759,0.324625522,0.926948965,0.817662537,"Category 2"
-    3691c3691
-    < "Alternative 3690",0.157966524,0.326220334,0.925864339,0.844398499,"Category 3"
-    ---
-    > "Alternative 3690",0.157966524,0.326220334,0.925864339,0.844398499,"Category 2"
-    3774c3774
-    < "Alternative 3773",0.484662831,0.325856268,0.966965079,0.980859697,"Category 3"
-    ---
-    > "Alternative 3773",0.484662831,0.325856268,0.966965079,0.980859697,"Category 2"
-    4214c4214
-    < "Alternative 4213",0.254853547,0.32587868,0.809560299,0.554913938,"Category 3"
-    ---
-    > "Alternative 4213",0.254853547,0.32587868,0.809560299,0.554913938,"Category 2"
-    4265c4265
-    < "Alternative 4264",0.533336997,0.0553873181,0.735466599,0.457309902,"Category 2"
-    ---
-    > "Alternative 4264",0.533336997,0.0553873181,0.735466599,0.457309902,"Category 1"
-    5346c5346
-    < "Alternative 5345",0.815349102,0.580399215,0.162403136,0.995580792,"Category 2"
-    ---
-    > "Alternative 5345",0.815349102,0.580399215,0.162403136,0.995580792,"Category 1"
-    5781c5781
-    < "Alternative 5780",0.333638728,0.325458288,0.69509089,0.761675119,"Category 3"
-    ---
-    > "Alternative 5780",0.333638728,0.325458288,0.69509089,0.761675119,"Category 2"
-    8032c8032
-    < "Alternative 8031",0.602598071,0.0554222316,0.920983374,0.00566159375,"Category 2"
-    ---
-    > "Alternative 8031",0.602598071,0.0554222316,0.920983374,0.00566159375,"Category 1"
-    9689c9689
-    < "Alternative 9688",0.940304875,0.885046899,0.162586793,0.515185535,"Category 2"
-    ---
-    > "Alternative 9688",0.940304875,0.885046899,0.162586793,0.515185535,"Category 1"
-    9934c9934
-    < "Alternative 9933",0.705289483,0.11529737,0.162508503,0.0438248962,"Category 2"
-    ---
-    > "Alternative 9933",0.705289483,0.11529737,0.162508503,0.0438248962,"Category 1"
 
 .. STOP
 
@@ -415,7 +375,7 @@ You can also measure the classification accuracy of the trained model on that te
 
 It should be close to 100%::
 
-    9986/10000
+    2996/3000
 
 .. STOP
 
@@ -430,6 +390,6 @@ What now?
 If you haven't done so yet, we recommend you now read our :doc:`conceptual overview documentation <conceptual-overview>`.
 
 Keep in mind that we've only demonstrated the default learning approach in this guide.
-See the :ref:`learning documentation <user-learning-a-model>` in our user guide for more details.
+See our :doc:`user guide <user-guide>` for more details.
 
 Once you're comfortable with the concepts and tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.
