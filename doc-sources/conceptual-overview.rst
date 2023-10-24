@@ -362,7 +362,7 @@ If yes, they get a partial scholarship.
 .. STOP
 
 .. START concept-example/expected-classified-alternatives.csv
-    # Reproduction command (with lincs version 0.10.1): lincs classify problem.yml model.yml alternatives.csv
+    # Reproduction command (with lincs version 0.10.2-dev): lincs classify problem.yml model.yml alternatives.csv
     name,Math,Physics,Literature,History,category
     A,1,1,1,1,"Full scholarship"
     B,1,1,1,0,"Full scholarship"
