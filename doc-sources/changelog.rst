@@ -4,6 +4,11 @@
 Changelog
 =========
 
+Version 0.10.1
+==============
+
+- Fix ``lincs visualize`` to use criteria's min/max values and category correlation
+
 Version 0.10.0
 ==============
 
