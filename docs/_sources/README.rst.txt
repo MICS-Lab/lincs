@@ -56,20 +56,20 @@ Provide a base for developing new MCDA algorithms
 -------------------------------------------------
 
 *lincs* is designed to be easy to extend with new algorithms or even replace parts of existing algorithms.
-See our `contributor guide <https://mics-lab.github.io/lincs/contributor-guide.html>`_ for more details.
+See our :doc:`contributor guide <contributor-guide>` for more details.
 
 
 Get started
 ===========
 
-Depending on your favorite approach, you can either start with our `hands-on "Get started" guide <https://mics-lab.github.io/lincs/get-started.html>`_
-or with our `conceptual overview documentation <https://mics-lab.github.io/lincs/conceptual-overview.html>`_.
+Depending on your favorite approach, you can either start with our :doc:`hands-on "Get started" guide <get-started>`
+or with our :doc:`conceptual overview documentation <conceptual-overview>`.
 The former will show you how to use our tools, the latter will explain the concepts behind them: what's MCDA, what are NCS models, *etc.*
 If in doubt, start with the conceptual overview.
 We highly recommend you read the other one just after.
 
-Once you've used *lincs* a bit, you can follow up with our `user guide <https://mics-lab.github.io/lincs/user-guide.html>`_
-and `reference documentation <https://mics-lab.github.io/lincs/reference.html>`_.
+Once you've used *lincs* a bit, you can follow up with our :doc:`user guide <user-guide>`
+and :doc:`reference documentation <reference>`.
 
 
 Versioning
@@ -77,7 +77,7 @@ Versioning
 
 Starting with version 1.0.0, *lincs* uses `semantic versioning <https://semver.org/>`_.
 
-*lincs*' public API (that "must be declared" according to SemVer) is constituted exclusively by its `reference documentation <https://mics-lab.github.io/lincs/reference.html>`_,
+*lincs*' public API (that "must be declared" according to SemVer) is constituted exclusively by its :doc:`reference documentation <reference>`,
 **at a code level**: we consider a change as backward compatible if the client code doesn't need to be modified to keep working,
 even if that change requires recompiling the client code in some cases.
 
@@ -116,4 +116,4 @@ That way, we know that the client already needs to modify their scripts, so they
 Develop *lincs* itself
 ======================
 
-See our `contributor guide <https://mics-lab.github.io/lincs/contributor-guide.html>`_.
+See our :doc:`contributor guide <contributor-guide>`.

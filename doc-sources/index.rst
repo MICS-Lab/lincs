@@ -1,7 +1,7 @@
 .. Copyright 2023 Vincent Jacques
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :hidden:
 
    self
@@ -16,4 +16,4 @@
 README
 ======
 
-.. include:: ../README.rst
+.. include:: README.rst
