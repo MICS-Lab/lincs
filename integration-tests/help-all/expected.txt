@@ -509,6 +509,12 @@ __init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4, (
 lincs.Criterion.category_correlation: property
 ----------------------------------------------
 
+lincs.Criterion.max_value: property
+-----------------------------------
+
+lincs.Criterion.min_value: property
+-----------------------------------
+
 lincs.Criterion.name: property
 ------------------------------
 
@@ -1258,6 +1264,12 @@ misclassify_alternatives( (Problem)problem, (Alternatives)alternatives, (int)cou
 
 lincs.visualization: module
 ---------------------------
+
+lincs.visualization.normalize_profile: function
+-----------------------------------------------
+
+lincs.visualization.normalize_value: function
+---------------------------------------------
 
 lincs.visualization.visualize_model: function
 ---------------------------------------------
