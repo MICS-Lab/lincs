@@ -8,8 +8,8 @@ File formats
 ============
 
 *lincs* uses text-based (YAML and CSV) file formats.
-The same formats are used when *lincs* reads files or when it outputs to files.
 The same formats are used for synthetic and real-world data.
+The same formats are used when *lincs* reads files or when it outputs to files.
 The same formats are used when *lincs* outputs to actual files or to the standard output.
 
 .. _ref-file-problem:

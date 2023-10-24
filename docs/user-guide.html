@@ -45,23 +45,23 @@ We also recommend you follow our <a class="reference internal" href="get-started
 <p>The concept of classification problem is defined in our <a class="reference internal" href="conceptual-overview.html#overview-about-classification"><span class="std std-ref">conceptual overview</span></a>.
 To describe problems, <em>lincs</em> uses YAML files conforming to the <a class="reference external" href="https://json-schema.org/">JSON schema</a> you’ll find in our <a class="reference internal" href="reference.html#ref-file-problem"><span class="std std-ref">reference documentation</span></a>.</p>
 <p>Here is an example of a problem file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kind</span><span class="p">:</span> <span class="n">classification</span><span class="o">-</span><span class="n">problem</span>
-<span class="n">format_version</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">criteria</span><span class="p">:</span>
-  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Criterion</span> <span class="mi">1</span>
-    <span class="n">value_type</span><span class="p">:</span> <span class="n">real</span>
-    <span class="n">category_correlation</span><span class="p">:</span> <span class="n">growing</span>
-    <span class="n">min_value</span><span class="p">:</span> <span class="mi">0</span>
-    <span class="n">max_value</span><span class="p">:</span> <span class="mi">20</span>
-  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Criterion</span> <span class="mi">2</span>
-    <span class="n">value_type</span><span class="p">:</span> <span class="n">real</span>
-    <span class="n">category_correlation</span><span class="p">:</span> <span class="n">decreasing</span>
-    <span class="n">min_value</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span>
-    <span class="n">max_value</span><span class="p">:</span> <span class="mi">5</span>
-<span class="n">categories</span><span class="p">:</span>
-  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Low</span>
-  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Medium</span>
-  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">High</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-problem</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">criteria</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 1</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">category_correlation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">growing</span>
+<span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 2</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">category_correlation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">decreasing</span>
+<span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-5</span>
+<span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="nt">categories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Low</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Medium</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">High</span>
 </pre></div>
 </div>
 <p>The two first keys, <code class="docutils literal notranslate"><span class="pre">kind</span></code> and <code class="docutils literal notranslate"><span class="pre">format_version</span></code> are here to identify exactly the file format.
@@ -103,18 +103,18 @@ referencing the problem file by name would not be robust because files can be re
 and referencing the problem file by content (using a hash) would forbid any change in the problem file.
 So it’s the user’s responsibility to keep track of that information and always give <em>lincs</em> the correct problem file along with a model file.</p>
 <p>Here is an example of a model file corresponding to the problem file above:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kind</span><span class="p">:</span> <span class="n">ncs</span><span class="o">-</span><span class="n">classification</span><span class="o">-</span><span class="n">model</span>
-<span class="n">format_version</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">accepted_values</span><span class="p">:</span>
-  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
-    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">7.49331188</span><span class="p">,</span> <span class="mf">15.9249287</span><span class="p">]</span>
-  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
-    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.49812794</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.15932083</span><span class="p">]</span>
-<span class="n">sufficient_coalitions</span><span class="p">:</span>
-  <span class="o">-</span> <span class="o">&amp;</span><span class="n">coalitions</span>
-    <span class="n">kind</span><span class="p">:</span> <span class="n">weights</span>
-    <span class="n">criterion_weights</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.938825667</span><span class="p">,</span> <span class="mf">0.343733728</span><span class="p">]</span>
-  <span class="o">-</span> <span class="o">*</span><span class="n">coalitions</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7.49331188</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">15.9249287</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4.49812794</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-3.15932083</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.938825667</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.343733728</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
 </pre></div>
 </div>
 <p>Like for problem files, the two first keys must take exactly these values.</p>
@@ -186,20 +186,20 @@ In that case, the <code class="docutils literal notranslate"><span class="pre">u
 </table>
 <p>Here is another model corresponding to the problem file above, but this time using the <code class="docutils literal notranslate"><span class="pre">roots</span></code> kind of sufficient coalitions,
 and using different coalitions for the two boundaries (so, no YAML anchor):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kind</span><span class="p">:</span> <span class="n">ncs</span><span class="o">-</span><span class="n">classification</span><span class="o">-</span><span class="n">model</span>
-<span class="n">format_version</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">accepted_values</span><span class="p">:</span>
-  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
-    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">7.49331188</span><span class="p">,</span> <span class="mf">15.9249287</span><span class="p">]</span>
-  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">thresholds</span>
-    <span class="n">thresholds</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.49812794</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.15932083</span><span class="p">]</span>
-<span class="n">sufficient_coalitions</span><span class="p">:</span>
-  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">roots</span>
-    <span class="n">upset_roots</span><span class="p">:</span>
-      <span class="o">-</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-  <span class="o">-</span> <span class="n">kind</span><span class="p">:</span> <span class="n">roots</span>
-    <span class="n">upset_roots</span><span class="p">:</span>
-      <span class="o">-</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7.49331188</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">15.9249287</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4.49812794</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-3.15932083</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
+<span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
+<span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 </section>
@@ -210,12 +210,12 @@ and using different coalitions for the two boundaries (so, no YAML anchor):</p>
 It’s a CSV file with a header line and one line per alternative.</p>
 <p>Like model files, alternatives files are always associated to a problem file.</p>
 <p>Here is an example corresponding to the problem above:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;Criterion 1&quot;</span><span class="p">,</span><span class="s2">&quot;Criterion 2&quot;</span><span class="p">,</span><span class="n">category</span>
-<span class="s2">&quot;Alternative 1&quot;</span><span class="p">,</span><span class="mf">10.8156891</span><span class="p">,</span><span class="mf">4.39045048</span><span class="p">,</span><span class="n">Medium</span>
-<span class="s2">&quot;Alternative 2&quot;</span><span class="p">,</span><span class="mf">0.25551182</span><span class="p">,</span><span class="o">-</span><span class="mf">1.45864725</span><span class="p">,</span><span class="n">Low</span>
-<span class="s2">&quot;Alternative 3&quot;</span><span class="p">,</span><span class="mf">18.4786396</span><span class="p">,</span><span class="mf">4.31117153</span><span class="p">,</span><span class="n">Medium</span>
-<span class="s2">&quot;Alternative 4&quot;</span><span class="p">,</span><span class="mf">18.0154629</span><span class="p">,</span><span class="mf">1.33949804</span><span class="p">,</span><span class="n">Medium</span>
-<span class="s2">&quot;Alternative 5&quot;</span><span class="p">,</span><span class="mf">9.30789757</span><span class="p">,</span><span class="mf">2.66963387</span><span class="p">,</span><span class="n">Medium</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,category
+&quot;Alternative 1&quot;,10.8156891,4.39045048,Medium
+&quot;Alternative 2&quot;,0.25551182,-1.45864725,Low
+&quot;Alternative 3&quot;,18.4786396,4.31117153,Medium
+&quot;Alternative 4&quot;,18.0154629,1.33949804,Medium
+&quot;Alternative 5&quot;,9.30789757,2.66963387,Medium
 </pre></div>
 </div>
 <p>Its header line contains the names of its columns.
@@ -223,12 +223,12 @@ Its first column, <code class="docutils literal notranslate"><span class="pre">n
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, <code class="docutils literal notranslate"><span class="pre">category</span></code>, contains the names of the categories in which each alternative is classified.</p>
 <p>Values in the <code class="docutils literal notranslate"><span class="pre">category</span></code> column can be empty to describe alternatives that are not (yet) classified:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;Criterion 1&quot;</span><span class="p">,</span><span class="s2">&quot;Criterion 2&quot;</span><span class="p">,</span><span class="n">category</span>
-<span class="s2">&quot;Alternative 1&quot;</span><span class="p">,</span><span class="mf">10.8156891</span><span class="p">,</span><span class="mf">4.39045048</span><span class="p">,</span>
-<span class="s2">&quot;Alternative 2&quot;</span><span class="p">,</span><span class="mf">0.25551182</span><span class="p">,</span><span class="o">-</span><span class="mf">1.45864725</span><span class="p">,</span>
-<span class="s2">&quot;Alternative 3&quot;</span><span class="p">,</span><span class="mf">18.4786396</span><span class="p">,</span><span class="mf">4.31117153</span><span class="p">,</span>
-<span class="s2">&quot;Alternative 4&quot;</span><span class="p">,</span><span class="mf">18.0154629</span><span class="p">,</span><span class="mf">1.33949804</span><span class="p">,</span>
-<span class="s2">&quot;Alternative 5&quot;</span><span class="p">,</span><span class="mf">9.30789757</span><span class="p">,</span><span class="mf">2.66963387</span><span class="p">,</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,category
+&quot;Alternative 1&quot;,10.8156891,4.39045048,
+&quot;Alternative 2&quot;,0.25551182,-1.45864725,
+&quot;Alternative 3&quot;,18.4786396,4.31117153,
+&quot;Alternative 4&quot;,18.0154629,1.33949804,
+&quot;Alternative 5&quot;,9.30789757,2.66963387,
 </pre></div>
 </div>
 </section>
@@ -258,7 +258,7 @@ By default, the pseudo-random number generator is initialized with a seed based 
 <h3>Generating a problem<a class="headerlink" href="#generating-a-problem" title="Permalink to this heading">¶</a></h3>
 <p>With <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-problem</span></code>, you can generate a classification problem file.
 Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our <a class="reference internal" href="get-started.html"><span class="doc">get started guide</span></a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">generate</span> <span class="n">classification</span><span class="o">-</span><span class="n">problem</span> <span class="mi">4</span> <span class="mi">3</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-problem<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> option on the command-line and our <a class="reference internal" href="reference.html#ref-cli"><span class="std std-ref">reference documentation</span></a> describe the options available to tweak the generated problem.
@@ -272,7 +272,7 @@ Most notably:</p>
 <h3>Generating a model<a class="headerlink" href="#generating-a-model" title="Permalink to this heading">¶</a></h3>
 <p>With <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-model</span></code>, you can generate a classification model file.
 Using its default settings, you just have to pass it the problem file you want to use:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">generate</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-model<span class="w"> </span>problem.yml
 </pre></div>
 </div>
 <p>For now, <em>lincs</em> can only generate MR-Sort models, so the <code class="docutils literal notranslate"><span class="pre">--model-type</span></code> option can only take its default value: <code class="docutils literal notranslate"><span class="pre">mrsort</span></code>.
@@ -284,7 +284,7 @@ This effectively impacts how hard it is for alternatives to get into upper categ
 <section id="generating-alternatives">
 <h3>Generating alternatives<a class="headerlink" href="#generating-alternatives" title="Permalink to this heading">¶</a></h3>
 <p>With its default settings, <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classified-alternatives</span></code> requires only the problem and model files and the number of alternatives to generate:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">generate</span> <span class="n">classified</span><span class="o">-</span><span class="n">alternatives</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">model</span><span class="o">.</span><span class="n">yml</span> <span class="mi">100</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classified-alternatives<span class="w"> </span>problem.yml<span class="w"> </span>model.yml<span class="w"> </span><span class="m">100</span>
 </pre></div>
 </div>
 <p>This generates 100 random alternatives, and then classifies them according to the model.</p>
@@ -306,7 +306,7 @@ After alternatives are generated and classified, this option randomly selects th
 <span id="user-learning-a-model"></span><h2>Learning a model<a class="headerlink" href="#learning-a-model" title="Permalink to this heading">¶</a></h2>
 <p>As you’ve seen in our get started guide, the basic command to learn a classification model with <em>lincs</em> is <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code>.
 With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">learn</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">learning</span><span class="o">-</span><span class="nb">set</span><span class="o">.</span><span class="n">csv</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv
 </pre></div>
 </div>
 <p>Its <code class="docutils literal notranslate"><span class="pre">--help</span></code> option and our reference documentation give you a list of the numerous options it accepts.</p>
@@ -372,8 +372,8 @@ the “weights” step is actually an optimization, not just an improvement.
 That strategy uses a linear program, and lets you choose amongst several solvers with the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.linear-program.solver</span></code> option.</p>
 <p>By default, it uses GLOP, which is a part of <a class="reference external" href="https://developers.google.com/optimization/">Google’s OR-Tools</a>.</p>
 <p>Here is an example using the <a class="reference external" href="https://www.alglib.net/">Alglib</a> solver:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">learn</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">learning</span><span class="o">-</span><span class="nb">set</span><span class="o">.</span><span class="n">csv</span> \
-  <span class="o">--</span><span class="n">mrsort</span><span class="o">.</span><span class="n">weights</span><span class="o">-</span><span class="n">profiles</span><span class="o">-</span><span class="n">breed</span><span class="o">.</span><span class="n">linear</span><span class="o">-</span><span class="n">program</span><span class="o">.</span><span class="n">solver</span> <span class="n">alglib</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--mrsort.weights-profiles-breed.linear-program.solver<span class="w"> </span>alglib
 </pre></div>
 </div>
 <p>It should produce a very similar model, with slight numerical differences.</p>
@@ -390,8 +390,8 @@ This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">info</span> <span class="pre">has-gpu</span></code>.</p>
 <p>Here is an example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lincs</span> <span class="n">learn</span> <span class="n">classification</span><span class="o">-</span><span class="n">model</span> <span class="n">problem</span><span class="o">.</span><span class="n">yml</span> <span class="n">learning</span><span class="o">-</span><span class="nb">set</span><span class="o">.</span><span class="n">csv</span> \
-  <span class="o">--</span><span class="n">mrsort</span><span class="o">.</span><span class="n">weights</span><span class="o">-</span><span class="n">profiles</span><span class="o">-</span><span class="n">breed</span><span class="o">.</span><span class="n">accuracy</span><span class="o">-</span><span class="n">heuristic</span><span class="o">.</span><span class="n">processor</span> <span class="n">gpu</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.processor<span class="w"> </span>gpu
 </pre></div>
 </div>
 <p>It should produce the exact same model as when using the CPU;

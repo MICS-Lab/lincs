@@ -39,7 +39,8 @@
 <h2>Notation<a class="headerlink" href="#notation" title="Permalink to this heading">¶</a></h2>
 <p>In this document, we denote the interval of integers from <span class="math notranslate nohighlight">\(a\)</span> to <span class="math notranslate nohighlight">\(b - 1\)</span> included by <span class="math notranslate nohighlight">\([a..b)\)</span>.
 Most often, <span class="math notranslate nohighlight">\(a\)</span> will be zero.
-This choice matches the indexing convention used in most modern programming language, so our documentation is as close as possible to our implementation.
+This choice matches the indexing convention used in the Python and C++ programming languages,
+so our documentation is as close as possible to our implementation.
 For example, <span class="math notranslate nohighlight">\([0..4) = \{0, 1, 2, 3\}\)</span>.
 Note that <span class="math notranslate nohighlight">\([0..n)\)</span> contains <span class="math notranslate nohighlight">\(n\)</span> elements.</p>
 <p>For a given set <span class="math notranslate nohighlight">\(S\)</span>, we denote the set of all its subsets (<em>a.k.a.</em> its power set) by <span class="math notranslate nohighlight">\(\mathcal{P}(S)\)</span>.
@@ -122,11 +123,11 @@ defaulting to the worst category (<span class="math notranslate nohighlight">\(C
 <div class="math notranslate nohighlight">
 \[f: x \mapsto \max (\{0\} \cup \{ h \in [1..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \})\]</div>
 </div>
-<p>Note that this definition extends naturally if we denote <span class="math notranslate nohighlight">\(\mathcal{F}^0 = [0..n)\)</span> and <span class="math notranslate nohighlight">\(b^0 = (\min(X_0), ..., \min(X_{n-1}))\)</span>.
+<p>Note that this definition extends naturally if we denote <span class="math notranslate nohighlight">\(\mathcal{F}^0 = \mathcal{P}([0..n))\)</span> and <span class="math notranslate nohighlight">\(b^0 = (\min(X_0), ..., \min(X_{n-1}))\)</span>.
 The definition of <span class="math notranslate nohighlight">\(f\)</span> then simplifies to <span class="math notranslate nohighlight">\(x \mapsto \max \{ h \in [0..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \}\)</span>.</p>
 <p>This definition may differ slightly from the one you’re used to, but it should be formally equivalent.
 We use it in <em>lincs</em> because it is somewhat simple and matches the implementation quite well.</p>
-<p>The constraints in the definition all ensure NDS models behave according to intuition:</p>
+<p>The constraints in the definition all ensure NCS models behave according to intuition:</p>
 <ul class="simple">
 <li><p>the ordering of profiles ensures consistency with the order on categories</p></li>
 <li><p>the up-closed-ness-by-inclusion(!) of the sufficient coalitions matches the intuition that they are <em>sufficient</em> criteria: if a few criteria are sufficient, then more criteria are still sufficient</p></li>
@@ -394,7 +395,7 @@ This gives us <span class="math notranslate nohighlight">\(|\mathcal{P}(\{M, P, 
 <li><p><span class="math notranslate nohighlight">\(w_M + w_H \ge 1\)</span> (because <span class="math notranslate nohighlight">\(\{M, H\} \in \mathcal{F}^1\)</span>)</p></li>
 <li><p><span class="math notranslate nohighlight">\(w_P + w_H \ge 1\)</span> (because <span class="math notranslate nohighlight">\(\{P, H\} \in \mathcal{F}^1\)</span>)</p></li>
 </ul>
-<p>Summing the first two equations gives <span class="math notranslate nohighlight">\(w_M + w_P + w_L + w_H \lt 2\)</span>, and summing teh last four gives <span class="math notranslate nohighlight">\(w_M + w_P + w_L + w_H \ge 2\)</span>,
+<p>Summing the first two equations gives <span class="math notranslate nohighlight">\(w_M + w_P + w_L + w_H \lt 2\)</span>, and summing the last four gives <span class="math notranslate nohighlight">\(w_M + w_P + w_L + w_H \ge 2\)</span>,
 so there is no solution, and that model is not MR-Sort.</p>
 <p>By contrast, the coalitions <span class="math notranslate nohighlight">\(\mathcal{F}^2\)</span> of the previous model example can be expressed using the following weights:
 <span class="math notranslate nohighlight">\(w_M = 0.4\)</span>, <span class="math notranslate nohighlight">\(w_P = 0.4\)</span>, <span class="math notranslate nohighlight">\(w_L = 0.4\)</span>, <span class="math notranslate nohighlight">\(w_H = 0.4\)</span>: coalitions of at most two criteria have weights sums less than 1,
@@ -460,9 +461,8 @@ and <em>lincs</em> provides two parallel implementations (using OpenMP and CUDA)
 In that approach, one specifies the problem and provides a pre-known model.
 They then generate pseudo-random alternatives classified according to that original model,
 and use them as a training set to learn a new model.
-Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the algorithm.</p>
-<p><em>lincs</em> provides ways to generate synthetic pseudo-random problems, models and training sets (noisy or clean).
-The same file formats are used for synthetic and real-world data.</p>
+Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the learning algorithm.</p>
+<p><em>lincs</em> provides ways to generate synthetic pseudo-random problems, models and training sets (noisy or clean).</p>
 </section>
 <section id="next">
 <h2>Next<a class="headerlink" href="#next" title="Permalink to this heading">¶</a></h2>

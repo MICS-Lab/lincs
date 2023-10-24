@@ -18,6 +18,8 @@ Formatting data for *lincs*
 "Problem" files
 ---------------
 
+.. highlight:: yaml
+
 The concept of classification problem is defined in our :ref:`conceptual overview <overview-about-classification>`.
 To describe problems, *lincs* uses YAML files conforming to the `JSON schema <https://json-schema.org/>`_ you'll find in our :ref:`reference documentation <ref-file-problem>`.
 
@@ -222,6 +224,8 @@ It's a CSV file with a header line and one line per alternative.
 
 Like model files, alternatives files are always associated to a problem file.
 
+.. highlight:: text
+
 .. START file-formats/expected-classified-alternatives.csv
 
 Here is an example corresponding to the problem above::
@@ -283,6 +287,8 @@ By default, the pseudo-random number generator is initialized with a seed based 
 When you need reproducibility, you can specify the seed to use with the ``--random-seed`` option.
 
 In all cases, the :ref:`comments <user-comments-in-generated-files>` left by *lincs* in the generated files specify the seed that was used.
+
+.. highlight:: shell
 
 Generating a problem
 --------------------
