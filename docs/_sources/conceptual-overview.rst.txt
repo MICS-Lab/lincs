@@ -9,7 +9,8 @@ Notation
 
 In this document, we denote the interval of integers from :math:`a` to :math:`b - 1` included by :math:`[a..b)`.
 Most often, :math:`a` will be zero.
-This choice matches the indexing convention used in most modern programming language, so our documentation is as close as possible to our implementation.
+This choice matches the indexing convention used in the Python and C++ programming languages,
+so our documentation is as close as possible to our implementation.
 For example, :math:`[0..4) = \{0, 1, 2, 3\}`.
 Note that :math:`[0..n)` contains :math:`n` elements.
 
@@ -110,13 +111,13 @@ Additionally, this set of coalitions can be different for each category.
 
     f: x \mapsto \max (\{0\} \cup \{ h \in [1..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \})
 
-Note that this definition extends naturally if we denote :math:`\mathcal{F}^0 = [0..n)` and :math:`b^0 = (\min(X_0), ..., \min(X_{n-1}))`.
+Note that this definition extends naturally if we denote :math:`\mathcal{F}^0 = \mathcal{P}([0..n))` and :math:`b^0 = (\min(X_0), ..., \min(X_{n-1}))`.
 The definition of :math:`f` then simplifies to :math:`x \mapsto \max \{ h \in [0..p): \{ i \in [0..n): x_i \succcurlyeq_i b^h_i \} \in \mathcal{F}^h \}`.
 
 This definition may differ slightly from the one you're used to, but it should be formally equivalent.
 We use it in *lincs* because it is somewhat simple and matches the implementation quite well.
 
-The constraints in the definition all ensure NDS models behave according to intuition:
+The constraints in the definition all ensure NCS models behave according to intuition:
 
 - the ordering of profiles ensures consistency with the order on categories
 - the up-closed-ness-by-inclusion(!) of the sufficient coalitions matches the intuition that they are *sufficient* criteria: if a few criteria are sufficient, then more criteria are still sufficient
@@ -453,7 +454,7 @@ This gives us :math:`|\mathcal{P}(\{M, P, L, H\})| = 16` equations, amongst whic
 - :math:`w_M + w_H \ge 1` (because :math:`\{M, H\} \in \mathcal{F}^1`)
 - :math:`w_P + w_H \ge 1` (because :math:`\{P, H\} \in \mathcal{F}^1`)
 
-Summing the first two equations gives :math:`w_M + w_P + w_L + w_H \lt 2`, and summing teh last four gives :math:`w_M + w_P + w_L + w_H \ge 2`,
+Summing the first two equations gives :math:`w_M + w_P + w_L + w_H \lt 2`, and summing the last four gives :math:`w_M + w_P + w_L + w_H \ge 2`,
 so there is no solution, and that model is not MR-Sort.
 
 By contrast, the coalitions :math:`\mathcal{F}^2` of the previous model example can be expressed using the following weights:
@@ -513,10 +514,9 @@ It's not always practical to use real-world data when developing a new learning 
 In that approach, one specifies the problem and provides a pre-known model.
 They then generate pseudo-random alternatives classified according to that original model,
 and use them as a training set to learn a new model.
-Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the algorithm.
+Finally, they compare how close the learned model behaves to the original one to evaluate the quality of the learning algorithm.
 
 *lincs* provides ways to generate synthetic pseudo-random problems, models and training sets (noisy or clean).
-The same file formats are used for synthetic and real-world data.
 
 
 Next
