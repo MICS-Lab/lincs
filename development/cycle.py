@@ -248,39 +248,36 @@ def build_sphinx_documentation():
     subprocess.run([f"python3", "-m", "pip", "install", "--user", "."], env=env, stdout=subprocess.DEVNULL, check=True)
 
     with open("README.rst") as f:
-        original_content = f.read()
+        readme_content = f.read()
 
-    try:
-        content = re.sub(r"`(.*) <https://mics-lab.github.io/lincs/(.*)\.html>`_", r":doc:`\1 <\2>`", original_content)
+    readme_content = re.sub(r"`(.*) <https://mics-lab.github.io/lincs/(.*)\.html>`_", r":doc:`\1 <\2>`", readme_content)
 
-        with open("README.rst", "w") as f:
-            f.write(content)
+    with open("doc-sources/README.rst", "w") as f:
+        f.write(readme_content)
 
-        with open("doc-sources/problem-schema.yml", "w") as f:
-            subprocess.run(["python3", "-c", "import lincs; print(lincs.Problem.JSON_SCHEMA, end='')"], check=True, stdout=f)
+    with open("doc-sources/problem-schema.yml", "w") as f:
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.Problem.JSON_SCHEMA, end='')"], check=True, stdout=f)
 
-        with open("doc-sources/model-schema.yml", "w") as f:
-            subprocess.run(["python3", "-c", "import lincs; print(lincs.Model.JSON_SCHEMA, end='')"], check=True, stdout=f)
+    with open("doc-sources/model-schema.yml", "w") as f:
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.Model.JSON_SCHEMA, end='')"], check=True, stdout=f)
 
-        shutil.rmtree("docs", ignore_errors=True)
-        subprocess.run(
-            [
-                "sphinx-build",
-                "-b", "html",
-                "--jobs", str(multiprocessing.cpu_count() - 1),
-                "doc-sources", "docs",
-            ],
-            check=True,
-        )
+    shutil.rmtree("docs", ignore_errors=True)
+    subprocess.run(
+        [
+            "sphinx-build",
+            "-b", "html",
+            "--jobs", str(multiprocessing.cpu_count() - 1),
+            "doc-sources", "docs",
+        ],
+        check=True,
+    )
 
-        os.unlink("doc-sources/problem-schema.yml")
-        os.unlink("doc-sources/model-schema.yml")
+    os.unlink("doc-sources/problem-schema.yml")
+    os.unlink("doc-sources/model-schema.yml")
+    os.unlink("doc-sources/README.rst")
 
-        shutil.copy("COPYING", "docs/")
-        shutil.copy("COPYING.LESSER", "docs/")
-    finally:
-        with open("README.rst", "w") as f:
-            f.write(original_content)
+    shutil.copy("COPYING", "docs/")
+    shutil.copy("COPYING.LESSER", "docs/")
 
 
 def run_integration_tests(*, skip_long, forbid_gpu):
