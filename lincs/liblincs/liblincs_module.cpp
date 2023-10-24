@@ -241,6 +241,8 @@ BOOST_PYTHON_MODULE(liblincs) {
     .def_readwrite("name", &lincs::Criterion::name)
     .def_readwrite("value_type", &lincs::Criterion::value_type)
     .def_readwrite("category_correlation", &lincs::Criterion::category_correlation)
+    .def_readwrite("min_value", &lincs::Criterion::min_value)
+    .def_readwrite("max_value", &lincs::Criterion::max_value)
   ;
   // Note that nested things are at global scope as well. This is not wanted, not used, but doesn't hurt
   // because 'liblincs' is only partially imported into module 'lincs' (see '__init__.py').

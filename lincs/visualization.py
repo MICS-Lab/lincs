@@ -7,7 +7,10 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     fig, ax = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
 
     xs = [criterion.name for criterion in problem.criteria]
-    ys = [list(boundary.profile) for boundary in model.boundaries]
+    ys = [
+        normalize_profile(problem.criteria, boundary.profile)
+        for boundary in model.boundaries
+    ]
     ys.append([1] * len(xs))
     unstacked_ys = [ys[0]]
     for ys1, ys2 in zip(ys[1:], ys[:-1]):
@@ -23,7 +26,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
         for alternative in alternatives.alternatives[:alternatives_count]:
             color = colors[alternative.category_index]
             ax.plot(
-                xs, list(alternative.profile),
+                xs, normalize_profile(problem.criteria, alternative.profile),
                 "o--",
                 label=alternative.name,
                 color=color,
@@ -31,7 +34,23 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
             )
 
     ax.legend()
-    ax.set_ylim(0, 1)  # @todo(Feature, soon) Set vertical limits according to min and max values of all criteria
+    ax.set_ylim(0, 1)
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["worst", "best"])
 
     fig.savefig(out, format="png", dpi=100)
     plt.close(fig)
+
+
+def normalize_profile(criteria, ys):
+    return [
+        normalize_value(criterion, y)
+        for (criterion, y) in zip(criteria, ys)
+    ]
+
+def normalize_value(criterion, y):
+    y = (y - criterion.min_value) / (criterion.max_value - criterion.min_value)
+    if criterion.category_correlation == criterion.CategoryCorrelation.decreasing:
+        return 1 - y
+    else:
+        return y
