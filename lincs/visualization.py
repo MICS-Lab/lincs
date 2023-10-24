@@ -24,7 +24,10 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
 
     if alternatives:
         for alternative in alternatives.alternatives[:alternatives_count]:
-            color = colors[alternative.category_index]
+            if alternative.category_index is None:
+                color = "black"
+            else:
+                color = colors[alternative.category_index]
             ax.plot(
                 xs, normalize_profile(problem.criteria, alternative.profile),
                 "o--",
