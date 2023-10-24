@@ -10,7 +10,7 @@ lincs generate classification-problem 6 3 --random-seed 42 --output-problem prob
 
 lincs generate classification-model problem.yml --random-seed 42 --output-model model.yml
 
-lincs generate classified-alternatives problem.yml model.yml 2000 --random-seed 42 --output-classified-alternatives learning-set.csv
+lincs generate classified-alternatives problem.yml model.yml 2000 --random-seed 42 --output-alternatives learning-set.csv
 
 lincs learn classification-model problem.yml learning-set.csv --mrsort.weights-profiles-breed.max-duration 15 --output-model trained-model--finished.yml --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 42
 diff <(echo '# Termination condition: target accuracy reached') <(grep 'Termination condition: ' trained-model--finished.yml)

@@ -195,7 +195,7 @@ It should output something like:
 
 And finally generate a set of classified alternatives::
 
-    lincs generate classified-alternatives problem.yml model.yml 1000 --output-classified-alternatives learning-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 1000 --output-alternatives learning-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 42
 .. STOP
@@ -303,7 +303,7 @@ To see how close a trained model is to the original one, you can reclassify a te
 
 First, generate a testing set::
 
-    lincs generate classified-alternatives problem.yml model.yml 10000 --output-classified-alternatives testing-set.csv
+    lincs generate classified-alternatives problem.yml model.yml 10000 --output-alternatives testing-set.csv
 
 .. APPEND-TO-LAST-LINE --random-seed 44
 .. STOP
@@ -314,7 +314,7 @@ First, generate a testing set::
 
 And ask the trained model to classify it::
 
-    lincs classify problem.yml trained-model.yml testing-set.csv --output-classified-alternatives reclassified-testing-set.csv
+    lincs classify problem.yml trained-model.yml testing-set.csv --output-alternatives reclassified-testing-set.csv
 
 .. STOP
 

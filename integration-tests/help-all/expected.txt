@@ -121,8 +121,7 @@ Usage: lincs generate classified-alternatives [OPTIONS] PROBLEM MODEL
   problem describing the model to use to classify the generated alternatives.
 
 Options:
-  --output-classified-alternatives FILENAME
-                                  Write generated classified alternatives to
+  --output-alternatives FILENAME  Write generated classified alternatives to
                                   this file instead of standard output.
   --max-imbalance FLOAT RANGE     Ensure that categories are balanced, by
                                   forcing their size to differ from the
@@ -371,8 +370,7 @@ Usage: lincs classify [OPTIONS] PROBLEM MODEL ALTERNATIVES
   file for that problem.
 
 Options:
-  --output-classified-alternatives FILENAME
-                                  Write classified alternatives to this file
+  --output-alternatives FILENAME  Write classified alternatives to this file
                                   instead of standard output.
   --help                          Show this message and exit.
 

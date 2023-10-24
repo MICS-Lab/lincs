@@ -33,7 +33,7 @@ To describe problems, *lincs* uses YAML files conforming to the `JSON schema <ht
     # Check that the NCS model is correct (we don't have explicit commands for that, so we use generate classified-alternatives)
     lincs generate classified-alternatives problem.yml ncs-model.yml 1 >/dev/null
 
-    lincs classify problem.yml mrsort-model.yml unclassified-alternatives.csv --output-classified-alternatives classified-alternatives.csv
+    lincs classify problem.yml mrsort-model.yml unclassified-alternatives.csv --output-alternatives classified-alternatives.csv
     diff <(tail -n +2 classified-alternatives.csv) expected-classified-alternatives.csv
 .. STOP
 
@@ -336,7 +336,7 @@ With its default settings, ``lincs generate classified-alternatives`` requires o
 
     lincs generate classified-alternatives problem.yml model.yml 100
 
-.. APPEND-TO-LAST-LINE --output-classified-alternatives learning-set.csv
+.. APPEND-TO-LAST-LINE --output-alternatives learning-set.csv
 .. STOP
 
 This generates 100 random alternatives, and then classifies them according to the model.
@@ -646,7 +646,7 @@ you can use it to classify alternatives with ``lincs classify problem.yml model.
 The ``category`` column in the input alternatives file is ignored and may be empty.
 
 Note that the input files will not be modified: the classified alternatives will be printed on the standard output
-or written in the file specified by ``--output-classified-alternatives``.
+or written in the file specified by ``--output-alternatives``.
 
 Computing a classification accuracy
 -----------------------------------

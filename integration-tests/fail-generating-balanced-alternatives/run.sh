@@ -12,7 +12,7 @@ lincs generate classification-model problem.yml --random-seed 24 >model.yml
 if lincs generate classified-alternatives problem.yml model.yml 100 \
   --max-imbalance 0 \
   --random-seed 42 \
-  --output-classified-alternatives alternatives.csv \
+  --output-alternatives alternatives.csv \
   2>stderr.txt
 then
   false

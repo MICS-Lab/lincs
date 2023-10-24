@@ -160,7 +160,7 @@ The profiles for this model look like this:
     lincs visualize classification-model problem.yml model.yml concept-example-model.png
     cp concept-example-model.png ../../../../doc-sources
 
-    lincs classify problem.yml model.yml alternatives.csv --output-classified-alternatives classified-alternatives.csv
+    lincs classify problem.yml model.yml alternatives.csv --output-alternatives classified-alternatives.csv
     diff classified-alternatives.csv expected-classified-alternatives.csv
 .. STOP
 

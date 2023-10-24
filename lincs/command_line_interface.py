@@ -340,7 +340,7 @@ def classification_model(
     type=click.IntRange(min=1),
 )
 @click.option(
-    "--output-classified-alternatives",
+    "--output-alternatives",
     type=click.File(mode="w"),
     default="-",
     help="Write generated classified alternatives to this file instead of standard output.",
@@ -367,7 +367,7 @@ def classified_alternatives(
     problem,
     model,
     alternatives_count,
-    output_classified_alternatives,
+    output_alternatives,
     max_imbalance,
     misclassified_count,
     random_seed,
@@ -401,8 +401,8 @@ def classified_alternatives(
                 misclassified_count,
                 random_seed=random_seed + 27,  # Arbitrary, does not hurt
             )
-        print(f"# {make_reproduction_command(command_line)}", file=output_classified_alternatives, flush=True)
-        alternatives.dump(problem, output_classified_alternatives)
+        print(f"# {make_reproduction_command(command_line)}", file=output_alternatives, flush=True)
+        alternatives.dump(problem, output_alternatives)
 
 
 @main.group(
@@ -858,7 +858,7 @@ def classification_model(
     type=click.File(mode="r"),
 )
 @click.option(
-    "--output-classified-alternatives",
+    "--output-alternatives",
     type=click.File(mode="w"),
     default="-",
     help="Write classified alternatives to this file instead of standard output.",
@@ -867,7 +867,7 @@ def classify(
     problem,
     model,
     alternatives,
-    output_classified_alternatives,
+    output_alternatives,
 ):
     command_line = ["lincs", "classify", get_input_file_name(problem), get_input_file_name(model), get_input_file_name(alternatives)]
 
@@ -877,8 +877,8 @@ def classify(
         alternatives = lincs.Alternatives.load(problem, alternatives)
 
     lincs.classify_alternatives(problem, model, alternatives)
-    print(f"# {make_reproduction_command(command_line)}", file=output_classified_alternatives, flush=True)
-    alternatives.dump(problem, output_classified_alternatives)
+    print(f"# {make_reproduction_command(command_line)}", file=output_alternatives, flush=True)
+    alternatives.dump(problem, output_alternatives)
 
 
 @main.command(
