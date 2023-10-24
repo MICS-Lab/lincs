@@ -17,7 +17,15 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
   const unsigned criteria_count = problem.criteria.size();
   const unsigned alternatives_count = alternatives.size();
 
-  rapidcsv::Document doc;
+  rapidcsv::SeparatorParams separator_params;
+  separator_params.mHasCR = false;  // Fix line ends on Windows (without this line, they are "\r\r\n")
+
+  rapidcsv::Document doc(
+    std::string(),
+    rapidcsv::LabelParams(),
+    separator_params,
+    rapidcsv::ConverterParams(),
+    rapidcsv::LineReaderParams());
 
   doc.SetColumnName(0, "name");
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {

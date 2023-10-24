@@ -292,8 +292,11 @@ jobs:
 
       - name: Run lincs
         run: lincs --help
-      - name: Run lincs
-        run: lincs generate classification-problem 3 2
+      - run: lincs generate classification-problem 3 2 --output-problem problem.yml
+      - run: lincs generate classification-model problem.yml --output-model model.yml
+      - run: lincs generate classified-alternatives problem.yml model.yml 100 --output-alternatives learning-set.csv
+      - run: lincs learn classification-model problem.yml learning-set.csv --output-model learned-model.yml
+      - run: lincs classification-accuracy problem.yml learned-model.yml learning-set.csv
 
   publish:
     runs-on: ubuntu-latest
