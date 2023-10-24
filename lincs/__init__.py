@@ -1,6 +1,6 @@
 # Copyright 2023 Vincent Jacques
 
-__version__ = "0.10.2-dev"
+__version__ = "0.10.2"
 
 # I/O
 from liblincs import DataValidationException

@@ -160,7 +160,7 @@ The profiles for this model look like this:
     lincs visualize classification-model problem.yml model.yml concept-example-model.png
     cp concept-example-model.png ../../../../doc-sources
 
-    lincs classify problem.yml model.yml alternatives.csv --output-classified-alternatives classified-alternatives.csv
+    lincs classify problem.yml model.yml alternatives.csv --output-alternatives classified-alternatives.csv
     diff classified-alternatives.csv expected-classified-alternatives.csv
 .. STOP
 
@@ -362,7 +362,7 @@ If yes, they get a partial scholarship.
 .. STOP
 
 .. START concept-example/expected-classified-alternatives.csv
-    # Reproduction command (with lincs version 0.10.1): lincs classify problem.yml model.yml alternatives.csv
+    # Reproduction command (with lincs version 0.10.2): lincs classify problem.yml model.yml alternatives.csv
     name,Math,Physics,Literature,History,category
     A,1,1,1,1,"Full scholarship"
     B,1,1,1,0,"Full scholarship"

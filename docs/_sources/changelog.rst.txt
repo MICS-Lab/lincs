@@ -4,18 +4,16 @@
 Changelog
 =========
 
-Version 0.10.1
-==============
-
-- Fix ``lincs visualize`` to use criteria's min/max values and category correlation
-
-Version 0.10.0
-==============
+Versions 0.10.0 to 0.10.2
+=========================
 
 This is the first release candidate for version 1.0.0.
 
 - **Breaking**: Allow more flexible description of accepted values in the model json schema. See user guide for details.
 - **Breaking**: Rename option ``--ucncs.approach`` to ``--ucncs.strategy``
+- **Breaking**: Rename option ``--output-classified-alternatives`` to ``--output-alternatives``
+- Fix line ends on Windows
+- Fix ``lincs visualize`` to use criteria's min/max values and category correlation
 - Validate consistency with problem when loading alternatives or model files
 - Output "reproduction command" in ``lincs classify``
 - Improve documentation
