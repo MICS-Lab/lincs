@@ -445,7 +445,7 @@ and the same profile :math:`b^1` and sufficient coalitions :math:`\mathcal{F}^1`
 Is it an MR-Sort model?
 To answer this question, we can try to find weights :math:`w_M`, :math:`w_P`, :math:`w_L`, :math:`w_H` such that
 :math:`\mathcal{F}^1 = \{ S \in \mathcal{P}(\{M, P, L, H\}): \sum_{i \in S} w_i \geq 1 \}`.
-This gives us :math:`|\mathcal{P}(\{M, P, L, H\})| = 16` equations, amongst which the following 6 are of interest:
+This gives us :math:`|\mathcal{P}(\{M, P, L, H\})| = 16` equations, among which the following 6 are of interest:
 
 - :math:`w_M + w_P \lt 1` (because :math:`\{M, P\} \notin \mathcal{F}^1`)
 - :math:`w_L + w_H \lt 1` (because :math:`\{L, H\} \notin \mathcal{F}^1`)

@@ -318,27 +318,28 @@ It tells <em>lincs</em> what type of model you want it to learn, <em>e.g.</em> <
 Then, each model type has its own set of options that are valid only for this type of model,
 and this pattern goes on to form a tree of options that make sense only on a specific branch.</p>
 <p>To capture this reality in a somewhat simple but consistent way, <em>lincs</em> uses a dot-separated naming scheme for its options:
-option <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span></code> is a sub-option of <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">mrsort</span></code>
+option <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span></code> is a sub-option of <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">mrsort</span></code>.
+It can accept the value <code class="docutils literal notranslate"><span class="pre">weights-profiles-breed</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.target-accuracy</span></code> is a sub-option of <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span> <span class="pre">weights-profiles-breed</span></code>.
 The <code class="docutils literal notranslate"><span class="pre">model-type</span></code> and <code class="docutils literal notranslate"><span class="pre">strategy</span></code> parts are not repeated to reduce verbosity a bit, but this relies on our ability to avoid naming collisions.
 Each sub-option name is formed by joining with dots (<code class="docutils literal notranslate"><span class="pre">.</span></code>) the values of the options it depends on.</p>
 <p>This pattern is arguably quite verbose, but it’s explicit and relatively easy to extend in a backward-compatible manner.</p>
-<p>Note that you already saw an example of this scheme above, at a smaller scale, in <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-model</span></code>,
-with its <code class="docutils literal notranslate"><span class="pre">--mrsort.fixed-weight-sum</span></code> option being a sub-option of <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">mrsort</span></code>.</p>
+<p>Note that you’ve already seen an example of this scheme above, at a smaller scale, in <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-model</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">--mrsort.fixed-weight-sum</span></code> is a sub-option of <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">mrsort</span></code>.</p>
 </section>
 <section id="strategies">
 <h3>Strategies<a class="headerlink" href="#strategies" title="Permalink to this heading">¶</a></h3>
 <p>Some problems can be solved using different methods.
 In software, these methods are often called <a class="reference external" href="https://en.wikipedia.org/wiki/Strategy_pattern">“strategies”</a>.
-<code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code> accepts several options named like <code class="docutils literal notranslate"><span class="pre">--...strategy</span></code> to let you choose amongst different methods for a given part of the learning.</p>
-<p>A few of them let you choose amongst only one strategy… but we expect it will change when we implement more strategies.</p>
+<code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">learn</span> <span class="pre">classification-model</span></code> accepts several options named like <code class="docutils literal notranslate"><span class="pre">--...strategy</span></code> to let you choose among different methods for a given part of the learning.</p>
+<p>A few of them let you choose among only one strategy… but we expect it will change when we implement more.</p>
 </section>
 <section id="available-learning-sub-strategies">
 <h3>Available learning (sub-)strategies<a class="headerlink" href="#available-learning-sub-strategies" title="Permalink to this heading">¶</a></h3>
 <p>Examples in this section will reuse the <code class="docutils literal notranslate"><span class="pre">problem.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">learning-set.csv</span></code> files you have generated in our <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a>;
 please make sure you have them in your current directory.</p>
-<section id="weights-profiles-breed">
-<h4>Weights, profiles, breed<a class="headerlink" href="#weights-profiles-breed" title="Permalink to this heading">¶</a></h4>
+<section id="weights-profiles-breed-wpb">
+<h4>Weights, profiles, breed (WPB)<a class="headerlink" href="#weights-profiles-breed-wpb" title="Permalink to this heading">¶</a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">--mrsort.strategy</span> <span class="pre">weights-profiles-breed</span></code> strategy is the default for MR-Sort models.
 This methods uses a small population of models, repeating the following three steps:</p>
 <ul class="simple">
@@ -346,13 +347,14 @@ This methods uses a small population of models, repeating the following three st
 <li><p>improve their boundary profiles</p></li>
 <li><p>breed them to keep the best models and generate new ones</p></li>
 </ul>
+<p>It finally outputs the best model it found.</p>
 <section id="general-options">
 <h5>General options<a class="headerlink" href="#general-options" title="Permalink to this heading">¶</a></h5>
 <p>The size of that population is controlled by the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.models-count</span></code> option.
 Finding the optimal size is a difficult problem.
-<em>lincs</em> uses a parrallel implementation of the WPB loop,
+<em>lincs</em> uses a parallel implementation of the WPB loop,
 so we recommend you set it to the number of physical CPU cores available on you machine.
-Or maybe a small multiple of that numer.</p>
+Or maybe a small multiple of that number.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.verbose</span></code> option can be used to make <em>lincs</em> display information about the progress of the learning.</p>
 </section>
 <section id="termination">
@@ -370,7 +372,7 @@ Or maybe a small multiple of that numer.</p>
 <h5>“Weights” step<a class="headerlink" href="#weights-step" title="Permalink to this heading">¶</a></h5>
 <p>Using <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.weights-strategy</span> <span class="pre">linear-program</span></code> (the default and only value for that option),
 the “weights” step is actually an optimization, not just an improvement.
-That strategy uses a linear program, and lets you choose amongst several solvers with the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.linear-program.solver</span></code> option.</p>
+That strategy uses a linear program, and lets you choose among several solvers with the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.linear-program.solver</span></code> option.</p>
 <p>By default, it uses GLOP, which is a part of <a class="reference external" href="https://developers.google.com/optimization/">Google’s OR-Tools</a>.</p>
 <p>Here is an example using the <a class="reference external" href="https://www.alglib.net/">Alglib</a> solver:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
@@ -383,10 +385,10 @@ That strategy uses a linear program, and lets you choose amongst several solvers
 <h5>“Profiles” step<a class="headerlink" href="#profiles-step" title="Permalink to this heading">¶</a></h5>
 <p>The “profiles” step currently only has one strategy (<code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.profiles-strategy</span> <span class="pre">accuracy-heuristic</span></code>),
 which is controlled by two options.</p>
-<p>The first one is a random seed for reproductibility (<code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed</span></code>).
+<p>The first one is a random seed for reproducibility (<code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed</span></code>).
 The remarks about randomness above also apply here.</p>
 <p>The second option lets you use your CUDA-capable GPU for increased performance: <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.accuracy-heuristic.processor</span></code>.
-Note that <em>lincs</em> can be built without GPU support.
+Note that <em>lincs</em> may be built without GPU support.
 This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">info</span> <span class="pre">has-gpu</span></code>.</p>
@@ -395,12 +397,12 @@ You can check with <code class="docutils literal notranslate"><span class="pre">
 <span class="w">  </span>--mrsort.weights-profiles-breed.accuracy-heuristic.processor<span class="w"> </span>gpu
 </pre></div>
 </div>
-<p>It should produce the exact same model as when using the CPU;
+<p>If you specify the random seed, it will produce the exact same model as when using the CPU;
 this is an important feature of <em>lincs</em>, that the GPU code has the same behavior as the CPU code.</p>
 </section>
 <section id="breed-step">
 <h5>“Breed” step<a class="headerlink" href="#breed-step" title="Permalink to this heading">¶</a></h5>
-<p>The “breed” step currently has only one strategy, that simply reinitializes the least accurate models to random ones picked according to the only <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.initialization-strategy</span></code> currently available.
+<p>The “breed” step currently has only one strategy, that simply re-initializes the least accurate models to random ones picked according to the only <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.initialization-strategy</span></code> currently available.
 Not much to be said here, but we anticipe this could evolve.</p>
 <p>The portion of the population that is reinitialized is controlled by the <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion</span></code> option.</p>
 </section>
@@ -408,7 +410,7 @@ Not much to be said here, but we anticipe this could evolve.</p>
 <section id="sat-based-strategies">
 <h4>SAT-based strategies<a class="headerlink" href="#sat-based-strategies" title="Permalink to this heading">¶</a></h4>
 <p>You can also use entirely different approaches using SAT and max-SAT solvers.
-The tradoffs offered by these methods are highligted in our <a class="reference internal" href="conceptual-overview.html#overview-learning-methods"><span class="std std-ref">conceptual overview</span></a>.</p>
+The tradeoffs offered by these methods are highlighted in our <a class="reference internal" href="conceptual-overview.html#overview-learning-methods"><span class="std std-ref">conceptual overview</span></a>.</p>
 <p>These strategies let you learn <span class="math notranslate nohighlight">\(U^c \textsf{-} NCS\)</span> models, so you have to start with <code class="docutils literal notranslate"><span class="pre">--model-type</span> <span class="pre">ucncs</span></code>.
 Here are two examples:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span><span class="se">\</span>
@@ -420,7 +422,7 @@ Here are two examples:</p>
 <span class="w">  </span>--model-type<span class="w"> </span>ucncs<span class="w"> </span>--ucncs.strategy<span class="w"> </span>max-sat-by-separation
 </pre></div>
 </div>
-<p>They should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
+<p>They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 0.10.2): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>

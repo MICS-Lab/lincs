@@ -391,24 +391,25 @@ Then, each model type has its own set of options that are valid only for this ty
 and this pattern goes on to form a tree of options that make sense only on a specific branch.
 
 To capture this reality in a somewhat simple but consistent way, *lincs* uses a dot-separated naming scheme for its options:
-option ``--mrsort.strategy`` is a sub-option of ``--model-type mrsort``
+option ``--mrsort.strategy`` is a sub-option of ``--model-type mrsort``.
+It can accept the value ``weights-profiles-breed``,
 and ``--mrsort.weights-profiles-breed.target-accuracy`` is a sub-option of ``--mrsort.strategy weights-profiles-breed``.
 The ``model-type`` and ``strategy`` parts are not repeated to reduce verbosity a bit, but this relies on our ability to avoid naming collisions.
 Each sub-option name is formed by joining with dots (``.``) the values of the options it depends on.
 
 This pattern is arguably quite verbose, but it's explicit and relatively easy to extend in a backward-compatible manner.
 
-Note that you already saw an example of this scheme above, at a smaller scale, in ``lincs generate classification-model``,
-with its ``--mrsort.fixed-weight-sum`` option being a sub-option of ``--model-type mrsort``.
+Note that you've already seen an example of this scheme above, at a smaller scale, in ``lincs generate classification-model``,
+where ``--mrsort.fixed-weight-sum`` is a sub-option of ``--model-type mrsort``.
 
 Strategies
 ----------
 
 Some problems can be solved using different methods.
 In software, these methods are often called `"strategies" <https://en.wikipedia.org/wiki/Strategy_pattern>`_.
-``lincs learn classification-model`` accepts several options named like ``--...strategy`` to let you choose amongst different methods for a given part of the learning.
+``lincs learn classification-model`` accepts several options named like ``--...strategy`` to let you choose among different methods for a given part of the learning.
 
-A few of them let you choose amongst only one strategy... but we expect it will change when we implement more strategies.
+A few of them let you choose among only one strategy... but we expect it will change when we implement more.
 
 Available learning (sub-)strategies
 -----------------------------------
@@ -416,8 +417,8 @@ Available learning (sub-)strategies
 Examples in this section will reuse the ``problem.yml`` and ``learning-set.csv`` files you have generated in our :doc:`"Get started" guide <get-started>`;
 please make sure you have them in your current directory.
 
-Weights, profiles, breed
-^^^^^^^^^^^^^^^^^^^^^^^^
+Weights, profiles, breed (WPB)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``--mrsort.strategy weights-profiles-breed`` strategy is the default for MR-Sort models.
 This methods uses a small population of models, repeating the following three steps:
@@ -426,14 +427,16 @@ This methods uses a small population of models, repeating the following three st
 - improve their boundary profiles
 - breed them to keep the best models and generate new ones
 
+It finally outputs the best model it found.
+
 General options
 ...............
 
 The size of that population is controlled by the ``--mrsort.weights-profiles-breed.models-count`` option.
 Finding the optimal size is a difficult problem.
-*lincs* uses a parrallel implementation of the WPB loop,
+*lincs* uses a parallel implementation of the WPB loop,
 so we recommend you set it to the number of physical CPU cores available on you machine.
-Or maybe a small multiple of that numer.
+Or maybe a small multiple of that number.
 
 The ``--mrsort.weights-profiles-breed.verbose`` option can be used to make *lincs* display information about the progress of the learning.
 
@@ -455,7 +458,7 @@ Then, each step is controlled by its own set of options.
 
 Using ``--mrsort.weights-profiles-breed.weights-strategy linear-program`` (the default and only value for that option),
 the "weights" step is actually an optimization, not just an improvement.
-That strategy uses a linear program, and lets you choose amongst several solvers with the ``--mrsort.weights-profiles-breed.linear-program.solver`` option.
+That strategy uses a linear program, and lets you choose among several solvers with the ``--mrsort.weights-profiles-breed.linear-program.solver`` option.
 
 By default, it uses GLOP, which is a part of `Google's OR-Tools <https://developers.google.com/optimization/>`_.
 
@@ -509,11 +512,11 @@ It should produce a very similar model, with slight numerical differences.
 The "profiles" step currently only has one strategy (``--mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic``),
 which is controlled by two options.
 
-The first one is a random seed for reproductibility (``--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed``).
+The first one is a random seed for reproducibility (``--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed``).
 The remarks about randomness above also apply here.
 
 The second option lets you use your CUDA-capable GPU for increased performance: ``--mrsort.weights-profiles-breed.accuracy-heuristic.processor``.
-Note that *lincs* can be built without GPU support.
+Note that *lincs* may be built without GPU support.
 This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with ``lincs info has-gpu``.
@@ -544,13 +547,13 @@ Here is an example::
 
 .. STOP
 
-It should produce the exact same model as when using the CPU;
+If you specify the random seed, it will produce the exact same model as when using the CPU;
 this is an important feature of *lincs*, that the GPU code has the same behavior as the CPU code.
 
 "Breed" step
 ............
 
-The "breed" step currently has only one strategy, that simply reinitializes the least accurate models to random ones picked according to the only ``--mrsort.weights-profiles-breed.initialization-strategy`` currently available.
+The "breed" step currently has only one strategy, that simply re-initializes the least accurate models to random ones picked according to the only ``--mrsort.weights-profiles-breed.initialization-strategy`` currently available.
 Not much to be said here, but we anticipe this could evolve.
 
 The portion of the population that is reinitialized is controlled by the ``--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion`` option.
@@ -569,7 +572,7 @@ SAT-based strategies
     cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
 
 You can also use entirely different approaches using SAT and max-SAT solvers.
-The tradoffs offered by these methods are highligted in our :ref:`conceptual overview <overview-learning-methods>`.
+The tradeoffs offered by these methods are highlighted in our :ref:`conceptual overview <overview-learning-methods>`.
 
 These strategies let you learn :math:`U^c \textsf{-} NCS` models, so you have to start with ``--model-type ucncs``.
 Here are two examples::
@@ -596,7 +599,7 @@ And::
 
 .. START sat-learnings/expected-sat-by-coalitions-trained-model.yml
 
-They should produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
+They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
     # Reproduction command (with lincs version 0.10.2): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model
