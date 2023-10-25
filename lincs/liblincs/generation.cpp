@@ -199,7 +199,7 @@ Alternatives generate_uniform_classified_alternatives(
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
 
-  // We don't do anything to ensure homogeneous repartition amongst categories.
+  // We don't do anything to ensure homogeneous repartition among categories.
   // We just generate random profiles uniformly in [min, max] for each criterion
   std::vector<std::uniform_real_distribution<float>> values_distributions;
   values_distributions.reserve(criteria_count);
