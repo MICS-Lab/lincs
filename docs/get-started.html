@@ -130,9 +130,7 @@ The concept of “classification problem” is described in our <a class="refere
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
 </pre></div>
 </div>
-<p>Note that <em>lincs</em> uses <a class="reference external" href="https://yaml.org/spec/1.2-old/spec.html#id2765878">YAML anchors and references</a> to avoid repeating the same sufficient coalitions again and again.
-All <code class="docutils literal notranslate"><span class="pre">*coalitions</span></code> means is “use the same value as the <code class="docutils literal notranslate"><span class="pre">&amp;coalitions</span></code> anchor”.</p>
-<p>The file format is documented in our <a class="reference internal" href="user-guide.html#user-file-ncs-model"><span class="std std-ref">user guide</span></a>.</p>
+<p>The file format, including the <code class="docutils literal notranslate"><span class="pre">*coalitions</span></code> YAML reference, is documented in our <a class="reference internal" href="user-guide.html#user-file-ncs-model"><span class="std std-ref">user guide</span></a>.</p>
 <p>You can visualize it using:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>model.yml<span class="w"> </span>model.png
 </pre></div>

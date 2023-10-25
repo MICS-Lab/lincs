@@ -76,8 +76,8 @@ We expect this could evolve to also support criteria with integer or explicitly 
 <p>Then, the <code class="docutils literal notranslate"><span class="pre">category_correlation</span></code> key describe what makes “good values” for this criterion.
 If it is <code class="docutils literal notranslate"><span class="pre">growing</span></code> (resp. <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this correlation comes from expert knowledge about the structure of the problem,
-and has nothing to do with learning a model for this problem.
-We expect this could evolve to also support criteria with single-peaked correlation,
+and will be used as an absolute truth when learning a model for this problem.
+We expect the supported correlations could evolve to also support criteria with single-peaked correlation,
 where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
 We also expect this could evolve to support criteria with unknown correlation,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.</p>
@@ -165,10 +165,11 @@ All <code class="docutils literal notranslate"><span class="pre">*coalitions</sp
 <p>Each item in the list has a first attribute, <code class="docutils literal notranslate"><span class="pre">kind</span></code>, that tells the method used to determine the sufficient coalitions.</p>
 <p>If its <code class="docutils literal notranslate"><span class="pre">kind</span></code> is <code class="docutils literal notranslate"><span class="pre">weights</span></code>, then the sufficient coalitions are computed using an MR-sort approach,
 as described in our <a class="reference internal" href="conceptual-overview.html#overview-mrsort"><span class="std std-ref">conceptual overview</span></a>.
-In that case, the <code class="docutils literal notranslate"><span class="pre">criterion_weights</span></code> attribute is a list of the criteria’s weights.</p>
+In that case, the <code class="docutils literal notranslate"><span class="pre">criterion_weights</span></code> attribute is a list of the criteria’s weights.
+It must contain exactly one element per criterion.</p>
 <p>If its <code class="docutils literal notranslate"><span class="pre">kind</span></code> is <code class="docutils literal notranslate"><span class="pre">roots</span></code>, then the sufficient coalitions are listed explicitly as the roots of the upset they form.
 This is the generic case for NCS models.
-In that case, the <code class="docutils literal notranslate"><span class="pre">upset_roots</span></code> attribute is a list of roots, where each root is the list of the indices of the criteria in that root.</p>
+In that case, the <code class="docutils literal notranslate"><span class="pre">upset_roots</span></code> attribute is a list of roots, where each root is the list of the zero-based indices of the criteria in that root.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Sufficient coalitions <code class="docutils literal notranslate"><span class="pre">kind</span></code></p></th>
@@ -196,10 +197,10 @@ and using different coalitions for the two boundaries (so, no YAML anchor):</p>
 <span class="nt">sufficient_coalitions</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
 <span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
 <span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 </section>
