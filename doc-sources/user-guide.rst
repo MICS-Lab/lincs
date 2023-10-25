@@ -80,8 +80,8 @@ We expect this could evolve to also support criteria with integer or explicitly 
 Then, the ``category_correlation`` key describe what makes "good values" for this criterion.
 If it is ``growing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this correlation comes from expert knowledge about the structure of the problem,
-and has nothing to do with learning a model for this problem.
-We expect this could evolve to also support criteria with single-peaked correlation,
+and will be used as an absolute truth when learning a model for this problem.
+We expect the supported correlations could evolve to also support criteria with single-peaked correlation,
 where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
 We also expect this could evolve to support criteria with unknown correlation,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.
@@ -182,10 +182,11 @@ Each item in the list has a first attribute, ``kind``, that tells the method use
 If its ``kind`` is ``weights``, then the sufficient coalitions are computed using an MR-sort approach,
 as described in our :ref:`conceptual overview <overview-mrsort>`.
 In that case, the ``criterion_weights`` attribute is a list of the criteria's weights.
+It must contain exactly one element per criterion.
 
 If its ``kind`` is ``roots``, then the sufficient coalitions are listed explicitly as the roots of the upset they form.
 This is the generic case for NCS models.
-In that case, the ``upset_roots`` attribute is a list of roots, where each root is the list of the indices of the criteria in that root.
+In that case, the ``upset_roots`` attribute is a list of roots, where each root is the list of the zero-based indices of the criteria in that root.
 
 ==============================  ================================
 Sufficient coalitions ``kind``  Sufficient coalitions attributes
@@ -209,10 +210,10 @@ and using different coalitions for the two boundaries (so, no YAML anchor)::
     sufficient_coalitions:
       - kind: roots
         upset_roots:
-          - [2]
+          - [1]
       - kind: roots
         upset_roots:
-          - [1, 2]
+          - [0, 1]
 
 .. STOP
 

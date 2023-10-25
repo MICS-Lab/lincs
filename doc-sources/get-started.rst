@@ -162,10 +162,7 @@ It should look like::
 
 .. STOP
 
-Note that *lincs* uses `YAML anchors and references <https://yaml.org/spec/1.2-old/spec.html#id2765878>`_ to avoid repeating the same sufficient coalitions again and again.
-All ``*coalitions`` means is "use the same value as the ``&coalitions`` anchor".
-
-The file format is documented in our :ref:`user guide <user-file-ncs-model>`.
+The file format, including the ``*coalitions`` YAML reference, is documented in our :ref:`user guide <user-file-ncs-model>`.
 
 .. EXTEND command-line-example/run.sh
     diff expected-model.yml model.yml
