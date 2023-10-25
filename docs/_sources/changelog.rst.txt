@@ -4,7 +4,7 @@
 Changelog
 =========
 
-Versions 0.10.0 to 0.10.2
+Versions 0.10.0 to 0.10.3
 =========================
 
 This is the first release candidate for version 1.0.0.
