@@ -48,7 +48,14 @@ struct convert<lincs::Criterion> {
   static bool decode(const Node& node, lincs::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
     criterion.value_type = *magic_enum::enum_cast<lincs::Criterion::ValueType>(node["value_type"].as<std::string>());
-    criterion.preference_direction = *magic_enum::enum_cast<lincs::Criterion::PreferenceDirection>(node["preference_direction"].as<std::string>());
+    const std::string preference_direction = node["preference_direction"].as<std::string>();
+    if (preference_direction == "isotone") {
+      criterion.preference_direction = lincs::Criterion::PreferenceDirection::increasing;
+    } else if (preference_direction == "antitone") {
+      criterion.preference_direction = lincs::Criterion::PreferenceDirection::decreasing;
+    } else {
+      criterion.preference_direction = *magic_enum::enum_cast<lincs::Criterion::PreferenceDirection>(preference_direction);
+    }
     // This handles "-.inf" and ".inf" for infinite values, which are produced by the encoder
     criterion.min_value = node["min_value"].as<float>();
     criterion.max_value = node["max_value"].as<float>();
@@ -60,8 +67,6 @@ struct convert<lincs::Criterion> {
 }  // namespace YAML
 
 namespace lincs {
-
-// @todo(Feature, v1) Support synonyms for preference_direction: isotone(=increasing) and antitone(=decreasing)
 
 const std::string Problem::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
 title: Classification problem
@@ -88,7 +93,7 @@ properties:
         preference_direction:
           description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
           type: string
-          enum: [increasing, decreasing]
+          enum: [increasing, isotone, decreasing, antitone]
         min_value:
           type: number
         max_value:
@@ -183,6 +188,64 @@ categories:
   Problem problem2 = Problem::load(ss);
   CHECK(problem2.criteria == problem.criteria);
   CHECK(problem2.categories == problem.categories);
+}
+
+TEST_CASE("isotone and antitone dump as increasing and decreasing") {
+  Problem problem{
+    {
+      {"Isotone criterion", Criterion::ValueType::real, Criterion::PreferenceDirection::isotone, 0, 1},
+      {"Antitone criterion", Criterion::ValueType::real, Criterion::PreferenceDirection::antitone, 0, 1},
+    },
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::stringstream ss;
+  problem.dump(ss);
+
+  CHECK(ss.str() == R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Isotone criterion
+    value_type: real
+    preference_direction: increasing
+    min_value: 0
+    max_value: 1
+  - name: Antitone criterion
+    value_type: real
+    preference_direction: decreasing
+    min_value: 0
+    max_value: 1
+categories:
+  - name: Category 1
+  - name: Category 2
+)");
+}
+
+TEST_CASE("isotone and antitone parse as increasing and decreasing") {
+  std::istringstream iss(R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Isotone criterion
+    value_type: real
+    preference_direction: isotone
+    min_value: 0
+    max_value: 1
+  - name: Antitone criterion
+    value_type: real
+    preference_direction: antitone
+    min_value: 0
+    max_value: 1
+categories:
+  - name: Category 1
+  - name: Category 2
+)");
+
+  Problem problem = Problem::load(iss);
+
+  CHECK(problem.criteria[0].preference_direction == Criterion::PreferenceDirection::isotone);
+  CHECK(problem.criteria[0].preference_direction == Criterion::PreferenceDirection::increasing);
+  CHECK(problem.criteria[1].preference_direction == Criterion::PreferenceDirection::antitone);
+  CHECK(problem.criteria[1].preference_direction == Criterion::PreferenceDirection::decreasing);
 }
 
 TEST_CASE("dumping then loading problem preserves data - infinite min/max") {

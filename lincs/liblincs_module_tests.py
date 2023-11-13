@@ -86,6 +86,10 @@ class ProblemTestCase(unittest.TestCase):
         problem.categories[:] = [Category("Category name")]
         self.assertEqual(len(problem.categories), 1)
 
+    def test_iso_antitone(self):
+        self.assertEqual(Criterion.PreferenceDirection.isotone, Criterion.PreferenceDirection.increasing)
+        self.assertEqual(Criterion.PreferenceDirection.antitone, Criterion.PreferenceDirection.decreasing)
+
 
 class ModelTestCase(unittest.TestCase):
     def test_init_empty(self):

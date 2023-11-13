@@ -247,7 +247,10 @@ BOOST_PYTHON_MODULE(liblincs) {
   // Note that nested things are at global scope as well. This is not wanted, not used, but doesn't hurt
   // because 'liblincs' is only partially imported into module 'lincs' (see '__init__.py').
   criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType");
-  criterion_class.attr("PreferenceDirection") = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection");
+  auto preference_direction_enum = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection");
+  preference_direction_enum.value("isotone", lincs::Criterion::PreferenceDirection::isotone);
+  preference_direction_enum.value("antitone", lincs::Criterion::PreferenceDirection::antitone);
+  criterion_class.attr("PreferenceDirection") = preference_direction_enum;
 
   bp::class_<lincs::Category>("Category", bp::init<std::string>())
     .def_readwrite("name", &lincs::Category::name)

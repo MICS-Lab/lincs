@@ -22,7 +22,9 @@ struct Criterion {
 
   enum class PreferenceDirection {
     increasing,
+    isotone=increasing,
     decreasing,
+    antitone=decreasing,
     // @todo(Feature, later) Add single-peaked
     // @todo(Feature, much later) Add unknown
   } preference_direction;

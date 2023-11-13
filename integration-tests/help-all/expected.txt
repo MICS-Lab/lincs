@@ -493,6 +493,10 @@ lincs.Criterion.PreferenceDirection.increasing: value
 -----------------------------------------------------
 lincs.Criterion.PreferenceDirection.decreasing: value
 -----------------------------------------------------
+lincs.Criterion.PreferenceDirection.isotone: value
+--------------------------------------------------
+lincs.Criterion.PreferenceDirection.antitone: value
+---------------------------------------------------
 lincs.Criterion.ValueType: type
 -------------------------------
 
