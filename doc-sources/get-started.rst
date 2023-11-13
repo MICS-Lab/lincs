@@ -11,7 +11,8 @@ Get *lincs*
 We provide binary wheels for *lincs* on Linux, Windows and macOS for x86_64 processors,
 so running ``pip install lincs --only-binary lincs`` should be enough on those systems.
 
-@todo(Doc, v1) Mention virtualenv, pipx and the "Externally Managed" error message.
+We generally recommend you use ``pip`` in a virtual environment (``python -m venv``) or directly ``pipx`` to install any package, including *lincs*.
+Recent Ubuntu systems will even enforce that, by `refusing to install PyPI packages <https://itsfoss.com/externally-managed-environment/>`_ in the "externally managed" default environment.
 
 If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
