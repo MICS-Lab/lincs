@@ -62,7 +62,7 @@ void check_exact_learning(
   if (!skip_long) {
     lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
     for (auto& criterion : problem.criteria) {
-      criterion.category_correlation = lincs::Criterion::CategoryCorrelation::decreasing;
+      criterion.preference_direction = lincs::Criterion::PreferenceDirection::decreasing;
     }
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
@@ -122,7 +122,7 @@ void check_non_exact_learning(
   if (!skip_long) {
     lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
     for (auto& criterion : problem.criteria) {
-      criterion.category_correlation = lincs::Criterion::CategoryCorrelation::decreasing;
+      criterion.preference_direction = lincs::Criterion::PreferenceDirection::decreasing;
     }
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {

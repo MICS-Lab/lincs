@@ -73,9 +73,9 @@ Options:
   --denormalized-min-max       Generate criteria with random denormalized min
                                and max values. (By default, min and max value
                                are 0 and 1)
-  --allow-decreasing-criteria  Allow criteria to have decreasing correlation
-                               to categories. (By default, all criteria have
-                               growing correlation)
+  --allow-decreasing-criteria  Allow criteria to have decreasing preference
+                               direction. (By default, all criteria have
+                               growing preference direction)
   --output-problem FILENAME    Write generated problem to this file instead of
                                standard output.
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
@@ -486,12 +486,12 @@ lincs.Category.name: property
 lincs.Criterion: class
 ----------------------
 
-lincs.Criterion.CategoryCorrelation: type
+lincs.Criterion.PreferenceDirection: type
 -----------------------------------------
 
-lincs.Criterion.CategoryCorrelation.growing: value
+lincs.Criterion.PreferenceDirection.growing: value
 --------------------------------------------------
-lincs.Criterion.CategoryCorrelation.decreasing: value
+lincs.Criterion.PreferenceDirection.decreasing: value
 -----------------------------------------------------
 lincs.Criterion.ValueType: type
 -------------------------------
@@ -501,13 +501,10 @@ lincs.Criterion.ValueType.real: value
 lincs.Criterion.__init__: function
 ----------------------------------
 
-__init__( (object)arg1, (str)arg2, (ValueType)arg3, (CategoryCorrelation)arg4, (float)arg5, (float)arg6) -> None :
+__init__( (object)arg1, (str)arg2, (ValueType)arg3, (PreferenceDirection)arg4, (float)arg5, (float)arg6) -> None :
 
     C++ signature :
-        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Criterion::ValueType,lincs::Criterion::CategoryCorrelation,float,float)
-
-lincs.Criterion.category_correlation: property
-----------------------------------------------
+        void __init__(_object*,std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >,lincs::Criterion::ValueType,lincs::Criterion::PreferenceDirection,float,float)
 
 lincs.Criterion.max_value: property
 -----------------------------------
@@ -517,6 +514,9 @@ lincs.Criterion.min_value: property
 
 lincs.Criterion.name: property
 ------------------------------
+
+lincs.Criterion.preference_direction: property
+----------------------------------------------
 
 lincs.Criterion.value_type: property
 ------------------------------------

@@ -201,8 +201,8 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     ranks.resize(learning_set.criteria_count);
     values.resize(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-      const bool is_growing = learning_set.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing;
-      assert(is_growing || learning_set.problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing);
+      const bool is_growing = learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::growing;
+      assert(is_growing || learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
       const float best_value = is_growing ? learning_set.problem.criteria[criterion_index].max_value : learning_set.problem.criteria[criterion_index].min_value;
       const float worst_value = is_growing ? learning_set.problem.criteria[criterion_index].min_value : learning_set.problem.criteria[criterion_index].max_value;
 

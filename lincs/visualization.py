@@ -58,7 +58,7 @@ def normalize_profile(criteria, ys):
 
 def normalize_value(criterion, y):
     y = (y - criterion.min_value) / (criterion.max_value - criterion.min_value)
-    if criterion.category_correlation == criterion.CategoryCorrelation.decreasing:
+    if criterion.preference_direction == criterion.PreferenceDirection.decreasing:
         return 1 - y
     else:
         return y

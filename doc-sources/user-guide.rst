@@ -48,12 +48,12 @@ Here is an example of a problem file::
     criteria:
       - name: Criterion 1
         value_type: real
-        category_correlation: growing
+        preference_direction: growing
         min_value: 0
         max_value: 20
       - name: Criterion 2
         value_type: real
-        category_correlation: decreasing
+        preference_direction: decreasing
         min_value: -5
         max_value: 5
     categories:
@@ -77,13 +77,13 @@ Each criterion has a ``name``.
 Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
 
-Then, the ``category_correlation`` key describe what makes "good values" for this criterion.
+Then, the ``preference_direction`` key describe what makes "good values" for this criterion.
 If it is ``growing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
-Note that this correlation comes from expert knowledge about the structure of the problem,
+Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
-We expect the supported correlations could evolve to also support criteria with single-peaked correlation,
+We expect the supported preference directions could evolve to also support single-peaked criteria,
 where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
-We also expect this could evolve to support criteria with unknown correlation,
+We also expect this could evolve to support criteria with unknown preference direction,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.
 
 Finally, for criteria with numerical ``value_type`` (currently all of them),
@@ -149,7 +149,7 @@ For such a criterion, the determination of the accepted values will require two 
 So our file format takes an transposed approach and focusses on criteria instead of profiles:
 for each criterion, it describes the method used to accept values at different category levels.
 
-For current criteria (with ``growing`` or ``decreasing`` correlation), the method is always ``kind: thresholds``,
+For current criteria (with ``growing`` or ``decreasing`` preference direction), the method is always ``kind: thresholds``,
 and the ``thresholds`` attribute lists the successive values required to enter an upper category.
 It must have as many elements as there are boundaries between categories, *i.e.* as there are categories minus one.
 It's always sorted, in increasing order for ``growing`` criteria and in decreasing order for ``decreasing`` criteria.
@@ -157,11 +157,11 @@ It's always sorted, in increasing order for ``growing`` criteria and in decreasi
 Note that this list is not a profile: it does not describe the limits between categories.
 The matrix made of these lists is the transposed of the matrix made of the profiles.
 
-When we support criteria with single-peaked or unknown correlation,
+When we support single-peaked criteria or criteria with unknown preference direction,
 we'll introduce other ``kinds`` of accepted values with new attributes instead of ``thresholds``.
 
 ==================================  ========================  ==========================
-Criterion ``category_correlation``  Accepted values ``kind``  Accepted values attributes
+Criterion ``preference_direction``  Accepted values ``kind``  Accepted values attributes
 ==================================  ========================  ==========================
 ``growing``                         ``thresholds``            ``thresholds``
 ``decreasing``                      ``thresholds``            ``thresholds``
@@ -312,7 +312,7 @@ The ``--help`` option on the command-line and our :ref:`reference documentation 
 Most notably:
 
 - ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
-- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``category_corelation`` of each criterion between ``growing`` and ``decreasing``. By default, all criteria have ``growing`` correlation.
+- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``growing`` and ``decreasing``. By default, all criteria have ``growing`` preference direction.
 
 Generating a model
 ------------------

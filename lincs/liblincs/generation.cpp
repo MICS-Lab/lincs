@@ -37,7 +37,7 @@ Problem generate_classification_problem(
 
   std::mt19937 gen(random_seed);
   std::uniform_real_distribution<float> min_max_distribution(-100, 100);
-  std::uniform_int_distribution<unsigned> category_correlation_distribution(0, allow_decreasing_criteria ? 1 : 0);
+  std::uniform_int_distribution<unsigned> preference_direction_distribution(0, allow_decreasing_criteria ? 1 : 0);
 
   std::vector<Criterion> criteria;
   criteria.reserve(criteria_count);
@@ -52,15 +52,15 @@ Problem generate_classification_problem(
       }
     }
 
-    const Criterion::CategoryCorrelation correlation =
-      category_correlation_distribution(gen) == 0 ?
-      Criterion::CategoryCorrelation::growing :
-      Criterion::CategoryCorrelation::decreasing;
+    const Criterion::PreferenceDirection direction =
+      preference_direction_distribution(gen) == 0 ?
+      Criterion::PreferenceDirection::growing :
+      Criterion::PreferenceDirection::decreasing;
 
     criteria.emplace_back(
       "Criterion " + std::to_string(criterion_index + 1),
       Criterion::ValueType::real,
-      correlation,
+      direction,
       min_value, max_value
     );
   }
@@ -96,8 +96,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
     std::generate(
       column.begin(), column.end(),
       [&values_distribution, &gen]() { return values_distribution(gen); });
-    // ... sort it according to the criterion's correlation to categories...
-    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.category_correlation, right, left); });
+    // ... sort it according to the criterion's preference direction...
+    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.preference_direction, right, left); });
     // ... and assign that column across all profiles.
     for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
       profiles[profile_index][criterion_index] = column[profile_index];
@@ -488,7 +488,7 @@ TEST_CASE("Decreasing criterion") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 10, 44);
 
-  CHECK(problem.criteria[0].category_correlation == Criterion::CategoryCorrelation::decreasing);
+  CHECK(problem.criteria[0].preference_direction == Criterion::PreferenceDirection::decreasing);
   // Profiles are in decreasing order
   CHECK(model.boundaries[0].profile[0] == doctest::Approx(0.790612));
   CHECK(model.boundaries[1].profile[0] == doctest::Approx(0.377049));

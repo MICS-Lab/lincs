@@ -4,6 +4,8 @@
 Changelog
 =========
 
+(In versions below, the term "category correlation" was used instead of "preference direction".)
+
 Versions 0.10.0 to 0.10.3
 =========================
 

@@ -136,7 +136,7 @@ def help_all():
             return
 
         if '.'.join(path) in [
-            "lincs.Criterion.CategoryCorrelation",
+            "lincs.Criterion.PreferenceDirection",
             "lincs.Criterion.ValueType",
             "lincs.SufficientCoalitions.Kind",
         ]:
@@ -210,7 +210,7 @@ def generate():
 @click.option(
     "--allow-decreasing-criteria",
     is_flag=True,
-    help="Allow criteria to have decreasing correlation to categories. (By default, all criteria have growing correlation)",
+    help="Allow criteria to have decreasing preference direction. (By default, all criteria have growing preference direction)",
 )
 @click.option(
     "--output-problem",

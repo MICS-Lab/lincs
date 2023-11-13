@@ -20,12 +20,12 @@ struct Criterion {
     // @todo(Feature, later) Add enumerated
   } value_type;
 
-  enum class CategoryCorrelation {
+  enum class PreferenceDirection {
     growing,
     decreasing,
     // @todo(Feature, later) Add single-peaked
     // @todo(Feature, much later) Add unknown
-  } category_correlation;
+  } preference_direction;
 
   float min_value;
   float max_value;
@@ -37,13 +37,13 @@ struct Criterion {
   Criterion(
     const std::string& name_,
     ValueType value_type_,
-    CategoryCorrelation category_correlation_,
+    PreferenceDirection preference_direction_,
     float min_value_,
     float max_value_
   ):
     name(name_),
     value_type(value_type_),
-    category_correlation(category_correlation_),
+    preference_direction(preference_direction_),
     min_value(min_value_),
     max_value(max_value_)
   {}
@@ -54,7 +54,7 @@ struct Criterion {
   bool operator==(const Criterion& other) const {
     return name == other.name
       && value_type == other.value_type
-      && category_correlation == other.category_correlation
+      && preference_direction == other.preference_direction
       && min_value == other.min_value
       && max_value == other.max_value;
   }

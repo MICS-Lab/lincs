@@ -23,8 +23,8 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   assignments(alternatives_count, uninitialized)
 {
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const bool is_growing = problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::growing;
-    assert(is_growing || problem.criteria[criterion_index].category_correlation == Criterion::CategoryCorrelation::decreasing);
+    const bool is_growing = problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::growing;
+    assert(is_growing || problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
 
     std::set<float> unique_values;
 

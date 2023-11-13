@@ -300,8 +300,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   auto& learning_data = host_learning_data;
 
   const Criterion& criterion = learning_data.problem.criteria[criterion_index];
-  const bool is_growing = criterion.category_correlation == Criterion::CategoryCorrelation::growing;
-  assert(is_growing || criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
+  const bool is_growing = criterion.preference_direction == Criterion::PreferenceDirection::growing;
+  assert(is_growing || criterion.preference_direction == Criterion::PreferenceDirection::decreasing);
 
   const float lowest_destination_rank =
     profile_index == 0 ?

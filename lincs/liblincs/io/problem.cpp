@@ -37,7 +37,7 @@ struct convert<lincs::Criterion> {
     Node node;
     node["name"] = criterion.name;
     node["value_type"] = std::string(magic_enum::enum_name(criterion.value_type));
-    node["category_correlation"] = std::string(magic_enum::enum_name(criterion.category_correlation));
+    node["preference_direction"] = std::string(magic_enum::enum_name(criterion.preference_direction));
     // This produces "-.inf" and ".inf" for infinite values, which is handled correctly by the decoder
     node["min_value"] = criterion.min_value;
     node["max_value"] = criterion.max_value;
@@ -48,7 +48,7 @@ struct convert<lincs::Criterion> {
   static bool decode(const Node& node, lincs::Criterion& criterion) {
     criterion.name = node["name"].as<std::string>();
     criterion.value_type = *magic_enum::enum_cast<lincs::Criterion::ValueType>(node["value_type"].as<std::string>());
-    criterion.category_correlation = *magic_enum::enum_cast<lincs::Criterion::CategoryCorrelation>(node["category_correlation"].as<std::string>());
+    criterion.preference_direction = *magic_enum::enum_cast<lincs::Criterion::PreferenceDirection>(node["preference_direction"].as<std::string>());
     // This handles "-.inf" and ".inf" for infinite values, which are produced by the encoder
     criterion.min_value = node["min_value"].as<float>();
     criterion.max_value = node["max_value"].as<float>();
@@ -61,7 +61,6 @@ struct convert<lincs::Criterion> {
 
 namespace lincs {
 
-// @todo(Feature, v1) Rename category_correlation to preference_direction
 // @todo(Feature, v1) Let the values for preference_direction be increasing, decreasing, unknown, isotone(=increasing), antitone(=decreasing)
 
 const std::string Problem::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
@@ -86,8 +85,8 @@ properties:
           description: May be extended in the future to handle criteria with integer values, or explicitely enumarated values.
           type: string
           enum: [real]
-        category_correlation:
-          description: May be extended in the future to handle single-peaked criteria, or criteria with unknown correlation.
+        preference_direction:
+          description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
           type: string
           enum: [growing, decreasing]
         min_value:
@@ -97,7 +96,7 @@ properties:
       required:
         - name
         - value_type
-        - category_correlation
+        - preference_direction
         - min_value
         - max_value
       additionalProperties: false
@@ -161,7 +160,7 @@ Problem Problem::load(std::istream& is) {
 
 TEST_CASE("dumping then loading problem preserves data") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -173,7 +172,7 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: real
-    category_correlation: growing
+    preference_direction: growing
     min_value: 0
     max_value: 1
 categories:
@@ -189,7 +188,7 @@ categories:
 TEST_CASE("dumping then loading problem preserves data - infinite min/max") {
   const float inf = std::numeric_limits<float>::infinity();
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::decreasing, -inf, inf}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, -inf, inf}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -201,7 +200,7 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: real
-    category_correlation: decreasing
+    preference_direction: decreasing
     min_value: -.inf
     max_value: .inf
 categories:
@@ -238,7 +237,7 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: invalid
-    category_correlation: growing
+    preference_direction: growing
     min_value: 0
     max_value: 1
 categories:

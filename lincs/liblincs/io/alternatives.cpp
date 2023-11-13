@@ -114,7 +114,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("Validation error - name column") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -130,7 +130,7 @@ TEST_CASE("Validation error - name column") {
 
 TEST_CASE("Validation error - category column") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -146,7 +146,7 @@ TEST_CASE("Validation error - category column") {
 
 TEST_CASE("Validation error - criterion name") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -162,7 +162,7 @@ TEST_CASE("Validation error - criterion name") {
 
 TEST_CASE("Validation error - category name") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::CategoryCorrelation::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 

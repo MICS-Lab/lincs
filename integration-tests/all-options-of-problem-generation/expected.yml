@@ -4,22 +4,22 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: real
-    category_correlation: decreasing
+    preference_direction: decreasing
     min_value: -25.0919724
     max_value: 59.3085938
   - name: Criterion 2
     value_type: real
-    category_correlation: decreasing
+    preference_direction: decreasing
     min_value: -63.3130417
     max_value: 46.3987885
   - name: Criterion 3
     value_type: real
-    category_correlation: growing
+    preference_direction: growing
     min_value: 19.3700333
     max_value: 19.7316971
   - name: Criterion 4
     value_type: real
-    category_correlation: growing
+    preference_direction: growing
     min_value: -68.8010941
     max_value: -10.8334503
 categories:

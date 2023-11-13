@@ -110,12 +110,12 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
         unsigned rank = rank_generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
 
         // Enforce profiles ordering constraint
-        if (criterion.category_correlation == Criterion::CategoryCorrelation::growing) {
+        if (criterion.preference_direction == Criterion::PreferenceDirection::growing) {
           if (profile_index != learning_data.boundaries_count - 1) {
             rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
           }
         } else {
-          assert(criterion.category_correlation == Criterion::CategoryCorrelation::decreasing);
+          assert(criterion.preference_direction == Criterion::PreferenceDirection::decreasing);
           if (profile_index != learning_data.boundaries_count - 1) {
             rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
           }
@@ -133,13 +133,13 @@ TEST_CASE("Initialize profiles - respect ordering") {
       Criterion(
         "Criterion 1",
         Criterion::ValueType::real,
-        Criterion::CategoryCorrelation::growing,
+        Criterion::PreferenceDirection::growing,
         0.0, 1.0
       ),
       Criterion(
         "Criterion 2",
         Criterion::ValueType::real,
-        Criterion::CategoryCorrelation::decreasing,
+        Criterion::PreferenceDirection::decreasing,
         0.0, 1.0
       )
     },
