@@ -266,7 +266,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("dumping then loading model preserves data - weights") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -295,9 +295,9 @@ sufficient_coalitions:
 TEST_CASE("dumping then loading model preserves data - roots") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -333,9 +333,9 @@ sufficient_coalitions:
 TEST_CASE("dumping then loading model preserves data - numerical values requiring more decimal digits") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -372,7 +372,7 @@ sufficient_coalitions:
 TEST_CASE("dumping empty roots uses flow style") {
   Problem problem{
     {
-      {"Criterion", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -402,9 +402,9 @@ sufficient_coalitions:
 TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
   };
@@ -447,9 +447,9 @@ sufficient_coalitions:
 TEST_CASE("dumping doesn't use references when coalitions differ") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
   };
@@ -496,7 +496,7 @@ sufficient_coalitions:
 
 TEST_CASE("Parsing error") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -510,7 +510,7 @@ TEST_CASE("Parsing error") {
 
 TEST_CASE("Validation error - not an object") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -525,7 +525,7 @@ TEST_CASE("Validation error - not an object") {
 
 TEST_CASE("Validation error - missing weights") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -555,7 +555,7 @@ sufficient_coalitions:
 
 TEST_CASE("Validation error - size mismatch - accepted_values") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -579,7 +579,7 @@ sufficient_coalitions:
 
 TEST_CASE("Validation error - size mismatch - sufficient_coalitions") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -603,7 +603,7 @@ sufficient_coalitions:
 
 TEST_CASE("Validation error - size mismatch - thresholds") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 

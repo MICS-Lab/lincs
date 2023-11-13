@@ -21,7 +21,7 @@ struct Criterion {
   } value_type;
 
   enum class PreferenceDirection {
-    growing,
+    increasing,
     decreasing,
     // @todo(Feature, later) Add single-peaked
     // @todo(Feature, much later) Add unknown

@@ -28,11 +28,11 @@ class ProblemTestCase(unittest.TestCase):
             Problem([], [], 0)
 
     def test_init_one_criterion(self):
-        problem = Problem([Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1)], [])
+        problem = Problem([Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)], [])
         self.assertEqual(len(problem.criteria), 1)
         self.assertEqual(problem.criteria[0].name, "Criterion name")
         self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
-        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.growing)
+        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.increasing)
 
     def test_assign_criterion_attributes(self):
         # @todo(Feature, when there are more values in ValueType, later) Use other value in constructor
@@ -41,24 +41,24 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.decreasing)
         problem.criteria[0].name = "Criterion name"
         problem.criteria[0].value_type = Criterion.ValueType.real
-        problem.criteria[0].preference_direction = Criterion.PreferenceDirection.growing
+        problem.criteria[0].preference_direction = Criterion.PreferenceDirection.increasing
         self.assertEqual(problem.criteria[0].name, "Criterion name")
         self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
-        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.growing)
+        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.increasing)
 
     def test_assign_criterion(self):
-        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1)], [])
-        problem.criteria[0] = Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1)
+        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)], [])
+        problem.criteria[0] = Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)
         self.assertEqual(problem.criteria[0].name, "Criterion name")
 
     def test_append_criterion(self):
         problem = Problem([], [])
-        problem.criteria.append(Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1))
+        problem.criteria.append(Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1))
         self.assertEqual(len(problem.criteria), 1)
 
     def test_assign_criteria_slice(self):
         problem = Problem([], [])
-        problem.criteria[:] = [Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1)]
+        problem.criteria[:] = [Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)]
         self.assertEqual(len(problem.criteria), 1)
 
     def test_init_one_category(self):
@@ -117,9 +117,9 @@ class ModelTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories_weights_boundary(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
+                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -146,9 +146,9 @@ class ModelTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories_roots_boundary(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
+                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -203,9 +203,9 @@ class AlternativesTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.growing, 0, 1),
+                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),

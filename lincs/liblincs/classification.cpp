@@ -14,7 +14,7 @@ namespace lincs {
 
 bool better_or_equal(Criterion::PreferenceDirection preference_direction, float lhs, float rhs) {
   switch (preference_direction) {
-    case Criterion::PreferenceDirection::growing:
+    case Criterion::PreferenceDirection::increasing:
       return lhs >= rhs;
     case Criterion::PreferenceDirection::decreasing:
       return lhs <= rhs;
@@ -91,9 +91,9 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
 TEST_CASE("Basic classification using weights") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -131,9 +131,9 @@ TEST_CASE("Basic classification using weights") {
 TEST_CASE("Basic classification using upset roots") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1},
+      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
     },
     {{"Category 1"}, {"Category 2"}},
   };

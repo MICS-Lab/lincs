@@ -171,22 +171,22 @@ The profiles for this model look like this:
     criteria:
       - name: Math
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
       - name: Physics
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
       - name: Literature
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
       - name: History
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
     categories:

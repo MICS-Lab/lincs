@@ -54,7 +54,7 @@ Problem generate_classification_problem(
 
     const Criterion::PreferenceDirection direction =
       preference_direction_distribution(gen) == 0 ?
-      Criterion::PreferenceDirection::growing :
+      Criterion::PreferenceDirection::increasing :
       Criterion::PreferenceDirection::decreasing;
 
     criteria.emplace_back(

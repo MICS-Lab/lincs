@@ -61,7 +61,7 @@ struct convert<lincs::Criterion> {
 
 namespace lincs {
 
-// @todo(Feature, v1) Let the values for preference_direction be increasing, decreasing, unknown, isotone(=increasing), antitone(=decreasing)
+// @todo(Feature, v1) Support synonyms for preference_direction: isotone(=increasing) and antitone(=decreasing)
 
 const std::string Problem::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
 title: Classification problem
@@ -88,7 +88,7 @@ properties:
         preference_direction:
           description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
           type: string
-          enum: [growing, decreasing]
+          enum: [increasing, decreasing]
         min_value:
           type: number
         max_value:
@@ -160,7 +160,7 @@ Problem Problem::load(std::istream& is) {
 
 TEST_CASE("dumping then loading problem preserves data") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::growing, 0, 1}},
+    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -172,7 +172,7 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: real
-    preference_direction: growing
+    preference_direction: increasing
     min_value: 0
     max_value: 1
 categories:
@@ -237,7 +237,7 @@ format_version: 1
 criteria:
   - name: Criterion 1
     value_type: invalid
-    preference_direction: growing
+    preference_direction: increasing
     min_value: 0
     max_value: 1
 categories:

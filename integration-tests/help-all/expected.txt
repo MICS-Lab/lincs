@@ -75,7 +75,7 @@ Options:
                                are 0 and 1)
   --allow-decreasing-criteria  Allow criteria to have decreasing preference
                                direction. (By default, all criteria have
-                               growing preference direction)
+                               increasing preference direction)
   --output-problem FILENAME    Write generated problem to this file instead of
                                standard output.
   --random-seed INTEGER RANGE  The random seed to use.  [x>=0]
@@ -489,8 +489,8 @@ lincs.Criterion: class
 lincs.Criterion.PreferenceDirection: type
 -----------------------------------------
 
-lincs.Criterion.PreferenceDirection.growing: value
---------------------------------------------------
+lincs.Criterion.PreferenceDirection.increasing: value
+-----------------------------------------------------
 lincs.Criterion.PreferenceDirection.decreasing: value
 -----------------------------------------------------
 lincs.Criterion.ValueType: type

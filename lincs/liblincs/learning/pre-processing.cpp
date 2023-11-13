@@ -23,8 +23,8 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   assignments(alternatives_count, uninitialized)
 {
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const bool is_growing = problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::growing;
-    assert(is_growing || problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
+    const bool is_increasing = problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::increasing;
+    assert(is_increasing || problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
 
     std::set<float> unique_values;
 
@@ -37,7 +37,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
     assert(unique_values.size() <= alternatives_count + 2);
     std::map<float, unsigned> value_ranks_for_criterion;
     for (float value : unique_values) {
-      const unsigned value_rank = is_growing ? value_ranks_for_criterion.size() : unique_values.size() - value_ranks_for_criterion.size() - 1;
+      const unsigned value_rank = is_increasing ? value_ranks_for_criterion.size() : unique_values.size() - value_ranks_for_criterion.size() - 1;
       sorted_values[criterion_index][value_rank] = value;
       value_ranks_for_criterion[value] = value_rank;
     }

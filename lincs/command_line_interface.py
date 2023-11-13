@@ -210,7 +210,7 @@ def generate():
 @click.option(
     "--allow-decreasing-criteria",
     is_flag=True,
-    help="Allow criteria to have decreasing preference direction. (By default, all criteria have growing preference direction)",
+    help="Allow criteria to have decreasing preference direction. (By default, all criteria have increasing preference direction)",
 )
 @click.option(
     "--output-problem",

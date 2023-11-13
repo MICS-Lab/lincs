@@ -48,7 +48,7 @@ Here is an example of a problem file::
     criteria:
       - name: Criterion 1
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 20
       - name: Criterion 2
@@ -78,7 +78,7 @@ Currently, criteria can only take floating point values, so their ``value_type``
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
 
 Then, the ``preference_direction`` key describe what makes "good values" for this criterion.
-If it is ``growing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
+If it is ``increasing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
 We expect the supported preference directions could evolve to also support single-peaked criteria,
@@ -149,10 +149,10 @@ For such a criterion, the determination of the accepted values will require two 
 So our file format takes an transposed approach and focusses on criteria instead of profiles:
 for each criterion, it describes the method used to accept values at different category levels.
 
-For current criteria (with ``growing`` or ``decreasing`` preference direction), the method is always ``kind: thresholds``,
+For current criteria (with ``increasing`` or ``decreasing`` preference direction), the method is always ``kind: thresholds``,
 and the ``thresholds`` attribute lists the successive values required to enter an upper category.
 It must have as many elements as there are boundaries between categories, *i.e.* as there are categories minus one.
-It's always sorted, in increasing order for ``growing`` criteria and in decreasing order for ``decreasing`` criteria.
+It's always sorted, in increasing order for ``increasing`` criteria and in decreasing order for ``decreasing`` criteria.
 
 Note that this list is not a profile: it does not describe the limits between categories.
 The matrix made of these lists is the transposed of the matrix made of the profiles.
@@ -163,7 +163,7 @@ we'll introduce other ``kinds`` of accepted values with new attributes instead o
 ==================================  ========================  ==========================
 Criterion ``preference_direction``  Accepted values ``kind``  Accepted values attributes
 ==================================  ========================  ==========================
-``growing``                         ``thresholds``            ``thresholds``
+``increasing``                      ``thresholds``            ``thresholds``
 ``decreasing``                      ``thresholds``            ``thresholds``
 ==================================  ========================  ==========================
 
@@ -312,7 +312,7 @@ The ``--help`` option on the command-line and our :ref:`reference documentation 
 Most notably:
 
 - ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
-- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``growing`` and ``decreasing``. By default, all criteria have ``growing`` preference direction.
+- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``. By default, all criteria have ``increasing`` preference direction.
 
 Generating a model
 ------------------

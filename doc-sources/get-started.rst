@@ -94,22 +94,22 @@ The generated ``problem.yml`` should look like::
     criteria:
       - name: Criterion 1
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
       - name: Criterion 2
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
       - name: Criterion 3
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
       - name: Criterion 4
         value_type: real
-        preference_direction: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 1
     categories:

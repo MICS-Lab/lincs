@@ -238,10 +238,10 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     ranks.resize(learning_set.criteria_count);
     values.resize(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-      const bool is_growing = learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::growing;
-      assert(is_growing || learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
-      const float best_value = is_growing ? learning_set.problem.criteria[criterion_index].max_value : learning_set.problem.criteria[criterion_index].min_value;
-      const float worst_value = is_growing ? learning_set.problem.criteria[criterion_index].min_value : learning_set.problem.criteria[criterion_index].max_value;
+      const bool is_increasing = learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::increasing;
+      assert(is_increasing || learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
+      const float best_value = is_increasing ? learning_set.problem.criteria[criterion_index].max_value : learning_set.problem.criteria[criterion_index].min_value;
+      const float worst_value = is_increasing ? learning_set.problem.criteria[criterion_index].min_value : learning_set.problem.criteria[criterion_index].max_value;
 
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
