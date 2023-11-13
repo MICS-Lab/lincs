@@ -87,7 +87,7 @@ properties:
         name:
           type: string
         value_type:
-          description: May be extended in the future to handle criteria with integer values, or explicitely enumarated values.
+          description: May be extended in the future to handle criteria with integer values, or explicitly enumerated values.
           type: string
           enum: [real]
         preference_direction:
