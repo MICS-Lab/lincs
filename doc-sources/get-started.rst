@@ -11,6 +11,8 @@ Get *lincs*
 We provide binary wheels for *lincs* on Linux, Windows and macOS for x86_64 processors,
 so running ``pip install lincs --only-binary lincs`` should be enough on those systems.
 
+@todo(Doc, v1) Mention virtualenv, pipx and the "Externally Managed" error message.
+
 If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
 If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml>`_ we use to build the binary wheels.

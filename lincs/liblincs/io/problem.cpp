@@ -61,6 +61,9 @@ struct convert<lincs::Criterion> {
 
 namespace lincs {
 
+// @todo(Feature, v1) Rename category_correlation to preference_direction
+// @todo(Feature, v1) Let the values for preference_direction be increasing, decreasing, unknown, isotone(=increasing), antitone(=decreasing)
+
 const std::string Problem::json_schema(R"($schema: https://json-schema.org/draft/2020-12/schema
 title: Classification problem
 type: object
