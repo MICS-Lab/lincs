@@ -67,11 +67,12 @@ Problem generate_classification_problem(
 
   std::vector<Category> categories;
   categories.reserve(categories_count);
-  for (unsigned category_index = 0; category_index != categories_count; ++category_index) {
-    categories.emplace_back(
-      "Category " + std::to_string(category_index + 1)
-    );
+  categories.emplace_back("Worst category");
+  assert(categories_count >= 2);
+  for (unsigned category_index = 1; category_index < categories_count - 1; ++category_index) {
+    categories.emplace_back("Intermediate category " + std::to_string(category_index));
   }
+  categories.emplace_back("Best category");
 
   return Problem{criteria, categories};
 }

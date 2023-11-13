@@ -113,9 +113,9 @@ The generated ``problem.yml`` should look like::
         min_value: 0
         max_value: 1
     ordered_categories:
-      - name: Category 1
-      - name: Category 2
-      - name: Category 3
+      - name: Worst category
+      - name: Intermediate category 1
+      - name: Best category
 
 .. STOP
 
@@ -213,11 +213,11 @@ It should start with something like this, and contain 1000 alternatives::
 
     # Reproduction command (with lincs version 0.10.4-dev): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
-    "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Category 3"
-    "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Category 2"
-    "Alternative 3",0.156018645,0.445832759,0.15599452,0.0999749228,"Category 1"
-    "Alternative 4",0.0580836125,0.4592489,0.866176128,0.333708614,"Category 3"
-    "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Category 2"
+    "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Best category"
+    "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Intermediate category 1"
+    "Alternative 3",0.156018645,0.445832759,0.15599452,0.0999749228,"Worst category"
+    "Alternative 4",0.0580836125,0.4592489,0.866176128,0.333708614,"Best category"
+    "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Intermediate category 1"
 
 .. STOP
 
@@ -335,21 +335,21 @@ There are a few differences between the original testing set and the reclassifie
 That command should show a few alternatives that are not classified the same way by the original and the trained model::
 
     522c522
-    < "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Category 3"
+    < "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Best category"
     ---
-    > "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Category 2"
+    > "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Intermediate category 1"
     615c615
-    < "Alternative 613",0.547554553,0.0552174859,0.690436542,0.511019647,"Category 2"
+    < "Alternative 613",0.547554553,0.0552174859,0.690436542,0.511019647,"Intermediate category 1"
     ---
-    > "Alternative 613",0.547554553,0.0552174859,0.690436542,0.511019647,"Category 1"
+    > "Alternative 613",0.547554553,0.0552174859,0.690436542,0.511019647,"Worst category"
     2596c2596
-    < "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 2"
+    < "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Intermediate category 1"
     ---
-    > "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Category 1"
+    > "Alternative 2594",0.234433308,0.780464768,0.162389532,0.622178912,"Worst category"
     2610c2610
-    < "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Category 2"
+    < "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Intermediate category 1"
     ---
-    > "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Category 1"
+    > "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Worst category"
 
 .. STOP
 

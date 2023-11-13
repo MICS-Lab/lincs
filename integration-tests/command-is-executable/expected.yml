@@ -23,6 +23,6 @@ criteria:
     min_value: 0
     max_value: 1
 ordered_categories:
-  - name: Category 1
-  - name: Category 2
-  - name: Category 3
+  - name: Worst category
+  - name: Intermediate category 1
+  - name: Best category
