@@ -13,7 +13,7 @@ class ProblemTestCase(unittest.TestCase):
     def test_init_empty(self):
         problem = Problem([], [])
         self.assertEqual(len(problem.criteria), 0)
-        self.assertEqual(len(problem.categories), 0)
+        self.assertEqual(len(problem.ordered_categories), 0)
 
     def test_init_wrong_types(self):
         with self.assertRaises(TypeError):
@@ -63,28 +63,28 @@ class ProblemTestCase(unittest.TestCase):
 
     def test_init_one_category(self):
         problem = Problem([], [Category("Category name")])
-        self.assertEqual(len(problem.categories), 1)
-        self.assertEqual(problem.categories[0].name, "Category name")
+        self.assertEqual(len(problem.ordered_categories), 1)
+        self.assertEqual(problem.ordered_categories[0].name, "Category name")
 
     def test_assign_category_attributes(self):
         problem = Problem([], [Category("Wrong category")])
-        problem.categories[0].name = "Category name"
-        self.assertEqual(problem.categories[0].name, "Category name")
+        problem.ordered_categories[0].name = "Category name"
+        self.assertEqual(problem.ordered_categories[0].name, "Category name")
 
     def test_assign_category(self):
         problem = Problem([], [Category("Wrong category")])
-        problem.categories[0] = Category("Category name")
-        self.assertEqual(problem.categories[0].name, "Category name")
+        problem.ordered_categories[0] = Category("Category name")
+        self.assertEqual(problem.ordered_categories[0].name, "Category name")
 
     def test_append_category(self):
         problem = Problem([], [])
-        problem.categories.append(Category("Category name"))
-        self.assertEqual(len(problem.categories), 1)
+        problem.ordered_categories.append(Category("Category name"))
+        self.assertEqual(len(problem.ordered_categories), 1)
 
     def test_assign_categories_slice(self):
         problem = Problem([], [])
-        problem.categories[:] = [Category("Category name")]
-        self.assertEqual(len(problem.categories), 1)
+        problem.ordered_categories[:] = [Category("Category name")]
+        self.assertEqual(len(problem.ordered_categories), 1)
 
     def test_iso_antitone(self):
         self.assertEqual(Criterion.PreferenceDirection.isotone, Criterion.PreferenceDirection.increasing)

@@ -56,7 +56,7 @@ Here is an example of a problem file::
         preference_direction: decreasing
         min_value: -5
         max_value: 5
-    categories:
+    ordered_categories:
       - name: Low
       - name: Medium
       - name: High

@@ -112,7 +112,7 @@ The generated ``problem.yml`` should look like::
         preference_direction: increasing
         min_value: 0
         max_value: 1
-    categories:
+    ordered_categories:
       - name: Category 1
       - name: Category 2
       - name: Category 3

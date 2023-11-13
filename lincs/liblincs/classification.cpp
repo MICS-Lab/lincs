@@ -65,7 +65,7 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
   assert(&(model.problem) == &problem);
   assert(&(alternatives->problem) == &problem);
 
-  const unsigned categories_count = problem.categories.size();
+  const unsigned categories_count = problem.ordered_categories.size();
 
   ClassificationResult result{0, 0};
 

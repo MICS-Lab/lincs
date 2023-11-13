@@ -73,9 +73,9 @@ struct Category {
 
 struct Problem {
   std::vector<Criterion> criteria;
-  std::vector<Category> categories;
+  std::vector<Category> ordered_categories;
 
-  Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& categories_): criteria(criteria_), categories(categories_) {}
+  Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& ordered_categories_): criteria(criteria_), ordered_categories(ordered_categories_) {}
 
   static const std::string json_schema;
   void dump(std::ostream&) const;

@@ -17,7 +17,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
         unstacked_ys.append([y1 - y2 for y1, y2 in zip(ys1, ys2)])
     collections = ax.stackplot(
         xs, unstacked_ys,
-        labels=[category.name for category in problem.categories],
+        labels=[category.name for category in problem.ordered_categories],
         alpha=0.4,
     )
     colors = [collection.get_facecolor() for collection in collections]

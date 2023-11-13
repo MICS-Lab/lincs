@@ -40,7 +40,7 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
       doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index]);
     }
     if (alternative.category_index) {
-      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.categories[*alternative.category_index].name);
+      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.ordered_categories[*alternative.category_index].name);
     }
   }
 
@@ -52,7 +52,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
 
   const unsigned criteria_count = problem.criteria.size();
   std::map<std::string, unsigned> category_indexes;
-  for (const auto& category: problem.categories) {
+  for (const auto& category: problem.ordered_categories) {
     category_indexes[category.name] = category_indexes.size();
   }
 

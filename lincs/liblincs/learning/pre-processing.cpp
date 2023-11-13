@@ -14,7 +14,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   problem(problem_),
   learning_set(learning_set_),
   criteria_count(problem.criteria.size()),
-  categories_count(problem.categories.size()),
+  categories_count(problem.ordered_categories.size()),
   boundaries_count(categories_count - 1),
   alternatives_count(learning_set.alternatives.size()),
   sorted_values(criteria_count, alternatives_count + 2, uninitialized),

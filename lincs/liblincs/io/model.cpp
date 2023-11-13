@@ -218,7 +218,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
   CHRONE();
 
   const unsigned criteria_count = problem.criteria.size();
-  const unsigned categories_count = problem.categories.size();
+  const unsigned categories_count = problem.ordered_categories.size();
   const unsigned boundaries_count = categories_count - 1;
 
   YAML::Node node = YAML::Load(is);

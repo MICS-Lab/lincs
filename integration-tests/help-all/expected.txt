@@ -1011,9 +1011,6 @@ __init__( (object)arg1, (criteria_vector)arg2, (categories_vector)arg3) -> None 
     C++ signature :
         void __init__(_object*,std::vector<lincs::Criterion, std::allocator<lincs::Criterion> >,std::vector<lincs::Category, std::allocator<lincs::Category> >)
 
-lincs.Problem.categories: property
-----------------------------------
-
 lincs.Problem.criteria: property
 --------------------------------
 
@@ -1034,6 +1031,9 @@ load( (object)in) -> Problem :
 
     C++ signature :
         lincs::Problem load(boost::python::api::object {lvalue})
+
+lincs.Problem.ordered_categories: property
+------------------------------------------
 
 lincs.ReinitializeLeastAccurate: class
 --------------------------------------

@@ -189,7 +189,7 @@ The profiles for this model look like this:
         preference_direction: increasing
         min_value: 0
         max_value: 1
-    categories:
+    ordered_categories:
       - name: No scholarship
       - name: Partial scholarship
       - name: Full scholarship

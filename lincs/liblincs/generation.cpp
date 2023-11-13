@@ -79,7 +79,7 @@ Problem generate_classification_problem(
 Model generate_mrsort_classification_model(const Problem& problem, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
   CHRONE();
 
-  const unsigned categories_count = problem.categories.size();
+  const unsigned categories_count = problem.ordered_categories.size();
   const unsigned boundaries_count = categories_count - 1;
   const unsigned criteria_count = problem.criteria.size();
 
@@ -273,7 +273,7 @@ Alternatives generate_balanced_classified_alternatives(
   assert(max_imbalance >= 0);
   assert(max_imbalance <= 1);
 
-  const unsigned categories_count = problem.categories.size();
+  const unsigned categories_count = problem.ordered_categories.size();
 
   // These parameters are somewhat arbitrary and not really critical,
   // but changing there values *does* change the generated set, because of the two-steps process below:
@@ -383,7 +383,7 @@ Alternatives generate_classified_alternatives(
 }
 
 void check_histogram(const Problem& problem, const Model& model, const std::optional<float> max_imbalance, const unsigned a, const unsigned b) {
-  REQUIRE(problem.categories.size() == 2);
+  REQUIRE(problem.ordered_categories.size() == 2);
 
   Alternatives alternatives = generate_classified_alternatives(problem, model, 100, 42, max_imbalance);
 
@@ -522,7 +522,7 @@ TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
 void misclassify_alternatives(const Problem& problem, Alternatives* alternatives, const unsigned count, const unsigned random_seed) {
   CHRONE();
 
-  const unsigned categories_count = problem.categories.size();
+  const unsigned categories_count = problem.ordered_categories.size();
   const unsigned alternatives_count = alternatives->alternatives.size();
 
   std::mt19937 gen(random_seed);

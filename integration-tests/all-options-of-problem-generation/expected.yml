@@ -22,7 +22,7 @@ criteria:
     preference_direction: increasing
     min_value: -68.8010941
     max_value: -10.8334503
-categories:
+ordered_categories:
   - name: Category 1
   - name: Category 2
   - name: Category 3

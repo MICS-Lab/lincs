@@ -106,8 +106,8 @@ properties:
         - max_value
       additionalProperties: false
     minItems: 1
-  categories:
-    description: Structural information about categories in the classification problem.
+  ordered_categories:
+    description: Structural information about categories in the classification problem, ordered from the worst to the best.
     type: array
     items:
       type: object
@@ -122,7 +122,7 @@ required:
   - kind
   - format_version
   - criteria
-  - categories
+  - ordered_categories
 additionalProperties: false
 )");
 
@@ -141,7 +141,7 @@ void Problem::dump(std::ostream& os) const {
   node["kind"] = "classification-problem";
   node["format_version"] = 1;
   node["criteria"] = criteria;
-  node["categories"] = categories;
+  node["ordered_categories"] = ordered_categories;
 
   #ifndef NDEBUG
   validator.validate(node);
@@ -159,7 +159,7 @@ Problem Problem::load(std::istream& is) {
 
   return Problem(
     node["criteria"].as<std::vector<Criterion>>(),
-    node["categories"].as<std::vector<Category>>()
+    node["ordered_categories"].as<std::vector<Category>>()
   );
 }
 
@@ -180,14 +180,14 @@ criteria:
     preference_direction: increasing
     min_value: 0
     max_value: 1
-categories:
+ordered_categories:
   - name: Category 1
   - name: Category 2
 )");
 
   Problem problem2 = Problem::load(ss);
   CHECK(problem2.criteria == problem.criteria);
-  CHECK(problem2.categories == problem.categories);
+  CHECK(problem2.ordered_categories == problem.ordered_categories);
 }
 
 TEST_CASE("isotone and antitone dump as increasing and decreasing") {
@@ -215,7 +215,7 @@ criteria:
     preference_direction: decreasing
     min_value: 0
     max_value: 1
-categories:
+ordered_categories:
   - name: Category 1
   - name: Category 2
 )");
@@ -235,7 +235,7 @@ criteria:
     preference_direction: antitone
     min_value: 0
     max_value: 1
-categories:
+ordered_categories:
   - name: Category 1
   - name: Category 2
 )");
@@ -266,14 +266,14 @@ criteria:
     preference_direction: decreasing
     min_value: -.inf
     max_value: .inf
-categories:
+ordered_categories:
   - name: Category 1
   - name: Category 2
 )");
 
   Problem problem2 = Problem::load(ss);
   CHECK(problem2.criteria == problem.criteria);
-  CHECK(problem2.categories == problem.categories);
+  CHECK(problem2.ordered_categories == problem.ordered_categories);
 }
 
 TEST_CASE("Parsing error") {
@@ -303,7 +303,7 @@ criteria:
     preference_direction: increasing
     min_value: 0
     max_value: 1
-categories:
+ordered_categories:
   - name: Category 1
   - name: Category 2
 )");

@@ -275,7 +275,7 @@ BOOST_PYTHON_MODULE(liblincs) {
 
   auto problem_class = bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>())
     .def_readwrite("criteria", &lincs::Problem::criteria)
-    .def_readwrite("categories", &lincs::Problem::categories)
+    .def_readwrite("ordered_categories", &lincs::Problem::ordered_categories)
     .def(
       "dump",
       &dump_problem,

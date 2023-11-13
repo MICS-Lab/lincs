@@ -24,7 +24,7 @@ const unsigned default_seeds_count = coverage ? 1 : (skip_long ? 10 : 100);
 template<typename T>
 void check_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   CAPTURE(problem.criteria.size());
-  CAPTURE(problem.categories.size());
+  CAPTURE(problem.ordered_categories.size());
   CAPTURE(seed);
 
   lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
@@ -82,7 +82,7 @@ void check_exact_learning(
 template<typename T>
 void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   CAPTURE(problem.criteria.size());
-  CAPTURE(problem.categories.size());
+  CAPTURE(problem.ordered_categories.size());
   CAPTURE(seed);
 
   lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
