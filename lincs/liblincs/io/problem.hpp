@@ -16,8 +16,8 @@ struct Criterion {
 
   enum class ValueType {
     real,
-    // @todo(Feature, later) Add integer
-    // @todo(Feature, later) Add enumerated
+    // @todo(Feature, later) Add integer, with min and max
+    // @todo(Feature, later) Add enumerated, with ordered_values
   } value_type;
 
   enum class PreferenceDirection {
