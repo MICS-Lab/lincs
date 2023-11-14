@@ -329,6 +329,14 @@ def run_all_notebooks(*, skip_long, forbid_gpu):
     for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
         print_title(notebook_path, '-')
 
+        if skip_long and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "is-long")):
+            print_title(f"{notebook_path}: SKIPPED (is long)", '-')
+            continue
+
+        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
+            print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
+            continue
+
         original_cell_sources = {}
 
         # Ensure perfect reproducibility
@@ -339,7 +347,8 @@ def run_all_notebooks(*, skip_long, forbid_gpu):
                 original_cell_sources[i] = copy.deepcopy(cell["source"])
                 for (i, append) in enumerate(cell["metadata"].get("append_to_source", [])):
                     if i < len(cell["source"]):
-                        cell["source"][i] = cell["source"][i].rstrip() + " " + append + "\n"
+                        if append != "":
+                            cell["source"][i] = cell["source"][i].rstrip() + " " + append + "\n"
                     else:
                         cell["source"][-1] += "\n"
                         cell["source"].append(append + "\n")
