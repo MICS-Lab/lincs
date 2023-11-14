@@ -289,6 +289,7 @@ def build_sphinx_documentation():
 
     shutil.copy("COPYING", "docs/")
     shutil.copy("COPYING.LESSER", "docs/")
+    shutil.copy("integration-tests/get-started/get-started.ipynb", "docs/")
 
 
 def run_old_integration_tests(*, skip_long, forbid_gpu):
