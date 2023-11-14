@@ -7,3 +7,4 @@ __pycache__/
 /liblincs.cpython-*-x86_64-linux-gnu.so
 /*.dll
 /liblincs.cp*-win_amd64.pyd
+/integration-tests/.ipynb_checkpoints/

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import glob
+import json
 import multiprocessing
 import os
 import re
@@ -10,6 +11,7 @@ import subprocess
 import textwrap
 
 import click
+import jinja2
 
 
 @click.command()
@@ -130,9 +132,6 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
     if stop_after_unit:
         pass
     else:
-        print_title("Making integration tests from documentation")
-        make_integration_tests_from_doc()
-
         # Install lincs
         ###############
 
@@ -145,8 +144,17 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         # With lincs installed
         ######################
 
-        print_title("Running integration tests")
-        run_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
+        print_title("Running new integration tests")
+        run_new_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
+
+        print_title("Updating documentation sources")
+        update_doc_sources()
+
+        print_title("Making integration tests from documentation")
+        make_integration_tests_from_doc()
+
+        print_title("Running old integration tests")
+        run_old_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -197,6 +205,8 @@ def make_integration_tests_from_doc():
     current_prefix = ""
     current_output_file_name = None
     for input_file_name in glob.glob("doc-sources/*.rst"):
+        if ".tmpl." in input_file_name:
+            continue
         output_prefix = input_file_name[12:-4]
         with open(input_file_name) as f:
             lines = f.readlines()
@@ -280,7 +290,7 @@ def build_sphinx_documentation():
     shutil.copy("COPYING.LESSER", "docs/")
 
 
-def run_integration_tests(*, skip_long, forbid_gpu):
+def run_old_integration_tests(*, skip_long, forbid_gpu):
     ok = True
     # Sorted: alphabetical order just happens to match a dependency order between a few tests.
     for test_file_name in sorted(glob.glob("integration-tests/**/run.sh", recursive=True)):
@@ -311,6 +321,48 @@ def run_integration_tests(*, skip_long, forbid_gpu):
     if not ok:
         print("INTEGRATION TESTS FAILED")
         exit(1)
+
+
+def run_new_integration_tests(*, skip_long, forbid_gpu):
+    for notebook_path in glob.glob("integration-tests/*.ipynb"):
+        print_title(os.path.splitext(os.path.basename(notebook_path))[0], '-')
+        subprocess.run(
+            ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
+            check=True,
+        )
+
+        # Reduce git diff
+        with open(notebook_path) as f:
+            notebook = json.load(f)
+        for cell in notebook["cells"]:
+            cell["metadata"] = {}
+        with open(notebook_path, "w") as f:
+            json.dump(notebook, f, indent=1, sort_keys=True)
+            f.write("\n")
+
+
+def update_doc_sources():
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader("doc-sources"),
+        keep_trailing_newline=True,
+    )
+
+    env.globals["integration_tests"] = {}
+    for notebook_path in glob.glob("integration-tests/*.ipynb"):
+        with open(notebook_path) as f:
+            env.globals["integration_tests"][notebook_path[18:-6]] = json.load(f)
+
+    for template_path in glob.glob("doc-sources/*.tmpl.*"):
+        ext = os.path.splitext(template_path)[1]
+        output_path = template_path[:-len(ext) - 5] + ext
+        print(template_path, "->", output_path)
+        template = env.get_template(os.path.basename(template_path))
+        with open(output_path, "w") as f:
+            if ext == ".rst":
+                f.write(f".. WARNING: this file is generated from '{template_path}'. MANUAL EDITS WILL BE LOST.\n\n")
+            else:
+                assert False, "Unknown extension for warning comment"
+            f.write(template.render())
 
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-.. WARNING: this file is generated from 'doc-sources/get-started.tmpl.rst'. MANUAL EDITS WILL BE LOST.
-
 .. Copyright 2023 Vincent Jacques
 
 ===========
@@ -31,23 +29,7 @@ Start using *lincs*' command-line interface
 
 The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like::
 
-    Usage: lincs [OPTIONS] COMMAND [ARGS]...
-    
-      lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for
-      training and using MCDA models.
-    
-    Options:
-      --version  Show the version and exit.
-      --help     Show this message and exit.
-    
-    Commands:
-      classification-accuracy  Compute a classification accuracy.
-      classify                 Classify alternatives.
-      generate                 Generate synthetic data.
-      info                     Get information about lincs itself.
-      learn                    Learn a model.
-      visualize                Make graphs from data.
-
+    {{ integration_tests["get-started"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
 
 It's organized into sub-commands, the first one being ``generate``, to generate synthetic pseudo-random data.
 
