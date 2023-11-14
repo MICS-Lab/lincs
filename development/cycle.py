@@ -341,11 +341,17 @@ def run_all_notebooks(*, skip_long, forbid_gpu):
                     if i < len(cell["source"]):
                         cell["source"][i] = cell["source"][i].rstrip() + " " + append + "\n"
                     else:
+                        cell["source"][-1] += "\n"
                         cell["source"].append(append + "\n")
         with open(notebook_path, "w") as f:
             json.dump(notebook, f, indent=1, sort_keys=True)
             f.write("\n")
 
+        subprocess.run(
+            ["git", "clean", "-fXd", os.path.dirname(notebook_path)],
+            check=True,
+            capture_output=True,
+        )
         subprocess.run(
             ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
             check=True,
