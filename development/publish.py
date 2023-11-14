@@ -1,7 +1,6 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
-import glob
 import subprocess
 
 import click
@@ -12,13 +11,15 @@ from cycle import build_sphinx_documentation, print_title
 
 @click.command()
 @click.argument("level", type=click.Choice(["patch", "minor", "major"]))
-def main(level):
+@click.option("--dry-run", is_flag=True)
+def main(level, dry_run):
     check_cleanliness()
     new_version = bump_version(level)
     update_changelog(new_version)
     build_sphinx_documentation()
-    publish(new_version)
-    prepare_next_version(new_version)
+    if not dry_run:
+        publish(new_version)
+        prepare_next_version(new_version)
 
 
 def check_cleanliness():
@@ -137,12 +138,19 @@ def write_version(old_version, new_version):
             else:
                 f.write(line)
 
-    for file_name in glob.glob("doc-sources/*.rst"):
-        if file_name == "doc-sources/changelog.rst":
+    for file_name in subprocess.run(["git", "ls-files"], stdout=subprocess.PIPE, universal_newlines=True, check=True).stdout.splitlines():
+        if file_name.endswith(".png"):
             continue
+        if file_name.startswith("docs/"):
+            continue
+        if file_name.startswith("vendored/"):
+            continue
+        if file_name.startswith("lincs/liblincs/vendored/"):
+            continue
+
         with open(file_name) as f:
             lines = f.readlines()
-        lines = [line.replace(old_version, new_version) for line in lines]
+        lines = [line.replace(f"(with lincs version {old_version})", f"(with lincs version {new_version})") for line in lines]
         with open(file_name, "w") as f:
             for line in lines:
                 f.write(line)
