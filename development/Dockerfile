@@ -137,6 +137,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       bash_kernel \
       Chrones \
       gcovr \
+      joblib \
       jupyterlab \
       semver \
       sphinx \

@@ -6,13 +6,16 @@ import glob
 import json
 import multiprocessing
 import os
+import random
 import re
 import shutil
 import subprocess
 import textwrap
+import time
 
 import click
 import jinja2
+import joblib
 
 
 @click.command()
@@ -79,7 +82,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
 
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
     if single_python_version:
-        python_versions = [python_versions[0]]
+        python_versions = [python_versions[-1]]
         os.environ["LINCS_DEV_PYTHON_VERSIONS"] = python_versions[0]
 
     shutil.rmtree("build", ignore_errors=True)
@@ -150,9 +153,6 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
 
         print_title("Updating templates (documentation sources)")
         update_templates()
-
-        print_title("Running old integration tests")
-        run_old_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -239,50 +239,11 @@ def build_sphinx_documentation():
     shutil.copy("doc-sources/get-started/get-started.ipynb", "docs/")
 
 
-def run_old_integration_tests(*, skip_long, forbid_gpu):
-    ok = True
-    # Sorted: alphabetical order just happens to match a dependency order between a few tests.
-    for test_file_name in sorted(glob.glob("integration-tests/**/run.sh", recursive=True)):
-        test_name = test_file_name[18:-7]
-
-        if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):
-            print_title(f"{test_name}: SKIPPED (is long)", '-')
-            continue
-
-        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "uses-gpu")):
-            print_title(f"{test_name}: SKIPPED (uses GPU)", '-')
-            continue
-
-        print_title(test_name, '-')
-
-        try:
-            subprocess.run(
-                ["bash", "run.sh"],
-                cwd=os.path.dirname(test_file_name),
-                check=True,
-            )
-        except subprocess.CalledProcessError as e:
-            print("FAILED")
-            print(flush=True)
-            ok = False
-        else:
-            print()
-    if not ok:
-        print("INTEGRATION TESTS FAILED")
-        exit(1)
-
-
 def run_notebooks(*, skip_long, forbid_gpu):
-    for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
-        print_title(notebook_path, '-')
-
-        if skip_long and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "is-long")):
-            print_title(f"{notebook_path}: SKIPPED (is long)", '-')
-            continue
-
-        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
-            print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
-            continue
+    def run_notebook(notebook_path):
+        # Work around race condition where two Jupyter instances try to open the same TCP port,
+        # resulting in a zmq.error.ZMQError: Address already in use (addr='tcp://127.0.0.1:39787')
+        time.sleep(random.random() * 5)
 
         original_cell_sources = {}
 
@@ -308,21 +269,50 @@ def run_notebooks(*, skip_long, forbid_gpu):
             check=True,
             capture_output=True,
         )
-        subprocess.run(
-            ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
-            check=True,
-        )
+        try:
+            subprocess.run(
+                ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
+                check=True,
+                capture_output=True,
+            )
+        except subprocess.CalledProcessError as e:
+            print_title(f"{notebook_path}: FAILED", '-')
+            print(e.stdout.decode())
+            print(e.stderr.decode())
+            return False
+        finally:
+            # Reduce git diff
+            with open(notebook_path) as f:
+                notebook = json.load(f)
+            for (i, cell) in enumerate(notebook["cells"]):
+                cell["metadata"].pop("execution", None)
+                if cell["cell_type"] == "code":
+                    cell["source"] = original_cell_sources[i]
+            with open(notebook_path, "w") as f:
+                json.dump(notebook, f, indent=1, sort_keys=True)
+                f.write("\n")
 
-        # Reduce git diff
-        with open(notebook_path) as f:
-            notebook = json.load(f)
-        for (i, cell) in enumerate(notebook["cells"]):
-            del cell["metadata"]["execution"]
-            if cell["cell_type"] == "code":
-                cell["source"] = original_cell_sources[i]
-        with open(notebook_path, "w") as f:
-            json.dump(notebook, f, indent=1, sort_keys=True)
-            f.write("\n")
+        print_title(f"{notebook_path}: OK", '-')
+        return True
+
+    jobs = []
+
+    for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
+        if skip_long and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "is-long")):
+            print_title(f"{notebook_path}: SKIPPED (is long)", '-')
+            continue
+
+        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
+            print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
+            continue
+
+        jobs.append(joblib.delayed(run_notebook)(notebook_path))
+
+    results = joblib.Parallel(n_jobs=multiprocessing.cpu_count() - 1)(jobs)
+
+    if not all(results):
+        print("Some notebooks FAILED")
+        exit(1)
 
 
 def update_templates():
