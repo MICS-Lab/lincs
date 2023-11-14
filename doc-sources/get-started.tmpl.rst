@@ -29,7 +29,7 @@ Start using *lincs*' command-line interface
 
 The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like::
 
-    {{ integration_tests["get-started"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
 
 It's organized into sub-commands, the first one being ``generate``, to generate synthetic pseudo-random data.
 

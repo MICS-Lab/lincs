@@ -144,11 +144,11 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         # With lincs installed
         ######################
 
-        print_title("Running new integration tests")
-        run_new_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
+        print_title("Running all Jupyter notebooks (integration tests)")
+        run_all_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
-        print_title("Updating documentation sources")
-        update_doc_sources()
+        print_title("Updating templates (documentation sources)")
+        update_templates()
 
         print_title("Making integration tests from documentation")
         make_integration_tests_from_doc()
@@ -323,9 +323,9 @@ def run_old_integration_tests(*, skip_long, forbid_gpu):
         exit(1)
 
 
-def run_new_integration_tests(*, skip_long, forbid_gpu):
-    for notebook_path in glob.glob("integration-tests/*.ipynb"):
-        print_title(os.path.splitext(os.path.basename(notebook_path))[0], '-')
+def run_all_notebooks(*, skip_long, forbid_gpu):
+    for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
+        print_title(notebook_path, '-')
         subprocess.run(
             ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
             check=True,
@@ -341,18 +341,18 @@ def run_new_integration_tests(*, skip_long, forbid_gpu):
             f.write("\n")
 
 
-def update_doc_sources():
+def update_templates():
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader("doc-sources"),
         keep_trailing_newline=True,
     )
 
-    env.globals["integration_tests"] = {}
-    for notebook_path in glob.glob("integration-tests/*.ipynb"):
+    env.globals["notebooks"] = {}
+    for notebook_path in glob.glob("**/*.ipynb", recursive=True):
         with open(notebook_path) as f:
-            env.globals["integration_tests"][notebook_path[18:-6]] = json.load(f)
+            env.globals["notebooks"][notebook_path] = json.load(f)
 
-    for template_path in glob.glob("doc-sources/*.tmpl.*"):
+    for template_path in glob.glob("**/*.tmpl.*", recursive=True):
         ext = os.path.splitext(template_path)[1]
         output_path = template_path[:-len(ext) - 5] + ext
         print(template_path, "->", output_path)
