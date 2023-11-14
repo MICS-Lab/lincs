@@ -151,9 +151,6 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         print_title("Updating templates (documentation sources)")
         update_templates()
 
-        print_title("Making integration tests from documentation")
-        make_integration_tests_from_doc()
-
         print_title("Running old integration tests")
         run_old_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
@@ -199,56 +196,6 @@ def run_python_tests(*, python_version):
         ],
         check=True,
     )
-
-
-def make_integration_tests_from_doc():
-    output_files = {}
-    current_prefix = ""
-    current_output_file_name = None
-    for input_file_name in glob.glob("doc-sources/*.rst"):
-        if ".tmpl." in input_file_name:
-            continue
-        output_prefix = input_file_name[12:-4]
-        with open(input_file_name) as f:
-            lines = f.readlines()
-        for line in lines:
-            line = line.rstrip()
-
-            if line == f"{current_prefix}.. STOP":
-                assert current_output_file_name
-                current_output_file_name = None
-            if current_output_file_name:
-                m = re.fullmatch(r".. APPEND-TO-LAST-LINE( .+)", line)
-                if m:
-                    assert output_files[current_output_file_name]
-                    last_line_index = -1
-                    while output_files[current_output_file_name][last_line_index] == "":
-                        last_line_index -= 1
-                    output_files[current_output_file_name][last_line_index] += m.group(1)
-                elif line.startswith(current_prefix + "    "):
-                    output_files[current_output_file_name].append(line)
-                elif line == "" and output_files[current_output_file_name]:
-                    output_files[current_output_file_name].append("")
-
-            m = re.fullmatch(r"( *).. (START|EXTEND) (.+)", line)
-            if m:
-                assert current_output_file_name is None, (input_file_name, current_output_file_name)
-                current_prefix = m.group(1)
-                current_output_file_name = os.path.join(output_prefix, m.group(3))
-                if m.group(2) == "START":
-                    output_files[current_output_file_name] = []
-        assert current_output_file_name is None, (input_file_name, current_output_file_name)
-
-    shutil.rmtree("integration-tests/from-documentation", ignore_errors=True)
-    for file_name, file_contents in output_files.items():
-        file_path = os.path.join("integration-tests", "from-documentation", file_name)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        while file_contents and file_contents[-1] == "":
-            file_contents.pop()
-        with open(file_path, "w") as f:
-            f.write(textwrap.dedent("\n".join(file_contents) + "\n"))
-    with open("integration-tests/from-documentation/.gitignore", "w") as f:
-        f.write("*\n")
 
 
 def build_sphinx_documentation():
