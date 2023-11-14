@@ -1,6 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
+import copy
 import glob
 import json
 import multiprocessing
@@ -326,6 +327,24 @@ def run_old_integration_tests(*, skip_long, forbid_gpu):
 def run_all_notebooks(*, skip_long, forbid_gpu):
     for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
         print_title(notebook_path, '-')
+
+        original_cell_sources = {}
+
+        # Ensure perfect reproducibility
+        with open(notebook_path) as f:
+            notebook = json.load(f)
+        for (i, cell) in enumerate(notebook["cells"]):
+            if cell["cell_type"] == "code":
+                original_cell_sources[i] = copy.deepcopy(cell["source"])
+                for (i, append) in enumerate(cell["metadata"].get("append_to_source", [])):
+                    if i < len(cell["source"]):
+                        cell["source"][i] = cell["source"][i].rstrip() + " " + append + "\n"
+                    else:
+                        cell["source"].append(append + "\n")
+        with open(notebook_path, "w") as f:
+            json.dump(notebook, f, indent=1, sort_keys=True)
+            f.write("\n")
+
         subprocess.run(
             ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
             check=True,
@@ -334,8 +353,10 @@ def run_all_notebooks(*, skip_long, forbid_gpu):
         # Reduce git diff
         with open(notebook_path) as f:
             notebook = json.load(f)
-        for cell in notebook["cells"]:
-            cell["metadata"] = {}
+        for (i, cell) in enumerate(notebook["cells"]):
+            del cell["metadata"]["execution"]
+            if cell["cell_type"] == "code":
+                cell["source"] = original_cell_sources[i]
         with open(notebook_path, "w") as f:
             json.dump(notebook, f, indent=1, sort_keys=True)
             f.write("\n")

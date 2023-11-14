@@ -54,27 +54,14 @@ It's organized into sub-commands, the first one being ``generate``, to generate 
 *lincs* is designed to handle real-world data, but it's often easier to start with synthetic data to get familiar with the tooling and required file formats.
 Synthetic data is described in our :ref:`conceptual overview documentation <overview-synthetic-data>`.
 
-.. START command-line-example/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-.. STOP
-
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 So, start by generating a classification problem with 4 criteria and 3 categories::
 
     lincs generate classification-problem 4 3 --output-problem problem.yml
 
-.. APPEND-TO-LAST-LINE --random-seed 40
-.. STOP
 
 .. highlight:: yaml
-
-.. START command-line-example/expected-problem.yml
 
 The generated ``problem.yml`` should look like::
 
@@ -107,30 +94,19 @@ The generated ``problem.yml`` should look like::
       - name: Intermediate category 1
       - name: Best category
 
-.. STOP
 
 You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
 That format is explained in details in our :ref:`user guide <user-file-problem>`.
 The concept of "classification problem" is described in our :ref:`conceptual overview documentation <overview-about-classification>`.
 
-.. EXTEND command-line-example/run.sh
-    diff expected-problem.yml problem.yml
-.. STOP
-
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 Then generate an NCS classification model::
 
     lincs generate classification-model problem.yml --output-model model.yml
 
-.. APPEND-TO-LAST-LINE --random-seed 41
-.. STOP
 
 .. highlight:: yaml
-
-.. START command-line-example/expected-model.yml
 
 It should look like::
 
@@ -152,27 +128,15 @@ It should look like::
         criterion_weights: [0.147771254, 0.618687689, 0.406786472, 0.0960085914]
       - *coalitions
 
-.. STOP
 
 The file format, including the ``*coalitions`` YAML reference, is documented in our :ref:`user guide <user-file-ncs-model>`.
 
-.. EXTEND command-line-example/run.sh
-    diff expected-model.yml model.yml
-.. STOP
-
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 You can visualize it using::
 
     lincs visualize classification-model problem.yml model.yml model.png
 
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    cp model.png ../../../../doc-sources
-.. STOP
 
 It should output something like:
 
@@ -180,14 +144,10 @@ It should output something like:
     :alt: Model visualization
     :align: center
 
-.. EXTEND command-line-example/run.sh
-
 And finally generate a set of classified alternatives::
 
     lincs generate classified-alternatives problem.yml model.yml 1000 --output-alternatives learning-set.csv
 
-.. APPEND-TO-LAST-LINE --random-seed 42
-.. STOP
 
 The file format is documented in our :ref:`reference documentation <ref-file-alternatives>`.
 
@@ -196,8 +156,6 @@ Currently we suggest generating two sets from a synthetic model, but for real-wo
 Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
 
 .. highlight:: text
-
-.. START command-line-example/expected-learning-set.csv
 
 It should start with something like this, and contain 1000 alternatives::
 
@@ -209,25 +167,13 @@ It should start with something like this, and contain 1000 alternatives::
     "Alternative 4",0.0580836125,0.4592489,0.866176128,0.333708614,"Best category"
     "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Intermediate category 1"
 
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    diff expected-learning-set.csv <(head -n 7 learning-set.csv)
-.. STOP
 
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 You can visualize its first five alternatives using::
 
     lincs visualize classification-model problem.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
 
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    cp alternatives.png ../../../../doc-sources
-.. STOP
 
 It should output something like:
 
@@ -239,18 +185,12 @@ It should output something like:
 
 .. highlight:: shell
 
-.. EXTEND command-line-example/run.sh
-
 You now have a (synthetic) learning set. You can use it to train a new model::
 
     lincs learn classification-model problem.yml learning-set.csv --output-model trained-model.yml
 
-.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
-.. STOP
 
 .. highlight:: yaml
-
-.. START command-line-example/expected-trained-model.yml
 
 The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same problem.
 The learning set doesn't contain all the information from the original model,
@@ -277,50 +217,30 @@ so it is numerically different::
         criterion_weights: [0, 1.01327896e-06, 0.999998987, 0]
       - *coalitions
 
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    diff expected-trained-model.yml trained-model.yml
-.. STOP
 
 If the training is effective, the resulting trained model should however behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
 .. highlight:: shell
 
-.. EXTEND command-line-example/run.sh
-
 First, generate a testing set from the original model::
 
     lincs generate classified-alternatives problem.yml model.yml 3000 --output-alternatives testing-set.csv
 
-.. APPEND-TO-LAST-LINE --random-seed 44
-.. STOP
-
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 Then ask the trained model to classify it::
 
     lincs classify problem.yml trained-model.yml testing-set.csv --output-alternatives reclassified-testing-set.csv
 
-.. STOP
 
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 There are a few differences between the original testing set and the reclassified one::
 
     diff testing-set.csv reclassified-testing-set.csv
 
-.. APPEND-TO-LAST-LINE | tail -n +5 >classification-diff.txt || true
-.. STOP
-
 .. highlight:: diff
-
-.. START command-line-example/expected-classification-diff.txt
 
 That command should show a few alternatives that are not classified the same way by the original and the trained model::
 
@@ -341,24 +261,12 @@ That command should show a few alternatives that are not classified the same way
     ---
     > "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Worst category"
 
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    diff expected-classification-diff.txt classification-diff.txt
-.. STOP
 
 .. highlight:: shell
-
-.. EXTEND command-line-example/run.sh
 
 You can also measure the classification accuracy of the trained model on that testing set::
 
     lincs classification-accuracy problem.yml trained-model.yml testing-set.csv
-
-.. APPEND-TO-LAST-LINE >classification-accuracy.txt
-.. STOP
-
-.. START command-line-example/expected-classification-accuracy.txt
 
 .. highlight:: text
 
@@ -366,11 +274,6 @@ It should be close to 100%::
 
     2996/3000
 
-.. STOP
-
-.. EXTEND command-line-example/run.sh
-    diff expected-classification-accuracy.txt classification-accuracy.txt
-.. STOP
 
 
 What now?
