@@ -1,4 +1,4 @@
-.. WARNING: this file is generated from 'doc-sources/get-started.tmpl.rst'. MANUAL EDITS WILL BE LOST.
+.. WARNING: this file is generated from 'doc-sources/get-started.rst.tmpl'. MANUAL EDITS WILL BE LOST.
 
 .. Copyright 2023 Vincent Jacques
 

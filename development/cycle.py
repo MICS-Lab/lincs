@@ -373,13 +373,12 @@ def update_templates():
         with open(notebook_path) as f:
             env.globals["notebooks"][notebook_path] = json.load(f)
 
-    for template_path in glob.glob("**/*.tmpl.*", recursive=True):
-        ext = os.path.splitext(template_path)[1]
-        output_path = template_path[:-len(ext) - 5] + ext
+    for template_path in glob.glob("**/*.tmpl", recursive=True):
+        output_path = template_path[:-5]
         print(template_path, "->", output_path)
         template = env.get_template(os.path.basename(template_path))
         with open(output_path, "w") as f:
-            if ext == ".rst":
+            if output_path.endswith(".rst"):
                 f.write(f".. WARNING: this file is generated from '{template_path}'. MANUAL EDITS WILL BE LOST.\n\n")
             else:
                 assert False, "Unknown extension for warning comment"
