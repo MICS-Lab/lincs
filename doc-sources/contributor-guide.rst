@@ -238,7 +238,7 @@ So, why not all templates?
 One could now consider using templates everywhere, and not use virtual function calls at all.
 This would have the following negative consequences:
 
-The number of explicit template instantiations would explode incombinatorially.
+The number of explicit template instantiations would explode in a combinatorial way.
 For example, the ``LinearProgram`` template parameter of ``.../optimize-weights/linear-program.hpp`` is currently instantiated explicitly for each LP solver in ``.../optimize-weights/linear-program.cpp``.
 If ``LearnMrsortByWeightsProfilesBreed`` was a template, it would have to be instantiated for the whole Cartesian product of all variants of each strategy, to a great maintenance cost.
 Note that this is not specific to explicit template instanciation, because we expose *lincs* as a Python library:
