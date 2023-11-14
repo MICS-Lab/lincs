@@ -145,8 +145,8 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         # With lincs installed
         ######################
 
-        print_title("Running all Jupyter notebooks (integration tests, documentation sources)")
-        run_all_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu)
+        print_title("Running Jupyter notebooks (integration tests, documentation sources)")
+        run_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
         print_title("Updating templates (documentation sources)")
         update_templates()
@@ -272,7 +272,7 @@ def run_old_integration_tests(*, skip_long, forbid_gpu):
         exit(1)
 
 
-def run_all_notebooks(*, skip_long, forbid_gpu):
+def run_notebooks(*, skip_long, forbid_gpu):
     for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
         print_title(notebook_path, '-')
 
