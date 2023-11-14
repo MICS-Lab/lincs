@@ -134,14 +134,18 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     set -x \
  && pip3 install \
       auditwheel \
+      bash_kernel \
       Chrones \
       gcovr \
+      joblib \
+      jupyterlab \
       semver \
       sphinx \
       sphinx-click \
       sphinx-jsonschema \
       sphinxcontrib-details-directive \
       twine \
+ && python3 -m bash_kernel.install \
  && for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       build \
     || exit 1; done

@@ -1,0 +1,27 @@
+kind: classification-problem
+format_version: 1
+criteria:
+  - name: Math
+    value_type: real
+    preference_direction: increasing
+    min_value: 0
+    max_value: 1
+  - name: Physics
+    value_type: real
+    preference_direction: increasing
+    min_value: 0
+    max_value: 1
+  - name: Literature
+    value_type: real
+    preference_direction: increasing
+    min_value: 0
+    max_value: 1
+  - name: History
+    value_type: real
+    preference_direction: increasing
+    min_value: 0
+    max_value: 1
+ordered_categories:
+  - name: No scholarship
+  - name: Partial scholarship
+  - name: Full scholarship

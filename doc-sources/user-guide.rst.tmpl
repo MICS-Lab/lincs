@@ -1,5 +1,3 @@
-.. WARNING: this file is generated from 'doc-sources/user-guide.rst.tmpl'. MANUAL EDITS WILL BE LOST.
-
 .. Copyright 2023 Vincent Jacques
 
 ==========
@@ -27,24 +25,7 @@ To describe problems, *lincs* uses YAML files conforming to the `JSON schema <ht
 
 Here is an example of a problem file::
 
-    kind: classification-problem
-    format_version: 1
-    criteria:
-      - name: Criterion 1
-        value_type: real
-        preference_direction: increasing
-        min_value: 0
-        max_value: 20
-      - name: Criterion 2
-        value_type: real
-        preference_direction: decreasing
-        min_value: -5
-        max_value: 5
-    ordered_categories:
-      - name: Low
-      - name: Medium
-      - name: High
-
+    {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
 
 The two first keys, ``kind`` and ``format_version`` are here to identify exactly the file format.
 For now, they must always be set to ``classification-problem`` and ``1`` respectively.
@@ -99,19 +80,7 @@ So it's the user's responsibility to keep track of that information and always g
 
 Here is an example of a model file corresponding to the problem file above::
 
-    kind: ncs-classification-model
-    format_version: 1
-    accepted_values:
-      - kind: thresholds
-        thresholds: [7.49331188, 15.9249287]
-      - kind: thresholds
-        thresholds: [4.49812794, -3.15932083]
-    sufficient_coalitions:
-      - &coalitions
-        kind: weights
-        criterion_weights: [0.938825667, 0.343733728]
-      - *coalitions
-
+    {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
 
 Like for problem files, the two first keys must take exactly these values.
 
@@ -178,21 +147,7 @@ Sufficient coalitions ``kind``  Sufficient coalitions attributes
 Here is another model corresponding to the problem file above, but this time using the ``roots`` kind of sufficient coalitions,
 and using different coalitions for the two boundaries (so, no YAML anchor)::
 
-    kind: ncs-classification-model
-    format_version: 1
-    accepted_values:
-      - kind: thresholds
-        thresholds: [7.49331188, 15.9249287]
-      - kind: thresholds
-        thresholds: [4.49812794, -3.15932083]
-    sufficient_coalitions:
-      - kind: roots
-        upset_roots:
-          - [1]
-      - kind: roots
-        upset_roots:
-          - [0, 1]
-
+    {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][2]["outputs"][0]["text"] | join('    ') }}
 
 "Alternatives" files
 --------------------
@@ -206,13 +161,7 @@ Like model files, alternatives files are always associated to a problem file.
 
 Here is an example corresponding to the problem above::
 
-    name,"Criterion 1","Criterion 2",category
-    "Alternative 1",10.8156891,4.39045048,Medium
-    "Alternative 2",0.25551182,-1.45864725,Low
-    "Alternative 3",18.4786396,4.31117153,Medium
-    "Alternative 4",18.0154629,1.33949804,Medium
-    "Alternative 5",9.30789757,2.66963387,Medium
-
+    {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][3]["outputs"][0]["text"] | join('    ') }}
 
 Its header line contains the names of its columns.
 Its first column, ``name``, contains the names of the alternatives.
@@ -221,13 +170,7 @@ Its last column, ``category``, contains the names of the categories in which eac
 
 Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
 
-    name,"Criterion 1","Criterion 2",category
-    "Alternative 1",10.8156891,4.39045048,
-    "Alternative 2",0.25551182,-1.45864725,
-    "Alternative 3",18.4786396,4.31117153,
-    "Alternative 4",18.0154629,1.33949804,
-    "Alternative 5",9.30789757,2.66963387,
-
+    {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][4]["outputs"][0]["text"] | join('    ') }}
 
 .. _user-comments-in-generated-files:
 
@@ -268,7 +211,7 @@ Generating a problem
 With ``lincs generate classification-problem``, you can generate a classification problem file.
 Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`::
 
-    lincs generate classification-problem 4 3
+    {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][0]["source"][0] }}
 
 The ``--help`` option on the command-line and our :ref:`reference documentation <ref-cli>` describe the options available to tweak the generated problem.
 Most notably:
@@ -282,7 +225,7 @@ Generating a model
 With ``lincs generate classification-model``, you can generate a classification model file.
 Using its default settings, you just have to pass it the problem file you want to use::
 
-    lincs generate classification-model problem.yml
+    {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][1]["source"][0] }}
 
 For now, *lincs* can only generate MR-Sort models, so the ``--model-type`` option can only take its default value: ``mrsort``.
 We expect this could change if we implement the generation of other types of models.
@@ -296,7 +239,7 @@ Generating alternatives
 
 With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate::
 
-    lincs generate classified-alternatives problem.yml model.yml 100
+    {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][2]["source"][0] }}
 
 This generates 100 random alternatives, and then classifies them according to the model.
 
@@ -325,7 +268,7 @@ Learning a model
 As you've seen in our get started guide, the basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
 With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives)::
 
-    lincs learn classification-model problem.yml learning-set.csv
+    {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][3]["source"][0] }}
 
 Its ``--help`` option and our reference documentation give you a list of the numerous options it accepts.
 
@@ -411,8 +354,7 @@ By default, it uses GLOP, which is a part of `Google's OR-Tools <https://develop
 
 Here is an example using the `Alglib <https://www.alglib.net/>`_ solver::
 
-    lincs learn classification-model problem.yml learning-set.csv \
-      --mrsort.weights-profiles-breed.linear-program.solver alglib
+    {{ notebooks["doc-sources/user-guide/alglib-learning/alglib-learning.ipynb"]["cells"][1]["source"] | join('    ') }}
 
 It should produce a very similar model, with slight numerical differences.
 
@@ -433,8 +375,7 @@ You can check with ``lincs info has-gpu``.
 
 Here is an example::
 
-    lincs learn classification-model problem.yml learning-set.csv \
-      --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
+    {{ notebooks["doc-sources/user-guide/gpu-learning/gpu-learning.ipynb"]["cells"][1]["source"] | join('    ') }}
 
 If you specify the random seed, it will produce the exact same model as when using the CPU;
 this is an important feature of *lincs*, that the GPU code has the same behavior as the CPU code.
@@ -458,37 +399,17 @@ The tradeoffs offered by these methods are highlighted in our :ref:`conceptual o
 These strategies let you learn :math:`U^c \textsf{-} NCS` models, so you have to start with ``--model-type ucncs``.
 Here are two examples::
 
-    lincs learn classification-model problem.yml learning-set.csv \
-      --model-type ucncs --ucncs.strategy sat-by-coalitions
+    {{ notebooks["doc-sources/user-guide/sat-learning/sat-learning.ipynb"]["cells"][1]["source"] | join('    ') }}
 
 And::
 
-    lincs learn classification-model problem.yml learning-set.csv \
-      --model-type ucncs --ucncs.strategy max-sat-by-separation
+    {{ notebooks["doc-sources/user-guide/sat-learning/sat-learning.ipynb"]["cells"][2]["source"] | join('    ') }}
 
 .. highlight:: yaml
 
 They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
-    # Reproduction command (with lincs version 0.10.4-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
-    kind: ncs-classification-model
-    format_version: 1
-    accepted_values:
-      - kind: thresholds
-        thresholds: [0.999706864, 0.999706864]
-      - kind: thresholds
-        thresholds: [0.0552680492, 0.325211823]
-      - kind: thresholds
-        thresholds: [0.161919117, 0.672662616]
-      - kind: thresholds
-        thresholds: [0.995402098, 0.996754646]
-    sufficient_coalitions:
-      - &coalitions
-        kind: roots
-        upset_roots:
-          - [1, 2]
-      - *coalitions
-
+    {{ notebooks["doc-sources/user-guide/sat-learning/sat-learning.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
 
 Using a model
 =============

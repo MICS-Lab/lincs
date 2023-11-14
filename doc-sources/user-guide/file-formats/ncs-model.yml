@@ -1,0 +1,14 @@
+kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [7.49331188, 15.9249287]
+  - kind: thresholds
+    thresholds: [4.49812794, -3.15932083]
+sufficient_coalitions:
+  - kind: roots
+    upset_roots:
+      - [1]
+  - kind: roots
+    upset_roots:
+      - [0, 1]

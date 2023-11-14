@@ -1,1 +1,0 @@
-ERROR: lincs found an issue with the input files: Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file

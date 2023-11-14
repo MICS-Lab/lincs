@@ -1,15 +1,21 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
+import copy
 import glob
+import json
 import multiprocessing
 import os
+import random
 import re
 import shutil
 import subprocess
 import textwrap
+import time
 
 import click
+import jinja2
+import joblib
 
 
 @click.command()
@@ -76,7 +82,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
 
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
     if single_python_version:
-        python_versions = [python_versions[0]]
+        python_versions = [python_versions[-1]]
         os.environ["LINCS_DEV_PYTHON_VERSIONS"] = python_versions[0]
 
     shutil.rmtree("build", ignore_errors=True)
@@ -130,9 +136,6 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
     if stop_after_unit:
         pass
     else:
-        print_title("Making integration tests from documentation")
-        make_integration_tests_from_doc()
-
         # Install lincs
         ###############
 
@@ -145,8 +148,11 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         # With lincs installed
         ######################
 
-        print_title("Running integration tests")
-        run_integration_tests(skip_long=skip_long, forbid_gpu=forbid_gpu)
+        print_title("Running Jupyter notebooks (integration tests, documentation sources)")
+        run_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu)
+
+        print_title("Updating templates (documentation sources)")
+        update_templates()
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -192,54 +198,6 @@ def run_python_tests(*, python_version):
     )
 
 
-def make_integration_tests_from_doc():
-    output_files = {}
-    current_prefix = ""
-    current_output_file_name = None
-    for input_file_name in glob.glob("doc-sources/*.rst"):
-        output_prefix = input_file_name[12:-4]
-        with open(input_file_name) as f:
-            lines = f.readlines()
-        for line in lines:
-            line = line.rstrip()
-
-            if line == f"{current_prefix}.. STOP":
-                assert current_output_file_name
-                current_output_file_name = None
-            if current_output_file_name:
-                m = re.fullmatch(r".. APPEND-TO-LAST-LINE( .+)", line)
-                if m:
-                    assert output_files[current_output_file_name]
-                    last_line_index = -1
-                    while output_files[current_output_file_name][last_line_index] == "":
-                        last_line_index -= 1
-                    output_files[current_output_file_name][last_line_index] += m.group(1)
-                elif line.startswith(current_prefix + "    "):
-                    output_files[current_output_file_name].append(line)
-                elif line == "" and output_files[current_output_file_name]:
-                    output_files[current_output_file_name].append("")
-
-            m = re.fullmatch(r"( *).. (START|EXTEND) (.+)", line)
-            if m:
-                assert current_output_file_name is None, (input_file_name, current_output_file_name)
-                current_prefix = m.group(1)
-                current_output_file_name = os.path.join(output_prefix, m.group(3))
-                if m.group(2) == "START":
-                    output_files[current_output_file_name] = []
-        assert current_output_file_name is None, (input_file_name, current_output_file_name)
-
-    shutil.rmtree("integration-tests/from-documentation", ignore_errors=True)
-    for file_name, file_contents in output_files.items():
-        file_path = os.path.join("integration-tests", "from-documentation", file_name)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        while file_contents and file_contents[-1] == "":
-            file_contents.pop()
-        with open(file_path, "w") as f:
-            f.write(textwrap.dedent("\n".join(file_contents) + "\n"))
-    with open("integration-tests/from-documentation/.gitignore", "w") as f:
-        f.write("*\n")
-
-
 def build_sphinx_documentation():
     env = dict(os.environ)
     env["LINCS_DEV_FORBID_GPU"] = "false"
@@ -278,39 +236,106 @@ def build_sphinx_documentation():
 
     shutil.copy("COPYING", "docs/")
     shutil.copy("COPYING.LESSER", "docs/")
+    shutil.copy("doc-sources/get-started/get-started.ipynb", "docs/")
 
 
-def run_integration_tests(*, skip_long, forbid_gpu):
-    ok = True
-    # Sorted: alphabetical order just happens to match a dependency order between a few tests.
-    for test_file_name in sorted(glob.glob("integration-tests/**/run.sh", recursive=True)):
-        test_name = test_file_name[18:-7]
+def run_notebooks(*, skip_long, forbid_gpu):
+    def run_notebook(notebook_path):
+        # Work around race condition where two Jupyter instances try to open the same TCP port,
+        # resulting in a zmq.error.ZMQError: Address already in use (addr='tcp://127.0.0.1:39787')
+        time.sleep(random.random() * 5)
 
-        if skip_long and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "is-long")):
-            print_title(f"{test_name}: SKIPPED (is long)", '-')
-            continue
+        original_cell_sources = {}
 
-        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(test_file_name), "uses-gpu")):
-            print_title(f"{test_name}: SKIPPED (uses GPU)", '-')
-            continue
+        # Ensure perfect reproducibility
+        with open(notebook_path) as f:
+            notebook = json.load(f)
+        for (i, cell) in enumerate(notebook["cells"]):
+            if cell["cell_type"] == "code":
+                original_cell_sources[i] = copy.deepcopy(cell["source"])
+                for (i, append) in enumerate(cell["metadata"].get("append_to_source", [])):
+                    if i < len(cell["source"]):
+                        if append != "":
+                            cell["source"][i] = cell["source"][i].rstrip() + " " + append + "\n"
+                    else:
+                        cell["source"][-1] += "\n"
+                        cell["source"].append(append + "\n")
+        with open(notebook_path, "w") as f:
+            json.dump(notebook, f, indent=1, sort_keys=True)
+            f.write("\n")
 
-        print_title(test_name, '-')
-
+        subprocess.run(
+            ["git", "clean", "-fXd", os.path.dirname(notebook_path)],
+            check=True,
+            capture_output=True,
+        )
         try:
             subprocess.run(
-                ["bash", "run.sh"],
-                cwd=os.path.dirname(test_file_name),
+                ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "--log-level=WARN", notebook_path],
                 check=True,
+                capture_output=True,
             )
         except subprocess.CalledProcessError as e:
-            print("FAILED")
-            print(flush=True)
-            ok = False
-        else:
-            print()
-    if not ok:
-        print("INTEGRATION TESTS FAILED")
+            print_title(f"{notebook_path}: FAILED", '-')
+            print(e.stdout.decode())
+            print(e.stderr.decode())
+            return False
+        finally:
+            # Reduce git diff
+            with open(notebook_path) as f:
+                notebook = json.load(f)
+            for (i, cell) in enumerate(notebook["cells"]):
+                cell["metadata"].pop("execution", None)
+                if cell["cell_type"] == "code":
+                    cell["source"] = original_cell_sources[i]
+            with open(notebook_path, "w") as f:
+                json.dump(notebook, f, indent=1, sort_keys=True)
+                f.write("\n")
+
+        print_title(f"{notebook_path}: OK", '-')
+        return True
+
+    jobs = []
+
+    for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
+        if skip_long and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "is-long")):
+            print_title(f"{notebook_path}: SKIPPED (is long)", '-')
+            continue
+
+        if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
+            print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
+            continue
+
+        jobs.append(joblib.delayed(run_notebook)(notebook_path))
+
+    results = joblib.Parallel(n_jobs=multiprocessing.cpu_count() - 1)(jobs)
+
+    if not all(results):
+        print("Some notebooks FAILED")
         exit(1)
+
+
+def update_templates():
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader("doc-sources"),
+        keep_trailing_newline=True,
+    )
+
+    env.globals["notebooks"] = {}
+    for notebook_path in glob.glob("**/*.ipynb", recursive=True):
+        with open(notebook_path) as f:
+            env.globals["notebooks"][notebook_path] = json.load(f)
+
+    for template_path in glob.glob("**/*.tmpl", recursive=True):
+        output_path = template_path[:-5]
+        print(template_path, "->", output_path)
+        template = env.get_template(os.path.basename(template_path))
+        with open(output_path, "w") as f:
+            if output_path.endswith(".rst"):
+                f.write(f".. WARNING: this file is generated from '{template_path}'. MANUAL EDITS WILL BE LOST.\n\n")
+            else:
+                assert False, "Unknown extension for warning comment"
+            f.write(template.render())
 
 
 if __name__ == "__main__":
