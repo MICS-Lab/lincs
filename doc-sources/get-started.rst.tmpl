@@ -31,7 +31,7 @@ If you're a Jupyter user, you can `download the notebook <get-started.ipynb>`_ t
 
 The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
 
 It's organized into sub-commands, the first one being ``generate``, to generate synthetic pseudo-random data.
 
@@ -42,13 +42,13 @@ Synthetic data is described in our :ref:`conceptual overview documentation <over
 
 So, start by generating a classification problem with 4 criteria and 3 categories::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][1]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][1]["source"][0] }}
 
 .. highlight:: yaml
 
 The generated ``problem.yml`` should look like::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
 
 You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
 That format is explained in details in our :ref:`user guide <user-file-problem>`.
@@ -58,13 +58,13 @@ The concept of "classification problem" is described in our :ref:`conceptual ove
 
 Then generate an NCS classification model::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][2]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][2]["source"][0] }}
 
 .. highlight:: yaml
 
 It should look like::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][2]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][2]["outputs"][0]["text"] | join('    ') }}
 
 The file format, including the ``*coalitions`` YAML reference, is documented in our :ref:`user guide <user-file-ncs-model>`.
 
@@ -72,7 +72,7 @@ The file format, including the ``*coalitions`` YAML reference, is documented in 
 
 You can visualize it using::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][3]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][3]["source"][0] }}
 
 It should output something like:
 
@@ -82,7 +82,7 @@ It should output something like:
 
 And finally generate a set of classified alternatives::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][4]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][4]["source"][0] }}
 
 The file format is documented in our :ref:`reference documentation <ref-file-alternatives>`.
 
@@ -94,13 +94,13 @@ Then we'll need to think about the how the ``--max-imbalance`` option interacts 
 
 It should start with something like this, and contain 1000 alternatives::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][4]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][4]["outputs"][0]["text"] | join('    ') }}
 
 .. highlight:: shell
 
 You can visualize its first five alternatives using::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][5]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][5]["source"][0] }}
 
 It should output something like:
 
@@ -114,7 +114,7 @@ It should output something like:
 
 You now have a (synthetic) learning set. You can use it to train a new model::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][6]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][6]["source"][0] }}
 
 .. highlight:: yaml
 
@@ -123,7 +123,7 @@ The learning set doesn't contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
 so it is numerically different::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][6]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][6]["outputs"][0]["text"] | join('    ') }}
 
 If the training is effective, the resulting trained model should however behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
@@ -132,37 +132,37 @@ To see how close a trained model is to the original one, you can reclassify a te
 
 First, generate a testing set from the original model::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][7]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][7]["source"][0] }}
 
 .. highlight:: shell
 
 Then ask the trained model to classify it::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][8]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][8]["source"][0] }}
 
 .. highlight:: shell
 
 There are a few differences between the original testing set and the reclassified one::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][8]["source"][1] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][8]["source"][1] }}
 
 .. highlight:: diff
 
 That command should show a few alternatives that are not classified the same way by the original and the trained model::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][8]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][8]["outputs"][0]["text"] | join('    ') }}
 
 .. highlight:: shell
 
 You can also measure the classification accuracy of the trained model on that testing set::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][9]["source"][0] }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][9]["source"][0] }}
 
 .. highlight:: text
 
 It should be close to 100%::
 
-    {{ notebooks["integration-tests/get-started/get-started.ipynb"]["cells"][9]["outputs"][0]["text"] | join('    ') }}
+    {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][9]["outputs"][0]["text"] | join('    ') }}
 
 
 What now?

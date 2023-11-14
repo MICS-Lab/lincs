@@ -145,7 +145,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         # With lincs installed
         ######################
 
-        print_title("Running all Jupyter notebooks (integration tests)")
+        print_title("Running all Jupyter notebooks (integration tests, documentation sources)")
         run_all_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu)
 
         print_title("Updating templates (documentation sources)")
@@ -289,7 +289,7 @@ def build_sphinx_documentation():
 
     shutil.copy("COPYING", "docs/")
     shutil.copy("COPYING.LESSER", "docs/")
-    shutil.copy("integration-tests/get-started/get-started.ipynb", "docs/")
+    shutil.copy("doc-sources/get-started/get-started.ipynb", "docs/")
 
 
 def run_old_integration_tests(*, skip_long, forbid_gpu):
