@@ -82,7 +82,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
 
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
     if single_python_version:
-        python_versions = [python_versions[-1]]
+        python_versions = [python_versions[0]]  # Use the lowest version to ensure backward compatibility
         os.environ["LINCS_DEV_PYTHON_VERSIONS"] = python_versions[0]
 
     shutil.rmtree("build", ignore_errors=True)
@@ -140,7 +140,13 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         ###############
 
         shutil.rmtree("build", ignore_errors=True)
-        for python_version in python_versions:
+        # Install in reverse order to ensure that the lowest version is installed last,
+        # so that the installed 'lincs' command is the one from the lowest version,
+        # to keep the same behavior when we test with several versions.
+        # At the time of writing:
+        # - 'integration-tests/help-all' displays more things with recent Python versions
+        # - images created by 'doc-sources/**/*.ipynb' differ because of the version of matplotlib
+        for python_version in reversed(python_versions):
             print_title(f"Installing *lincs* for Python {python_version}")
             shutil.rmtree("lincs.egg-info", ignore_errors=True)
             subprocess.run([f"python{python_version}", "-m", "pip", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
