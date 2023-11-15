@@ -387,6 +387,9 @@ Or maybe a small multiple of that number.
 
 The ``--mrsort.weights-profiles-breed.verbose`` option can be used to make *lincs* display information about the progress of the learning.
 
+The ``--mrsort.weights-profiles-breed.output-metadata`` options can be used to produce a YAML file giving information about the learning process:
+the reason it stopped (accuracy reached, time limit, *etc.*), how many WPB iterations it took, *etc.*
+
 Termination
 ...........
 

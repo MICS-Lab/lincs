@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import contextlib
+import json
 import math
 import os
 import random
@@ -743,6 +744,14 @@ def learn():
                                 is_flag=True,
                             ),
                             {},
+                        ),
+                        (
+                            "output-metadata",
+                            dict(
+                                help="Write metadata about the learning process to this file.",
+                                type=click.File(mode="w"),
+                            ),
+                            {},
                         )
                     ],
                 },
@@ -783,6 +792,7 @@ def classification_model(
     mrsort__weights_profiles_breed__breed_strategy,
     mrsort__weights_profiles_breed__reinitialize_least_accurate__portion,
     mrsort__weights_profiles_breed__verbose,
+    mrsort__weights_profiles_breed__output_metadata,
     ucncs__strategy,
 ):
     command_line = ["lincs", "learn", "classification-model", get_input_file_name(problem), get_input_file_name(learning_set), "--model-type", model_type]
@@ -862,6 +872,21 @@ def classification_model(
                         print(f"Final accuracy (after {self.learning_data.iteration_index + 1} iterations): {self.learning_data.get_best_accuracy()}", file=sys.stderr)
 
                 observers.append(VerboseObserver(learning_data))
+            if mrsort__weights_profiles_breed__output_metadata:
+                class MetadataObserver(lincs.LearnMrsortByWeightsProfilesBreed.Observer):
+                    def __init__(self, learning_data):
+                        super().__init__()
+                        self.learning_data = learning_data
+                        self.accuracies = []
+
+                    def after_iteration(self):
+                        self.accuracies.append(self.learning_data.get_best_accuracy())
+
+                    def before_return(self):
+                        self.accuracies.append(self.learning_data.get_best_accuracy())
+
+                metadata_observer = MetadataObserver(learning_data)
+                observers.append(metadata_observer)
 
             learning = lincs.LearnMrsortByWeightsProfilesBreed(
                 learning_data,
@@ -891,7 +916,7 @@ def classification_model(
         exit(1)
     else:
         print(f"# {make_reproduction_command(command_line)}", file=output_model, flush=True)
-        if model_type == "mrsort" and mrsort__strategy == "weights-profiles-breed":
+        if model_type == "mrsort" and mrsort__strategy == "weights-profiles-breed" and mrsort__weights_profiles_breed__output_metadata is not None:
             for termination_strategy in termination_strategies:
                 if termination_strategy.terminate():
                     termination_condition = {
@@ -907,8 +932,15 @@ def classification_model(
                     break
             else:
                 termination_condition = "unknown (Unexpected, please let the lincs maintainers know about this)"
-            print(f"# Termination condition: {termination_condition}", file=output_model, flush=True)
-            print(f"# Number of iterations: {learning_data.iteration_index}", file=output_model, flush=True)
+            json.dump(
+                {
+                    "termination_condition": termination_condition,
+                    "iterations_count": learning_data.iteration_index,
+                    "intermediate_accuracies": metadata_observer.accuracies,
+                },
+                mrsort__weights_profiles_breed__output_metadata,
+                indent=4
+            )
         model.dump(problem, output_model)
 
 
