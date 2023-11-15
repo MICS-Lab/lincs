@@ -194,30 +194,21 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   CHRONE();
 
   std::vector<std::vector<unsigned>> profile_ranks(learning_set.boundaries_count);
-  std::vector<std::vector<float>> profile_values(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     std::vector<unsigned>& ranks = profile_ranks[boundary_index];
-    std::vector<float>& values = profile_values[boundary_index];
     ranks.resize(learning_set.criteria_count);
-    values.resize(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
         if (solution[better[criterion_index][boundary_index][value_rank]]) {
           ranks[criterion_index] = value_rank;
-          if (value_rank == 0) {
-            values[criterion_index] = learning_set.sorted_values[criterion_index][0];
-          } else {
-            values[criterion_index] = (learning_set.sorted_values[criterion_index][value_rank - 1] + learning_set.sorted_values[criterion_index][value_rank]) / 2;
-          }
           found = true;
           break;
         }
       }
       if (!found) {
-        const unsigned last_rank = learning_set.values_counts[criterion_index] - 1;
-        ranks[criterion_index] = last_rank;
-        values[criterion_index] = learning_set.sorted_values[criterion_index][last_rank];
+        // Past-the-end rank
+        ranks[criterion_index] = learning_set.values_counts[criterion_index];
       }
     }
   }
@@ -249,13 +240,13 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     }
   }
 
-  std::vector<Model::Boundary> boundaries;
+  std::vector<PreProcessedModel::Boundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-    boundaries.emplace_back(profile_values[boundary_index], SufficientCoalitions{SufficientCoalitions::roots, roots});
+    boundaries.emplace_back(profile_ranks[boundary_index], SufficientCoalitions{SufficientCoalitions::roots, roots});
   }
 
-  return Model{learning_set.problem, boundaries};
+  return learning_set.post_process(PreProcessedModel{boundaries});
 }
 
 template class SatSeparationUcncsLearning<MinisatSatProblem>;

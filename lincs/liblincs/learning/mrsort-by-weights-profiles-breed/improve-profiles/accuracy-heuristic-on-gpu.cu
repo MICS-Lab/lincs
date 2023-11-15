@@ -299,10 +299,6 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
 ) {
   auto& learning_data = host_learning_data;
 
-  const Criterion& criterion = learning_data.problem.criteria[criterion_index];
-  const bool is_increasing = criterion.preference_direction == Criterion::PreferenceDirection::increasing;
-  assert(is_increasing || criterion.preference_direction == Criterion::PreferenceDirection::decreasing);
-
   const float lowest_destination_rank =
     profile_index == 0 ?
       0 :

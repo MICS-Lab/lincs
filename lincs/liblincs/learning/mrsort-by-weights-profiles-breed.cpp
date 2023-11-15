@@ -13,12 +13,12 @@
 namespace lincs {
 
 LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
-    const Problem& problem_,
+    const Problem& problem,
     const Alternatives& learning_set,
     const unsigned models_count_,
     const unsigned random_seed
 ) :
-  PreProcessedLearningSet(problem_, learning_set),
+  PreProcessedLearningSet(problem, learning_set),
   iteration_index(0),
   models_count(models_count_),
   model_indexes(models_count),
@@ -48,20 +48,19 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   }
   SufficientCoalitions coalitions{SufficientCoalitions::weights, model_weights};
 
-  std::vector<Model::Boundary> boundaries;
+  std::vector<PreProcessedModel::Boundary> boundaries;
   boundaries.reserve(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-    std::vector<float> boundary_profile;
+    std::vector<unsigned> boundary_profile;
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       const unsigned profile_rank = profile_ranks[criterion_index][boundary_index][model_index];
-      const float profile_value = sorted_values[criterion_index][profile_rank];
-      boundary_profile.push_back(profile_value);
+      boundary_profile.push_back(profile_rank);
     }
     boundaries.emplace_back(boundary_profile, coalitions);
   }
 
-  return Model{problem, boundaries};
+  return post_process(PreProcessedModel{boundaries}, false);
 }
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {

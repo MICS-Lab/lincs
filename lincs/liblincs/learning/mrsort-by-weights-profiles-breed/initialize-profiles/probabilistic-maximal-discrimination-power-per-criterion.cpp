@@ -31,24 +31,21 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
 ) {
   CHRONE();
 
-  const Criterion& criterion = learning_data.problem.criteria[criterion_index];
-
-  std::vector<std::pair<unsigned, float>> candidates_worse;
+  std::vector<unsigned> candidates_worse;
   // The size used for 'reserve' is a few times larger than the actual final size,
   // so we're allocating too much memory. As it's temporary, I don't think it's too bad.
   // If 'initialize' ever becomes the centre of focus for our optimization effort, we should measure.
   candidates_worse.reserve(learning_data.alternatives_count);
-  std::vector<std::pair<unsigned, float>> candidates_better;
+  std::vector<unsigned> candidates_better;
   candidates_better.reserve(learning_data.alternatives_count);
   // This loop could/should be done once outside this function
   for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     const unsigned rank = learning_data.performance_ranks[criterion_index][alternative_index];
-    const float value = learning_data.sorted_values[criterion_index][rank];
     const unsigned assignment = learning_data.assignments[alternative_index];
     if (assignment == profile_index) {
-      candidates_worse.push_back({rank, value});
+      candidates_worse.push_back(rank);
     } else if (assignment == profile_index + 1) {
-      candidates_better.push_back({rank, value});
+      candidates_better.push_back(rank);
     }
   }
 
@@ -58,8 +55,7 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
     std::map<unsigned, double> rank_probabilities;
 
     for (auto candidates : { candidates_worse, candidates_better }) {
-      for (auto [candidate_rank, candidate_value] : candidates) {
-        assert(learning_data.sorted_values[criterion_index][candidate_rank] == candidate_value);
+      for (auto candidate_rank : candidates) {
         const bool already_evaluated = rank_probabilities.find(candidate_rank) != rank_probabilities.end();
         if (already_evaluated) {
           // Candidate value has already been evaluated (because it appears several times)
@@ -69,13 +65,13 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
         unsigned correctly_classified_count = 0;
         // @todo(Performance, later) Could we somehow sort 'candidates_worse' and 'candidates_better' and walk the values only once?
         // (Transforming this O(n²) loop in O(n*log n) + O(n))
-        for (auto [rank, value] : candidates_worse) {
+        for (auto rank : candidates_worse) {
           const bool is_better = candidate_rank > rank;
           if (is_better) {
             ++correctly_classified_count;
           }
         }
-        for (auto [rank, value] : candidates_better) {
+        for (auto rank : candidates_better) {
           const bool is_better = rank >= candidate_rank;
           if (is_better) {
             ++correctly_classified_count;
@@ -103,22 +99,14 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
 
     // Embarrassingly parallel
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-      const Criterion& criterion = learning_data.problem.criteria[criterion_index];
       // Not parallel because of the profiles ordering constraint
       for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
         const unsigned profile_index = category_index - 1;
         unsigned rank = rank_generators[criterion_index][profile_index](learning_data.urbgs[model_index]);
 
         // Enforce profiles ordering constraint
-        if (criterion.preference_direction == Criterion::PreferenceDirection::increasing) {
-          if (profile_index != learning_data.boundaries_count - 1) {
-            rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
-          }
-        } else {
-          assert(criterion.preference_direction == Criterion::PreferenceDirection::decreasing);
-          if (profile_index != learning_data.boundaries_count - 1) {
-            rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
-          }
+        if (profile_index != learning_data.boundaries_count - 1) {
+          rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
         }
 
         learning_data.profile_ranks[criterion_index][profile_index][model_index] = rank;

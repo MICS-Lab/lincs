@@ -49,10 +49,6 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const unsigned profile_index,
   const unsigned criterion_index
 ) {
-  const Criterion& criterion = learning_data.problem.criteria[criterion_index];
-  const bool is_increasing = criterion.preference_direction == Criterion::PreferenceDirection::increasing;
-  assert(is_increasing || criterion.preference_direction == Criterion::PreferenceDirection::decreasing);
-
   const float lowest_destination_rank =
     profile_index == 0 ?
       0 :

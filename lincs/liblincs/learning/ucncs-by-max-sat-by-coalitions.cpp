@@ -132,9 +132,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
   // Clauses "C5~" in the article
   // Alternatives are outranked by the boundary better than them
   for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives_count; ++alternative_index) {
-    const auto& alternative = learning_set.learning_set.alternatives[alternative_index];
-
-    const unsigned category_index = *alternative.category_index;
+    const unsigned category_index = learning_set.assignments[alternative_index];
     if (category_index == learning_set.categories_count - 1) {
       continue;
     }
@@ -163,9 +161,7 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
   // Clauses "C6~" in the article
   // Alternatives outrank the boundary worse than them
   for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives_count; ++alternative_index) {
-    const auto& alternative = learning_set.learning_set.alternatives[alternative_index];
-
-    const unsigned category_index = *alternative.category_index;
+    const unsigned category_index = learning_set.assignments[alternative_index];
     if (category_index == 0) {
       continue;
     }
@@ -218,33 +214,29 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     }
   }
 
-  std::vector<Model::Boundary> boundaries;
+  std::vector<PreProcessedModel::Boundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-    std::vector<float> profile(learning_set.criteria_count);
+    std::vector<unsigned> profile_ranks(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
         if (solution[better[criterion_index][boundary_index][value_rank]]) {
-          if (value_rank == 0) {
-            profile[criterion_index] = learning_set.sorted_values[criterion_index][value_rank];
-          } else {
-            profile[criterion_index] = (learning_set.sorted_values[criterion_index][value_rank - 1] + learning_set.sorted_values[criterion_index][value_rank]) / 2;
-          }
+            profile_ranks[criterion_index] = value_rank;
           found = true;
           break;
         }
       }
       if (!found) {
-        const unsigned last_rank = learning_set.values_counts[criterion_index] - 1;
-        profile[criterion_index] = learning_set.sorted_values[criterion_index][last_rank];
+        // Past-the-end rank
+        profile_ranks[criterion_index] = learning_set.values_counts[criterion_index];
       }
     }
 
-    boundaries.emplace_back(profile, SufficientCoalitions{SufficientCoalitions::roots, roots});
+    boundaries.emplace_back(profile_ranks, SufficientCoalitions{SufficientCoalitions::roots, roots});
   }
 
-  return Model{learning_set.problem, boundaries};
+  return learning_set.post_process(PreProcessedModel{boundaries});
 }
 
 template class MaxSatCoalitionsUcncsLearning<EvalmaxsatMaxSatProblem>;

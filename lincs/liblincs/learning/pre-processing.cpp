@@ -2,6 +2,7 @@
 
 #include "pre-processing.hpp"
 
+#include <cassert>
 #include <map>
 #include <set>
 
@@ -9,10 +10,9 @@
 namespace lincs {
 PreProcessedLearningSet::PreProcessedLearningSet(
   const Problem& problem_,
-  const Alternatives& learning_set_
+  const Alternatives& learning_set
 ) :
   problem(problem_),
-  learning_set(learning_set_),
   criteria_count(problem.criteria.size()),
   categories_count(problem.ordered_categories.size()),
   boundaries_count(categories_count - 1),
@@ -54,6 +54,37 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives.size(); ++alternative_index) {
     assignments[alternative_index] = *learning_set.alternatives[alternative_index].category_index;
   }
+}
+
+Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, const bool do_halves) const {
+  assert(model.boundaries.size() == boundaries_count);
+
+  std::vector<Model::Boundary> boundaries;
+  boundaries.reserve(boundaries_count);
+  for (const auto& boundary: model.boundaries) {
+    assert(boundary.profile_ranks.size() == criteria_count);
+    // @todo(Project management, later) Replace with:
+    // profile.reserve(criteria_count)
+    // for (rank : boundary.profile_ranks) {
+    //   ... profile.emplace_back(...)
+    std::vector<float> profile(criteria_count);
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      const unsigned rank = boundary.profile_ranks[criterion_index];
+      if (rank == 0) {
+        profile[criterion_index] = sorted_values[criterion_index][rank];
+      } else if (rank == values_counts[criterion_index]) {
+        // Past-the-end rank
+        profile[criterion_index] = sorted_values[criterion_index][values_counts[criterion_index] - 1];
+      } else if (do_halves) {
+        profile[criterion_index] = (sorted_values[criterion_index][rank - 1] + sorted_values[criterion_index][rank]) / 2;
+      } else {
+        profile[criterion_index] = sorted_values[criterion_index][rank];
+      }
+    }
+    boundaries.emplace_back(profile, boundary.sufficient_coalitions);
+  }
+
+  return Model{problem, boundaries};
 }
 
 }  // namespace lincs
