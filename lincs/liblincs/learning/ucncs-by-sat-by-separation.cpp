@@ -201,17 +201,12 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     ranks.resize(learning_set.criteria_count);
     values.resize(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-      const bool is_increasing = learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::increasing;
-      assert(is_increasing || learning_set.problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
-      const float best_value = is_increasing ? learning_set.problem.criteria[criterion_index].max_value : learning_set.problem.criteria[criterion_index].min_value;
-      const float worst_value = is_increasing ? learning_set.problem.criteria[criterion_index].min_value : learning_set.problem.criteria[criterion_index].max_value;
-
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
         if (solution[better[criterion_index][boundary_index][value_rank]]) {
           ranks[criterion_index] = value_rank;
           if (value_rank == 0) {
-            values[criterion_index] = worst_value;
+            values[criterion_index] = learning_set.sorted_values[criterion_index][0];
           } else {
             values[criterion_index] = (learning_set.sorted_values[criterion_index][value_rank - 1] + learning_set.sorted_values[criterion_index][value_rank]) / 2;
           }
@@ -220,8 +215,9 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
         }
       }
       if (!found) {
-        ranks[criterion_index] = learning_set.values_counts[criterion_index];
-        values[criterion_index] = best_value;
+        const unsigned last_rank = learning_set.values_counts[criterion_index] - 1;
+        ranks[criterion_index] = last_rank;
+        values[criterion_index] = learning_set.sorted_values[criterion_index][last_rank];
       }
     }
   }
