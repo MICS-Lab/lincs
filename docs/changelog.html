@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; lincs 0.10.3 documentation</title>
+    <title>Changelog &#8212; lincs 0.11.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=cdbb1c5d"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=8b96dc6e"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -34,6 +34,22 @@
             
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
+<section id="version-0-11-0">
+<h2>Version 0.11.0<a class="headerlink" href="#version-0-11-0" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Breaking</strong> Rename <code class="docutils literal notranslate"><span class="pre">category_correlation</span></code> to <code class="docutils literal notranslate"><span class="pre">preference_direction</span></code> in problem files</p></li>
+<li><p><strong>Breaking</strong> Rename the <code class="docutils literal notranslate"><span class="pre">growing</span></code> preference direction to <code class="docutils literal notranslate"><span class="pre">increasing</span></code> in problem files</p></li>
+<li><p><strong>Breaking</strong> Rename the <code class="docutils literal notranslate"><span class="pre">categories</span></code> attribute in problem files to <code class="docutils literal notranslate"><span class="pre">ordered_categories</span></code> in problem files</p></li>
+<li><p>Make names of generated categories more explicit (“Worst category”, “Intermediate category N”, “Best category”)</p></li>
+<li><p>Support <code class="docutils literal notranslate"><span class="pre">isotone</span></code> (resp. <code class="docutils literal notranslate"><span class="pre">antitone</span></code>) as a synonym for <code class="docutils literal notranslate"><span class="pre">increasing</span></code> (resp. <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>) in problem files</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">describe</span></code> command to produce human-readable descriptions of problems and models</p></li>
+<li><p><strong>Remove</strong> comments about termination conditions from learned models, but:</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--mrsort.weights-profiles-breed.output-metadata</span></code> to generate in YAML the data previously found in those comments</p></li>
+<li><p>Provide a Jupyter notebook to help follow the “Get Started” guide (and use Jupyter for all integration tests)</p></li>
+<li><p>Document the “externally managed” error on Ubuntu 23.4+</p></li>
+</ul>
+<p>(In versions below, the term “category correlation” was used instead of “preference direction”.)</p>
+</section>
 <section id="versions-0-10-0-to-0-10-3">
 <h2>Versions 0.10.0 to 0.10.3<a class="headerlink" href="#versions-0-10-0-to-0-10-3" title="Permalink to this heading">¶</a></h2>
 <p>This is the first release candidate for version 1.0.0.</p>
@@ -268,6 +284,7 @@
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-11-0">Version 0.11.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#versions-0-10-0-to-0-10-3">Versions 0.10.0 to 0.10.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#versions-0-9-0-to-0-9-2">Versions 0.9.0 to 0.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-8-7">Version 0.8.7</a></li>

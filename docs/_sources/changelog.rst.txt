@@ -4,6 +4,22 @@
 Changelog
 =========
 
+Version 0.11.0
+==============
+
+- **Breaking** Rename ``category_correlation`` to ``preference_direction`` in problem files
+- **Breaking** Rename the ``growing`` preference direction to ``increasing`` in problem files
+- **Breaking** Rename the ``categories`` attribute in problem files to ``ordered_categories`` in problem files
+- Make names of generated categories more explicit ("Worst category", "Intermediate category N", "Best category")
+- Support ``isotone`` (resp. ``antitone``) as a synonym for ``increasing`` (resp. ``decreasing``) in problem files
+- Add ``lincs describe`` command to produce human-readable descriptions of problems and models
+- **Remove** comments about termination conditions from learned models, but:
+- Add ``--mrsort.weights-profiles-breed.output-metadata`` to generate in YAML the data previously found in those comments
+- Provide a Jupyter notebook to help follow the "Get Started" guide (and use Jupyter for all integration tests)
+- Document the "externally managed" error on Ubuntu 23.4+
+
+(In versions below, the term "category correlation" was used instead of "preference direction".)
+
 Versions 0.10.0 to 0.10.3
 =========================
 

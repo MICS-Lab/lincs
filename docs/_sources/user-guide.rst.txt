@@ -1,3 +1,5 @@
+.. WARNING: this file is generated from 'doc-sources/user-guide.rst.tmpl'. MANUAL EDITS WILL BE LOST.
+
 .. Copyright 2023 Vincent Jacques
 
 ==========
@@ -23,24 +25,6 @@ Formatting data for *lincs*
 The concept of classification problem is defined in our :ref:`conceptual overview <overview-about-classification>`.
 To describe problems, *lincs* uses YAML files conforming to the `JSON schema <https://json-schema.org/>`_ you'll find in our :ref:`reference documentation <ref-file-problem>`.
 
-.. START file-formats/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
-    lincs generate classification-model problem.yml --random-seed 42 --output-model mrsort-model.yml
-    diff <(tail -n +2 mrsort-model.yml) expected-mrsort-model.yml
-
-    # Check that the NCS model is correct (we don't have explicit commands for that, so we use generate classified-alternatives)
-    lincs generate classified-alternatives problem.yml ncs-model.yml 1 >/dev/null
-
-    lincs classify problem.yml mrsort-model.yml unclassified-alternatives.csv --output-alternatives classified-alternatives.csv
-    diff <(tail -n +2 classified-alternatives.csv) expected-classified-alternatives.csv
-.. STOP
-
-.. START file-formats/problem.yml
-
 Here is an example of a problem file::
 
     kind: classification-problem
@@ -48,20 +32,19 @@ Here is an example of a problem file::
     criteria:
       - name: Criterion 1
         value_type: real
-        category_correlation: growing
+        preference_direction: increasing
         min_value: 0
         max_value: 20
       - name: Criterion 2
         value_type: real
-        category_correlation: decreasing
+        preference_direction: decreasing
         min_value: -5
         max_value: 5
-    categories:
+    ordered_categories:
       - name: Low
       - name: Medium
       - name: High
 
-.. STOP
 
 The two first keys, ``kind`` and ``format_version`` are here to identify exactly the file format.
 For now, they must always be set to ``classification-problem`` and ``1`` respectively.
@@ -77,13 +60,13 @@ Each criterion has a ``name``.
 Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
 
-Then, the ``category_correlation`` key describe what makes "good values" for this criterion.
-If it is ``growing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
-Note that this correlation comes from expert knowledge about the structure of the problem,
+Then, the ``preference_direction`` key describe what makes "good values" for this criterion.
+If it is ``increasing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
+Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
-We expect the supported correlations could evolve to also support criteria with single-peaked correlation,
+We expect the supported preference directions could evolve to also support single-peaked criteria,
 where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
-We also expect this could evolve to support criteria with unknown correlation,
+We also expect this could evolve to support criteria with unknown preference direction,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.
 
 Finally, for criteria with numerical ``value_type`` (currently all of them),
@@ -114,8 +97,6 @@ referencing the problem file by name would not be robust because files can be re
 and referencing the problem file by content (using a hash) would forbid any change in the problem file.
 So it's the user's responsibility to keep track of that information and always give *lincs* the correct problem file along with a model file.
 
-.. START file-formats/expected-mrsort-model.yml
-
 Here is an example of a model file corresponding to the problem file above::
 
     kind: ncs-classification-model
@@ -131,7 +112,6 @@ Here is an example of a model file corresponding to the problem file above::
         criterion_weights: [0.938825667, 0.343733728]
       - *coalitions
 
-.. STOP
 
 Like for problem files, the two first keys must take exactly these values.
 
@@ -149,21 +129,21 @@ For such a criterion, the determination of the accepted values will require two 
 So our file format takes an transposed approach and focusses on criteria instead of profiles:
 for each criterion, it describes the method used to accept values at different category levels.
 
-For current criteria (with ``growing`` or ``decreasing`` correlation), the method is always ``kind: thresholds``,
+For current criteria (with ``increasing`` or ``decreasing`` preference direction), the method is always ``kind: thresholds``,
 and the ``thresholds`` attribute lists the successive values required to enter an upper category.
 It must have as many elements as there are boundaries between categories, *i.e.* as there are categories minus one.
-It's always sorted, in increasing order for ``growing`` criteria and in decreasing order for ``decreasing`` criteria.
+It's always sorted, in increasing order for ``increasing`` criteria and in decreasing order for ``decreasing`` criteria.
 
 Note that this list is not a profile: it does not describe the limits between categories.
 The matrix made of these lists is the transposed of the matrix made of the profiles.
 
-When we support criteria with single-peaked or unknown correlation,
+When we support single-peaked criteria or criteria with unknown preference direction,
 we'll introduce other ``kinds`` of accepted values with new attributes instead of ``thresholds``.
 
 ==================================  ========================  ==========================
-Criterion ``category_correlation``  Accepted values ``kind``  Accepted values attributes
+Criterion ``preference_direction``  Accepted values ``kind``  Accepted values attributes
 ==================================  ========================  ==========================
-``growing``                         ``thresholds``            ``thresholds``
+``increasing``                      ``thresholds``            ``thresholds``
 ``decreasing``                      ``thresholds``            ``thresholds``
 ==================================  ========================  ==========================
 
@@ -195,8 +175,6 @@ Sufficient coalitions ``kind``  Sufficient coalitions attributes
 ``roots``                       ``upset_roots``
 ==============================  ================================
 
-.. START file-formats/ncs-model.yml
-
 Here is another model corresponding to the problem file above, but this time using the ``roots`` kind of sufficient coalitions,
 and using different coalitions for the two boundaries (so, no YAML anchor)::
 
@@ -215,7 +193,6 @@ and using different coalitions for the two boundaries (so, no YAML anchor)::
         upset_roots:
           - [0, 1]
 
-.. STOP
 
 "Alternatives" files
 --------------------
@@ -227,8 +204,6 @@ Like model files, alternatives files are always associated to a problem file.
 
 .. highlight:: text
 
-.. START file-formats/expected-classified-alternatives.csv
-
 Here is an example corresponding to the problem above::
 
     name,"Criterion 1","Criterion 2",category
@@ -238,14 +213,11 @@ Here is an example corresponding to the problem above::
     "Alternative 4",18.0154629,1.33949804,Medium
     "Alternative 5",9.30789757,2.66963387,Medium
 
-.. STOP
 
 Its header line contains the names of its columns.
 Its first column, ``name``, contains the names of the alternatives.
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, ``category``, contains the names of the categories in which each alternative is classified.
-
-.. START file-formats/unclassified-alternatives.csv
 
 Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
 
@@ -256,7 +228,6 @@ Values in the ``category`` column can be empty to describe alternatives that are
     "Alternative 4",18.0154629,1.33949804,
     "Alternative 5",9.30789757,2.66963387,
 
-.. STOP
 
 .. _user-comments-in-generated-files:
 
@@ -294,38 +265,24 @@ In all cases, the :ref:`comments <user-comments-in-generated-files>` left by *li
 Generating a problem
 --------------------
 
-.. START synthetic-data/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
 With ``lincs generate classification-problem``, you can generate a classification problem file.
 Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`::
 
     lincs generate classification-problem 4 3
 
-.. APPEND-TO-LAST-LINE --output-problem problem.yml
-.. STOP
-
 The ``--help`` option on the command-line and our :ref:`reference documentation <ref-cli>` describe the options available to tweak the generated problem.
 Most notably:
 
 - ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
-- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``category_corelation`` of each criterion between ``growing`` and ``decreasing``. By default, all criteria have ``growing`` correlation.
+- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``. By default, all criteria have ``increasing`` preference direction.
 
 Generating a model
 ------------------
-
-.. EXTEND synthetic-data/run.sh
 
 With ``lincs generate classification-model``, you can generate a classification model file.
 Using its default settings, you just have to pass it the problem file you want to use::
 
     lincs generate classification-model problem.yml
-
-.. APPEND-TO-LAST-LINE --output-model model.yml
-.. STOP
 
 For now, *lincs* can only generate MR-Sort models, so the ``--model-type`` option can only take its default value: ``mrsort``.
 We expect this could change if we implement the generation of other types of models.
@@ -337,14 +294,9 @@ This effectively impacts how hard it is for alternatives to get into upper categ
 Generating alternatives
 -----------------------
 
-.. EXTEND synthetic-data/run.sh
-
 With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate::
 
     lincs generate classified-alternatives problem.yml model.yml 100
-
-.. APPEND-TO-LAST-LINE --output-alternatives learning-set.csv
-.. STOP
 
 This generates 100 random alternatives, and then classifies them according to the model.
 
@@ -370,15 +322,10 @@ After alternatives are generated and classified, this option randomly selects th
 Learning a model
 ================
 
-.. EXTEND synthetic-data/run.sh
-
 As you've seen in our get started guide, the basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
 With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives)::
 
     lincs learn classification-model problem.yml learning-set.csv
-
-.. APPEND-TO-LAST-LINE --output-model learned-model.yml
-.. STOP
 
 Its ``--help`` option and our reference documentation give you a list of the numerous options it accepts.
 
@@ -440,6 +387,9 @@ Or maybe a small multiple of that number.
 
 The ``--mrsort.weights-profiles-breed.verbose`` option can be used to make *lincs* display information about the progress of the learning.
 
+The ``--mrsort.weights-profiles-breed.output-metadata`` options can be used to produce a YAML file giving information about the learning process:
+the reason it stopped (accuracy reached, time limit, *etc.*), how many WPB iterations it took, *etc.*
+
 Termination
 ...........
 
@@ -462,49 +412,12 @@ That strategy uses a linear program, and lets you choose among several solvers w
 
 By default, it uses GLOP, which is a part of `Google's OR-Tools <https://developers.google.com/optimization/>`_.
 
-.. START alglib-learning/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
-    cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
-
 Here is an example using the `Alglib <https://www.alglib.net/>`_ solver::
 
     lincs learn classification-model problem.yml learning-set.csv \
       --mrsort.weights-profiles-breed.linear-program.solver alglib
 
-.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
-.. APPEND-TO-LAST-LINE --output-model alglib-trained-model.yml
-
-    diff expected-alglib-trained-model.yml alglib-trained-model.yml
-
-.. STOP
-
 It should produce a very similar model, with slight numerical differences.
-
-.. START alglib-learning/expected-alglib-trained-model.yml
-    # Reproduction command (with lincs version 0.10.3): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver alglib --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
-    # Termination condition: target accuracy reached
-    # Number of iterations: 9
-    kind: ncs-classification-model
-    format_version: 1
-    accepted_values:
-      - kind: thresholds
-        thresholds: [0.924693644, 0.971395075]
-      - kind: thresholds
-        thresholds: [0.0556534864, 0.326433569]
-      - kind: thresholds
-        thresholds: [0.162616938, 0.671892762]
-      - kind: thresholds
-        thresholds: [0.942387044, 0.988728762]
-    sufficient_coalitions:
-      - &coalitions
-        kind: weights
-        criterion_weights: [0.293799639, 0.386859566, 0.613140464, 0.304567546]
-      - *coalitions
-.. STOP
 
 "Profiles" step
 ...............
@@ -521,31 +434,10 @@ This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with ``lincs info has-gpu``.
 
-.. START gpu-learning/uses-gpu
-.. STOP
-
-.. START gpu-learning/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
-    cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
-    cp ../../get-started/command-line-example/expected-trained-model.yml .
-
-    diff <(echo "lincs was compiled with CUDA support") <(lincs info has-gpu)
-
 Here is an example::
 
     lincs learn classification-model problem.yml learning-set.csv \
       --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
-
-.. APPEND-TO-LAST-LINE --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43
-.. APPEND-TO-LAST-LINE --output-model gpu-trained-model.yml
-
-    diff <(sed s/cpu/gpu/ expected-trained-model.yml) gpu-trained-model.yml
-
-.. STOP
 
 If you specify the random seed, it will produce the exact same model as when using the CPU;
 this is an important feature of *lincs*, that the GPU code has the same behavior as the CPU code.
@@ -563,14 +455,6 @@ SAT-based strategies
 
 .. highlight:: shell
 
-.. START sat-learnings/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
-    cp ../../get-started/command-line-example/{problem.yml,learning-set.csv} .
-
 You can also use entirely different approaches using SAT and max-SAT solvers.
 The tradeoffs offered by these methods are highlighted in our :ref:`conceptual overview <overview-learning-methods>`.
 
@@ -580,28 +464,16 @@ Here are two examples::
     lincs learn classification-model problem.yml learning-set.csv \
       --model-type ucncs --ucncs.strategy sat-by-coalitions
 
-.. APPEND-TO-LAST-LINE --output-model sat-by-coalitions-trained-model.yml
-
 And::
 
     lincs learn classification-model problem.yml learning-set.csv \
       --model-type ucncs --ucncs.strategy max-sat-by-separation
 
-.. APPEND-TO-LAST-LINE --output-model max-sat-by-separation-trained-model.yml
-
-..
-    diff expected-sat-by-coalitions-trained-model.yml sat-by-coalitions-trained-model.yml
-    diff expected-max-sat-by-separation-trained-model.yml max-sat-by-separation-trained-model.yml
-
-.. STOP
-
 .. highlight:: yaml
-
-.. START sat-learnings/expected-sat-by-coalitions-trained-model.yml
 
 They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
-    # Reproduction command (with lincs version 0.10.3): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
+    # Reproduction command (with lincs version 0.11.0): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
@@ -619,29 +491,6 @@ They produce a different kind of model, with the sufficient coalitions specified
         upset_roots:
           - [1, 2]
       - *coalitions
-
-.. STOP
-
-.. START sat-learnings/expected-max-sat-by-separation-trained-model.yml
-    # Reproduction command (with lincs version 0.10.3): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy max-sat-by-separation
-    kind: ncs-classification-model
-    format_version: 1
-    accepted_values:
-      - kind: thresholds
-        thresholds: [0.944162905, 0.944440365]
-      - kind: thresholds
-        thresholds: [0.0552680492, 0.325211823]
-      - kind: thresholds
-        thresholds: [0.161919117, 0.672662616]
-      - kind: thresholds
-        thresholds: [0.000378949801, 0.224962443]
-    sufficient_coalitions:
-      - &coalitions
-        kind: roots
-        upset_roots:
-          - [1, 2]
-      - *coalitions
-.. STOP
 
 
 Using a model
@@ -666,6 +515,12 @@ Similarly, you can use ``lincs classification-accuracy problem.yml model.yml lea
 In that case, the ``category`` column must be populated as it serves as a reference to compute the accuracy.
 
 That command displays the number of alternatives that were correctly classified and the total number of alternatives in the learning set.
+
+Getting human-readable information about a problem or model
+-----------------------------------------------------------
+
+You can use ``lincs describe classification-problem problem.yml`` to get a human-readable description of a problem,
+and ``lincs describe classification-model problem.yml model.yml`` to get one for a model, including wether it's an MR-Sort or Uc-NCS model.
 
 Visualizing a model and alternatives
 ------------------------------------

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Contributor guide &#8212; lincs 0.10.3 documentation</title>
+    <title>Contributor guide &#8212; lincs 0.11.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=cdbb1c5d"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=8b96dc6e"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -112,21 +112,33 @@ Use this option to see the impact of your changes on the documentation, but do n
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-long">
-<span class="sig-name descname"><span class="pre">--skip-long</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-long" title="Permalink to this definition">¶</a></dt>
-<dd><p>Skip long tests to save time. Implies –single-python-version. Please run the full development cycle at least once before submitting your changes.</p>
-</dd></dl>
-
-<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-unit">
 <span class="sig-name descname"><span class="pre">--skip-unit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-unit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Skip unit tests to save time. Please run the full development cycle at least once before submitting your changes.</p>
+<dd><p>Skip unit tests to save time.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-stop-after-unit">
-<span class="sig-name descname"><span class="pre">--stop-after-unit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-stop-after-unit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop before integration tests to save time. Please run the full development cycle at least once before submitting your changes.</p>
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-long-unit">
+<span class="sig-name descname"><span class="pre">--skip-long-unit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-long-unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip long unit tests to save time.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-cpp-unit">
+<span class="sig-name descname"><span class="pre">--skip-cpp-unit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-cpp-unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip C++ unit tests to save time.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-notebooks">
+<span class="sig-name descname"><span class="pre">--skip-notebooks</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-notebooks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip notebooks to save time.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-run-development-cycle.sh-skip-unchanged-notebooks">
+<span class="sig-name descname"><span class="pre">--skip-unchanged-notebooks</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-run-development-cycle.sh-skip-unchanged-notebooks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip notebooks that have no ‘git diff’ to save time.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -155,6 +167,12 @@ Using this option explicitly avoids the warning.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./publish.sh<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">{</span>patch<span class="p">|</span>minor<span class="p">|</span>major<span class="o">}</span>
 </pre></div>
 </div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-.-publish.sh-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-.-publish.sh-dry-run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <p class="rubric">Arguments</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-.-publish.sh-arg-LEVEL">
@@ -203,44 +221,7 @@ They are described from a user perspective in our <a class="reference internal" 
 </ul>
 <section id="but-beware-of-virtual-function-calls">
 <h4>But beware of virtual function calls<a class="headerlink" href="#but-beware-of-virtual-function-calls" title="Permalink to this heading">¶</a></h4>
-<details>
-<summary>
-Virtual function calls are costly (click for details)</summary><p>Given these classes:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
-<span class="w"> </span><span class="k">public</span><span class="o">:</span>
-<span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">yes_virtual</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">no_virtual</span><span class="p">();</span>
-<span class="p">};</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">ActualFoo</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Foo</span><span class="w"> </span><span class="p">{</span>
-<span class="w"> </span><span class="k">public</span><span class="o">:</span>
-<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">yes_virtual</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-</div>
-<p>And functions:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Foo::no_virtual</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">ActualFoo::yes_virtual</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
-
-<span class="n">Foo</span><span class="o">*</span><span class="w"> </span><span class="nf">makeFoo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ActualFoo</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</pre></div>
-</div>
-<p>The following code runs in ~0.93s:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span><span class="o">*</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">makeFoo</span><span class="p">();</span>
-
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1&#39;000&#39;000&#39;000</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">foo</span><span class="o">-&gt;</span><span class="n">no_virtual</span><span class="p">();</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>And the following code runs in ~1.12s:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Foo</span><span class="o">*</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">makeFoo</span><span class="p">();</span>
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1&#39;000&#39;000&#39;000</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">foo</span><span class="o">-&gt;</span><span class="n">yes_virtual</span><span class="p">();</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</details><p>So, although virtual function calls are useful, they must be used with care.
+<p>Virtual function calls are somewhat costly (see <code class="docutils literal notranslate"><span class="pre">integration-tests/virtual-cost</span></code>) so, although they are useful, they must be used with care.
 It’s best to keep them for cases where they are not called too often; up to a few thousands per learning should be OK.
 When polymorphism is required for frequent calls, it’s best to use template-based static polymorphism.</p>
 <p>An example of that can be found in <code class="docutils literal notranslate"><span class="pre">lincs/liblincs/learning/mrsort-by-weights-profiles-breed/optimize-weights/linear-program.hpp</span></code>,
@@ -250,7 +231,7 @@ where the LP solver is injected using the <code class="docutils literal notransl
 <h4>So, why not all templates?<a class="headerlink" href="#so-why-not-all-templates" title="Permalink to this heading">¶</a></h4>
 <p>One could now consider using templates everywhere, and not use virtual function calls at all.
 This would have the following negative consequences:</p>
-<p>The number of explicit template instantiations would explode incombinatorially.
+<p>The number of explicit template instantiations would explode in a combinatorial way.
 For example, the <code class="docutils literal notranslate"><span class="pre">LinearProgram</span></code> template parameter of <code class="docutils literal notranslate"><span class="pre">.../optimize-weights/linear-program.hpp</span></code> is currently instantiated explicitly for each LP solver in <code class="docutils literal notranslate"><span class="pre">.../optimize-weights/linear-program.cpp</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">LearnMrsortByWeightsProfilesBreed</span></code> was a template, it would have to be instantiated for the whole Cartesian product of all variants of each strategy, to a great maintenance cost.
 Note that this is not specific to explicit template instanciation, because we expose <em>lincs</em> as a Python library:

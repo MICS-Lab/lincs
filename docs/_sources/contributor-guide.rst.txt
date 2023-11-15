@@ -128,104 +128,7 @@ Examples:
 But beware of virtual function calls
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. START virtual-cost/run.sh
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    trap 'echo "Error on line $LINENO"' ERR
-
-    g++ -c -O3 lib.cpp -o lib.o
-    g++ -O3 no-virtual.cpp lib.o -o no-virtual
-    g++ -O3 yes-virtual.cpp lib.o -o yes-virtual
-
-    time ./no-virtual
-    time ./yes-virtual
-.. STOP
-
-.. highlight:: c++
-
-.. details:: Virtual function calls are costly (click for details)
-
-    .. START virtual-cost/lib.hpp
-
-    Given these classes::
-
-        class Foo {
-         public:
-          virtual void yes_virtual() = 0;
-          void no_virtual();
-        };
-
-        class ActualFoo : public Foo {
-         public:
-          void yes_virtual() override;
-        };
-
-    .. STOP
-
-    .. EXTEND virtual-cost/lib.hpp
-        Foo* makeFoo();
-    .. STOP
-
-    .. START virtual-cost/lib.cpp
-        #include "lib.hpp"
-    .. STOP
-
-    .. EXTEND virtual-cost/lib.cpp
-
-    And functions::
-
-        void Foo::no_virtual() {}
-        void ActualFoo::yes_virtual() {}
-
-        Foo* makeFoo() { return new ActualFoo; }
-
-    .. STOP
-
-    .. START virtual-cost/no-virtual.cpp
-        #include "lib.hpp"
-
-        int main() {
-    .. STOP
-
-    .. EXTEND virtual-cost/no-virtual.cpp
-
-    The following code runs in ~0.93s::
-
-        Foo* foo = makeFoo();
-
-        for (int i = 0; i != 1'000'000'000; ++i) {
-          foo->no_virtual();
-        }
-
-    .. STOP
-
-    .. EXTEND virtual-cost/no-virtual.cpp
-        }
-    .. STOP
-
-    .. START virtual-cost/yes-virtual.cpp
-        #include "lib.hpp"
-
-        int main() {
-    .. STOP
-
-    .. EXTEND virtual-cost/yes-virtual.cpp
-
-    And the following code runs in ~1.12s::
-
-        Foo* foo = makeFoo();
-        for (int i = 0; i != 1'000'000'000; ++i) {
-          foo->yes_virtual();
-        }
-
-    .. STOP
-
-    .. EXTEND virtual-cost/yes-virtual.cpp
-        }
-    .. STOP
-
-So, although virtual function calls are useful, they must be used with care.
+Virtual function calls are somewhat costly (see ``integration-tests/virtual-cost``) so, although they are useful, they must be used with care.
 It's best to keep them for cases where they are not called too often; up to a few thousands per learning should be OK.
 When polymorphism is required for frequent calls, it's best to use template-based static polymorphism.
 
@@ -238,7 +141,7 @@ So, why not all templates?
 One could now consider using templates everywhere, and not use virtual function calls at all.
 This would have the following negative consequences:
 
-The number of explicit template instantiations would explode incombinatorially.
+The number of explicit template instantiations would explode in a combinatorial way.
 For example, the ``LinearProgram`` template parameter of ``.../optimize-weights/linear-program.hpp`` is currently instantiated explicitly for each LP solver in ``.../optimize-weights/linear-program.cpp``.
 If ``LearnMrsortByWeightsProfilesBreed`` was a template, it would have to be instantiated for the whole Cartesian product of all variants of each strategy, to a great maintenance cost.
 Note that this is not specific to explicit template instanciation, because we expose *lincs* as a Python library:

@@ -17,13 +17,13 @@ properties:
         name:
           type: string
         value_type:
-          description: May be extended in the future to handle criteria with integer values, or explicitely enumarated values.
+          description: May be extended in the future to handle criteria with integer values, or explicitly enumerated values.
           type: string
           enum: [real]
-        category_correlation:
-          description: May be extended in the future to handle single-peaked criteria, or criteria with unknown correlation.
+        preference_direction:
+          description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
           type: string
-          enum: [growing, decreasing]
+          enum: [increasing, isotone, decreasing, antitone]
         min_value:
           type: number
         max_value:
@@ -31,13 +31,13 @@ properties:
       required:
         - name
         - value_type
-        - category_correlation
+        - preference_direction
         - min_value
         - max_value
       additionalProperties: false
     minItems: 1
-  categories:
-    description: Structural information about categories in the classification problem.
+  ordered_categories:
+    description: Structural information about categories in the classification problem, ordered from the worst to the best.
     type: array
     items:
       type: object
@@ -52,5 +52,5 @@ required:
   - kind
   - format_version
   - criteria
-  - categories
+  - ordered_categories
 additionalProperties: false
