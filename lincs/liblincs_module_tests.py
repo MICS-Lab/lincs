@@ -8,6 +8,7 @@ from . import *
 
 forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
 
+# @todo Test using named parameters when calling the API (e.g. Criterion(name="Criterion name", ...), Problem(criteria=[...], ...))
 
 class ProblemTestCase(unittest.TestCase):
     def test_init_empty(self):

@@ -513,6 +513,12 @@ In that case, the ``category`` column must be populated as it serves as a refere
 
 That command displays the number of alternatives that were correctly classified and the total number of alternatives in the learning set.
 
+Getting human-readable information about a problem or model
+-----------------------------------------------------------
+
+You can use ``lincs describe classification-problem problem.yml`` to get a human-readable description of a problem,
+and ``lincs describe classification-model problem.yml model.yml`` to get one for a model, including wether it's an MR-Sort or Uc-NCS model.
+
 Visualizing a model and alternatives
 ------------------------------------
 

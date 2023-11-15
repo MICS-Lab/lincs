@@ -11,6 +11,7 @@ import click
 
 import lincs
 import lincs.visualization
+import lincs.description
 
 
 def options_tree(name, kwds, dependents):
@@ -114,7 +115,14 @@ def help_all():
         if '.'.join(path) in [
             "lincs.command_line_interface",
             "lincs.visualization.plt",
+            "lincs.description.unittest",
         ]:
+            return
+
+        if len(path) >= 3 and path[0] == "lincs" and path[1] == "description" and not path[2].startswith("describe_"):
+            return
+
+        if len(path) >= 3 and path[0] == "lincs" and path[1] == "visualization" and not path[2].startswith("visualize_"):
             return
 
         title = f"{'.'.join(path)}: {type_name or type(node).__name__}"
@@ -456,6 +464,74 @@ def classification_model(
         if alternatives is not None:
             alternatives = lincs.Alternatives.load(problem, alternatives)
     lincs.visualization.visualize_model(problem, model, alternatives, alternatives_count, output)
+
+
+@main.group(
+    help="Provide human-readable descriptions.",
+)
+def describe():
+    pass
+
+
+@describe.command(
+    help="""
+        Describe a classification problem.
+
+        PROBLEM is a *classification problem* file.
+    """,
+)
+@click.argument(
+    "problem",
+    type=click.File(mode="r"),
+)
+@click.option(
+    "--output-description",
+    type=click.File(mode="w"),
+    default="-",
+    help="Write description to this file instead of standard output.",
+)
+def classification_problem(
+    problem,
+    output_description,
+):
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+    for line in lincs.description.describe_problem(problem):
+        print(line, file=output_description)
+
+
+@describe.command(
+    help="""
+        Describe a classification model.
+
+        PROBLEM is a *classification problem* file.
+        MODEL is a *classification model* file for that problem.
+    """,
+)
+@click.argument(
+    "problem",
+    type=click.File(mode="r"),
+)
+@click.argument(
+    "model",
+    type=click.File(mode="r"),
+)
+@click.option(
+    "--output-description",
+    type=click.File(mode="w"),
+    default="-",
+    help="Write description to this file instead of standard output.",
+)
+def classification_model(
+    problem,
+    model,
+    output_description,
+):
+    with loading_guard():
+        problem = lincs.Problem.load(problem)
+        model = lincs.Model.load(problem, model)
+    for line in lincs.description.describe_model(problem, model):
+        print(line, file=output_description)
 
 
 @main.group(

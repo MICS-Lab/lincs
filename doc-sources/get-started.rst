@@ -45,6 +45,7 @@ The command-line interface is the easiest way to get started with *lincs*, start
     Commands:
       classification-accuracy  Compute a classification accuracy.
       classify                 Classify alternatives.
+      describe                 Provide human-readable descriptions.
       generate                 Generate synthetic data.
       info                     Get information about lincs itself.
       learn                    Learn a model.
@@ -101,6 +102,25 @@ You can edit this file to change the criteria names, the number of categories, *
 That format is explained in details in our :ref:`user guide <user-file-problem>`.
 The concept of "classification problem" is described in our :ref:`conceptual overview documentation <overview-about-classification>`.
 
+If you want a human-readable explanation of the problem, you can use::
+
+    lincs describe classification-problem problem.yml
+
+It will tell you something like::
+
+    This a classification problem into 3 ordered categories named "Worst category", "Intermediate category 1" and "Best category".
+    The best category is "Best category" and the worst category is "Worst category".
+    There are 4 classification criteria (in no particular order).
+    Criterion "Criterion 1" takes real values between 0.0 and 1.0 included.
+    Higher values of "Criterion 1" are known to be better.
+    Criterion "Criterion 2" takes real values between 0.0 and 1.0 included.
+    Higher values of "Criterion 2" are known to be better.
+    Criterion "Criterion 3" takes real values between 0.0 and 1.0 included.
+    Higher values of "Criterion 3" are known to be better.
+    Criterion "Criterion 4" takes real values between 0.0 and 1.0 included.
+    Higher values of "Criterion 4" are known to be better.
+
+
 .. highlight:: shell
 
 Then generate an NCS classification model::
@@ -145,6 +165,24 @@ It should output something like:
 .. image:: model.png
     :alt: Model visualization
     :align: center
+
+The model format is quite generic to ensure *lincs* can evolve to handle future models,
+so you may want to get a human-readable description of a model, including wether it's an MR-Sort or Uc-NCS model, using::
+
+    lincs describe classification-model problem.yml model.yml
+
+It should output something like::
+
+    This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries.
+    The weights associated to each criterion are:
+      - Criterion "Criterion 1": 0.15
+      - Criterion "Criterion 2": 0.62
+      - Criterion "Criterion 3": 0.41
+      - Criterion "Criterion 4": 0.10
+    To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:
+      - For category "Intermediate category 1": at least 0.26 on criterion "Criterion 1", at least 0.06 on criterion "Criterion 2", at least 0.16 on criterion "Criterion 3", and at least 0.05 on criterion "Criterion 4"
+      - For category "Best category": at least 0.68 on criterion "Criterion 1", at least 0.32 on criterion "Criterion 2", at least 0.67 on criterion "Criterion 3", and at least 0.60 on criterion "Criterion 4"
+
 
 And finally generate a set of classified alternatives::
 

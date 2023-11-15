@@ -38,15 +38,23 @@ import joblib
 )
 @click.option(
     "--skip-long", is_flag=True,
-    help="Skip long tests to save time. Implies --single-python-version. Please run the full development cycle at least once before submitting your changes.",
+    help="Skip long tests to save time.",
 )
 @click.option(
     "--skip-unit", is_flag=True,
-    help="Skip unit tests to save time. Please run the full development cycle at least once before submitting your changes.",
+    help="Skip unit tests to save time.",
 )
 @click.option(
-    "--stop-after-unit", is_flag=True,
-    help="Stop before integration tests to save time. Please run the full development cycle at least once before submitting your changes.",
+    "--skip-cpp-unit", is_flag=True,
+    help="Skip C++ unit tests to save time.",
+)
+@click.option(
+    "--skip-notebooks", is_flag=True,
+    help="Skip notebooks to save time.",
+)
+@click.option(
+    "--skip-unchanged-notebooks", is_flag=True,
+    help="Skip notebooks that have no 'git diff' to save time.",
 )
 @click.option(
     "--forbid-gpu", is_flag=True,
@@ -64,7 +72,19 @@ import joblib
     "--doctest-option", multiple=True,
     help="Pass an option verbatim to doctest. Can be used multiple times.",
 )
-def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, stop_after_unit, forbid_gpu, forbid_chrones, doctest_option):
+def main(
+    with_docs,
+    single_python_version,
+    unit_coverage,
+    skip_long,
+    skip_unit,
+    skip_cpp_unit,
+    skip_notebooks,
+    skip_unchanged_notebooks,
+    forbid_gpu,
+    forbid_chrones,
+    doctest_option,
+):
     if forbid_gpu:
         os.environ["LINCS_DEV_FORBID_GPU"] = "true"
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
@@ -76,7 +96,6 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         os.environ["LINCS_DEV_FORCE_CHRONES"] = "true"
     if skip_long:
         os.environ["LINCS_DEV_SKIP_LONG"] = "true"
-        single_python_version = True
     if unit_coverage:
         single_python_version = True
 
@@ -108,9 +127,10 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
             )
             print()
 
-        print_title("Running C++ unit tests")
-        run_cpp_tests(python_version=python_versions[0], doctest_options=doctest_option)
-        print()
+        if not skip_cpp_unit:
+            print_title("Running C++ unit tests")
+            run_cpp_tests(python_version=python_versions[0], doctest_options=doctest_option)
+            print()
 
         for python_version in python_versions:
             print_title(f"Running Python {python_version} unit tests")
@@ -133,9 +153,7 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
                 f.writelines(line for line in lines if not "branch-coverage" in line)
             return
 
-    if stop_after_unit:
-        pass
-    else:
+    if not skip_notebooks:
         # Install lincs
         ###############
 
@@ -155,10 +173,10 @@ def main(with_docs, single_python_version, unit_coverage, skip_long, skip_unit, 
         ######################
 
         print_title("Running Jupyter notebooks (integration tests, documentation sources)")
-        run_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu)
+        run_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu, skip_unchanged_notebooks=skip_unchanged_notebooks)
 
-        print_title("Updating templates (documentation sources)")
-        update_templates()
+    print_title("Updating templates (documentation sources)")
+    update_templates()
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -245,7 +263,7 @@ def build_sphinx_documentation():
     shutil.copy("doc-sources/get-started/get-started.ipynb", "docs/")
 
 
-def run_notebooks(*, skip_long, forbid_gpu):
+def run_notebooks(*, skip_long, forbid_gpu, skip_unchanged_notebooks):
     def run_notebook(notebook_path):
         # Work around race condition where two Jupyter instances try to open the same TCP port,
         # resulting in a zmq.error.ZMQError: Address already in use (addr='tcp://127.0.0.1:39787')
@@ -311,6 +329,12 @@ def run_notebooks(*, skip_long, forbid_gpu):
         if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
             print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
             continue
+
+        if skip_unchanged_notebooks:
+            diff = subprocess.run(["git", "diff", "--", notebook_path], check=True, capture_output=True)
+            if diff.stdout == b"":
+                print_title(f"{notebook_path}: SKIPPED (unchanged)", '-')
+                continue
 
         jobs.append(joblib.delayed(run_notebook)(notebook_path))
 
