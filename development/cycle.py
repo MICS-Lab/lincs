@@ -37,12 +37,12 @@ import joblib
     help="Measure coverage of unit tests, stop right after that. Implies --single-python-version. Quite long.",
 )
 @click.option(
-    "--skip-long", is_flag=True,
-    help="Skip long tests to save time.",
-)
-@click.option(
     "--skip-unit", is_flag=True,
     help="Skip unit tests to save time.",
+)
+@click.option(
+    "--skip-long-unit", is_flag=True,
+    help="Skip long unit tests to save time.",
 )
 @click.option(
     "--skip-cpp-unit", is_flag=True,
@@ -76,8 +76,8 @@ def main(
     with_docs,
     single_python_version,
     unit_coverage,
-    skip_long,
     skip_unit,
+    skip_long_unit,
     skip_cpp_unit,
     skip_notebooks,
     skip_unchanged_notebooks,
@@ -94,8 +94,6 @@ def main(
         os.environ["LINCS_DEV_FORBID_CHRONES"] = "true"
     else:
         os.environ["LINCS_DEV_FORCE_CHRONES"] = "true"
-    if skip_long:
-        os.environ["LINCS_DEV_SKIP_LONG"] = "true"
     if unit_coverage:
         single_python_version = True
 
@@ -129,7 +127,7 @@ def main(
 
         if not skip_cpp_unit:
             print_title("Running C++ unit tests")
-            run_cpp_tests(python_version=python_versions[0], doctest_options=doctest_option)
+            run_cpp_tests(python_version=python_versions[0], skip_long=skip_long_unit, doctest_options=doctest_option)
             print()
 
         for python_version in python_versions:
@@ -173,7 +171,7 @@ def main(
         ######################
 
         print_title("Running Jupyter notebooks (integration tests, documentation sources)")
-        run_notebooks(skip_long=skip_long, forbid_gpu=forbid_gpu, skip_unchanged_notebooks=skip_unchanged_notebooks)
+        run_notebooks(forbid_gpu=forbid_gpu, skip_unchanged_notebooks=skip_unchanged_notebooks)
 
     print_title("Updating templates (documentation sources)")
     update_templates()
@@ -192,7 +190,7 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, python_version, doctest_options):
+def run_cpp_tests(*, python_version, skip_long, doctest_options):
     suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
@@ -205,7 +203,9 @@ def run_cpp_tests(*, python_version, doctest_options):
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
     command = ["/tmp/lincs-tests"]
-    if os.environ.get("LINCS_DEV_SKIP_LONG", "false") == "false":
+    if skip_long:
+        env["LINCS_DEV_SKIP_LONG"] = "true"
+    else:
         command += ["-d"]
     command += list(doctest_options)
     subprocess.run(command, check=True, env=env)
@@ -263,7 +263,7 @@ def build_sphinx_documentation():
     shutil.copy("doc-sources/get-started/get-started.ipynb", "docs/")
 
 
-def run_notebooks(*, skip_long, forbid_gpu, skip_unchanged_notebooks):
+def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
     def run_notebook(notebook_path):
         # Work around race condition where two Jupyter instances try to open the same TCP port,
         # resulting in a zmq.error.ZMQError: Address already in use (addr='tcp://127.0.0.1:39787')
@@ -322,10 +322,6 @@ def run_notebooks(*, skip_long, forbid_gpu, skip_unchanged_notebooks):
     jobs = []
 
     for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
-        if skip_long and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "is-long")):
-            print_title(f"{notebook_path}: SKIPPED (is long)", '-')
-            continue
-
         if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
             print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
             continue
