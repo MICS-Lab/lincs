@@ -322,6 +322,9 @@ def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
     jobs = []
 
     for notebook_path in sorted(glob.glob("**/*.ipynb", recursive=True)):
+        if notebook_path.startswith("docs/"):
+            continue
+
         if forbid_gpu and os.path.isfile(os.path.join(os.path.dirname(notebook_path), "uses-gpu")):
             print_title(f"{notebook_path}: SKIPPED (uses GPU)", '-')
             continue
