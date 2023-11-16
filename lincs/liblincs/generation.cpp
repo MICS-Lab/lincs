@@ -57,12 +57,11 @@ Problem generate_classification_problem(
       Criterion::PreferenceDirection::increasing :
       Criterion::PreferenceDirection::decreasing;
 
-    criteria.emplace_back(
+    criteria.emplace_back(Criterion::make_real(
       "Criterion " + std::to_string(criterion_index + 1),
-      Criterion::ValueType::real,
       direction,
       min_value, max_value
-    );
+    ));
   }
 
   std::vector<Category> categories;
@@ -90,7 +89,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const auto& criterion = problem.criteria[criterion_index];
     // Profile can take any values. We arbitrarily generate them uniformly
-    std::uniform_real_distribution<float> values_distribution(criterion.min_value + 0.01f, criterion.max_value - 0.01f);
+    std::uniform_real_distribution<float> values_distribution(criterion.get_real_min_value() + 0.01f, criterion.get_real_max_value() - 0.01f);
     // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
     // Profiles must be ordered on each criterion, so we generate a random column...
     std::vector<float> column(boundaries_count);
@@ -98,7 +97,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
       column.begin(), column.end(),
       [&values_distribution, &gen]() { return values_distribution(gen); });
     // ... sort it according to the criterion's preference direction...
-    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.preference_direction, right, left); });
+    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.get_preference_direction(), right, left); });
     // ... and assign that column across all profiles.
     for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
       profiles[profile_index][criterion_index] = column[profile_index];
@@ -206,9 +205,9 @@ Alternatives generate_uniform_classified_alternatives(
   values_distributions.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const auto& criterion = problem.criteria[criterion_index];
-    assert(criterion.value_type == Criterion::ValueType::real);
+    assert(criterion.get_value_type() == Criterion::ValueType::real);
 
-    values_distributions.emplace_back(criterion.min_value, criterion.max_value);
+    values_distributions.emplace_back(criterion.get_real_min_value(), criterion.get_real_max_value());
   }
 
   for (unsigned alt_index = 0; alt_index != alternatives_count; ++alt_index) {
@@ -473,13 +472,13 @@ TEST_CASE("Random min/max") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
-  CHECK(problem.criteria[0].min_value == doctest::Approx(-25.092));
-  CHECK(problem.criteria[0].max_value == doctest::Approx(59.3086));
+  CHECK(problem.criteria[0].get_real_min_value() == doctest::Approx(-25.092));
+  CHECK(problem.criteria[0].get_real_max_value() == doctest::Approx(59.3086));
   CHECK(model.boundaries[0].profile[0] == doctest::Approx(6.52194));
   CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(45.3692));
 
-  CHECK(problem.criteria[1].min_value == doctest::Approx(-63.313));
-  CHECK(problem.criteria[1].max_value == doctest::Approx(46.3988));
+  CHECK(problem.criteria[1].get_real_min_value() == doctest::Approx(-63.313));
+  CHECK(problem.criteria[1].get_real_max_value() == doctest::Approx(46.3988));
   CHECK(model.boundaries[0].profile[1] == doctest::Approx(24.0712));
   CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(-15.8581));
 }
@@ -489,7 +488,7 @@ TEST_CASE("Decreasing criterion") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 10, 44);
 
-  CHECK(problem.criteria[0].preference_direction == Criterion::PreferenceDirection::decreasing);
+  CHECK(problem.criteria[0].get_preference_direction() == Criterion::PreferenceDirection::decreasing);
   // Profiles are in decreasing order
   CHECK(model.boundaries[0].profile[0] == doctest::Approx(0.790612));
   CHECK(model.boundaries[1].profile[0] == doctest::Approx(0.377049));

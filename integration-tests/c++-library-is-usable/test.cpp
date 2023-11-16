@@ -8,8 +8,8 @@
 int main() {
   lincs::Problem problem{
     {
-      {"Physics grade", lincs::Criterion::ValueType::real, lincs::Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Literature grade", lincs::Criterion::ValueType::real, lincs::Criterion::PreferenceDirection::increasing, 0, 1},
+      lincs::Criterion::make_real("Physics grade", lincs::Criterion::PreferenceDirection::increasing, 0, 1),
+      lincs::Criterion::make_real("Literature grade", lincs::Criterion::PreferenceDirection::increasing, 0, 1),
     },
     {
       {"Bad"},

@@ -49,6 +49,10 @@ import joblib
     help="Skip C++ unit tests to save time.",
 )
 @click.option(
+    "--skip-python-unit", is_flag=True,
+    help="Skip Python unit tests to save time.",
+)
+@click.option(
     "--skip-notebooks", is_flag=True,
     help="Skip notebooks to save time.",
 )
@@ -79,6 +83,7 @@ def main(
     skip_unit,
     skip_long_unit,
     skip_cpp_unit,
+    skip_python_unit,
     skip_notebooks,
     skip_unchanged_notebooks,
     forbid_gpu,
@@ -130,10 +135,11 @@ def main(
             run_cpp_tests(python_version=python_versions[0], skip_long=skip_long_unit, doctest_options=doctest_option)
             print()
 
-        for python_version in python_versions:
-            print_title(f"Running Python {python_version} unit tests")
-            run_python_tests(python_version=python_version)
-            print()
+        if not skip_python_unit:
+            for python_version in python_versions:
+                print_title(f"Running Python {python_version} unit tests")
+                run_python_tests(python_version=python_version)
+                print()
 
         if unit_coverage:
             print_title(f"Making report of unit tests coverage")

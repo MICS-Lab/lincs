@@ -34,7 +34,7 @@ class DescribeProblemTestCase(unittest.TestCase):
         self._test(
             Problem(
                 [
-                    Criterion("Criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                    Criterion.make_real("Criterion", Criterion.PreferenceDirection.increasing, 0, 1),
                 ],
                 [Category("Bad"), Category("Good")],
             ),
@@ -51,7 +51,7 @@ class DescribeProblemTestCase(unittest.TestCase):
         self._test(
             Problem(
                 [
-                    Criterion("Criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                    Criterion.make_real("Criterion", Criterion.PreferenceDirection.increasing, 0, 1),
                 ],
                 [Category("Worsestest"), Category("Interm 1"), Category("Interm 2"), Category("Interm 3"), Category("Bestestest")],
             ),
@@ -68,8 +68,8 @@ class DescribeProblemTestCase(unittest.TestCase):
         self._test(
             Problem(
                 [
-                    Criterion("Increasing criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, -5.2, 10.3),
-                    Criterion("Decreasing criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 5, 15),
+                    Criterion.make_real("Increasing criterion", Criterion.PreferenceDirection.increasing, -5.2, 10.3),
+                    Criterion.make_real("Decreasing criterion", Criterion.PreferenceDirection.decreasing, 5, 15),
                 ],
                 [Category("Bad"), Category("Good")],
             ),
@@ -159,10 +159,10 @@ class DescribeModelTestCase(unittest.TestCase):
 
     problem = Problem(
         [
-            Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-            Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 0, 1),
-            Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-            Criterion("Criterion 4", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 0, 1),
+            Criterion.make_real("Criterion 1", Criterion.PreferenceDirection.increasing, 0, 1),
+            Criterion.make_real("Criterion 2", Criterion.PreferenceDirection.decreasing, 0, 1),
+            Criterion.make_real("Criterion 3", Criterion.PreferenceDirection.increasing, 0, 1),
+            Criterion.make_real("Criterion 4", Criterion.PreferenceDirection.decreasing, 0, 1),
         ],
         [
             Category("Bad"),

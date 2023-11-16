@@ -3,6 +3,8 @@
 #ifndef LINCS__IO__PROBLEM_HPP
 #define LINCS__IO__PROBLEM_HPP
 
+#include <any>
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -11,15 +13,8 @@
 
 namespace lincs {
 
-struct Criterion {
-  std::string name;
-
-  enum class ValueType {
-    real,
-    // @todo(Feature, later) Add integer, with min and max
-    // @todo(Feature, later) Add enumerated, with ordered_values
-  } value_type;
-
+class Criterion {
+ public:
   enum class PreferenceDirection {
     increasing,
     isotone=increasing,
@@ -27,39 +22,119 @@ struct Criterion {
     antitone=decreasing,
     // @todo(Feature, later) Add single-peaked
     // @todo(Feature, much later) Add unknown
-  } preference_direction;
+  };
 
-  float min_value;
-  float max_value;
+  enum class ValueType {
+    real,
+    integer,
+    enumerated
+  };
 
-  // @todo(Project management, later) Remove these constructors
-  // The struct is usable without them in C++, and they were added only to allow using bp::init in the Python module
-  // (Do it for other structs as well)
-  Criterion() {}
+ public:
+  static Criterion make_real(const std::string& name, PreferenceDirection preference_direction, float min_value, float max_value) {
+    return Criterion(name, ValueType::real, preference_direction, min_value, max_value, {});
+  }
+
+  static Criterion make_integer(const std::string& name, PreferenceDirection preference_direction, int min_value, int max_value) {
+    return Criterion(name, ValueType::integer, preference_direction, min_value, max_value, {});
+  }
+
+  static Criterion make_enumerated(const std::string& name, const std::vector<std::string>& ordered_values) {
+    return Criterion(name, ValueType::enumerated, PreferenceDirection::increasing, {}, {}, ordered_values);
+  }
+
+ private:
   Criterion(
     const std::string& name_,
     ValueType value_type_,
     PreferenceDirection preference_direction_,
-    float min_value_,
-    float max_value_
+    std::any min_value_,
+    std::any max_value_,
+    const std::vector<std::string>& ordered_values_
   ):
     name(name_),
     value_type(value_type_),
     preference_direction(preference_direction_),
     min_value(min_value_),
-    max_value(max_value_)
+    max_value(max_value_),
+    ordered_values(ordered_values_)
   {}
 
-  // @todo(Project management, later) Remove this operator
-  // The struct is usable without it in C++, and it was added only to allow using bp::vector_indexing_suite in the Python module
-  // (Do it for other structs as well)
+ public:
   bool operator==(const Criterion& other) const {
-    return name == other.name
-      && value_type == other.value_type
-      && preference_direction == other.preference_direction
-      && min_value == other.min_value
-      && max_value == other.max_value;
+    if (value_type != other.value_type) {
+      return false;
+    }
+    switch (value_type) {
+      case ValueType::real:
+        return
+          name == other.name &&
+          preference_direction == other.preference_direction &&
+          std::any_cast<float>(min_value) == std::any_cast<float>(other.min_value) &&
+          std::any_cast<float>(max_value) == std::any_cast<float>(other.max_value);
+      case ValueType::integer:
+        return
+          name == other.name &&
+          preference_direction == other.preference_direction &&
+          std::any_cast<int>(min_value) == std::any_cast<int>(other.min_value) &&
+          std::any_cast<int>(max_value) == std::any_cast<int>(other.max_value);
+      case ValueType::enumerated:
+        return
+          name == other.name &&
+          ordered_values == other.ordered_values;
+    }
+    unreachable();
   }
+
+  std::string get_name() const { return name; }
+  
+  ValueType get_value_type() const { return value_type; }
+  bool is_real() const { return value_type == ValueType::real; }
+  bool is_integer() const { return value_type == ValueType::integer; }
+  bool is_enumerated() const { return value_type == ValueType::enumerated; }
+
+  PreferenceDirection get_preference_direction() const {
+    assert(is_real() || is_integer());
+    return preference_direction;
+  }
+
+  void set_preference_direction__for_tests(PreferenceDirection preference_direction_) {
+    assert(is_real() || is_integer());
+    preference_direction = preference_direction_;
+  }
+
+  float get_real_min_value() const {
+    assert(is_real());
+    return std::any_cast<float>(min_value);
+  }
+
+  float get_real_max_value() const {
+    assert(is_real());
+    return std::any_cast<float>(max_value);
+  }
+
+  int get_integer_min_value() const {
+    assert(is_integer());
+    return std::any_cast<int>(min_value);
+  }
+
+  int get_integer_max_value() const {
+    assert(is_integer());
+    return std::any_cast<int>(max_value);
+  }
+
+  std::vector<std::string> get_ordered_values() const {
+    assert(is_enumerated());
+    return ordered_values;
+  }
+
+ private:
+  std::string name;
+  ValueType value_type;
+  PreferenceDirection preference_direction;
+  std::any min_value;
+  std::any max_value;
+  std::vector<std::string> ordered_values;
 };
 
 struct Category {

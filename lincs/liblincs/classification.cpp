@@ -31,7 +31,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
         const float profile_value = boundary.profile[criterion_index];
-        if (better_or_equal(problem.criteria[criterion_index].preference_direction, alternative_value, profile_value)) {
+        if (better_or_equal(problem.criteria[criterion_index].get_preference_direction(), alternative_value, profile_value)) {
           weight_at_or_better_than_profile += boundary.sufficient_coalitions.criterion_weights[criterion_index];
         }
       }
@@ -42,7 +42,7 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         const float alternative_value = alternative.profile[criterion_index];
         const float profile_value = boundary.profile[criterion_index];
-        if (better_or_equal(problem.criteria[criterion_index].preference_direction, alternative_value, profile_value)) {
+        if (better_or_equal(problem.criteria[criterion_index].get_preference_direction(), alternative_value, profile_value)) {
           at_or_better_than_profile[criterion_index] = true;
         }
       }
@@ -91,9 +91,9 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
 TEST_CASE("Basic classification using weights") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -131,9 +131,9 @@ TEST_CASE("Basic classification using weights") {
 TEST_CASE("Basic classification using upset roots") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -171,9 +171,9 @@ TEST_CASE("Basic classification using upset roots") {
 TEST_CASE("Classification with decreasing criteria") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, 0, 1},
+      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::decreasing, 0, 1),
+      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::decreasing, 0, 1),
+      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::decreasing, 0, 1),
     },
     {{"Category 1"}, {"Category 2"}},
   };

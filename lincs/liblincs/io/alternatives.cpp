@@ -29,7 +29,7 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
 
   doc.SetColumnName(0, "name");
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    doc.SetColumnName(criterion_index + 1, problem.criteria[criterion_index].name);
+    doc.SetColumnName(criterion_index + 1, problem.criteria[criterion_index].get_name());
   }
   doc.SetColumnName(criteria_count + 1, "category");
 
@@ -76,7 +76,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
   std::vector<size_t> criterion_column_indexes;
   criterion_column_indexes.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    ssize_t column_index = doc.GetColumnIdx(problem.criteria[criterion_index].name);
+    ssize_t column_index = doc.GetColumnIdx(problem.criteria[criterion_index].get_name());
     if (column_index < 0) {
       throw DataValidationException("Mismatch: criterion from the problem file not found in the alternatives file");
     }
@@ -114,7 +114,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("Validation error - name column") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
+    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -130,7 +130,7 @@ TEST_CASE("Validation error - name column") {
 
 TEST_CASE("Validation error - category column") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
+    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -146,7 +146,7 @@ TEST_CASE("Validation error - category column") {
 
 TEST_CASE("Validation error - criterion name") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
+    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -162,7 +162,7 @@ TEST_CASE("Validation error - criterion name") {
 
 TEST_CASE("Validation error - category name") {
   Problem problem{
-    {{"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1}},
+    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
     {{"Category 1"}, {"Category 2"}},
   };
 

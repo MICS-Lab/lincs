@@ -234,18 +234,16 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();
 
-  auto criterion_class = bp::class_<lincs::Criterion>(
-    "Criterion",
-    bp::init<std::string, lincs::Criterion::ValueType, lincs::Criterion::PreferenceDirection, float, float>()
-  )
-    .def_readwrite("name", &lincs::Criterion::name)
-    .def_readwrite("value_type", &lincs::Criterion::value_type)
-    .def_readwrite("preference_direction", &lincs::Criterion::preference_direction)
-    .def_readwrite("min_value", &lincs::Criterion::min_value)
-    .def_readwrite("max_value", &lincs::Criterion::max_value)
+  auto criterion_class = bp::class_<lincs::Criterion>("Criterion", bp::no_init)
+    .add_property("name", &lincs::Criterion::get_name)
+    .add_property("value_type", &lincs::Criterion::get_value_type)
+    .add_property("preference_direction", &lincs::Criterion::get_preference_direction)
+    .add_property("min_value", &lincs::Criterion::get_real_min_value)
+    .add_property("max_value", &lincs::Criterion::get_real_max_value)
   ;
   // Note that nested things are at global scope as well. This is not wanted, not used, but doesn't hurt
   // because 'liblincs' is only partially imported into module 'lincs' (see '__init__.py').
+  criterion_class.attr("make_real") = &lincs::Criterion::make_real;
   criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType");
   auto preference_direction_enum = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection");
   preference_direction_enum.value("isotone", lincs::Criterion::PreferenceDirection::isotone);

@@ -23,13 +23,13 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   assignments(alternatives_count, uninitialized)
 {
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const bool is_increasing = problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::increasing;
-    assert(is_increasing || problem.criteria[criterion_index].preference_direction == Criterion::PreferenceDirection::decreasing);
+    const bool is_increasing = problem.criteria[criterion_index].get_preference_direction() == Criterion::PreferenceDirection::increasing;
+    assert(is_increasing || problem.criteria[criterion_index].get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 
     std::set<float> unique_values;
 
-    unique_values.insert(problem.criteria[criterion_index].min_value);
-    unique_values.insert(problem.criteria[criterion_index].max_value);
+    unique_values.insert(problem.criteria[criterion_index].get_real_min_value());
+    unique_values.insert(problem.criteria[criterion_index].get_real_max_value());
     for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives.size(); ++alternative_index) {
       unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index]);
     }
