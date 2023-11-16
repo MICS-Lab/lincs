@@ -133,7 +133,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   Desirability* desirability
 ) {
   const unsigned current_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
-  const float weight = learning_data.weights[criterion_index][model_index];
+  const float weight = learning_data.weights[model_index][criterion_index];
 
   const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = learning_data.assignments[alternative_index];
@@ -148,7 +148,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
     const unsigned profile_rank = learning_data.profile_ranks[crit_index][profile_index][model_index];
     const bool is_better = alternative_rank >= profile_rank;
     if (is_better) {
-      weight_at_or_better_than_profile += learning_data.weights[crit_index][model_index];
+      weight_at_or_better_than_profile += learning_data.weights[model_index][crit_index];
     }
   }
 

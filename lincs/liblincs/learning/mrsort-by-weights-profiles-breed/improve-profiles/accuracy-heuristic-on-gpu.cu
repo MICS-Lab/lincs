@@ -31,7 +31,7 @@ unsigned get_assignment(
       const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
       const unsigned profile_rank = profile_ranks[criterion_index][profile_index][model_index];
       if (alternative_rank >= profile_rank) {
-        weight_at_or_better_than_profile += weights[criterion_index][model_index];
+        weight_at_or_better_than_profile += weights[model_index][criterion_index];
       }
     }
     if (weight_at_or_better_than_profile >= 1) {
@@ -58,7 +58,7 @@ void update_move_desirability(
   const unsigned criteria_count = performance_ranks.s1();
 
   const unsigned current_rank = profile_ranks[criterion_index][profile_index][model_index];
-  const float weight = weights[criterion_index][model_index];
+  const float weight = weights[model_index][criterion_index];
 
   const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = assignments[alternative_index];
@@ -75,7 +75,7 @@ void update_move_desirability(
     const unsigned alternative_rank = performance_ranks[crit_index][alternative_index];
     const unsigned profile_rank = profile_ranks[crit_index][profile_index][model_index];
     if (alternative_rank >= profile_rank) {
-      weight_at_or_better_than_profile += weights[crit_index][model_index];
+      weight_at_or_better_than_profile += weights[model_index][crit_index];
     }
   }
 
@@ -242,7 +242,7 @@ namespace lincs {
 ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(const LearningData& host_learning_data) :
   performance_ranks(host_learning_data.performance_ranks.template clone_to<Device>()),
   assignments(host_learning_data.assignments.template clone_to<Device>()),
-  weights(host_learning_data.criteria_count, host_learning_data.models_count, uninitialized),
+  weights(host_learning_data.models_count, host_learning_data.criteria_count, uninitialized),
   profile_ranks(host_learning_data.criteria_count, host_learning_data.boundaries_count, host_learning_data.models_count, uninitialized),
   desirabilities(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized),
   destination_ranks(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
