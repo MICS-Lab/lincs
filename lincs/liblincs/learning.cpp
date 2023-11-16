@@ -52,7 +52,11 @@ void check_exact_learning(
   const unsigned seeds_count = default_seeds_count
 ) {
   if (!skip_long) {
-    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      {lincs::Criterion::PreferenceDirection::increasing});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
@@ -60,10 +64,11 @@ void check_exact_learning(
   }
 
   if (!skip_long) {
-    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
-    for (auto& criterion : problem.criteria) {
-      criterion.set_preference_direction__for_tests(lincs::Criterion::PreferenceDirection::decreasing);
-    }
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      {lincs::Criterion::PreferenceDirection::decreasing});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
@@ -71,7 +76,11 @@ void check_exact_learning(
   }
 
   if (true) {
-    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, true);
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
@@ -112,7 +121,11 @@ void check_non_exact_learning(
   const unsigned seeds_count = default_seeds_count
 ) {
   if (!skip_long) {
-    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      {lincs::Criterion::PreferenceDirection::increasing});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
@@ -120,10 +133,11 @@ void check_non_exact_learning(
   }
 
   if (!skip_long) {
-    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, false);
-    for (auto& criterion : problem.criteria) {
-      criterion.set_preference_direction__for_tests(lincs::Criterion::PreferenceDirection::decreasing);
-    }
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      {lincs::Criterion::PreferenceDirection::decreasing});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
@@ -131,7 +145,11 @@ void check_non_exact_learning(
   }
 
   if (true) {
-    lincs::Problem problem = lincs::generate_classification_problem(criteria_count, categories_count, 41, false, true);
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());

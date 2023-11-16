@@ -225,6 +225,8 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_vector_converter<std::vector<unsigned>>::enroll();
   std_vector_converter<lincs::Category>::enroll();
   std_vector_converter<lincs::Criterion>::enroll();
+  std_vector_converter<lincs::Criterion::PreferenceDirection>::enroll();
+  std_vector_converter<lincs::Criterion::ValueType>::enroll();
   std_vector_converter<lincs::Model::Boundary>::enroll();
   std_vector_converter<lincs::SufficientCoalitions>::enroll();
   std_vector_converter<lincs::Alternative>::enroll();
@@ -259,6 +261,12 @@ BOOST_PYTHON_MODULE(liblincs) {
   ;
   bp::class_<std::vector<lincs::Criterion>>("criteria_vector")
     .def(bp::vector_indexing_suite<std::vector<lincs::Criterion>>())
+  ;
+  bp::class_<std::vector<lincs::Criterion::ValueType>>("value_types_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Criterion::ValueType>>())
+  ;
+  bp::class_<std::vector<lincs::Criterion::PreferenceDirection>>("preference_directions_vector")
+    .def(bp::vector_indexing_suite<std::vector<lincs::Criterion::PreferenceDirection>>())
   ;
 
   PyObject* DataValidationException_wrapper = PyErr_NewException("liblincs.DataValidationException", PyExc_RuntimeError, NULL);
@@ -297,7 +305,8 @@ BOOST_PYTHON_MODULE(liblincs) {
       "categories_count",
       "random_seed",
       bp::arg("normalized_min_max")=true,
-      bp::arg("allow_decreasing_criteria")=false
+      bp::arg("allowed_preference_directions")=std::vector{lincs::Criterion::PreferenceDirection::increasing},
+      bp::arg("allowed_value_types")=std::vector{lincs::Criterion::ValueType::real}
     ),
     "Generate a problem with `criteria_count` criteria and `categories_count` categories."
   );

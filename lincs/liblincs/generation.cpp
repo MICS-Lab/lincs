@@ -6,6 +6,7 @@
 #include <cassert>
 #include <numeric>
 #include <random>
+#include <set>
 
 #include "chrones.hpp"
 #include "classification.hpp"
@@ -31,16 +32,22 @@ Problem generate_classification_problem(
   const unsigned categories_count,
   const unsigned random_seed,
   bool normalized_min_max,
-  bool allow_decreasing_criteria
+  const std::vector<Criterion::PreferenceDirection>& allowed_preference_directions,
+  const std::vector<Criterion::ValueType>& allowed_value_types
 ) {
   CHRONE();
 
   std::mt19937 gen(random_seed);
   std::uniform_real_distribution<float> min_max_distribution(-100, 100);
-  std::uniform_int_distribution<unsigned> preference_direction_distribution(0, allow_decreasing_criteria ? 1 : 0);
+  std::uniform_int_distribution<unsigned> value_type_distribution(0, allowed_value_types.size() - 1);
+  std::uniform_int_distribution<unsigned> preference_direction_distribution(0, allowed_preference_directions.size() - 1);
 
-  std::vector<Criterion> criteria;
-  criteria.reserve(criteria_count);
+  // Hopping through hoops to generate the same problem as in previous versions:
+  //  - first call the RNG for min, max, and direction for each criterion
+  //  - then call the RNG for value type for each criterion
+  // @todo(Project management, later) Re-explore my old idea of a tree of RNGs for procedural generation
+  std::vector<std::tuple<std::string, float, float, Criterion::PreferenceDirection>> criteria_data;
+  criteria_data.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     float min_value = 0;
     float max_value = 1;
@@ -52,16 +59,39 @@ Problem generate_classification_problem(
       }
     }
 
-    const Criterion::PreferenceDirection direction =
-      preference_direction_distribution(gen) == 0 ?
-      Criterion::PreferenceDirection::increasing :
-      Criterion::PreferenceDirection::decreasing;
+    const std::string name = "Criterion " + std::to_string(criterion_index + 1);
+    const Criterion::PreferenceDirection direction = allowed_preference_directions[preference_direction_distribution(gen)];
+    criteria_data.emplace_back(name, min_value, max_value, direction);
+  }
 
-    criteria.emplace_back(Criterion::make_real(
-      "Criterion " + std::to_string(criterion_index + 1),
-      direction,
-      min_value, max_value
-    ));
+  std::vector<Criterion> criteria;
+  criteria.reserve(criteria_count);
+  for (const auto [name, min_value, max_value, direction] : criteria_data) {
+    switch (allowed_value_types[value_type_distribution(gen)]) {
+      case Criterion::ValueType::real:
+        criteria.emplace_back(Criterion::make_real(name, direction, min_value, max_value));
+        break;
+      case Criterion::ValueType::integer:
+        criteria.emplace_back(Criterion::make_integer(name, direction, 100 * min_value, 100 * max_value));
+        break;
+      case Criterion::ValueType::enumerated:
+        const unsigned values_count = std::uniform_int_distribution<unsigned>(2, 10)(gen);
+        std::vector<std::string> values;
+        std::set<std::string> unique_values;
+        values.reserve(values_count);
+        while (values.size() < values_count) {
+          const std::string value({
+            "bgrtpd"[std::uniform_int_distribution<unsigned>(0, 5)(gen)],
+            "aeiou"[std::uniform_int_distribution<unsigned>(0, 4)(gen)],
+            "zrt"[std::uniform_int_distribution<unsigned>(0, 2)(gen)],
+          });
+          if (unique_values.insert(value).second) {
+            values.push_back(value);
+          }
+        }
+        criteria.emplace_back(Criterion::make_enumerated(name, values));
+        break;
+    }
   }
 
   std::vector<Category> categories;
@@ -484,7 +514,12 @@ TEST_CASE("Random min/max") {
 }
 
 TEST_CASE("Decreasing criterion") {
-  Problem problem = generate_classification_problem(1, 3, 44, true, true);
+  Problem problem = generate_classification_problem(
+    1, 3,
+    44,
+    true,
+    {Criterion::PreferenceDirection::increasing, Criterion::PreferenceDirection::decreasing}
+  );
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 10, 44);
 

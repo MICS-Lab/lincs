@@ -340,8 +340,12 @@ def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
             continue
 
         if skip_unchanged_notebooks:
-            diff = subprocess.run(["git", "diff", "--", notebook_path], check=True, capture_output=True)
-            if diff.stdout == b"":
+            has_diff = (
+                subprocess.run(["git", "diff", "--", notebook_path], check=True, capture_output=True).stdout
+                or
+                subprocess.run(["git", "diff", "--staged", "--", notebook_path], check=True, capture_output=True).stdout
+            )
+            if not has_diff:
                 print_title(f"{notebook_path}: SKIPPED (unchanged)", '-')
                 continue
 

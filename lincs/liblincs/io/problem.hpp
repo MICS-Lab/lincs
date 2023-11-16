@@ -98,11 +98,6 @@ class Criterion {
     return preference_direction;
   }
 
-  void set_preference_direction__for_tests(PreferenceDirection preference_direction_) {
-    assert(is_real() || is_integer());
-    preference_direction = preference_direction_;
-  }
-
   float get_real_min_value() const {
     assert(is_real());
     return std::any_cast<float>(min_value);
