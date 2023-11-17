@@ -52,19 +52,19 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
   const float lowest_destination_rank =
     profile_index == 0 ?
       0 :
-      learning_data.profile_ranks[criterion_index][profile_index - 1][model_index];
+      learning_data.profile_ranks[model_index][profile_index - 1][criterion_index];
   const float highest_destination_rank =
     profile_index == learning_data.boundaries_count - 1 ?
       learning_data.values_counts[criterion_index] - 1 :
-      learning_data.profile_ranks[criterion_index][profile_index + 1][model_index];
+      learning_data.profile_ranks[model_index][profile_index + 1][criterion_index];
 
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(learning_data.profile_ranks[criterion_index][profile_index][model_index] == lowest_destination_rank);
+    assert(learning_data.profile_ranks[model_index][profile_index][criterion_index] == lowest_destination_rank);
     return;
   }
 
-  unsigned best_destination_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
+  unsigned best_destination_rank = learning_data.profile_ranks[model_index][profile_index][criterion_index];
   float best_desirability = Desirability().value();
 
   if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
@@ -99,7 +99,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profile(
 
   // @todo(Project management, later) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
   if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
-    learning_data.profile_ranks[criterion_index][profile_index][model_index] = best_destination_rank;
+    learning_data.profile_ranks[model_index][profile_index][criterion_index] = best_destination_rank;
   }
 }
 
@@ -132,8 +132,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   const unsigned alternative_index,
   Desirability* desirability
 ) {
-  const unsigned current_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
-  const float weight = learning_data.weights[criterion_index][model_index];
+  const unsigned current_rank = learning_data.profile_ranks[model_index][profile_index][criterion_index];
+  const float weight = learning_data.weights[model_index][criterion_index];
 
   const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = learning_data.assignments[alternative_index];
@@ -145,10 +145,10 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   // There is a criterion parameter above, *and* a local criterion just here
   for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
     const unsigned alternative_rank = learning_data.performance_ranks[crit_index][alternative_index];
-    const unsigned profile_rank = learning_data.profile_ranks[crit_index][profile_index][model_index];
+    const unsigned profile_rank = learning_data.profile_ranks[model_index][profile_index][crit_index];
     const bool is_better = alternative_rank >= profile_rank;
     if (is_better) {
-      weight_at_or_better_than_profile += learning_data.weights[crit_index][model_index];
+      weight_at_or_better_than_profile += learning_data.weights[model_index][crit_index];
     }
   }
 

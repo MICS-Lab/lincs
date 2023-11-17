@@ -8,7 +8,8 @@
 
 namespace {
 
-typedef GridFactory2D<256, 4> grid;
+// Block size set to less than 1024 because we use more than 64 registers per thread and my GPU has only 64K registers
+typedef GridFactory2D<256, 2> grid;
 
 __device__
 unsigned get_assignment(
@@ -29,9 +30,9 @@ unsigned get_assignment(
     float weight_at_or_better_than_profile = 0;
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
-      const unsigned profile_rank = profile_ranks[criterion_index][profile_index][model_index];
+      const unsigned profile_rank = profile_ranks[model_index][profile_index][criterion_index];
       if (alternative_rank >= profile_rank) {
-        weight_at_or_better_than_profile += weights[criterion_index][model_index];
+        weight_at_or_better_than_profile += weights[model_index][criterion_index];
       }
     }
     if (weight_at_or_better_than_profile >= 1) {
@@ -57,8 +58,8 @@ void update_move_desirability(
   const unsigned alternatives_count = performance_ranks.s0();
   const unsigned criteria_count = performance_ranks.s1();
 
-  const unsigned current_rank = profile_ranks[criterion_index][profile_index][model_index];
-  const float weight = weights[criterion_index][model_index];
+  const unsigned current_rank = profile_ranks[model_index][profile_index][criterion_index];
+  const float weight = weights[model_index][criterion_index];
 
   const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = assignments[alternative_index];
@@ -73,9 +74,9 @@ void update_move_desirability(
   // There is a criterion parameter above, *and* a local criterion just here
   for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
     const unsigned alternative_rank = performance_ranks[crit_index][alternative_index];
-    const unsigned profile_rank = profile_ranks[crit_index][profile_index][model_index];
+    const unsigned profile_rank = profile_ranks[model_index][profile_index][crit_index];
     if (alternative_rank >= profile_rank) {
-      weight_at_or_better_than_profile += weights[crit_index][model_index];
+      weight_at_or_better_than_profile += weights[model_index][crit_index];
     }
   }
 
@@ -231,7 +232,7 @@ void apply_best_move__kernel(
   }
 
   if (best_desirability >= desirability_threshold) {
-    profile_ranks[criterion_index][profile_index][model_index] = best_destination_rank;
+    profile_ranks[model_index][profile_index][criterion_index] = best_destination_rank;
   }
 }
 
@@ -242,8 +243,8 @@ namespace lincs {
 ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(const LearningData& host_learning_data) :
   performance_ranks(host_learning_data.performance_ranks.template clone_to<Device>()),
   assignments(host_learning_data.assignments.template clone_to<Device>()),
-  weights(host_learning_data.criteria_count, host_learning_data.models_count, uninitialized),
-  profile_ranks(host_learning_data.criteria_count, host_learning_data.boundaries_count, host_learning_data.models_count, uninitialized),
+  weights(host_learning_data.models_count, host_learning_data.criteria_count, uninitialized),
+  profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.criteria_count, uninitialized),
   desirabilities(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized),
   destination_ranks(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
 {}
@@ -302,15 +303,15 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   const float lowest_destination_rank =
     profile_index == 0 ?
       0 :
-      learning_data.profile_ranks[criterion_index][profile_index - 1][model_index];
+      learning_data.profile_ranks[model_index][profile_index - 1][criterion_index];
   const float highest_destination_rank =
     profile_index == learning_data.boundaries_count - 1 ?
       learning_data.values_counts[criterion_index] - 1 :
-      learning_data.profile_ranks[criterion_index][profile_index + 1][model_index];
+      learning_data.profile_ranks[model_index][profile_index + 1][criterion_index];
 
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(learning_data.profile_ranks[criterion_index][profile_index][model_index] == lowest_destination_rank);
+    assert(learning_data.profile_ranks[model_index][profile_index][criterion_index] == lowest_destination_rank);
     return;
   }
 
@@ -364,8 +365,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
 
   // Lov-e-CUDA doesn't provide a way to copy scalars, so we're back to the basics, using cudaMemcpy directly and doing pointer arithmetic.
   check_cuda_error(cudaMemcpy(
-    host_learning_data.profile_ranks[criterion_index][profile_index].data() + model_index,
-    gpu_learning_data.profile_ranks[criterion_index][profile_index].data() + model_index,
+    host_learning_data.profile_ranks[model_index][profile_index].data() + criterion_index,
+    gpu_learning_data.profile_ranks[model_index][profile_index].data() + criterion_index,
     1 * sizeof(unsigned),
     cudaMemcpyDeviceToHost));
 }

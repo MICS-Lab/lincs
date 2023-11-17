@@ -106,10 +106,10 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
 
         // Enforce profiles ordering constraint
         if (profile_index != learning_data.boundaries_count - 1) {
-          rank = std::min(rank, learning_data.profile_ranks[criterion_index][profile_index + 1][model_index]);
+          rank = std::min(rank, learning_data.profile_ranks[model_index][profile_index + 1][criterion_index]);
         }
 
-        learning_data.profile_ranks[criterion_index][profile_index][model_index] = rank;
+        learning_data.profile_ranks[model_index][profile_index][criterion_index] = rank;
       }
     }
   }
@@ -146,7 +146,7 @@ TEST_CASE("Initialize profiles - respect ordering") {
     initializer.initialize_profiles(0, 1);
     // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint' code is removed
     CHECK(learning_data.profile_ranks[0][0][0] <= learning_data.profile_ranks[0][1][0]);
-    CHECK(learning_data.profile_ranks[1][0][0] <= learning_data.profile_ranks[1][1][0]);
+    CHECK(learning_data.profile_ranks[0][0][1] <= learning_data.profile_ranks[0][1][1]);
   }
 }
 

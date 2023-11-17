@@ -22,8 +22,8 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   iteration_index(0),
   models_count(models_count_),
   model_indexes(models_count),
-  weights(criteria_count, models_count, uninitialized),
-  profile_ranks(criteria_count, boundaries_count, models_count, uninitialized),
+  weights(models_count, criteria_count, uninitialized),
+  profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
   accuracies(models_count, zeroed),
   urbgs(models_count)
 {
@@ -44,7 +44,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   std::vector<float> model_weights;
   model_weights.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    model_weights.push_back(weights[criterion_index][model_index]);
+    model_weights.push_back(weights[model_index][criterion_index]);
   }
   SufficientCoalitions coalitions{SufficientCoalitions::weights, model_weights};
 
@@ -54,7 +54,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     std::vector<unsigned> boundary_profile;
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      const unsigned profile_rank = profile_ranks[criterion_index][boundary_index][model_index];
+      const unsigned profile_rank = profile_ranks[model_index][boundary_index][criterion_index];
       boundary_profile.push_back(profile_rank);
     }
     boundaries.emplace_back(boundary_profile, coalitions);
@@ -143,10 +143,10 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
     float weight_at_or_better_than_profile = 0;
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
       const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
-      const unsigned profile_rank = learning_data.profile_ranks[criterion_index][profile_index][model_index];
+      const unsigned profile_rank = learning_data.profile_ranks[model_index][profile_index][criterion_index];
       const bool is_better = alternative_rank >= profile_rank;
       if (is_better) {
-        weight_at_or_better_than_profile += learning_data.weights[criterion_index][model_index];
+        weight_at_or_better_than_profile += learning_data.weights[model_index][criterion_index];
       }
     }
     if (weight_at_or_better_than_profile >= 1) {
