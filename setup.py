@@ -50,6 +50,8 @@ def customize_compiler_for_nvcc(compiler):
             if os.path.splitext(src)[1] == ".cu":
                 compiler.set_executable("compiler_so", "nvcc")
                 postargs = extra_postargs["cuda"]
+                # Display number of GPU registered used (in case of 701=cudaErrorLaunchOutOfResources):
+                # postargs += ["-Xptxas", "-v"]
             elif "vendored" in src:
                 postargs = extra_postargs["vendored-c++"]
             else:

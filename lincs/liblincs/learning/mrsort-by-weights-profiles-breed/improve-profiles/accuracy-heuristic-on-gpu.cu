@@ -8,7 +8,8 @@
 
 namespace {
 
-typedef GridFactory2D<256, 4> grid;
+// Block size set to less than 1024 because we use more than 64 registers per thread and my GPU has only 64K registers
+typedef GridFactory2D<256, 2> grid;
 
 __device__
 unsigned get_assignment(
