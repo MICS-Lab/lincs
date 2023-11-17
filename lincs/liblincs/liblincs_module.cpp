@@ -222,6 +222,7 @@ auto auto_enum(const std::string& name) {
 BOOST_PYTHON_MODULE(liblincs) {
   std_vector_converter<float>::enroll();
   std_vector_converter<unsigned>::enroll();
+  std_vector_converter<std::string>::enroll();
   std_vector_converter<std::vector<unsigned>>::enroll();
   std_vector_converter<lincs::Category>::enroll();
   std_vector_converter<lincs::Criterion>::enroll();
@@ -232,6 +233,9 @@ BOOST_PYTHON_MODULE(liblincs) {
   std_vector_converter<lincs::Alternative>::enroll();
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>::enroll();
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>::enroll();
+  bp::class_<std::vector<std::string>>("strings_vector")
+    .def(bp::vector_indexing_suite<std::vector<std::string>>())
+  ;
 
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();
@@ -239,13 +243,21 @@ BOOST_PYTHON_MODULE(liblincs) {
   auto criterion_class = bp::class_<lincs::Criterion>("Criterion", bp::no_init)
     .add_property("name", &lincs::Criterion::get_name)
     .add_property("value_type", &lincs::Criterion::get_value_type)
+    .add_property("is_real", &lincs::Criterion::is_real)
+    .add_property("is_integer", &lincs::Criterion::is_integer)
+    .add_property("is_enumerated", &lincs::Criterion::is_enumerated)
     .add_property("preference_direction", &lincs::Criterion::get_preference_direction)
-    .add_property("min_value", &lincs::Criterion::get_real_min_value)
-    .add_property("max_value", &lincs::Criterion::get_real_max_value)
+    .add_property("real_min_value", &lincs::Criterion::get_real_min_value)
+    .add_property("real_max_value", &lincs::Criterion::get_real_max_value)
+    .add_property("integer_min_value", &lincs::Criterion::get_integer_min_value)
+    .add_property("integer_max_value", &lincs::Criterion::get_integer_max_value)
+    .add_property("ordered_values", &lincs::Criterion::get_ordered_values)
   ;
   // Note that nested things are at global scope as well. This is not wanted, not used, but doesn't hurt
   // because 'liblincs' is only partially imported into module 'lincs' (see '__init__.py').
   criterion_class.attr("make_real") = &lincs::Criterion::make_real;
+  criterion_class.attr("make_integer") = &lincs::Criterion::make_integer;
+  criterion_class.attr("make_enumerated") = &lincs::Criterion::make_enumerated;
   criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType");
   auto preference_direction_enum = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection");
   preference_direction_enum.value("isotone", lincs::Criterion::PreferenceDirection::isotone);

@@ -19,14 +19,25 @@ def describe_problem(problem: Problem):
     else:
         yield f"There are {criteria_count} classification criteria (in no particular order)."
     for criterion in problem.criteria:
-        yield f'Criterion "{criterion.name}" takes {criterion.value_type.name} values between {criterion.min_value:.1f} and {criterion.max_value:.1f} included.'
-        if criterion.preference_direction == criterion.PreferenceDirection.increasing:
-            yield f'Higher values of "{criterion.name}" are known to be better.'
+        if criterion.is_real:
+            yield f'Criterion "{criterion.name}" takes real values between {criterion.real_min_value:.1f} and {criterion.real_max_value:.1f} included.'
+        elif criterion.is_integer:
+            yield f'Criterion "{criterion.name}" takes integer values between {criterion.integer_min_value} and {criterion.integer_max_value} included.'
+        elif criterion.is_enumerated:
+            yield f'Criterion "{criterion.name}" takes values in the following set: {", ".join(f"{value}" for value in criterion.ordered_values)}.'
+            yield f'The best value for criterion "{criterion.name}" is "{criterion.ordered_values[-1]}" and the worst value is "{criterion.ordered_values[0]}".'
         else:
-            yield f'Lower values of "{criterion.name}" are known to be better.'
+            assert False
+        if criterion.is_real or criterion.is_integer:
+            if criterion.preference_direction == criterion.PreferenceDirection.increasing:
+                yield f'Higher values of "{criterion.name}" are known to be better.'
+            else:
+                yield f'Lower values of "{criterion.name}" are known to be better.'
 
 
 class DescribeProblemTestCase(unittest.TestCase):
+    maxDiff = None
+
     def _test(self, problem, expected):
         self.assertEqual(list(describe_problem(problem)), expected)
 
@@ -68,19 +79,28 @@ class DescribeProblemTestCase(unittest.TestCase):
         self._test(
             Problem(
                 [
-                    Criterion.make_real("Increasing criterion", Criterion.PreferenceDirection.increasing, -5.2, 10.3),
-                    Criterion.make_real("Decreasing criterion", Criterion.PreferenceDirection.decreasing, 5, 15),
+                    Criterion.make_real("Increasing real criterion", Criterion.PreferenceDirection.increasing, -5.2, 10.3),
+                    Criterion.make_real("Decreasing real criterion", Criterion.PreferenceDirection.decreasing, 5, 15),
+                    Criterion.make_integer("Increasing integer criterion", Criterion.PreferenceDirection.increasing, 0, 10),
+                    Criterion.make_integer("Decreasing integer criterion", Criterion.PreferenceDirection.decreasing, 4, 16),
+                    Criterion.make_enumerated("Enumerated criterion", ["A", "B", "C"]),
                 ],
                 [Category("Bad"), Category("Good")],
             ),
             [
                 'This a classification problem into 2 ordered categories named "Bad" and "Good".',
                 'The best category is "Good" and the worst category is "Bad".',
-                'There are 2 classification criteria (in no particular order).',
-                'Criterion "Increasing criterion" takes real values between -5.2 and 10.3 included.',
-                'Higher values of "Increasing criterion" are known to be better.',
-                'Criterion "Decreasing criterion" takes real values between 5.0 and 15.0 included.',
-                'Lower values of "Decreasing criterion" are known to be better.',
+                'There are 5 classification criteria (in no particular order).',
+                'Criterion "Increasing real criterion" takes real values between -5.2 and 10.3 included.',
+                'Higher values of "Increasing real criterion" are known to be better.',
+                'Criterion "Decreasing real criterion" takes real values between 5.0 and 15.0 included.',
+                'Lower values of "Decreasing real criterion" are known to be better.',
+                'Criterion "Increasing integer criterion" takes integer values between 0 and 10 included.',
+                'Higher values of "Increasing integer criterion" are known to be better.',
+                'Criterion "Decreasing integer criterion" takes integer values between 4 and 16 included.',
+                'Lower values of "Decreasing integer criterion" are known to be better.',
+                'Criterion "Enumerated criterion" takes values in the following set: A, B, C.',
+                'The best value for criterion "Enumerated criterion" is "C" and the worst value is "A".',
             ]
         )
 
