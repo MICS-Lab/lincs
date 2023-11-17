@@ -4,6 +4,11 @@
 Changelog
 =========
 
+Version 0.11.1
+==============
+
+- Technical refactoring
+
 Version 0.11.0
 ==============
 
