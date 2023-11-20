@@ -13,16 +13,16 @@ namespace lincs {
 class AcceptedValues {
  public:
   static AcceptedValues make_real_thresholds(const std::vector<float>& thresholds) {
-    return AcceptedValues(Criterion::ValueType::real, thresholds/*, {}, {}*/);
+    return AcceptedValues(Criterion::ValueType::real, thresholds, {}, {});
   }
 
-  // static AcceptedValues make_integer_thresholds(const std::vector<int>& thresholds) {
-  //   return AcceptedValues(Criterion::ValueType::integer, {}, thresholds, {});
-  // }
+  static AcceptedValues make_integer_thresholds(const std::vector<int>& thresholds) {
+    return AcceptedValues(Criterion::ValueType::integer, {}, thresholds, {});
+  }
 
-  // static AcceptedValues make_enumerated_thresholds(const std::vector<std::string>& thresholds) {
-  //   return AcceptedValues(Criterion::ValueType::enumerated, {}, {}, thresholds);
-  // }
+  static AcceptedValues make_enumerated_thresholds(const std::vector<std::string>& thresholds) {
+    return AcceptedValues(Criterion::ValueType::enumerated, {}, {}, thresholds);
+  }
 
   // Copyable and movable
   AcceptedValues(const AcceptedValues&) = default;
@@ -33,14 +33,14 @@ class AcceptedValues {
  private:
   AcceptedValues(
     Criterion::ValueType value_type_,
-    const std::vector<float>& real_thresholds_
-    // const std::vector<int>& int_thresholds_,
-    // const std::vector<std::string>& enumerated_thresholds_
+    const std::vector<float>& real_thresholds_,
+    const std::vector<int>& int_thresholds_,
+    const std::vector<std::string>& enumerated_thresholds_
   ) :
     value_type(value_type_),
-    real_thresholds(real_thresholds_)
-    // int_thresholds(int_thresholds_),
-    // enumerated_thresholds(enumerated_thresholds_)
+    real_thresholds(real_thresholds_),
+    int_thresholds(int_thresholds_),
+    enumerated_thresholds(enumerated_thresholds_)
   {}
 
  public:
@@ -52,11 +52,9 @@ class AcceptedValues {
       case Criterion::ValueType::real:
         return real_thresholds == other.real_thresholds;
       case Criterion::ValueType::integer:
-        unreachable();
-      //   return int_thresholds == other.int_thresholds;
+        return int_thresholds == other.int_thresholds;
       case Criterion::ValueType::enumerated:
-        unreachable();
-      //   return enumerated_thresholds == other.enumerated_thresholds;
+        return enumerated_thresholds == other.enumerated_thresholds;
     }
     unreachable();
   }
@@ -67,22 +65,22 @@ class AcceptedValues {
     return real_thresholds;
   }
 
-  // std::vector<int> get_integer_thresholds() const {
-  //   assert(value_type == Criterion::ValueType::integer);
-  //   return int_thresholds;
-  // }
+  std::vector<int> get_integer_thresholds() const {
+    assert(value_type == Criterion::ValueType::integer);
+    return int_thresholds;
+  }
 
-  // std::vector<std::string> get_enumerated_thresholds() const {
-  //   assert(value_type == Criterion::ValueType::enumerated);
-  //   return enumerated_thresholds;
-  // }
+  std::vector<std::string> get_enumerated_thresholds() const {
+    assert(value_type == Criterion::ValueType::enumerated);
+    return enumerated_thresholds;
+  }
 
  private:
   Criterion::ValueType value_type;
   // @todo(Project management, later) Use 'union' or equivalent to store only the relevant values
   std::vector<float> real_thresholds;
-  // std::vector<int> int_thresholds;
-  // std::vector<std::string> enumerated_thresholds;
+  std::vector<int> int_thresholds;
+  std::vector<std::string> enumerated_thresholds;
 };
 
 class SufficientCoalitions {
@@ -188,8 +186,17 @@ struct Model {
   {
     assert(accepted_values.size() == problem.criteria.size());
     for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
-      assert(problem.criteria[criterion_index].is_real());
-      assert(accepted_values[criterion_index].get_real_thresholds().size() == problem.ordered_categories.size() - 1);
+      switch (problem.criteria[criterion_index].get_value_type()) {
+        case Criterion::ValueType::real:
+          assert(accepted_values[criterion_index].get_real_thresholds().size() == problem.ordered_categories.size() - 1);
+          break;
+        case Criterion::ValueType::integer:
+          assert(accepted_values[criterion_index].get_integer_thresholds().size() == problem.ordered_categories.size() - 1);
+          break;
+        case Criterion::ValueType::enumerated:
+          assert(accepted_values[criterion_index].get_enumerated_thresholds().size() == problem.ordered_categories.size() - 1);
+          break;
+      }
     };
     assert(sufficient_coalitions.size() == problem.ordered_categories.size() - 1);
     for (const auto& suff_coals : sufficient_coalitions) {

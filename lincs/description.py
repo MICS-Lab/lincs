@@ -133,9 +133,19 @@ def describe_model(problem: Problem, model: Model):
 
     def make_profile(accepted_values, boundary_index):
         for criterion_index, criterion in enumerate(problem.criteria):
-            assert len(accepted_values[criterion_index].real_thresholds) == boundaries_count
-            constraint = "at least" if criterion.preference_direction == criterion.PreferenceDirection.increasing else "at most"
-            yield f'{constraint} {accepted_values[criterion_index].real_thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
+            if criterion.is_real:
+                assert len(accepted_values[criterion_index].real_thresholds) == boundaries_count
+                constraint = "at least" if criterion.preference_direction == criterion.PreferenceDirection.increasing else "at most"
+                yield f'{constraint} {accepted_values[criterion_index].real_thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
+            elif criterion.is_integer:
+                assert len(accepted_values[criterion_index].integer_thresholds) == boundaries_count
+                constraint = "at least" if criterion.preference_direction == criterion.PreferenceDirection.increasing else "at most"
+                yield f'{constraint} {accepted_values[criterion_index].integer_thresholds[boundary_index]} on criterion "{criterion.name}"'
+            elif criterion.is_enumerated:
+                assert len(accepted_values[criterion_index].enumerated_thresholds) == boundaries_count
+                yield f'at least "{accepted_values[criterion_index].enumerated_thresholds[boundary_index]}" on criterion "{criterion.name}"'
+            else:
+                assert False
 
     is_uc = all(sufficient_coalitions == model.sufficient_coalitions[0] for sufficient_coalitions in model.sufficient_coalitions[1:])
     if is_uc:

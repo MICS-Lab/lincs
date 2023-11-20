@@ -151,6 +151,8 @@ void define_problem_classes() {
 void define_model_classes() {
   auto accepted_values_class = bp::class_<lincs::AcceptedValues>("AcceptedValues", bp::no_init)
     .add_property("real_thresholds", &lincs::AcceptedValues::get_real_thresholds)
+    .add_property("integer_thresholds", &lincs::AcceptedValues::get_integer_thresholds)
+    .add_property("enumerated_thresholds", &lincs::AcceptedValues::get_enumerated_thresholds)
   ;
   accepted_values_class.attr("make_real_thresholds") = &lincs::AcceptedValues::make_real_thresholds;
 

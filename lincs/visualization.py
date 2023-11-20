@@ -9,10 +9,19 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     xs = [criterion.name for criterion in problem.criteria]
     boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
     for criterion_index, criterion in enumerate(problem.criteria):
-        assert criterion.is_real
-        for boundary_index in range(len(problem.ordered_categories) - 1):
-            acc_vals = model.accepted_values[criterion_index]
-            boundary_profiles[boundary_index].append(acc_vals.real_thresholds[boundary_index])
+        acc_vals = model.accepted_values[criterion_index]
+        if criterion.is_real:
+            for boundary_index in range(len(problem.ordered_categories) - 1):
+                boundary_profiles[boundary_index].append(acc_vals.real_thresholds[boundary_index])
+        elif criterion.is_integer:
+            for boundary_index in range(len(problem.ordered_categories) - 1):
+                boundary_profiles[boundary_index].append(acc_vals.integer_thresholds[boundary_index])
+        elif criterion.is_enumerated:
+            ranks_by_value = {value: rank for rank, value in enumerate(criterion.ordered_values)}
+            for boundary_index in range(len(problem.ordered_categories) - 1):
+                boundary_profiles[boundary_index].append(ranks_by_value[acc_vals.enumerated_thresholds[boundary_index]])
+        else:
+            assert False
     ys = [
         normalize_profile(problem.criteria, boundary_profile)
         for boundary_profile in boundary_profiles
@@ -63,8 +72,15 @@ def normalize_profile(criteria, ys):
     ]
 
 def normalize_value(criterion, y):
-    assert criterion.is_real
-    y = (y - criterion.real_min_value) / (criterion.real_max_value - criterion.real_min_value)
+    if criterion.is_real:
+        y = (y - criterion.real_min_value) / (criterion.real_max_value - criterion.real_min_value)
+    elif criterion.is_integer:
+        y = (y - criterion.integer_min_value) / (criterion.integer_max_value - criterion.integer_min_value)
+    elif criterion.is_enumerated:
+        y = y / (len(criterion.ordered_values) - 1)
+    else:
+        assert False
+
     if criterion.is_increasing:
         return y
     else:

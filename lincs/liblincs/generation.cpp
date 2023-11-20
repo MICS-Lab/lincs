@@ -2,6 +2,7 @@
 
 #include "generation.hpp"
 
+#include <any>
 #include <algorithm>
 #include <cassert>
 #include <numeric>
@@ -39,7 +40,9 @@ Problem generate_classification_problem(
 
   std::mt19937 gen(random_seed);
   std::uniform_real_distribution<float> min_max_distribution(-100, 100);
+  assert(allowed_value_types.size() > 0);
   std::uniform_int_distribution<unsigned> value_type_distribution(0, allowed_value_types.size() - 1);
+  assert(allowed_preference_directions.size() > 0);
   std::uniform_int_distribution<unsigned> preference_direction_distribution(0, allowed_preference_directions.size() - 1);
 
   // Hopping through hoops to generate the same problem as in previous versions:
@@ -115,22 +118,55 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
 
   std::mt19937 gen(random_seed);
 
-  std::vector<std::vector<float>> profiles(boundaries_count, std::vector<float>(criteria_count));
+  std::vector<std::vector<std::any>> profiles(boundaries_count, std::vector<std::any>(criteria_count));
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const auto& criterion = problem.criteria[criterion_index];
-    // Profile can take any values. We arbitrarily generate them uniformly
-    std::uniform_real_distribution<float> values_distribution(criterion.get_real_min_value() + 0.01f, criterion.get_real_max_value() - 0.01f);
-    // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
-    // Profiles must be ordered on each criterion, so we generate a random column...
-    std::vector<float> column(boundaries_count);
-    std::generate(
-      column.begin(), column.end(),
-      [&values_distribution, &gen]() { return values_distribution(gen); });
-    // ... sort it according to the criterion's preference direction...
-    std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.get_preference_direction(), right, left); });
-    // ... and assign that column across all profiles.
-    for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
-      profiles[profile_index][criterion_index] = column[profile_index];
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        {
+          // Profile can take any values. We arbitrarily generate them uniformly
+          std::uniform_real_distribution<float> values_distribution(criterion.get_real_min_value() + 0.01f, criterion.get_real_max_value() - 0.01f);
+          // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
+          // Profiles must be ordered on each criterion, so we generate a random column...
+          std::vector<float> column(boundaries_count);
+          std::generate(
+            column.begin(), column.end(),
+            [&values_distribution, &gen]() { return values_distribution(gen); });
+          // ... sort it according to the criterion's preference direction...
+          std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.get_preference_direction(), right, left); });
+          // ... and assign that column across all profiles.
+          for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
+            profiles[profile_index][criterion_index] = column[profile_index];
+          }
+        }
+        break;
+      case Criterion::ValueType::integer:
+        {
+          std::uniform_int_distribution<int> values_distribution(criterion.get_integer_min_value(), criterion.get_integer_max_value());
+          std::vector<int> column(boundaries_count);
+          std::generate(
+            column.begin(), column.end(),
+            [&values_distribution, &gen]() { return values_distribution(gen); });
+          std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.get_preference_direction(), right, left); });
+          for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
+            profiles[profile_index][criterion_index] = column[profile_index];
+          }
+        }
+        break;
+      case Criterion::ValueType::enumerated:
+        {
+          const std::vector<std::string> values = criterion.get_ordered_values();
+          std::uniform_int_distribution<unsigned> values_distribution(0, values.size() - 1);
+          std::vector<unsigned> ranks(boundaries_count);
+          std::generate(
+            ranks.begin(), ranks.end(),
+            [&values_distribution, &gen]() { return values_distribution(gen); });
+          std::sort(ranks.begin(), ranks.end(), [&criterion](float left, float right) { return right >= left; });
+          for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
+            profiles[profile_index][criterion_index] = values[ranks[profile_index]];
+          }
+        }
+        break;
     }
   }
 
@@ -163,13 +199,39 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
 
   std::vector<AcceptedValues> accepted_values;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    assert(problem.criteria[criterion_index].is_real());
-    std::vector<float> thresholds;
-    thresholds.reserve(boundaries_count);
-    for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-      thresholds.push_back(profiles[boundary_index][criterion_index]);
+    const Criterion& criterion = problem.criteria[criterion_index];
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        {
+          std::vector<float> thresholds;
+          thresholds.reserve(boundaries_count);
+          for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+            thresholds.push_back(std::any_cast<float>(profiles[boundary_index][criterion_index]));
+          }
+          accepted_values.emplace_back(AcceptedValues::make_real_thresholds(thresholds));
+        }
+        break;
+      case Criterion::ValueType::integer:
+        {
+          std::vector<int> thresholds;
+          thresholds.reserve(boundaries_count);
+          for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+            thresholds.push_back(std::any_cast<int>(profiles[boundary_index][criterion_index]));
+          }
+          accepted_values.emplace_back(AcceptedValues::make_integer_thresholds(thresholds));
+        }
+        break;
+      case Criterion::ValueType::enumerated:
+        {
+          std::vector<std::string> thresholds;
+          thresholds.reserve(boundaries_count);
+          for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+            thresholds.push_back(std::any_cast<std::string>(profiles[boundary_index][criterion_index]));
+          }
+          accepted_values.emplace_back(AcceptedValues::make_enumerated_thresholds(thresholds));
+        }
+        break;
     }
-    accepted_values.emplace_back(AcceptedValues::make_real_thresholds(thresholds));
   }
 
   std::vector<SufficientCoalitions> sufficient_coalitions;
@@ -184,7 +246,6 @@ TEST_CASE("Generate MR-Sort model - random weights sum") {
   Problem problem = generate_classification_problem(3, 2, 42);
   Model model = generate_mrsort_classification_model(problem, 42);
 
-  // @todo(Project Management, later) Don't dump, test the structured model, to avoid breaking the test if the dump format changes
   std::ostringstream oss;
   model.dump(problem, oss);
   CHECK(oss.str() == R"(kind: ncs-classification-model
@@ -206,7 +267,6 @@ TEST_CASE("Generate MR-Sort model - fixed weights sum") {
   Problem problem = generate_classification_problem(3, 2, 42);
   Model model = generate_mrsort_classification_model(problem, 42, 2);
 
-  // @todo(Project Management, later) Don't dump, test the structured model, to avoid breaking the test if the dump format changes
   std::ostringstream oss;
   model.dump(problem, oss);
   CHECK(oss.str() == R"(kind: ncs-classification-model
@@ -221,6 +281,52 @@ accepted_values:
 sufficient_coalitions:
   - kind: weights
     criterion_weights: [0.366869569, 1.09711826, 0.536012173]
+)");
+}
+
+TEST_CASE("Generate MR-Sort model - integer criteria") {
+  Problem problem = generate_classification_problem(
+    2, 2,
+    535747649,
+    false,
+    {Criterion::PreferenceDirection::increasing, Criterion::PreferenceDirection::decreasing},
+    {Criterion::ValueType::integer});
+  Model model = generate_mrsort_classification_model(problem, 116273751);
+  std::ostringstream oss;
+  model.dump(problem, oss);
+  CHECK(oss.str() == R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [-1219]
+  - kind: thresholds
+    thresholds: [1634]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [0.620512545, 1.0907892]
+)");
+}
+
+TEST_CASE("Generate MR-Sort model - enumerated criteria") {
+  Problem problem = generate_classification_problem(
+    2, 2,
+    520326314,
+    false,
+    {Criterion::PreferenceDirection::increasing},  // @todo(Project management, later) Support an empty set of allowed preference directions
+    {Criterion::ValueType::enumerated});
+  Model model = generate_mrsort_classification_model(problem, 511376872);
+  std::ostringstream oss;
+  model.dump(problem, oss);
+  CHECK(oss.str() == R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [got]
+  - kind: thresholds
+    thresholds: [bir]
+sufficient_coalitions:
+  - kind: weights
+    criterion_weights: [101.793587, 45.5191078]
 )");
 }
 

@@ -139,6 +139,9 @@ void enroll_standard_converters() {
   std_vector_converter<float>::enroll();
   bp::class_<std::vector<float>>("floats_vector").def(bp::vector_indexing_suite<std::vector<float>>());
 
+  std_vector_converter<int>::enroll();
+  bp::class_<std::vector<int>>("ints_vector").def(bp::vector_indexing_suite<std::vector<int>>());
+
   std_vector_converter<unsigned>::enroll();
 
   std_vector_converter<std::string>::enroll();

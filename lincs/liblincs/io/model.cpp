@@ -53,8 +53,6 @@ properties:
             thresholds:
               description: For each category but the lowest, the threshold to be accepted in that category according to that criterion.
               type: array
-              items:
-                type: number
               minItems: 1
           required:
             - kind
@@ -161,12 +159,10 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
         out << acc_vals.get_real_thresholds();
         break;
       case Criterion::ValueType::integer:
-        unreachable();
-        // out << acc_vals.get_integer_thresholds();
+        out << acc_vals.get_integer_thresholds();
         break;
       case Criterion::ValueType::enumerated:
-        unreachable();
-        // out << acc_vals.get_enumerated_thresholds();
+        out << acc_vals.get_enumerated_thresholds();
         break;
     }
     out << YAML::EndMap;
@@ -242,13 +238,40 @@ Model Model::load(const Problem& problem, std::istream& is) {
   }
   std::vector<AcceptedValues> accepted_values;
   accepted_values.reserve(criteria_count);
-  for (const YAML::Node& yaml_acc_vals : yaml_accepted_values) {
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    const Criterion& criterion = problem.criteria[criterion_index];
+    const YAML::Node& yaml_acc_vals = yaml_accepted_values[criterion_index];
     assert(yaml_acc_vals["kind"].as<std::string>() == "thresholds");
-    const std::vector<float> thresholds = yaml_acc_vals["thresholds"].as<std::vector<float>>();
-    if (thresholds.size() != boundaries_count) {
-      throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
+
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        {
+          const std::vector<float> thresholds = yaml_acc_vals["thresholds"].as<std::vector<float>>();
+          if (thresholds.size() != boundaries_count) {
+            throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
+          }
+          accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
+        }
+        break;
+      case Criterion::ValueType::integer:
+        {
+          const std::vector<int> thresholds = yaml_acc_vals["thresholds"].as<std::vector<int>>();
+          if (thresholds.size() != boundaries_count) {
+            throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
+          }
+          accepted_values.push_back(AcceptedValues::make_integer_thresholds(thresholds));
+        }
+        break;
+      case Criterion::ValueType::enumerated:
+        {
+          const std::vector<std::string> thresholds = yaml_acc_vals["thresholds"].as<std::vector<std::string>>();
+          if (thresholds.size() != boundaries_count) {
+            throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
+          }
+          accepted_values.push_back(AcceptedValues::make_enumerated_thresholds(thresholds));
+        }
+        break;
     }
-    accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
   }
 
   const YAML::Node& yaml_sufficient_coalitions = node["sufficient_coalitions"];
@@ -371,6 +394,66 @@ accepted_values:
 sufficient_coalitions:
   - kind: weights
     criterion_weights: [0.444866359, 0.278783619, 0.423978835]
+)");
+
+  CHECK(Model::load(problem, ss) == model);
+}
+
+TEST_CASE("dumping then loading model preserves data - integer criterion") {
+  Problem problem{
+    {Criterion::make_integer("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 100)},
+    {{"Category 1"}, {"Category 2"}, {"Category 3"}},
+  };
+
+  Model model{
+    problem,
+    {AcceptedValues::make_integer_thresholds({40, 60})},
+    {SufficientCoalitions::make_weights({0.75}), SufficientCoalitions::make_weights({0.75})},
+  };
+
+  std::stringstream ss;
+  model.dump(problem, ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [40, 60]
+sufficient_coalitions:
+  - &coalitions
+    kind: weights
+    criterion_weights: [0.75]
+  - *coalitions
+)");
+
+  CHECK(Model::load(problem, ss) == model);
+}
+
+TEST_CASE("dumping then loading model preserves data - enumerated criterion") {
+  Problem problem{
+    {Criterion::make_enumerated("Criterion 1", {"F", "E", "D", "C", "B", "A"})},
+    {{"Category 1"}, {"Category 2"}, {"Category 3"}},
+  };
+
+  Model model{
+    problem,
+    {AcceptedValues::make_enumerated_thresholds({"D", "B"})},
+    {SufficientCoalitions::make_weights({0.75}), SufficientCoalitions::make_weights({0.75})},
+  };
+
+  std::stringstream ss;
+  model.dump(problem, ss);
+
+  CHECK(ss.str() == R"(kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [D, B]
+sufficient_coalitions:
+  - &coalitions
+    kind: weights
+    criterion_weights: [0.75]
+  - *coalitions
 )");
 
   CHECK(Model::load(problem, ss) == model);
