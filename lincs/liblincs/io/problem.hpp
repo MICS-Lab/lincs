@@ -31,14 +31,17 @@ class Criterion {
 
  public:
   static Criterion make_real(const std::string& name, PreferenceDirection preference_direction, float real_min_value, float real_max_value) {
+    assert(real_min_value <= real_max_value);
     return Criterion(name, ValueType::real, preference_direction, real_min_value, real_max_value, 0, 0, {});
   }
 
   static Criterion make_integer(const std::string& name, PreferenceDirection preference_direction, int int_min_value, int int_max_value) {
+    assert(int_min_value <= int_max_value);
     return Criterion(name, ValueType::integer, preference_direction, 0, 0, int_min_value, int_max_value, {});
   }
 
   static Criterion make_enumerated(const std::string& name, const std::vector<std::string>& ordered_values) {
+    assert(ordered_values.size() > 0);
     return Criterion(name, ValueType::enumerated, PreferenceDirection::increasing, 0, 0, 0, 0, ordered_values);
   }
 
@@ -65,26 +68,18 @@ class Criterion {
 
  public:
   bool operator==(const Criterion& other) const {
-    if (value_type != other.value_type) {
+    if (value_type != other.value_type || name != other.name) {
       return false;
     }
     switch (value_type) {
       case ValueType::real:
-        return
-          name == other.name &&
-          preference_direction == other.preference_direction &&
-          real_min_value == other.real_min_value &&
-          real_max_value == other.real_max_value;
+        return preference_direction == other.preference_direction &&
+          real_min_value == other.real_min_value && real_max_value == other.real_max_value;
       case ValueType::integer:
-        return
-          name == other.name &&
-          preference_direction == other.preference_direction &&
-          int_min_value == other.int_min_value &&
-          int_max_value == other.int_max_value;
+        return preference_direction == other.preference_direction &&
+          int_min_value == other.int_min_value && int_max_value == other.int_max_value;
       case ValueType::enumerated:
-        return
-          name == other.name &&
-          ordered_values == other.ordered_values;
+        return ordered_values == other.ordered_values;
     }
     unreachable();
   }
@@ -92,13 +87,26 @@ class Criterion {
   std::string get_name() const { return name; }
   
   ValueType get_value_type() const { return value_type; }
+
   bool is_real() const { return value_type == ValueType::real; }
+
   bool is_integer() const { return value_type == ValueType::integer; }
+
   bool is_enumerated() const { return value_type == ValueType::enumerated; }
 
   PreferenceDirection get_preference_direction() const {
     assert(is_real() || is_integer());
     return preference_direction;
+  }
+
+  bool is_increasing() const {
+    assert(is_real() || is_integer());
+    return preference_direction == PreferenceDirection::increasing;
+  }
+
+  bool is_decreasing() const {
+    assert(is_real() || is_integer());
+    return preference_direction == PreferenceDirection::decreasing;
   }
 
   float get_real_min_value() const {
@@ -148,7 +156,10 @@ struct Category {
 };
 
 struct Problem {
-  Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& ordered_categories_): criteria(criteria_), ordered_categories(ordered_categories_) {}
+  Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& ordered_categories_): criteria(criteria_), ordered_categories(ordered_categories_) {
+    assert(criteria.size() > 0);
+    assert(ordered_categories.size() >= 2);
+  }
 
   bool operator==(const Problem& other) const {
     return criteria == other.criteria && ordered_categories == other.ordered_categories;

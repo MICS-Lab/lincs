@@ -1,6 +1,6 @@
 import unittest
 
-from . import Problem, Criterion, Category, Model, SufficientCoalitions
+from . import Problem, Criterion, Category, Model, AcceptedValues, SufficientCoalitions
 
 
 def describe_problem(problem: Problem):
@@ -106,11 +106,13 @@ class DescribeProblemTestCase(unittest.TestCase):
 
 
 def describe_model(problem: Problem, model: Model):
-    categories_count = len(problem.ordered_categories)
-    assert categories_count >= 2
-    assert len(model.boundaries) == categories_count - 1
     criteria_count = len(problem.criteria)
-    assert criteria_count >= 1
+    assert len(model.accepted_values) == criteria_count
+    assert criteria_count > 0
+    categories_count = len(problem.ordered_categories)
+    boundaries_count = categories_count - 1
+    assert boundaries_count > 0
+    assert len(model.sufficient_coalitions) == boundaries_count
 
     def comma_and(s):
         s = list(s)
@@ -121,57 +123,50 @@ def describe_model(problem: Problem, model: Model):
         else:
             return ", ".join(s[:-1]) + ", and " + s[-1]  # https://en.wikipedia.org/wiki/Serial_comma
 
-    def make_coalitions(boundary):
-        assert boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.roots
-        for coalition in boundary.sufficient_coalitions.upset_roots:
+    def make_upset_roots(upset_roots):
+        for coalition in upset_roots:
             criterion_names = []
             for criterion_index in coalition:
                 criterion = problem.criteria[criterion_index]
                 criterion_names.append(f'"{criterion.name}"')
             yield f'  - {comma_and(criterion_names)}'
 
-    def make_profile(boundary):
-        assert len(boundary.profile) == criteria_count
-        for criterion, limit in zip(problem.criteria, boundary.profile):
+    def make_profile(accepted_values, boundary_index):
+        for criterion_index, criterion in enumerate(problem.criteria):
+            assert len(accepted_values[criterion_index].real_thresholds) == boundaries_count
             constraint = "at least" if criterion.preference_direction == criterion.PreferenceDirection.increasing else "at most"
-            yield f'{constraint} {limit:.2f} on criterion "{criterion.name}"'
+            yield f'{constraint} {accepted_values[criterion_index].real_thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
 
-    is_uc = all(
-        # @todo Provide equality operator (on the C++ side?).
-        boundary.sufficient_coalitions.kind == model.boundaries[0].sufficient_coalitions.kind
-        and list(boundary.sufficient_coalitions.criterion_weights) == list(model.boundaries[0].sufficient_coalitions.criterion_weights)
-        and list(boundary.sufficient_coalitions.upset_roots) == list(model.boundaries[0].sufficient_coalitions.upset_roots)
-        for boundary in model.boundaries
-    )
+    is_uc = all(sufficient_coalitions == model.sufficient_coalitions[0] for sufficient_coalitions in model.sufficient_coalitions[1:])
     if is_uc:
-        first_boundary = model.boundaries[0]
-        if first_boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.weights:
+        first_sufficient_coalitions = model.sufficient_coalitions[0]
+        if first_sufficient_coalitions.is_weights:
             yield "This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries."
             yield "The weights associated to each criterion are:"
-            assert len(first_boundary.sufficient_coalitions.criterion_weights) == criteria_count
-            for criterion, weight in zip(problem.criteria, first_boundary.sufficient_coalitions.criterion_weights):
+            assert len(first_sufficient_coalitions.criterion_weights) == criteria_count
+            for criterion, weight in zip(problem.criteria, first_sufficient_coalitions.criterion_weights):
                 yield f'  - Criterion "{criterion.name}": {weight:.2f}'
             yield "To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:"
         else:
-            assert first_boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.roots
+            assert first_sufficient_coalitions.is_roots
             yield "This is a Uc-NCS model: an NCS model with the same sufficient coalitions for all boundaries."
             yield "The sufficient coalitions of criteria are the following, as well as any of their unions:"
-            yield from make_coalitions(first_boundary)
+            yield from make_upset_roots(first_sufficient_coalitions.upset_roots)
             yield "To get into an upper category, an alternative must be better than the following profiles on a sufficient coalition of criteria:"
-        for category, boundary in zip(problem.ordered_categories[1:], model.boundaries):
-            yield f'  - For category "{category.name}": {comma_and(make_profile(boundary))}'
+        for boundary_index, category in enumerate(problem.ordered_categories[1:]):
+            yield f'  - For category "{category.name}": {comma_and(make_profile(model.accepted_values, boundary_index))}'
     else:
         yield "This is a generic NCS model; sufficient coalitions are specified for each boundary."
-        for category, boundary in zip(problem.ordered_categories[1:], model.boundaries):
-            if boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.weights:
+        for boundary_index, (category, sufficient_coalitions) in enumerate(zip(problem.ordered_categories[1:], model.sufficient_coalitions)):
+            if sufficient_coalitions.is_weights:
                 yield f'To get into category "{category.name}", an alternative must be better than the following profile on a set of criteria whose weights add up to at least 1:'
-                for profile, weight in zip(make_profile(boundary), boundary.sufficient_coalitions.criterion_weights):
+                for profile, weight in zip(make_profile(model.accepted_values, boundary_index), sufficient_coalitions.criterion_weights):
                     yield f'  - {profile} (weight: {weight:.2f})'
             else:
-                assert boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.roots
+                assert sufficient_coalitions.is_roots
                 yield f'The sufficient coalitions for category "{category.name}" are the following, as well as any of their unions:'
-                yield from make_coalitions(boundary)
-                yield f'To get into category "{category.name}", an alternative must be better than the following profile on a sufficient coalition of criteria: {comma_and(make_profile(boundary))}'
+                yield from make_upset_roots(sufficient_coalitions.upset_roots)
+                yield f'To get into category "{category.name}", an alternative must be better than the following profile on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
 
 
 class DescribeModelTestCase(unittest.TestCase):
@@ -199,8 +194,14 @@ class DescribeModelTestCase(unittest.TestCase):
             Model(
                 self.problem,
                 [
-                    Model.Boundary([0.2, 0.8, 0.4, 0.7], SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.5, 0.4, 0.2])),
-                    Model.Boundary([0.7, 0.7, 0.5, 0.3], SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.5, 0.4, 0.2])),
+                    AcceptedValues.make_real_thresholds([0.2, 0.7]),
+                    AcceptedValues.make_real_thresholds([0.8, 0.7]),
+                    AcceptedValues.make_real_thresholds([0.4, 0.5]),
+                    AcceptedValues.make_real_thresholds([0.7, 0.3]),
+                ],
+                [
+                    SufficientCoalitions.make_weights([0.7, 0.5, 0.4, 0.2]),
+                    SufficientCoalitions.make_weights([0.7, 0.5, 0.4, 0.2]),
                 ],
             ),
             [
@@ -221,8 +222,14 @@ class DescribeModelTestCase(unittest.TestCase):
             Model(
                 self.problem,
                 [
-                    Model.Boundary([0.2, 0.8, 0.4, 0.7], SufficientCoalitions(SufficientCoalitions.roots, 4, [[0, 1], [0, 2], [1, 2, 3]])),
-                    Model.Boundary([0.7, 0.7, 0.5, 0.3], SufficientCoalitions(SufficientCoalitions.roots, 4, [[0, 1], [0, 2], [1, 2, 3]])),
+                    AcceptedValues.make_real_thresholds([0.2, 0.7]),
+                    AcceptedValues.make_real_thresholds([0.8, 0.7]),
+                    AcceptedValues.make_real_thresholds([0.4, 0.5]),
+                    AcceptedValues.make_real_thresholds([0.7, 0.3]),
+                ],
+                [
+                    SufficientCoalitions.make_roots(4, [[0, 1], [0, 2], [1, 2, 3]]),
+                    SufficientCoalitions.make_roots(4, [[0, 1], [0, 2], [1, 2, 3]]),
                 ],
             ),
             [
@@ -242,8 +249,14 @@ class DescribeModelTestCase(unittest.TestCase):
             Model(
                 self.problem,
                 [
-                    Model.Boundary([0.2, 0.8, 0.4, 0.7], SufficientCoalitions(SufficientCoalitions.roots, 4, [[0, 1], [0, 2], [1, 2, 3]])),
-                    Model.Boundary([0.7, 0.7, 0.5, 0.3], SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.5, 0.4, 0.2])),
+                    AcceptedValues.make_real_thresholds([0.2, 0.7]),
+                    AcceptedValues.make_real_thresholds([0.8, 0.7]),
+                    AcceptedValues.make_real_thresholds([0.4, 0.5]),
+                    AcceptedValues.make_real_thresholds([0.7, 0.3]),
+                ],
+                [
+                    SufficientCoalitions.make_roots(4, [[0, 1], [0, 2], [1, 2, 3]]),
+                    SufficientCoalitions.make_weights([0.7, 0.5, 0.4, 0.2]),
                 ],
             ),
             [

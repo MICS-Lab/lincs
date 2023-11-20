@@ -59,32 +59,37 @@ PreProcessedLearningSet::PreProcessedLearningSet(
 Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, const bool do_halves) const {
   assert(model.boundaries.size() == boundaries_count);
 
-  std::vector<Model::Boundary> boundaries;
-  boundaries.reserve(boundaries_count);
-  for (const auto& boundary: model.boundaries) {
-    assert(boundary.profile_ranks.size() == criteria_count);
-    // @todo(Project management, later) Replace with:
-    // profile.reserve(criteria_count)
-    // for (rank : boundary.profile_ranks) {
-    //   ... profile.emplace_back(...)
-    std::vector<float> profile(criteria_count);
-    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+  std::vector<AcceptedValues> accepted_values;
+  accepted_values.reserve(criteria_count);
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    assert(problem.criteria[criterion_index].is_real());
+    std::vector<float> thresholds;
+    thresholds.reserve(boundaries_count);
+    for (const auto& boundary: model.boundaries) {
       const unsigned rank = boundary.profile_ranks[criterion_index];
+      float threshold;
       if (rank == 0) {
-        profile[criterion_index] = sorted_values[criterion_index][rank];
+        threshold = sorted_values[criterion_index][rank];
       } else if (rank == values_counts[criterion_index]) {
         // Past-the-end rank
-        profile[criterion_index] = sorted_values[criterion_index][values_counts[criterion_index] - 1];
+        threshold = sorted_values[criterion_index][values_counts[criterion_index] - 1];
       } else if (do_halves) {
-        profile[criterion_index] = (sorted_values[criterion_index][rank - 1] + sorted_values[criterion_index][rank]) / 2;
+        threshold = (sorted_values[criterion_index][rank - 1] + sorted_values[criterion_index][rank]) / 2;
       } else {
-        profile[criterion_index] = sorted_values[criterion_index][rank];
+        threshold = sorted_values[criterion_index][rank];
       }
+      thresholds.push_back(threshold);
     }
-    boundaries.emplace_back(profile, boundary.sufficient_coalitions);
+    accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
   }
 
-  return Model{problem, boundaries};
+  std::vector<SufficientCoalitions> sufficient_coalitions;
+  sufficient_coalitions.reserve(boundaries_count);
+  for (const auto& boundary: model.boundaries) {
+    sufficient_coalitions.emplace_back(boundary.sufficient_coalitions);
+  }
+
+  return Model{problem, accepted_values, sufficient_coalitions};
 }
 
 }  // namespace lincs

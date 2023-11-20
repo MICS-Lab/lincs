@@ -161,15 +161,23 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
     denormalized_weights.begin(),
     [weights_sum](float w) { return w * weights_sum; });
 
-  SufficientCoalitions coalitions{SufficientCoalitions::weights, denormalized_weights};
-
-  std::vector<Model::Boundary> boundaries;
-  boundaries.reserve(boundaries_count);
-  for (unsigned category_index = 0; category_index != boundaries_count; ++category_index) {
-    boundaries.emplace_back(profiles[category_index], coalitions);
+  std::vector<AcceptedValues> accepted_values;
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    assert(problem.criteria[criterion_index].is_real());
+    std::vector<float> thresholds;
+    thresholds.reserve(boundaries_count);
+    for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+      thresholds.push_back(profiles[boundary_index][criterion_index]);
+    }
+    accepted_values.emplace_back(AcceptedValues::make_real_thresholds(thresholds));
   }
 
-  return Model(problem, boundaries);
+  std::vector<SufficientCoalitions> sufficient_coalitions;
+  for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+    sufficient_coalitions.emplace_back(SufficientCoalitions::make_weights(denormalized_weights));
+  }
+
+  return Model(problem, accepted_values, sufficient_coalitions);
 }
 
 TEST_CASE("Generate MR-Sort model - random weights sum") {
@@ -504,12 +512,12 @@ TEST_CASE("Random min/max") {
 
   CHECK(problem.criteria[0].get_real_min_value() == doctest::Approx(-25.092));
   CHECK(problem.criteria[0].get_real_max_value() == doctest::Approx(59.3086));
-  CHECK(model.boundaries[0].profile[0] == doctest::Approx(6.52194));
+  CHECK(model.accepted_values[0].get_real_thresholds()[0] == doctest::Approx(6.52194));
   CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(45.3692));
 
   CHECK(problem.criteria[1].get_real_min_value() == doctest::Approx(-63.313));
   CHECK(problem.criteria[1].get_real_max_value() == doctest::Approx(46.3988));
-  CHECK(model.boundaries[0].profile[1] == doctest::Approx(24.0712));
+  CHECK(model.accepted_values[1].get_real_thresholds()[0] == doctest::Approx(24.0712));
   CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(-15.8581));
 }
 
@@ -525,8 +533,8 @@ TEST_CASE("Decreasing criterion") {
 
   CHECK(problem.criteria[0].get_preference_direction() == Criterion::PreferenceDirection::decreasing);
   // Profiles are in decreasing order
-  CHECK(model.boundaries[0].profile[0] == doctest::Approx(0.790612));
-  CHECK(model.boundaries[1].profile[0] == doctest::Approx(0.377049));
+  CHECK(model.accepted_values[0].get_real_thresholds()[0] == doctest::Approx(0.790612));
+  CHECK(model.accepted_values[0].get_real_thresholds()[1] == doctest::Approx(0.377049));
 
   CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(0.834842));
   CHECK(*alternatives.alternatives[0].category_index == 0);

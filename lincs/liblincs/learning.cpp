@@ -2,6 +2,8 @@
 
 #include "learning.hpp"
 
+#include <optional>
+
 #include "classification.hpp"  // Only for tests
 #include "generation.hpp"  // Only for tests
 #include "learning/exception.hpp"
@@ -264,19 +266,17 @@ TEST_CASE("Basic WPB learning")
 
    public:
     auto perform() {
-      bool cpu_success = false;
-      Model cpu_model(problem, {});
+      std::optional<Model> cpu_model;
       try {
-        cpu_model.boundaries = cpu_wrapper.perform().boundaries;
-        cpu_success = true;
+        cpu_model = cpu_wrapper.perform();
       } catch (const LearningFailureException&) { /* Nothing */ }
+      const bool cpu_success = cpu_model.has_value();
 
-      bool gpu_success = false;
-      Model gpu_model(problem, {});
+      std::optional<Model> gpu_model;
       try {
-        gpu_model.boundaries = gpu_wrapper.perform().boundaries;
-        gpu_success = true;
+        gpu_model = gpu_wrapper.perform();
       } catch (const LearningFailureException&) { /* Nothing */ }
+      bool gpu_success = gpu_model.has_value();
 
       CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
       if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
@@ -294,18 +294,18 @@ TEST_CASE("Basic WPB learning")
 
       if (cpu_success == gpu_success) {
         if (cpu_success) {
-          CHECK(cpu_model.boundaries == gpu_model.boundaries);
-          return cpu_model;
+          CHECK(*cpu_model == *gpu_model);
+          return *cpu_model;
         } else {
           throw LearningFailureException();
         }
       } else {
         if (cpu_success) {
           FAIL("CPU succeeded but GPU failed");
-          return cpu_model;
+          return *cpu_model;
         } else {
           FAIL("GPU succeeded but CPU failed");
-          return gpu_model;
+          return *gpu_model;
         }
       }
     }
@@ -518,19 +518,17 @@ TEST_CASE("Non-exact WPB learning") {
 
    public:
     auto perform() {
-      bool cpu_success = false;
-      Model cpu_model(problem, {});
+      std::optional<Model> cpu_model;
       try {
-        cpu_model.boundaries = cpu_wrapper.perform().boundaries;
-        cpu_success = true;
+        cpu_model = cpu_wrapper.perform();
       } catch (const LearningFailureException&) { /* Nothing */ }
+      const bool cpu_success = cpu_model.has_value();
 
-      bool gpu_success = false;
-      Model gpu_model(problem, {});
+      std::optional<Model> gpu_model;
       try {
-        gpu_model.boundaries = gpu_wrapper.perform().boundaries;
-        gpu_success = true;
+        gpu_model = gpu_wrapper.perform();
       } catch (const LearningFailureException&) { /* Nothing */ }
+      bool gpu_success = gpu_model.has_value();
 
       CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
       if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
@@ -548,18 +546,18 @@ TEST_CASE("Non-exact WPB learning") {
 
       if (cpu_success == gpu_success) {
         if (cpu_success) {
-          CHECK(cpu_model.boundaries == gpu_model.boundaries);
-          return cpu_model;
+          CHECK(*cpu_model == *gpu_model);
+          return *cpu_model;
         } else {
           throw LearningFailureException();
         }
       } else {
         if (cpu_success) {
           FAIL("CPU succeeded but GPU failed");
-          return cpu_model;
+          return *cpu_model;
         } else {
           FAIL("GPU succeeded but CPU failed");
-          return gpu_model;
+          return *gpu_model;
         }
       }
     }

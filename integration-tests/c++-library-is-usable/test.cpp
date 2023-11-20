@@ -21,7 +21,14 @@ int main() {
 
   std::cout << "\n";
 
-  lincs::Model model{problem, {{{10.f, 10.f}, {lincs::SufficientCoalitions::weights, {0.4f, 0.7f}}}}};
+  lincs::Model model{
+    problem,
+    {
+      lincs::AcceptedValues::make_real_thresholds({10.f}),
+      lincs::AcceptedValues::make_real_thresholds({10.f}),
+    },
+    {lincs::SufficientCoalitions::make_weights({0.4f, 0.7f})},
+  };
   model.dump(problem, std::cout);
 
   std::cout << "\n";

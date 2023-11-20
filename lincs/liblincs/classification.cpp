@@ -22,17 +22,24 @@ bool better_or_equal(Criterion::PreferenceDirection preference_direction, float 
  unreachable();
 }
 
-bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, const Alternative& alternative) {
+bool is_good_enough(const Problem& problem, const Model& model, const unsigned boundary_index, const Alternative& alternative) {
   const unsigned criteria_count = problem.criteria.size();
+  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned boundaries_count = categories_count - 1;
 
-  switch (boundary.sufficient_coalitions.kind) {
+  assert(model.accepted_values.size() == criteria_count);
+  assert(model.sufficient_coalitions.size() == boundaries_count);
+  assert(boundary_index < boundaries_count);
+
+  switch (model.sufficient_coalitions[boundary_index].get_kind()) {
     case SufficientCoalitions::Kind::weights: {
       float weight_at_or_better_than_profile = 0;
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+        assert(problem.criteria[criterion_index].is_real());
         const float alternative_value = alternative.profile[criterion_index];
-        const float profile_value = boundary.profile[criterion_index];
-        if (better_or_equal(problem.criteria[criterion_index].get_preference_direction(), alternative_value, profile_value)) {
-          weight_at_or_better_than_profile += boundary.sufficient_coalitions.criterion_weights[criterion_index];
+        const float threshold = model.accepted_values[criterion_index].get_real_thresholds()[boundary_index];
+        if (better_or_equal(problem.criteria[criterion_index].get_preference_direction(), alternative_value, threshold)) {
+          weight_at_or_better_than_profile += model.sufficient_coalitions[boundary_index].get_criterion_weights()[criterion_index];
         }
       }
       return weight_at_or_better_than_profile >= 1.f;
@@ -40,14 +47,15 @@ bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, con
     case SufficientCoalitions::Kind::roots: {
       boost::dynamic_bitset<> at_or_better_than_profile(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+        assert(problem.criteria[criterion_index].is_real());
         const float alternative_value = alternative.profile[criterion_index];
-        const float profile_value = boundary.profile[criterion_index];
-        if (better_or_equal(problem.criteria[criterion_index].get_preference_direction(), alternative_value, profile_value)) {
+        const float threshold = model.accepted_values[criterion_index].get_real_thresholds()[boundary_index];
+        if (better_or_equal(problem.criteria[criterion_index].get_preference_direction(), alternative_value, threshold)) {
           at_or_better_than_profile[criterion_index] = true;
         }
       }
 
-      for (boost::dynamic_bitset<> root: boundary.sufficient_coalitions.upset_roots) {
+      for (boost::dynamic_bitset<> root: model.sufficient_coalitions[boundary_index].get_upset_roots_as_bitsets()) {
         if ((at_or_better_than_profile & root) == root) {
           return true;
         }
@@ -72,7 +80,7 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
   for (auto& alternative: alternatives->alternatives) {
     unsigned category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
-      if (is_good_enough(problem, model.boundaries[category_index - 1], alternative)) {
+      if (is_good_enough(problem, model, category_index - 1, alternative)) {
         break;
       }
     }
@@ -100,7 +108,12 @@ TEST_CASE("Basic classification using weights") {
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::weights, {0.3, 0.6, 0.8}}}},
+    {
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.5}),
+    },
+    {SufficientCoalitions::make_weights({0.3, 0.6, 0.8})},
   };
 
   Alternatives alternatives{problem, {
@@ -140,7 +153,12 @@ TEST_CASE("Basic classification using upset roots") {
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::roots, 3, {{0, 2}, {1, 2}}}}},
+    {
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.5}),
+    },
+    {SufficientCoalitions::make_roots_from_vectors(3, {{0, 2}, {1, 2}})},
   };
 
   Alternatives alternatives{problem, {
@@ -180,7 +198,12 @@ TEST_CASE("Classification with decreasing criteria") {
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::weights, {0.3, 0.6, 0.8}}}},
+    {
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.5}),
+    },
+    {SufficientCoalitions::make_weights({0.3, 0.6, 0.8})},
   };
 
   Alternatives alternatives{problem, {

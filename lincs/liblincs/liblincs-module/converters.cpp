@@ -158,10 +158,11 @@ void enroll_standard_converters() {
   std_vector_converter<lincs::Criterion::ValueType>::enroll();
   bp::class_<std::vector<lincs::Criterion::ValueType>>("value_types_vector").def(bp::vector_indexing_suite<std::vector<lincs::Criterion::ValueType>>());
 
-  std_vector_converter<lincs::Model::Boundary>::enroll();
-  bp::class_<std::vector<lincs::Model::Boundary>>("boundaries_vector").def(bp::vector_indexing_suite<std::vector<lincs::Model::Boundary>>());
+  std_vector_converter<lincs::AcceptedValues>::enroll();
+  bp::class_<std::vector<lincs::AcceptedValues>>("accepted_values_vector").def(bp::vector_indexing_suite<std::vector<lincs::AcceptedValues>>());
 
   std_vector_converter<lincs::SufficientCoalitions>::enroll();
+  bp::class_<std::vector<lincs::SufficientCoalitions>>("sufficient_coalitions_vector").def(bp::vector_indexing_suite<std::vector<lincs::SufficientCoalitions>>());
 
   std_vector_converter<lincs::Alternative>::enroll();
   bp::class_<std::vector<lincs::Alternative>>("alternatives_vector").def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>());

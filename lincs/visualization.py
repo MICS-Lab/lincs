@@ -7,9 +7,15 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     fig, ax = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
 
     xs = [criterion.name for criterion in problem.criteria]
+    boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
+    for criterion_index, criterion in enumerate(problem.criteria):
+        assert criterion.is_real
+        for boundary_index in range(len(problem.ordered_categories) - 1):
+            acc_vals = model.accepted_values[criterion_index]
+            boundary_profiles[boundary_index].append(acc_vals.real_thresholds[boundary_index])
     ys = [
-        normalize_profile(problem.criteria, boundary.profile)
-        for boundary in model.boundaries
+        normalize_profile(problem.criteria, boundary_profile)
+        for boundary_profile in boundary_profiles
     ]
     ys.append([1] * len(xs))
     unstacked_ys = [ys[0]]
@@ -57,8 +63,9 @@ def normalize_profile(criteria, ys):
     ]
 
 def normalize_value(criterion, y):
-    y = (y - criterion.min_value) / (criterion.max_value - criterion.min_value)
-    if criterion.preference_direction == criterion.PreferenceDirection.decreasing:
-        return 1 - y
-    else:
+    assert criterion.is_real
+    y = (y - criterion.real_min_value) / (criterion.real_max_value - criterion.real_min_value)
+    if criterion.is_increasing:
         return y
+    else:
+        return 1 - y

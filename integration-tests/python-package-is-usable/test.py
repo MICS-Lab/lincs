@@ -19,7 +19,11 @@ problem.dump(sys.stdout)
 
 print()
 
-model = lincs.Model(problem, [lincs.Model.Boundary([10.,10.], lincs.SufficientCoalitions(lincs.SufficientCoalitions.weights, [0.4, 0.7]))])
+model = lincs.Model(
+    problem,
+    [lincs.AcceptedValues.make_real_thresholds([10.]), lincs.AcceptedValues.make_real_thresholds([10.])],
+    [lincs.SufficientCoalitions.make_weights([0.4, 0.7])],
+)
 model.dump(problem, sys.stdout)
 
 print()

@@ -113,7 +113,7 @@ JsonValidator validator(schema);
 
 }  // namespace
 
-std::vector<std::vector<unsigned>> SufficientCoalitions::get_upset_roots() const {
+std::vector<std::vector<unsigned>> SufficientCoalitions::get_upset_roots_as_vectors() const {
   std::vector<std::vector<unsigned>> roots;
 
   roots.reserve(upset_roots.size());
@@ -140,9 +140,9 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
   #endif
 
   bool use_coalitions_alias =
-    boundaries.size() > 1
-    && std::all_of(boundaries.begin(), boundaries.end(), [&](const Boundary& boundary) {
-      return boundary.sufficient_coalitions == boundaries.front().sufficient_coalitions;
+    sufficient_coalitions.size() > 1
+    && std::all_of(std::next(sufficient_coalitions.begin()), sufficient_coalitions.end(), [&](const SufficientCoalitions& suff_coals) {
+      return suff_coals == sufficient_coalitions.front();
     });
 
   out << YAML::BeginMap;
@@ -151,33 +151,44 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
 
   out << YAML::Key << "accepted_values" << YAML::Value << YAML::BeginSeq;
   for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
+    const Criterion& criterion = problem.criteria[criterion_index];
+    const AcceptedValues& acc_vals = accepted_values[criterion_index];
     out << YAML::BeginMap;
     out << YAML::Key << "kind" << YAML::Value << "thresholds";
-    out << YAML::Key << "thresholds" << YAML::Value << YAML::Flow << YAML::BeginSeq;
-    for (const Boundary& boundary : boundaries) {
-      out << boundary.profile[criterion_index];
+    out << YAML::Key << "thresholds" << YAML::Value << YAML::Flow;
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        out << acc_vals.get_real_thresholds();
+        break;
+      case Criterion::ValueType::integer:
+        unreachable();
+        // out << acc_vals.get_integer_thresholds();
+        break;
+      case Criterion::ValueType::enumerated:
+        unreachable();
+        // out << acc_vals.get_enumerated_thresholds();
+        break;
     }
-    out << YAML::EndSeq;
     out << YAML::EndMap;
   }
   out << YAML::EndSeq;
 
   out << YAML::Key << "sufficient_coalitions" << YAML::Value << YAML::BeginSeq;
-  for (unsigned boundary_index = 0; boundary_index != boundaries.size(); ++boundary_index) {
-    const Boundary& boundary = boundaries[boundary_index];
+  for (unsigned boundary_index = 0; boundary_index != sufficient_coalitions.size(); ++boundary_index) {
+    const SufficientCoalitions& suff_coals = sufficient_coalitions[boundary_index];
     if (use_coalitions_alias && boundary_index == 0) {
       out << YAML::Anchor("coalitions");
     }
     if (!use_coalitions_alias || boundary_index == 0) {
       out << YAML::Value << YAML::BeginMap;
-      out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(boundary.sufficient_coalitions.kind));
-      switch (boundary.sufficient_coalitions.kind) {
+      out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(suff_coals.get_kind()));
+      switch (suff_coals.get_kind()) {
         case SufficientCoalitions::Kind::weights:
-          out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << boundary.sufficient_coalitions.criterion_weights;
+          out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << suff_coals.get_criterion_weights();
           break;
         case SufficientCoalitions::Kind::roots:
           out << YAML::Key << "upset_roots" << YAML::Value;
-          const std::vector<std::vector<unsigned>> upset_roots = boundary.sufficient_coalitions.get_upset_roots();
+          const std::vector<std::vector<unsigned>> upset_roots = suff_coals.get_upset_roots_as_vectors();
           if (upset_roots.empty()) {
             out << YAML::Flow;
           }
@@ -207,9 +218,9 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
 SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YAML::Node& node) {
   switch (*magic_enum::enum_cast<SufficientCoalitions::Kind>(node["kind"].as<std::string>())) {
     case SufficientCoalitions::Kind::weights:
-      return SufficientCoalitions(SufficientCoalitions::weights, node["criterion_weights"].as<std::vector<float>>());
+      return SufficientCoalitions::make_weights(node["criterion_weights"].as<std::vector<float>>());
     case SufficientCoalitions::Kind::roots:
-      return SufficientCoalitions(SufficientCoalitions::roots, problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
+      return SufficientCoalitions::make_roots_from_vectors(problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
   }
   unreachable();
 }
@@ -225,43 +236,32 @@ Model Model::load(const Problem& problem, std::istream& is) {
 
   validator.validate(node);
 
-  std::vector<std::vector<float>> profiles(boundaries_count, std::vector<float>(criteria_count));
-  {
-    unsigned criterion_index = 0;
-    const YAML::Node& accepted_values = node["accepted_values"];
-    if (accepted_values.size() != criteria_count) {
-      throw DataValidationException("Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file");
+  const YAML::Node& yaml_accepted_values = node["accepted_values"];
+  if (yaml_accepted_values.size() != criteria_count) {
+    throw DataValidationException("Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file");
+  }
+  std::vector<AcceptedValues> accepted_values;
+  accepted_values.reserve(criteria_count);
+  for (const YAML::Node& yaml_acc_vals : yaml_accepted_values) {
+    assert(yaml_acc_vals["kind"].as<std::string>() == "thresholds");
+    const std::vector<float> thresholds = yaml_acc_vals["thresholds"].as<std::vector<float>>();
+    if (thresholds.size() != boundaries_count) {
+      throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
     }
-    for (const YAML::Node& accepted_values : accepted_values) {
-      assert(accepted_values["kind"].as<std::string>() == "thresholds");
-      const std::vector<float>& thresholds = accepted_values["thresholds"].as<std::vector<float>>();
-      if (thresholds.size() != boundaries_count) {
-        throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-      }
-      for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
-        profiles[profile_index][criterion_index] = thresholds[profile_index];
-      }
-      ++criterion_index;
-    }
+    accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
   }
 
-  std::reverse(profiles.begin(), profiles.end());
-
-  const YAML::Node& sufficient_coalitions = node["sufficient_coalitions"];
-  if (sufficient_coalitions.size() != boundaries_count) {
+  const YAML::Node& yaml_sufficient_coalitions = node["sufficient_coalitions"];
+  if (yaml_sufficient_coalitions.size() != boundaries_count) {
     throw DataValidationException("Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file");
   }
-  std::vector<Model::Boundary> boundaries;
-  boundaries.reserve(boundaries_count);
-  for (const YAML::Node& sufficient_coalitions : sufficient_coalitions) {
-    boundaries.emplace_back(
-      profiles.back(),
-      load_sufficient_coalitions(problem, sufficient_coalitions)
-    );
-    profiles.pop_back();
+  std::vector<SufficientCoalitions> sufficient_coalitions;
+  sufficient_coalitions.reserve(boundaries_count);
+  for (const YAML::Node& yaml_suff_coals : yaml_sufficient_coalitions) {
+    sufficient_coalitions.push_back(load_sufficient_coalitions(problem, yaml_suff_coals));
   }
 
-  return Model(problem, boundaries);
+  return Model(problem, accepted_values, sufficient_coalitions);
 }
 
 TEST_CASE("dumping then loading model preserves data - weights") {
@@ -272,7 +272,8 @@ TEST_CASE("dumping then loading model preserves data - weights") {
 
   Model model{
     problem,
-    {{{0.4}, {SufficientCoalitions::weights, {0.7}}}},
+    {AcceptedValues::make_real_thresholds({0.4})},
+    {SufficientCoalitions::make_weights({0.7})},
   };
 
   std::stringstream ss;
@@ -288,8 +289,7 @@ sufficient_coalitions:
     criterion_weights: [0.699999988]
 )");
 
-  Model model2 = Model::load(problem, ss);
-  CHECK(model2.boundaries == model.boundaries);
+  CHECK(Model::load(problem, ss) == model);
 }
 
 TEST_CASE("dumping then loading model preserves data - roots") {
@@ -304,7 +304,12 @@ TEST_CASE("dumping then loading model preserves data - roots") {
 
   Model model{
     problem,
-    {{{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}}},
+    {
+      AcceptedValues::make_real_thresholds({0.4}),
+      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues::make_real_thresholds({0.6}),
+    },
+    {SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}})},
   };
 
   std::stringstream ss;
@@ -326,8 +331,7 @@ sufficient_coalitions:
       - [1, 2]
 )");
 
-  Model model2 = Model::load(problem, ss);
-  CHECK(model2.boundaries == model.boundaries);
+  CHECK(Model::load(problem, ss) == model);
 }
 
 TEST_CASE("dumping then loading model preserves data - numerical values requiring more decimal digits") {
@@ -342,10 +346,14 @@ TEST_CASE("dumping then loading model preserves data - numerical values requirin
 
   Model model{
     problem,
-    {{
-      {0x1.259b36p-6, 0x1.652bf4p-2, 0x1.87662ap-3},
-      {SufficientCoalitions::weights, {0x1.c78b0cp-2, 0x1.1d7974p-2, 0x1.b22782p-2}},
-    }},
+    {
+      AcceptedValues::make_real_thresholds({0x1.259b36p-6}),
+      AcceptedValues::make_real_thresholds({0x1.652bf4p-2}),
+      AcceptedValues::make_real_thresholds({0x1.87662ap-3}),
+    },
+    {
+      SufficientCoalitions::make_weights({0x1.c78b0cp-2, 0x1.1d7974p-2, 0x1.b22782p-2}),
+    },
   };
 
   std::stringstream ss;
@@ -365,8 +373,7 @@ sufficient_coalitions:
     criterion_weights: [0.444866359, 0.278783619, 0.423978835]
 )");
 
-  Model model2 = Model::load(problem, ss);
-  CHECK(model2.boundaries == model.boundaries);
+  CHECK(Model::load(problem, ss) == model);
 }
 
 TEST_CASE("dumping empty roots uses flow style") {
@@ -379,7 +386,8 @@ TEST_CASE("dumping empty roots uses flow style") {
 
   Model model{
     problem,
-    {{{0.5}, {SufficientCoalitions::roots, 3, {}}}},
+    {AcceptedValues::make_real_thresholds({0.5})},
+    {SufficientCoalitions::make_roots_from_vectors(3, {})},
   };
 
   std::stringstream ss;
@@ -395,8 +403,7 @@ sufficient_coalitions:
     upset_roots: []
 )");
 
-  Model model2 = Model::load(problem, ss);
-  CHECK(model2.boundaries == model.boundaries);
+  CHECK(Model::load(problem, ss) == model);
 }
 
 TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions") {
@@ -412,9 +419,14 @@ TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions
   Model model{
     problem,
     {
-      {{0.2, 0.3, 0.4}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
-      {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
-      {{0.6, 0.7, 0.8}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+      AcceptedValues::make_real_thresholds({0.2, 0.4, 0.6}),
+      AcceptedValues::make_real_thresholds({0.3, 0.5, 0.7}),
+      AcceptedValues::make_real_thresholds({0.4, 0.6, 0.8}),
+    },
+    {
+      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
+      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
+      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
     },
   };
 
@@ -440,8 +452,7 @@ sufficient_coalitions:
   - *coalitions
 )");
 
-  Model model2 = Model::load(problem, ss);
-  CHECK(model2.boundaries == model.boundaries);
+  CHECK(Model::load(problem, ss) == model);
 }
 
 TEST_CASE("dumping doesn't use references when coalitions differ") {
@@ -457,9 +468,14 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
   Model model{
     problem,
     {
-      {{0.2, 0.3, 0.4}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
-      {{0.4, 0.5, 0.6}, {SufficientCoalitions::roots, 3, {{1}, {0, 2}}}},
-      {{0.6, 0.7, 0.8}, {SufficientCoalitions::roots, 3, {{0}, {1, 2}}}},
+      AcceptedValues::make_real_thresholds({0.2, 0.4, 0.6}),
+      AcceptedValues::make_real_thresholds({0.3, 0.5, 0.7}),
+      AcceptedValues::make_real_thresholds({0.4, 0.6, 0.8}),
+    },
+    {
+      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
+      SufficientCoalitions::make_roots_from_vectors(3, {{1}, {0, 2}}),
+      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
     },
   };
 
@@ -490,8 +506,7 @@ sufficient_coalitions:
       - [1, 2]
 )");
 
-  Model model2 = Model::load(problem, ss);
-  CHECK(model2.boundaries == model.boundaries);
+  CHECK(Model::load(problem, ss) == model);
 }
 
 TEST_CASE("Parsing error") {

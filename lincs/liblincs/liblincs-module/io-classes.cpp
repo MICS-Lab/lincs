@@ -105,6 +105,8 @@ void define_problem_classes() {
     .add_property("is_integer", &lincs::Criterion::is_integer)
     .add_property("is_enumerated", &lincs::Criterion::is_enumerated)
     .add_property("preference_direction", &lincs::Criterion::get_preference_direction)
+    .add_property("is_increasing", &lincs::Criterion::is_increasing)
+    .add_property("is_decreasing", &lincs::Criterion::is_decreasing)
     .add_property("real_min_value", &lincs::Criterion::get_real_min_value)
     .add_property("real_max_value", &lincs::Criterion::get_real_max_value)
     .add_property("integer_min_value", &lincs::Criterion::get_integer_min_value)
@@ -147,22 +149,27 @@ void define_problem_classes() {
 }
 
 void define_model_classes() {
-  // @todo(Project management, later) Double-check why we need both an enum 'Kind' and two tag classes 'Weights' and 'Roots'; simplify or document
-  bp::class_<lincs::SufficientCoalitions::Weights>("Weights", bp::no_init);
-  bp::class_<lincs::SufficientCoalitions::Roots>("Roots", bp::no_init);
-  auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
-    .def(bp::init<lincs::SufficientCoalitions::Weights, std::vector<float>>())
-    .def(bp::init<lincs::SufficientCoalitions::Roots, unsigned, std::vector<std::vector<unsigned>>>())
-    .def_readwrite("kind", &lincs::SufficientCoalitions::kind)
-    .def_readwrite("criterion_weights", &lincs::SufficientCoalitions::criterion_weights)
-    .add_property("upset_roots", &lincs::SufficientCoalitions::get_upset_roots)
+  auto accepted_values_class = bp::class_<lincs::AcceptedValues>("AcceptedValues", bp::no_init)
+    .add_property("real_thresholds", &lincs::AcceptedValues::get_real_thresholds)
   ;
-  sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>("Kind");
-  sufficient_coalitions_class.attr("weights") = lincs::SufficientCoalitions::weights;
-  sufficient_coalitions_class.attr("roots") = lincs::SufficientCoalitions::roots;
+  accepted_values_class.attr("make_real_thresholds") = &lincs::AcceptedValues::make_real_thresholds;
 
-  auto model_class = bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::Model::Boundary>&>())
-    .def_readwrite("boundaries", &lincs::Model::boundaries)
+  auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
+    .add_property("kind", &lincs::SufficientCoalitions::get_kind)
+    .add_property("is_weights", &lincs::SufficientCoalitions::is_weights)
+    .add_property("is_roots", &lincs::SufficientCoalitions::is_roots)
+    .add_property("criterion_weights", &lincs::SufficientCoalitions::get_criterion_weights)
+    .add_property("upset_roots", &lincs::SufficientCoalitions::get_upset_roots_as_vectors)
+    .def(bp::self == bp::self)
+  ;
+  sufficient_coalitions_class.attr("make_weights") = &lincs::SufficientCoalitions::make_weights;
+  sufficient_coalitions_class.attr("make_roots") = &lincs::SufficientCoalitions::make_roots_from_vectors;
+
+  sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>("Kind");
+
+  auto model_class = bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>())
+    .def_readwrite("accepted_values", &lincs::Model::accepted_values)
+    .def_readwrite("sufficient_coalitions", &lincs::Model::sufficient_coalitions)
     .def(
       "dump",
       &dump_model,
@@ -178,10 +185,6 @@ void define_model_classes() {
     .staticmethod("load")
   ;
   model_class.attr("JSON_SCHEMA") = lincs::Model::json_schema;
-  model_class.attr("Boundary") = bp::class_<lincs::Model::Boundary>("Boundary", bp::init<std::vector<float>, lincs::SufficientCoalitions>())
-    .def_readwrite("profile", &lincs::Model::Boundary::profile)
-    .def_readwrite("sufficient_coalitions", &lincs::Model::Boundary::sufficient_coalitions)
-  ;
 }
 
 void define_alternative_classes() {
