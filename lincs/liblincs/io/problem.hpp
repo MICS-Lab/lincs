@@ -3,7 +3,6 @@
 #ifndef LINCS__IO__PROBLEM_HPP
 #define LINCS__IO__PROBLEM_HPP
 
-#include <any>
 #include <cassert>
 #include <string>
 #include <vector>
@@ -31,16 +30,16 @@ class Criterion {
   };
 
  public:
-  static Criterion make_real(const std::string& name, PreferenceDirection preference_direction, float min_value, float max_value) {
-    return Criterion(name, ValueType::real, preference_direction, min_value, max_value, {});
+  static Criterion make_real(const std::string& name, PreferenceDirection preference_direction, float real_min_value, float real_max_value) {
+    return Criterion(name, ValueType::real, preference_direction, real_min_value, real_max_value, 0, 0, {});
   }
 
-  static Criterion make_integer(const std::string& name, PreferenceDirection preference_direction, int min_value, int max_value) {
-    return Criterion(name, ValueType::integer, preference_direction, min_value, max_value, {});
+  static Criterion make_integer(const std::string& name, PreferenceDirection preference_direction, int int_min_value, int int_max_value) {
+    return Criterion(name, ValueType::integer, preference_direction, 0, 0, int_min_value, int_max_value, {});
   }
 
   static Criterion make_enumerated(const std::string& name, const std::vector<std::string>& ordered_values) {
-    return Criterion(name, ValueType::enumerated, PreferenceDirection::increasing, {}, {}, ordered_values);
+    return Criterion(name, ValueType::enumerated, PreferenceDirection::increasing, 0, 0, 0, 0, ordered_values);
   }
 
  private:
@@ -48,15 +47,19 @@ class Criterion {
     const std::string& name_,
     ValueType value_type_,
     PreferenceDirection preference_direction_,
-    std::any min_value_,
-    std::any max_value_,
+    float real_min_value_,
+    float real_max_value_,
+    int int_min_value_,
+    int int_max_value_,
     const std::vector<std::string>& ordered_values_
   ):
     name(name_),
     value_type(value_type_),
     preference_direction(preference_direction_),
-    min_value(min_value_),
-    max_value(max_value_),
+    real_min_value(real_min_value_),
+    real_max_value(real_max_value_),
+    int_min_value(int_min_value_),
+    int_max_value(int_max_value_),
     ordered_values(ordered_values_)
   {}
 
@@ -70,14 +73,14 @@ class Criterion {
         return
           name == other.name &&
           preference_direction == other.preference_direction &&
-          std::any_cast<float>(min_value) == std::any_cast<float>(other.min_value) &&
-          std::any_cast<float>(max_value) == std::any_cast<float>(other.max_value);
+          real_min_value == other.real_min_value &&
+          real_max_value == other.real_max_value;
       case ValueType::integer:
         return
           name == other.name &&
           preference_direction == other.preference_direction &&
-          std::any_cast<int>(min_value) == std::any_cast<int>(other.min_value) &&
-          std::any_cast<int>(max_value) == std::any_cast<int>(other.max_value);
+          int_min_value == other.int_min_value &&
+          int_max_value == other.int_max_value;
       case ValueType::enumerated:
         return
           name == other.name &&
@@ -100,22 +103,22 @@ class Criterion {
 
   float get_real_min_value() const {
     assert(is_real());
-    return std::any_cast<float>(min_value);
+    return real_min_value;
   }
 
   float get_real_max_value() const {
     assert(is_real());
-    return std::any_cast<float>(max_value);
+    return real_max_value;
   }
 
   int get_integer_min_value() const {
     assert(is_integer());
-    return std::any_cast<int>(min_value);
+    return int_min_value;
   }
 
   int get_integer_max_value() const {
     assert(is_integer());
-    return std::any_cast<int>(max_value);
+    return int_max_value;
   }
 
   std::vector<std::string> get_ordered_values() const {
@@ -126,10 +129,13 @@ class Criterion {
  private:
   std::string name;
   ValueType value_type;
-  PreferenceDirection preference_direction;
-  std::any min_value;
-  std::any max_value;
-  std::vector<std::string> ordered_values;
+  // @todo(Project management, later) Use 'union' or equivalent to store only the relevant values
+  PreferenceDirection preference_direction;  // Only for real and integer
+  float real_min_value;  // Only for real
+  float real_max_value;
+  int int_min_value;  // Only for integer
+  int int_max_value;
+  std::vector<std::string> ordered_values;  // Only for enumerated
 };
 
 struct Category {
@@ -142,14 +148,18 @@ struct Category {
 };
 
 struct Problem {
-  std::vector<Criterion> criteria;
-  std::vector<Category> ordered_categories;
-
   Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& ordered_categories_): criteria(criteria_), ordered_categories(ordered_categories_) {}
+
+  bool operator==(const Problem& other) const {
+    return criteria == other.criteria && ordered_categories == other.ordered_categories;
+  }
 
   static const std::string json_schema;
   void dump(std::ostream&) const;
   static Problem load(std::istream&);
+
+  std::vector<Criterion> criteria;
+  std::vector<Category> ordered_categories;
 };
 
 }  // namespace lincs

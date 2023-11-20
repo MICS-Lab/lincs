@@ -234,9 +234,7 @@ ordered_categories:
   - name: Category 2
 )");
 
-  Problem problem2 = Problem::load(ss);
-  CHECK(problem2.criteria == problem.criteria);
-  CHECK(problem2.ordered_categories == problem.ordered_categories);
+  CHECK(Problem::load(ss) == problem);
 }
 
 TEST_CASE("isotone and antitone dump as increasing and decreasing") {
@@ -320,9 +318,7 @@ ordered_categories:
   - name: Category 2
 )");
 
-  Problem problem2 = Problem::load(ss);
-  CHECK(problem2.criteria == problem.criteria);
-  CHECK(problem2.ordered_categories == problem.ordered_categories);
+  CHECK(Problem::load(ss) == problem);
 }
 
 TEST_CASE("dumping then loading problem preserves data - integer") {
@@ -347,9 +343,7 @@ ordered_categories:
   - name: Category 2
 )");
 
-  Problem problem2 = Problem::load(ss);
-  CHECK(problem2.criteria == problem.criteria);
-  CHECK(problem2.ordered_categories == problem.ordered_categories);
+  CHECK(Problem::load(ss) == problem);
 }
 
 TEST_CASE("dumping then loading problem preserves data - enumerated") {
@@ -372,9 +366,7 @@ ordered_categories:
   - name: Category 2
 )");
 
-  Problem problem2 = Problem::load(ss);
-  CHECK(problem2.criteria == problem.criteria);
-  CHECK(problem2.ordered_categories == problem.ordered_categories);
+  CHECK(Problem::load(ss) == problem);
 }
 
 TEST_CASE("Parsing error") {
