@@ -18,14 +18,7 @@ Its `documentation <http://mics-lab.github.io/lincs/>`_
 and its `source code <https://github.com/mics-lab/lincs/>`_ are on GitHub.
 
 Questions? Remarks? Bugs? Want to contribute? Open `an issue <https://github.com/MICS-Lab/lincs/issues>`_ or `a discussion <https://github.com/MICS-Lab/lincs/discussions>`_!
-
-@todo(Feature, later) Make *lincs* usable as a Python package.
-
-@todo(Feature, later) Make *lincs* usable as a C++ library.
-
-@todo(Feature, later) Support M1 and M2 chips on macOS.
-
-@todo(Feature, much later) Support ARM processors in general.
+You should probably take a look at `our roadmap <https://mics-lab.github.io/lincs/roadmap.html>`_ first.
 
 @todo(Project management, when we publish a paper, later) Add a note asking academics to kindly cite our work.
 

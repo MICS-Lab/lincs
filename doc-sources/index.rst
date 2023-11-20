@@ -13,6 +13,7 @@
    user-guide
    reference
    contributor-guide
+   roadmap
    changelog
 
 ======
