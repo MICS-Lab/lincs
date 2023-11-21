@@ -11,8 +11,9 @@ namespace lincs {
 void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles() {
   CHRONE();
 
+  const int models_count = learning_data.models_count;
   #pragma omp parallel for
-  for (int model_index = 0; model_index < learning_data.models_count; ++model_index) {
+  for (int model_index = 0; model_index < models_count; ++model_index) {
     improve_model_profiles(model_index);
   }
 }

@@ -419,7 +419,7 @@ TEST_CASE("Generate balanced classified alternatives - many seeds") {
   // Assert that we can generate a balanced learning set for all generated models
 
   const unsigned alternatives_seed = 42;  // If we succeed with this arbitrary seed, we're confident we'll succeed with any seed
-  const unsigned max_model_seed = skip_long ? 10 : 100;
+  const int max_model_seed = skip_long ? 10 : 100;
 
   // (dynamic OpenMP scheduling because iteration durations vary a lot)
   #pragma omp parallel for collapse(3) schedule(dynamic, 1)
