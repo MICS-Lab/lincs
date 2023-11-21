@@ -219,12 +219,14 @@ struct Model {
     assert(&problem == &other.problem);
     accepted_values = other.accepted_values;
     sufficient_coalitions = other.sufficient_coalitions;
+    return *this;
   };
   Model(Model&&) = default;
   Model& operator=(Model&& other) {
     assert(&problem == &other.problem);
     accepted_values = std::move(other.accepted_values);
     sufficient_coalitions = std::move(other.sufficient_coalitions);
+    return *this;
   }
 
   bool operator==(const Model& other) const {
