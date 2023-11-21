@@ -190,9 +190,18 @@ void define_model_classes() {
 }
 
 void define_alternative_classes() {
+  bp::class_<lincs::Performance>("Performance", bp::no_init)
+    .def("make_real", &lincs::Performance::make_real)
+    .def("make_integer", &lincs::Performance::make_integer)
+    .def("make_enumerated", &lincs::Performance::make_enumerated)
+    .add_property("real_value", &lincs::Performance::get_real_value)
+    .add_property("integer_value", &lincs::Performance::get_integer_value)
+    .add_property("enumerated_value", &lincs::Performance::get_enumerated_value)
+  ;
+
   bp::class_<lincs::Alternative>(
     "Alternative",
-    bp::init<std::string, std::vector<float>, std::optional<unsigned>>(
+    bp::init<std::string, std::vector<lincs::Performance>, std::optional<unsigned>>(
       (bp::arg("name"), "profile", (bp::arg("category")=std::optional<unsigned>()))
     )
   )

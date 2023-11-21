@@ -167,6 +167,9 @@ void enroll_standard_converters() {
   std_vector_converter<lincs::SufficientCoalitions>::enroll();
   bp::class_<std::vector<lincs::SufficientCoalitions>>("sufficient_coalitions_vector").def(bp::vector_indexing_suite<std::vector<lincs::SufficientCoalitions>>());
 
+  std_vector_converter<lincs::Performance>::enroll();
+  bp::class_<std::vector<lincs::Performance>>("performances_vector").def(bp::vector_indexing_suite<std::vector<lincs::Performance>>());
+
   std_vector_converter<lincs::Alternative>::enroll();
   bp::class_<std::vector<lincs::Alternative>>("alternatives_vector").def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>());
 

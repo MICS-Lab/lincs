@@ -6,7 +6,7 @@ __version__ = "1.0.1-dev"
 from liblincs import DataValidationException
 from liblincs import Criterion, Category, Problem
 from liblincs import AcceptedValues, SufficientCoalitions, Model
-from liblincs import Alternative, Alternatives
+from liblincs import Performance, Alternative, Alternatives
 
 # Generation (incl. misclassification)
 from liblincs import BalancedAlternativesGenerationException

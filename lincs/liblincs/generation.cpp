@@ -345,22 +345,42 @@ Alternatives generate_uniform_classified_alternatives(
 
   // We don't do anything to ensure homogeneous repartition among categories.
   // We just generate random profiles uniformly in [min, max] for each criterion
-  std::vector<std::uniform_real_distribution<float>> values_distributions;
-  values_distributions.reserve(criteria_count);
+  std::map<unsigned, std::uniform_real_distribution<float>> real_values_distributions;
+  std::map<unsigned, std::uniform_int_distribution<int>> int_values_distributions;
+  std::map<unsigned, std::uniform_int_distribution<int>> enum_values_distributions;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const auto& criterion = problem.criteria[criterion_index];
-    assert(criterion.get_value_type() == Criterion::ValueType::real);
-
-    values_distributions.emplace_back(criterion.get_real_min_value(), criterion.get_real_max_value());
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        real_values_distributions[criterion_index] = std::uniform_real_distribution<float>(criterion.get_real_min_value(), criterion.get_real_max_value());
+        break;
+      case Criterion::ValueType::integer:
+        int_values_distributions[criterion_index] = std::uniform_int_distribution<int>(criterion.get_integer_min_value(), criterion.get_integer_max_value());
+        break;
+      case Criterion::ValueType::enumerated:
+        enum_values_distributions[criterion_index] = std::uniform_int_distribution<int>(0, criterion.get_ordered_values().size() - 1);
+        break;
+    }
   }
 
-  for (unsigned alt_index = 0; alt_index != alternatives_count; ++alt_index) {
-    std::vector<float> criteria_values(criteria_count);
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    std::vector<Performance> profile;
+    profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      criteria_values[criterion_index] = values_distributions[criterion_index](gen);
+      switch (problem.criteria[criterion_index].get_value_type()) {
+        case Criterion::ValueType::real:
+          profile.emplace_back(Performance::make_real(real_values_distributions[criterion_index](gen)));
+          break;
+        case Criterion::ValueType::integer:
+          profile.emplace_back(Performance::make_integer(int_values_distributions[criterion_index](gen)));
+          break;
+        case Criterion::ValueType::enumerated:
+          profile.emplace_back(Performance::make_enumerated(problem.criteria[criterion_index].get_ordered_values()[enum_values_distributions[criterion_index](gen)]));
+          break;
+      }
     }
 
-    alternatives.push_back(Alternative{"", criteria_values, std::nullopt});
+    alternatives.push_back(Alternative{"", profile, std::nullopt});
   }
 
   Alternatives alts{problem, alternatives};
@@ -526,10 +546,39 @@ Alternatives generate_classified_alternatives(
   return alternatives;
 }
 
-void check_histogram(const Problem& problem, const Model& model, const std::optional<float> max_imbalance, const unsigned a, const unsigned b) {
-  REQUIRE(problem.ordered_categories.size() == 2);
+TEST_CASE("Generate uniform alternative - integer criterion") {
+  Problem problem = generate_classification_problem(
+    1, 2,
+    42,
+    false,
+    {Criterion::PreferenceDirection::increasing},
+    {Criterion::ValueType::integer});
+  Model model = generate_mrsort_classification_model(problem, 43);
+  Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
-  Alternatives alternatives = generate_classified_alternatives(problem, model, 100, 42, max_imbalance);
+  CHECK(alternatives.alternatives[0].profile[0].get_integer_value() == 4537);
+}
+
+TEST_CASE("Generate uniform alternative - enumerated criterion") {
+  Problem problem = generate_classification_problem(
+    1, 2,
+    42,
+    false,
+    {Criterion::PreferenceDirection::increasing},
+    {Criterion::ValueType::enumerated});
+  Model model = generate_mrsort_classification_model(problem, 43);
+  Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
+
+  CHECK(alternatives.alternatives[0].profile[0].get_enumerated_value() == "put");
+}
+
+void check_histogram(const Problem& problem, const Model& model, const std::optional<float> max_imbalance, const unsigned a, const unsigned b) {
+  const unsigned alternatives_count = 100;
+
+  REQUIRE(problem.ordered_categories.size() == 2);
+  REQUIRE(a + b == alternatives_count);
+
+  Alternatives alternatives = generate_classified_alternatives(problem, model, alternatives_count, 42, max_imbalance);
 
   std::vector<unsigned> histogram(2, 0);
   for (const auto& alternative : alternatives.alternatives) {
@@ -619,12 +668,12 @@ TEST_CASE("Random min/max") {
   CHECK(problem.criteria[0].get_real_min_value() == doctest::Approx(-25.092));
   CHECK(problem.criteria[0].get_real_max_value() == doctest::Approx(59.3086));
   CHECK(model.accepted_values[0].get_real_thresholds()[0] == doctest::Approx(6.52194));
-  CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(45.3692));
+  CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(45.3692));
 
   CHECK(problem.criteria[1].get_real_min_value() == doctest::Approx(-63.313));
   CHECK(problem.criteria[1].get_real_max_value() == doctest::Approx(46.3988));
   CHECK(model.accepted_values[1].get_real_thresholds()[0] == doctest::Approx(24.0712));
-  CHECK(alternatives.alternatives[0].profile[1] == doctest::Approx(-15.8581));
+  CHECK(alternatives.alternatives[0].profile[1].get_real_value() == doctest::Approx(-15.8581));
 }
 
 TEST_CASE("Decreasing criterion") {
@@ -642,13 +691,13 @@ TEST_CASE("Decreasing criterion") {
   CHECK(model.accepted_values[0].get_real_thresholds()[0] == doctest::Approx(0.790612));
   CHECK(model.accepted_values[0].get_real_thresholds()[1] == doctest::Approx(0.377049));
 
-  CHECK(alternatives.alternatives[0].profile[0] == doctest::Approx(0.834842));
+  CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(0.834842));
   CHECK(*alternatives.alternatives[0].category_index == 0);
 
-  CHECK(alternatives.alternatives[1].profile[0] == doctest::Approx(0.432542));
+  CHECK(alternatives.alternatives[1].profile[0].get_real_value() == doctest::Approx(0.432542));
   CHECK(*alternatives.alternatives[1].category_index == 1);
 
-  CHECK(alternatives.alternatives[2].profile[0] == doctest::Approx(0.104796));
+  CHECK(alternatives.alternatives[2].profile[0].get_real_value() == doctest::Approx(0.104796));
   CHECK(*alternatives.alternatives[2].category_index == 2);
 }
 

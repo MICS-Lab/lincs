@@ -28,5 +28,11 @@ model.dump(problem, sys.stdout)
 
 print()
 
-alternatives = lincs.Alternatives(problem, [lincs.Alternative("Alice", [11., 12.], 1), lincs.Alternative("Bob", [9., 11.], 0)])
+alternatives = lincs.Alternatives(
+    problem,
+    [
+        lincs.Alternative("Alice", [lincs.Performance.make_real(11.), lincs.Performance.make_real(12.)], 1),
+        lincs.Alternative("Bob", [lincs.Performance.make_real(9.), lincs.Performance.make_real(11.)], 0),
+    ],
+)
 alternatives.dump(problem, sys.stdout)

@@ -212,23 +212,29 @@ class AlternativesTestCase(unittest.TestCase):
         alternatives = Alternatives(
             problem,
             [
-                Alternative("First alternative", [5., 5., 5], 0),
-                Alternative("Second alternative", [1., 2., 3.], None),
-                Alternative("Third alternative", [2., 4., 6.]),
+                Alternative("First alternative", [Performance.make_real(5.), Performance.make_real(5.), Performance.make_real(5)], 0),
+                Alternative("Second alternative", [Performance.make_real(1.), Performance.make_real(2.), Performance.make_real(3.)], None),
+                Alternative("Third alternative", [Performance.make_real(2.), Performance.make_real(4.), Performance.make_real(6.)]),
             ],
         )
         self.assertEqual(len(alternatives.alternatives), 3)
 
         self.assertEqual(alternatives.alternatives[0].name, "First alternative")
-        self.assertEqual(list(alternatives.alternatives[0].profile), [5., 5., 5.])
+        self.assertEqual(alternatives.alternatives[0].profile[0].real_value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[1].real_value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[2].real_value, 5.)
         self.assertEqual(alternatives.alternatives[0].category_index, 0)
 
         self.assertEqual(alternatives.alternatives[1].name, "Second alternative")
-        self.assertEqual(list(alternatives.alternatives[1].profile), [1., 2., 3.])
+        self.assertEqual(alternatives.alternatives[1].profile[0].real_value, 1.)
+        self.assertEqual(alternatives.alternatives[1].profile[1].real_value, 2.)
+        self.assertEqual(alternatives.alternatives[1].profile[2].real_value, 3.)
         self.assertIsNone(alternatives.alternatives[1].category_index)
 
         self.assertEqual(alternatives.alternatives[2].name, "Third alternative")
-        self.assertEqual(list(alternatives.alternatives[2].profile), [2., 4., 6.])
+        self.assertEqual(alternatives.alternatives[2].profile[0].real_value, 2.)
+        self.assertEqual(alternatives.alternatives[2].profile[1].real_value, 4.)
+        self.assertEqual(alternatives.alternatives[2].profile[2].real_value, 6.)
         self.assertIsNone(alternatives.alternatives[2].category_index)
 
 

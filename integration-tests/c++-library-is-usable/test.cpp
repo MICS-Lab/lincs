@@ -33,6 +33,12 @@ int main() {
 
   std::cout << "\n";
 
-  lincs::Alternatives alternatives{problem, {{"Alice", {11.f, 12.f}, 1}, {"Bob", {9.f, 11.f}, 0}}};
+  lincs::Alternatives alternatives{
+    problem,
+    {
+      {"Alice", {lincs::Performance::make_real(11), lincs::Performance::make_real(12)}, 1},
+      {"Bob", {lincs::Performance::make_real(9), lincs::Performance::make_real(11)}, 0},
+    },
+  };
   alternatives.dump(problem, std::cout);
 }

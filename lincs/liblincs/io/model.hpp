@@ -238,7 +238,7 @@ struct Model {
   void dump(const Problem&, std::ostream&) const;
   static Model load(const Problem&, std::istream&);
 
-  const Problem& problem;
+  const Problem& problem;  // @todo(Project management, soon) Consider not storing the 'Problem' here
   std::vector<AcceptedValues> accepted_values;
   std::vector<SufficientCoalitions> sufficient_coalitions;
 };

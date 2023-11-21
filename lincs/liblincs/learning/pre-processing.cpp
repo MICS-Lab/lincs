@@ -23,15 +23,17 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   assignments(alternatives_count, uninitialized)
 {
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const bool is_increasing = problem.criteria[criterion_index].get_preference_direction() == Criterion::PreferenceDirection::increasing;
-    assert(is_increasing || problem.criteria[criterion_index].get_preference_direction() == Criterion::PreferenceDirection::decreasing);
+    const Criterion& criterion = problem.criteria[criterion_index];
+    const bool is_increasing = criterion.get_preference_direction() == Criterion::PreferenceDirection::increasing;
+    assert(is_increasing || criterion.get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 
+    assert(criterion.is_real());
     std::set<float> unique_values;
 
-    unique_values.insert(problem.criteria[criterion_index].get_real_min_value());
-    unique_values.insert(problem.criteria[criterion_index].get_real_max_value());
-    for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives.size(); ++alternative_index) {
-      unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index]);
+    unique_values.insert(criterion.get_real_min_value());
+    unique_values.insert(criterion.get_real_max_value());
+    for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+      unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value());
     }
 
     assert(unique_values.size() <= alternatives_count + 2);
@@ -44,14 +46,14 @@ PreProcessedLearningSet::PreProcessedLearningSet(
     assert(value_ranks_for_criterion.size() == unique_values.size());
     values_counts[criterion_index] = unique_values.size();
 
-    for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives.size(); ++alternative_index) {
-      const float value = learning_set.alternatives[alternative_index].profile[criterion_index];
+    for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+      const float value = learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value();
       const unsigned value_rank = value_ranks_for_criterion[value];
       performance_ranks[criterion_index][alternative_index] = value_rank;
     }
   }
 
-  for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives.size(); ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     assignments[alternative_index] = *learning_set.alternatives[alternative_index].category_index;
   }
 }

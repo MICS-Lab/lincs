@@ -43,8 +43,19 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
                 color = "black"
             else:
                 color = colors[alternative.category_index]
+            profile = []
+            for criterion_index, criterion in enumerate(problem.criteria):
+                if criterion.is_real:
+                    profile.append(alternative.profile[criterion_index].real_value)
+                elif criterion.is_integer:
+                    profile.append(alternative.profile[criterion_index].integer_value)
+                elif criterion.is_enumerated:
+                    ranks_by_value = {value: rank for rank, value in enumerate(criterion.ordered_values)}
+                    profile.append(ranks_by_value[alternative.profile[criterion_index].enumerated_value])
+                else:
+                    assert False
             ax.plot(
-                xs, normalize_profile(problem.criteria, alternative.profile),
+                xs, normalize_profile(problem.criteria, profile),
                 "o--",
                 label=alternative.name,
                 color=color,
