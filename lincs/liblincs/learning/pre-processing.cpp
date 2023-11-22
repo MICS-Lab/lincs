@@ -17,7 +17,8 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   categories_count(problem.ordered_categories.size()),
   boundaries_count(categories_count - 1),
   alternatives_count(learning_set.alternatives.size()),
-  sorted_values(criteria_count, alternatives_count + 2, uninitialized),
+  real_sorted_values(),
+  integer_sorted_values(),
   values_counts(criteria_count, uninitialized),
   performance_ranks(criteria_count, alternatives_count, uninitialized),
   assignments(alternatives_count, uninitialized)
@@ -27,29 +28,83 @@ PreProcessedLearningSet::PreProcessedLearningSet(
     const bool is_increasing = criterion.get_preference_direction() == Criterion::PreferenceDirection::increasing;
     assert(is_increasing || criterion.get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 
-    assert(criterion.is_real());
-    std::set<float> unique_values;
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        {
+          std::set<float> unique_values;
 
-    unique_values.insert(criterion.get_real_min_value());
-    unique_values.insert(criterion.get_real_max_value());
-    for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-      unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value());
-    }
+          unique_values.insert(criterion.get_real_min_value());
+          unique_values.insert(criterion.get_real_max_value());
+          for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+            unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value());
+          }
+          const unsigned values_count = unique_values.size();
+          values_counts[criterion_index] = values_count;
 
-    assert(unique_values.size() <= alternatives_count + 2);
-    std::map<float, unsigned> value_ranks_for_criterion;
-    for (float value : unique_values) {
-      const unsigned value_rank = is_increasing ? value_ranks_for_criterion.size() : unique_values.size() - value_ranks_for_criterion.size() - 1;
-      sorted_values[criterion_index][value_rank] = value;
-      value_ranks_for_criterion[value] = value_rank;
-    }
-    assert(value_ranks_for_criterion.size() == unique_values.size());
-    values_counts[criterion_index] = unique_values.size();
+          real_sorted_values[criterion_index].resize(values_count);
+          std::map<float, unsigned> value_ranks_for_criterion;
+          for (const float value : unique_values) {
+            const unsigned value_rank = is_increasing ? value_ranks_for_criterion.size() : values_count - value_ranks_for_criterion.size() - 1;
+            real_sorted_values[criterion_index][value_rank] = value;
+            value_ranks_for_criterion[value] = value_rank;
+          }
+          assert(value_ranks_for_criterion.size() == values_count);
 
-    for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-      const float value = learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value();
-      const unsigned value_rank = value_ranks_for_criterion[value];
-      performance_ranks[criterion_index][alternative_index] = value_rank;
+          for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+            const float value = learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value();
+            const unsigned value_rank = value_ranks_for_criterion[value];
+            performance_ranks[criterion_index][alternative_index] = value_rank;
+          }
+        }
+        break;
+      case Criterion::ValueType::integer:
+        {
+          std::set<int> unique_values;
+
+          unique_values.insert(criterion.get_integer_min_value());
+          unique_values.insert(criterion.get_integer_max_value());
+          for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+            unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_integer_value());
+          }
+          const unsigned values_count = unique_values.size();
+          values_counts[criterion_index] = values_count;
+
+          integer_sorted_values[criterion_index].resize(values_count);
+          std::map<int, unsigned> value_ranks_for_criterion;
+          for (const int value : unique_values) {
+            const unsigned value_rank = is_increasing ? value_ranks_for_criterion.size() : values_count - value_ranks_for_criterion.size() - 1;
+            integer_sorted_values[criterion_index][value_rank] = value;
+            value_ranks_for_criterion[value] = value_rank;
+          }
+          assert(value_ranks_for_criterion.size() == values_count);
+
+          for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+            const int value = learning_set.alternatives[alternative_index].profile[criterion_index].get_integer_value();
+            const unsigned value_rank = value_ranks_for_criterion[value];
+            performance_ranks[criterion_index][alternative_index] = value_rank;
+          }
+        }
+        break;
+      case Criterion::ValueType::enumerated:
+        {
+          const std::vector<std::string> unique_values = criterion.get_ordered_values();
+          const unsigned values_count = unique_values.size();
+          values_counts[criterion_index] = values_count;
+
+          std::map<std::string, unsigned> value_ranks_for_criterion;
+          for (const std::string& value : unique_values) {
+            const unsigned value_rank = value_ranks_for_criterion.size();
+            value_ranks_for_criterion[value] = value_rank;
+          }
+          assert(value_ranks_for_criterion.size() == values_count);
+
+          for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+            const std::string value = learning_set.alternatives[alternative_index].profile[criterion_index].get_enumerated_value();
+            const unsigned value_rank = value_ranks_for_criterion[value];
+            performance_ranks[criterion_index][alternative_index] = value_rank;
+          }
+        }
+        break;
     }
   }
 
@@ -64,25 +119,66 @@ Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, cons
   std::vector<AcceptedValues> accepted_values;
   accepted_values.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    assert(problem.criteria[criterion_index].is_real());
-    std::vector<float> thresholds;
-    thresholds.reserve(boundaries_count);
-    for (const auto& boundary: model.boundaries) {
-      const unsigned rank = boundary.profile_ranks[criterion_index];
-      float threshold;
-      if (rank == 0) {
-        threshold = sorted_values[criterion_index][rank];
-      } else if (rank == values_counts[criterion_index]) {
-        // Past-the-end rank
-        threshold = sorted_values[criterion_index][values_counts[criterion_index] - 1];
-      } else if (do_halves) {
-        threshold = (sorted_values[criterion_index][rank - 1] + sorted_values[criterion_index][rank]) / 2;
-      } else {
-        threshold = sorted_values[criterion_index][rank];
-      }
-      thresholds.push_back(threshold);
+    const Criterion& criterion = problem.criteria[criterion_index];
+    switch (criterion.get_value_type()) {
+      case Criterion::ValueType::real:
+        {
+          std::vector<float> thresholds;
+          thresholds.reserve(boundaries_count);
+          for (const auto& boundary: model.boundaries) {
+            const unsigned rank = boundary.profile_ranks[criterion_index];
+            if (rank == 0) {
+              thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
+            } else if (rank == values_counts[criterion_index]) {
+              // Past-the-end rank
+              thresholds.push_back(real_sorted_values.at(criterion_index)[values_counts[criterion_index] - 1]);
+            } else if (do_halves) {
+              thresholds.push_back((real_sorted_values.at(criterion_index)[rank - 1] + real_sorted_values.at(criterion_index)[rank]) / 2);
+            } else {
+              thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
+            }
+          }
+          accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
+        }
+        break;
+      case Criterion::ValueType::integer:
+        {
+          std::vector<int> thresholds;
+          thresholds.reserve(boundaries_count);
+          for (const auto& boundary: model.boundaries) {
+            const unsigned rank = boundary.profile_ranks[criterion_index];
+            if (rank == 0) {
+              thresholds.push_back(integer_sorted_values.at(criterion_index)[rank]);
+            } else if (rank == values_counts[criterion_index]) {
+              // Past-the-end rank
+              thresholds.push_back(integer_sorted_values.at(criterion_index)[values_counts[criterion_index] - 1]);
+            } else {
+              thresholds.push_back(integer_sorted_values.at(criterion_index)[rank]);
+            }
+          }
+          accepted_values.push_back(AcceptedValues::make_integer_thresholds(thresholds));
+        }
+        break;
+      case Criterion::ValueType::enumerated:
+        {
+          const std::vector<std::string> ordered_values = criterion.get_ordered_values();
+          std::vector<std::string> thresholds;
+          thresholds.reserve(boundaries_count);
+          for (const auto& boundary: model.boundaries) {
+            const unsigned rank = boundary.profile_ranks[criterion_index];
+            if (rank == 0) {
+              thresholds.push_back(ordered_values[rank]);
+            } else if (rank == values_counts[criterion_index]) {
+              // Past-the-end rank
+              thresholds.push_back(ordered_values[values_counts[criterion_index] - 1]);
+            } else {
+              thresholds.push_back(ordered_values[rank]);
+            }
+          }
+          accepted_values.push_back(AcceptedValues::make_enumerated_thresholds(thresholds));
+        }
+        break;
     }
-    accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
   }
 
   std::vector<SufficientCoalitions> sufficient_coalitions;

@@ -50,7 +50,8 @@ class PreProcessedLearningSet {
   const unsigned boundaries_count;
   const unsigned alternatives_count;
  private:
-  Array2D<Host, float> sorted_values;  // Indexed by [criterion_index][value_rank]
+  std::map<unsigned, std::vector<float>> real_sorted_values;  // Indexed by [criterion_index][value_rank]
+  std::map<unsigned, std::vector<unsigned>> integer_sorted_values;  // Indexed by [criterion_index][value_rank]
  public:
   Array1D<Host, unsigned> values_counts;  // [criterion_index]
   Array2D<Host, unsigned> performance_ranks;  // [criterion_index][alternative_index]
