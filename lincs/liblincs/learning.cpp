@@ -45,7 +45,7 @@ void check_exact_learning(const lincs::Problem& problem, const unsigned seed, co
 }
 
 template<typename T>
-void check_exact_learning(
+void check_exact_real_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
   const std::set<unsigned> bad_seeds_a = {},
@@ -58,7 +58,8 @@ void check_exact_learning(
       criteria_count, categories_count,
       41,
       false,
-      {lincs::Criterion::PreferenceDirection::increasing});
+      {lincs::Criterion::PreferenceDirection::increasing},
+      {lincs::Criterion::ValueType::real});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
@@ -70,7 +71,8 @@ void check_exact_learning(
       criteria_count, categories_count,
       41,
       false,
-      {lincs::Criterion::PreferenceDirection::decreasing});
+      {lincs::Criterion::PreferenceDirection::decreasing},
+      {lincs::Criterion::ValueType::real});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
@@ -82,7 +84,8 @@ void check_exact_learning(
       criteria_count, categories_count,
       41,
       false,
-      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing});
+      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+      {lincs::Criterion::ValueType::real});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
@@ -114,7 +117,7 @@ void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed
 }
 
 template<typename T>
-void check_non_exact_learning(
+void check_non_exact_real_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
   std::set<unsigned> bad_seeds_a = {},
@@ -127,7 +130,8 @@ void check_non_exact_learning(
       criteria_count, categories_count,
       41,
       false,
-      {lincs::Criterion::PreferenceDirection::increasing});
+      {lincs::Criterion::PreferenceDirection::increasing},
+      {lincs::Criterion::ValueType::real});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
@@ -139,7 +143,8 @@ void check_non_exact_learning(
       criteria_count, categories_count,
       41,
       false,
-      {lincs::Criterion::PreferenceDirection::decreasing});
+      {lincs::Criterion::PreferenceDirection::decreasing},
+      {lincs::Criterion::ValueType::real});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
@@ -151,7 +156,8 @@ void check_non_exact_learning(
       criteria_count, categories_count,
       41,
       false,
-      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing});
+      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+      {lincs::Criterion::ValueType::real});
 
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
@@ -181,12 +187,10 @@ struct AccuracyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
 
 namespace lincs {
 
-#ifdef LINCS_HAS_NVCC
-TEST_CASE("Basic and GPU WPB learning")
-#else
-TEST_CASE("Basic WPB learning")
-#endif
-{
+namespace {
+
+template<unsigned target_accuracy>
+class BasicWpb {
   struct CpuWrapper {
     CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       learning_data(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
@@ -194,7 +198,9 @@ TEST_CASE("Basic WPB learning")
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, 200),
+      termination_strategy_accuracy(learning_data, target_accuracy),
+      termination_strategy_progress(learning_data, 200),
+      termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
       observer(learning_data),
       observers{&observer},
       learning(
@@ -215,13 +221,15 @@ TEST_CASE("Basic WPB learning")
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAfterIterationsWithoutProgress termination_strategy;
+    TerminateAtAccuracy termination_strategy_accuracy;
+    TerminateAfterIterationsWithoutProgress termination_strategy_progress;
+    TerminateWhenAny termination_strategy;
     AccuracyObserver observer;
     std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
-#ifdef LINCS_HAS_NVCC
+  #ifdef LINCS_HAS_NVCC
   struct GpuWrapper {
     GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
@@ -229,7 +237,9 @@ TEST_CASE("Basic WPB learning")
       weights_optimization_strategy(learning_data),
       profiles_improvement_strategy(learning_data),
       breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, 200),
+      termination_strategy_accuracy(learning_data, target_accuracy),
+      termination_strategy_progress(learning_data, 200),
+      termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
       observer(learning_data),
       observers{&observer},
       learning(
@@ -250,12 +260,15 @@ TEST_CASE("Basic WPB learning")
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
     ReinitializeLeastAccurate breeding_strategy;
-    TerminateAfterIterationsWithoutProgress termination_strategy;
+    TerminateAtAccuracy termination_strategy_accuracy;
+    TerminateAfterIterationsWithoutProgress termination_strategy_progress;
+    TerminateWhenAny termination_strategy;
     AccuracyObserver observer;
     std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
     LearnMrsortByWeightsProfilesBreed learning;
   };
 
+ public:
   class Wrapper {
    public:
     Wrapper(const Problem& problem_, const Alternatives& learning_set) :
@@ -315,265 +328,137 @@ TEST_CASE("Basic WPB learning")
     CpuWrapper cpu_wrapper;
     GpuWrapper gpu_wrapper;
   };
-#else
+  #else
+ public:
   typedef CpuWrapper Wrapper;
-#endif
+  #endif
+};
 
-  check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2, {}, {}, {41});
-  check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {5, 59}, {}, {55});
-}
+class AlglibWpbWrapper {
+ public:
+  AlglibWpbWrapper(const Problem& problem, const Alternatives& learning_set) :
+    learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
+    profiles_initialization_strategy(learning_data),
+    weights_optimization_strategy(learning_data),
+    profiles_improvement_strategy(learning_data),
+    breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+    termination_strategy(learning_data, 200),
+    learning(
+      learning_data,
+      profiles_initialization_strategy,
+      weights_optimization_strategy,
+      profiles_improvement_strategy,
+      breeding_strategy,
+      termination_strategy
+    )
+  {}
 
-TEST_CASE("Alglib WPB learning") {
-  class Wrapper {
-   public:
-    Wrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
-      profiles_initialization_strategy(learning_data),
-      weights_optimization_strategy(learning_data),
-      profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy(learning_data, 200),
-      learning(
-        learning_data,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        profiles_improvement_strategy,
-        breeding_strategy,
-        termination_strategy
-      )
-    {}
+ public:
+  auto perform() { return learning.perform(); }
 
-   public:
-    auto perform() { return learning.perform(); }
+ private:
+  LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
+  OptimizeWeightsUsingAlglib weights_optimization_strategy;
+  ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
+  ReinitializeLeastAccurate breeding_strategy;
+  TerminateAfterIterationsWithoutProgress termination_strategy;
+  LearnMrsortByWeightsProfilesBreed learning;
+};
 
-   private:
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
-    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
-    OptimizeWeightsUsingAlglib weights_optimization_strategy;
-    ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
-    ReinitializeLeastAccurate breeding_strategy;
-    TerminateAfterIterationsWithoutProgress termination_strategy;
-    LearnMrsortByWeightsProfilesBreed learning;
-  };
-
-  check_exact_learning<Wrapper>(1, 2);
-  check_exact_learning<Wrapper>(3, 2);
-  check_exact_learning<Wrapper>(7, 2, {}, {48}, {});
-  check_exact_learning<Wrapper>(1, 3);
-  check_exact_learning<Wrapper>(4, 3, {55, 59}, {}, {5, 55});
-}
-
-TEST_CASE("SAT by coalitions using Minisat learning") {
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 2);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 2);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(7, 2);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 3);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
-  check_exact_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 5);
-}
-
-TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - exact") {
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
-  check_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
-}
-
-TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - non-exact") {
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
-}
-
-TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - non-exact - long" * doctest::skip(skip_long)) {
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
-}
-
-TEST_CASE("SAT by separation using Minisat learning") {
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
-}
-
-TEST_CASE("SAT by separation using Minisat learning - long" * doctest::skip(skip_long)) {
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
-  check_exact_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 5);
-}
-
-TEST_CASE("Max-SAT by separation using EvalMaxSat learning - exact") {
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
-}
-
-TEST_CASE("Max-SAT by separation using EvalMaxSat learning - exact - long" * doctest::skip(skip_long)) {
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
-  check_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
-}
-
-TEST_CASE("Max-SAT by separation using EvalMaxSat learning - non-exact") {
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
-}
-
-TEST_CASE("Max-SAT by separation using EvalMaxSat learning - non-exact - long" * doctest::skip(skip_long)) {
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
-  check_non_exact_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
-}
-
-TEST_CASE("Non-exact WPB learning") {
-  struct CpuWrapper {
-    CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
-      profiles_initialization_strategy(learning_data),
-      weights_optimization_strategy(learning_data),
-      profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy_accuracy(learning_data, 190),
-      termination_strategy_progress(learning_data, 200),
-      termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
-      observer(learning_data),
-      observers{&observer},
-      learning(
-        learning_data,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        profiles_improvement_strategy,
-        breeding_strategy,
-        termination_strategy
-      )
-    {}
-
-    auto perform() { return learning.perform(); }
-
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
-    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
-    OptimizeWeightsUsingGlop weights_optimization_strategy;
-    ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
-    ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy_accuracy;
-    TerminateAfterIterationsWithoutProgress termination_strategy_progress;
-    TerminateWhenAny termination_strategy;
-    AccuracyObserver observer;
-    std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
-    LearnMrsortByWeightsProfilesBreed learning;
-  };
+}  // namespace
 
 #ifdef LINCS_HAS_NVCC
-  struct GpuWrapper {
-    GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(problem, learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
-      profiles_initialization_strategy(learning_data),
-      weights_optimization_strategy(learning_data),
-      profiles_improvement_strategy(learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy_accuracy(learning_data, 190),
-      termination_strategy_progress(learning_data, 200),
-      termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
-      observer(learning_data),
-      observers{&observer},
-      learning(
-        learning_data,
-        profiles_initialization_strategy,
-        weights_optimization_strategy,
-        profiles_improvement_strategy,
-        breeding_strategy,
-        termination_strategy
-      )
-    {}
-
-    auto perform() { return learning.perform(); }
-
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
-    InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
-    OptimizeWeightsUsingGlop weights_optimization_strategy;
-    ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
-    ReinitializeLeastAccurate breeding_strategy;
-    TerminateAtAccuracy termination_strategy_accuracy;
-    TerminateAfterIterationsWithoutProgress termination_strategy_progress;
-    TerminateWhenAny termination_strategy;
-    AccuracyObserver observer;
-    std::vector<LearnMrsortByWeightsProfilesBreed::Observer*> observers;
-    LearnMrsortByWeightsProfilesBreed learning;
-  };
-
-  class Wrapper {
-   public:
-    Wrapper(const Problem& problem_, const Alternatives& learning_set) :
-      problem(problem_),
-      cpu_wrapper(problem_, learning_set),
-      gpu_wrapper(problem_, learning_set)
-    {}
-
-   public:
-    auto perform() {
-      std::optional<Model> cpu_model;
-      try {
-        cpu_model = cpu_wrapper.perform();
-      } catch (const LearningFailureException&) { /* Nothing */ }
-      const bool cpu_success = cpu_model.has_value();
-
-      std::optional<Model> gpu_model;
-      try {
-        gpu_model = gpu_wrapper.perform();
-      } catch (const LearningFailureException&) { /* Nothing */ }
-      bool gpu_success = gpu_model.has_value();
-
-      CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
-      if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
-        std::cerr << "CPU accuracies:";
-        for (unsigned accuracy: cpu_wrapper.observer.accuracies) {
-          std::cerr << " " << accuracy;
-        }
-        std::cerr << std::endl;
-        std::cerr << "GPU accuracies:";
-        for (unsigned accuracy: gpu_wrapper.observer.accuracies) {
-          std::cerr << " " << accuracy;
-        }
-        std::cerr << std::endl;
-      }
-
-      if (cpu_success == gpu_success) {
-        if (cpu_success) {
-          CHECK(*cpu_model == *gpu_model);
-          return *cpu_model;
-        } else {
-          throw LearningFailureException();
-        }
-      } else {
-        if (cpu_success) {
-          FAIL("CPU succeeded but GPU failed");
-          return *cpu_model;
-        } else {
-          FAIL("GPU succeeded but CPU failed");
-          return *gpu_model;
-        }
-      }
-    }
-
-   private:
-    const Problem& problem;
-    CpuWrapper cpu_wrapper;
-    GpuWrapper gpu_wrapper;
-  };
+TEST_CASE("Basic and GPU WPB learning - real criteria")
 #else
-  typedef CpuWrapper Wrapper;
+TEST_CASE("Basic WPB learning - real criteria")
 #endif
+{
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(1, 2);
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(3, 2);
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(7, 2, {}, {}, {41});
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(1, 3);
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(4, 3, {5, 59}, {}, {55});
+}
 
-  check_non_exact_learning<Wrapper>(1, 2);
-  check_non_exact_learning<Wrapper>(3, 2, {45}, {53}, {45});
-  check_non_exact_learning<Wrapper>(1, 3);
+TEST_CASE("Alglib WPB learning - real criteria") {
+  check_exact_real_learning<AlglibWpbWrapper>(1, 2);
+  check_exact_real_learning<AlglibWpbWrapper>(3, 2);
+  check_exact_real_learning<AlglibWpbWrapper>(7, 2, {}, {48}, {});
+  check_exact_real_learning<AlglibWpbWrapper>(1, 3);
+  check_exact_real_learning<AlglibWpbWrapper>(4, 3, {55, 59}, {}, {5, 55});
+}
+
+TEST_CASE("SAT by coalitions using Minisat learning - real criteria") {
+  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 2);
+  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 2);
+  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(7, 2);
+  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 3);
+  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
+  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 5);
+}
+
+TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - real criteria - exact") {
+  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
+  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
+  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
+  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
+  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
+}
+
+TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - real criteria - non-exact") {
+  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
+  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
+  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
+  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
+}
+
+TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - real criteria - non-exact - long" * doctest::skip(skip_long)) {
+  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
+  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
+}
+
+TEST_CASE("SAT by separation using Minisat learning - real criteria") {
+  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
+  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
+  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
+  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
+}
+
+TEST_CASE("SAT by separation using Minisat learning - real criteria - long" * doctest::skip(skip_long)) {
+  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
+  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 5);
+}
+
+TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - exact") {
+  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
+  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
+  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
+  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
+}
+
+TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - exact - long" * doctest::skip(skip_long)) {
+  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
+  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
+}
+
+TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - non-exact") {
+  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
+  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
+}
+
+TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - non-exact - long" * doctest::skip(skip_long)) {
+  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
+  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
+  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
+  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
+}
+
+TEST_CASE("Non-exact WPB learning - real criteria") {
+  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 2);
+  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(3, 2, {45}, {53}, {45});
+  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 3);
 }
 
 }  // namespace lincs
