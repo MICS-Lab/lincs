@@ -148,22 +148,15 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
 
   out << YAML::Key << "accepted_values" << YAML::Value << YAML::BeginSeq;
   for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
-    const Criterion& criterion = problem.criteria[criterion_index];
-    const AcceptedValues& acc_vals = accepted_values[criterion_index];
     out << YAML::BeginMap;
     out << YAML::Key << "kind" << YAML::Value << "thresholds";
     out << YAML::Key << "thresholds" << YAML::Value << YAML::Flow;
-    switch (criterion.get_value_type()) {
-      case Criterion::ValueType::real:
-        out << acc_vals.get_real_thresholds();
-        break;
-      case Criterion::ValueType::integer:
-        out << acc_vals.get_integer_thresholds();
-        break;
-      case Criterion::ValueType::enumerated:
-        out << acc_vals.get_enumerated_thresholds();
-        break;
-    }
+    dispatch(
+      accepted_values[criterion_index].get_thresholds(),
+      [&out](const std::vector<float>& thresholds) { out << thresholds; },
+      [&out](const std::vector<int>& thresholds) { out << thresholds; },
+      [&out](const std::vector<std::string>& thresholds) { out << thresholds; }
+    );
     out << YAML::EndMap;
   }
   out << YAML::EndSeq;
