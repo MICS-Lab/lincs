@@ -33,12 +33,8 @@ bool better_or_equal(
       return better_or_equal(values.preference_direction, performance.get_integer_value(), threshold);;
     },
     [&model, &performance, &accepted_values, boundary_index](const Criterion::EnumeratedValues& values) {
-      std::map<std::string, unsigned> rank_by_value;  // @todo(Project management, NOW) Factorize this computation inside 'Criterion'
-      for (const auto& value : values.ordered_values) {
-        rank_by_value[value] = rank_by_value.size();
-      }
       const std::string threshold_enum = accepted_values.get_enumerated_thresholds()[boundary_index];
-      return rank_by_value[performance.get_enumerated_value()] >= rank_by_value[threshold_enum];
+      return values.value_ranks.at(performance.get_enumerated_value()) >= values.value_ranks.at(threshold_enum);
     }
   );
 }

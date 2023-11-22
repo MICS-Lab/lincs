@@ -4,6 +4,7 @@
 #define LINCS__IO__PROBLEM_HPP
 
 #include <cassert>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -46,9 +47,16 @@ class Criterion {
 
   struct EnumeratedValues {
     std::vector<std::string> ordered_values;
+    std::map<std::string, unsigned> value_ranks;
+
+    EnumeratedValues(const std::vector<std::string>& ordered_values_) : ordered_values(ordered_values_) {
+      for (unsigned i = 0; i < ordered_values.size(); ++i) {
+        value_ranks[ordered_values[i]] = i;
+      }
+    }
 
     bool operator==(const EnumeratedValues& other) const {
-      return ordered_values == other.ordered_values;
+      return ordered_values == other.ordered_values;  // No need to compare value_ranks
     }
   };
 
@@ -129,6 +137,14 @@ class Criterion {
 
   std::vector<std::string> get_ordered_values() const {
     return std::get<EnumeratedValues>(values).ordered_values;
+  }
+
+  std::map<std::string, unsigned> get_value_ranks() const {
+    return std::get<EnumeratedValues>(values).value_ranks;
+  }
+
+  unsigned get_value_rank(const std::string& value) const {
+    return std::get<EnumeratedValues>(values).value_ranks.at(value);
   }
 
  private:
