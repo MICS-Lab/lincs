@@ -154,8 +154,8 @@ class SufficientCoalitions {
   std::vector<boost::dynamic_bitset<>> upset_roots;  // Indexed by [root_coalition_index][criterion_index] and true if the criterion is in the coalition
 };
 
-// @todo(Project management, soon) Use classes with accessors everywhere. It's possible to bypass constructors of structs with uniform initialization.
-struct Model {
+class Model {
+ public:
   Model(const Problem& problem, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
     accepted_values(accepted_values_),
     sufficient_coalitions(sufficient_coalitions_)
@@ -203,14 +203,17 @@ struct Model {
     return *this;
   }
 
+ public:
   bool operator==(const Model& other) const {
     return accepted_values == other.accepted_values && sufficient_coalitions == other.sufficient_coalitions;
   }
 
+ public:
   static const std::string json_schema;
   void dump(const Problem&, std::ostream&) const;
   static Model load(const Problem&, std::istream&);
 
+ public:
   std::vector<AcceptedValues> accepted_values;
   std::vector<SufficientCoalitions> sufficient_coalitions;
 };

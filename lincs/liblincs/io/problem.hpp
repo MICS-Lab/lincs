@@ -136,29 +136,35 @@ class Criterion {
   Values values;
 };
 
-struct Category {
-  std::string name;
-
-  Category() {}
+class Category {
+ public:
   Category(const std::string& name_): name(name_) {}
 
+ public:
   bool operator==(const Category& other) const { return name == other.name; }
+
+ public:
+  std::string name;
 };
 
-struct Problem {
+class Problem {
+ public:
   Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& ordered_categories_): criteria(criteria_), ordered_categories(ordered_categories_) {
     assert(criteria.size() > 0);
     assert(ordered_categories.size() >= 2);
   }
 
+ public:
   bool operator==(const Problem& other) const {
     return criteria == other.criteria && ordered_categories == other.ordered_categories;
   }
 
+ public:
   static const std::string json_schema;
   void dump(std::ostream&) const;
   static Problem load(std::istream&);
 
+ public:
   std::vector<Criterion> criteria;
   std::vector<Category> ordered_categories;
 };

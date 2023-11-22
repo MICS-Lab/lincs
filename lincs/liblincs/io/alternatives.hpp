@@ -42,11 +42,8 @@ class Performance {
   std::variant<float, int, std::string> perf;
 };
 
-struct Alternative {
-  std::string name;
-  std::vector<Performance> profile;
-  std::optional<unsigned> category_index;
-
+class Alternative {
+ public:
   Alternative(
     const std::string& name_,
     const std::vector<Performance>& profile_,
@@ -57,7 +54,13 @@ struct Alternative {
     category_index(category_index_)
   {}
 
+ public:
   bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category_index == other.category_index; }
+
+ public:
+  std::string name;
+  std::vector<Performance> profile;
+  std::optional<unsigned> category_index;
 };
 
 class Alternatives {
