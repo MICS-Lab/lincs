@@ -2,7 +2,6 @@
 
 #include "generation.hpp"
 
-#include <any>
 #include <algorithm>
 #include <cassert>
 #include <numeric>
@@ -118,7 +117,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
 
   std::mt19937 gen(random_seed);
 
-  std::vector<std::vector<std::any>> profiles(boundaries_count, std::vector<std::any>(criteria_count));
+  typedef std::variant<float, int, std::string> Performance;
+  std::vector<std::vector<Performance>> profiles(boundaries_count, std::vector<Performance>(criteria_count));
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     dispatch(
       problem.criteria[criterion_index].get_values(),
@@ -198,7 +198,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           std::vector<float> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-            thresholds.push_back(std::any_cast<float>(profiles[boundary_index][criterion_index]));
+            thresholds.push_back(std::get<float>(profiles[boundary_index][criterion_index]));
           }
           return AcceptedValues::make_real_thresholds(thresholds);
       },
@@ -206,7 +206,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           std::vector<int> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-            thresholds.push_back(std::any_cast<int>(profiles[boundary_index][criterion_index]));
+            thresholds.push_back(std::get<int>(profiles[boundary_index][criterion_index]));
           }
           return AcceptedValues::make_integer_thresholds(thresholds);
       },
@@ -214,7 +214,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           std::vector<std::string> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-            thresholds.push_back(std::any_cast<std::string>(profiles[boundary_index][criterion_index]));
+            thresholds.push_back(std::get<std::string>(profiles[boundary_index][criterion_index]));
           }
           return AcceptedValues::make_enumerated_thresholds(thresholds);
       }
