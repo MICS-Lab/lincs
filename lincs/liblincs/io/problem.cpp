@@ -117,24 +117,23 @@ void Problem::dump(std::ostream& os) const {
   for (const auto& criterion : criteria) {
     out << YAML::BeginMap;
     out << YAML::Key << "name" << YAML::Value << criterion.get_name();
-    typedef lincs::Criterion::ValueType ValueType;
-    const ValueType value_type = criterion.get_value_type();
-    out << YAML::Key << "value_type" << YAML::Value << std::string(magic_enum::enum_name(value_type));
-    switch (value_type) {
-      case Criterion::ValueType::real:
-        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(criterion.get_preference_direction()));
-        out << YAML::Key << "min_value" << YAML::Value << criterion.get_real_min_value();
-        out << YAML::Key << "max_value" << YAML::Value << criterion.get_real_max_value();
-        break;
-      case Criterion::ValueType::integer:
-        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(criterion.get_preference_direction()));
-        out << YAML::Key << "min_value" << YAML::Value << criterion.get_integer_min_value();
-        out << YAML::Key << "max_value" << YAML::Value << criterion.get_integer_max_value();
-        break;
-      case Criterion::ValueType::enumerated:
-        out << YAML::Key << "ordered_values" << YAML::Value << YAML::Flow << criterion.get_ordered_values();
-        break;
-    }
+    out << YAML::Key << "value_type" << YAML::Value << std::string(magic_enum::enum_name(criterion.get_value_type()));
+    dispatch(
+      criterion.get_values(),
+      [&out](const Criterion::RealValues& values) {
+        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.preference_direction));
+        out << YAML::Key << "min_value" << YAML::Value << values.min_value;
+        out << YAML::Key << "max_value" << YAML::Value << values.max_value;
+      },
+      [&out](const Criterion::IntegerValues& values) {
+        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.preference_direction));
+        out << YAML::Key << "min_value" << YAML::Value << values.min_value;
+        out << YAML::Key << "max_value" << YAML::Value << values.max_value;
+      },
+      [&out](const Criterion::EnumeratedValues& values) {
+        out << YAML::Key << "ordered_values" << YAML::Value << YAML::Flow << values.ordered_values;
+      }
+    );
     out << YAML::EndMap;
   }
   out << YAML::EndSeq;

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "../variant-dispatch.hpp"
 #include "../unreachable.hpp"
 
 
@@ -23,127 +24,116 @@ class Criterion {
     // @todo(Feature, much later) Add unknown
   };
 
-  enum class ValueType {
-    real,
-    integer,
-    enumerated
+  struct RealValues {
+    PreferenceDirection preference_direction;
+    float min_value;
+    float max_value;
+
+    bool operator==(const RealValues& other) const {
+      return preference_direction == other.preference_direction && min_value == other.min_value && max_value == other.max_value;
+    }
   };
+
+  struct IntegerValues {
+    PreferenceDirection preference_direction;
+    int min_value;
+    int max_value;
+
+    bool operator==(const IntegerValues& other) const {
+      return preference_direction == other.preference_direction && min_value == other.min_value && max_value == other.max_value;
+    }
+  };
+
+  struct EnumeratedValues {
+    std::vector<std::string> ordered_values;
+
+    bool operator==(const EnumeratedValues& other) const {
+      return ordered_values == other.ordered_values;
+    }
+  };
+
+  // WARNING: keep the enum and the variant consistent
+  // (because the variant's index is used as the enum's value)
+  enum class ValueType { real, integer, enumerated };
+  typedef std::variant<RealValues, IntegerValues, EnumeratedValues> Values;
+  // END OF WARNING
 
  public:
   static Criterion make_real(const std::string& name, PreferenceDirection preference_direction, float real_min_value, float real_max_value) {
     assert(real_min_value <= real_max_value);
-    return Criterion(name, ValueType::real, preference_direction, real_min_value, real_max_value, 0, 0, {});
+    return Criterion(name, RealValues{preference_direction, real_min_value, real_max_value});
   }
 
   static Criterion make_integer(const std::string& name, PreferenceDirection preference_direction, int int_min_value, int int_max_value) {
     assert(int_min_value <= int_max_value);
-    return Criterion(name, ValueType::integer, preference_direction, 0, 0, int_min_value, int_max_value, {});
+    return Criterion(name, IntegerValues{preference_direction, int_min_value, int_max_value});
   }
 
   static Criterion make_enumerated(const std::string& name, const std::vector<std::string>& ordered_values) {
     assert(ordered_values.size() > 0);
-    return Criterion(name, ValueType::enumerated, PreferenceDirection::increasing, 0, 0, 0, 0, ordered_values);
+    return Criterion(name, EnumeratedValues{ordered_values});
   }
 
  private:
-  Criterion(
-    const std::string& name_,
-    ValueType value_type_,
-    PreferenceDirection preference_direction_,
-    float real_min_value_,
-    float real_max_value_,
-    int int_min_value_,
-    int int_max_value_,
-    const std::vector<std::string>& ordered_values_
-  ):
-    name(name_),
-    value_type(value_type_),
-    preference_direction(preference_direction_),
-    real_min_value(real_min_value_),
-    real_max_value(real_max_value_),
-    int_min_value(int_min_value_),
-    int_max_value(int_max_value_),
-    ordered_values(ordered_values_)
-  {}
+  Criterion(const std::string& name_, Values values_) : name(name_), values(values_) {}
 
  public:
   bool operator==(const Criterion& other) const {
-    if (value_type != other.value_type || name != other.name) {
-      return false;
-    }
-    switch (value_type) {
-      case ValueType::real:
-        return preference_direction == other.preference_direction &&
-          real_min_value == other.real_min_value && real_max_value == other.real_max_value;
-      case ValueType::integer:
-        return preference_direction == other.preference_direction &&
-          int_min_value == other.int_min_value && int_max_value == other.int_max_value;
-      case ValueType::enumerated:
-        return ordered_values == other.ordered_values;
-    }
-    unreachable();
+    return name == other.name && values == other.values;
   }
 
+  // @todo(Project management, soon) Return const ref
   std::string get_name() const { return name; }
-  
-  ValueType get_value_type() const { return value_type; }
 
-  bool is_real() const { return value_type == ValueType::real; }
+  ValueType get_value_type() const { return ValueType(values.index()); }
 
-  bool is_integer() const { return value_type == ValueType::integer; }
+  bool is_real() const { return get_value_type() == ValueType::real; }
 
-  bool is_enumerated() const { return value_type == ValueType::enumerated; }
+  bool is_integer() const { return get_value_type() == ValueType::integer; }
+
+  bool is_enumerated() const { return get_value_type() == ValueType::enumerated; }
+
+  const Values& get_values() const { return values; }
 
   PreferenceDirection get_preference_direction() const {
-    assert(is_real() || is_integer());
-    return preference_direction;
+    if (is_real()) {
+      return std::get<RealValues>(values).preference_direction;
+    } else {
+      return std::get<IntegerValues>(values).preference_direction;
+    }
   }
 
   bool is_increasing() const {
-    assert(is_real() || is_integer());
-    return preference_direction == PreferenceDirection::increasing;
+    return get_preference_direction() == PreferenceDirection::increasing;
   }
 
   bool is_decreasing() const {
-    assert(is_real() || is_integer());
-    return preference_direction == PreferenceDirection::decreasing;
+    return get_preference_direction() == PreferenceDirection::decreasing;
   }
 
   float get_real_min_value() const {
-    assert(is_real());
-    return real_min_value;
+    return std::get<RealValues>(values).min_value;
   }
 
   float get_real_max_value() const {
-    assert(is_real());
-    return real_max_value;
+    return std::get<RealValues>(values).max_value;
   }
 
   int get_integer_min_value() const {
-    assert(is_integer());
-    return int_min_value;
+    return std::get<IntegerValues>(values).min_value;
   }
 
   int get_integer_max_value() const {
-    assert(is_integer());
-    return int_max_value;
+    return std::get<IntegerValues>(values).max_value;
   }
 
   std::vector<std::string> get_ordered_values() const {
-    assert(is_enumerated());
-    return ordered_values;
+    return std::get<EnumeratedValues>(values).ordered_values;
   }
 
  private:
   std::string name;
-  ValueType value_type;
-  // @todo(Project management, later) Use 'union' or equivalent to store only the relevant values
-  PreferenceDirection preference_direction;  // Only for real and integer
-  float real_min_value;  // Only for real
-  float real_max_value;
-  int int_min_value;  // Only for integer
-  int int_max_value;
-  std::vector<std::string> ordered_values;  // Only for enumerated
+  Values values;
 };
 
 struct Category {
