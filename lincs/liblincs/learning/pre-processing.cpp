@@ -25,8 +25,8 @@ PreProcessedLearningSet::PreProcessedLearningSet(
 {
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     const Criterion& criterion = problem.criteria[criterion_index];
-    const bool is_increasing = criterion.get_preference_direction() == Criterion::PreferenceDirection::increasing;
-    assert(is_increasing || criterion.get_preference_direction() == Criterion::PreferenceDirection::decreasing);
+    const bool is_increasing = criterion.is_enumerated() || criterion.is_increasing();
+    assert(is_increasing || criterion.is_decreasing());
 
     switch (criterion.get_value_type()) {
       case Criterion::ValueType::real:

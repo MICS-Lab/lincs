@@ -94,6 +94,25 @@ void check_exact_real_learning(
 }
 
 template<typename T>
+void check_exact_discrete_learning(
+  const unsigned criteria_count,
+  const unsigned categories_count,
+  const std::set<unsigned> bad_seeds = {},
+  const unsigned seeds_count = default_seeds_count
+) {
+  lincs::Problem problem = lincs::generate_classification_problem(
+    criteria_count, categories_count,
+    41,
+    false,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated});
+
+  for (unsigned seed = 0; seed != seeds_count; ++seed) {
+    check_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
+  }
+}
+
+template<typename T>
 void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   CAPTURE(problem.criteria.size());
   CAPTURE(problem.ordered_categories.size());
@@ -162,6 +181,25 @@ void check_non_exact_real_learning(
     for (unsigned seed = 0; seed != seeds_count; ++seed) {
       check_non_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
     }
+  }
+}
+
+template<typename T>
+void check_non_exact_discrete_learning(
+  const unsigned criteria_count,
+  const unsigned categories_count,
+  std::set<unsigned> bad_seeds = {},
+  const unsigned seeds_count = default_seeds_count
+) {
+  lincs::Problem problem = lincs::generate_classification_problem(
+    criteria_count, categories_count,
+    41,
+    false,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated});
+
+  for (unsigned seed = 0; seed != seeds_count; ++seed) {
+    check_non_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
   }
 }
 
@@ -368,17 +406,26 @@ class AlglibWpbWrapper {
 
 }  // namespace
 
-#ifdef LINCS_HAS_NVCC
-TEST_CASE("Basic and GPU WPB learning - real criteria")
-#else
-TEST_CASE("Basic WPB learning - real criteria")
-#endif
-{
+TEST_CASE("Basic (and GPU) WPB learning - real criteria") {
   check_exact_real_learning<BasicWpb<200>::Wrapper>(1, 2);
   check_exact_real_learning<BasicWpb<200>::Wrapper>(3, 2);
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(7, 2, {}, {}, {41});
   check_exact_real_learning<BasicWpb<200>::Wrapper>(1, 3);
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - real criteria - long" * doctest::skip(skip_long)) {
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(7, 2, {}, {}, {41});
   check_exact_real_learning<BasicWpb<200>::Wrapper>(4, 3, {5, 59}, {}, {55});
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - discrete criteria") {
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(1, 2);
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(3, 2, {6});
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(1, 3);
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::skip(skip_long)) {
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(7, 2, {11});
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(4, 3, {14});
 }
 
 TEST_CASE("Alglib WPB learning - real criteria") {
@@ -459,6 +506,12 @@ TEST_CASE("Non-exact WPB learning - real criteria") {
   check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 2);
   check_non_exact_real_learning<BasicWpb<190>::Wrapper>(3, 2, {45}, {53}, {45});
   check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 3);
+}
+
+TEST_CASE("Non-exact WPB learning - discrete criteria") {
+  check_non_exact_discrete_learning<BasicWpb<190>::Wrapper>(1, 2);
+  check_non_exact_discrete_learning<BasicWpb<190>::Wrapper>(3, 2, {6});
+  check_non_exact_discrete_learning<BasicWpb<190>::Wrapper>(1, 3);
 }
 
 }  // namespace lincs
