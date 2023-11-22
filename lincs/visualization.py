@@ -92,7 +92,7 @@ def normalize_value(criterion, y):
     else:
         assert False
 
-    if criterion.is_increasing:
+    if criterion.is_enumerated or criterion.is_increasing:
         return y
     else:
         return 1 - y
