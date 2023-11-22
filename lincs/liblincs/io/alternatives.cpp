@@ -4,7 +4,7 @@
 
 #include "../chrones.hpp"
 #include "../vendored/rapidcsv.h"
-#include "exception.hpp"
+#include "validation.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
