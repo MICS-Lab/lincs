@@ -473,7 +473,7 @@ And::
 
 They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
 
-    # Reproduction command (with lincs version 0.11.2-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
+    # Reproduction command (with lincs version 1.0.0): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model
     format_version: 1
     accepted_values:

@@ -4,6 +4,14 @@
 Changelog
 =========
 
+Version 1.0.0 (2023-11-22)
+==========================
+
+This is the first stable release of *lincs*.
+It establishes the first tier of the stable API: the command-line interface.
+
+- Add a roadmap in the documentation
+
 Version 0.11.1
 ==============
 
