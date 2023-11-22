@@ -63,14 +63,12 @@ struct Alternative {
 class Alternatives {
  public:
   // @todo(Project management, soon) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
-  Alternatives(const Problem& problem_, const std::vector<Alternative>& alternatives_) :
-    problem(problem_), alternatives(alternatives_)
+  Alternatives(const Problem&, const std::vector<Alternative>& alternatives_) :
+    alternatives(alternatives_)
   {}
 
  public:
   bool operator==(const Alternatives& other) const {
-    assert(&problem == &other.problem);
-
     return alternatives == other.alternatives;
   }
 
@@ -78,8 +76,6 @@ class Alternatives {
   void dump(const Problem&, std::ostream&) const;
   static Alternatives load(const Problem&, std::istream&);
 
- private:
-  const Problem& problem;  // @todo(Project management, soon) Consider not storing the 'Problem' here
  public:
   std::vector<Alternative> alternatives;
 };

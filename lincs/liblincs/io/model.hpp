@@ -179,8 +179,7 @@ class SufficientCoalitions {
 
 // @todo(Project management, soon) Use classes with accessors everywhere. It's possible to bypass constructors of structs with uniform initialization.
 struct Model {
-  Model(const Problem& problem_, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
-    problem(problem_),
+  Model(const Problem& problem, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
     accepted_values(accepted_values_),
     sufficient_coalitions(sufficient_coalitions_)
   {
@@ -216,21 +215,18 @@ struct Model {
   // Copyable and movable
   Model(const Model&) = default;
   Model& operator=(const Model& other) {
-    assert(&problem == &other.problem);
     accepted_values = other.accepted_values;
     sufficient_coalitions = other.sufficient_coalitions;
     return *this;
   };
   Model(Model&&) = default;
   Model& operator=(Model&& other) {
-    assert(&problem == &other.problem);
     accepted_values = std::move(other.accepted_values);
     sufficient_coalitions = std::move(other.sufficient_coalitions);
     return *this;
   }
 
   bool operator==(const Model& other) const {
-    assert(&problem == &other.problem);
     return accepted_values == other.accepted_values && sufficient_coalitions == other.sufficient_coalitions;
   }
 
@@ -238,7 +234,6 @@ struct Model {
   void dump(const Problem&, std::ostream&) const;
   static Model load(const Problem&, std::istream&);
 
-  const Problem& problem;  // @todo(Project management, soon) Consider not storing the 'Problem' here
   std::vector<AcceptedValues> accepted_values;
   std::vector<SufficientCoalitions> sufficient_coalitions;
 };
