@@ -1,6 +1,7 @@
 # Copyright 2023 Vincent Jacques
 
 from __future__ import annotations
+import datetime
 import subprocess
 
 import click
@@ -82,7 +83,7 @@ def update_changelog(new_version):
 
         header_length = 6
 
-        title = f"Version {new_version}"
+        title = f"Version {new_version} ({datetime.date.today().isoformat()})"
         lines = lines[:header_length] + [
             title,
             "=" * len(title),
