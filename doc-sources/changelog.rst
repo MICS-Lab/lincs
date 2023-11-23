@@ -4,6 +4,20 @@
 Changelog
 =========
 
+Version 1.1.0
+=============
+
+- Improve ``lincs visualize``:
+
+    - Replace legend by colored text annotations
+    - Support visualizing single-criterion models
+    - Add one graduated vertical axis per criterion
+    - See the following "before" and "after" images:
+
+.. image:: changelog/visualization-improvements/model-1.0.png
+
+.. image:: changelog/visualization-improvements/model-1.1.png
+
 Version 1.0.0 (2023-11-22)
 ==========================
 

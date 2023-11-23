@@ -1,72 +1,242 @@
 # Copyright 2023 Vincent Jacques
 
+import unittest
+
 import matplotlib.pyplot as plt
 
 
 def visualize_model(problem, model, alternatives, axes: plt.Axes):
-    xs = [criterion.name for criterion in problem.criteria]
+    criteria_count = len(problem.criteria)
+    assert criteria_count >= 1
+    categories_count = len(problem.ordered_categories)
+    assert categories_count >= 2
+    boundaries_count = categories_count - 1
+
+    vertical_margin = 0.05
+    horizontal_margin = 0.1
+
+    if criteria_count == 1:
+        xs = [0.5]
+    else:
+        xs = [horizontal_margin + criterion_index * (1 - 2 * horizontal_margin) / (criteria_count - 1) for criterion_index in range(criteria_count)]
+
+    if criteria_count <= 2:
+        criterion_index_for_alternatives = 0
+    else:
+        criterion_index_for_alternatives = 1
+
+    axes.set_xlim(0, 1)
+    axes.set_xticks(xs, [criterion.name for criterion in problem.criteria])
+
+    axes.set_ylim(-vertical_margin, 1 + vertical_margin)
+    axes.set_yticks([0, 1], ["worst", "best"])
+
     boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
-    for criterion_index, criterion in enumerate(problem.criteria):
-        acc_vals = model.accepted_values[criterion_index]
+    for criterion, accepted_values in zip(problem.criteria, model.accepted_values):
         if criterion.is_real:
-            for boundary_index in range(len(problem.ordered_categories) - 1):
-                boundary_profiles[boundary_index].append(acc_vals.real_thresholds[boundary_index])
+            for boundary_index in range(boundaries_count):
+                boundary_profiles[boundary_index].append(accepted_values.real_thresholds[boundary_index])
         elif criterion.is_integer:
-            for boundary_index in range(len(problem.ordered_categories) - 1):
-                boundary_profiles[boundary_index].append(acc_vals.integer_thresholds[boundary_index])
+            for boundary_index in range(boundaries_count):
+                boundary_profiles[boundary_index].append(accepted_values.integer_thresholds[boundary_index])
         elif criterion.is_enumerated:
-            for boundary_index in range(len(problem.ordered_categories) - 1):
-                boundary_profiles[boundary_index].append(criterion.get_value_rank(acc_vals.enumerated_thresholds[boundary_index]))
+            for boundary_index in range(boundaries_count):
+                boundary_profiles[boundary_index].append(criterion.get_value_rank(accepted_values.enumerated_thresholds[boundary_index]))
         else:
             assert False
+
+    def extend(ys):
+        return [ys[0]] + ys + [ys[-1]]
     ys = [
-        normalize_profile(problem.criteria, boundary_profile)
+        extend(normalize_profile(problem.criteria, boundary_profile))
         for boundary_profile in boundary_profiles
     ]
-    ys.append([1] * len(xs))
+    ys.append(extend([1] * len(xs)))
     unstacked_ys = [ys[0]]
     for ys1, ys2 in zip(ys[1:], ys[:-1]):
         unstacked_ys.append([y1 - y2 for y1, y2 in zip(ys1, ys2)])
-    collections = axes.stackplot(
-        xs, unstacked_ys,
-        labels=[category.name for category in problem.ordered_categories],
-        alpha=0.4,
-    )
-    colors = [collection.get_facecolor() for collection in collections]
+    collections = axes.stackplot([0] + xs + [1], unstacked_ys, alpha=0.4)
+    colors = [collection.get_facecolor()[0] for collection in collections]
 
-    if alternatives:
-        for alternative in alternatives:
-            if alternative.category_index is None:
-                color = "black"
+    for (x, criterion) in zip(xs, problem.criteria):
+        secondary_ax = axes.secondary_yaxis(x)
+        if criterion.is_real:
+            ticks = [0, 0.5, 1]
+            labels = [f"{criterion.real_min_value:.1f}", f"{(criterion.real_min_value + criterion.real_max_value) / 2:.1f}", f"{criterion.real_max_value:.1f}"]
+            if criterion.is_increasing:
+                secondary_ax.set_yticks(ticks, labels)
+            elif criterion.is_decreasing:
+                secondary_ax.set_yticks(ticks, reversed(labels))
             else:
-                color = colors[alternative.category_index]
-            profile = []
-            for criterion_index, criterion in enumerate(problem.criteria):
-                if criterion.is_real:
-                    profile.append(alternative.profile[criterion_index].real_value)
-                elif criterion.is_integer:
-                    profile.append(alternative.profile[criterion_index].integer_value)
-                elif criterion.is_enumerated:
-                    profile.append(criterion.get_value_rank(alternative.profile[criterion_index].enumerated_value))
-                else:
-                    assert False
-            axes.plot(
-                xs, normalize_profile(problem.criteria, profile),
-                "o--",
-                label=alternative.name,
-                color=color,
-                alpha=1,
-            )
+                assert False
+        elif criterion.is_integer:
+            labels = list(make_integer_labels(criterion.integer_min_value, criterion.integer_max_value))
+            ticks = [(label - criterion.integer_min_value) / (criterion.integer_max_value - criterion.integer_min_value) for label in labels]
+            if criterion.is_increasing:
+                secondary_ax.set_yticks(ticks, labels)
+            elif criterion.is_decreasing:
+                secondary_ax.set_yticks(ticks, reversed(labels))
+            else:
+                assert False
+        elif criterion.is_enumerated:
+            ticks_count = len(criterion.ordered_values)
+            ticks = [n / (ticks_count - 1) for n in range(ticks_count)]
+            secondary_ax.set_yticks(ticks, criterion.ordered_values)
 
-    axes.legend()
-    axes.set_ylim(-0.05, 1.05)
-    axes.set_yticks([0, 1])
-    axes.set_yticklabels(["worst", "best"])
+    for (category_index, category) in enumerate(problem.ordered_categories):
+        if category_index == 0:
+            low_y = 0
+        else:
+            low_y = normalize_value(problem.criteria[0], boundary_profiles[category_index - 1][0])
+        if category_index == len(problem.ordered_categories) - 1:
+            high_y = 1
+        else:
+            high_y = normalize_value(problem.criteria[0], boundary_profiles[category_index][0])
+        y = (low_y + high_y) / 2
+        color = colors[category_index]
+        axes.text(
+            0, y,
+            category.name,
+            color=color,
+            alpha=1,
+            fontweight="bold", verticalalignment="center"
+        )
 
-    for y in [0, 1]:
-        axes.axhline(y=y, color="black", alpha=0.2)
-    for x in xs:
-        axes.axvline(x=x, color="black", alpha=0.2)
+    for alternative in alternatives:
+        if alternative.category_index is None:
+            color = "black"
+        else:
+            color = colors[alternative.category_index]
+        axes.plot(
+            xs, normalize_profile(problem.criteria, make_numeric_profile(problem.criteria, alternative.profile)),
+            "o--",
+            label=alternative.name,
+            color=color,
+            alpha=1,
+        )
+        axes.text(
+            xs[criterion_index_for_alternatives],
+            normalize_value(
+                problem.criteria[criterion_index_for_alternatives],
+                make_numeric_value(
+                    problem.criteria[criterion_index_for_alternatives],
+                    alternative.profile[criterion_index_for_alternatives],
+                ),
+            ),
+            alternative.name,
+            color=color, alpha=1)
+
+
+def make_integer_labels(min_value, max_value):
+    intervals_count = max_value - min_value
+    assert intervals_count >= 1
+    if intervals_count == 1:
+        yield min_value
+        yield max_value
+    elif intervals_count == 2:
+        yield min_value
+        yield min_value + 1
+        yield max_value
+    elif intervals_count == 3:
+        yield min_value
+        yield min_value + 1
+        yield min_value + 2
+        yield max_value
+    elif intervals_count % 2 == 0:
+        yield min_value
+        yield min_value + intervals_count // 4
+        yield (min_value + max_value) // 2
+        yield max_value - intervals_count // 4
+        yield max_value
+    else:
+        yield min_value
+        yield min_value + intervals_count // 3
+        yield max_value - intervals_count // 3
+        yield max_value
+
+
+class MakeIntegerLabelsTests(unittest.TestCase):
+    def _test(self, min_value, max_value, expected):
+        self.assertEqual(list(make_integer_labels(min_value, max_value)), expected)
+
+    def test_all(self):
+        for n in range(100):
+            l = list(make_integer_labels(10, n + 11))
+            self.assertLessEqual(len(l), 5)
+            self.assertEqual(l[0], 10)
+            self.assertEqual(l[-1], n + 11)
+            if len(l) % 2 == 1:
+                self.assertEqual(l[len(l) // 2], (10 + n + 11) // 2)
+            self.assertEqual(l, sorted(l))
+
+    def test_0_1(self):
+        self._test(0, 1, [0, 1])
+
+    def test_0_2(self):
+        self._test(0, 2, [0, 1, 2])
+
+    def test_0_3(self):
+        self._test(0, 3, [0, 1, 2, 3])
+
+    def test_0_4(self):
+        self._test(0, 4, [0, 1, 2, 3, 4])
+
+    def test_10_14(self):
+        self._test(10, 14, [10, 11, 12, 13, 14])
+
+    def test_0_5(self):
+        self._test(0, 5, [0, 1, 4, 5])
+
+    def test_0_6(self):
+        self._test(0, 6, [0, 1, 3, 5, 6])
+
+    def test_0_7(self):
+        self._test(0, 7, [0, 2, 5, 7])
+
+    def test_0_70(self):
+        self._test(0, 70, [0, 17, 35, 53, 70])
+
+    def test_0_8(self):
+        self._test(0, 8, [0, 2, 4, 6, 8])
+
+    def test_0_8(self):
+        self._test(0, 80, [0, 20, 40, 60, 80])
+
+    def test_bug_1(self):
+        self._test(-4949, 9942, [-4949, 14, 4979, 9942])
+
+    def test_0_9000(self):
+        self._test(0, 9000, [0, 2250, 4500, 6750, 9000])
+
+    def test_0_9001(self):
+        self._test(0, 9001, [0, 3000, 6001, 9001])
+
+    def test_0_9002(self):
+        self._test(0, 9002, [0, 2250, 4501, 6752, 9002])
+
+    def test_0_9003(self):
+        self._test(0, 9003, [0, 3001, 6002, 9003])
+
+    def test_0_9004(self):
+        self._test(0, 9004, [0, 2251, 4502, 6753, 9004])
+
+
+def make_numeric_profile(criteria, profile):
+    return [
+        make_numeric_value(criterion, y)
+        for (criterion, y) in zip(criteria, profile)
+    ]
+
+
+def make_numeric_value(criterion, y):
+    if criterion.is_real:
+        return y.real_value
+    elif criterion.is_integer:
+        return y.integer_value
+    elif criterion.is_enumerated:
+        return criterion.get_value_rank(y.enumerated_value)
+    else:
+        assert False
 
 
 def normalize_profile(criteria, ys):
