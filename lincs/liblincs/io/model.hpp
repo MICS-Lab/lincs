@@ -12,16 +12,19 @@ namespace lincs {
 
 class AcceptedValues {
  public:
+  typedef std::variant<std::vector<float>, std::vector<int>, std::vector<std::string>> Thresholds;
+
+ public:
   static AcceptedValues make_real_thresholds(const std::vector<float>& thresholds) {
-    return AcceptedValues(Criterion::ValueType::real, thresholds, {}, {});
+    return AcceptedValues(thresholds);
   }
 
   static AcceptedValues make_integer_thresholds(const std::vector<int>& thresholds) {
-    return AcceptedValues(Criterion::ValueType::integer, {}, thresholds, {});
+    return AcceptedValues(thresholds);
   }
 
   static AcceptedValues make_enumerated_thresholds(const std::vector<std::string>& thresholds) {
-    return AcceptedValues(Criterion::ValueType::enumerated, {}, {}, thresholds);
+    return AcceptedValues(thresholds);
   }
 
   // Copyable and movable
@@ -31,56 +34,30 @@ class AcceptedValues {
   AcceptedValues& operator=(AcceptedValues&&) = default;
 
  private:
-  AcceptedValues(
-    Criterion::ValueType value_type_,
-    const std::vector<float>& real_thresholds_,
-    const std::vector<int>& int_thresholds_,
-    const std::vector<std::string>& enumerated_thresholds_
-  ) :
-    value_type(value_type_),
-    real_thresholds(real_thresholds_),
-    int_thresholds(int_thresholds_),
-    enumerated_thresholds(enumerated_thresholds_)
-  {}
+  AcceptedValues(const Thresholds& thresholds_) : thresholds(thresholds_) {}
 
  public:
   bool operator==(const AcceptedValues& other) const {
-    if (value_type != other.value_type) {
-      return false;
-    }
-    switch (value_type) {
-      case Criterion::ValueType::real:
-        return real_thresholds == other.real_thresholds;
-      case Criterion::ValueType::integer:
-        return int_thresholds == other.int_thresholds;
-      case Criterion::ValueType::enumerated:
-        return enumerated_thresholds == other.enumerated_thresholds;
-    }
-    unreachable();
+    return thresholds == other.thresholds;
   }
 
  public:
+  Thresholds get_thresholds() const { return thresholds; }
+
   std::vector<float> get_real_thresholds() const {
-    assert(value_type == Criterion::ValueType::real);
-    return real_thresholds;
+    return std::get<std::vector<float>>(thresholds);
   }
 
   std::vector<int> get_integer_thresholds() const {
-    assert(value_type == Criterion::ValueType::integer);
-    return int_thresholds;
+    return std::get<std::vector<int>>(thresholds);
   }
 
   std::vector<std::string> get_enumerated_thresholds() const {
-    assert(value_type == Criterion::ValueType::enumerated);
-    return enumerated_thresholds;
+    return std::get<std::vector<std::string>>(thresholds);
   }
 
  private:
-  Criterion::ValueType value_type;
-  // @todo(Project management, later) Use 'union' or equivalent to store only the relevant values
-  std::vector<float> real_thresholds;
-  std::vector<int> int_thresholds;
-  std::vector<std::string> enumerated_thresholds;
+  Thresholds  thresholds;
 };
 
 class SufficientCoalitions {
@@ -177,10 +154,9 @@ class SufficientCoalitions {
   std::vector<boost::dynamic_bitset<>> upset_roots;  // Indexed by [root_coalition_index][criterion_index] and true if the criterion is in the coalition
 };
 
-// @todo(Project management, soon) Use classes with accessors everywhere. It's possible to bypass constructors of structs with uniform initialization.
-struct Model {
-  Model(const Problem& problem_, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
-    problem(problem_),
+class Model {
+ public:
+  Model(const Problem& problem, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
     accepted_values(accepted_values_),
     sufficient_coalitions(sufficient_coalitions_)
   {
@@ -216,29 +192,28 @@ struct Model {
   // Copyable and movable
   Model(const Model&) = default;
   Model& operator=(const Model& other) {
-    assert(&problem == &other.problem);
     accepted_values = other.accepted_values;
     sufficient_coalitions = other.sufficient_coalitions;
     return *this;
   };
   Model(Model&&) = default;
   Model& operator=(Model&& other) {
-    assert(&problem == &other.problem);
     accepted_values = std::move(other.accepted_values);
     sufficient_coalitions = std::move(other.sufficient_coalitions);
     return *this;
   }
 
+ public:
   bool operator==(const Model& other) const {
-    assert(&problem == &other.problem);
     return accepted_values == other.accepted_values && sufficient_coalitions == other.sufficient_coalitions;
   }
 
+ public:
   static const std::string json_schema;
   void dump(const Problem&, std::ostream&) const;
   static Model load(const Problem&, std::istream&);
 
-  const Problem& problem;  // @todo(Project management, soon) Consider not storing the 'Problem' here
+ public:
   std::vector<AcceptedValues> accepted_values;
   std::vector<SufficientCoalitions> sufficient_coalitions;
 };

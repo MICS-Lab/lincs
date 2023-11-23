@@ -20,32 +20,23 @@ bool better_or_equal(
   const unsigned alternative_index,
   const unsigned criterion_index
 ) {
-  const Criterion& criterion = problem.criteria[criterion_index];
-  switch (criterion.get_value_type()) {
-    case Criterion::ValueType::real:
-      {
-        const float performance = alternatives.alternatives[alternative_index].profile[criterion_index].get_real_value();
-        const float threshold = model.accepted_values[criterion_index].get_real_thresholds()[boundary_index];
-        return better_or_equal(criterion.get_preference_direction(), performance, threshold);
-      }
-    case Criterion::ValueType::integer:
-      {
-        const int performance = alternatives.alternatives[alternative_index].profile[criterion_index].get_integer_value();
-        const int threshold = model.accepted_values[criterion_index].get_integer_thresholds()[boundary_index];
-        return better_or_equal(criterion.get_preference_direction(), performance, threshold);;
-      }
-    case Criterion::ValueType::enumerated:
-      {
-        std::map<std::string, unsigned> rank_by_value;  // @todo(Project management, NOW) Factorize this computation inside 'Criterion'
-        for (const auto& value : criterion.get_ordered_values()) {
-          rank_by_value[value] = rank_by_value.size();
-        }
-        const std::string performance_enum = alternatives.alternatives[alternative_index].profile[criterion_index].get_enumerated_value();
-        const std::string threshold_enum = model.accepted_values[criterion_index].get_enumerated_thresholds()[boundary_index];
-        return rank_by_value[performance_enum] >= rank_by_value[threshold_enum];
-      }
-  }
-  unreachable();
+  const auto& performance = alternatives.alternatives[alternative_index].profile[criterion_index];
+  const auto& accepted_values = model.accepted_values[criterion_index];
+  return dispatch(
+    problem.criteria[criterion_index].get_values(),
+    [&model, &performance, &accepted_values, boundary_index](const Criterion::RealValues& values) {
+      const float threshold = accepted_values.get_real_thresholds()[boundary_index];
+      return better_or_equal(values.preference_direction, performance.get_real_value(), threshold);
+    },
+    [&model, &performance, &accepted_values, boundary_index](const Criterion::IntegerValues& values) {
+      const int threshold = accepted_values.get_integer_thresholds()[boundary_index];
+      return better_or_equal(values.preference_direction, performance.get_integer_value(), threshold);;
+    },
+    [&model, &performance, &accepted_values, boundary_index](const Criterion::EnumeratedValues& values) {
+      const std::string threshold_enum = accepted_values.get_enumerated_thresholds()[boundary_index];
+      return values.value_ranks.at(performance.get_enumerated_value()) >= values.value_ranks.at(threshold_enum);
+    }
+  );
 }
 
 bool is_good_enough(

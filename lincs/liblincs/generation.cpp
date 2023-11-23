@@ -2,7 +2,6 @@
 
 #include "generation.hpp"
 
-#include <any>
 #include <algorithm>
 #include <cassert>
 #include <numeric>
@@ -118,56 +117,50 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
 
   std::mt19937 gen(random_seed);
 
-  std::vector<std::vector<std::any>> profiles(boundaries_count, std::vector<std::any>(criteria_count));
+  typedef std::variant<float, int, std::string> Performance;
+  std::vector<std::vector<Performance>> profiles(boundaries_count, std::vector<Performance>(criteria_count));
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const auto& criterion = problem.criteria[criterion_index];
-    switch (criterion.get_value_type()) {
-      case Criterion::ValueType::real:
-        {
-          // Profile can take any values. We arbitrarily generate them uniformly
-          std::uniform_real_distribution<float> values_distribution(criterion.get_real_min_value() + 0.01f, criterion.get_real_max_value() - 0.01f);
-          // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
-          // Profiles must be ordered on each criterion, so we generate a random column...
-          std::vector<float> column(boundaries_count);
-          std::generate(
-            column.begin(), column.end(),
-            [&values_distribution, &gen]() { return values_distribution(gen); });
-          // ... sort it according to the criterion's preference direction...
-          std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.get_preference_direction(), right, left); });
-          // ... and assign that column across all profiles.
-          for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
-            profiles[profile_index][criterion_index] = column[profile_index];
-          }
+    dispatch(
+      problem.criteria[criterion_index].get_values(),
+      [&gen, boundaries_count, &profiles, criterion_index](const Criterion::RealValues& values) {
+        // Profile can take any values. We arbitrarily generate them uniformly
+        std::uniform_real_distribution<float> values_distribution(values.min_value + 0.01f, values.max_value - 0.01f);
+        // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
+        // Profiles must be ordered on each criterion, so we generate a random column...
+        std::vector<float> column(boundaries_count);
+        std::generate(
+          column.begin(), column.end(),
+          [&values_distribution, &gen]() { return values_distribution(gen); });
+        // ... sort it according to the criterion's preference direction...
+        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.preference_direction, right, left); });
+        // ... and assign that column across all profiles.
+        for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
+          profiles[profile_index][criterion_index] = column[profile_index];
         }
-        break;
-      case Criterion::ValueType::integer:
-        {
-          std::uniform_int_distribution<int> values_distribution(criterion.get_integer_min_value(), criterion.get_integer_max_value());
-          std::vector<int> column(boundaries_count);
-          std::generate(
-            column.begin(), column.end(),
-            [&values_distribution, &gen]() { return values_distribution(gen); });
-          std::sort(column.begin(), column.end(), [&criterion](float left, float right) { return better_or_equal(criterion.get_preference_direction(), right, left); });
-          for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
-            profiles[profile_index][criterion_index] = column[profile_index];
-          }
+      },
+      [&gen, boundaries_count, &profiles, criterion_index](const Criterion::IntegerValues& values) {
+        std::uniform_int_distribution<int> values_distribution(values.min_value, values.max_value);
+        std::vector<int> column(boundaries_count);
+        std::generate(
+          column.begin(), column.end(),
+          [&values_distribution, &gen]() { return values_distribution(gen); });
+        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.preference_direction, right, left); });
+        for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
+          profiles[profile_index][criterion_index] = column[profile_index];
         }
-        break;
-      case Criterion::ValueType::enumerated:
-        {
-          const std::vector<std::string> values = criterion.get_ordered_values();
-          std::uniform_int_distribution<unsigned> values_distribution(0, values.size() - 1);
-          std::vector<unsigned> ranks(boundaries_count);
-          std::generate(
-            ranks.begin(), ranks.end(),
-            [&values_distribution, &gen]() { return values_distribution(gen); });
-          std::sort(ranks.begin(), ranks.end(), [&criterion](float left, float right) { return right >= left; });
-          for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
-            profiles[profile_index][criterion_index] = values[ranks[profile_index]];
-          }
+      },
+      [&gen, boundaries_count, &profiles, criterion_index](const Criterion::EnumeratedValues& values) {
+        std::uniform_int_distribution<unsigned> values_distribution(0, values.ordered_values.size() - 1);
+        std::vector<unsigned> ranks(boundaries_count);
+        std::generate(
+          ranks.begin(), ranks.end(),
+          [&values_distribution, &gen]() { return values_distribution(gen); });
+        std::sort(ranks.begin(), ranks.end(), [](float left, float right) { return right >= left; });
+        for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
+          profiles[profile_index][criterion_index] = values.ordered_values[ranks[profile_index]];
         }
-        break;
-    }
+      }
+    );
   }
 
   // Weights are a bit trickier.
@@ -199,39 +192,33 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
 
   std::vector<AcceptedValues> accepted_values;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const Criterion& criterion = problem.criteria[criterion_index];
-    switch (criterion.get_value_type()) {
-      case Criterion::ValueType::real:
-        {
+    accepted_values.push_back(dispatch(
+      problem.criteria[criterion_index].get_values(),
+      [boundaries_count, &profiles, criterion_index](const Criterion::RealValues&) {
           std::vector<float> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-            thresholds.push_back(std::any_cast<float>(profiles[boundary_index][criterion_index]));
+            thresholds.push_back(std::get<float>(profiles[boundary_index][criterion_index]));
           }
-          accepted_values.emplace_back(AcceptedValues::make_real_thresholds(thresholds));
-        }
-        break;
-      case Criterion::ValueType::integer:
-        {
+          return AcceptedValues::make_real_thresholds(thresholds);
+      },
+      [boundaries_count, &profiles, criterion_index](const Criterion::IntegerValues&) {
           std::vector<int> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-            thresholds.push_back(std::any_cast<int>(profiles[boundary_index][criterion_index]));
+            thresholds.push_back(std::get<int>(profiles[boundary_index][criterion_index]));
           }
-          accepted_values.emplace_back(AcceptedValues::make_integer_thresholds(thresholds));
-        }
-        break;
-      case Criterion::ValueType::enumerated:
-        {
+          return AcceptedValues::make_integer_thresholds(thresholds);
+      },
+      [boundaries_count, &profiles, criterion_index](const Criterion::EnumeratedValues&) {
           std::vector<std::string> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-            thresholds.push_back(std::any_cast<std::string>(profiles[boundary_index][criterion_index]));
+            thresholds.push_back(std::get<std::string>(profiles[boundary_index][criterion_index]));
           }
-          accepted_values.emplace_back(AcceptedValues::make_enumerated_thresholds(thresholds));
-        }
-        break;
-    }
+          return AcceptedValues::make_enumerated_thresholds(thresholds);
+      }
+    ));
   }
 
   std::vector<SufficientCoalitions> sufficient_coalitions;
@@ -349,35 +336,36 @@ Alternatives generate_uniform_classified_alternatives(
   std::map<unsigned, std::uniform_int_distribution<int>> int_values_distributions;
   std::map<unsigned, std::uniform_int_distribution<int>> enum_values_distributions;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const auto& criterion = problem.criteria[criterion_index];
-    switch (criterion.get_value_type()) {
-      case Criterion::ValueType::real:
-        real_values_distributions[criterion_index] = std::uniform_real_distribution<float>(criterion.get_real_min_value(), criterion.get_real_max_value());
-        break;
-      case Criterion::ValueType::integer:
-        int_values_distributions[criterion_index] = std::uniform_int_distribution<int>(criterion.get_integer_min_value(), criterion.get_integer_max_value());
-        break;
-      case Criterion::ValueType::enumerated:
-        enum_values_distributions[criterion_index] = std::uniform_int_distribution<int>(0, criterion.get_ordered_values().size() - 1);
-        break;
-    }
+    dispatch(
+      problem.criteria[criterion_index].get_values(),
+      [&real_values_distributions, criterion_index](const Criterion::RealValues& values) {
+        real_values_distributions[criterion_index] = std::uniform_real_distribution<float>(values.min_value, values.max_value);
+      },
+      [&int_values_distributions, criterion_index](const Criterion::IntegerValues& values) {
+        int_values_distributions[criterion_index] = std::uniform_int_distribution<int>(values.min_value, values.max_value);
+      },
+      [&enum_values_distributions, criterion_index](const Criterion::EnumeratedValues& values) {
+        enum_values_distributions[criterion_index] = std::uniform_int_distribution<int>(0, values.ordered_values.size() - 1);
+      }
+    );
   }
 
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     std::vector<Performance> profile;
     profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      switch (problem.criteria[criterion_index].get_value_type()) {
-        case Criterion::ValueType::real:
-          profile.emplace_back(Performance::make_real(real_values_distributions[criterion_index](gen)));
-          break;
-        case Criterion::ValueType::integer:
-          profile.emplace_back(Performance::make_integer(int_values_distributions[criterion_index](gen)));
-          break;
-        case Criterion::ValueType::enumerated:
-          profile.emplace_back(Performance::make_enumerated(problem.criteria[criterion_index].get_ordered_values()[enum_values_distributions[criterion_index](gen)]));
-          break;
-      }
+      profile.push_back(dispatch(
+        problem.criteria[criterion_index].get_values(),
+        [&real_values_distributions, &gen, criterion_index](const Criterion::RealValues& values) {
+          return Performance::make_real(real_values_distributions[criterion_index](gen));
+        },
+        [&int_values_distributions, &gen, criterion_index](const Criterion::IntegerValues& values) {
+          return Performance::make_integer(int_values_distributions[criterion_index](gen));
+        },
+        [&enum_values_distributions, &gen, criterion_index](const Criterion::EnumeratedValues& values) {
+          return Performance::make_enumerated(values.ordered_values[enum_values_distributions[criterion_index](gen)]);
+        }
+      ));
     }
 
     alternatives.push_back(Alternative{"", profile, std::nullopt});

@@ -17,9 +17,8 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
             for boundary_index in range(len(problem.ordered_categories) - 1):
                 boundary_profiles[boundary_index].append(acc_vals.integer_thresholds[boundary_index])
         elif criterion.is_enumerated:
-            ranks_by_value = {value: rank for rank, value in enumerate(criterion.ordered_values)}
             for boundary_index in range(len(problem.ordered_categories) - 1):
-                boundary_profiles[boundary_index].append(ranks_by_value[acc_vals.enumerated_thresholds[boundary_index]])
+                boundary_profiles[boundary_index].append(criterion.get_value_rank(acc_vals.enumerated_thresholds[boundary_index]))
         else:
             assert False
     ys = [
@@ -50,8 +49,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
                 elif criterion.is_integer:
                     profile.append(alternative.profile[criterion_index].integer_value)
                 elif criterion.is_enumerated:
-                    ranks_by_value = {value: rank for rank, value in enumerate(criterion.ordered_values)}
-                    profile.append(ranks_by_value[alternative.profile[criterion_index].enumerated_value])
+                    profile.append(criterion.get_value_rank(alternative.profile[criterion_index].enumerated_value))
                 else:
                     assert False
             ax.plot(
@@ -92,7 +90,7 @@ def normalize_value(criterion, y):
     else:
         assert False
 
-    if criterion.is_increasing:
+    if criterion.is_enumerated or criterion.is_increasing:
         return y
     else:
         return 1 - y

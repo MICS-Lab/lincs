@@ -113,6 +113,22 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(Criterion.PreferenceDirection.isotone, Criterion.PreferenceDirection.increasing)
         self.assertEqual(Criterion.PreferenceDirection.antitone, Criterion.PreferenceDirection.decreasing)
 
+    def test_integer_criterion(self):
+        criterion = Criterion.make_integer("Criterion name", Criterion.PreferenceDirection.increasing, 0, 20)
+        self.assertEqual(criterion.name, "Criterion name")
+        self.assertEqual(criterion.value_type, Criterion.ValueType.integer)
+        self.assertEqual(criterion.integer_min_value, 0)
+        self.assertEqual(criterion.integer_max_value, 20)
+
+    def test_enumerated_criterion(self):
+        criterion = Criterion.make_enumerated("Criterion name", ["a a", "b", "c"])
+        self.assertEqual(criterion.name, "Criterion name")
+        self.assertEqual(criterion.value_type, Criterion.ValueType.enumerated)
+        self.assertEqual(list(criterion.ordered_values), ["a a", "b", "c"])
+        self.assertEqual(criterion.get_value_rank("a a"), 0)
+        self.assertEqual(criterion.get_value_rank("b"), 1)
+        self.assertEqual(criterion.get_value_rank("c"), 2)
+
 
 class ModelTestCase(unittest.TestCase):
     def test_init_wrong_types(self):

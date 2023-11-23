@@ -8,7 +8,6 @@
 #include "../unreachable.hpp"
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
-#include "exception.hpp"
 #include "validation.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -149,22 +148,15 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
 
   out << YAML::Key << "accepted_values" << YAML::Value << YAML::BeginSeq;
   for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
-    const Criterion& criterion = problem.criteria[criterion_index];
-    const AcceptedValues& acc_vals = accepted_values[criterion_index];
     out << YAML::BeginMap;
     out << YAML::Key << "kind" << YAML::Value << "thresholds";
     out << YAML::Key << "thresholds" << YAML::Value << YAML::Flow;
-    switch (criterion.get_value_type()) {
-      case Criterion::ValueType::real:
-        out << acc_vals.get_real_thresholds();
-        break;
-      case Criterion::ValueType::integer:
-        out << acc_vals.get_integer_thresholds();
-        break;
-      case Criterion::ValueType::enumerated:
-        out << acc_vals.get_enumerated_thresholds();
-        break;
-    }
+    dispatch(
+      accepted_values[criterion_index].get_thresholds(),
+      [&out](const std::vector<float>& thresholds) { out << thresholds; },
+      [&out](const std::vector<int>& thresholds) { out << thresholds; },
+      [&out](const std::vector<std::string>& thresholds) { out << thresholds; }
+    );
     out << YAML::EndMap;
   }
   out << YAML::EndSeq;
@@ -242,36 +234,30 @@ Model Model::load(const Problem& problem, std::istream& is) {
     const Criterion& criterion = problem.criteria[criterion_index];
     const YAML::Node& yaml_acc_vals = yaml_accepted_values[criterion_index];
     assert(yaml_acc_vals["kind"].as<std::string>() == "thresholds");
+    const YAML::Node& thresholds = yaml_acc_vals["thresholds"];
 
-    switch (criterion.get_value_type()) {
-      case Criterion::ValueType::real:
-        {
-          const std::vector<float> thresholds = yaml_acc_vals["thresholds"].as<std::vector<float>>();
-          if (thresholds.size() != boundaries_count) {
-            throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-          }
-          accepted_values.push_back(AcceptedValues::make_real_thresholds(thresholds));
+    accepted_values.push_back(dispatch(
+      criterion.get_values(),
+      [&thresholds, boundaries_count](const Criterion::RealValues&) {
+        if (thresholds.size() != boundaries_count) {
+          // @todo(Project management, soon) Move all validation in constructors, using 'DataValidationException' instead of 'assert'
+          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
         }
-        break;
-      case Criterion::ValueType::integer:
-        {
-          const std::vector<int> thresholds = yaml_acc_vals["thresholds"].as<std::vector<int>>();
-          if (thresholds.size() != boundaries_count) {
-            throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-          }
-          accepted_values.push_back(AcceptedValues::make_integer_thresholds(thresholds));
+        return AcceptedValues::make_real_thresholds(thresholds.as<std::vector<float>>());
+      },
+      [&thresholds, boundaries_count](const Criterion::IntegerValues&) {
+        if (thresholds.size() != boundaries_count) {
+          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
         }
-        break;
-      case Criterion::ValueType::enumerated:
-        {
-          const std::vector<std::string> thresholds = yaml_acc_vals["thresholds"].as<std::vector<std::string>>();
-          if (thresholds.size() != boundaries_count) {
-            throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-          }
-          accepted_values.push_back(AcceptedValues::make_enumerated_thresholds(thresholds));
+        return AcceptedValues::make_integer_thresholds(thresholds.as<std::vector<int>>());
+      },
+      [&thresholds, boundaries_count](const Criterion::EnumeratedValues&) {
+        if (thresholds.size() != boundaries_count) {
+          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
         }
-        break;
-    }
+        return AcceptedValues::make_enumerated_thresholds(thresholds.as<std::vector<std::string>>());
+      }
+    ));
   }
 
   const YAML::Node& yaml_sufficient_coalitions = node["sufficient_coalitions"];

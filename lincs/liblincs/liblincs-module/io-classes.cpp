@@ -112,6 +112,7 @@ void define_problem_classes() {
     .add_property("integer_min_value", &lincs::Criterion::get_integer_min_value)
     .add_property("integer_max_value", &lincs::Criterion::get_integer_max_value)
     .add_property("ordered_values", &lincs::Criterion::get_ordered_values)
+    .def("get_value_rank", &lincs::Criterion::get_value_rank)
   ;
   criterion_class.attr("make_real") = &lincs::Criterion::make_real;
   criterion_class.attr("make_integer") = &lincs::Criterion::make_integer;
