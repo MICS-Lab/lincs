@@ -3,9 +3,7 @@
 import matplotlib.pyplot as plt
 
 
-def visualize_model(problem, model, alternatives, alternatives_count, out):
-    fig, ax = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
-
+def visualize_model(problem, model, alternatives, axes: plt.Axes):
     xs = [criterion.name for criterion in problem.criteria]
     boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
     for criterion_index, criterion in enumerate(problem.criteria):
@@ -29,7 +27,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     unstacked_ys = [ys[0]]
     for ys1, ys2 in zip(ys[1:], ys[:-1]):
         unstacked_ys.append([y1 - y2 for y1, y2 in zip(ys1, ys2)])
-    collections = ax.stackplot(
+    collections = axes.stackplot(
         xs, unstacked_ys,
         labels=[category.name for category in problem.ordered_categories],
         alpha=0.4,
@@ -37,7 +35,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     colors = [collection.get_facecolor() for collection in collections]
 
     if alternatives:
-        for alternative in alternatives.alternatives[:alternatives_count]:
+        for alternative in alternatives:
             if alternative.category_index is None:
                 color = "black"
             else:
@@ -52,7 +50,7 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
                     profile.append(criterion.get_value_rank(alternative.profile[criterion_index].enumerated_value))
                 else:
                     assert False
-            ax.plot(
+            axes.plot(
                 xs, normalize_profile(problem.criteria, profile),
                 "o--",
                 label=alternative.name,
@@ -60,18 +58,15 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
                 alpha=1,
             )
 
-    ax.legend()
-    ax.set_ylim(-0.05, 1.05)
-    ax.set_yticks([0, 1])
-    ax.set_yticklabels(["worst", "best"])
+    axes.legend()
+    axes.set_ylim(-0.05, 1.05)
+    axes.set_yticks([0, 1])
+    axes.set_yticklabels(["worst", "best"])
 
     for y in [0, 1]:
-        ax.axhline(y=y, color="black", alpha=0.2)
+        axes.axhline(y=y, color="black", alpha=0.2)
     for x in xs:
-        ax.axvline(x=x, color="black", alpha=0.2)
-
-    fig.savefig(out, format="png", dpi=100)
-    plt.close(fig)
+        axes.axvline(x=x, color="black", alpha=0.2)
 
 
 def normalize_profile(criteria, ys):
@@ -79,6 +74,7 @@ def normalize_profile(criteria, ys):
         normalize_value(criterion, y)
         for (criterion, y) in zip(criteria, ys)
     ]
+
 
 def normalize_value(criterion, y):
     if criterion.is_real:

@@ -10,6 +10,7 @@ import re
 import sys
 
 import click
+import matplotlib.pyplot as plt
 
 import lincs
 import lincs.visualization
@@ -515,9 +516,17 @@ def classification_model(
     with loading_guard():
         problem = lincs.Problem.load(problem)
         model = lincs.Model.load(problem, model)
-        if alternatives is not None:
-            alternatives = lincs.Alternatives.load(problem, alternatives)
-    lincs.visualization.visualize_model(problem, model, alternatives, alternatives_count, output)
+        if alternatives is None:
+            alternatives = []
+        else:
+            alternatives = lincs.Alternatives.load(problem, alternatives).alternatives
+            if alternatives_count is not None:
+                alternatives = alternatives[:alternatives_count]
+
+    figure, axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
+    lincs.visualization.visualize_model(problem, model, alternatives, axes)
+    figure.savefig(output, format="png", dpi=100)
+    plt.close(figure)
 
 
 @main.group(
