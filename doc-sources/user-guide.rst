@@ -75,7 +75,7 @@ the ``min_value`` and ``max_value`` keys describe the range of values the criter
 Categories
 ^^^^^^^^^^
 
-The fourth key in the problem file, ``categories``, is a list of the descriptions of the categories of the problem.
+The fourth key in the problem file, ``ordered_categories``, is a list of the descriptions of the categories of the problem.
 It must contain at least two elements because classification problems must have at least two categories.
 
 It must be sorted in increasing order: lower categories first and upper categories last.
