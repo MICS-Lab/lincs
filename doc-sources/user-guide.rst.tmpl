@@ -40,8 +40,10 @@ Each criterion has a ``name``.
 
 Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
+A criterion's ``value_type`` specifies the kind of values it can take: ``real``, ``integer`` or ``enumerated``.
 
-Then, the ``preference_direction`` key describe what makes "good values" for this criterion.
+For numerical criteria (*i.e* with ``real`` or ``integer`` ``value_type``),
+the ``preference_direction`` key describe what makes "good values" for this criterion.
 If it is ``increasing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
@@ -50,8 +52,10 @@ where intermediate numerical value correspond to upper categories, and extreme v
 We also expect this could evolve to support criteria with unknown preference direction,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.
 
-Finally, for criteria with numerical ``value_type`` (currently all of them),
-the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
+For ``enumerated`` criteria, the ``ordered_values`` key is a list of the values the criterion can take, each one as a string.
+The preference direction is implied in that case: the list must be sorted from the worst value to the best one.
+
+Finally, for numerical criteria, the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
 
 Categories
 ^^^^^^^^^^
@@ -214,10 +218,19 @@ Using its default settings, you just have to pass it the numbers of criteria and
     {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][0]["source"][0] }}
 
 The ``--help`` option on the command-line and our :ref:`reference documentation <ref-cli>` describe the options available to tweak the generated problem.
-Most notably:
 
-- ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
-- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``. By default, all criteria have ``increasing`` preference direction.
+A set of options selects the ``value_type`` of the criteria in the generated problem.
+By default, they are all ``real``.
+The ``--allow-integer-criteria`` and ``--allow-enumerated-criteria`` options let you generate problems with ``integer`` and ``enumerated`` criteria respectively.
+The ``--forbid-real-criteria``... forbids ``real`` criteria.
+The ``value_type`` of each criterion is chosen pseudo-randomly among the allowed ones.
+
+For numerical criteria, the ``--denormalized-min-max`` option generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion.
+By default, they are always set at 0 and 1.
+
+For numerical criteria, ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``.
+By default, all criteria have ``increasing`` preference direction.
+It can be used in conjunction with ``--forbid-increasing-criteria`` to generate problems with only ``decreasing`` criteria.
 
 Generating a model
 ------------------
