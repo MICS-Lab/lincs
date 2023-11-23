@@ -11,10 +11,32 @@ forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
 # @todo Test using named parameters when calling the API (e.g. Criterion(name="Criterion name", ...), Problem(criteria=[...], ...))
 
 class ProblemTestCase(unittest.TestCase):
-    def test_init_empty(self):
-        problem = Problem([], [])
-        self.assertEqual(len(problem.criteria), 0)
-        self.assertEqual(len(problem.ordered_categories), 0)
+    def test_init_simplest(self):
+        problem = Problem(
+            [Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
+        self.assertEqual(len(problem.criteria), 1)
+        self.assertEqual(problem.criteria[0].name, "Criterion name")
+        self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
+        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.increasing)
+        self.assertEqual(problem.criteria[0].real_min_value, 0)
+        self.assertEqual(problem.criteria[0].real_max_value, 1)
+        self.assertEqual(len(problem.ordered_categories), 2)
+        self.assertEqual(problem.ordered_categories[0].name, "Bad")
+        self.assertEqual(problem.ordered_categories[1].name, "Good")
+
+    # @todo(Feature, later) When we publish the Python API, enable this test
+    # def test_init_not_enough_categories(self):
+    #     with self.assertRaises(TypeError):
+    #         Problem([Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)], [])
+    #     with self.assertRaises(TypeError):
+    #         Problem([Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)], [Category("Single")])
+
+    # @todo(Feature, later) When we publish the Python API, enable this test
+    # def test_init_no_criterion(self):
+    #     with self.assertRaises(TypeError):
+    #         Problem([], [Category("Bad"), Category("Good")])
 
     def test_init_wrong_types(self):
         with self.assertRaises(TypeError):
@@ -28,78 +50,92 @@ class ProblemTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             Problem([], [], 0)
 
-    def test_init_one_criterion(self):
-        problem = Problem([Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)], [])
-        self.assertEqual(len(problem.criteria), 1)
-        self.assertEqual(problem.criteria[0].name, "Criterion name")
-        self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
-        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.increasing)
-
-    def test_assign_criterion_attributes(self):
-        # @todo(Feature, when there are more values in ValueType, later) Use other value in constructor
-        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 0, 1)], [])
-        self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
-        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.decreasing)
-        problem.criteria[0].name = "Criterion name"
-        problem.criteria[0].value_type = Criterion.ValueType.real
-        problem.criteria[0].preference_direction = Criterion.PreferenceDirection.increasing
-        self.assertEqual(problem.criteria[0].name, "Criterion name")
-        self.assertEqual(problem.criteria[0].value_type, Criterion.ValueType.real)
-        self.assertEqual(problem.criteria[0].preference_direction, Criterion.PreferenceDirection.increasing)
-
     def test_assign_criterion(self):
-        problem = Problem([Criterion("Wrong criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)], [])
-        problem.criteria[0] = Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)
+        problem = Problem(
+            [Criterion.make_real("Wrong criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
+        problem.criteria[0] = Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)
         self.assertEqual(problem.criteria[0].name, "Criterion name")
 
     def test_append_criterion(self):
-        problem = Problem([], [])
-        problem.criteria.append(Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1))
-        self.assertEqual(len(problem.criteria), 1)
+        problem = Problem(
+            [Criterion.make_real("First criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
+        problem.criteria.append(Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1))
+        self.assertEqual(len(problem.criteria), 2)
 
     def test_assign_criteria_slice(self):
-        problem = Problem([], [])
-        problem.criteria[:] = [Criterion("Criterion name", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1)]
+        problem = Problem(
+            [
+                Criterion.make_real("First criterion", Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion.make_real("Second criterion", Criterion.PreferenceDirection.increasing, 0, 1),
+            ],
+            [Category("Bad"), Category("Good")],
+        )
+        problem.criteria[:] = [Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)]
         self.assertEqual(len(problem.criteria), 1)
 
-    def test_init_one_category(self):
-        problem = Problem([], [Category("Category name")])
-        self.assertEqual(len(problem.ordered_categories), 1)
-        self.assertEqual(problem.ordered_categories[0].name, "Category name")
-
     def test_assign_category_attributes(self):
-        problem = Problem([], [Category("Wrong category")])
+        problem = Problem(
+            [Criterion.make_real("First criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Wrong category"), Category("Good")],
+        )
         problem.ordered_categories[0].name = "Category name"
         self.assertEqual(problem.ordered_categories[0].name, "Category name")
 
     def test_assign_category(self):
-        problem = Problem([], [Category("Wrong category")])
+        problem = Problem(
+            [Criterion.make_real("First criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Wrong category"), Category("Good")],
+        )
         problem.ordered_categories[0] = Category("Category name")
         self.assertEqual(problem.ordered_categories[0].name, "Category name")
 
     def test_append_category(self):
-        problem = Problem([], [])
+        problem = Problem(
+            [Criterion.make_real("First criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
         problem.ordered_categories.append(Category("Category name"))
-        self.assertEqual(len(problem.ordered_categories), 1)
+        self.assertEqual(len(problem.ordered_categories), 3)
 
     def test_assign_categories_slice(self):
-        problem = Problem([], [])
-        problem.ordered_categories[:] = [Category("Category name")]
-        self.assertEqual(len(problem.ordered_categories), 1)
+        problem = Problem(
+            [Criterion.make_real("First criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
+        problem.ordered_categories[:] = [Category("B"), Category("A")]
+        self.assertEqual(len(problem.ordered_categories), 2)
 
     def test_iso_antitone(self):
         self.assertEqual(Criterion.PreferenceDirection.isotone, Criterion.PreferenceDirection.increasing)
         self.assertEqual(Criterion.PreferenceDirection.antitone, Criterion.PreferenceDirection.decreasing)
 
+    def test_integer_criterion(self):
+        criterion = Criterion.make_integer("Criterion name", Criterion.PreferenceDirection.increasing, 0, 20)
+        self.assertEqual(criterion.name, "Criterion name")
+        self.assertEqual(criterion.value_type, Criterion.ValueType.integer)
+        self.assertEqual(criterion.integer_min_value, 0)
+        self.assertEqual(criterion.integer_max_value, 20)
+
+    def test_enumerated_criterion(self):
+        criterion = Criterion.make_enumerated("Criterion name", ["a a", "b", "c"])
+        self.assertEqual(criterion.name, "Criterion name")
+        self.assertEqual(criterion.value_type, Criterion.ValueType.enumerated)
+        self.assertEqual(list(criterion.ordered_values), ["a a", "b", "c"])
+        self.assertEqual(criterion.get_value_rank("a a"), 0)
+        self.assertEqual(criterion.get_value_rank("b"), 1)
+        self.assertEqual(criterion.get_value_rank("c"), 2)
+
 
 class ModelTestCase(unittest.TestCase):
-    def test_init_empty(self):
-        problem = Problem([], [])
-        model = Model(problem, [])
-        self.assertEqual(len(model.boundaries), 0)
-
     def test_init_wrong_types(self):
-        problem = Problem([], [])
+        problem = Problem(
+            [Criterion.make_real("Criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
         with self.assertRaises(TypeError):
             Model()
         with self.assertRaises(TypeError):
@@ -111,20 +147,33 @@ class ModelTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             Model(problem, [0])
 
-    def test_init_one_empty_boundary(self):
-        problem = Problem([], [])
-        model = Model(problem, [Model.Boundary([], SufficientCoalitions(SufficientCoalitions.weights, []))])
-        self.assertEqual(len(model.boundaries), 1)
-        self.assertEqual(len(model.boundaries[0].profile), 0)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.weights)
-        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
+    def test_init_simplest(self):
+        problem = Problem(
+            [Criterion.make_real("Criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
+        model = Model(
+            problem,
+            [AcceptedValues.make_real_thresholds([0.5])],
+            [SufficientCoalitions.make_weights([0.75])],
+        )
+        self.assertEqual(len(model.accepted_values), 1)
+        self.assertEqual(len(model.accepted_values[0].real_thresholds), 1)
+        self.assertEqual(model.accepted_values[0].real_thresholds[0], 0.5)
+        self.assertEqual(len(model.sufficient_coalitions), 1)
+        self.assertEqual(model.sufficient_coalitions[0].kind, SufficientCoalitions.Kind.weights)
+        self.assertTrue(model.sufficient_coalitions[0].is_weights)
+        self.assertFalse(model.sufficient_coalitions[0].is_roots)
+        self.assertEqual(len(model.sufficient_coalitions[0].criterion_weights), 1)
+        self.assertEqual(model.sufficient_coalitions[0].criterion_weights[0], 0.75)
 
-    def test_init_three_criteria_two_categories_weights_boundary(self):
+    # @todo(Feature, later) When we publish the Python API, test inconsistent sizes between accepted values and criteria
+    # @todo(Feature, later) When we publish the Python API, test inconsistent sizes between sufficient coalitions and categories
+
+    def test_init_roots(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion.make_real("Criterion", Criterion.PreferenceDirection.increasing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -132,68 +181,28 @@ class ModelTestCase(unittest.TestCase):
         )
         model = Model(
             problem,
-            [
-                Model.Boundary(
-                    [5., 5., 5],
-                    SufficientCoalitions(SufficientCoalitions.weights, [0.5, 0.25, 1])
-                ),
-            ],
+            [AcceptedValues.make_real_thresholds([0.5])],
+            [SufficientCoalitions.make_roots(3, [[0, 1], [0, 2]])],
         )
-        self.assertEqual(len(model.boundaries), 1)
-        self.assertEqual(len(model.boundaries[0].profile), 3)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.weights)
-        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 3)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.criterion_weights[0], 0.5)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.criterion_weights[1], 0.25)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.criterion_weights[2], 1)
-        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 0)
-
-    def test_init_three_criteria_two_categories_roots_boundary(self):
-        problem = Problem(
-            [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-            ], [
-                Category("Category 1"),
-                Category("Category 2"),
-            ],
-        )
-        model = Model(
-            problem,
-            [
-                Model.Boundary(
-                    [5., 5., 5],
-                    SufficientCoalitions(SufficientCoalitions.roots, 3, [[0, 1], [0, 2]])
-                ),
-            ],
-        )
-        self.assertEqual(len(model.boundaries), 1)
-        self.assertEqual(len(model.boundaries[0].profile), 3)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.kind, SufficientCoalitions.Kind.roots)
-        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.criterion_weights), 0)
-        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots), 2)
-        self.assertEqual(len(model.boundaries[0].sufficient_coalitions.upset_roots[0]), 2)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[0][0], 0)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[0][1], 1)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[1][0], 0)
-        self.assertEqual(model.boundaries[0].sufficient_coalitions.upset_roots[1][1], 2)
-
-    def test_assign_model_attributes(self):
-        problem = Problem([], [])
-        model = Model(problem, [])
-        model.boundaries = [Model.Boundary([], SufficientCoalitions(SufficientCoalitions.weights, []))]
-        self.assertEqual(len(model.boundaries), 1)
+        self.assertEqual(len(model.accepted_values), 1)
+        self.assertEqual(len(model.accepted_values[0].real_thresholds), 1)
+        self.assertEqual(model.accepted_values[0].real_thresholds[0], 0.5)
+        self.assertEqual(len(model.sufficient_coalitions), 1)
+        self.assertEqual(model.sufficient_coalitions[0].kind, SufficientCoalitions.Kind.roots)
+        self.assertFalse(model.sufficient_coalitions[0].is_weights)
+        self.assertTrue(model.sufficient_coalitions[0].is_roots)
+        self.assertEqual(model.sufficient_coalitions[0].upset_roots[0][0], 0)
+        self.assertEqual(model.sufficient_coalitions[0].upset_roots[0][1], 1)
+        self.assertEqual(model.sufficient_coalitions[0].upset_roots[1][0], 0)
+        self.assertEqual(model.sufficient_coalitions[0].upset_roots[1][1], 2)
 
 
 class AlternativesTestCase(unittest.TestCase):
-    def test_init_empty(self):
-        problem = Problem([], [])
-        alternatives = Alternatives(problem, [])
-        self.assertEqual(len(alternatives.alternatives), 0)
-
     def test_init_wrong_types(self):
-        problem = Problem([], [])
+        problem = Problem(
+            [Criterion.make_real("Criterion", Criterion.PreferenceDirection.increasing, 0, 1)],
+            [Category("Bad"), Category("Good")],
+        )
         with self.assertRaises(TypeError):
             Alternatives()
         with self.assertRaises(TypeError):
@@ -208,9 +217,9 @@ class AlternativesTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-                Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-                Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion.make_real("Criterion 1", Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion.make_real("Criterion 2", Criterion.PreferenceDirection.increasing, 0, 1),
+                Criterion.make_real("Criterion 3", Criterion.PreferenceDirection.increasing, 0, 1),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -219,23 +228,29 @@ class AlternativesTestCase(unittest.TestCase):
         alternatives = Alternatives(
             problem,
             [
-                Alternative("First alternative", [5., 5., 5], 0),
-                Alternative("Second alternative", [1., 2., 3.], None),
-                Alternative("Third alternative", [2., 4., 6.]),
+                Alternative("First alternative", [Performance.make_real(5.), Performance.make_real(5.), Performance.make_real(5)], 0),
+                Alternative("Second alternative", [Performance.make_real(1.), Performance.make_real(2.), Performance.make_real(3.)], None),
+                Alternative("Third alternative", [Performance.make_real(2.), Performance.make_real(4.), Performance.make_real(6.)]),
             ],
         )
         self.assertEqual(len(alternatives.alternatives), 3)
 
         self.assertEqual(alternatives.alternatives[0].name, "First alternative")
-        self.assertEqual(list(alternatives.alternatives[0].profile), [5., 5., 5.])
+        self.assertEqual(alternatives.alternatives[0].profile[0].real_value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[1].real_value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[2].real_value, 5.)
         self.assertEqual(alternatives.alternatives[0].category_index, 0)
 
         self.assertEqual(alternatives.alternatives[1].name, "Second alternative")
-        self.assertEqual(list(alternatives.alternatives[1].profile), [1., 2., 3.])
+        self.assertEqual(alternatives.alternatives[1].profile[0].real_value, 1.)
+        self.assertEqual(alternatives.alternatives[1].profile[1].real_value, 2.)
+        self.assertEqual(alternatives.alternatives[1].profile[2].real_value, 3.)
         self.assertIsNone(alternatives.alternatives[1].category_index)
 
         self.assertEqual(alternatives.alternatives[2].name, "Third alternative")
-        self.assertEqual(list(alternatives.alternatives[2].profile), [2., 4., 6.])
+        self.assertEqual(alternatives.alternatives[2].profile[0].real_value, 2.)
+        self.assertEqual(alternatives.alternatives[2].profile[1].real_value, 4.)
+        self.assertEqual(alternatives.alternatives[2].profile[2].real_value, 6.)
         self.assertIsNone(alternatives.alternatives[2].category_index)
 
 

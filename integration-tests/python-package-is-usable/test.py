@@ -7,8 +7,8 @@ import lincs
 
 problem = lincs.Problem(
     [
-        lincs.Criterion("Physics grade", lincs.Criterion.ValueType.real, lincs.Criterion.PreferenceDirection.increasing, 0, 1),
-        lincs.Criterion("Literature grade", lincs.Criterion.ValueType.real, lincs.Criterion.PreferenceDirection.increasing, 0, 1),
+        lincs.Criterion.make_real("Physics grade", lincs.Criterion.PreferenceDirection.increasing, 0, 1),
+        lincs.Criterion.make_real("Literature grade", lincs.Criterion.PreferenceDirection.increasing, 0, 1),
     ],
     (
         lincs.Category("Bad"),
@@ -19,10 +19,20 @@ problem.dump(sys.stdout)
 
 print()
 
-model = lincs.Model(problem, [lincs.Model.Boundary([10.,10.], lincs.SufficientCoalitions(lincs.SufficientCoalitions.weights, [0.4, 0.7]))])
+model = lincs.Model(
+    problem,
+    [lincs.AcceptedValues.make_real_thresholds([10.]), lincs.AcceptedValues.make_real_thresholds([10.])],
+    [lincs.SufficientCoalitions.make_weights([0.4, 0.7])],
+)
 model.dump(problem, sys.stdout)
 
 print()
 
-alternatives = lincs.Alternatives(problem, [lincs.Alternative("Alice", [11., 12.], 1), lincs.Alternative("Bob", [9., 11.], 0)])
+alternatives = lincs.Alternatives(
+    problem,
+    [
+        lincs.Alternative("Alice", [lincs.Performance.make_real(11.), lincs.Performance.make_real(12.)], 1),
+        lincs.Alternative("Bob", [lincs.Performance.make_real(9.), lincs.Performance.make_real(11.)], 0),
+    ],
+)
 alternatives.dump(problem, sys.stdout)

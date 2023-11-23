@@ -36,10 +36,13 @@ Here is an example of a problem file::
         min_value: 0
         max_value: 20
       - name: Criterion 2
-        value_type: real
+        value_type: integer
         preference_direction: decreasing
         min_value: -5
         max_value: 5
+      - name: Criterion 3
+        value_type: enumerated
+        ordered_values: [F, E, D, C, B, A]
     ordered_categories:
       - name: Low
       - name: Medium
@@ -59,8 +62,10 @@ Each criterion has a ``name``.
 
 Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
+A criterion's ``value_type`` specifies the kind of values it can take: ``real``, ``integer`` or ``enumerated``.
 
-Then, the ``preference_direction`` key describe what makes "good values" for this criterion.
+For numerical criteria (*i.e* with ``real`` or ``integer`` ``value_type``),
+the ``preference_direction`` key describe what makes "good values" for this criterion.
 If it is ``increasing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
@@ -69,8 +74,10 @@ where intermediate numerical value correspond to upper categories, and extreme v
 We also expect this could evolve to support criteria with unknown preference direction,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.
 
-Finally, for criteria with numerical ``value_type`` (currently all of them),
-the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
+For ``enumerated`` criteria, the ``ordered_values`` key is a list of the values the criterion can take, each one as a string.
+The preference direction is implied in that case: the list must be sorted from the worst value to the best one.
+
+Finally, for numerical criteria, the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
 
 Categories
 ^^^^^^^^^^
@@ -103,13 +110,15 @@ Here is an example of a model file corresponding to the problem file above::
     format_version: 1
     accepted_values:
       - kind: thresholds
-        thresholds: [7.49331188, 15.9249287]
+        thresholds: [6.09463787, 19.7704506]
       - kind: thresholds
-        thresholds: [4.49812794, -3.15932083]
+        thresholds: [2, 1]
+      - kind: thresholds
+        thresholds: [E, D]
     sufficient_coalitions:
       - &coalitions
         kind: weights
-        criterion_weights: [0.938825667, 0.343733728]
+        criterion_weights: [0.173891723, 1.97980487, 0.0961765796]
       - *coalitions
 
 
@@ -184,14 +193,16 @@ and using different coalitions for the two boundaries (so, no YAML anchor)::
       - kind: thresholds
         thresholds: [7.49331188, 15.9249287]
       - kind: thresholds
-        thresholds: [4.49812794, -3.15932083]
+        thresholds: [4, -3]
+      - kind: thresholds
+        thresholds: [D, B]
     sufficient_coalitions:
       - kind: roots
         upset_roots:
           - [1]
       - kind: roots
         upset_roots:
-          - [0, 1]
+          - [0, 2]
 
 
 "Alternatives" files
@@ -206,12 +217,12 @@ Like model files, alternatives files are always associated to a problem file.
 
 Here is an example corresponding to the problem above::
 
-    name,"Criterion 1","Criterion 2",category
-    "Alternative 1",10.8156891,4.39045048,Medium
-    "Alternative 2",0.25551182,-1.45864725,Low
-    "Alternative 3",18.4786396,4.31117153,Medium
-    "Alternative 4",18.0154629,1.33949804,Medium
-    "Alternative 5",9.30789757,2.66963387,Medium
+    name,"Criterion 1","Criterion 2","Criterion 3",category
+    "Alternative 1",10.8156891,4,A,Low
+    "Alternative 2",0.25551182,-1,D,High
+    "Alternative 3",18.4786396,4,B,Low
+    "Alternative 4",18.0154629,1,F,High
+    "Alternative 5",9.30789757,2,A,Medium
 
 
 Its header line contains the names of its columns.
@@ -221,12 +232,12 @@ Its last column, ``category``, contains the names of the categories in which eac
 
 Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
 
-    name,"Criterion 1","Criterion 2",category
-    "Alternative 1",10.8156891,4.39045048,
-    "Alternative 2",0.25551182,-1.45864725,
-    "Alternative 3",18.4786396,4.31117153,
-    "Alternative 4",18.0154629,1.33949804,
-    "Alternative 5",9.30789757,2.66963387,
+    name,"Criterion 1","Criterion 2","Criterion 3",category
+    "Alternative 1",10.8156891,4.39045048,A,
+    "Alternative 2",0.25551182,-1.45864725,D,
+    "Alternative 3",18.4786396,4.31117153,B,
+    "Alternative 4",18.0154629,1.33949804,F,
+    "Alternative 5",9.30789757,2.66963387,A,
 
 
 .. _user-comments-in-generated-files:
@@ -271,10 +282,19 @@ Using its default settings, you just have to pass it the numbers of criteria and
     lincs generate classification-problem 4 3
 
 The ``--help`` option on the command-line and our :ref:`reference documentation <ref-cli>` describe the options available to tweak the generated problem.
-Most notably:
 
-- ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
-- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``. By default, all criteria have ``increasing`` preference direction.
+A set of options selects the ``value_type`` of the criteria in the generated problem.
+By default, they are all ``real``.
+The ``--allow-integer-criteria`` and ``--allow-enumerated-criteria`` options let you generate problems with ``integer`` and ``enumerated`` criteria respectively.
+The ``--forbid-real-criteria``... forbids ``real`` criteria.
+The ``value_type`` of each criterion is chosen pseudo-randomly among the allowed ones.
+
+For numerical criteria, the ``--denormalized-min-max`` option generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion.
+By default, they are always set at 0 and 1.
+
+For numerical criteria, ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``.
+By default, all criteria have ``increasing`` preference direction.
+It can be used in conjunction with ``--forbid-increasing-criteria`` to generate problems with only ``decreasing`` criteria.
 
 Generating a model
 ------------------

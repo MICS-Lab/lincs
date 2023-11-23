@@ -8,7 +8,16 @@
 
 namespace lincs {
 
-bool better_or_equal(Criterion::PreferenceDirection preference_direction, float lhs, float rhs);
+template<typename T>
+bool better_or_equal(Criterion::PreferenceDirection preference_direction, const T lhs,const T rhs) {
+  switch (preference_direction) {
+    case Criterion::PreferenceDirection::increasing:
+      return lhs >= rhs;
+    case Criterion::PreferenceDirection::decreasing:
+      return lhs <= rhs;
+  }
+ unreachable();
+}
 
 struct ClassificationResult {
   unsigned unchanged;

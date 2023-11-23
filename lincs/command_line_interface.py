@@ -6,6 +6,7 @@ import json
 import math
 import os
 import random
+import re
 import sys
 
 import click
@@ -138,7 +139,7 @@ def help_all():
             return
 
         if node.__doc__:
-            print(node.__doc__)
+            print(re.sub(r"object at 0x............", "object at 0xxxxxxxxxxxxx", node.__doc__))
         print()
 
         if type(node) in [type(walk), type(lincs.Model.dump)]:
@@ -217,9 +218,29 @@ def generate():
     help="Generate criteria with random denormalized min and max values. (By default, min and max value are 0 and 1)",
 )
 @click.option(
+    "--forbid-increasing-criteria",
+    is_flag=True,
+    help="Forbid criteria to have increasing preference direction. (Requires '--allow-decreasing-criteria')",
+)
+@click.option(
     "--allow-decreasing-criteria",
     is_flag=True,
     help="Allow criteria to have decreasing preference direction. (By default, all criteria have increasing preference direction)",
+)
+@click.option(
+    "--forbid-real-criteria",
+    is_flag=True,
+    help="Forbid criteria with real values. (Requires another '--allow-...-criteria' option)",
+)
+@click.option(
+    "--allow-enumerated-criteria",
+    is_flag=True,
+    help="Allow criteria with enumerated values. (By default, all criteria are real)",
+)
+@click.option(
+    "--allow-integer-criteria",
+    is_flag=True,
+    help="Allow criteria with integer values. (By default, all criteria are real)",
 )
 @click.option(
     "--output-problem",
@@ -237,15 +258,46 @@ def classification_problem(
     criteria_count,
     categories_count,
     denormalized_min_max,
-    allow_decreasing_criteria,
+    forbid_increasing_criteria, allow_decreasing_criteria,
+    forbid_real_criteria, allow_enumerated_criteria, allow_integer_criteria,
     output_problem,
     random_seed
 ):
     command_line = ["lincs", "generate", "classification-problem", criteria_count, categories_count, "--random-seed", random_seed]
     if denormalized_min_max:
         command_line += ["--denormalized-min-max"]
+
+    allowed_preference_directions = []
+    if forbid_increasing_criteria:
+        command_line += ["--forbid-increasing-criteria"]
+    else:
+        allowed_preference_directions.append(lincs.Criterion.PreferenceDirection.increasing)
     if allow_decreasing_criteria:
         command_line += ["--allow-decreasing-criteria"]
+        allowed_preference_directions.append(lincs.Criterion.PreferenceDirection.decreasing)
+
+    allowed_value_types = []
+    if forbid_real_criteria:
+        command_line += ["--forbid-real-criteria"]
+    else:
+        allowed_value_types.append(lincs.Criterion.ValueType.real)
+    if allow_enumerated_criteria:
+        command_line += ["--allow-enumerated-criteria"]
+        allowed_value_types.append(lincs.Criterion.ValueType.enumerated)
+    if allow_integer_criteria:
+        command_line += ["--allow-integer-criteria"]
+        allowed_value_types.append(lincs.Criterion.ValueType.integer)
+
+    if not allowed_value_types:
+        print("ERROR: no allowed value type. '--forbid-real-criteria' requires at least one of '--allow-enumerated-criteria' or '--allow-integer-criteria'", file=sys.stderr)
+        print(make_reproduction_command(command_line), file=sys.stderr)
+        exit(1)
+
+    if not allowed_preference_directions:
+        print("ERROR: no allowed preference direction. '--forbid-increasing-criteria' requires '--allow-decreasing-criteria'", file=sys.stderr)
+        print(make_reproduction_command(command_line), file=sys.stderr)
+        exit(1)
+
     print(f"# {make_reproduction_command(command_line)}", file=output_problem, flush=True)
 
     problem = lincs.generate_classification_problem(
@@ -253,7 +305,8 @@ def classification_problem(
         categories_count,
         random_seed=random_seed,
         normalized_min_max=not denormalized_min_max,
-        allow_decreasing_criteria=allow_decreasing_criteria,
+        allowed_preference_directions=allowed_preference_directions,
+        allowed_value_types=allowed_value_types,
     )
     problem.dump(output_problem)
 

@@ -7,9 +7,23 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
     fig, ax = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
 
     xs = [criterion.name for criterion in problem.criteria]
+    boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
+    for criterion_index, criterion in enumerate(problem.criteria):
+        acc_vals = model.accepted_values[criterion_index]
+        if criterion.is_real:
+            for boundary_index in range(len(problem.ordered_categories) - 1):
+                boundary_profiles[boundary_index].append(acc_vals.real_thresholds[boundary_index])
+        elif criterion.is_integer:
+            for boundary_index in range(len(problem.ordered_categories) - 1):
+                boundary_profiles[boundary_index].append(acc_vals.integer_thresholds[boundary_index])
+        elif criterion.is_enumerated:
+            for boundary_index in range(len(problem.ordered_categories) - 1):
+                boundary_profiles[boundary_index].append(criterion.get_value_rank(acc_vals.enumerated_thresholds[boundary_index]))
+        else:
+            assert False
     ys = [
-        normalize_profile(problem.criteria, boundary.profile)
-        for boundary in model.boundaries
+        normalize_profile(problem.criteria, boundary_profile)
+        for boundary_profile in boundary_profiles
     ]
     ys.append([1] * len(xs))
     unstacked_ys = [ys[0]]
@@ -28,8 +42,18 @@ def visualize_model(problem, model, alternatives, alternatives_count, out):
                 color = "black"
             else:
                 color = colors[alternative.category_index]
+            profile = []
+            for criterion_index, criterion in enumerate(problem.criteria):
+                if criterion.is_real:
+                    profile.append(alternative.profile[criterion_index].real_value)
+                elif criterion.is_integer:
+                    profile.append(alternative.profile[criterion_index].integer_value)
+                elif criterion.is_enumerated:
+                    profile.append(criterion.get_value_rank(alternative.profile[criterion_index].enumerated_value))
+                else:
+                    assert False
             ax.plot(
-                xs, normalize_profile(problem.criteria, alternative.profile),
+                xs, normalize_profile(problem.criteria, profile),
                 "o--",
                 label=alternative.name,
                 color=color,
@@ -57,8 +81,16 @@ def normalize_profile(criteria, ys):
     ]
 
 def normalize_value(criterion, y):
-    y = (y - criterion.min_value) / (criterion.max_value - criterion.min_value)
-    if criterion.preference_direction == criterion.PreferenceDirection.decreasing:
-        return 1 - y
+    if criterion.is_real:
+        y = (y - criterion.real_min_value) / (criterion.real_max_value - criterion.real_min_value)
+    elif criterion.is_integer:
+        y = (y - criterion.integer_min_value) / (criterion.integer_max_value - criterion.integer_min_value)
+    elif criterion.is_enumerated:
+        y = y / (len(criterion.ordered_values) - 1)
     else:
+        assert False
+
+    if criterion.is_enumerated or criterion.is_increasing:
         return y
+    else:
+        return 1 - y

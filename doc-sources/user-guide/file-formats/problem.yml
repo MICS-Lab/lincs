@@ -7,10 +7,13 @@ criteria:
     min_value: 0
     max_value: 20
   - name: Criterion 2
-    value_type: real
+    value_type: integer
     preference_direction: decreasing
     min_value: -5
     max_value: 5
+  - name: Criterion 3
+    value_type: enumerated
+    ordered_values: [F, E, D, C, B, A]
 ordered_categories:
   - name: Low
   - name: Medium

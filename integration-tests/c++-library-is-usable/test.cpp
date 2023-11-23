@@ -8,8 +8,8 @@
 int main() {
   lincs::Problem problem{
     {
-      {"Physics grade", lincs::Criterion::ValueType::real, lincs::Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Literature grade", lincs::Criterion::ValueType::real, lincs::Criterion::PreferenceDirection::increasing, 0, 1},
+      lincs::Criterion::make_real("Physics grade", lincs::Criterion::PreferenceDirection::increasing, 0, 1),
+      lincs::Criterion::make_real("Literature grade", lincs::Criterion::PreferenceDirection::increasing, 0, 1),
     },
     {
       {"Bad"},
@@ -21,11 +21,24 @@ int main() {
 
   std::cout << "\n";
 
-  lincs::Model model{problem, {{{10.f, 10.f}, {lincs::SufficientCoalitions::weights, {0.4f, 0.7f}}}}};
+  lincs::Model model{
+    problem,
+    {
+      lincs::AcceptedValues::make_real_thresholds({10.f}),
+      lincs::AcceptedValues::make_real_thresholds({10.f}),
+    },
+    {lincs::SufficientCoalitions::make_weights({0.4f, 0.7f})},
+  };
   model.dump(problem, std::cout);
 
   std::cout << "\n";
 
-  lincs::Alternatives alternatives{problem, {{"Alice", {11.f, 12.f}, 1}, {"Bob", {9.f, 11.f}, 0}}};
+  lincs::Alternatives alternatives{
+    problem,
+    {
+      {"Alice", {lincs::Performance::make_real(11), lincs::Performance::make_real(12)}, 1},
+      {"Bob", {lincs::Performance::make_real(9), lincs::Performance::make_real(11)}, 0},
+    },
+  };
   alternatives.dump(problem, std::cout);
 }
