@@ -30,7 +30,7 @@ Contributors
 
 Its main authors are (alphabetical order):
 
-- `Khaled Belahcene <https://www.linkedin.com/in/khaled-belahcene-7047a133/>` (domain expertise)
+- `Khaled Belahcene <https://www.linkedin.com/in/khaled-belahcene-7047a133/>`_ (domain expertise)
 - `Laurent Cabaret <https://cabaretl.pages.centralesupelec.fr/>`_ (performance optimization)
 - `Vincent Jacques <https://vincent-jacques.net>`_ (engineering)
 - `Vincent Mousseau <https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D>`_ (domain expertise)
