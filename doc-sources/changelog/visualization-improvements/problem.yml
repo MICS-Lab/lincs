@@ -1,0 +1,20 @@
+kind: classification-problem
+format_version: 1
+criteria:
+  - name: Real criterion
+    value_type: real
+    preference_direction: increasing
+    min_value: 2.2910614
+    max_value: 99.6781082
+  - name: Integer criterion
+    value_type: integer
+    preference_direction: decreasing
+    min_value: -20
+    max_value: 20
+  - name: Enumerated criterion
+    value_type: enumerated
+    ordered_values: [worst, bad, medium, good, best]
+ordered_categories:
+  - name: Bad category
+  - name: Medium category
+  - name: Good category
