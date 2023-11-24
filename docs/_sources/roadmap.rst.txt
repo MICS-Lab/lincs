@@ -15,6 +15,7 @@ Version 1.1
 (planned 2024-02-28, for `ROADEF 2024 <https://roadef2024.sciencesconf.org/>`_)
 
 - Support discrete criteria (with enumerated or integer values)
+- Improve validation of input data (*e.g.* check consistency between problem, model, and alternatives)
 - Publish the Python API; provide the "Get started" guide as a `Jupyter <https://jupyter.org/>`_ notebook
 - Improve graphs produced by ``lincs visualize``; guide users to tweak graphs to their habits
 
@@ -23,6 +24,8 @@ Version 1.2
 
 (planned later in 2024)
 
+- Drop support for Python 3.7
+- Support Python 3.12
 - Support single-peaked criteria (where intermediate values are preferred to extreme values)
 - Explore the possibility of optimizing the WPB weights on the GPU
 

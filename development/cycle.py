@@ -227,6 +227,8 @@ def build_sphinx_documentation():
     env["LINCS_DEV_FORBID_GPU"] = "false"
     env["LINCS_DEV_FORBID_NVCC"] = "false"
     env["LINCS_DEV_FORCE_NVCC"] = "true"
+    for file_name in glob.glob("liblincs.cpython-*-x86_64-linux-gnu.so"):
+        os.unlink(file_name)
     shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("lincs.egg-info", ignore_errors=True)
     subprocess.run([f"python3", "-m", "pip", "install", "--user", "."], env=env, stdout=subprocess.DEVNULL, check=True)
