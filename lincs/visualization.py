@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 
 
 def visualize_model(problem, model, alternatives, axes: plt.Axes):
+    # @todo(Feature, v1.2) Visualize single-peaked criteria.
+    # See the possible solutions in e-mail "Visualisation des critères single-peaked" 2023-11-24
+
     criteria_count = len(problem.criteria)
     assert criteria_count >= 1
     categories_count = len(problem.ordered_categories)

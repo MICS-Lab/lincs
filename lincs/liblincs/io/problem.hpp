@@ -46,6 +46,8 @@ class Criterion {
   };
 
   struct EnumeratedValues {
+    // @todo(Feature, v1.2) Support single-peaked enumerated criteria
+
     std::vector<std::string> ordered_values;
     std::map<std::string, unsigned> value_ranks;
 
