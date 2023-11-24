@@ -162,7 +162,7 @@ You can visualize it using::
 
 It should output something like:
 
-.. image:: model.png
+.. image:: get-started/model.png
     :alt: Model visualization
     :align: center
 
@@ -217,7 +217,7 @@ You can visualize its first five alternatives using::
 
 It should output something like:
 
-.. image:: alternatives.png
+.. image:: get-started/alternatives.png
     :alt: Alternatives visualization
     :align: center
 

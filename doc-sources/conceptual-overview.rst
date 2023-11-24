@@ -152,7 +152,7 @@ You can check that the constraints of NCS models are satisfied:
 
 The profiles for this model look like this:
 
-.. image:: concept-example-model.png
+.. image:: conceptual-overview/concept-example-model.png
     :alt: Model visualization
     :align: center
 
