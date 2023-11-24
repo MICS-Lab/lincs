@@ -13,7 +13,16 @@
 
 namespace lincs {
 
-// @todo(Project management, later) Factorize common parts of all SAT approaches
+// @todo(Project management, v1.2) Factorize common parts of all SAT approaches (when we implement single-peaked criteria)
+// For example:
+// - 'decode' is almost identical between the 'by separation' approaches
+// - 'decode' is identical between the 'by coalitions' approaches
+// - 'add_structural_constraints' are identical between the 'by coalitions' approaches
+// - 'add_structural_constraints' are identical between the 'by separation' approaches
+// - 'add_structural_constraints' have a common part between all approaches
+// - 'add_learning_set_constraints' have a common part between the 'by separation' approaches
+// But:
+// - 'add_learning_set_constraints' are very similar, but fundamentally different between 'by coalitions' approaches
 
 template<typename V>
 std::vector<V> implies(V a, V b) {

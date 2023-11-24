@@ -21,8 +21,8 @@ class Criterion {
     isotone=increasing,
     decreasing,
     antitone=decreasing,
-    // @todo(Feature, later) Add single-peaked
-    // @todo(Feature, much later) Add unknown
+    // @todo(Feature, v1.2) Add single-peaked
+    // @todo(Feature, later) Add unknown
   };
 
   struct RealValues {
@@ -90,7 +90,7 @@ class Criterion {
     return name == other.name && values == other.values;
   }
 
-  // @todo(Project management, soon) Return const ref
+  // @todo(Project management, v1.1) Return const ref
   std::string get_name() const { return name; }
 
   ValueType get_value_type() const { return ValueType(values.index()); }

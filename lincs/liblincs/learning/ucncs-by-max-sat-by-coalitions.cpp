@@ -114,8 +114,8 @@ void MaxSatCoalitionsUcncsLearning<MaxSatProblem>::add_structural_constraints() 
 
   // Clauses "C3" in the article
   // Coalitions form an upset so if a coalition is sufficient, then all coalitions that include it are sufficient too
-  for (const Coalition& coalition_a : all_coalitions) {
-    for (const Coalition& coalition_b : all_coalitions) {
+  for (const auto& coalition_a : all_coalitions) {
+    for (const auto& coalition_b : all_coalitions) {
       if (coalition_a.is_proper_subset_of(coalition_b)) {
         sat.add_clause(implies(sufficient[coalition_a.to_ulong()], sufficient[coalition_b.to_ulong()]));
       }
@@ -196,11 +196,11 @@ template<typename MaxSatProblem>
 Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<bool>& solution) {
   CHRONE();
 
-  std::vector<boost::dynamic_bitset<>> roots;
-  for (const Coalition& coalition_a : all_coalitions) {
+  std::vector<Coalition> roots;
+  for (const auto& coalition_a : all_coalitions) {
     if (solution[sufficient[coalition_a.to_ulong()]]) {
       bool coalition_a_is_root = true;
-      for (const Coalition& coalition_b : all_coalitions) {
+      for (const auto& coalition_b : all_coalitions) {
         if (solution[sufficient[coalition_b.to_ulong()]]) {
           if (coalition_b.is_proper_subset_of(coalition_a)) {
             coalition_a_is_root = false;
@@ -222,7 +222,7 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
         if (solution[better[criterion_index][boundary_index][value_rank]]) {
-            profile_ranks[criterion_index] = value_rank;
+          profile_ranks[criterion_index] = value_rank;
           found = true;
           break;
         }

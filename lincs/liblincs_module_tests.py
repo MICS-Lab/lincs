@@ -169,8 +169,8 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.sufficient_coalitions[0].criterion_weights), 1)
         self.assertEqual(model.sufficient_coalitions[0].criterion_weights[0], 0.75)
 
-    # @todo(Feature, later) When we publish the Python API, test inconsistent sizes between accepted values and criteria
-    # @todo(Feature, later) When we publish the Python API, test inconsistent sizes between sufficient coalitions and categories
+    # @todo(Feature, v1.1) When we publish the Python API, test inconsistent sizes between accepted values and criteria
+    # @todo(Feature, v1.1) When we publish the Python API, test inconsistent sizes between sufficient coalitions and categories
 
     def test_init_roots(self):
         problem = Problem(

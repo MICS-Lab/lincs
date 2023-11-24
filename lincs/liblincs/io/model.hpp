@@ -185,7 +185,7 @@ class Model {
       }
     }
 
-    // @todo(Feature, later) Check the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
+    // @todo(Feature, v1.1) Check the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
     // The issue is: we're dealing with floating point data, so we need to analyse if precision loss could lead us to reject an actually correct model.
   }
 

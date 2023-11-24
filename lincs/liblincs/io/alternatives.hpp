@@ -65,7 +65,7 @@ class Alternative {
 
 class Alternatives {
  public:
-  // @todo(Project management, soon) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
+  // @todo(Project management, v1.1) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
   Alternatives(const Problem&, const std::vector<Alternative>& alternatives_) :
     alternatives(alternatives_)
   {}

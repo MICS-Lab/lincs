@@ -240,7 +240,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
       criterion.get_values(),
       [&thresholds, boundaries_count](const Criterion::RealValues&) {
         if (thresholds.size() != boundaries_count) {
-          // @todo(Project management, soon) Move all validation in constructors, using 'DataValidationException' instead of 'assert'
+          // @todo(Feature, v1.1) Move all validation in constructors, using 'DataValidationException' instead of 'assert'
           throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
         }
         return AcceptedValues::make_real_thresholds(thresholds.as<std::vector<float>>());
