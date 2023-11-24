@@ -99,6 +99,7 @@ def update_changelog(new_version):
         f.write("\n".join(lines) + "\n")
 
     input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
+    input("Please edit 'doc-sources/roadmap.rst' then press enter to proceed, Ctrl+C to cancel.")
 
 
 def publish(new_version):
