@@ -8,7 +8,9 @@ from . import *
 
 forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
 
-# @todo Test using named parameters when calling the API (e.g. Criterion(name="Criterion name", ...), Problem(criteria=[...], ...))
+# @todo(Feature, v1.1) Test using named parameters when calling the API (e.g. Criterion(name="Criterion name", ...), Problem(criteria=[...], ...))
+
+# @todo(Feature, v1.1) Add tests showing the 'bad_variant_access' exception when using the wrong getters on std::variant-based types
 
 class ProblemTestCase(unittest.TestCase):
     def test_init_simplest(self):
@@ -26,16 +28,16 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.ordered_categories[0].name, "Bad")
         self.assertEqual(problem.ordered_categories[1].name, "Good")
 
-    # @todo(Feature, later) When we publish the Python API, enable this test
+    # @todo(Feature, v1.1) Enable this test
     # def test_init_not_enough_categories(self):
-    #     with self.assertRaises(TypeError):
+    #     with self.assertRaises(lincs.DataValidationError):
     #         Problem([Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)], [])
-    #     with self.assertRaises(TypeError):
+    #     with self.assertRaises(lincs.DataValidationError):
     #         Problem([Criterion.make_real("Criterion name", Criterion.PreferenceDirection.increasing, 0, 1)], [Category("Single")])
 
-    # @todo(Feature, later) When we publish the Python API, enable this test
+    # @todo(Feature, v1.1) Enable this test
     # def test_init_no_criterion(self):
-    #     with self.assertRaises(TypeError):
+    #     with self.assertRaises(lincs.DataValidationError):
     #         Problem([], [Category("Bad"), Category("Good")])
 
     def test_init_wrong_types(self):
