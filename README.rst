@@ -20,7 +20,7 @@ and its `source code <https://github.com/mics-lab/lincs/>`_ are on GitHub.
 Questions? Remarks? Bugs? Want to contribute? Open `an issue <https://github.com/MICS-Lab/lincs/issues>`_ or `a discussion <https://github.com/MICS-Lab/lincs/discussions>`_!
 You should probably take a look at `our roadmap <https://mics-lab.github.io/lincs/roadmap.html>`_ first.
 
-@todo(Project management, when we publish a paper, later) Add a note asking academics to kindly cite our work.
+@todo(Project management, v1.1) Add a note asking academics to kindly cite our ROADEF 2024 paper.
 
 
 Contributors
