@@ -198,6 +198,42 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(model.sufficient_coalitions[0].upset_roots[1][0], 0)
         self.assertEqual(model.sufficient_coalitions[0].upset_roots[1][1], 2)
 
+    def test_init_integer(self):
+        problem = Problem(
+            [
+                Criterion.make_integer("Criterion", Criterion.PreferenceDirection.increasing, 0, 10),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+        model = Model(
+            problem,
+            [AcceptedValues.make_integer_thresholds([5])],
+            [SufficientCoalitions.make_weights([0.75])],
+        )
+        self.assertEqual(len(model.accepted_values), 1)
+        self.assertEqual(len(model.accepted_values[0].integer_thresholds), 1)
+        self.assertEqual(model.accepted_values[0].integer_thresholds[0], 5)
+
+    def test_init_enumerated(self):
+        problem = Problem(
+            [
+                Criterion.make_enumerated("Criterion", ["low", "mid", "high"]),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+        model = Model(
+            problem,
+            [AcceptedValues.make_enumerated_thresholds(["mid"])],
+            [SufficientCoalitions.make_weights([0.75])],
+        )
+        self.assertEqual(len(model.accepted_values), 1)
+        self.assertEqual(len(model.accepted_values[0].enumerated_thresholds), 1)
+        self.assertEqual(model.accepted_values[0].enumerated_thresholds[0], "mid")
+
 
 class AlternativesTestCase(unittest.TestCase):
     def test_init_wrong_types(self):

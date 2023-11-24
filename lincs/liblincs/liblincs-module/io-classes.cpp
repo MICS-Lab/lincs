@@ -156,6 +156,8 @@ void define_model_classes() {
     .add_property("enumerated_thresholds", &lincs::AcceptedValues::get_enumerated_thresholds)
   ;
   accepted_values_class.attr("make_real_thresholds") = &lincs::AcceptedValues::make_real_thresholds;
+  accepted_values_class.attr("make_integer_thresholds") = &lincs::AcceptedValues::make_integer_thresholds;
+  accepted_values_class.attr("make_enumerated_thresholds") = &lincs::AcceptedValues::make_enumerated_thresholds;
 
   auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
     .add_property("kind", &lincs::SufficientCoalitions::get_kind)
