@@ -282,13 +282,13 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     }
   }
 
-  std::vector<PreProcessedModel::Boundary> boundaries;
+  std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     boundaries.emplace_back(profile_ranks[boundary_index], SufficientCoalitions::make_roots_from_bitsets(roots));
   }
 
-  return learning_set.post_process(PreProcessedModel{boundaries});
+  return learning_set.post_process(boundaries);
 }
 
 template class MaxSatSeparationUcncsLearning<EvalmaxsatMaxSatProblem>;

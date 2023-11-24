@@ -208,7 +208,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     }
   }
 
-  std::vector<PreProcessedModel::Boundary> boundaries;
+  std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     std::vector<unsigned> profile_ranks(learning_set.criteria_count);
@@ -234,7 +234,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     boundaries.emplace_back(profile_ranks, SufficientCoalitions::make_roots_from_bitsets(roots));
   }
 
-  return learning_set.post_process(PreProcessedModel{boundaries});
+  return learning_set.post_process(boundaries);
 }
 
 template class SatCoalitionsUcncsLearning<MinisatSatProblem>;

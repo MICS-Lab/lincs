@@ -12,18 +12,14 @@
 
 namespace lincs {
 
-struct PreProcessedModel {
-  struct Boundary {
-    std::vector<unsigned> profile_ranks;
-    SufficientCoalitions sufficient_coalitions;
+struct PreProcessedBoundary {
+  std::vector<unsigned> profile_ranks;
+  SufficientCoalitions sufficient_coalitions;
 
-    Boundary(const std::vector<unsigned>& profile_ranks_, const SufficientCoalitions& sufficient_coalitions_) :
-      profile_ranks(profile_ranks_),
-      sufficient_coalitions(sufficient_coalitions_)
-    {}
-  };
-
-  std::vector<Boundary> boundaries;
+  PreProcessedBoundary(const std::vector<unsigned>& profile_ranks_, const SufficientCoalitions& sufficient_coalitions_) :
+    profile_ranks(profile_ranks_),
+    sufficient_coalitions(sufficient_coalitions_)
+  {}
 };
 
 class PreProcessedLearningSet {
@@ -40,7 +36,7 @@ class PreProcessedLearningSet {
 
  public:
   // @todo(Project management, soon) Remove 'do_halves'; homogenize behavior
-  Model post_process(const PreProcessedModel&, bool do_halves=true) const;
+  Model post_process(const std::vector<PreProcessedBoundary>&, bool do_halves=true) const;
 
  private:
   const Problem& problem;

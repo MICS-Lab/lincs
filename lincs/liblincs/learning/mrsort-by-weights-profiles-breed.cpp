@@ -48,7 +48,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   }
   SufficientCoalitions coalitions = SufficientCoalitions::make_weights(model_weights);
 
-  std::vector<PreProcessedModel::Boundary> boundaries;
+  std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<unsigned> boundary_profile;
@@ -60,7 +60,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     boundaries.emplace_back(boundary_profile, coalitions);
   }
 
-  return post_process(PreProcessedModel{boundaries}, false);
+  return post_process(boundaries, false);
 }
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {

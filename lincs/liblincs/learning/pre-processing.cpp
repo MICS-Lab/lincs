@@ -108,18 +108,18 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   }
 }
 
-Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, const bool do_halves) const {
-  assert(model.boundaries.size() == boundaries_count);
+Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBoundary>& boundaries, const bool do_halves) const {
+  assert(boundaries.size() == boundaries_count);
 
   std::vector<AcceptedValues> accepted_values;
   accepted_values.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     accepted_values.push_back(dispatch(
       problem.criteria[criterion_index].get_values(),
-      [this, &model, criterion_index, do_halves](const Criterion::RealValues&) {
+      [this, &boundaries, criterion_index, do_halves](const Criterion::RealValues&) {
         std::vector<float> thresholds;
         thresholds.reserve(boundaries_count);
-        for (const auto& boundary: model.boundaries) {
+        for (const auto& boundary: boundaries) {
           const unsigned rank = boundary.profile_ranks[criterion_index];
           if (rank == 0) {
             thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
@@ -134,10 +134,10 @@ Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, cons
         }
         return AcceptedValues::make_real_thresholds(thresholds);
       },
-      [this, &model, criterion_index](const Criterion::IntegerValues&) {
+      [this, &boundaries, criterion_index](const Criterion::IntegerValues&) {
         std::vector<int> thresholds;
         thresholds.reserve(boundaries_count);
-        for (const auto& boundary: model.boundaries) {
+        for (const auto& boundary: boundaries) {
           const unsigned rank = boundary.profile_ranks[criterion_index];
           if (rank == 0) {
             thresholds.push_back(integer_sorted_values.at(criterion_index)[rank]);
@@ -150,10 +150,10 @@ Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, cons
         }
         return AcceptedValues::make_integer_thresholds(thresholds);
       },
-      [this, &model, criterion_index](const Criterion::EnumeratedValues& values) {
+      [this, &boundaries, criterion_index](const Criterion::EnumeratedValues& values) {
         std::vector<std::string> thresholds;
         thresholds.reserve(boundaries_count);
-        for (const auto& boundary: model.boundaries) {
+        for (const auto& boundary: boundaries) {
           const unsigned rank = boundary.profile_ranks[criterion_index];
           if (rank == 0) {
             thresholds.push_back(values.ordered_values[rank]);
@@ -170,7 +170,7 @@ Model PreProcessedLearningSet::post_process(const PreProcessedModel& model, cons
 
   std::vector<SufficientCoalitions> sufficient_coalitions;
   sufficient_coalitions.reserve(boundaries_count);
-  for (const auto& boundary: model.boundaries) {
+  for (const auto& boundary: boundaries) {
     sufficient_coalitions.emplace_back(boundary.sufficient_coalitions);
   }
 
