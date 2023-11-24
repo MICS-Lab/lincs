@@ -99,31 +99,62 @@ namespace lincs {
 
 void define_problem_classes() {
   auto criterion_class = bp::class_<lincs::Criterion>("Criterion", bp::no_init)
-    .add_property("name", &lincs::Criterion::get_name)
+    .def(bp::init<std::string, lincs::Criterion::RealValues>())
+    .def(bp::init<std::string, lincs::Criterion::IntegerValues>())
+    .def(bp::init<std::string, lincs::Criterion::EnumeratedValues>())
+    .add_property("name", bp::make_function(&lincs::Criterion::get_name, bp::return_value_policy<bp::return_by_value>()))
     .add_property("value_type", &lincs::Criterion::get_value_type)
     .add_property("is_real", &lincs::Criterion::is_real)
     .add_property("is_integer", &lincs::Criterion::is_integer)
     .add_property("is_enumerated", &lincs::Criterion::is_enumerated)
-    .add_property("preference_direction", &lincs::Criterion::get_preference_direction)
-    .add_property("is_increasing", &lincs::Criterion::is_increasing)
-    .add_property("is_decreasing", &lincs::Criterion::is_decreasing)
-    .add_property("real_min_value", &lincs::Criterion::get_real_min_value)
-    .add_property("real_max_value", &lincs::Criterion::get_real_max_value)
-    .add_property("integer_min_value", &lincs::Criterion::get_integer_min_value)
-    .add_property("integer_max_value", &lincs::Criterion::get_integer_max_value)
-    .add_property("ordered_values", &lincs::Criterion::get_ordered_values)
-    .def("get_value_rank", &lincs::Criterion::get_value_rank)
+    .add_property("real_values", bp::make_function(&lincs::Criterion::get_real_values, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("integer_values", bp::make_function(&lincs::Criterion::get_integer_values, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("enumerated_values", bp::make_function(&lincs::Criterion::get_enumerated_values, bp::return_value_policy<bp::return_by_value>()))
+    .def(bp::self == bp::self)
   ;
-  criterion_class.attr("make_real") = &lincs::Criterion::make_real;
-  criterion_class.attr("make_integer") = &lincs::Criterion::make_integer;
-  criterion_class.attr("make_enumerated") = &lincs::Criterion::make_enumerated;
 
+  // @todo(Project management, later) Find a way to avoid attributes (like "ValueType" below) to also be present at top-level in liblincs.
+  // (Not a big issue though, as liblincs is carefully partially imported by '__init__.py', but this would allow 'from liblincs import *' instead.)
   criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType");
 
   auto preference_direction_enum = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection");
   preference_direction_enum.value("isotone", lincs::Criterion::PreferenceDirection::isotone);
   preference_direction_enum.value("antitone", lincs::Criterion::PreferenceDirection::antitone);
   criterion_class.attr("PreferenceDirection") = preference_direction_enum;
+
+  criterion_class.attr("RealValues") = bp::class_<lincs::Criterion::RealValues>(
+    "RealValues",
+    bp::init<lincs::Criterion::PreferenceDirection, float, float>(
+      (bp::arg("preference_direction"), "min_value", "max_value")
+    )
+  )
+    .add_property("preference_direction", &lincs::Criterion::RealValues::get_preference_direction)
+    .add_property("is_increasing", &lincs::Criterion::RealValues::is_increasing)
+    .add_property("is_decreasing", &lincs::Criterion::RealValues::is_decreasing)
+    .add_property("min_value", &lincs::Criterion::RealValues::get_min_value)
+    .add_property("max_value", &lincs::Criterion::RealValues::get_max_value)
+  ;
+  criterion_class.attr("IntegerValues") = bp::class_<lincs::Criterion::IntegerValues>(
+    "IntegerValues",
+    bp::init<lincs::Criterion::PreferenceDirection, int, int>(
+      (bp::arg("preference_direction"), "min_value", "max_value")
+    )
+  )
+    .add_property("preference_direction", &lincs::Criterion::IntegerValues::get_preference_direction)
+    .add_property("is_increasing", &lincs::Criterion::IntegerValues::is_increasing)
+    .add_property("is_decreasing", &lincs::Criterion::IntegerValues::is_decreasing)
+    .add_property("min_value", &lincs::Criterion::IntegerValues::get_min_value)
+    .add_property("max_value", &lincs::Criterion::IntegerValues::get_max_value)
+  ;
+  criterion_class.attr("EnumeratedValues") = bp::class_<lincs::Criterion::EnumeratedValues>(
+    "EnumeratedValues",
+    bp::init<std::vector<std::string>>(
+      (bp::arg("ordered_values"))
+    )
+  )
+    .add_property("ordered_values", bp::make_function(&lincs::Criterion::EnumeratedValues::get_ordered_values, bp::return_value_policy<bp::return_by_value>()))
+    .def("get_value_rank", &lincs::Criterion::EnumeratedValues::get_value_rank)
+  ;
 
   bp::class_<lincs::Category>("Category", bp::init<std::string>())
     .def_readwrite("name", &lincs::Category::name)
@@ -151,28 +182,72 @@ void define_problem_classes() {
 
 void define_model_classes() {
   auto accepted_values_class = bp::class_<lincs::AcceptedValues>("AcceptedValues", bp::no_init)
-    .add_property("real_thresholds", &lincs::AcceptedValues::get_real_thresholds)
-    .add_property("integer_thresholds", &lincs::AcceptedValues::get_integer_thresholds)
-    .add_property("enumerated_thresholds", &lincs::AcceptedValues::get_enumerated_thresholds)
+    .def(bp::init<lincs::AcceptedValues::RealThresholds>())
+    .def(bp::init<lincs::AcceptedValues::IntegerThresholds>())
+    .def(bp::init<lincs::AcceptedValues::EnumeratedThresholds>())
+    .add_property("value_type", &lincs::AcceptedValues::get_value_type)
+    .add_property("is_real", &lincs::AcceptedValues::is_real)
+    .add_property("is_integer", &lincs::AcceptedValues::is_integer)
+    .add_property("is_enumerated", &lincs::AcceptedValues::is_enumerated)
+    .add_property("kind", &lincs::AcceptedValues::get_kind)
+    .add_property("is_thresholds", &lincs::AcceptedValues::is_thresholds)
+    .add_property("real_thresholds", bp::make_function(&lincs::AcceptedValues::get_real_thresholds, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("integer_thresholds", bp::make_function(&lincs::AcceptedValues::get_integer_thresholds, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("enumerated_thresholds", bp::make_function(&lincs::AcceptedValues::get_enumerated_thresholds, bp::return_value_policy<bp::return_by_value>()))
   ;
-  accepted_values_class.attr("make_real_thresholds") = &lincs::AcceptedValues::make_real_thresholds;
-  accepted_values_class.attr("make_integer_thresholds") = &lincs::AcceptedValues::make_integer_thresholds;
-  accepted_values_class.attr("make_enumerated_thresholds") = &lincs::AcceptedValues::make_enumerated_thresholds;
+
+  accepted_values_class.attr("Kind") = auto_enum<lincs::AcceptedValues::Kind>("Kind");
+
+  accepted_values_class.attr("RealThresholds") = bp::class_<lincs::AcceptedValues::RealThresholds>(
+    "RealThresholds",
+    bp::init<const std::vector<float>&>((bp::arg("thresholds")))
+  )
+    .add_property("thresholds", bp::make_function(&lincs::AcceptedValues::RealThresholds::get_thresholds, bp::return_value_policy<bp::return_by_value>()))
+  ;
+
+  accepted_values_class.attr("IntegerThresholds") = bp::class_<lincs::AcceptedValues::IntegerThresholds>(
+    "IntegerThresholds",
+    bp::init<const std::vector<int>&>((bp::arg("thresholds")))
+  )
+    .add_property("thresholds", bp::make_function(&lincs::AcceptedValues::IntegerThresholds::get_thresholds, bp::return_value_policy<bp::return_by_value>()))
+  ;
+
+  accepted_values_class.attr("EnumeratedThresholds") = bp::class_<lincs::AcceptedValues::EnumeratedThresholds>(
+    "EnumeratedThresholds",
+    bp::init<const std::vector<std::string>&>((bp::arg("thresholds")))
+  )
+    .add_property("thresholds", bp::make_function(&lincs::AcceptedValues::EnumeratedThresholds::get_thresholds, bp::return_value_policy<bp::return_by_value>()))
+  ;
 
   auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
+    .def(bp::init<lincs::SufficientCoalitions::Weights>())
+    .def(bp::init<lincs::SufficientCoalitions::Roots>())
     .add_property("kind", &lincs::SufficientCoalitions::get_kind)
     .add_property("is_weights", &lincs::SufficientCoalitions::is_weights)
     .add_property("is_roots", &lincs::SufficientCoalitions::is_roots)
-    .add_property("criterion_weights", &lincs::SufficientCoalitions::get_criterion_weights)
-    .add_property("upset_roots", &lincs::SufficientCoalitions::get_upset_roots_as_vectors)
+    .add_property("weights", bp::make_function(&lincs::SufficientCoalitions::get_weights, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("roots", bp::make_function(&lincs::SufficientCoalitions::get_roots, bp::return_value_policy<bp::return_by_value>()))
     .def(bp::self == bp::self)
   ;
-  sufficient_coalitions_class.attr("make_weights") = &lincs::SufficientCoalitions::make_weights;
-  sufficient_coalitions_class.attr("make_roots") = &lincs::SufficientCoalitions::make_roots_from_vectors;
 
   sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>("Kind");
 
+  sufficient_coalitions_class.attr("Weights") = bp::class_<lincs::SufficientCoalitions::Weights>(
+    "Weights",
+    bp::init<const std::vector<float>&>((bp::arg("criterion_weights")))
+  )
+    .add_property("criterion_weights", bp::make_function(&lincs::SufficientCoalitions::Weights::get_criterion_weights, bp::return_value_policy<bp::return_by_value>()))
+  ;
+
+  sufficient_coalitions_class.attr("Roots") = bp::class_<lincs::SufficientCoalitions::Roots>(
+    "Roots",
+    bp::init<unsigned, const std::vector<std::vector<unsigned>>&>((bp::arg("criteria_count"), "upset_roots"))
+  )
+    .add_property("upset_roots", bp::make_function(&lincs::SufficientCoalitions::Roots::get_upset_roots_as_vectors, bp::return_value_policy<bp::return_by_value>()))
+  ;
+
   auto model_class = bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>())
+    // @todo(Feature, v1.1) Avoid def_readwrite: make all objects immutable?
     .def_readwrite("accepted_values", &lincs::Model::accepted_values)
     .def_readwrite("sufficient_coalitions", &lincs::Model::sufficient_coalitions)
     .def(

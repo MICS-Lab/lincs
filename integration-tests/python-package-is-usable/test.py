@@ -7,8 +7,8 @@ import lincs
 
 problem = lincs.Problem(
     [
-        lincs.Criterion.make_real("Physics grade", lincs.Criterion.PreferenceDirection.increasing, 0, 1),
-        lincs.Criterion.make_real("Literature grade", lincs.Criterion.PreferenceDirection.increasing, 0, 1),
+        lincs.Criterion("Physics grade", lincs.Criterion.RealValues(lincs.Criterion.PreferenceDirection.increasing, 0, 1)),
+        lincs.Criterion("Literature grade", lincs.Criterion.RealValues(lincs.Criterion.PreferenceDirection.increasing, 0, 1)),
     ],
     (
         lincs.Category("Bad"),
@@ -21,8 +21,8 @@ print()
 
 model = lincs.Model(
     problem,
-    [lincs.AcceptedValues.make_real_thresholds([10.]), lincs.AcceptedValues.make_real_thresholds([10.])],
-    [lincs.SufficientCoalitions.make_weights([0.4, 0.7])],
+    [lincs.AcceptedValues(lincs.AcceptedValues.RealThresholds([10.])), lincs.AcceptedValues(lincs.AcceptedValues.RealThresholds([10.]))],
+    [lincs.SufficientCoalitions(lincs.SufficientCoalitions.Weights([0.4, 0.7]))],
 )
 model.dump(problem, sys.stdout)
 

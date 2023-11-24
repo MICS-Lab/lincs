@@ -71,10 +71,10 @@ Problem generate_classification_problem(
   for (const auto [name, min_value, max_value, direction] : criteria_data) {
     switch (allowed_value_types[value_type_distribution(gen)]) {
       case Criterion::ValueType::real:
-        criteria.emplace_back(Criterion::make_real(name, direction, min_value, max_value));
+        criteria.emplace_back(Criterion(name, Criterion::RealValues(direction, min_value, max_value)));
         break;
       case Criterion::ValueType::integer:
-        criteria.emplace_back(Criterion::make_integer(name, direction, 100 * min_value, 100 * max_value));
+        criteria.emplace_back(Criterion(name, Criterion::IntegerValues(direction, 100 * min_value, 100 * max_value)));
         break;
       case Criterion::ValueType::enumerated:
         const unsigned values_count = std::uniform_int_distribution<unsigned>(2, 10)(gen);
@@ -91,7 +91,7 @@ Problem generate_classification_problem(
             values.push_back(value);
           }
         }
-        criteria.emplace_back(Criterion::make_enumerated(name, values));
+        criteria.emplace_back(Criterion(name, Criterion::EnumeratedValues(values)));
         break;
     }
   }
@@ -124,7 +124,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
       problem.criteria[criterion_index].get_values(),
       [&gen, boundaries_count, &profiles, criterion_index](const Criterion::RealValues& values) {
         // Profile can take any values. We arbitrarily generate them uniformly
-        std::uniform_real_distribution<float> values_distribution(values.min_value + 0.01f, values.max_value - 0.01f);
+        std::uniform_real_distribution<float> values_distribution(values.get_min_value() + 0.01f, values.get_max_value() - 0.01f);
         // (Values clamped strictly inside ']min, max[' to make it easier to generate balanced learning sets)
         // Profiles must be ordered on each criterion, so we generate a random column...
         std::vector<float> column(boundaries_count);
@@ -132,32 +132,32 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           column.begin(), column.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
         // ... sort it according to the criterion's preference direction...
-        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.preference_direction, right, left); });
+        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.get_preference_direction(), right, left); });
         // ... and assign that column across all profiles.
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
           profiles[profile_index][criterion_index] = column[profile_index];
         }
       },
       [&gen, boundaries_count, &profiles, criterion_index](const Criterion::IntegerValues& values) {
-        std::uniform_int_distribution<int> values_distribution(values.min_value, values.max_value);
+        std::uniform_int_distribution<int> values_distribution(values.get_min_value(), values.get_max_value());
         std::vector<int> column(boundaries_count);
         std::generate(
           column.begin(), column.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
-        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.preference_direction, right, left); });
+        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.get_preference_direction(), right, left); });
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
           profiles[profile_index][criterion_index] = column[profile_index];
         }
       },
       [&gen, boundaries_count, &profiles, criterion_index](const Criterion::EnumeratedValues& values) {
-        std::uniform_int_distribution<unsigned> values_distribution(0, values.ordered_values.size() - 1);
+        std::uniform_int_distribution<unsigned> values_distribution(0, values.get_ordered_values().size() - 1);
         std::vector<unsigned> ranks(boundaries_count);
         std::generate(
           ranks.begin(), ranks.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
         std::sort(ranks.begin(), ranks.end(), [](float left, float right) { return right >= left; });
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
-          profiles[profile_index][criterion_index] = values.ordered_values[ranks[profile_index]];
+          profiles[profile_index][criterion_index] = values.get_ordered_values()[ranks[profile_index]];
         }
       }
     );
@@ -200,7 +200,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
             thresholds.push_back(std::get<float>(profiles[boundary_index][criterion_index]));
           }
-          return AcceptedValues::make_real_thresholds(thresholds);
+          return AcceptedValues(AcceptedValues::RealThresholds(thresholds));
       },
       [boundaries_count, &profiles, criterion_index](const Criterion::IntegerValues&) {
           std::vector<int> thresholds;
@@ -208,7 +208,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
             thresholds.push_back(std::get<int>(profiles[boundary_index][criterion_index]));
           }
-          return AcceptedValues::make_integer_thresholds(thresholds);
+          return AcceptedValues(AcceptedValues::IntegerThresholds(thresholds));
       },
       [boundaries_count, &profiles, criterion_index](const Criterion::EnumeratedValues&) {
           std::vector<std::string> thresholds;
@@ -216,14 +216,14 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
             thresholds.push_back(std::get<std::string>(profiles[boundary_index][criterion_index]));
           }
-          return AcceptedValues::make_enumerated_thresholds(thresholds);
+          return AcceptedValues(AcceptedValues::EnumeratedThresholds(thresholds));
       }
     ));
   }
 
   std::vector<SufficientCoalitions> sufficient_coalitions;
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-    sufficient_coalitions.emplace_back(SufficientCoalitions::make_weights(denormalized_weights));
+    sufficient_coalitions.emplace_back(SufficientCoalitions(SufficientCoalitions::Weights(denormalized_weights)));
   }
 
   return Model(problem, accepted_values, sufficient_coalitions);
@@ -339,13 +339,13 @@ Alternatives generate_uniform_classified_alternatives(
     dispatch(
       problem.criteria[criterion_index].get_values(),
       [&real_values_distributions, criterion_index](const Criterion::RealValues& values) {
-        real_values_distributions[criterion_index] = std::uniform_real_distribution<float>(values.min_value, values.max_value);
+        real_values_distributions[criterion_index] = std::uniform_real_distribution<float>(values.get_min_value(), values.get_max_value());
       },
       [&int_values_distributions, criterion_index](const Criterion::IntegerValues& values) {
-        int_values_distributions[criterion_index] = std::uniform_int_distribution<int>(values.min_value, values.max_value);
+        int_values_distributions[criterion_index] = std::uniform_int_distribution<int>(values.get_min_value(), values.get_max_value());
       },
       [&enum_values_distributions, criterion_index](const Criterion::EnumeratedValues& values) {
-        enum_values_distributions[criterion_index] = std::uniform_int_distribution<int>(0, values.ordered_values.size() - 1);
+        enum_values_distributions[criterion_index] = std::uniform_int_distribution<int>(0, values.get_ordered_values().size() - 1);
       }
     );
   }
@@ -363,7 +363,7 @@ Alternatives generate_uniform_classified_alternatives(
           return Performance::make_integer(int_values_distributions[criterion_index](gen));
         },
         [&enum_values_distributions, &gen, criterion_index](const Criterion::EnumeratedValues& values) {
-          return Performance::make_enumerated(values.ordered_values[enum_values_distributions[criterion_index](gen)]);
+          return Performance::make_enumerated(values.get_ordered_values()[enum_values_distributions[criterion_index](gen)]);
         }
       ));
     }
@@ -653,14 +653,14 @@ TEST_CASE("Random min/max") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
-  CHECK(problem.criteria[0].get_real_min_value() == doctest::Approx(-25.092));
-  CHECK(problem.criteria[0].get_real_max_value() == doctest::Approx(59.3086));
-  CHECK(model.accepted_values[0].get_real_thresholds()[0] == doctest::Approx(6.52194));
+  CHECK(problem.criteria[0].get_real_values().get_min_value() == doctest::Approx(-25.092));
+  CHECK(problem.criteria[0].get_real_values().get_max_value() == doctest::Approx(59.3086));
+  CHECK(model.accepted_values[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(6.52194));
   CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(45.3692));
 
-  CHECK(problem.criteria[1].get_real_min_value() == doctest::Approx(-63.313));
-  CHECK(problem.criteria[1].get_real_max_value() == doctest::Approx(46.3988));
-  CHECK(model.accepted_values[1].get_real_thresholds()[0] == doctest::Approx(24.0712));
+  CHECK(problem.criteria[1].get_real_values().get_min_value() == doctest::Approx(-63.313));
+  CHECK(problem.criteria[1].get_real_values().get_max_value() == doctest::Approx(46.3988));
+  CHECK(model.accepted_values[1].get_real_thresholds().get_thresholds()[0] == doctest::Approx(24.0712));
   CHECK(alternatives.alternatives[0].profile[1].get_real_value() == doctest::Approx(-15.8581));
 }
 
@@ -674,10 +674,10 @@ TEST_CASE("Decreasing criterion") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 10, 44);
 
-  CHECK(problem.criteria[0].get_preference_direction() == Criterion::PreferenceDirection::decreasing);
+  CHECK(problem.criteria[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
   // Profiles are in decreasing order
-  CHECK(model.accepted_values[0].get_real_thresholds()[0] == doctest::Approx(0.790612));
-  CHECK(model.accepted_values[0].get_real_thresholds()[1] == doctest::Approx(0.377049));
+  CHECK(model.accepted_values[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(0.790612));
+  CHECK(model.accepted_values[0].get_real_thresholds().get_thresholds()[1] == doctest::Approx(0.377049));
 
   CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(0.834842));
   CHECK(*alternatives.alternatives[0].category_index == 0);

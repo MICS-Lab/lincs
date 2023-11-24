@@ -147,6 +147,7 @@ def help_all():
             return
 
         if '.'.join(path) in [
+            "lincs.AcceptedValues.Kind",
             "lincs.Criterion.PreferenceDirection",
             "lincs.Criterion.ValueType",
             "lincs.SufficientCoalitions.Kind",

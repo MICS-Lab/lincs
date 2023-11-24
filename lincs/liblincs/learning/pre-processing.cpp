@@ -27,13 +27,13 @@ PreProcessedLearningSet::PreProcessedLearningSet(
     dispatch(
       problem.criteria[criterion_index].get_values(),
       [this, &learning_set, criterion_index](const Criterion::RealValues& values) {
-        const bool is_increasing = values.preference_direction == Criterion::PreferenceDirection::increasing;
-        assert(is_increasing || values.preference_direction == Criterion::PreferenceDirection::decreasing);
+        const bool is_increasing = values.get_preference_direction() == Criterion::PreferenceDirection::increasing;
+        assert(is_increasing || values.get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 
         std::set<float> unique_values;
 
-        unique_values.insert(values.min_value);
-        unique_values.insert(values.max_value);
+        unique_values.insert(values.get_min_value());
+        unique_values.insert(values.get_max_value());
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
           unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value());
         }
@@ -56,13 +56,13 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         }
       },
       [this, &learning_set, criterion_index](const Criterion::IntegerValues& values) {
-        const bool is_increasing = values.preference_direction == Criterion::PreferenceDirection::increasing;
-        assert(is_increasing || values.preference_direction == Criterion::PreferenceDirection::decreasing);
+        const bool is_increasing = values.get_preference_direction() == Criterion::PreferenceDirection::increasing;
+        assert(is_increasing || values.get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 
         std::set<int> unique_values;
 
-        unique_values.insert(values.min_value);
-        unique_values.insert(values.max_value);
+        unique_values.insert(values.get_min_value());
+        unique_values.insert(values.get_max_value());
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
           unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_integer_value());
         }
@@ -85,10 +85,10 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         }
       },
       [this, &learning_set, criterion_index](const Criterion::EnumeratedValues& values) {
-        values_counts[criterion_index] = values.ordered_values.size();
+        values_counts[criterion_index] = values.get_ordered_values().size();
 
         std::map<std::string, unsigned> value_ranks_for_criterion;
-        for (const std::string& value : values.ordered_values) {
+        for (const std::string& value : values.get_ordered_values()) {
           const unsigned value_rank = value_ranks_for_criterion.size();
           value_ranks_for_criterion[value] = value_rank;
         }
@@ -132,7 +132,7 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
             thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
           }
         }
-        return AcceptedValues::make_real_thresholds(thresholds);
+        return AcceptedValues(AcceptedValues::RealThresholds(thresholds));
       },
       [this, &boundaries, criterion_index](const Criterion::IntegerValues&) {
         std::vector<int> thresholds;
@@ -148,7 +148,7 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
             thresholds.push_back(integer_sorted_values.at(criterion_index)[rank]);
           }
         }
-        return AcceptedValues::make_integer_thresholds(thresholds);
+        return AcceptedValues(AcceptedValues::IntegerThresholds(thresholds));
       },
       [this, &boundaries, criterion_index](const Criterion::EnumeratedValues& values) {
         std::vector<std::string> thresholds;
@@ -156,15 +156,15 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
         for (const auto& boundary: boundaries) {
           const unsigned rank = boundary.profile_ranks[criterion_index];
           if (rank == 0) {
-            thresholds.push_back(values.ordered_values[rank]);
+            thresholds.push_back(values.get_ordered_values()[rank]);
           } else if (rank == values_counts[criterion_index]) {
             // Past-the-end rank
-            thresholds.push_back(values.ordered_values[values_counts[criterion_index] - 1]);
+            thresholds.push_back(values.get_ordered_values()[values_counts[criterion_index] - 1]);
           } else {
-            thresholds.push_back(values.ordered_values[rank]);
+            thresholds.push_back(values.get_ordered_values()[rank]);
           }
         }
-        return AcceptedValues::make_enumerated_thresholds(thresholds);
+        return AcceptedValues(AcceptedValues::EnumeratedThresholds(thresholds));
       }));
   }
 

@@ -16,7 +16,7 @@ bool better_or_equal(Criterion::PreferenceDirection preference_direction, const 
     case Criterion::PreferenceDirection::decreasing:
       return lhs <= rhs;
   }
- unreachable();
+  unreachable();
 }
 
 struct ClassificationResult {

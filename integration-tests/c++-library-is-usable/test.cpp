@@ -8,8 +8,8 @@
 int main() {
   lincs::Problem problem{
     {
-      lincs::Criterion::make_real("Physics grade", lincs::Criterion::PreferenceDirection::increasing, 0, 1),
-      lincs::Criterion::make_real("Literature grade", lincs::Criterion::PreferenceDirection::increasing, 0, 1),
+      lincs::Criterion("Physics grade", lincs::Criterion::RealValues(lincs::Criterion::PreferenceDirection::increasing, 0, 1)),
+      lincs::Criterion("Literature grade", lincs::Criterion::RealValues(lincs::Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {
       {"Bad"},
@@ -24,10 +24,10 @@ int main() {
   lincs::Model model{
     problem,
     {
-      lincs::AcceptedValues::make_real_thresholds({10.f}),
-      lincs::AcceptedValues::make_real_thresholds({10.f}),
+      lincs::AcceptedValues(lincs::AcceptedValues::RealThresholds({10.f})),
+      lincs::AcceptedValues(lincs::AcceptedValues::RealThresholds({10.f})),
     },
-    {lincs::SufficientCoalitions::make_weights({0.4f, 0.7f})},
+    {lincs::SufficientCoalitions(lincs::SufficientCoalitions::Weights({0.4f, 0.7f}))},
   };
   model.dump(problem, std::cout);
 

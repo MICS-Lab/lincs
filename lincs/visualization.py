@@ -36,17 +36,17 @@ def visualize_classification_model(problem, model, alternatives, axes: plt.Axes)
 
     boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
     for criterion, accepted_values in zip(problem.criteria, model.accepted_values):
+        assert accepted_values.is_thresholds
         if criterion.is_real:
             for boundary_index in range(boundaries_count):
-                boundary_profiles[boundary_index].append(accepted_values.real_thresholds[boundary_index])
+                boundary_profiles[boundary_index].append(accepted_values.real_thresholds.thresholds[boundary_index])
         elif criterion.is_integer:
             for boundary_index in range(boundaries_count):
-                boundary_profiles[boundary_index].append(accepted_values.integer_thresholds[boundary_index])
-        elif criterion.is_enumerated:
-            for boundary_index in range(boundaries_count):
-                boundary_profiles[boundary_index].append(criterion.get_value_rank(accepted_values.enumerated_thresholds[boundary_index]))
+                boundary_profiles[boundary_index].append(accepted_values.integer_thresholds.thresholds[boundary_index])
         else:
-            assert False
+            assert criterion.is_enumerated
+            for boundary_index in range(boundaries_count):
+                boundary_profiles[boundary_index].append(criterion.enumerated_values.get_value_rank(accepted_values.enumerated_thresholds.thresholds[boundary_index]))
 
     def extend(ys):
         return [ys[0]] + ys + [ys[-1]]
@@ -64,27 +64,29 @@ def visualize_classification_model(problem, model, alternatives, axes: plt.Axes)
     for (x, criterion) in zip(xs, problem.criteria):
         secondary_ax = axes.secondary_yaxis(x)
         if criterion.is_real:
+            values = criterion.real_values
             ticks = [0, 0.5, 1]
-            labels = [f"{criterion.real_min_value:.1f}", f"{(criterion.real_min_value + criterion.real_max_value) / 2:.1f}", f"{criterion.real_max_value:.1f}"]
-            if criterion.is_increasing:
+            labels = [f"{values.min_value:.1f}", f"{(values.min_value + values.max_value) / 2:.1f}", f"{values.max_value:.1f}"]
+            if values.is_increasing:
                 secondary_ax.set_yticks(ticks, labels)
-            elif criterion.is_decreasing:
-                secondary_ax.set_yticks(ticks, reversed(labels))
             else:
-                assert False
+                assert values.is_decreasing
+                secondary_ax.set_yticks(ticks, reversed(labels))
         elif criterion.is_integer:
-            labels = list(make_integer_labels(criterion.integer_min_value, criterion.integer_max_value))
-            ticks = [(label - criterion.integer_min_value) / (criterion.integer_max_value - criterion.integer_min_value) for label in labels]
-            if criterion.is_increasing:
+            values = criterion.integer_values
+            labels = list(make_integer_labels(values.min_value, values.max_value))
+            ticks = [(label - values.min_value) / (values.max_value - values.min_value) for label in labels]
+            if values.is_increasing:
                 secondary_ax.set_yticks(ticks, labels)
-            elif criterion.is_decreasing:
-                secondary_ax.set_yticks(ticks, reversed(labels))
             else:
-                assert False
-        elif criterion.is_enumerated:
-            ticks_count = len(criterion.ordered_values)
+                assert values.is_decreasing
+                secondary_ax.set_yticks(ticks, reversed(labels))
+        else:
+            assert criterion.is_enumerated
+            values = criterion.enumerated_values
+            ticks_count = len(values.ordered_values)
             ticks = [n / (ticks_count - 1) for n in range(ticks_count)]
-            secondary_ax.set_yticks(ticks, criterion.ordered_values)
+            secondary_ax.set_yticks(ticks, values.ordered_values)
 
     for (category_index, category) in enumerate(problem.ordered_categories):
         if category_index == 0:
@@ -236,10 +238,9 @@ def make_numeric_value(criterion, y):
         return y.real_value
     elif criterion.is_integer:
         return y.integer_value
-    elif criterion.is_enumerated:
-        return criterion.get_value_rank(y.enumerated_value)
     else:
-        assert False
+        assert criterion.is_enumerated
+        return criterion.enumerated_values.get_value_rank(y.enumerated_value)
 
 
 def normalize_profile(criteria, ys):
@@ -250,16 +251,22 @@ def normalize_profile(criteria, ys):
 
 
 def normalize_value(criterion, y):
+    is_increasing = None
     if criterion.is_real:
-        y = (y - criterion.real_min_value) / (criterion.real_max_value - criterion.real_min_value)
+        values = criterion.real_values
+        is_increasing = values.is_increasing
+        y = (y - values.min_value) / (values.max_value - values.min_value)
     elif criterion.is_integer:
-        y = (y - criterion.integer_min_value) / (criterion.integer_max_value - criterion.integer_min_value)
-    elif criterion.is_enumerated:
-        y = y / (len(criterion.ordered_values) - 1)
+        values = criterion.integer_values
+        is_increasing = values.is_increasing
+        y = (y - values.min_value) / (values.max_value - values.min_value)
     else:
-        assert False
+        assert criterion.is_enumerated
+        values = criterion.enumerated_values
+        is_increasing = True
+        y = y / (len(values.ordered_values) - 1)
 
-    if criterion.is_enumerated or criterion.is_increasing:
+    if is_increasing:
         return y
     else:
         return 1 - y

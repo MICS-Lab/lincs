@@ -121,17 +121,17 @@ void Problem::dump(std::ostream& os) const {
     dispatch(
       criterion.get_values(),
       [&out](const Criterion::RealValues& values) {
-        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.preference_direction));
-        out << YAML::Key << "min_value" << YAML::Value << values.min_value;
-        out << YAML::Key << "max_value" << YAML::Value << values.max_value;
+        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.get_preference_direction()));
+        out << YAML::Key << "min_value" << YAML::Value << values.get_min_value();
+        out << YAML::Key << "max_value" << YAML::Value << values.get_max_value();
       },
       [&out](const Criterion::IntegerValues& values) {
-        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.preference_direction));
-        out << YAML::Key << "min_value" << YAML::Value << values.min_value;
-        out << YAML::Key << "max_value" << YAML::Value << values.max_value;
+        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.get_preference_direction()));
+        out << YAML::Key << "min_value" << YAML::Value << values.get_min_value();
+        out << YAML::Key << "max_value" << YAML::Value << values.get_max_value();
       },
       [&out](const Criterion::EnumeratedValues& values) {
-        out << YAML::Key << "ordered_values" << YAML::Value << YAML::Flow << values.ordered_values;
+        out << YAML::Key << "ordered_values" << YAML::Value << YAML::Flow << values.get_ordered_values();
       }
     );
     out << YAML::EndMap;
@@ -178,26 +178,26 @@ Problem Problem::load(std::istream& is) {
     Criterion::ValueType value_type = *magic_enum::enum_cast<Criterion::ValueType>(criterion_node["value_type"].as<std::string>());
     switch (value_type) {
       case Criterion::ValueType::real:
-        criteria.emplace_back(Criterion::make_real(
+        criteria.emplace_back(
           criterion_node["name"].as<std::string>(),
-          load_preference_direction(criterion_node["preference_direction"]),
-          criterion_node["min_value"].as<float>(),
-          criterion_node["max_value"].as<float>()
-        ));
+          Criterion::RealValues(
+            load_preference_direction(criterion_node["preference_direction"]),
+            criterion_node["min_value"].as<float>(),
+            criterion_node["max_value"].as<float>()));
         break;
       case Criterion::ValueType::integer:
-        criteria.emplace_back(Criterion::make_integer(
+        criteria.emplace_back(
           criterion_node["name"].as<std::string>(),
-          load_preference_direction(criterion_node["preference_direction"]),
-          criterion_node["min_value"].as<int>(),
-          criterion_node["max_value"].as<int>()
-        ));
+          Criterion::IntegerValues(
+            load_preference_direction(criterion_node["preference_direction"]),
+            criterion_node["min_value"].as<int>(),
+            criterion_node["max_value"].as<int>()));
         break;
       case Criterion::ValueType::enumerated:
-        criteria.emplace_back(Criterion::make_enumerated(
+        criteria.emplace_back(
           criterion_node["name"].as<std::string>(),
-          criterion_node["ordered_values"].as<std::vector<std::string>>()
-        ));
+          Criterion::EnumeratedValues(
+            criterion_node["ordered_values"].as<std::vector<std::string>>()));
         break;
     }
   }
@@ -212,7 +212,7 @@ Problem Problem::load(std::istream& is) {
 
 TEST_CASE("dumping then loading problem preserves data - real") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -238,8 +238,8 @@ ordered_categories:
 TEST_CASE("isotone and antitone dump as increasing and decreasing") {
   Problem problem{
     {
-      Criterion::make_real("Isotone criterion", Criterion::PreferenceDirection::isotone, 0, 1),
-      Criterion::make_real("Antitone criterion", Criterion::PreferenceDirection::antitone, 0, 1),
+      Criterion("Isotone criterion", Criterion::RealValues(Criterion::PreferenceDirection::isotone, 0, 1)),
+      Criterion("Antitone criterion", Criterion::RealValues(Criterion::PreferenceDirection::antitone, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -287,16 +287,16 @@ ordered_categories:
 
   Problem problem = Problem::load(iss);
 
-  CHECK(problem.criteria[0].get_preference_direction() == Criterion::PreferenceDirection::isotone);
-  CHECK(problem.criteria[0].get_preference_direction() == Criterion::PreferenceDirection::increasing);
-  CHECK(problem.criteria[1].get_preference_direction() == Criterion::PreferenceDirection::antitone);
-  CHECK(problem.criteria[1].get_preference_direction() == Criterion::PreferenceDirection::decreasing);
+  CHECK(problem.criteria[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::isotone);
+  CHECK(problem.criteria[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::increasing);
+  CHECK(problem.criteria[1].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::antitone);
+  CHECK(problem.criteria[1].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 }
 
 TEST_CASE("dumping then loading problem preserves data - real with infinite min/max") {
   const float inf = std::numeric_limits<float>::infinity();
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::decreasing, -inf, inf)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, -inf, inf))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -321,7 +321,7 @@ ordered_categories:
 
 TEST_CASE("dumping then loading problem preserves data - integer") {
   Problem problem{
-    {Criterion::make_integer("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 20)},
+    {Criterion("Criterion 1", Criterion::IntegerValues(Criterion::PreferenceDirection::increasing, 0, 20))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -346,7 +346,7 @@ ordered_categories:
 
 TEST_CASE("dumping then loading problem preserves data - enumerated") {
   Problem problem{
-    {Criterion::make_enumerated("Criterion 1", {"F", "E", "D", "C", "B", "A"})},
+    {Criterion("Criterion 1", Criterion::EnumeratedValues({"F", "E", "D", "C", "B", "A"}))},
     {{"Category 1"}, {"Category 2"}},
   };
 

@@ -25,16 +25,16 @@ bool better_or_equal(
   return dispatch(
     problem.criteria[criterion_index].get_values(),
     [&model, &performance, &accepted_values, boundary_index](const Criterion::RealValues& values) {
-      const float threshold = accepted_values.get_real_thresholds()[boundary_index];
-      return better_or_equal(values.preference_direction, performance.get_real_value(), threshold);
+      const float threshold = accepted_values.get_real_thresholds().get_thresholds()[boundary_index];
+      return better_or_equal(values.get_preference_direction(), performance.get_real_value(), threshold);
     },
     [&model, &performance, &accepted_values, boundary_index](const Criterion::IntegerValues& values) {
-      const int threshold = accepted_values.get_integer_thresholds()[boundary_index];
-      return better_or_equal(values.preference_direction, performance.get_integer_value(), threshold);;
+      const int threshold = accepted_values.get_integer_thresholds().get_thresholds()[boundary_index];
+      return better_or_equal(values.get_preference_direction(), performance.get_integer_value(), threshold);;
     },
     [&model, &performance, &accepted_values, boundary_index](const Criterion::EnumeratedValues& values) {
-      const std::string threshold_enum = accepted_values.get_enumerated_thresholds()[boundary_index];
-      return values.value_ranks.at(performance.get_enumerated_value()) >= values.value_ranks.at(threshold_enum);
+      const std::string threshold_enum = accepted_values.get_enumerated_thresholds().get_thresholds()[boundary_index];
+      return values.get_value_ranks().at(performance.get_enumerated_value()) >= values.get_value_ranks().at(threshold_enum);
     }
   );
 }
@@ -54,17 +54,18 @@ bool is_good_enough(
   assert(model.sufficient_coalitions.size() == boundaries_count);
   assert(boundary_index < boundaries_count);
 
-  switch (model.sufficient_coalitions[boundary_index].get_kind()) {
-    case SufficientCoalitions::Kind::weights: {
+  return dispatch(
+    model.sufficient_coalitions[boundary_index].get(),
+    [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const SufficientCoalitions::Weights& weights) {
       float weight_at_or_better_than_profile = 0;
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (better_or_equal(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
-          weight_at_or_better_than_profile += model.sufficient_coalitions[boundary_index].get_criterion_weights()[criterion_index];
+          weight_at_or_better_than_profile += weights.get_criterion_weights()[criterion_index];
         }
       }
       return weight_at_or_better_than_profile >= 1.f;
-    }
-    case SufficientCoalitions::Kind::roots: {
+    },
+    [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const SufficientCoalitions::Roots& roots) {
       boost::dynamic_bitset<> at_or_better_than_profile(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (better_or_equal(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
@@ -72,7 +73,7 @@ bool is_good_enough(
         }
       }
 
-      for (boost::dynamic_bitset<> root: model.sufficient_coalitions[boundary_index].get_upset_roots_as_bitsets()) {
+      for (const boost::dynamic_bitset<>& root: roots.get_upset_roots_as_bitsets()) {
         if ((at_or_better_than_profile & root) == root) {
           return true;
         }
@@ -80,8 +81,7 @@ bool is_good_enough(
 
       return false;
     }
-  }
-  unreachable();
+  );
 }
 
 ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
@@ -114,9 +114,9 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
 TEST_CASE("Basic classification using weights") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -124,11 +124,11 @@ TEST_CASE("Basic classification using weights") {
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
     },
-    {SufficientCoalitions::make_weights({0.3, 0.6, 0.8})},
+    {SufficientCoalitions(SufficientCoalitions::Weights({0.3, 0.6, 0.8}))},
   };
 
   Alternatives alternatives{problem, {
@@ -159,9 +159,9 @@ TEST_CASE("Basic classification using weights") {
 TEST_CASE("Basic classification using upset roots") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -169,11 +169,11 @@ TEST_CASE("Basic classification using upset roots") {
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
     },
-    {SufficientCoalitions::make_roots_from_vectors(3, {{0, 2}, {1, 2}})},
+    {SufficientCoalitions(SufficientCoalitions::Roots(3, {{0, 2}, {1, 2}}))},
   };
 
   Alternatives alternatives{problem, {
@@ -204,9 +204,9 @@ TEST_CASE("Basic classification using upset roots") {
 TEST_CASE("Classification with decreasing criteria") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::decreasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::decreasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::decreasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -214,11 +214,11 @@ TEST_CASE("Classification with decreasing criteria") {
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.5}),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
     },
-    {SufficientCoalitions::make_weights({0.3, 0.6, 0.8})},
+    {SufficientCoalitions(SufficientCoalitions::Weights({0.3, 0.6, 0.8}))},
   };
 
   Alternatives alternatives{problem, {

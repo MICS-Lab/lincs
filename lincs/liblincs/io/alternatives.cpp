@@ -37,6 +37,7 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
     const Alternative& alternative = alternatives[alternative_index];
     doc.SetCell<std::string>(0, alternative_index, alternative.name);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      // @todo(Project management, v1.1) Use 'dispatch(alternative.profile[criterion_index].get(), ...)'
       switch (problem.criteria[criterion_index].get_value_type()) {
         case Criterion::ValueType::real:
           doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index].get_real_value());
@@ -135,7 +136,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("Dump then load preserves data - real criterion") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -154,7 +155,7 @@ TEST_CASE("Dump then load preserves data - real criterion") {
 
 TEST_CASE("Dump then load preserves data - numerical values requiring more decimal digits") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -178,7 +179,7 @@ TEST_CASE("Dump then load preserves data - numerical values requiring more decim
 
 TEST_CASE("Dump then load preserves data - integer criterion") {
   Problem problem(
-    {Criterion::make_integer("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 10)},
+    {Criterion("Criterion 1", Criterion::IntegerValues(Criterion::PreferenceDirection::increasing, 0, 10))},
     {{"Category 1"}, {"Category 2"}}
   );
 
@@ -197,7 +198,7 @@ TEST_CASE("Dump then load preserves data - integer criterion") {
 
 TEST_CASE("Dump then load preserves data - enumerated criterion") {
   Problem problem{
-    {Criterion::make_enumerated("Criterion 1", {"a", "b b", "c", "d"})},
+    {Criterion("Criterion 1", Criterion::EnumeratedValues({"a", "b b", "c", "d"}))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -216,7 +217,7 @@ TEST_CASE("Dump then load preserves data - enumerated criterion") {
 
 TEST_CASE("Validation error - name column") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -232,7 +233,7 @@ TEST_CASE("Validation error - name column") {
 
 TEST_CASE("Validation error - category column") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -248,7 +249,7 @@ TEST_CASE("Validation error - category column") {
 
 TEST_CASE("Validation error - criterion name") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -264,7 +265,7 @@ TEST_CASE("Validation error - criterion name") {
 
 TEST_CASE("Validation error - category name") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
