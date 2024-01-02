@@ -322,18 +322,18 @@ def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
                 cell["metadata"].pop("execution", None)
                 if cell["cell_type"] == "code":
                     cell["source"] = original_cell_sources[i]
-                original_outputs = cell["outputs"]
+                original_outputs = cell.get("outputs")
                 if original_outputs:
-                    new_output = original_outputs[0]
-                    if new_output["output_type"] == "stream":
+                    if original_outputs[0]["output_type"] == "stream":
+                        new_output = original_outputs[0]
                         for output in original_outputs[1:]:
                             assert output["name"] == new_output["name"]
-                            assert output["output_type"] == new_output["output_type"]
+                            assert output["output_type"] == "stream"
                             new_output["text"] += output["text"]
                         cell["outputs"] = [new_output]
                     else:
                         assert len(original_outputs) == 1, original_outputs
-                        assert new_output["output_type"] == "display_data", original_outputs
+                        assert original_outputs[0]["output_type"] in ["display_data", "execute_result"], original_outputs
             with open(notebook_path, "w") as f:
                 json.dump(notebook, f, indent=1, sort_keys=True)
                 f.write("\n")
