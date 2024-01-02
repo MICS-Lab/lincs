@@ -3,7 +3,7 @@ import unittest
 from . import Problem, Criterion, Category, Model, AcceptedValues, SufficientCoalitions
 
 
-def describe_problem(problem: Problem):
+def describe_classification_problem(problem: Problem):
     categories_count = len(problem.ordered_categories)
     assert categories_count >= 2
     criteria_count = len(problem.criteria)
@@ -35,11 +35,11 @@ def describe_problem(problem: Problem):
                 yield f'Lower values of "{criterion.name}" are known to be better.'
 
 
-class DescribeProblemTestCase(unittest.TestCase):
+class DescribeClassificationProblemTestCase(unittest.TestCase):
     maxDiff = None
 
     def _test(self, problem, expected):
-        self.assertEqual(list(describe_problem(problem)), expected)
+        self.assertEqual(list(describe_classification_problem(problem)), expected)
 
     def test_simplest(self):
         self._test(
@@ -105,7 +105,7 @@ class DescribeProblemTestCase(unittest.TestCase):
         )
 
 
-def describe_model(problem: Problem, model: Model):
+def describe_classification_model(problem: Problem, model: Model):
     criteria_count = len(problem.criteria)
     assert len(model.accepted_values) == criteria_count
     assert criteria_count > 0
@@ -179,7 +179,7 @@ def describe_model(problem: Problem, model: Model):
                 yield f'To get into category "{category.name}", an alternative must be better than the following profile on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
 
 
-class DescribeModelTestCase(unittest.TestCase):
+class DescribeClassificationModelTestCase(unittest.TestCase):
     maxDiff = None
 
     problem = Problem(
@@ -197,7 +197,7 @@ class DescribeModelTestCase(unittest.TestCase):
     )
 
     def _test(self, model, expected):
-        self.assertEqual(list(describe_model(self.problem, model)), expected)
+        self.assertEqual(list(describe_classification_model(self.problem, model)), expected)
 
     def test_mrsort(self):
         self._test(

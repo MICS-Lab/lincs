@@ -524,7 +524,7 @@ def classification_model(
                 alternatives = alternatives[:alternatives_count]
 
     figure, axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
-    lincs.visualization.visualize_model(problem, model, alternatives, axes)
+    lincs.visualization.visualize_classification_model(problem, model, alternatives, axes)
     figure.savefig(output, format="png", dpi=100)
     plt.close(figure)
 
@@ -559,7 +559,7 @@ def classification_problem(
 ):
     with loading_guard():
         problem = lincs.Problem.load(problem)
-    for line in lincs.description.describe_problem(problem):
+    for line in lincs.description.describe_classification_problem(problem):
         print(line, file=output_description)
 
 
@@ -593,7 +593,7 @@ def classification_model(
     with loading_guard():
         problem = lincs.Problem.load(problem)
         model = lincs.Model.load(problem, model)
-    for line in lincs.description.describe_model(problem, model):
+    for line in lincs.description.describe_classification_model(problem, model):
         print(line, file=output_description)
 
 
