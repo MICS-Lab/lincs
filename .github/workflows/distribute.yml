@@ -34,7 +34,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python_version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - name: Install Python
         uses: actions/setup-python@v4
@@ -112,7 +112,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python_version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - name: Install Python
         uses: actions/setup-python@v4
@@ -196,7 +196,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python_version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - name: Install Python
         uses: actions/setup-python@v4
@@ -273,7 +273,7 @@ jobs:
           - macos-11
           - macos-12
           - macos-13
-        python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python_version: ['3.8', '3.9', '3.10', '3.11']
     steps:
       - name: Install Python
         uses: actions/setup-python@v4

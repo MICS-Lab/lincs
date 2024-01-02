@@ -87,7 +87,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       sudo
 
 # Python versions
-ENV LINCS_DEV_PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11"
+ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,from=download-get-pip,source=/download,target=/download \
