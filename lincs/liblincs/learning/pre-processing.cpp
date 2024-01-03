@@ -13,8 +13,8 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   const Alternatives& learning_set
 ) :
   problem(problem_),
-  criteria_count(problem.criteria.size()),
-  categories_count(problem.ordered_categories.size()),
+  criteria_count(problem.get_criteria().size()),
+  categories_count(problem.get_ordered_categories().size()),
   boundaries_count(categories_count - 1),
   alternatives_count(learning_set.alternatives.size()),
   real_sorted_values(),
@@ -25,7 +25,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
 {
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     dispatch(
-      problem.criteria[criterion_index].get_values(),
+      problem.get_criteria()[criterion_index].get_values(),
       [this, &learning_set, criterion_index](const Criterion::RealValues& values) {
         const bool is_increasing = values.get_preference_direction() == Criterion::PreferenceDirection::increasing;
         assert(is_increasing || values.get_preference_direction() == Criterion::PreferenceDirection::decreasing);
@@ -115,7 +115,7 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
   accepted_values.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     accepted_values.push_back(dispatch(
-      problem.criteria[criterion_index].get_values(),
+      problem.get_criteria()[criterion_index].get_values(),
       [this, &boundaries, criterion_index, do_halves](const Criterion::RealValues&) {
         std::vector<float> thresholds;
         thresholds.reserve(boundaries_count);

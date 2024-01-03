@@ -130,32 +130,35 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
   accepted_values(accepted_values_),
   sufficient_coalitions(sufficient_coalitions_)
 {
-  validate(accepted_values.size() == problem.criteria.size(), "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
-  for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
-    validate(accepted_values[criterion_index].get_value_type() == problem.criteria[criterion_index].get_value_type(), "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion");
+  const unsigned criteria_count = problem.get_criteria().size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
+  const unsigned boundaries_count = categories_count - 1;
+  validate(accepted_values.size() == criteria_count, "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    validate(accepted_values[criterion_index].get_value_type() == problem.get_criteria()[criterion_index].get_value_type(), "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion");
     dispatch(
       accepted_values[criterion_index].get(),
-      [&problem](const AcceptedValues::RealThresholds& thresholds) {
-        validate(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1, "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      [boundaries_count](const AcceptedValues::RealThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == boundaries_count, "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
       },
-      [&problem](const AcceptedValues::IntegerThresholds& thresholds) {
-        validate(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1, "The number of integer thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      [boundaries_count](const AcceptedValues::IntegerThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == boundaries_count, "The number of integer thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
       },
-      [&problem](const AcceptedValues::EnumeratedThresholds& thresholds) {
-        validate(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1, "The number of enumerated thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      [boundaries_count](const AcceptedValues::EnumeratedThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == boundaries_count, "The number of enumerated thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
       }
     );
   };
-  validate(sufficient_coalitions.size() == problem.ordered_categories.size() - 1, "The number of sufficient coalitions in the model must be one less than the number of categories in the problem");
+  validate(sufficient_coalitions.size() == boundaries_count, "The number of sufficient coalitions in the model must be one less than the number of categories in the problem");
   for (const auto& sufficient_coalitions_ : sufficient_coalitions) {
     dispatch(
       sufficient_coalitions_.get(),
-      [&problem](const SufficientCoalitions::Weights& weights) {
-        validate(weights.get_criterion_weights().size() == problem.criteria.size(), "The number of criterion weights in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
+      [criteria_count](const SufficientCoalitions::Weights& weights) {
+        validate(weights.get_criterion_weights().size() == criteria_count, "The number of criterion weights in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
       },
       [&](const SufficientCoalitions::Roots& roots) {
         for (const auto& root: roots.get_upset_roots_as_bitsets()) {
-          validate(root.size() == problem.criteria.size(), "The maximum number of elements in a root in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
+          validate(root.size() == criteria_count, "The maximum number of elements in a root in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
         }
       }
     );
@@ -186,7 +189,7 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
   out << YAML::Key << "format_version" << YAML::Value << 1;
 
   out << YAML::Key << "accepted_values" << YAML::Value << YAML::BeginSeq;
-  for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
+  for (unsigned criterion_index = 0; criterion_index != problem.get_criteria().size(); ++criterion_index) {
     out << YAML::BeginMap;
     assert(accepted_values[criterion_index].is_thresholds());
     out << YAML::Key << "kind" << YAML::Value << "thresholds";
@@ -249,7 +252,7 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
     case SufficientCoalitions::Kind::weights:
       return SufficientCoalitions(SufficientCoalitions::Weights(node["criterion_weights"].as<std::vector<float>>()));
     case SufficientCoalitions::Kind::roots:
-      return SufficientCoalitions(SufficientCoalitions::Roots(problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>()));
+      return SufficientCoalitions(SufficientCoalitions::Roots(problem.get_criteria().size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>()));
   }
   unreachable();
 }
@@ -257,8 +260,8 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
 Model Model::load(const Problem& problem, std::istream& is) {
   CHRONE();
 
-  const unsigned criteria_count = problem.criteria.size();
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned criteria_count = problem.get_criteria().size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
   const unsigned boundaries_count = categories_count - 1;
 
   YAML::Node node = YAML::Load(is);
@@ -270,7 +273,7 @@ Model Model::load(const Problem& problem, std::istream& is) {
   std::vector<AcceptedValues> accepted_values;
   accepted_values.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != yaml_accepted_values.size(); ++criterion_index) {
-    const Criterion& criterion = problem.criteria[criterion_index];
+    const Criterion& criterion = problem.get_criteria()[criterion_index];
     const YAML::Node& yaml_acc_vals = yaml_accepted_values[criterion_index];
     assert(yaml_acc_vals["kind"].as<std::string>() == "thresholds");
     const YAML::Node& thresholds = yaml_acc_vals["thresholds"];

@@ -111,9 +111,9 @@ Problem generate_classification_problem(
 Model generate_mrsort_classification_model(const Problem& problem, const unsigned random_seed, const std::optional<float> fixed_weights_sum) {
   CHRONE();
 
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
   const unsigned boundaries_count = categories_count - 1;
-  const unsigned criteria_count = problem.criteria.size();
+  const unsigned criteria_count = problem.get_criteria().size();
 
   std::mt19937 gen(random_seed);
 
@@ -121,7 +121,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
   std::vector<std::vector<Performance>> profiles(boundaries_count, std::vector<Performance>(criteria_count));
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     dispatch(
-      problem.criteria[criterion_index].get_values(),
+      problem.get_criteria()[criterion_index].get_values(),
       [&gen, boundaries_count, &profiles, criterion_index](const Criterion::RealValues& values) {
         // Profile can take any values. We arbitrarily generate them uniformly
         std::uniform_real_distribution<float> values_distribution(values.get_min_value() + 0.01f, values.get_max_value() - 0.01f);
@@ -193,7 +193,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
   std::vector<AcceptedValues> accepted_values;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     accepted_values.push_back(dispatch(
-      problem.criteria[criterion_index].get_values(),
+      problem.get_criteria()[criterion_index].get_values(),
       [boundaries_count, &profiles, criterion_index](const Criterion::RealValues&) {
           std::vector<float> thresholds;
           thresholds.reserve(boundaries_count);
@@ -325,7 +325,7 @@ Alternatives generate_uniform_classified_alternatives(
 ) {
   CHRONE();
 
-  const unsigned criteria_count = problem.criteria.size();
+  const unsigned criteria_count = problem.get_criteria().size();
 
   std::vector<Alternative> alternatives;
   alternatives.reserve(alternatives_count);
@@ -337,7 +337,7 @@ Alternatives generate_uniform_classified_alternatives(
   std::map<unsigned, std::uniform_int_distribution<int>> enum_values_distributions;
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     dispatch(
-      problem.criteria[criterion_index].get_values(),
+      problem.get_criteria()[criterion_index].get_values(),
       [&real_values_distributions, criterion_index](const Criterion::RealValues& values) {
         real_values_distributions[criterion_index] = std::uniform_real_distribution<float>(values.get_min_value(), values.get_max_value());
       },
@@ -355,7 +355,7 @@ Alternatives generate_uniform_classified_alternatives(
     profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       profile.push_back(dispatch(
-        problem.criteria[criterion_index].get_values(),
+        problem.get_criteria()[criterion_index].get_values(),
         [&real_values_distributions, &gen, criterion_index](const Criterion::RealValues& values) {
           return Performance::make_real(real_values_distributions[criterion_index](gen));
         },
@@ -425,7 +425,7 @@ Alternatives generate_balanced_classified_alternatives(
   assert(max_imbalance >= 0);
   assert(max_imbalance <= 1);
 
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
 
   // These parameters are somewhat arbitrary and not really critical,
   // but changing there values *does* change the generated set, because of the two-steps process below:
@@ -563,7 +563,7 @@ TEST_CASE("Generate uniform alternative - enumerated criterion") {
 void check_histogram(const Problem& problem, const Model& model, const std::optional<float> max_imbalance, const unsigned a, const unsigned b) {
   const unsigned alternatives_count = 100;
 
-  REQUIRE(problem.ordered_categories.size() == 2);
+  REQUIRE(problem.get_ordered_categories().size() == 2);
   REQUIRE(a + b == alternatives_count);
 
   Alternatives alternatives = generate_classified_alternatives(problem, model, alternatives_count, 42, max_imbalance);
@@ -653,14 +653,14 @@ TEST_CASE("Random min/max") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
-  CHECK(problem.criteria[0].get_real_values().get_min_value() == doctest::Approx(-25.092));
-  CHECK(problem.criteria[0].get_real_values().get_max_value() == doctest::Approx(59.3086));
-  CHECK(model.accepted_values[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(6.52194));
+  CHECK(problem.get_criteria()[0].get_real_values().get_min_value() == doctest::Approx(-25.092));
+  CHECK(problem.get_criteria()[0].get_real_values().get_max_value() == doctest::Approx(59.3086));
+  CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(6.52194));
   CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(45.3692));
 
-  CHECK(problem.criteria[1].get_real_values().get_min_value() == doctest::Approx(-63.313));
-  CHECK(problem.criteria[1].get_real_values().get_max_value() == doctest::Approx(46.3988));
-  CHECK(model.accepted_values[1].get_real_thresholds().get_thresholds()[0] == doctest::Approx(24.0712));
+  CHECK(problem.get_criteria()[1].get_real_values().get_min_value() == doctest::Approx(-63.313));
+  CHECK(problem.get_criteria()[1].get_real_values().get_max_value() == doctest::Approx(46.3988));
+  CHECK(model.get_accepted_values()[1].get_real_thresholds().get_thresholds()[0] == doctest::Approx(24.0712));
   CHECK(alternatives.alternatives[0].profile[1].get_real_value() == doctest::Approx(-15.8581));
 }
 
@@ -674,10 +674,10 @@ TEST_CASE("Decreasing criterion") {
   Model model = generate_mrsort_classification_model(problem, 42);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 10, 44);
 
-  CHECK(problem.criteria[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
+  CHECK(problem.get_criteria()[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
   // Profiles are in decreasing order
-  CHECK(model.accepted_values[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(0.790612));
-  CHECK(model.accepted_values[0].get_real_thresholds().get_thresholds()[1] == doctest::Approx(0.377049));
+  CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(0.790612));
+  CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[1] == doctest::Approx(0.377049));
 
   CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(0.834842));
   CHECK(*alternatives.alternatives[0].category_index == 0);
@@ -708,7 +708,7 @@ TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
 void misclassify_alternatives(const Problem& problem, Alternatives* alternatives, const unsigned count, const unsigned random_seed) {
   CHRONE();
 
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
   const unsigned alternatives_count = alternatives->alternatives.size();
 
   std::mt19937 gen(random_seed);

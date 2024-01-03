@@ -14,7 +14,7 @@ namespace lincs {
 void Alternatives::dump(const Problem& problem, std::ostream& os) const {
   CHRONE();
 
-  const unsigned criteria_count = problem.criteria.size();
+  const unsigned criteria_count = problem.get_criteria().size();
   const unsigned alternatives_count = alternatives.size();
 
   rapidcsv::SeparatorParams separator_params;
@@ -29,7 +29,7 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
 
   doc.SetColumnName(0, "name");
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    doc.SetColumnName(criterion_index + 1, problem.criteria[criterion_index].get_name());
+    doc.SetColumnName(criterion_index + 1, problem.get_criteria()[criterion_index].get_name());
   }
   doc.SetColumnName(criteria_count + 1, "category");
 
@@ -38,7 +38,7 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
     doc.SetCell<std::string>(0, alternative_index, alternative.name);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       // @todo(Project management, v1.1) Use 'dispatch(alternative.profile[criterion_index].get(), ...)'
-      switch (problem.criteria[criterion_index].get_value_type()) {
+      switch (problem.get_criteria()[criterion_index].get_value_type()) {
         case Criterion::ValueType::real:
           doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index].get_real_value());
           break;
@@ -51,7 +51,7 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
       }
     }
     if (alternative.category_index) {
-      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.ordered_categories[*alternative.category_index].name);
+      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.get_ordered_categories()[*alternative.category_index].get_name());
     }
   }
 
@@ -61,10 +61,10 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
 Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
   CHRONE();
 
-  const unsigned criteria_count = problem.criteria.size();
+  const unsigned criteria_count = problem.get_criteria().size();
   std::map<std::string, unsigned> category_indexes;
-  for (const auto& category: problem.ordered_categories) {
-    category_indexes[category.name] = category_indexes.size();
+  for (const auto& category: problem.get_ordered_categories()) {
+    category_indexes[category.get_name()] = category_indexes.size();
   }
 
   // I don't know why constructing the rapidcsv::Document directly from 'is' sometimes results in an empty document.
@@ -87,7 +87,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
   std::vector<size_t> criterion_column_indexes;
   criterion_column_indexes.reserve(criteria_count);
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    ssize_t column_index = doc.GetColumnIdx(problem.criteria[criterion_index].get_name());
+    ssize_t column_index = doc.GetColumnIdx(problem.get_criteria()[criterion_index].get_name());
     if (column_index < 0) {
       throw DataValidationException("Mismatch: criterion from the problem file not found in the alternatives file");
     }
@@ -107,7 +107,7 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
     std::vector<Performance> profile;
     profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      switch (problem.criteria[criterion_index].get_value_type()) {
+      switch (problem.get_criteria()[criterion_index].get_value_type()) {
         case Criterion::ValueType::real:
           profile.push_back(Performance::make_real(doc.GetCell<float>(criterion_column_indexes[criterion_index], row_index)));
           break;

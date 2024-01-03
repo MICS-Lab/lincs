@@ -141,7 +141,7 @@ void Problem::dump(std::ostream& os) const {
   out << YAML::Key << "ordered_categories" << YAML::Value << YAML::BeginSeq;
   for (const auto& category : ordered_categories) {
     out << YAML::BeginMap;
-    out << YAML::Key << "name" << YAML::Value << category.name;
+    out << YAML::Key << "name" << YAML::Value << category.get_name();
     out << YAML::EndMap;
   }
   out << YAML::EndSeq;
@@ -287,10 +287,10 @@ ordered_categories:
 
   Problem problem = Problem::load(iss);
 
-  CHECK(problem.criteria[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::isotone);
-  CHECK(problem.criteria[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::increasing);
-  CHECK(problem.criteria[1].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::antitone);
-  CHECK(problem.criteria[1].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
+  CHECK(problem.get_criteria()[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::isotone);
+  CHECK(problem.get_criteria()[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::increasing);
+  CHECK(problem.get_criteria()[1].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::antitone);
+  CHECK(problem.get_criteria()[1].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
 }
 
 TEST_CASE("dumping then loading problem preserves data - real with infinite min/max") {

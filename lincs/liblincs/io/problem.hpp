@@ -151,6 +151,9 @@ class Category {
   bool operator==(const Category& other) const { return name == other.name; }
 
  public:
+  const std::string& get_name() const { return name; }
+
+ private:
   std::string name;
 };
 
@@ -167,11 +170,15 @@ class Problem {
   }
 
  public:
+  const std::vector<Criterion>& get_criteria() const { return criteria; }
+  const std::vector<Category>& get_ordered_categories() const { return ordered_categories; }
+
+ public:
   static const std::string json_schema;
   void dump(std::ostream&) const;
   static Problem load(std::istream&);
 
- public:
+ private:
   std::vector<Criterion> criteria;
   std::vector<Category> ordered_categories;
 };

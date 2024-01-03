@@ -21,9 +21,9 @@ bool better_or_equal(
   const unsigned criterion_index
 ) {
   const auto& performance = alternatives.alternatives[alternative_index].profile[criterion_index];
-  const auto& accepted_values = model.accepted_values[criterion_index];
+  const auto& accepted_values = model.get_accepted_values()[criterion_index];
   return dispatch(
-    problem.criteria[criterion_index].get_values(),
+    problem.get_criteria()[criterion_index].get_values(),
     [&model, &performance, &accepted_values, boundary_index](const Criterion::RealValues& values) {
       const float threshold = accepted_values.get_real_thresholds().get_thresholds()[boundary_index];
       return better_or_equal(values.get_preference_direction(), performance.get_real_value(), threshold);
@@ -46,16 +46,16 @@ bool is_good_enough(
   const unsigned boundary_index,
   const unsigned alternative_index
 ) {
-  const unsigned criteria_count = problem.criteria.size();
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned criteria_count = problem.get_criteria().size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
   const unsigned boundaries_count = categories_count - 1;
 
-  assert(model.accepted_values.size() == criteria_count);
-  assert(model.sufficient_coalitions.size() == boundaries_count);
+  assert(model.get_accepted_values().size() == criteria_count);
+  assert(model.get_sufficient_coalitions().size() == boundaries_count);
   assert(boundary_index < boundaries_count);
 
   return dispatch(
-    model.sufficient_coalitions[boundary_index].get(),
+    model.get_sufficient_coalitions()[boundary_index].get(),
     [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const SufficientCoalitions::Weights& weights) {
       float weight_at_or_better_than_profile = 0;
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
@@ -87,7 +87,7 @@ bool is_good_enough(
 ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
   CHRONE();
 
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
   const unsigned alternatives_count = alternatives->alternatives.size();
 
   ClassificationResult result{0, 0};

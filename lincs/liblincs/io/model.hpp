@@ -212,11 +212,15 @@ class Model {
   }
 
  public:
+  const std::vector<AcceptedValues>& get_accepted_values() const { return accepted_values; }
+  const std::vector<SufficientCoalitions>& get_sufficient_coalitions() const { return sufficient_coalitions; }
+
+ public:
   static const std::string json_schema;
   void dump(const Problem&, std::ostream&) const;
   static Model load(const Problem&, std::istream&);
 
- public:
+ private:
   std::vector<AcceptedValues> accepted_values;
   std::vector<SufficientCoalitions> sufficient_coalitions;
 };

@@ -157,12 +157,13 @@ void define_problem_classes() {
   ;
 
   bp::class_<lincs::Category>("Category", bp::init<std::string>())
-    .def_readwrite("name", &lincs::Category::name)
+    // @todo(Project management, v1.1) Investigate return policies and stop returning everything by values, where const refs would be more appropriate
+    .add_property("name", bp::make_function(&lincs::Category::get_name, bp::return_value_policy<bp::return_by_value>()))
   ;
 
   auto problem_class = bp::class_<lincs::Problem>("Problem", bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>())
-    .def_readwrite("criteria", &lincs::Problem::criteria)
-    .def_readwrite("ordered_categories", &lincs::Problem::ordered_categories)
+    .add_property("criteria", bp::make_function(&lincs::Problem::get_criteria, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("ordered_categories", bp::make_function(&lincs::Problem::get_ordered_categories, bp::return_value_policy<bp::return_by_value>()))
     .def(
       "dump",
       &dump_problem,
@@ -247,9 +248,8 @@ void define_model_classes() {
   ;
 
   auto model_class = bp::class_<lincs::Model>("Model", bp::init<const lincs::Problem&, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>())
-    // @todo(Feature, v1.1) Avoid def_readwrite: make all objects immutable?
-    .def_readwrite("accepted_values", &lincs::Model::accepted_values)
-    .def_readwrite("sufficient_coalitions", &lincs::Model::sufficient_coalitions)
+    .add_property("accepted_values", bp::make_function(&lincs::Model::get_accepted_values, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("sufficient_coalitions", bp::make_function(&lincs::Model::get_sufficient_coalitions, bp::return_value_policy<bp::return_by_value>()))
     .def(
       "dump",
       &dump_model,
@@ -283,12 +283,12 @@ void define_alternative_classes() {
       (bp::arg("name"), "profile", (bp::arg("category")=std::optional<unsigned>()))
     )
   )
-    .def_readwrite("name", &lincs::Alternative::name)
-    .def_readwrite("profile", &lincs::Alternative::profile)
+    .def_readonly("name", &lincs::Alternative::name)
+    .def_readonly("profile", &lincs::Alternative::profile)
     .add_property("category_index", &get_alternative_category_index, &set_alternative_category_index)
   ;
   bp::class_<lincs::Alternatives>("Alternatives", bp::init<const lincs::Problem&, const std::vector<lincs::Alternative>&>())
-    .def_readwrite("alternatives", &lincs::Alternatives::alternatives)
+    .def_readonly("alternatives", &lincs::Alternatives::alternatives)
     .def(
       "dump",
       &dump_alternatives,
