@@ -14,9 +14,7 @@ class AcceptedValues {
  public:
   class RealThresholds {
    public:
-    RealThresholds(const std::vector<float>& thresholds_) : thresholds(thresholds_) {
-      // @todo(Feature, v1.1) Validate thresholds (e.g. they are ordered)
-    }
+    RealThresholds(const std::vector<float>& thresholds_) : thresholds(thresholds_) {}
 
    public:
     bool operator==(const RealThresholds& other) const {
@@ -32,9 +30,7 @@ class AcceptedValues {
 
   class IntegerThresholds {
    public:
-    IntegerThresholds(const std::vector<int>& thresholds_) : thresholds(thresholds_) {
-      // @todo(Feature, v1.1) Validate thresholds (e.g. they are ordered)
-    }
+    IntegerThresholds(const std::vector<int>& thresholds_) : thresholds(thresholds_) {}
 
    public:
     bool operator==(const IntegerThresholds& other) const {
@@ -50,9 +46,7 @@ class AcceptedValues {
 
   class EnumeratedThresholds {
    public:
-    EnumeratedThresholds(const std::vector<std::string>& thresholds_) : thresholds(thresholds_) {
-      // @todo(Feature, v1.1) Validate thresholds (e.g. they are ordered)
-    }
+    EnumeratedThresholds(const std::vector<std::string>& thresholds_) : thresholds(thresholds_) {}
 
    public:
     bool operator==(const EnumeratedThresholds& other) const {
@@ -120,7 +114,9 @@ class SufficientCoalitions {
   class Weights {
    public:
     Weights(const std::vector<float>& criterion_weights_) : criterion_weights(criterion_weights_) {
-      // @todo(Feature, v1.1) Validate criterion_weights?
+      for (auto w : criterion_weights) {
+        validate(w >= 0, "Criterion weights must be non-negative");
+      }
     }
 
    public:
@@ -137,19 +133,17 @@ class SufficientCoalitions {
 
   class Roots {
    public:
-    Roots(const std::vector<boost::dynamic_bitset<>>& upset_roots_) : upset_roots(upset_roots_) {
-      // @todo(Feature, v1.1) Validate upset_roots?
-    }
+    Roots(const std::vector<boost::dynamic_bitset<>>& upset_roots_) : upset_roots(upset_roots_) {}
 
     Roots(const unsigned criteria_count, const std::vector<std::vector<unsigned>>& upset_roots_) {
       upset_roots.reserve(upset_roots_.size());
       for (const auto& root: upset_roots_) {
         boost::dynamic_bitset<>& upset_root = upset_roots.emplace_back(criteria_count);
         for (unsigned criterion_index: root) {
+          validate(criterion_index < criteria_count, "An element index in a root in a sufficient coalitions descriptor must be less than the number of criteria in the problem");
           upset_root[criterion_index] = true;
         }
       }
-      // @todo(Feature, v1.1) Validate upset_roots?
     }
 
    public:
@@ -204,56 +198,13 @@ class SufficientCoalitions {
 
 class Model {
  public:
-  Model(const Problem& problem, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
-    accepted_values(accepted_values_),
-    sufficient_coalitions(sufficient_coalitions_)
-  {
-    // @todo(Feature, v1.1) Use 'lincs::validate' instead of 'assert': this validation must occur in release mode as well
-    assert(accepted_values.size() == problem.criteria.size());
-    for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
-      dispatch(
-        accepted_values[criterion_index].get(),
-        [&problem](const AcceptedValues::RealThresholds& thresholds) {
-          assert(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1);
-        },
-        [&problem](const AcceptedValues::IntegerThresholds& thresholds) {
-          assert(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1);
-        },
-        [&problem](const AcceptedValues::EnumeratedThresholds& thresholds) {
-          assert(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1);
-        }
-      );
-    };
-    assert(sufficient_coalitions.size() == problem.ordered_categories.size() - 1);
-    for (const auto& sufficient_coalitions_ : sufficient_coalitions) {
-      dispatch(
-        sufficient_coalitions_.get(),
-        [&](const SufficientCoalitions::Weights& weights) {
-          assert(weights.get_criterion_weights().size() == problem.criteria.size());
-        },
-        [&](const SufficientCoalitions::Roots& roots) {
-          // Nothing to do
-        }
-      );
-    }
-
-    // @todo(Feature, v1.1) Check the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
-    // The issue is: we're dealing with floating point data, so we need to analyse if precision loss could lead us to reject an actually correct model.
-  }
+  Model(const Problem&, const std::vector<AcceptedValues>&, const std::vector<SufficientCoalitions>&);
 
   // Copyable and movable
   Model(const Model&) = default;
-  Model& operator=(const Model& other) {
-    accepted_values = other.accepted_values;
-    sufficient_coalitions = other.sufficient_coalitions;
-    return *this;
-  };
+  Model& operator=(const Model&) = default;
   Model(Model&&) = default;
-  Model& operator=(Model&& other) {
-    accepted_values = std::move(other.accepted_values);
-    sufficient_coalitions = std::move(other.sufficient_coalitions);
-    return *this;
-  }
+  Model& operator=(Model&&) = default;
 
  public:
   bool operator==(const Model& other) const {

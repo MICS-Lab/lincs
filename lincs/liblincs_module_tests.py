@@ -10,8 +10,6 @@ forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
 
 # @todo(Feature, v1.1) Test using named parameters when calling the API (e.g. Criterion(name="Criterion name", ...), Problem(criteria=[...], ...))
 
-# @todo(Feature, v1.1) Add tests showing the 'bad_variant_access' exception when using the wrong getters on std::variant-based types
-
 class ProblemTestCase(unittest.TestCase):
     def test_init_simplest(self):
         problem = Problem(
@@ -36,29 +34,19 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.ordered_categories[0].name, "Bad")
         self.assertEqual(problem.ordered_categories[1].name, "Good")
 
-    # @todo(Feature, v1.1) Enable this test
-    # def test_init_not_enough_categories(self):
-    #     with self.assertRaises(DataValidationError):
-    #         Problem(
-    #             [
-    #                 Criterion("Criterion name", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
-    #             ],
-    #             [],
-    #         )
-    #     with self.assertRaises(DataValidationError):
-    #         Problem(
-    #             [
-    #                 Criterion("Criterion name", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
-    #             ],
-    #             [
-    #                 Category("Single")
-    #             ],
-    #         )
+    def test_init_not_enough_categories(self):
+        criterion = Criterion("Criterion name", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1))
+        with self.assertRaises(DataValidationException) as cm:
+            Problem([criterion], [])
+        self.assertEqual(cm.exception.args[0], "A problem must have at least 2 categories")
+        with self.assertRaises(DataValidationException) as cm:
+            Problem([criterion], [Category("Single")])
+        self.assertEqual(cm.exception.args[0], "A problem must have at least 2 categories")
 
-    # @todo(Feature, v1.1) Enable this test
-    # def test_init_no_criterion(self):
-    #     with self.assertRaises(DataValidationError):
-    #         Problem([], [Category("Bad"), Category("Good")])
+    def test_init_no_criterion(self):
+        with self.assertRaises(DataValidationException) as cm:
+            Problem([], [Category("Bad"), Category("Good")])
+        self.assertEqual(cm.exception.args[0], "A problem must have at least one criterion")
 
     def test_init_wrong_types(self):
         with self.assertRaises(TypeError):
@@ -162,10 +150,96 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.sufficient_coalitions[0].weights.criterion_weights), 1)
         self.assertEqual(model.sufficient_coalitions[0].weights.criterion_weights[0], 0.75)
 
-    # @todo(Feature, v1.1) When we publish the Python API, test inconsistent sizes between accepted values and criteria
-    # @todo(Feature, v1.1) When we publish the Python API, test inconsistent sizes between sufficient coalitions and categories
+    def test_bad_accesses(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            ],
+            [Category("Bad"), Category("Good")],
+        )
+        with self.assertRaises(RuntimeError):
+            problem.criteria[0].integer_values
+        model = Model(
+            problem,
+            [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+            [SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
+        )
+        with self.assertRaises(RuntimeError):
+            model.accepted_values[0].integer_thresholds
+        with self.assertRaises(RuntimeError):
+            model.sufficient_coalitions[0].roots
 
-    def test_init_roots(self):
+    def test_init_size_mismatch(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            ],
+            [Category("Bad"), Category("Good")],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [],
+                [SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [
+                    AcceptedValues(AcceptedValues.RealThresholds([0.5])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.5])),
+                ],
+                [SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([]))],
+                [SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([0.5, 0.6]))],
+                [SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+                [],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of sufficient coalitions in the model must be one less than the number of categories in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+                [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.75])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.75])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of sufficient coalitions in the model must be one less than the number of categories in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+                [SufficientCoalitions(SufficientCoalitions.Weights([]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of criterion weights in a sufficient coalitions descriptor must be equal to the number of criteria in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+                [SufficientCoalitions(SufficientCoalitions.Weights([0.75, 0.75]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The number of criterion weights in a sufficient coalitions descriptor must be equal to the number of criteria in the problem")
+
+    def test_init_type_mismatch(self):
         problem = Problem(
             [
                 Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
@@ -174,12 +248,41 @@ class ModelTestCase(unittest.TestCase):
                 Category("Category 2"),
             ],
         )
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50])),
+                ],
+                [
+                    SufficientCoalitions(SufficientCoalitions.Roots(1, [[0]])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion")
+
+    def test_init_roots(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+                Criterion("Criterion 2", Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 0, 100)),
+                Criterion("Criterion 3", Criterion.EnumeratedValues(["c", "b", "a"])),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
         model = Model(
             problem,
-            [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
-            [SufficientCoalitions(SufficientCoalitions.Roots(3, [[0, 1], [0, 2]]))],
+            [
+                AcceptedValues(AcceptedValues.RealThresholds([0.5])),
+                AcceptedValues(AcceptedValues.IntegerThresholds([50])),
+                AcceptedValues(AcceptedValues.EnumeratedThresholds(["b"])),
+            ],
+            [
+                SufficientCoalitions(SufficientCoalitions.Roots(3, [[0, 1], [0, 2]])),
+            ],
         )
-        self.assertEqual(len(model.accepted_values), 1)
+        self.assertEqual(len(model.accepted_values), 3)
         self.assertEqual(model.accepted_values[0].value_type, Criterion.ValueType.real)
         self.assertTrue(model.accepted_values[0].is_real)
         self.assertFalse(model.accepted_values[0].is_integer)
@@ -188,6 +291,22 @@ class ModelTestCase(unittest.TestCase):
         self.assertTrue(model.accepted_values[0].is_thresholds)
         self.assertEqual(len(model.accepted_values[0].real_thresholds.thresholds), 1)
         self.assertEqual(model.accepted_values[0].real_thresholds.thresholds[0], 0.5)
+        self.assertEqual(model.accepted_values[1].value_type, Criterion.ValueType.integer)
+        self.assertFalse(model.accepted_values[1].is_real)
+        self.assertTrue(model.accepted_values[1].is_integer)
+        self.assertFalse(model.accepted_values[1].is_enumerated)
+        self.assertEqual(model.accepted_values[1].kind, AcceptedValues.Kind.thresholds)
+        self.assertTrue(model.accepted_values[1].is_thresholds)
+        self.assertEqual(len(model.accepted_values[1].integer_thresholds.thresholds), 1)
+        self.assertEqual(model.accepted_values[1].integer_thresholds.thresholds[0], 50)
+        self.assertEqual(model.accepted_values[2].value_type, Criterion.ValueType.enumerated)
+        self.assertFalse(model.accepted_values[2].is_real)
+        self.assertFalse(model.accepted_values[2].is_integer)
+        self.assertTrue(model.accepted_values[2].is_enumerated)
+        self.assertEqual(model.accepted_values[2].kind, AcceptedValues.Kind.thresholds)
+        self.assertTrue(model.accepted_values[2].is_thresholds)
+        self.assertEqual(len(model.accepted_values[2].enumerated_thresholds.thresholds), 1)
+        self.assertEqual(model.accepted_values[2].enumerated_thresholds.thresholds[0], "b")
         self.assertEqual(len(model.sufficient_coalitions), 1)
         self.assertEqual(model.sufficient_coalitions[0].kind, SufficientCoalitions.Kind.roots)
         self.assertFalse(model.sufficient_coalitions[0].is_weights)
@@ -196,6 +315,32 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(model.sufficient_coalitions[0].roots.upset_roots[0][1], 1)
         self.assertEqual(model.sufficient_coalitions[0].roots.upset_roots[1][0], 0)
         self.assertEqual(model.sufficient_coalitions[0].roots.upset_roots[1][1], 2)
+
+    def test_init_size_mismatch_2(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [
+                    AcceptedValues(AcceptedValues.RealThresholds([0.5])),
+                ],
+                [SufficientCoalitions(SufficientCoalitions.Roots(2, [[0]]))],
+            )
+        self.assertEqual(cm.exception.args[0], "The maximum number of elements in a root in a sufficient coalitions descriptor must be equal to the number of criteria in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem,
+                [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+                [SufficientCoalitions(SufficientCoalitions.Roots(3, [[3]]))],
+            )
+        self.assertEqual(cm.exception.args[0], "An element index in a root in a sufficient coalitions descriptor must be less than the number of criteria in the problem")
 
     def test_init_integer(self):
         problem = Problem(

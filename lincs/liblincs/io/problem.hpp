@@ -127,7 +127,7 @@ class Criterion {
   const std::string& get_name() const { return name; }
 
   ValueType get_value_type() const { return ValueType(values.index()); }
-  const Values& get_values() const { return values; }  // @todo(Feature, v1.1) Remove from public interface? Do we want to expose the variant? Do we want clients to use 'std::visit'?
+  const Values& get_values() const { return values; }
 
   bool is_real() const { return get_value_type() == ValueType::real; }
   const RealValues& get_real_values() const { return std::get<RealValues>(values); }
@@ -157,8 +157,8 @@ class Category {
 class Problem {
  public:
   Problem(const std::vector<Criterion>& criteria_, const std::vector<Category>& ordered_categories_): criteria(criteria_), ordered_categories(ordered_categories_) {
-    assert(criteria.size() > 0);
-    assert(ordered_categories.size() >= 2);
+    validate(criteria.size() >= 1, "A problem must have at least one criterion");
+    validate(ordered_categories.size() >= 2, "A problem must have at least 2 categories");
   }
 
  public:

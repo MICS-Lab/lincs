@@ -126,6 +126,45 @@ std::vector<std::vector<unsigned>> SufficientCoalitions::Roots::get_upset_roots_
   return roots;
 }
 
+Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
+  accepted_values(accepted_values_),
+  sufficient_coalitions(sufficient_coalitions_)
+{
+  validate(accepted_values.size() == problem.criteria.size(), "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
+  for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
+    validate(accepted_values[criterion_index].get_value_type() == problem.criteria[criterion_index].get_value_type(), "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion");
+    dispatch(
+      accepted_values[criterion_index].get(),
+      [&problem](const AcceptedValues::RealThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1, "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      },
+      [&problem](const AcceptedValues::IntegerThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1, "The number of integer thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      },
+      [&problem](const AcceptedValues::EnumeratedThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == problem.ordered_categories.size() - 1, "The number of enumerated thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      }
+    );
+  };
+  validate(sufficient_coalitions.size() == problem.ordered_categories.size() - 1, "The number of sufficient coalitions in the model must be one less than the number of categories in the problem");
+  for (const auto& sufficient_coalitions_ : sufficient_coalitions) {
+    dispatch(
+      sufficient_coalitions_.get(),
+      [&problem](const SufficientCoalitions::Weights& weights) {
+        validate(weights.get_criterion_weights().size() == problem.criteria.size(), "The number of criterion weights in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
+      },
+      [&](const SufficientCoalitions::Roots& roots) {
+        for (const auto& root: roots.get_upset_roots_as_bitsets()) {
+          validate(root.size() == problem.criteria.size(), "The maximum number of elements in a root in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
+        }
+      }
+    );
+  }
+
+  // @todo(Feature, v1.1) Validate the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
+  // The issue is: we're dealing with floating point data, so we need to analyse if precision loss could lead us to reject an actually correct model.
+}
+
 void Model::dump(const Problem& problem, std::ostream& os) const {
   CHRONE();
 
@@ -227,12 +266,10 @@ Model Model::load(const Problem& problem, std::istream& is) {
   validator.validate(node);
 
   const YAML::Node& yaml_accepted_values = node["accepted_values"];
-  if (yaml_accepted_values.size() != criteria_count) {
-    throw DataValidationException("Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file");
-  }
+  validate(yaml_accepted_values.size() == criteria_count, "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
   std::vector<AcceptedValues> accepted_values;
   accepted_values.reserve(criteria_count);
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+  for (unsigned criterion_index = 0; criterion_index != yaml_accepted_values.size(); ++criterion_index) {
     const Criterion& criterion = problem.criteria[criterion_index];
     const YAML::Node& yaml_acc_vals = yaml_accepted_values[criterion_index];
     assert(yaml_acc_vals["kind"].as<std::string>() == "thresholds");
@@ -241,31 +278,18 @@ Model Model::load(const Problem& problem, std::istream& is) {
     accepted_values.push_back(dispatch(
       criterion.get_values(),
       [&thresholds, boundaries_count](const Criterion::RealValues&) {
-        if (thresholds.size() != boundaries_count) {
-          // @todo(Feature, v1.1) Move all validation in constructors, using 'DataValidationException' instead of 'assert'
-          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-        }
         return AcceptedValues(AcceptedValues::RealThresholds(thresholds.as<std::vector<float>>()));
       },
       [&thresholds, boundaries_count](const Criterion::IntegerValues&) {
-        if (thresholds.size() != boundaries_count) {
-          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-        }
         return AcceptedValues(AcceptedValues::IntegerThresholds(thresholds.as<std::vector<int>>()));
       },
       [&thresholds, boundaries_count](const Criterion::EnumeratedValues&) {
-        if (thresholds.size() != boundaries_count) {
-          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-        }
         return AcceptedValues(AcceptedValues::EnumeratedThresholds(thresholds.as<std::vector<std::string>>()));
       }
     ));
   }
 
   const YAML::Node& yaml_sufficient_coalitions = node["sufficient_coalitions"];
-  if (yaml_sufficient_coalitions.size() != boundaries_count) {
-    throw DataValidationException("Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file");
-  }
   std::vector<SufficientCoalitions> sufficient_coalitions;
   sufficient_coalitions.reserve(boundaries_count);
   for (const YAML::Node& yaml_suff_coals : yaml_sufficient_coalitions) {
@@ -665,7 +689,7 @@ sufficient_coalitions:
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
-    "Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file",
+    "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem",
     DataValidationException);
 }
 
@@ -689,7 +713,7 @@ sufficient_coalitions:
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
-    "Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file",
+    "The number of sufficient coalitions in the model must be one less than the number of categories in the problem",
     DataValidationException);
 }
 
@@ -711,7 +735,7 @@ sufficient_coalitions:
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
-    "Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file",
+    "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem",
     DataValidationException);
 }
 
