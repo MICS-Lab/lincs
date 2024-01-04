@@ -15,31 +15,79 @@ namespace lincs {
 
 class Performance {
  public:
-  static Performance make_real(float value) { return Performance(value); }
+  class RealPerformance {
+   public:
+    RealPerformance(float value_) : value(value_) {}
 
-  static Performance make_integer(int value) { return Performance(value); }
+   public:
+    bool operator==(const RealPerformance& other) const { return value == other.value; }
 
-  static Performance make_enumerated(std::string value) { return Performance(value); }
+   public:
+    float get_value() const { return value; }
 
- private:
-  Performance(float value): perf(value) {}
+   private:
+    float value;
+  };
 
-  Performance(int value): perf(value) {}
+  class IntegerPerformance {
+   public:
+    IntegerPerformance(int value_) : value(value_) {}
 
-  Performance(std::string value): perf(value) {}
+   public:
+    bool operator==(const IntegerPerformance& other) const { return value == other.value; }
+
+   public:
+    int get_value() const { return value; }
+
+   private:
+    int value;
+  };
+
+  class EnumeratedPerformance {
+   public:
+    EnumeratedPerformance(std::string value_) : value(value_) {}
+
+   public:
+    bool operator==(const EnumeratedPerformance& other) const { return value == other.value; }
+
+   public:
+    std::string get_value() const { return value; }
+
+   private:
+    std::string value;
+  };
+
+  typedef std::variant<RealPerformance, IntegerPerformance, EnumeratedPerformance> Self;
 
  public:
-  bool operator==(const Performance& other) const { return perf == other.perf; }
+  Performance(const Self& self_) : self(self_) {}
+
+  // Copyable and movable
+  Performance(const Performance&) = default;
+  Performance& operator=(const Performance&) = default;
+  Performance(Performance&&) = default;
+  Performance& operator=(Performance&&) = default;
 
  public:
-  float get_real_value() const { return std::get<float>(perf); }
+  bool operator==(const Performance& other) const {
+    return self == other.self;
+  }
 
-  int get_integer_value() const { return std::get<int>(perf); }
+ public:
+  Criterion::ValueType get_value_type() const { return Criterion::ValueType(self.index()); }
+  const Self& get() const { return self; }
 
-  std::string get_enumerated_value() const { return std::get<std::string>(perf); }
+  bool is_real() const { return get_value_type() == Criterion::ValueType::real; }
+  RealPerformance get_real() const { return std::get<RealPerformance>(self); }
+
+  bool is_integer() const { return get_value_type() == Criterion::ValueType::integer; }
+  IntegerPerformance get_integer() const { return std::get<IntegerPerformance>(self); }
+
+  bool is_enumerated() const { return get_value_type() == Criterion::ValueType::enumerated; }
+  EnumeratedPerformance get_enumerated() const { return std::get<EnumeratedPerformance>(self); }
 
  private:
-  std::variant<float, int, std::string> perf;
+  Self self;  // @todo(Feature, v1.1) Evaluate wether we could remove the class and use directly the variant. Are there any potential future attributes to be added?
 };
 
 class Alternative {
@@ -55,9 +103,20 @@ class Alternative {
   {}
 
  public:
-  bool operator==(const Alternative& other) const { return name == other.name && profile == other.profile && category_index == other.category_index; }
+  bool operator==(const Alternative& other) const {
+    return name == other.name && profile == other.profile && category_index == other.category_index;
+  }
 
  public:
+  const std::string& get_name() const { return name; }
+  void set_name(const std::string& name_) { name = name_; }
+
+  const std::vector<Performance>& get_profile() const { return profile; }
+
+  const std::optional<unsigned>& get_category_index() const { return category_index; }
+  void set_category_index(const std::optional<unsigned>& category_index_) { category_index = category_index_; }
+
+ private:
   std::string name;
   std::vector<Performance> profile;
   std::optional<unsigned> category_index;
@@ -65,10 +124,7 @@ class Alternative {
 
 class Alternatives {
  public:
-  // @todo(Project management, v1.1) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
-  Alternatives(const Problem&, const std::vector<Alternative>& alternatives_) :
-    alternatives(alternatives_)
-  {}
+  Alternatives(const Problem&, const std::vector<Alternative>&);
 
  public:
   bool operator==(const Alternatives& other) const {
@@ -80,6 +136,10 @@ class Alternatives {
   static Alternatives load(const Problem&, std::istream&);
 
  public:
+  const std::vector<Alternative>& get_alternatives() const { return alternatives; }
+  std::vector<Alternative>& get_writable_alternatives() { return alternatives; }
+
+ private:
   std::vector<Alternative> alternatives;
 };
 

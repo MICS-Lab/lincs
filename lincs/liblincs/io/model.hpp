@@ -65,14 +65,14 @@ class AcceptedValues {
   enum class Kind { thresholds };
   typedef std::variant<RealThresholds, IntegerThresholds, EnumeratedThresholds> Self;
 
+ public:
+  AcceptedValues(const Self& self_) : self(self_) {}
+
   // Copyable and movable
   AcceptedValues(const AcceptedValues&) = default;
   AcceptedValues& operator=(const AcceptedValues&) = default;
   AcceptedValues(AcceptedValues&&) = default;
   AcceptedValues& operator=(AcceptedValues&&) = default;
-
- public:
-  AcceptedValues(const Self& self_) : self(self_) {}
 
  public:
   bool operator==(const AcceptedValues& other) const {

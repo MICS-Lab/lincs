@@ -357,13 +357,13 @@ Alternatives generate_uniform_classified_alternatives(
       profile.push_back(dispatch(
         problem.get_criteria()[criterion_index].get_values(),
         [&real_values_distributions, &gen, criterion_index](const Criterion::RealValues& values) {
-          return Performance::make_real(real_values_distributions[criterion_index](gen));
+          return Performance(Performance::RealPerformance(real_values_distributions[criterion_index](gen)));
         },
         [&int_values_distributions, &gen, criterion_index](const Criterion::IntegerValues& values) {
-          return Performance::make_integer(int_values_distributions[criterion_index](gen));
+          return Performance(Performance::IntegerPerformance(int_values_distributions[criterion_index](gen)));
         },
         [&enum_values_distributions, &gen, criterion_index](const Criterion::EnumeratedValues& values) {
-          return Performance::make_enumerated(values.get_ordered_values()[enum_values_distributions[criterion_index](gen)]);
+          return Performance(Performance::EnumeratedPerformance(values.get_ordered_values()[enum_values_distributions[criterion_index](gen)]));
         }
       ));
     }
@@ -458,9 +458,9 @@ Alternatives generate_balanced_classified_alternatives(
 
     Alternatives candidates = generate_uniform_classified_alternatives(problem, model, multiplier * alternatives_count, gen);
 
-    for (const auto& candidate : candidates.alternatives) {
-      assert(candidate.category_index);
-      const unsigned category_index = *candidate.category_index;
+    for (const auto& candidate : candidates.get_alternatives()) {
+      assert(candidate.get_category_index());
+      const unsigned category_index = *candidate.get_category_index();
       if (histogram[category_index] < min_size) {
         alternatives.push_back(candidate);
         ++histogram[category_index];
@@ -489,9 +489,9 @@ Alternatives generate_balanced_classified_alternatives(
 
     Alternatives candidates = generate_uniform_classified_alternatives(problem, model, multiplier * alternatives_count, gen);
 
-    for (const auto& candidate : candidates.alternatives) {
-      assert(candidate.category_index);
-      const unsigned category_index = *candidate.category_index;
+    for (const auto& candidate : candidates.get_alternatives()) {
+      assert(candidate.get_category_index());
+      const unsigned category_index = *candidate.get_category_index();
       if (histogram[category_index] < max_size) {
         alternatives.push_back(candidate);
         ++histogram[category_index];
@@ -528,7 +528,7 @@ Alternatives generate_classified_alternatives(
     generate_uniform_classified_alternatives(problem, model, alternatives_count, gen);
 
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-    alternatives.alternatives[alternative_index].name = "Alternative " + std::to_string(alternative_index + 1);
+    alternatives.get_writable_alternatives()[alternative_index].set_name("Alternative " + std::to_string(alternative_index + 1));
   }
 
   return alternatives;
@@ -544,7 +544,7 @@ TEST_CASE("Generate uniform alternative - integer criterion") {
   Model model = generate_mrsort_classification_model(problem, 43);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
-  CHECK(alternatives.alternatives[0].profile[0].get_integer_value() == 4537);
+  CHECK(alternatives.get_alternatives()[0].get_profile()[0].get_integer().get_value() == 4537);
 }
 
 TEST_CASE("Generate uniform alternative - enumerated criterion") {
@@ -557,7 +557,7 @@ TEST_CASE("Generate uniform alternative - enumerated criterion") {
   Model model = generate_mrsort_classification_model(problem, 43);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 1, 44);
 
-  CHECK(alternatives.alternatives[0].profile[0].get_enumerated_value() == "put");
+  CHECK(alternatives.get_alternatives()[0].get_profile()[0].get_enumerated().get_value() == "put");
 }
 
 void check_histogram(const Problem& problem, const Model& model, const std::optional<float> max_imbalance, const unsigned a, const unsigned b) {
@@ -569,8 +569,8 @@ void check_histogram(const Problem& problem, const Model& model, const std::opti
   Alternatives alternatives = generate_classified_alternatives(problem, model, alternatives_count, 42, max_imbalance);
 
   std::vector<unsigned> histogram(2, 0);
-  for (const auto& alternative : alternatives.alternatives) {
-    ++histogram[*alternative.category_index];
+  for (const auto& alternative : alternatives.get_alternatives()) {
+    ++histogram[*alternative.get_category_index()];
   }
   CHECK(histogram[0] == a);
   CHECK(histogram[1] == b);
@@ -592,7 +592,7 @@ TEST_CASE("Generate balanced classified alternatives - names are correct") {
   Model model = generate_mrsort_classification_model(problem, 42, 2);
   Alternatives alternatives = generate_classified_alternatives(problem, model, 100, 42, 0.);
 
-  CHECK(alternatives.alternatives[99].name == "Alternative 100");
+  CHECK(alternatives.get_alternatives()[99].get_name() == "Alternative 100");
 }
 
 TEST_CASE("Generate balanced classified alternatives - many seeds") {
@@ -656,12 +656,12 @@ TEST_CASE("Random min/max") {
   CHECK(problem.get_criteria()[0].get_real_values().get_min_value() == doctest::Approx(-25.092));
   CHECK(problem.get_criteria()[0].get_real_values().get_max_value() == doctest::Approx(59.3086));
   CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(6.52194));
-  CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(45.3692));
+  CHECK(alternatives.get_alternatives()[0].get_profile()[0].get_real().get_value() == doctest::Approx(45.3692));
 
   CHECK(problem.get_criteria()[1].get_real_values().get_min_value() == doctest::Approx(-63.313));
   CHECK(problem.get_criteria()[1].get_real_values().get_max_value() == doctest::Approx(46.3988));
   CHECK(model.get_accepted_values()[1].get_real_thresholds().get_thresholds()[0] == doctest::Approx(24.0712));
-  CHECK(alternatives.alternatives[0].profile[1].get_real_value() == doctest::Approx(-15.8581));
+  CHECK(alternatives.get_alternatives()[0].get_profile()[1].get_real().get_value() == doctest::Approx(-15.8581));
 }
 
 TEST_CASE("Decreasing criterion") {
@@ -679,14 +679,14 @@ TEST_CASE("Decreasing criterion") {
   CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(0.790612));
   CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[1] == doctest::Approx(0.377049));
 
-  CHECK(alternatives.alternatives[0].profile[0].get_real_value() == doctest::Approx(0.834842));
-  CHECK(*alternatives.alternatives[0].category_index == 0);
+  CHECK(alternatives.get_alternatives()[0].get_profile()[0].get_real().get_value() == doctest::Approx(0.834842));
+  CHECK(*alternatives.get_alternatives()[0].get_category_index() == 0);
 
-  CHECK(alternatives.alternatives[1].profile[0].get_real_value() == doctest::Approx(0.432542));
-  CHECK(*alternatives.alternatives[1].category_index == 1);
+  CHECK(alternatives.get_alternatives()[1].get_profile()[0].get_real().get_value() == doctest::Approx(0.432542));
+  CHECK(*alternatives.get_alternatives()[1].get_category_index() == 1);
 
-  CHECK(alternatives.alternatives[2].profile[0].get_real_value() == doctest::Approx(0.104796));
-  CHECK(*alternatives.alternatives[2].category_index == 2);
+  CHECK(alternatives.get_alternatives()[2].get_profile()[0].get_real().get_value() == doctest::Approx(0.104796));
+  CHECK(*alternatives.get_alternatives()[2].get_category_index() == 2);
 }
 
 TEST_CASE("Exploratory test: 'std::shuffle' *can* keep something in place") {
@@ -709,7 +709,7 @@ void misclassify_alternatives(const Problem& problem, Alternatives* alternatives
   CHRONE();
 
   const unsigned categories_count = problem.get_ordered_categories().size();
-  const unsigned alternatives_count = alternatives->alternatives.size();
+  const unsigned alternatives_count = alternatives->get_alternatives().size();
 
   std::mt19937 gen(random_seed);
 
@@ -719,16 +719,16 @@ void misclassify_alternatives(const Problem& problem, Alternatives* alternatives
   alternative_indexes.resize(count);
 
   for (const unsigned alternative_index : alternative_indexes) {
-    auto& alternative = alternatives->alternatives[alternative_index];
+    auto& alternative = alternatives->get_writable_alternatives()[alternative_index];
 
-    // Choose new index in [0, alternative.category_index - 1] U [alternative.category_index + 1, categories_count - 1]
-    // => choose in [0, categories_count - 2] and increment if >= alternative.category_index
+    // Choose new index in [0, alternative.get_category_index() - 1] U [alternative.get_category_index() + 1, categories_count - 1]
+    // => choose in [0, categories_count - 2] and increment if >= alternative.get_category_index()
     unsigned new_category_index = std::uniform_int_distribution<unsigned>(0, categories_count - 2)(gen);
-    if (new_category_index >= *alternative.category_index) {
+    if (new_category_index >= *alternative.get_category_index()) {
       ++new_category_index;
     }
 
-    alternative.category_index = new_category_index;
+    alternative.set_category_index(new_category_index);
   }
 }
 

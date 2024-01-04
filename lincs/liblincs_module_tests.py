@@ -426,30 +426,74 @@ class AlternativesTestCase(unittest.TestCase):
         alternatives = Alternatives(
             problem,
             [
-                Alternative("First alternative", [Performance.make_real(5.), Performance.make_real(5.), Performance.make_real(5)], 0),
-                Alternative("Second alternative", [Performance.make_real(1.), Performance.make_real(2.), Performance.make_real(3.)], None),
-                Alternative("Third alternative", [Performance.make_real(2.), Performance.make_real(4.), Performance.make_real(6.)]),
+                Alternative("First alternative", [Performance(Performance.RealPerformance(5.)), Performance(Performance.RealPerformance(5.)), Performance(Performance.RealPerformance(5))], 0),
+                Alternative("Second alternative", [Performance(Performance.RealPerformance(1.)), Performance(Performance.RealPerformance(2.)), Performance(Performance.RealPerformance(3.))], None),
+                Alternative("Third alternative", [Performance(Performance.RealPerformance(2.)), Performance(Performance.RealPerformance(4.)), Performance(Performance.RealPerformance(6.))]),
             ],
         )
         self.assertEqual(len(alternatives.alternatives), 3)
 
         self.assertEqual(alternatives.alternatives[0].name, "First alternative")
-        self.assertEqual(alternatives.alternatives[0].profile[0].real_value, 5.)
-        self.assertEqual(alternatives.alternatives[0].profile[1].real_value, 5.)
-        self.assertEqual(alternatives.alternatives[0].profile[2].real_value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[0].real.value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[1].real.value, 5.)
+        self.assertEqual(alternatives.alternatives[0].profile[2].real.value, 5.)
         self.assertEqual(alternatives.alternatives[0].category_index, 0)
 
         self.assertEqual(alternatives.alternatives[1].name, "Second alternative")
-        self.assertEqual(alternatives.alternatives[1].profile[0].real_value, 1.)
-        self.assertEqual(alternatives.alternatives[1].profile[1].real_value, 2.)
-        self.assertEqual(alternatives.alternatives[1].profile[2].real_value, 3.)
+        self.assertEqual(alternatives.alternatives[1].profile[0].real.value, 1.)
+        self.assertEqual(alternatives.alternatives[1].profile[1].real.value, 2.)
+        self.assertEqual(alternatives.alternatives[1].profile[2].real.value, 3.)
         self.assertIsNone(alternatives.alternatives[1].category_index)
 
         self.assertEqual(alternatives.alternatives[2].name, "Third alternative")
-        self.assertEqual(alternatives.alternatives[2].profile[0].real_value, 2.)
-        self.assertEqual(alternatives.alternatives[2].profile[1].real_value, 4.)
-        self.assertEqual(alternatives.alternatives[2].profile[2].real_value, 6.)
+        self.assertEqual(alternatives.alternatives[2].profile[0].real.value, 2.)
+        self.assertEqual(alternatives.alternatives[2].profile[1].real.value, 4.)
+        self.assertEqual(alternatives.alternatives[2].profile[2].real.value, 6.)
         self.assertIsNone(alternatives.alternatives[2].category_index)
+
+    def test_init_size_mismatch(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(
+                problem,
+                [
+                    Alternative("First alternative", [], 0),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The profile of an alternative must have as many performances as there are criteria in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(
+                problem,
+                [
+                    Alternative("First alternative", [Performance(Performance.RealPerformance(5.)), Performance(Performance.RealPerformance(5.))], 0),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The profile of an alternative must have as many performances as there are criteria in the problem")
+
+    def test_init_type_mismatch(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(
+                problem,
+                [
+                    Alternative("First alternative", [Performance(Performance.IntegerPerformance(5))], 0),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the criterion in the problem")
 
 
 class LearningTestCase(unittest.TestCase):

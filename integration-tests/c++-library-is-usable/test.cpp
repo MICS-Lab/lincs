@@ -36,8 +36,22 @@ int main() {
   lincs::Alternatives alternatives{
     problem,
     {
-      {"Alice", {lincs::Performance::make_real(11), lincs::Performance::make_real(12)}, 1},
-      {"Bob", {lincs::Performance::make_real(9), lincs::Performance::make_real(11)}, 0},
+      {
+        "Alice",
+        {
+          lincs::Performance(lincs::Performance::RealPerformance(11)),
+          lincs::Performance(lincs::Performance::RealPerformance(12)),
+        },
+        1
+      },
+      {
+        "Bob",
+        {
+          lincs::Performance(lincs::Performance::RealPerformance(9)),
+          lincs::Performance(lincs::Performance::RealPerformance(11)),
+        },
+        0
+      },
     },
   };
   alternatives.dump(problem, std::cout);

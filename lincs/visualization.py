@@ -235,12 +235,12 @@ def make_numeric_profile(criteria, profile):
 
 def make_numeric_value(criterion, y):
     if criterion.is_real:
-        return y.real_value
+        return y.real.value
     elif criterion.is_integer:
-        return y.integer_value
+        return y.integer.value
     else:
         assert criterion.is_enumerated
-        return criterion.enumerated_values.get_value_rank(y.enumerated_value)
+        return criterion.enumerated_values.get_value_rank(y.enumerated.value)
 
 
 def normalize_profile(criteria, ys):

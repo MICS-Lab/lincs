@@ -76,14 +76,6 @@ lincs::Alternatives load_alternatives(const lincs::Problem& problem, bp::object&
   return lincs::Alternatives::load(problem, in_stream);
 }
 
-std::optional<unsigned> get_alternative_category_index(const lincs::Alternative& alt) {
-  return alt.category_index;
-}
-
-void set_alternative_category_index(lincs::Alternative& alt, std::optional<unsigned> category_index) {
-  alt.category_index = category_index;
-}
-
 template <typename T>
 auto auto_enum(const std::string& name) {
   auto e = bp::enum_<T>(name.c_str());
@@ -268,13 +260,38 @@ void define_model_classes() {
 }
 
 void define_alternative_classes() {
-  bp::class_<lincs::Performance>("Performance", bp::no_init)
-    .def("make_real", &lincs::Performance::make_real)
-    .def("make_integer", &lincs::Performance::make_integer)
-    .def("make_enumerated", &lincs::Performance::make_enumerated)
-    .add_property("real_value", &lincs::Performance::get_real_value)
-    .add_property("integer_value", &lincs::Performance::get_integer_value)
-    .add_property("enumerated_value", &lincs::Performance::get_enumerated_value)
+  auto performance_class = bp::class_<lincs::Performance>("Performance", bp::no_init)
+    .def(bp::init<lincs::Performance::RealPerformance>())
+    .def(bp::init<lincs::Performance::IntegerPerformance>())
+    .def(bp::init<lincs::Performance::EnumeratedPerformance>())
+    .add_property("value_type", &lincs::Performance::get_value_type)
+    .add_property("is_real", &lincs::Performance::is_real)
+    .add_property("is_integer", &lincs::Performance::is_integer)
+    .add_property("is_enumerated", &lincs::Performance::is_enumerated)
+    .add_property("real",  bp::make_function(&lincs::Performance::get_real, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("integer",  bp::make_function(&lincs::Performance::get_integer, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("enumerated",  bp::make_function(&lincs::Performance::get_enumerated, bp::return_value_policy<bp::return_by_value>()))
+  ;
+
+  performance_class.attr("RealPerformance") = bp::class_<lincs::Performance::RealPerformance>(
+    "RealPerformance",
+    bp::init<float>((bp::arg("value")))
+  )
+    .add_property("value", &lincs::Performance::RealPerformance::get_value)
+  ;
+
+  performance_class.attr("IntegerPerformance") = bp::class_<lincs::Performance::IntegerPerformance>(
+    "IntegerPerformance",
+    bp::init<int>((bp::arg("value")))
+  )
+    .add_property("value", &lincs::Performance::IntegerPerformance::get_value)
+  ;
+
+  performance_class.attr("EnumeratedPerformance") = bp::class_<lincs::Performance::EnumeratedPerformance>(
+    "EnumeratedPerformance",
+    bp::init<std::string>((bp::arg("value")))
+  )
+    .add_property("value", bp::make_function(&lincs::Performance::EnumeratedPerformance::get_value, bp::return_value_policy<bp::return_by_value>()))
   ;
 
   bp::class_<lincs::Alternative>(
@@ -283,12 +300,12 @@ void define_alternative_classes() {
       (bp::arg("name"), "profile", (bp::arg("category")=std::optional<unsigned>()))
     )
   )
-    .def_readonly("name", &lincs::Alternative::name)
-    .def_readonly("profile", &lincs::Alternative::profile)
-    .add_property("category_index", &get_alternative_category_index, &set_alternative_category_index)
+    .add_property("name", bp::make_function(&lincs::Alternative::get_name, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("profile", bp::make_function(&lincs::Alternative::get_profile, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("category_index", bp::make_function(&lincs::Alternative::get_category_index, bp::return_value_policy<bp::return_by_value>()), &lincs::Alternative::set_category_index)
   ;
   bp::class_<lincs::Alternatives>("Alternatives", bp::init<const lincs::Problem&, const std::vector<lincs::Alternative>&>())
-    .def_readonly("alternatives", &lincs::Alternatives::alternatives)
+    .add_property("alternatives", bp::make_function(&lincs::Alternatives::get_alternatives, bp::return_value_policy<bp::return_by_value>()))
     .def(
       "dump",
       &dump_alternatives,

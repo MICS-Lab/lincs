@@ -16,7 +16,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   criteria_count(problem.get_criteria().size()),
   categories_count(problem.get_ordered_categories().size()),
   boundaries_count(categories_count - 1),
-  alternatives_count(learning_set.alternatives.size()),
+  alternatives_count(learning_set.get_alternatives().size()),
   real_sorted_values(),
   integer_sorted_values(),
   values_counts(criteria_count, uninitialized),
@@ -35,7 +35,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         unique_values.insert(values.get_min_value());
         unique_values.insert(values.get_max_value());
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-          unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value());
+          unique_values.insert(learning_set.get_alternatives()[alternative_index].get_profile()[criterion_index].get_real().get_value());
         }
         const unsigned values_count = unique_values.size();
         values_counts[criterion_index] = values_count;
@@ -50,7 +50,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         assert(value_ranks_for_criterion.size() == values_counts[criterion_index]);
 
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-          const float value = learning_set.alternatives[alternative_index].profile[criterion_index].get_real_value();
+          const float value = learning_set.get_alternatives()[alternative_index].get_profile()[criterion_index].get_real().get_value();
           const unsigned value_rank = value_ranks_for_criterion[value];
           performance_ranks[criterion_index][alternative_index] = value_rank;
         }
@@ -64,7 +64,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         unique_values.insert(values.get_min_value());
         unique_values.insert(values.get_max_value());
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-          unique_values.insert(learning_set.alternatives[alternative_index].profile[criterion_index].get_integer_value());
+          unique_values.insert(learning_set.get_alternatives()[alternative_index].get_profile()[criterion_index].get_integer().get_value());
         }
         const unsigned values_count = unique_values.size();
         values_counts[criterion_index] = values_count;
@@ -79,7 +79,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         assert(value_ranks_for_criterion.size() == values_counts[criterion_index]);
 
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-          const int value = learning_set.alternatives[alternative_index].profile[criterion_index].get_integer_value();
+          const int value = learning_set.get_alternatives()[alternative_index].get_profile()[criterion_index].get_integer().get_value();
           const unsigned value_rank = value_ranks_for_criterion[value];
           performance_ranks[criterion_index][alternative_index] = value_rank;
         }
@@ -95,7 +95,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
         assert(value_ranks_for_criterion.size() == values_counts[criterion_index]);
 
         for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-          const std::string value = learning_set.alternatives[alternative_index].profile[criterion_index].get_enumerated_value();
+          const std::string value = learning_set.get_alternatives()[alternative_index].get_profile()[criterion_index].get_enumerated().get_value();
           const unsigned value_rank = value_ranks_for_criterion[value];
           performance_ranks[criterion_index][alternative_index] = value_rank;
         }
@@ -104,7 +104,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   }
 
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
-    assignments[alternative_index] = *learning_set.alternatives[alternative_index].category_index;
+    assignments[alternative_index] = *learning_set.get_alternatives()[alternative_index].get_category_index();
   }
 }
 

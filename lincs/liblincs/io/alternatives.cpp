@@ -11,6 +11,23 @@
 
 namespace lincs {
 
+// @todo(Project management, v1.1) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
+Alternatives::Alternatives(const Problem& problem, const std::vector<Alternative>& alternatives_) :
+  alternatives(alternatives_)
+{
+  const unsigned criteria_count = problem.get_criteria().size();
+  for (const auto& alternative : alternatives) {
+    validate(
+      alternative.get_profile().size() == problem.get_criteria().size(),
+      "The profile of an alternative must have as many performances as there are criteria in the problem");
+    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+      validate(
+        alternative.get_profile()[criterion_index].get_value_type() == problem.get_criteria()[criterion_index].get_value_type(),
+        "The type of the performance of an alternative must match the type of the criterion in the problem");
+    }
+  }
+}
+
 void Alternatives::dump(const Problem& problem, std::ostream& os) const {
   CHRONE();
 
@@ -35,23 +52,23 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
 
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     const Alternative& alternative = alternatives[alternative_index];
-    doc.SetCell<std::string>(0, alternative_index, alternative.name);
+    doc.SetCell<std::string>(0, alternative_index, alternative.get_name());
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      // @todo(Project management, v1.1) Use 'dispatch(alternative.profile[criterion_index].get(), ...)'
-      switch (problem.get_criteria()[criterion_index].get_value_type()) {
-        case Criterion::ValueType::real:
-          doc.SetCell<float>(criterion_index + 1, alternative_index, alternative.profile[criterion_index].get_real_value());
-          break;
-        case Criterion::ValueType::integer:
-          doc.SetCell<int>(criterion_index + 1, alternative_index, alternative.profile[criterion_index].get_integer_value());
-          break;
-        case Criterion::ValueType::enumerated:
-          doc.SetCell<std::string>(criterion_index + 1, alternative_index, alternative.profile[criterion_index].get_enumerated_value());
-          break;
-      }
+      dispatch(
+        alternative.get_profile()[criterion_index].get(),
+        [&doc, criterion_index, alternative_index](const Performance::RealPerformance& perf) {
+          doc.SetCell<float>(criterion_index + 1, alternative_index, perf.get_value());
+        },
+        [&doc, criterion_index, alternative_index](const Performance::IntegerPerformance& perf) {
+          doc.SetCell<int>(criterion_index + 1, alternative_index, perf.get_value());
+        },
+        [&doc, criterion_index, alternative_index](const Performance::EnumeratedPerformance& perf) {
+          doc.SetCell<std::string>(criterion_index + 1, alternative_index, perf.get_value());
+        }
+      );
     }
-    if (alternative.category_index) {
-      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.get_ordered_categories()[*alternative.category_index].get_name());
+    if (alternative.get_category_index()) {
+      doc.SetCell<std::string>(criteria_count + 1, alternative_index, problem.get_ordered_categories()[*alternative.get_category_index()].get_name());
     }
   }
 
@@ -109,13 +126,13 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       switch (problem.get_criteria()[criterion_index].get_value_type()) {
         case Criterion::ValueType::real:
-          profile.push_back(Performance::make_real(doc.GetCell<float>(criterion_column_indexes[criterion_index], row_index)));
+          profile.push_back(Performance(Performance::RealPerformance(doc.GetCell<float>(criterion_column_indexes[criterion_index], row_index))));
           break;
         case Criterion::ValueType::integer:
-          profile.push_back(Performance::make_integer(doc.GetCell<int>(criterion_column_indexes[criterion_index], row_index)));
+          profile.push_back(Performance(Performance::IntegerPerformance(doc.GetCell<int>(criterion_column_indexes[criterion_index], row_index))));
           break;
         case Criterion::ValueType::enumerated:
-          profile.push_back(Performance::make_enumerated(doc.GetCell<std::string>(criterion_column_indexes[criterion_index], row_index)));
+          profile.push_back(Performance(Performance::EnumeratedPerformance(doc.GetCell<std::string>(criterion_column_indexes[criterion_index], row_index))));
           break;
       }
     }
@@ -140,7 +157,13 @@ TEST_CASE("Dump then load preserves data - real criterion") {
     {{"Category 1"}, {"Category 2"}},
   };
 
-  Alternatives alternatives(problem, {{"Alt 1", {Performance::make_real(0.5)}, 0}, {"Alt 2", {Performance::make_real(0.75)}, 1}});
+  Alternatives alternatives(
+    problem,
+    {
+      {"Alt 1", {Performance(Performance::RealPerformance(0.5))}, 0},
+      {"Alt 2", {Performance(Performance::RealPerformance(0.75))}, 1},
+    }
+  );
 
   std::stringstream ss;
   alternatives.dump(problem, ss);
@@ -160,9 +183,9 @@ TEST_CASE("Dump then load preserves data - numerical values requiring more decim
   };
 
   Alternatives alternatives(problem, {
-    {"Alt 1", {Performance::make_real(0x1.259b36p-6)}, 0},
-    {"Alt 2", {Performance::make_real(0x1.652bf4p-2)}, 1},
-    {"Alt 3", {Performance::make_real(0x1.87662ap-3)}, 1},
+    {"Alt 1", {Performance(Performance::RealPerformance(0x1.259b36p-6))}, 0},
+    {"Alt 2", {Performance(Performance::RealPerformance(0x1.652bf4p-2))}, 1},
+    {"Alt 3", {Performance(Performance::RealPerformance(0x1.87662ap-3))}, 1},
   });
 
   std::stringstream ss;
@@ -183,7 +206,13 @@ TEST_CASE("Dump then load preserves data - integer criterion") {
     {{"Category 1"}, {"Category 2"}}
   );
 
-  Alternatives alternatives(problem, {{"Alt 1", {Performance::make_integer(5)}, 0}, {"Alt 2", {Performance::make_integer(6)}, 1}});
+  Alternatives alternatives(
+    problem,
+    {
+      {"Alt 1", {Performance(Performance::IntegerPerformance(5))}, 0},
+      {"Alt 2", {Performance(Performance::IntegerPerformance(6))}, 1},
+    }
+  );
 
   std::stringstream ss;
   alternatives.dump(problem, ss);
@@ -202,7 +231,13 @@ TEST_CASE("Dump then load preserves data - enumerated criterion") {
     {{"Category 1"}, {"Category 2"}},
   };
 
-  Alternatives alternatives(problem, {{"Alt 1", {Performance::make_enumerated("a")}, 0}, {"Alt 2", {Performance::make_enumerated("b b")}, 1}});
+  Alternatives alternatives(
+    problem,
+    {
+      {"Alt 1", {Performance(Performance::EnumeratedPerformance("a"))}, 0},
+      {"Alt 2", {Performance(Performance::EnumeratedPerformance("b b"))}, 1},
+    }
+  );
 
   std::stringstream ss;
   alternatives.dump(problem, ss);
