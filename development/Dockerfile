@@ -80,6 +80,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       gpg-agent \
       graphviz \
       jq \
+      pandoc \
       python3-dev \
       python3-venv \
       software-properties-common \

@@ -181,6 +181,7 @@ def main(
 
     print_title("Updating templates (documentation sources)")
     update_templates()
+    convert_notebooks()
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -391,6 +392,35 @@ def update_templates():
             else:
                 assert False, "Unknown extension for warning comment"
             f.write(template.render())
+
+
+def convert_notebooks():
+    for name in ["python-api"]:
+        input_path = f"doc-sources/{name}/{name}.ipynb"
+        output_path = f"doc-sources/{name}.rst"
+        print(input_path, "->", output_path)
+
+        shutil.rmtree(f"doc-sources/{name}_files", ignore_errors=True)
+
+        subprocess.run(
+            ["jupyter", "nbconvert", "--to", "rst", input_path, "--output-dir", "doc-sources"],
+            check=True,
+        )
+
+        # @todo(Documentation, v1.1) Double-check the formatting of the HTML file, in particular the input and output blocks:
+        # - highlighting of output block should be '.. highlight:: text' or sometimes '.. highlight:: yaml'
+        # - highlighting of input block should be '.. highlight:: python'
+
+        # @todo(Documentation, v1.1) Fix the "WARNING: Inline emphasis start-string without end-string" when building the Sphinx doc
+
+        with open(output_path) as f:
+            content = f.read()
+
+        content = re.sub(r"`(.*?) <https://mics-lab.github.io/lincs/(.*?)\.html>`__", r":doc:`\1 <\2>`", content, flags=re.DOTALL)
+
+        with open(output_path, "w") as f:
+            f.write(f".. WARNING: this file is generated from '{input_path}'. MANUAL EDITS WILL BE LOST.\n\n")
+            f.write(content)
 
 
 if __name__ == "__main__":
