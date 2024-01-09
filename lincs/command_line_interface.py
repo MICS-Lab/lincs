@@ -93,7 +93,6 @@ def main():
     pass
 
 
-# @todo(Project management, v1.1) Remove this command and the integration test that uses it (maybe keep the part about the CLI?)
 @main.command(
     hidden=True,
 )
@@ -114,60 +113,6 @@ def help_all():
                 walk(prefix + [name], command)
 
     walk([], main)
-
-    def walk(path, node, type_name=None):
-        if '.'.join(path) in [
-            "lincs.command_line_interface",
-            "lincs.visualization.plt",
-            "lincs.description.unittest",
-        ]:
-            return
-
-        if len(path) >= 3 and path[0] == "lincs" and path[1] == "description" and not path[2].startswith("describe_"):
-            return
-
-        if len(path) >= 3 and path[0] == "lincs" and path[1] == "visualization" and not path[2].startswith("visualize_"):
-            return
-
-        title = f"{'.'.join(path)}: {type_name or type(node).__name__}"
-        print(title)
-        print("-" * len(title))
-
-        if type_name is not None:
-            return
-
-        if type(node) in [str, bool, dict, property]:
-            print()
-            return
-
-        if node.__doc__:
-            print(re.sub(r"object at 0x............", "object at 0xxxxxxxxxxxxx", node.__doc__))
-        print()
-
-        if type(node) in [type(walk), type(lincs.Model.dump)]:
-            return
-
-        if '.'.join(path) in [
-            "lincs.AcceptedValues.Kind",
-            "lincs.Criterion.PreferenceDirection",
-            "lincs.Criterion.ValueType",
-            "lincs.SufficientCoalitions.Kind",
-        ]:
-            for name in node.names:
-                walk(path + [name], name, type_name="value")
-            return
-
-        for name in sorted(dir(node)):
-            if name not in ["__init__"] and name.startswith("__") and name.endswith("__"):
-                continue
-
-            # Avoid weird recursion
-            if name in path:
-                continue
-
-            walk(path + [name], getattr(node, name))
-
-    walk(["lincs"], lincs)
 
 
 @main.group(
