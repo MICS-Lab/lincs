@@ -26,6 +26,7 @@ void define_learning_classes() {
   bp::scope().attr("LearningFailureException") = bp::handle<>(bp::borrowed(LearningFailureException_wrapper));
 
   auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>("LearnMrsortByWeightsProfilesBreed", bp::no_init)
+    // @todo(Project management, v1.1) Merge theses two constructors with a default empty list of observers
     .def(bp::init<
       lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
       lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&,
@@ -35,7 +36,8 @@ void define_learning_classes() {
       lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy&
     >(
       (
-        bp::arg("learning_data"),
+        bp::arg("self"),
+        "learning_data",
         "profiles_initialization_strategy",
         "weights_optimization_strategy",
         "profiles_improvement_strategy",
@@ -53,7 +55,8 @@ void define_learning_classes() {
       std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>
     >(
       (
-        bp::arg("learning_data"),
+        bp::arg("self"),
+        "learning_data",
         "profiles_initialization_strategy",
         "weights_optimization_strategy",
         "profiles_improvement_strategy",
@@ -62,15 +65,15 @@ void define_learning_classes() {
         "observers"
       )
     ))
-    .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform)
+    .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, (bp::arg("self")))
   ;
 
   learn_wbp_class.attr("LearningData") =
     bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>(
       "LearningData",
-      bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>()
+      bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>((bp::arg("self"), "problem", "learning_set", "models_count", "random_seed"))
     )
-    .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy)
+    .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")))
     .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index)
   ;
 
@@ -79,7 +82,7 @@ void define_learning_classes() {
   };
 
   learn_wbp_class.attr("ProfilesInitializationStrategy") = bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>("ProfilesInitializationStrategy")
-    .def("initialize_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles))
+    .def("initialize_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles), (bp::arg("self"), "model_indexes_begin", "model_indexes_end"))
   ;
 
   bp::class_<
@@ -87,9 +90,9 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy>
   >(
     "InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))
   )
-    .def("initialize_profiles", &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles)
+    .def("initialize_profiles", &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles, (bp::arg("self"), "model_indexes_begin", "model_indexes_end"))
   ;
 
   struct WeightsOptimizationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy> {
@@ -97,7 +100,7 @@ void define_learning_classes() {
   };
 
   learn_wbp_class.attr("WeightsOptimizationStrategy") = bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>("WeightsOptimizationStrategy")
-    .def("optimize_weights", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights))
+    .def("optimize_weights", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights), (bp::arg("self")))
   ;
 
   bp::class_<
@@ -105,9 +108,9 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy>
   >(
     "OptimizeWeightsUsingGlop",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))
   )
-    .def("optimize_weights", &lincs::OptimizeWeightsUsingGlop::optimize_weights)
+    .def("optimize_weights", &lincs::OptimizeWeightsUsingGlop::optimize_weights, (bp::arg("self")))
   ;
 
   bp::class_<
@@ -115,9 +118,9 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy>
   >(
     "OptimizeWeightsUsingAlglib",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))
   )
-    .def("optimize_weights", &lincs::OptimizeWeightsUsingAlglib::optimize_weights)
+    .def("optimize_weights", &lincs::OptimizeWeightsUsingAlglib::optimize_weights, (bp::arg("self")))
   ;
 
   struct ProfilesImprovementStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy> {
@@ -125,7 +128,7 @@ void define_learning_classes() {
   };
 
   learn_wbp_class.attr("ProfilesImprovementStrategy") = bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>("ProfilesImprovementStrategy")
-    .def("improve_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles))
+    .def("improve_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles), (bp::arg("self")))
   ;
 
   bp::class_<
@@ -133,9 +136,9 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy>
   >(
     "ImproveProfilesWithAccuracyHeuristicOnCpu",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))
   )
-    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles)
+    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles, (bp::arg("self")))
   ;
 
   #ifdef LINCS_HAS_NVCC
@@ -145,9 +148,9 @@ void define_learning_classes() {
     boost::noncopyable
   >(
     "ImproveProfilesWithAccuracyHeuristicOnGpu",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))
   )
-    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles)
+    .def("improve_profiles", &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles, (bp::arg("self")))
   ;
   #endif  // LINCS_HAS_NVCC
 
@@ -156,14 +159,14 @@ void define_learning_classes() {
   };
 
   learn_wbp_class.attr("BreedingStrategy") = bp::class_<BreedingStrategyWrap, boost::noncopyable>("BreedingStrategy")
-    .def("breed", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed))
+    .def("breed", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed), (bp::arg("self")))
   ;
 
   bp::class_<lincs::ReinitializeLeastAccurate, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy>>(
     "ReinitializeLeastAccurate",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&, unsigned>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&, unsigned>((bp::arg("self"), "learning_data", "profiles_initialization_strategy", "count"))
   )
-    .def("breed", &lincs::ReinitializeLeastAccurate::breed)
+    .def("breed", &lincs::ReinitializeLeastAccurate::breed, (bp::arg("self")))
   ;
 
   struct TerminationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy> {
@@ -171,49 +174,49 @@ void define_learning_classes() {
   };
 
   learn_wbp_class.attr("TerminationStrategy") = bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
-    .def("terminate", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate))
+    .def("terminate", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate), (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAtAccuracy",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>((bp::arg("self"), "learning_data", "target_accuracy"))
   )
-    .def("terminate", &lincs::TerminateAtAccuracy::terminate)
+    .def("terminate", &lincs::TerminateAtAccuracy::terminate, (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateAfterIterations, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterIterations",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>((bp::arg("self"), "learning_data", "max_iteration_index"))
   )
-    .def("terminate", &lincs::TerminateAfterIterations::terminate)
+    .def("terminate", &lincs::TerminateAfterIterations::terminate, (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateAfterIterationsWithoutProgress, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterIterationsWithoutProgress",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>((bp::arg("self"), "learning_data", "max_iterations_count"))
   )
-    .def("terminate", &lincs::TerminateAfterIterationsWithoutProgress::terminate)
+    .def("terminate", &lincs::TerminateAfterIterationsWithoutProgress::terminate, (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateAfterSeconds, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterSeconds",
-    bp::init<float>()
+    bp::init<float>((bp::arg("self"), "max_seconds"))
   )
-    .def("terminate", &lincs::TerminateAfterSeconds::terminate)
+    .def("terminate", &lincs::TerminateAfterSeconds::terminate, (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateAfterSecondsWithoutProgress, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterSecondsWithoutProgress",
-    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, float>()
+    bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, float>((bp::arg("self"), "learning_data", "max_seconds"))
   )
-    .def("terminate", &lincs::TerminateAfterSecondsWithoutProgress::terminate)
+    .def("terminate", &lincs::TerminateAfterSecondsWithoutProgress::terminate, (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateWhenAny, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateWhenAny",
-    bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>()
+    bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>((bp::arg("self"), "termination_strategies"))
   )
-    .def("terminate", &lincs::TerminateWhenAny::terminate)
+    .def("terminate", &lincs::TerminateWhenAny::terminate, (bp::arg("self")))
   ;
 
   struct ObserverWrap : lincs::LearnMrsortByWeightsProfilesBreed::Observer, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::Observer> {
@@ -222,37 +225,37 @@ void define_learning_classes() {
   };
 
   learn_wbp_class.attr("Observer") = bp::class_<ObserverWrap, boost::noncopyable>("Observer")
-    .def("after_iteration", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration))
-    .def("before_return", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return))
+    .def("after_iteration", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration), (bp::arg("self")))
+    .def("before_return", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return), (bp::arg("self")))
   ;
 
 
   bp::class_<lincs::LearnUcncsBySatByCoalitionsUsingMinisat, boost::noncopyable>(
     "LearnUcncsBySatByCoalitionsUsingMinisat",
-    bp::init<const lincs::Problem&, const lincs::Alternatives&>()
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"))
   )
-    .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingMinisat::perform)
+    .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingMinisat::perform, (bp::arg("self")))
   ;
 
   bp::class_<lincs::LearnUcncsBySatBySeparationUsingMinisat, boost::noncopyable>(
     "LearnUcncsBySatBySeparationUsingMinisat",
-    bp::init<const lincs::Problem&, const lincs::Alternatives&>()
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"))
   )
-    .def("perform", &lincs::LearnUcncsBySatBySeparationUsingMinisat::perform)
+    .def("perform", &lincs::LearnUcncsBySatBySeparationUsingMinisat::perform, (bp::arg("self")))
   ;
 
   bp::class_<lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat, boost::noncopyable>(
     "LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat",
-    bp::init<const lincs::Problem&, const lincs::Alternatives&>()
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"))
   )
-    .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform)
+    .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform, (bp::arg("self")))
   ;
 
   bp::class_<lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat, boost::noncopyable>(
     "LearnUcncsByMaxSatBySeparationUsingEvalmaxsat",
-    bp::init<const lincs::Problem&, const lincs::Alternatives&>()
+    bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"))
   )
-    .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform)
+    .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform, (bp::arg("self")))
   ;
 }
 

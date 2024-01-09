@@ -18,6 +18,7 @@
 CHRONABLE("lincs");
 
 // @todo(Project management, later) Consider using pybind11, which advertises itself as an evolved and simplified version of Boost.Python
+namespace bp = boost::python;
 
 namespace lincs {
 
@@ -29,6 +30,8 @@ void define_learning_classes();
 }  // namespace lincs
 
 BOOST_PYTHON_MODULE(liblincs) {
+  bp::docstring_options docstring_options(true, true, false);
+
   lincs::enroll_standard_converters();
   lincs::define_io_classes();
   lincs::define_generation_functions();

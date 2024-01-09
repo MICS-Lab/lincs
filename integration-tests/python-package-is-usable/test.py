@@ -5,34 +5,48 @@ import sys
 import lincs
 
 
-problem = lincs.Problem(
+problem = lincs.classification.Problem(
     [
-        lincs.Criterion.make_real("Physics grade", lincs.Criterion.PreferenceDirection.increasing, 0, 1),
-        lincs.Criterion.make_real("Literature grade", lincs.Criterion.PreferenceDirection.increasing, 0, 1),
+        lincs.classification.Criterion("Physics grade", lincs.classification.Criterion.RealValues(lincs.classification.Criterion.PreferenceDirection.increasing, 0, 1)),
+        lincs.classification.Criterion("Literature grade", lincs.classification.Criterion.RealValues(lincs.classification.Criterion.PreferenceDirection.increasing, 0, 1)),
     ],
     (
-        lincs.Category("Bad"),
-        lincs.Category("Good"),
+        lincs.classification.Category("Bad"),
+        lincs.classification.Category("Good"),
     ),
 )
 problem.dump(sys.stdout)
 
 print()
 
-model = lincs.Model(
+model = lincs.classification.Model(
     problem,
-    [lincs.AcceptedValues.make_real_thresholds([10.]), lincs.AcceptedValues.make_real_thresholds([10.])],
-    [lincs.SufficientCoalitions.make_weights([0.4, 0.7])],
+    [lincs.classification.AcceptedValues(lincs.classification.AcceptedValues.RealThresholds([10.])), lincs.classification.AcceptedValues(lincs.classification.AcceptedValues.RealThresholds([10.]))],
+    [lincs.classification.SufficientCoalitions(lincs.classification.SufficientCoalitions.Weights([0.4, 0.7]))],
 )
 model.dump(problem, sys.stdout)
 
 print()
 
-alternatives = lincs.Alternatives(
+alternatives = lincs.classification.Alternatives(
     problem,
     [
-        lincs.Alternative("Alice", [lincs.Performance.make_real(11.), lincs.Performance.make_real(12.)], 1),
-        lincs.Alternative("Bob", [lincs.Performance.make_real(9.), lincs.Performance.make_real(11.)], 0),
+        lincs.classification.Alternative(
+            "Alice",
+            [
+                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(11.)),
+                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(12.)),
+            ],
+            1,
+        ),
+        lincs.classification.Alternative(
+            "Bob",
+            [
+                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(9.)),
+                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(11.)),
+            ],
+            0,
+        ),
     ],
 )
 alternatives.dump(problem, sys.stdout)

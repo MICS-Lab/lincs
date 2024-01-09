@@ -323,6 +323,8 @@ jobs:
           verify-metadata: false
           verbose: true
 
+# @todo(Project Management, v1.1) Publish a Docker image with lincs pre-installed?
+
   # @todo(Project Management, later) Purge previous artifacts to avoid using storage on MISCLab's account
   # This requires a token with appropriate permissions on the org-owned repo.
   # In the mean time, do it manualy. Ideally after each release.

@@ -110,7 +110,7 @@ JsonValidator validator(schema);
 
 }  // namespace
 
-std::vector<std::vector<unsigned>> SufficientCoalitions::get_upset_roots_as_vectors() const {
+std::vector<std::vector<unsigned>> SufficientCoalitions::Roots::get_upset_roots_as_vectors() const {
   std::vector<std::vector<unsigned>> roots;
 
   roots.reserve(upset_roots.size());
@@ -124,6 +124,48 @@ std::vector<std::vector<unsigned>> SufficientCoalitions::get_upset_roots_as_vect
   }
 
   return roots;
+}
+
+Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
+  accepted_values(accepted_values_),
+  sufficient_coalitions(sufficient_coalitions_)
+{
+  const unsigned criteria_count = problem.get_criteria().size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
+  const unsigned boundaries_count = categories_count - 1;
+  validate(accepted_values.size() == criteria_count, "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    validate(accepted_values[criterion_index].get_value_type() == problem.get_criteria()[criterion_index].get_value_type(), "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion");
+    dispatch(
+      accepted_values[criterion_index].get(),
+      [boundaries_count](const AcceptedValues::RealThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == boundaries_count, "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      },
+      [boundaries_count](const AcceptedValues::IntegerThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == boundaries_count, "The number of integer thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      },
+      [boundaries_count](const AcceptedValues::EnumeratedThresholds& thresholds) {
+        validate(thresholds.get_thresholds().size() == boundaries_count, "The number of enumerated thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+      }
+    );
+  };
+  validate(sufficient_coalitions.size() == boundaries_count, "The number of sufficient coalitions in the model must be one less than the number of categories in the problem");
+  for (const auto& sufficient_coalitions_ : sufficient_coalitions) {
+    dispatch(
+      sufficient_coalitions_.get(),
+      [criteria_count](const SufficientCoalitions::Weights& weights) {
+        validate(weights.get_criterion_weights().size() == criteria_count, "The number of criterion weights in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
+      },
+      [&](const SufficientCoalitions::Roots& roots) {
+        for (const auto& root: roots.get_upset_roots_as_bitsets()) {
+          validate(root.size() == criteria_count, "The maximum number of elements in a root in a sufficient coalitions descriptor must be equal to the number of criteria in the problem");
+        }
+      }
+    );
+  }
+
+  // @todo(Feature, v1.1) Validate the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
+  // The issue is: we're dealing with floating point data, so we need to analyse if precision loss could lead us to reject an actually correct model.
 }
 
 void Model::dump(const Problem& problem, std::ostream& os) const {
@@ -147,15 +189,16 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
   out << YAML::Key << "format_version" << YAML::Value << 1;
 
   out << YAML::Key << "accepted_values" << YAML::Value << YAML::BeginSeq;
-  for (unsigned criterion_index = 0; criterion_index != problem.criteria.size(); ++criterion_index) {
+  for (unsigned criterion_index = 0; criterion_index != problem.get_criteria().size(); ++criterion_index) {
     out << YAML::BeginMap;
+    assert(accepted_values[criterion_index].is_thresholds());
     out << YAML::Key << "kind" << YAML::Value << "thresholds";
     out << YAML::Key << "thresholds" << YAML::Value << YAML::Flow;
     dispatch(
-      accepted_values[criterion_index].get_thresholds(),
-      [&out](const std::vector<float>& thresholds) { out << thresholds; },
-      [&out](const std::vector<int>& thresholds) { out << thresholds; },
-      [&out](const std::vector<std::string>& thresholds) { out << thresholds; }
+      accepted_values[criterion_index].get(),
+      [&out](const AcceptedValues::RealThresholds& thresholds) { out << thresholds.get_thresholds(); },
+      [&out](const AcceptedValues::IntegerThresholds& thresholds) { out << thresholds.get_thresholds(); },
+      [&out](const AcceptedValues::EnumeratedThresholds& thresholds) { out << thresholds.get_thresholds(); }
     );
     out << YAML::EndMap;
   }
@@ -163,20 +206,21 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
 
   out << YAML::Key << "sufficient_coalitions" << YAML::Value << YAML::BeginSeq;
   for (unsigned boundary_index = 0; boundary_index != sufficient_coalitions.size(); ++boundary_index) {
-    const SufficientCoalitions& suff_coals = sufficient_coalitions[boundary_index];
+    const SufficientCoalitions& sufficient_coalitions_ = sufficient_coalitions[boundary_index];
     if (use_coalitions_alias && boundary_index == 0) {
       out << YAML::Anchor("coalitions");
     }
     if (!use_coalitions_alias || boundary_index == 0) {
       out << YAML::Value << YAML::BeginMap;
-      out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(suff_coals.get_kind()));
-      switch (suff_coals.get_kind()) {
-        case SufficientCoalitions::Kind::weights:
-          out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << suff_coals.get_criterion_weights();
-          break;
-        case SufficientCoalitions::Kind::roots:
+      out << YAML::Key << "kind" << YAML::Value << std::string(magic_enum::enum_name(sufficient_coalitions_.get_kind()));
+      dispatch(
+        sufficient_coalitions_.get(),
+        [&out](const SufficientCoalitions::Weights& weights) {
+          out << YAML::Key << "criterion_weights" << YAML::Value << YAML::Flow << weights.get_criterion_weights();
+        },
+        [&out](const SufficientCoalitions::Roots& roots) {
           out << YAML::Key << "upset_roots" << YAML::Value;
-          const std::vector<std::vector<unsigned>> upset_roots = suff_coals.get_upset_roots_as_vectors();
+          const std::vector<std::vector<unsigned>> upset_roots = roots.get_upset_roots_as_vectors();
           if (upset_roots.empty()) {
             out << YAML::Flow;
           }
@@ -185,8 +229,8 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
             out << YAML::Flow << upset_root;
           }
           out << YAML::EndSeq;
-          break;
-      }
+        }
+      );
       out << YAML::EndMap;
     } else if (use_coalitions_alias) {
       out << YAML::Value << YAML::Alias("coalitions");
@@ -206,9 +250,9 @@ void Model::dump(const Problem& problem, std::ostream& os) const {
 SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YAML::Node& node) {
   switch (*magic_enum::enum_cast<SufficientCoalitions::Kind>(node["kind"].as<std::string>())) {
     case SufficientCoalitions::Kind::weights:
-      return SufficientCoalitions::make_weights(node["criterion_weights"].as<std::vector<float>>());
+      return SufficientCoalitions(SufficientCoalitions::Weights(node["criterion_weights"].as<std::vector<float>>()));
     case SufficientCoalitions::Kind::roots:
-      return SufficientCoalitions::make_roots_from_vectors(problem.criteria.size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>());
+      return SufficientCoalitions(SufficientCoalitions::Roots(problem.get_criteria().size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>()));
   }
   unreachable();
 }
@@ -216,8 +260,8 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
 Model Model::load(const Problem& problem, std::istream& is) {
   CHRONE();
 
-  const unsigned criteria_count = problem.criteria.size();
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned criteria_count = problem.get_criteria().size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
   const unsigned boundaries_count = categories_count - 1;
 
   YAML::Node node = YAML::Load(is);
@@ -225,13 +269,11 @@ Model Model::load(const Problem& problem, std::istream& is) {
   validator.validate(node);
 
   const YAML::Node& yaml_accepted_values = node["accepted_values"];
-  if (yaml_accepted_values.size() != criteria_count) {
-    throw DataValidationException("Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file");
-  }
+  validate(yaml_accepted_values.size() == criteria_count, "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
   std::vector<AcceptedValues> accepted_values;
   accepted_values.reserve(criteria_count);
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    const Criterion& criterion = problem.criteria[criterion_index];
+  for (unsigned criterion_index = 0; criterion_index != yaml_accepted_values.size(); ++criterion_index) {
+    const Criterion& criterion = problem.get_criteria()[criterion_index];
     const YAML::Node& yaml_acc_vals = yaml_accepted_values[criterion_index];
     assert(yaml_acc_vals["kind"].as<std::string>() == "thresholds");
     const YAML::Node& thresholds = yaml_acc_vals["thresholds"];
@@ -239,31 +281,18 @@ Model Model::load(const Problem& problem, std::istream& is) {
     accepted_values.push_back(dispatch(
       criterion.get_values(),
       [&thresholds, boundaries_count](const Criterion::RealValues&) {
-        if (thresholds.size() != boundaries_count) {
-          // @todo(Feature, v1.1) Move all validation in constructors, using 'DataValidationException' instead of 'assert'
-          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-        }
-        return AcceptedValues::make_real_thresholds(thresholds.as<std::vector<float>>());
+        return AcceptedValues(AcceptedValues::RealThresholds(thresholds.as<std::vector<float>>()));
       },
       [&thresholds, boundaries_count](const Criterion::IntegerValues&) {
-        if (thresholds.size() != boundaries_count) {
-          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-        }
-        return AcceptedValues::make_integer_thresholds(thresholds.as<std::vector<int>>());
+        return AcceptedValues(AcceptedValues::IntegerThresholds(thresholds.as<std::vector<int>>()));
       },
       [&thresholds, boundaries_count](const Criterion::EnumeratedValues&) {
-        if (thresholds.size() != boundaries_count) {
-          throw DataValidationException("Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file");
-        }
-        return AcceptedValues::make_enumerated_thresholds(thresholds.as<std::vector<std::string>>());
+        return AcceptedValues(AcceptedValues::EnumeratedThresholds(thresholds.as<std::vector<std::string>>()));
       }
     ));
   }
 
   const YAML::Node& yaml_sufficient_coalitions = node["sufficient_coalitions"];
-  if (yaml_sufficient_coalitions.size() != boundaries_count) {
-    throw DataValidationException("Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file");
-  }
   std::vector<SufficientCoalitions> sufficient_coalitions;
   sufficient_coalitions.reserve(boundaries_count);
   for (const YAML::Node& yaml_suff_coals : yaml_sufficient_coalitions) {
@@ -275,14 +304,14 @@ Model Model::load(const Problem& problem, std::istream& is) {
 
 TEST_CASE("dumping then loading model preserves data - weights") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
   Model model{
     problem,
-    {AcceptedValues::make_real_thresholds({0.4})},
-    {SufficientCoalitions::make_weights({0.7})},
+    {AcceptedValues(AcceptedValues::RealThresholds({0.4}))},
+    {SufficientCoalitions(SufficientCoalitions::Weights({0.7}))},
   };
 
   std::stringstream ss;
@@ -304,9 +333,9 @@ sufficient_coalitions:
 TEST_CASE("dumping then loading model preserves data - roots") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -314,11 +343,11 @@ TEST_CASE("dumping then loading model preserves data - roots") {
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0.4}),
-      AcceptedValues::make_real_thresholds({0.5}),
-      AcceptedValues::make_real_thresholds({0.6}),
+      AcceptedValues(AcceptedValues::RealThresholds({0.4})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.6})),
     },
-    {SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}})},
+    {SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}}))},
   };
 
   std::stringstream ss;
@@ -346,9 +375,9 @@ sufficient_coalitions:
 TEST_CASE("dumping then loading model preserves data - numerical values requiring more decimal digits") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
@@ -356,12 +385,12 @@ TEST_CASE("dumping then loading model preserves data - numerical values requirin
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0x1.259b36p-6}),
-      AcceptedValues::make_real_thresholds({0x1.652bf4p-2}),
-      AcceptedValues::make_real_thresholds({0x1.87662ap-3}),
+      AcceptedValues(AcceptedValues::RealThresholds({0x1.259b36p-6})),
+      AcceptedValues(AcceptedValues::RealThresholds({0x1.652bf4p-2})),
+      AcceptedValues(AcceptedValues::RealThresholds({0x1.87662ap-3})),
     },
     {
-      SufficientCoalitions::make_weights({0x1.c78b0cp-2, 0x1.1d7974p-2, 0x1.b22782p-2}),
+      SufficientCoalitions(SufficientCoalitions::Weights({0x1.c78b0cp-2, 0x1.1d7974p-2, 0x1.b22782p-2})),
     },
   };
 
@@ -387,14 +416,17 @@ sufficient_coalitions:
 
 TEST_CASE("dumping then loading model preserves data - integer criterion") {
   Problem problem{
-    {Criterion::make_integer("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 100)},
+    {Criterion("Criterion 1", Criterion::IntegerValues(Criterion::PreferenceDirection::increasing, 0, 100))},
     {{"Category 1"}, {"Category 2"}, {"Category 3"}},
   };
 
   Model model{
     problem,
-    {AcceptedValues::make_integer_thresholds({40, 60})},
-    {SufficientCoalitions::make_weights({0.75}), SufficientCoalitions::make_weights({0.75})},
+    {AcceptedValues(AcceptedValues::IntegerThresholds({40, 60}))},
+    {
+      SufficientCoalitions(SufficientCoalitions::Weights({0.75})),
+      SufficientCoalitions(SufficientCoalitions::Weights({0.75})),
+    },
   };
 
   std::stringstream ss;
@@ -417,14 +449,17 @@ sufficient_coalitions:
 
 TEST_CASE("dumping then loading model preserves data - enumerated criterion") {
   Problem problem{
-    {Criterion::make_enumerated("Criterion 1", {"F", "E", "D", "C", "B", "A"})},
+    {Criterion("Criterion 1", Criterion::EnumeratedValues({"F", "E", "D", "C", "B", "A"}))},
     {{"Category 1"}, {"Category 2"}, {"Category 3"}},
   };
 
   Model model{
     problem,
-    {AcceptedValues::make_enumerated_thresholds({"D", "B"})},
-    {SufficientCoalitions::make_weights({0.75}), SufficientCoalitions::make_weights({0.75})},
+    {AcceptedValues(AcceptedValues::EnumeratedThresholds({"D", "B"}))},
+    {
+      SufficientCoalitions(SufficientCoalitions::Weights({0.75})),
+      SufficientCoalitions(SufficientCoalitions::Weights({0.75})),
+    },
   };
 
   std::stringstream ss;
@@ -448,15 +483,15 @@ sufficient_coalitions:
 TEST_CASE("dumping empty roots uses flow style") {
   Problem problem{
     {
-      Criterion::make_real("Criterion", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
 
   Model model{
     problem,
-    {AcceptedValues::make_real_thresholds({0.5})},
-    {SufficientCoalitions::make_roots_from_vectors(3, {})},
+    {AcceptedValues(AcceptedValues::RealThresholds({0.5}))},
+    {SufficientCoalitions(SufficientCoalitions::Roots(3, {}))},
   };
 
   std::stringstream ss;
@@ -478,9 +513,9 @@ sufficient_coalitions:
 TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
   };
@@ -488,14 +523,14 @@ TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0.2, 0.4, 0.6}),
-      AcceptedValues::make_real_thresholds({0.3, 0.5, 0.7}),
-      AcceptedValues::make_real_thresholds({0.4, 0.6, 0.8}),
+      AcceptedValues(AcceptedValues::RealThresholds({0.2, 0.4, 0.6})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.3, 0.5, 0.7})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.4, 0.6, 0.8})),
     },
     {
-      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
-      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
-      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
+      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
     },
   };
 
@@ -527,9 +562,9 @@ sufficient_coalitions:
 TEST_CASE("dumping doesn't use references when coalitions differ") {
   Problem problem{
     {
-      Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 2", Criterion::PreferenceDirection::increasing, 0, 1),
-      Criterion::make_real("Criterion 3", Criterion::PreferenceDirection::increasing, 0, 1),
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}, {"Category 3"}, {"Category 4"}},
   };
@@ -537,14 +572,14 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
   Model model{
     problem,
     {
-      AcceptedValues::make_real_thresholds({0.2, 0.4, 0.6}),
-      AcceptedValues::make_real_thresholds({0.3, 0.5, 0.7}),
-      AcceptedValues::make_real_thresholds({0.4, 0.6, 0.8}),
+      AcceptedValues(AcceptedValues::RealThresholds({0.2, 0.4, 0.6})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.3, 0.5, 0.7})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.4, 0.6, 0.8})),
     },
     {
-      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
-      SufficientCoalitions::make_roots_from_vectors(3, {{1}, {0, 2}}),
-      SufficientCoalitions::make_roots_from_vectors(3, {{0}, {1, 2}}),
+      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(3, {{1}, {0, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
     },
   };
 
@@ -580,7 +615,7 @@ sufficient_coalitions:
 
 TEST_CASE("Parsing error") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -594,7 +629,7 @@ TEST_CASE("Parsing error") {
 
 TEST_CASE("Validation error - not an object") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -609,7 +644,7 @@ TEST_CASE("Validation error - not an object") {
 
 TEST_CASE("Validation error - missing weights") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -639,7 +674,7 @@ sufficient_coalitions:
 
 TEST_CASE("Validation error - size mismatch - accepted_values") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -657,13 +692,13 @@ sufficient_coalitions:
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
-    "Size mismatch: 'accepted_values' in the model file does not match the number of criteria in the problem file",
+    "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem",
     DataValidationException);
 }
 
 TEST_CASE("Validation error - size mismatch - sufficient_coalitions") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -681,13 +716,13 @@ sufficient_coalitions:
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
-    "Size mismatch: 'sufficient_coalitions' in the model file does not match the number of categories in the problem file",
+    "The number of sufficient coalitions in the model must be one less than the number of categories in the problem",
     DataValidationException);
 }
 
 TEST_CASE("Validation error - size mismatch - thresholds") {
   Problem problem{
-    {Criterion::make_real("Criterion 1", Criterion::PreferenceDirection::increasing, 0, 1)},
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1))},
     {{"Category 1"}, {"Category 2"}},
   };
 
@@ -703,7 +738,7 @@ sufficient_coalitions:
 
   CHECK_THROWS_WITH_AS(
     Model::load(problem, iss),
-    "Size mismatch: one of 'thresholds' in the model file does not match the number of categories (minus one) in the problem file",
+    "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem",
     DataValidationException);
 }
 

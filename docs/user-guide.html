@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>User Guide &#8212; lincs 1.0.0 documentation</title>
+    <title>User Guide &#8212; lincs 1.0.1-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=a977b5f5"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="next" title="The Python API" href="python-api.html" />
     <link rel="prev" title="Get started" href="get-started.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -54,10 +54,13 @@ To describe problems, <em>lincs</em> uses YAML files conforming to the <a class=
 <span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 <span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 2</span>
-<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span>
 <span class="w">    </span><span class="nt">preference_direction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">decreasing</span>
 <span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-5</span>
 <span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 3</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enumerated</span>
+<span class="w">    </span><span class="nt">ordered_values</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">F</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">E</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">D</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">C</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">B</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">A</span><span class="p p-Indicator">]</span>
 <span class="nt">ordered_categories</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Low</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Medium</span>
@@ -72,8 +75,10 @@ For now, they must always be set to <code class="docutils literal notranslate"><
 This list must contain at least one element because classification problems must have at least one criterion.</p>
 <p>Each criterion has a <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
 <p>Currently, criteria can only take floating point values, so their <code class="docutils literal notranslate"><span class="pre">value_type</span></code> is always <code class="docutils literal notranslate"><span class="pre">real</span></code>.
-We expect this could evolve to also support criteria with integer or explicitly enumerated values.</p>
-<p>Then, the <code class="docutils literal notranslate"><span class="pre">preference_direction</span></code> key describe what makes “good values” for this criterion.
+We expect this could evolve to also support criteria with integer or explicitly enumerated values.
+A criterion’s <code class="docutils literal notranslate"><span class="pre">value_type</span></code> specifies the kind of values it can take: <code class="docutils literal notranslate"><span class="pre">real</span></code>, <code class="docutils literal notranslate"><span class="pre">integer</span></code> or <code class="docutils literal notranslate"><span class="pre">enumerated</span></code>.</p>
+<p>For numerical criteria (<em>i.e</em> with <code class="docutils literal notranslate"><span class="pre">real</span></code> or <code class="docutils literal notranslate"><span class="pre">integer</span></code> <code class="docutils literal notranslate"><span class="pre">value_type</span></code>),
+the <code class="docutils literal notranslate"><span class="pre">preference_direction</span></code> key describe what makes “good values” for this criterion.
 If it is <code class="docutils literal notranslate"><span class="pre">increasing</span></code> (resp. <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
@@ -81,8 +86,9 @@ We expect the supported preference directions could evolve to also support singl
 where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
 We also expect this could evolve to support criteria with unknown preference direction,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.</p>
-<p>Finally, for criteria with numerical <code class="docutils literal notranslate"><span class="pre">value_type</span></code> (currently all of them),
-the <code class="docutils literal notranslate"><span class="pre">min_value</span></code> and <code class="docutils literal notranslate"><span class="pre">max_value</span></code> keys describe the range of values the criterion can take.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">enumerated</span></code> criteria, the <code class="docutils literal notranslate"><span class="pre">ordered_values</span></code> key is a list of the values the criterion can take, each one as a string.
+The preference direction is implied in that case: the list must be sorted from the worst value to the best one.</p>
+<p>Finally, for numerical criteria, the <code class="docutils literal notranslate"><span class="pre">min_value</span></code> and <code class="docutils literal notranslate"><span class="pre">max_value</span></code> keys describe the range of values the criterion can take.</p>
 </section>
 <section id="categories">
 <h4>Categories<a class="headerlink" href="#categories" title="Permalink to this heading">¶</a></h4>
@@ -107,13 +113,15 @@ So it’s the user’s responsibility to keep track of that information and alwa
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">accepted_values</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
-<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7.49331188</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">15.9249287</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">6.09463787</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">19.7704506</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
-<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4.49812794</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-3.15932083</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">E</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">D</span><span class="p p-Indicator">]</span>
 <span class="nt">sufficient_coalitions</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
 <span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
-<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.938825667</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.343733728</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.173891723</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.97980487</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0961765796</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
 </pre></div>
 </div>
@@ -193,14 +201,16 @@ and using different coalitions for the two boundaries (so, no YAML anchor):</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
 <span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7.49331188</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">15.9249287</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
-<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4.49812794</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-3.15932083</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-3</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">D</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">B</span><span class="p p-Indicator">]</span>
 <span class="nt">sufficient_coalitions</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
 <span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
 <span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 </section>
@@ -211,12 +221,12 @@ and using different coalitions for the two boundaries (so, no YAML anchor):</p>
 It’s a CSV file with a header line and one line per alternative.</p>
 <p>Like model files, alternatives files are always associated to a problem file.</p>
 <p>Here is an example corresponding to the problem above:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,category
-&quot;Alternative 1&quot;,10.8156891,4.39045048,Medium
-&quot;Alternative 2&quot;,0.25551182,-1.45864725,Low
-&quot;Alternative 3&quot;,18.4786396,4.31117153,Medium
-&quot;Alternative 4&quot;,18.0154629,1.33949804,Medium
-&quot;Alternative 5&quot;,9.30789757,2.66963387,Medium
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,category
+&quot;Alternative 1&quot;,10.8156891,4,A,Low
+&quot;Alternative 2&quot;,0.25551182,-1,D,High
+&quot;Alternative 3&quot;,18.4786396,4,B,Low
+&quot;Alternative 4&quot;,18.0154629,1,F,High
+&quot;Alternative 5&quot;,9.30789757,2,A,Medium
 </pre></div>
 </div>
 <p>Its header line contains the names of its columns.
@@ -224,12 +234,12 @@ Its first column, <code class="docutils literal notranslate"><span class="pre">n
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, <code class="docutils literal notranslate"><span class="pre">category</span></code>, contains the names of the categories in which each alternative is classified.</p>
 <p>Values in the <code class="docutils literal notranslate"><span class="pre">category</span></code> column can be empty to describe alternatives that are not (yet) classified:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,category
-&quot;Alternative 1&quot;,10.8156891,4.39045048,
-&quot;Alternative 2&quot;,0.25551182,-1.45864725,
-&quot;Alternative 3&quot;,18.4786396,4.31117153,
-&quot;Alternative 4&quot;,18.0154629,1.33949804,
-&quot;Alternative 5&quot;,9.30789757,2.66963387,
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,category
+&quot;Alternative 1&quot;,10.8156891,4.39045048,A,
+&quot;Alternative 2&quot;,0.25551182,-1.45864725,D,
+&quot;Alternative 3&quot;,18.4786396,4.31117153,B,
+&quot;Alternative 4&quot;,18.0154629,1.33949804,F,
+&quot;Alternative 5&quot;,9.30789757,2.66963387,A,
 </pre></div>
 </div>
 </section>
@@ -262,12 +272,17 @@ Using its default settings, you just have to pass it the numbers of criteria and
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-problem<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> option on the command-line and our <a class="reference internal" href="reference.html#ref-cli"><span class="std std-ref">reference documentation</span></a> describe the options available to tweak the generated problem.
-Most notably:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--denormalized-min-max</span></code> generates problems with pseudo-random <code class="docutils literal notranslate"><span class="pre">min_value</span></code> and <code class="docutils literal notranslate"><span class="pre">max_value</span></code> for each criterion. By default, they are always set at 0 and 1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--allow-decreasing-criteria</span></code> chooses pseudo-randomly the <code class="docutils literal notranslate"><span class="pre">preference_direction</span></code> of each criterion between <code class="docutils literal notranslate"><span class="pre">increasing</span></code> and <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>. By default, all criteria have <code class="docutils literal notranslate"><span class="pre">increasing</span></code> preference direction.</p></li>
-</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> option on the command-line and our <a class="reference internal" href="reference.html#ref-cli"><span class="std std-ref">reference documentation</span></a> describe the options available to tweak the generated problem.</p>
+<p>A set of options selects the <code class="docutils literal notranslate"><span class="pre">value_type</span></code> of the criteria in the generated problem.
+By default, they are all <code class="docutils literal notranslate"><span class="pre">real</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">--allow-integer-criteria</span></code> and <code class="docutils literal notranslate"><span class="pre">--allow-enumerated-criteria</span></code> options let you generate problems with <code class="docutils literal notranslate"><span class="pre">integer</span></code> and <code class="docutils literal notranslate"><span class="pre">enumerated</span></code> criteria respectively.
+The <code class="docutils literal notranslate"><span class="pre">--forbid-real-criteria</span></code>… forbids <code class="docutils literal notranslate"><span class="pre">real</span></code> criteria.
+The <code class="docutils literal notranslate"><span class="pre">value_type</span></code> of each criterion is chosen pseudo-randomly among the allowed ones.</p>
+<p>For numerical criteria, the <code class="docutils literal notranslate"><span class="pre">--denormalized-min-max</span></code> option generates problems with pseudo-random <code class="docutils literal notranslate"><span class="pre">min_value</span></code> and <code class="docutils literal notranslate"><span class="pre">max_value</span></code> for each criterion.
+By default, they are always set at 0 and 1.</p>
+<p>For numerical criteria, <code class="docutils literal notranslate"><span class="pre">--allow-decreasing-criteria</span></code> chooses pseudo-randomly the <code class="docutils literal notranslate"><span class="pre">preference_direction</span></code> of each criterion between <code class="docutils literal notranslate"><span class="pre">increasing</span></code> and <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>.
+By default, all criteria have <code class="docutils literal notranslate"><span class="pre">increasing</span></code> preference direction.
+It can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">--forbid-increasing-criteria</span></code> to generate problems with only <code class="docutils literal notranslate"><span class="pre">decreasing</span></code> criteria.</p>
 </section>
 <section id="generating-a-model">
 <h3>Generating a model<a class="headerlink" href="#generating-a-model" title="Permalink to this heading">¶</a></h3>
@@ -425,7 +440,7 @@ Here are two examples:</p>
 </pre></div>
 </div>
 <p>They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.0.0): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.0.1-dev): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">accepted_values</span><span class="p">:</span>
@@ -478,7 +493,8 @@ You’ve seen an example in our “Get started” guide.</p>
 </section>
 <section id="what-s-next">
 <h2>What’s next?<a class="headerlink" href="#what-s-next" title="Permalink to this heading">¶</a></h2>
-<p>You now know pretty much everything you need to use <em>lincs</em>.
+<p>You now know pretty much everything you need to use <em>lincs</em> from the command-line.
+You can learn how to use <em>lincs</em> from Python, as described in our <a class="reference internal" href="python-api.html"><span class="doc">Python API guide</span></a>.
 You may find some additional details in our <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>.
 Feel free to reach out to us if you have any question or feedback, as said at the top of the <a class="reference internal" href="index.html"><span class="doc">Readme</span></a>.</p>
 </section>
@@ -513,6 +529,7 @@ Feel free to reach out to us if you have any question or feedback, as said at th
 <li class="toctree-l2"><a class="reference internal" href="#what-s-next">What’s next?</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
@@ -524,7 +541,7 @@ Feel free to reach out to us if you have any question or feedback, as said at th
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="get-started.html" title="previous chapter">Get started</a></li>
-      <li>Next: <a href="reference.html" title="next chapter">Reference</a></li>
+      <li>Next: <a href="python-api.html" title="next chapter">The Python API</a></li>
   </ul></li>
 </ul>
 </div>

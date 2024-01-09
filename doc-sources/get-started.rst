@@ -27,6 +27,9 @@ If you end up modifying *lincs* to make it work on your platform, we kindly ask 
 Start using *lincs*' command-line interface
 ===========================================
 
+Even if you plan to use *lincs* mainly through its Python API, we do recommend you go through this section first.
+It will make it easier for you when you go through our :doc:`Python API guide <python-api>`.
+
 If you're a Jupyter user, you can `download the notebook <get-started.ipynb>`_ this section is based on.
 
 .. highlight:: text
@@ -105,9 +108,13 @@ Note that to keep this "Get Started" simple, we only consider the most basic kin
 with normalized minimal and maximal values, and increasing preference direction.
 There are many other kinds of criteria, and you can read about them in our user guide.
 
+.. highlight:: shell
+
 If you want a human-readable explanation of the problem, you can use::
 
     lincs describe classification-problem problem.yml
+
+.. highlight:: text
 
 It will tell you something like::
 
@@ -169,10 +176,14 @@ It should output something like:
     :alt: Model visualization
     :align: center
 
+.. highlight:: shell
+
 The model format is quite generic to ensure *lincs* can evolve to handle future models,
 so you may want to get a human-readable description of a model, including wether it's an MR-Sort or Uc-NCS model, using::
 
     lincs describe classification-model problem.yml model.yml
+
+.. highlight:: text
 
 It should output something like::
 

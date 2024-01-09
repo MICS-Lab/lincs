@@ -1,49 +1,20 @@
 # Copyright 2023 Vincent Jacques
+# @todo(Project management, v1.1) Update copyright notices everywhere
 
-__version__ = "1.0.1-dev"
+"""
+The ``lincs`` package
+=====================
 
-# I/O
-from liblincs import DataValidationException
-from liblincs import Criterion, Category, Problem
-from liblincs import AcceptedValues, SufficientCoalitions, Model
-from liblincs import Performance, Alternative, Alternatives
+This is the main module for the *lincs* library.
+It contains general information (version, GPU availability, *etc.*) and items of general usage (*e.g.* the exception for invalid data).
+"""
 
-# Generation (incl. misclassification)
-from liblincs import BalancedAlternativesGenerationException
-from liblincs import generate_classification_problem, generate_mrsort_classification_model, generate_classified_alternatives, misclassify_alternatives
+# General exceptions
+from liblincs import DataValidationException, LearningFailureException
 
 # Classification
-from liblincs import classify_alternatives
+from . import classification
 
-# Learning
-from liblincs import LearningFailureException
-
-# Learning - weights-profiles-breed
-from liblincs import LearnMrsortByWeightsProfilesBreed
-from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
-from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
-from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu
-try:
-    from liblincs import ImproveProfilesWithAccuracyHeuristicOnGpu
-    has_gpu = True
-except ImportError:
-    has_gpu = False
-from liblincs import ReinitializeLeastAccurate
-from liblincs import TerminateAtAccuracy
-from liblincs import TerminateAfterSeconds, TerminateAfterSecondsWithoutProgress
-from liblincs import TerminateAfterIterations, TerminateAfterIterationsWithoutProgress
-from liblincs import TerminateWhenAny
-
-# Learning - SAT by coalitions
-from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat
-
-# Learning - SAT by separation
-from liblincs import LearnUcncsBySatBySeparationUsingMinisat
-
-# Learning - max-SAT by coalitions
-from liblincs import LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
-
-# Learning - max-SAT by separation
-from liblincs import LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
-
-# @todo(Feature, later) Accept learning and training set as Pandas DataFrame?
+# General information
+__version__ = "1.0.1-dev"
+has_gpu = hasattr(classification, "ImproveProfilesWithAccuracyHeuristicOnGpu")

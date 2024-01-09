@@ -118,16 +118,8 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
 TEST_CASE("Initialize profiles - respect ordering") {
   Problem problem{
     {
-      Criterion::make_real(
-        "Criterion 1",
-        Criterion::PreferenceDirection::increasing,
-        0.0, 1.0
-      ),
-      Criterion::make_real(
-        "Criterion 2",
-        Criterion::PreferenceDirection::decreasing,
-        0.0, 1.0
-      )
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
     },
     {
       Category("Category 1"),

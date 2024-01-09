@@ -3,6 +3,7 @@
 from __future__ import annotations
 import copy
 import glob
+import inspect
 import json
 import multiprocessing
 import os
@@ -10,12 +11,14 @@ import random
 import re
 import shutil
 import subprocess
+import sys
 import textwrap
 import time
 
 import click
 import jinja2
 import joblib
+import yaml
 
 
 @click.command()
@@ -53,6 +56,10 @@ import joblib
     help="Skip Python unit tests to save time.",
 )
 @click.option(
+    "--skip-install", is_flag=True,
+    help="Skip installation to save time.",
+)
+@click.option(
     "--skip-notebooks", is_flag=True,
     help="Skip notebooks to save time.",
 )
@@ -84,6 +91,7 @@ def main(
     skip_long_unit,
     skip_cpp_unit,
     skip_python_unit,
+    skip_install,
     skip_notebooks,
     skip_unchanged_notebooks,
     forbid_gpu,
@@ -157,10 +165,10 @@ def main(
                 f.writelines(line for line in lines if not "branch-coverage" in line)
             return
 
-    if not skip_notebooks:
-        # Install lincs
-        ###############
+    # Install lincs
+    ###############
 
+    if not skip_install:
         shutil.rmtree("build", ignore_errors=True)
         # Install in reverse order to ensure that the lowest version is installed last,
         # so that the installed 'lincs' command is the one from the lowest version,
@@ -173,14 +181,18 @@ def main(
             shutil.rmtree("lincs.egg-info", ignore_errors=True)
             subprocess.run([f"python{python_version}", "-m", "pip", "install", "--user", "."], stdout=subprocess.DEVNULL, check=True)
 
-        # With lincs installed
-        ######################
+    # With lincs installed
+    ######################
 
+    if not skip_notebooks:
         print_title("Running Jupyter notebooks (integration tests, documentation sources)")
         run_notebooks(forbid_gpu=forbid_gpu, skip_unchanged_notebooks=skip_unchanged_notebooks)
 
     print_title("Updating templates (documentation sources)")
     update_templates()
+    convert_notebooks()
+    make_python_reference()
+    print()
 
     if with_docs:
         print_title("Building Sphinx documentation")
@@ -248,10 +260,10 @@ def build_sphinx_documentation():
         f.write(readme_content)
 
     with open("doc-sources/problem-schema.yml", "w") as f:
-        subprocess.run(["python3", "-c", "import lincs; print(lincs.Problem.JSON_SCHEMA, end='')"], check=True, stdout=f)
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.classification.Problem.JSON_SCHEMA, end='')"], check=True, stdout=f)
 
     with open("doc-sources/model-schema.yml", "w") as f:
-        subprocess.run(["python3", "-c", "import lincs; print(lincs.Model.JSON_SCHEMA, end='')"], check=True, stdout=f)
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.classification.Model.JSON_SCHEMA, end='')"], check=True, stdout=f)
 
     shutil.rmtree("docs", ignore_errors=True)
     subprocess.run(
@@ -322,18 +334,18 @@ def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
                 cell["metadata"].pop("execution", None)
                 if cell["cell_type"] == "code":
                     cell["source"] = original_cell_sources[i]
-                original_outputs = cell["outputs"]
+                original_outputs = cell.get("outputs")
                 if original_outputs:
-                    new_output = original_outputs[0]
-                    if new_output["output_type"] == "stream":
+                    if original_outputs[0]["output_type"] == "stream":
+                        new_output = original_outputs[0]
                         for output in original_outputs[1:]:
                             assert output["name"] == new_output["name"]
-                            assert output["output_type"] == new_output["output_type"]
+                            assert output["output_type"] == "stream"
                             new_output["text"] += output["text"]
                         cell["outputs"] = [new_output]
                     else:
                         assert len(original_outputs) == 1, original_outputs
-                        assert new_output["output_type"] == "display_data", original_outputs
+                        assert original_outputs[0]["output_type"] in ["display_data", "execute_result"], original_outputs
             with open(notebook_path, "w") as f:
                 json.dump(notebook, f, indent=1, sort_keys=True)
                 f.write("\n")
@@ -391,6 +403,163 @@ def update_templates():
             else:
                 assert False, "Unknown extension for warning comment"
             f.write(template.render())
+
+
+def convert_notebooks():
+    for name in ["python-api"]:
+        input_path = f"doc-sources/{name}/{name}.ipynb"
+        output_path = f"doc-sources/{name}.rst"
+        print(input_path, "->", output_path)
+
+        shutil.rmtree(f"doc-sources/{name}_files", ignore_errors=True)
+
+        subprocess.run(
+            ["jupyter", "nbconvert", "--to", "rst", input_path, "--output-dir", "doc-sources"],
+            check=True,
+            capture_output=True,
+        )
+
+        # @todo(Documentation, v1.1) Double-check the formatting of the HTML file, in particular the input and output blocks:
+        # - highlighting of output block should be '.. highlight:: text' or sometimes '.. highlight:: yaml'
+        # - highlighting of input block should be '.. highlight:: python'
+
+        # @todo(Documentation, v1.1) Fix the "WARNING: Inline emphasis start-string without end-string" when building the Sphinx doc
+
+        with open(output_path) as f:
+            content = f.read()
+
+        content = re.sub(r"`(.*?) <https://mics-lab.github.io/lincs/(.*?)\.html>`__", r":doc:`\1 <\2>`", content, flags=re.DOTALL)
+
+        with open(output_path, "w") as f:
+            f.write(f".. WARNING: this file is generated from '{input_path}'. MANUAL EDITS WILL BE LOST.\n\n")
+            f.write(content)
+
+
+def make_python_reference():
+    # @todo(Project management, v1.1) Understand why this directory in not in sys.path for this interpreter,
+    # but seems to be for interpreters started after 'pip install --user whatever' is run.
+    # Does the first 'pip install --user' modify the PYTHONPATH?
+    sys.path.append("/home/user/.local/lib/python3.8/site-packages")
+    import lincs
+
+    print("doc-sources/reference/lincs.yml -> doc-sources/reference/lincs.rst")
+
+    def directive(kind, name, doc, **options):
+        yield f".. {kind}:: {name}"
+        for k, v in options.items():
+            if v is True:
+                yield f"    :{k}:"
+            elif v:
+                yield f"    :{k}: {v}"
+        yield ""
+        for line in doc.splitlines():
+            yield f"    {line.strip()}"
+        yield ""
+
+    def fix_signature(path, signature):
+        signature = re.sub(r"^[^(]+", path[-1], signature)
+
+        if signature.endswith(" :"):
+            signature = signature[:-2]
+
+        if signature.endswith(" -> None"):
+            signature = signature[:-8]
+
+        signature = signature.replace("( ", "(")
+
+        signature = re.sub(r"<liblincs.Iterable\[.*?\] object at 0x............>", "[]", signature)
+        signature = re.sub(r"\(([a-zA-Z_]+)\)([a-z_]+)", r"\2: \1", signature)
+        signature = re.sub(r"\((Iterable\[[a-zA-Z_]+\])\)([a-z_]+)", r"\2: \1", signature)
+
+        signature = signature.replace(f"self: {path[-2]}, ", "")
+        signature = signature.replace(f"self: {path[-2]}", "")
+        signature = signature.replace(f"self: object, ", "")
+        signature = signature.replace(f"self: object", "")
+
+        if "arg1" in signature:
+            signature += " @to" + f"do(Documentation, v1.1) Fix parameter names for {'.'.join(path)}"
+
+        return signature
+
+    def walk(path, parent, node, description):
+        assert isinstance(description, dict)
+        assert description.get("show", True), path
+
+        name = path[-1]
+        class_name = node.__class__.__name__
+
+        description_doc = description.get("doc", ".. @to" + f"do(Documentation, v1.1) Document {'.'.join(path)} in doc-sources/reference/lincs.yml")
+        docstring = getattr(node, "__doc__", None)
+        if docstring:
+            docstring = docstring.strip()
+        else:
+            docstring = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}"
+        do_walk = True
+        if class_name == "module":
+            yield from directive("module", ".".join(path), docstring)
+        elif class_name == "class":
+            yield from directive("class", name, docstring)
+        elif class_name == "type" and name.endswith("Exception"):
+            yield from directive("exception", name, description_doc)
+        elif class_name == "type":
+            yield from directive("class", name, docstring)
+        elif class_name == path[-2]:
+            yield from directive("property", name, description_doc, classmethod=True, type=".".join(path[:-1]))
+            do_walk = False
+        elif class_name == "property":
+            yield from directive("property", name, docstring, type=description.get("type", "@to" + f"do(Documentation, v1.1) Add type to {'.'.join(path)} in doc-sources/reference/lincs.yml"))
+            do_walk = False
+        elif class_name == "builtin_function_or_method":
+            docs = docstring.split("\n\n")
+            for i, doc in enumerate(docs):
+                if len(docs) == 2 and i == 1 and "arg1" in doc and doc.endswith(") -> None"):
+                    continue
+                doc = doc.splitlines()
+                signature = doc[0]
+                doc = "\n".join(d.strip() for d in doc[1:])
+                if not doc:
+                    doc = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}"
+                parent_class_name = parent.__class__.__name__
+                if parent_class_name == "class":
+                    directive_name = "method"
+                elif parent_class_name == "module":
+                    directive_name = "function"
+                else:
+                    directive_name = "@to" + f"do(Documentation, v1.1) Handle {'.'.join(path[:-1])} (of type {parent_class_name}) in the ad-hoc generator"
+                yield from directive(directive_name, fix_signature(path, signature), doc, noindex=i != 0, staticmethod=description.get("staticmethod", False))
+            do_walk = False
+        elif class_name == "function":
+            signature = inspect.signature(node)
+            yield from directive("function", f"{name}{signature}".replace("liblincs", "lincs.classification"), docstring)
+        elif class_name in ["bool", "str"]:
+            yield from directive("data", name, description_doc, type=class_name)
+            do_walk = False
+        else:
+            yield ".. @to" + f"do(Documentation, v1.1) Handle {'.'.join(path)} (of type {class_name}) in the ad-hoc generator"
+            yield ""
+
+        if do_walk:
+            undocumented_children_names = set(dir(node))
+            for child_description in description.get("children", []):
+                child_name = child_description["name"]
+                undocumented_children_names.remove(child_name)
+                child = getattr(node, child_name)
+                if child_description.get("show", True):
+                    for line in walk(path + [child_name], node, child, child_description):
+                        yield f"    {line}"
+            for child_name in sorted(undocumented_children_names):
+                if child_name.startswith("_") and child_name not in ["__init__"]:
+                    continue
+                yield "    .. @to" + f"do(Documentation, v1.1) Include or exclude explicitly {'.'.join(path)}.{child_name} in doc-sources/reference/lincs.yml"
+                yield ""
+
+    with open("doc-sources/reference/lincs.yml") as f:
+        description = yaml.safe_load(f)
+
+    with open("doc-sources/reference/lincs.rst", "w") as f:
+        f.write(".. WARNING: this file is generated from 'doc-sources/reference/lincs.yml'. MANUAL EDITS WILL BE LOST.\n\n")
+        for line in walk(["lincs"], None, lincs, description):
+            f.write(line.rstrip() + "\n")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ from cycle import build_sphinx_documentation, print_title
 
 
 @click.command()
+# @todo(Project management, v1.1) Support publishing dev and alpha/beta/rc versions?
 @click.argument("level", type=click.Choice(["patch", "minor", "major"]))
 @click.option("--dry-run", is_flag=True)
 def main(level, dry_run):

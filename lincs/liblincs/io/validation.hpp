@@ -22,6 +22,12 @@ class JsonValidator {
   valijson::Schema schema;
 };
 
+inline void validate(const bool ok, const std::string& message) {
+  if (!ok) {
+    throw DataValidationException(message);
+  }
+}
+
 }  // namespace lincs
 
 #endif  // LINCS__IO__VALIDATION_HPP
