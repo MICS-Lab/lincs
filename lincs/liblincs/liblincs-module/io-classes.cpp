@@ -263,6 +263,7 @@ void define_model_classes() {
       "load",
       &load_model,
       (bp::arg("problem"), "in"),
+      // @todo(Documentation, v1.1) Search for all single back-quotes and double them where appropriate
       "Load a model for the provided `problem`, from the provided ``.read``-supporting file-like object, in YAML format"
     )
     .staticmethod("load")
