@@ -23,8 +23,7 @@ Generate a synthetic classification problem:
 
 .. code:: ipython3
 
-    # @todo(Feature, v1.1) Make sure all the API can be called with arguments passed by name
-    problem = lincs.generate_classification_problem(4, 3, 40)
+    problem = lincs.generate_classification_problem(criteria_count=4, categories_count=3, random_seed=40)
 
 The first difference with the command-line interface is the third
 argument to the call to :doc:``generate_classification_problem``: it’s the
@@ -112,7 +111,7 @@ explicit pseudo-random seed:
 
 .. code:: ipython3
 
-    model = lincs.generate_mrsort_classification_model(problem, 41)
+    model = lincs.generate_mrsort_classification_model(problem, random_seed=41)
     
     model.dump(problem, sys.stdout)
 
@@ -179,7 +178,7 @@ Generate a synthetic learning set (with an explicit pseudo-random seed):
 
 .. code:: ipython3
 
-    learning_set = lincs.generate_classified_alternatives(problem, model, 1000, 42)
+    learning_set = lincs.generate_classified_alternatives(problem, model, alternatives_count=1000, random_seed=42)
 
 Dump it (in memory instead of on ``sys.stdout`` to print only the first
 few lines):
@@ -224,12 +223,12 @@ the Python API, you have to create these strategies yourself:
 .. code:: ipython3
 
     # @todo(Feature, v1.1) Support using temporary strategies (i.e. passing 'lincs.OptimizeWeightsUsingGlop(learning_data)' directly to 'lincs.LearnMrsortByWeightsProfilesBreed' without capturing it in a variable)
-    learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 43)
+    learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
     profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
     weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(learning_data)
     profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-    breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
-    termination_strategy = lincs.TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+    breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+    termination_strategy = lincs.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 
 Then create the learning itself:
 
@@ -277,7 +276,7 @@ the new model on that testing set:
 
 .. code:: ipython3
 
-    testing_set = lincs.generate_classified_alternatives(problem, model, 3000, 44)
+    testing_set = lincs.generate_classified_alternatives(problem, model, alternatives_count=3000, random_seed=44)
     classification_result = lincs.classify_alternatives(problem, learned_model, testing_set)
     classification_result.changed, classification_result.unchanged
 
@@ -312,11 +311,11 @@ Create a ``Problem``
 
     # @todo(Feature, v1.1) Rename to 'ClassificationProblem'? And everything to 'ClassificationXxx'? Or namespace into 'lincs.classification'?
     problem = lincs.Problem(
-        [
+        criteria=[
             lincs.Criterion("Physics grade", lincs.Criterion.IntegerValues(lincs.Criterion.PreferenceDirection.increasing, 0, 100)),
             lincs.Criterion("Literature grade", lincs.Criterion.EnumeratedValues(["f", "e", "d", "c", "b", "a"])),
         ],
-        [lincs.Category("Failed"), lincs.Category("Passed"), lincs.Category("Congratulations")],
+        categories=[lincs.Category("Failed"), lincs.Category("Passed"), lincs.Category("Congratulations")],
     )
     
     problem.dump(sys.stdout)
@@ -452,7 +451,7 @@ You can access all their attributes in code as well:
 
 .. code:: ipython3
 
-    values.get_value_rank("a")
+    values.get_value_rank(value="a")
 
 
 
@@ -470,8 +469,8 @@ Create a ``Model``
 
     model = lincs.Model(
         problem,
-        [lincs.AcceptedValues(lincs.AcceptedValues.IntegerThresholds([50, 80])), lincs.AcceptedValues(lincs.AcceptedValues.EnumeratedThresholds(["c", "a"]))],
-        [
+        accepted_values=[lincs.AcceptedValues(lincs.AcceptedValues.IntegerThresholds([50, 80])), lincs.AcceptedValues(lincs.AcceptedValues.EnumeratedThresholds(["c", "a"]))],
+        sufficient_coalitions=[
             lincs.SufficientCoalitions(lincs.SufficientCoalitions.Weights([0.5, 0.5])),
             lincs.SufficientCoalitions(lincs.SufficientCoalitions.Weights([0.5, 0.5])),
         ],
