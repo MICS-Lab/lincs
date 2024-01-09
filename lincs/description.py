@@ -1,6 +1,6 @@
 import unittest
 
-from . import Problem, Criterion, Category, Model, AcceptedValues, SufficientCoalitions
+from .classification import Problem, Criterion, Category, Model, AcceptedValues, SufficientCoalitions
 
 
 def describe_classification_problem(problem: Problem):

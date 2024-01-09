@@ -18,339 +18,6 @@ children:
         show: false
       - name: with_traceback
         show: false
-  - name: Criterion
-    children:
-      - name: __init__
-      - name: name
-        type: str
-      - name: ValueType
-        children:
-          - name: real
-            doc: Real values
-          - name: integer
-            doc: Integer values
-          - name: enumerated
-            doc: Enumerated values
-          - name: __init__
-            show: false
-          - name: as_integer_ratio
-            show: false
-          - name: bit_length
-            show: false
-          - name: conjugate
-            show: false
-          - name: denominator
-            show: false
-          - name: from_bytes
-            show: false
-          - name: imag
-            show: false
-          - name: name
-            show: false
-          - name: names
-            show: false
-          - name: numerator
-            show: false
-          - name: to_bytes
-            show: false
-          - name: values
-            show: false
-      - name: value_type
-        type: ValueType
-      - name: is_real
-        type: bool
-      - name: is_integer
-        type: bool
-      - name: is_enumerated
-        type: bool
-      - name: PreferenceDirection
-        children:
-          - name: increasing
-            doc: For criteria where higher numerical values are known to be better
-          - name: decreasing
-            doc: For criteria where lower numerical values are known to be better
-          - name: isotone
-            doc: Synonym for ``increasing``
-          - name: antitone
-            doc: Synonym for ``decreasing``
-          - name: __init__
-            show: false
-          - name: as_integer_ratio
-            show: false
-          - name: bit_length
-            show: false
-          - name: conjugate
-            show: false
-          - name: denominator
-            show: false
-          - name: from_bytes
-            show: false
-          - name: imag
-            show: false
-          - name: name
-            show: false
-          - name: names
-            show: false
-          - name: numerator
-            show: false
-          - name: real
-            show: false
-          - name: to_bytes
-            show: false
-          - name: values
-            show: false
-      - name: RealValues
-        children:
-          - name: __init__
-          - name: min_value
-            type: float
-          - name: max_value
-            type: float
-          - name: preference_direction
-            type: PreferenceDirection
-          - name: is_increasing
-            type: bool
-          - name: is_decreasing
-            type: bool
-      - name: real_values
-        type: RealValues
-      - name: IntegerValues
-        children:
-          - name: __init__
-          - name: min_value
-            type: float
-          - name: max_value
-            type: float
-          - name: preference_direction
-            type: PreferenceDirection
-          - name: is_increasing
-            type: bool
-          - name: is_decreasing
-            type: bool
-      - name: integer_values
-        type: IntegerValues
-      - name: EnumeratedValues
-        children:
-          - name: __init__
-          - name: get_value_rank
-          - name: ordered_values
-            type: Iterable[str]
-      - name: enumerated_values
-        type: EnumeratedValues
-  - name: Category
-    children:
-      - name: __init__
-      - name: name
-        type: str
-  - name: Problem
-    children:
-      - name: __init__
-      - name: criteria
-        type: Iterable[Criterion]
-      - name: ordered_categories
-        type: Iterable[Category]
-      - name: dump
-      - name: load
-        staticmethod: true
-      - name: JSON_SCHEMA
-        doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string
-  - name: AcceptedValues
-    children:
-      - name: __init__
-      - name: value_type
-        type: ValueType
-      - name: is_real
-        type: bool
-      - name: is_integer
-        type: bool
-      - name: is_enumerated
-        type: bool
-      - name: Kind
-        children:
-          - name: thresholds
-            doc: A threshold for each category
-          - name: __init__
-            show: false
-          - name: as_integer_ratio
-            show: false
-          - name: bit_length
-            show: false
-          - name: conjugate
-            show: false
-          - name: denominator
-            show: false
-          - name: from_bytes
-            show: false
-          - name: imag
-            show: false
-          - name: name
-            show: false
-          - name: names
-            show: false
-          - name: numerator
-            show: false
-          - name: real
-            show: false
-          - name: to_bytes
-            show: false
-          - name: values
-            show: false
-      - name: kind
-        type: AcceptedValues.Kind
-      - name: is_thresholds
-        type: bool
-      - name: RealThresholds
-        children:
-          - name: __init__
-          - name: thresholds
-            type: Iterable[float]
-      - name: real_thresholds
-        type: RealThresholds
-      - name: IntegerThresholds
-        children:
-          - name: __init__
-          - name: thresholds
-            type: Iterable[int]
-      - name: integer_thresholds
-        type: IntegerThresholds
-      - name: EnumeratedThresholds
-        children:
-          - name: __init__
-          - name: thresholds
-            type: Iterable[str]
-      - name: enumerated_thresholds
-        type: EnumeratedThresholds
-  - name: SufficientCoalitions
-    children:
-      - name: __init__
-      - name: Kind
-        children:
-          - name: weights
-            doc: For sufficient coalitions described by criterion weights
-          - name: roots
-            doc: For sufficient coalitions described by the roots of their upset
-          - name: __init__
-            show: false
-          - name: as_integer_ratio
-            show: false
-          - name: bit_length
-            show: false
-          - name: conjugate
-            show: false
-          - name: denominator
-            show: false
-          - name: from_bytes
-            show: false
-          - name: imag
-            show: false
-          - name: name
-            show: false
-          - name: names
-            show: false
-          - name: numerator
-            show: false
-          - name: real
-            show: false
-          - name: to_bytes
-            show: false
-          - name: values
-            show: false
-      - name: kind
-        type: SufficientCoalitions.Kind
-      - name: is_weights
-        type: bool
-      - name: is_roots
-        type: bool
-      - name: Weights
-        children:
-          - name: __init__
-          - name: criterion_weights
-            type: Iterable[float]
-      - name: weights
-        type: Weights
-      - name: Roots
-        children:
-          - name: __init__
-          - name: upset_roots
-            type: Iterable[Iterable[int]]
-      - name: roots
-        type: Roots
-  - name: Model
-    children:
-      - name: __init__
-      - name: accepted_values
-        type: Iterable[AcceptedValues]
-      - name: sufficient_coalitions
-        type: Iterable[SufficientCoalitions]
-      - name: dump
-      - name: load
-        staticmethod: true
-      - name: JSON_SCHEMA
-        doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string
-  - name: Performance
-    children:
-      - name: __init__
-      - name: value_type
-        type: ValueType
-      - name: is_real
-        type: bool
-      - name: is_integer
-        type: bool
-      - name: is_enumerated
-        type: bool
-      - name: RealPerformance
-        children:
-          - name: __init__
-          - name: value
-            type: float
-      - name: real
-        type: RealPerformance
-      - name: IntegerPerformance
-        children:
-          - name: __init__
-          - name: value
-            type: int
-      - name: integer
-        type: IntegerPerformance
-      - name: EnumeratedPerformance
-        children:
-          - name: __init__
-          - name: value
-            type: str
-      - name: enumerated
-        type: EnumeratedPerformance
-  - name: Alternative
-    children:
-      - name: __init__
-      - name: name
-        type: str
-      - name: profile
-        type: Iterable[Performance]
-      - name: category_index
-        type: Optional[int]
-  - name: Alternatives
-    children:
-      - name: __init__
-      - name: alternatives
-        type: Iterable[Alternative]
-      - name: dump
-      - name: load
-        staticmethod: true
-
-  - name: generate_classification_problem
-  - name: generate_mrsort_classification_model
-  - name: BalancedAlternativesGenerationException
-    doc: "Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories"
-    children:
-      - name: __init__
-        show: false
-      - name: args
-        show: false
-      - name: with_traceback
-        show: false
-  - name: generate_classified_alternatives
-  - name: misclassify_alternatives
-
   - name: LearningFailureException
     doc: Raised by learning algorithms when they can't reach their objective
     children:
@@ -360,122 +27,466 @@ children:
         show: false
       - name: with_traceback
         show: false
-  - name: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
-    children:
-      - name: __init__
-      - name: perform
-  - name: LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
-    children:
-      - name: __init__
-      - name: perform
-  - name: LearnUcncsBySatByCoalitionsUsingMinisat
-    children:
-      - name: __init__
-      - name: perform
-  - name: LearnUcncsBySatBySeparationUsingMinisat
-    children:
-      - name: __init__
-      - name: perform
-  - name: LearnMrsortByWeightsProfilesBreed
-    children:
-      - name: __init__
-      - name: LearningData
-        children:
-          - name: __init__
-          - name: get_best_accuracy
-          - name: iteration_index
-            type: int
-      - name: ProfilesInitializationStrategy
-        children:
-          - name: __init__
-            show: false
-          - name: initialize_profiles
-      - name: WeightsOptimizationStrategy
-        children:
-          - name: __init__
-            show: false
-          - name: optimize_weights
-      - name: ProfilesImprovementStrategy
-        children:
-          - name: __init__
-            show: false
-          - name: improve_profiles
-      - name: BreedingStrategy
-        children:
-          - name: __init__
-            show: false
-          - name: breed
-      - name: TerminationStrategy
-        children:
-          - name: __init__
-            show: false
-          - name: terminate
-      - name: Observer
-        children:
-          - name: __init__
-            show: false
-          - name: after_iteration
-          - name: before_return
-      - name: perform
-  - name: InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
-    children:
-      - name: __init__
-      - name: initialize_profiles
-  - name: OptimizeWeightsUsingAlglib
-    children:
-      - name: __init__
-      - name: optimize_weights
-  - name: OptimizeWeightsUsingGlop
-    children:
-      - name: __init__
-      - name: optimize_weights
-  - name: ImproveProfilesWithAccuracyHeuristicOnCpu
-    children:
-      - name: __init__
-      - name: improve_profiles
-  - name: ImproveProfilesWithAccuracyHeuristicOnGpu
-    children:
-      - name: __init__
-      - name: improve_profiles
-  - name: ReinitializeLeastAccurate
-    children:
-      - name: __init__
-      - name: breed
-  - name: TerminateAfterIterations
-    children:
-      - name: __init__
-      - name: terminate
-  - name: TerminateAfterIterationsWithoutProgress
-    children:
-      - name: __init__
-      - name: terminate
-  - name: TerminateAfterSeconds
-    children:
-      - name: __init__
-      - name: terminate
-  - name: TerminateAfterSecondsWithoutProgress
-    children:
-      - name: __init__
-      - name: terminate
-  - name: TerminateAtAccuracy
-    children:
-      - name: __init__
-      - name: terminate
-  - name: TerminateWhenAny
-    children:
-      - name: __init__
-      - name: terminate
 
-  - name: classify_alternatives
-  - name: describe_classification_model
+  - name: classification
     children:
-      - name: __init__
-        show: false
-  - name: describe_classification_problem
-    children:
-      - name: __init__
-        show: false
-  - name: visualize_classification_model
-    children:
-      - name: __init__
-        show: false
+    - name: Criterion
+      children:
+        - name: __init__
+        - name: name
+          type: str
+        - name: ValueType
+          children:
+            - name: real
+              doc: Real values
+            - name: integer
+              doc: Integer values
+            - name: enumerated
+              doc: Enumerated values
+            - name: __init__
+              show: false
+            - name: as_integer_ratio
+              show: false
+            - name: bit_length
+              show: false
+            - name: conjugate
+              show: false
+            - name: denominator
+              show: false
+            - name: from_bytes
+              show: false
+            - name: imag
+              show: false
+            - name: name
+              show: false
+            - name: names
+              show: false
+            - name: numerator
+              show: false
+            - name: to_bytes
+              show: false
+            - name: values
+              show: false
+        - name: value_type
+          type: ValueType
+        - name: is_real
+          type: bool
+        - name: is_integer
+          type: bool
+        - name: is_enumerated
+          type: bool
+        - name: PreferenceDirection
+          children:
+            - name: increasing
+              doc: For criteria where higher numerical values are known to be better
+            - name: decreasing
+              doc: For criteria where lower numerical values are known to be better
+            - name: isotone
+              doc: Synonym for ``increasing``
+            - name: antitone
+              doc: Synonym for ``decreasing``
+            - name: __init__
+              show: false
+            - name: as_integer_ratio
+              show: false
+            - name: bit_length
+              show: false
+            - name: conjugate
+              show: false
+            - name: denominator
+              show: false
+            - name: from_bytes
+              show: false
+            - name: imag
+              show: false
+            - name: name
+              show: false
+            - name: names
+              show: false
+            - name: numerator
+              show: false
+            - name: real
+              show: false
+            - name: to_bytes
+              show: false
+            - name: values
+              show: false
+        - name: RealValues
+          children:
+            - name: __init__
+            - name: min_value
+              type: float
+            - name: max_value
+              type: float
+            - name: preference_direction
+              type: PreferenceDirection
+            - name: is_increasing
+              type: bool
+            - name: is_decreasing
+              type: bool
+        - name: real_values
+          type: RealValues
+        - name: IntegerValues
+          children:
+            - name: __init__
+            - name: min_value
+              type: float
+            - name: max_value
+              type: float
+            - name: preference_direction
+              type: PreferenceDirection
+            - name: is_increasing
+              type: bool
+            - name: is_decreasing
+              type: bool
+        - name: integer_values
+          type: IntegerValues
+        - name: EnumeratedValues
+          children:
+            - name: __init__
+            - name: get_value_rank
+            - name: ordered_values
+              type: Iterable[str]
+        - name: enumerated_values
+          type: EnumeratedValues
+    - name: Category
+      children:
+        - name: __init__
+        - name: name
+          type: str
+    - name: Problem
+      children:
+        - name: __init__
+        - name: criteria
+          type: Iterable[Criterion]
+        - name: ordered_categories
+          type: Iterable[Category]
+        - name: dump
+        - name: load
+          staticmethod: true
+        - name: JSON_SCHEMA
+          doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string
+    - name: AcceptedValues
+      children:
+        - name: __init__
+        - name: value_type
+          type: ValueType
+        - name: is_real
+          type: bool
+        - name: is_integer
+          type: bool
+        - name: is_enumerated
+          type: bool
+        - name: Kind
+          children:
+            - name: thresholds
+              doc: A threshold for each category
+            - name: __init__
+              show: false
+            - name: as_integer_ratio
+              show: false
+            - name: bit_length
+              show: false
+            - name: conjugate
+              show: false
+            - name: denominator
+              show: false
+            - name: from_bytes
+              show: false
+            - name: imag
+              show: false
+            - name: name
+              show: false
+            - name: names
+              show: false
+            - name: numerator
+              show: false
+            - name: real
+              show: false
+            - name: to_bytes
+              show: false
+            - name: values
+              show: false
+        - name: kind
+          type: AcceptedValues.Kind
+        - name: is_thresholds
+          type: bool
+        - name: RealThresholds
+          children:
+            - name: __init__
+            - name: thresholds
+              type: Iterable[float]
+        - name: real_thresholds
+          type: RealThresholds
+        - name: IntegerThresholds
+          children:
+            - name: __init__
+            - name: thresholds
+              type: Iterable[int]
+        - name: integer_thresholds
+          type: IntegerThresholds
+        - name: EnumeratedThresholds
+          children:
+            - name: __init__
+            - name: thresholds
+              type: Iterable[str]
+        - name: enumerated_thresholds
+          type: EnumeratedThresholds
+    - name: SufficientCoalitions
+      children:
+        - name: __init__
+        - name: Kind
+          children:
+            - name: weights
+              doc: For sufficient coalitions described by criterion weights
+            - name: roots
+              doc: For sufficient coalitions described by the roots of their upset
+            - name: __init__
+              show: false
+            - name: as_integer_ratio
+              show: false
+            - name: bit_length
+              show: false
+            - name: conjugate
+              show: false
+            - name: denominator
+              show: false
+            - name: from_bytes
+              show: false
+            - name: imag
+              show: false
+            - name: name
+              show: false
+            - name: names
+              show: false
+            - name: numerator
+              show: false
+            - name: real
+              show: false
+            - name: to_bytes
+              show: false
+            - name: values
+              show: false
+        - name: kind
+          type: SufficientCoalitions.Kind
+        - name: is_weights
+          type: bool
+        - name: is_roots
+          type: bool
+        - name: Weights
+          children:
+            - name: __init__
+            - name: criterion_weights
+              type: Iterable[float]
+        - name: weights
+          type: Weights
+        - name: Roots
+          children:
+            - name: __init__
+            - name: upset_roots
+              type: Iterable[Iterable[int]]
+        - name: roots
+          type: Roots
+    - name: Model
+      children:
+        - name: __init__
+        - name: accepted_values
+          type: Iterable[AcceptedValues]
+        - name: sufficient_coalitions
+          type: Iterable[SufficientCoalitions]
+        - name: dump
+        - name: load
+          staticmethod: true
+        - name: JSON_SCHEMA
+          doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string
+    - name: Performance
+      children:
+        - name: __init__
+        - name: value_type
+          type: ValueType
+        - name: is_real
+          type: bool
+        - name: is_integer
+          type: bool
+        - name: is_enumerated
+          type: bool
+        - name: RealPerformance
+          children:
+            - name: __init__
+            - name: value
+              type: float
+        - name: real
+          type: RealPerformance
+        - name: IntegerPerformance
+          children:
+            - name: __init__
+            - name: value
+              type: int
+        - name: integer
+          type: IntegerPerformance
+        - name: EnumeratedPerformance
+          children:
+            - name: __init__
+            - name: value
+              type: str
+        - name: enumerated
+          type: EnumeratedPerformance
+    - name: Alternative
+      children:
+        - name: __init__
+        - name: name
+          type: str
+        - name: profile
+          type: Iterable[Performance]
+        - name: category_index
+          type: Optional[int]
+    - name: Alternatives
+      children:
+        - name: __init__
+        - name: alternatives
+          type: Iterable[Alternative]
+        - name: dump
+        - name: load
+          staticmethod: true
+
+    - name: generate_problem
+    - name: generate_mrsort_model
+    - name: BalancedAlternativesGenerationException
+      doc: "Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories"
+      children:
+        - name: __init__
+          show: false
+        - name: args
+          show: false
+        - name: with_traceback
+          show: false
+    - name: generate_classified_alternatives
+    - name: misclassify_alternatives
+
+    - name: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
+      children:
+        - name: __init__
+        - name: perform
+    - name: LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
+      children:
+        - name: __init__
+        - name: perform
+    - name: LearnUcncsBySatByCoalitionsUsingMinisat
+      children:
+        - name: __init__
+        - name: perform
+    - name: LearnUcncsBySatBySeparationUsingMinisat
+      children:
+        - name: __init__
+        - name: perform
+    - name: LearnMrsortByWeightsProfilesBreed
+      children:
+        - name: __init__
+        - name: LearningData
+          children:
+            - name: __init__
+            - name: get_best_accuracy
+            - name: iteration_index
+              type: int
+        - name: ProfilesInitializationStrategy
+          children:
+            - name: __init__
+              show: false
+            - name: initialize_profiles
+        - name: WeightsOptimizationStrategy
+          children:
+            - name: __init__
+              show: false
+            - name: optimize_weights
+        - name: ProfilesImprovementStrategy
+          children:
+            - name: __init__
+              show: false
+            - name: improve_profiles
+        - name: BreedingStrategy
+          children:
+            - name: __init__
+              show: false
+            - name: breed
+        - name: TerminationStrategy
+          children:
+            - name: __init__
+              show: false
+            - name: terminate
+        - name: Observer
+          children:
+            - name: __init__
+              show: false
+            - name: after_iteration
+            - name: before_return
+        - name: perform
+    - name: InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
+      children:
+        - name: __init__
+        - name: initialize_profiles
+    - name: OptimizeWeightsUsingAlglib
+      children:
+        - name: __init__
+        - name: optimize_weights
+    - name: OptimizeWeightsUsingGlop
+      children:
+        - name: __init__
+        - name: optimize_weights
+    - name: ImproveProfilesWithAccuracyHeuristicOnCpu
+      children:
+        - name: __init__
+        - name: improve_profiles
+    - name: ImproveProfilesWithAccuracyHeuristicOnGpu
+      children:
+        - name: __init__
+        - name: improve_profiles
+    - name: ReinitializeLeastAccurate
+      children:
+        - name: __init__
+        - name: breed
+    - name: TerminateAfterIterations
+      children:
+        - name: __init__
+        - name: terminate
+    - name: TerminateAfterIterationsWithoutProgress
+      children:
+        - name: __init__
+        - name: terminate
+    - name: TerminateAfterSeconds
+      children:
+        - name: __init__
+        - name: terminate
+    - name: TerminateAfterSecondsWithoutProgress
+      children:
+        - name: __init__
+        - name: terminate
+    - name: TerminateAtAccuracy
+      children:
+        - name: __init__
+        - name: terminate
+    - name: TerminateWhenAny
+      children:
+        - name: __init__
+        - name: terminate
+
+    - name: ClassificationResult
+      children:
+        - name: __init__
+          show: false
+        - name: changed
+          type: int
+        - name: unchanged
+          type: int
+    - name: classify_alternatives
+    - name: describe_model
+      children:
+        - name: __init__
+          show: false
+    - name: describe_problem
+      children:
+        - name: __init__
+          show: false
+    - name: visualize_model
+      children:
+        - name: __init__
+          show: false

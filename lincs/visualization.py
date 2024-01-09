@@ -4,7 +4,7 @@ import unittest
 
 import matplotlib.pyplot as plt
 
-from . import Problem, Model, Alternatives
+from .classification import Problem, Model, Alternatives
 
 
 def visualize_classification_model(problem: Problem, model: Model, alternatives: Alternatives, axes: plt.Axes):

@@ -260,10 +260,10 @@ def build_sphinx_documentation():
         f.write(readme_content)
 
     with open("doc-sources/problem-schema.yml", "w") as f:
-        subprocess.run(["python3", "-c", "import lincs; print(lincs.Problem.JSON_SCHEMA, end='')"], check=True, stdout=f)
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.classification.Problem.JSON_SCHEMA, end='')"], check=True, stdout=f)
 
     with open("doc-sources/model-schema.yml", "w") as f:
-        subprocess.run(["python3", "-c", "import lincs; print(lincs.Model.JSON_SCHEMA, end='')"], check=True, stdout=f)
+        subprocess.run(["python3", "-c", "import lincs; print(lincs.classification.Model.JSON_SCHEMA, end='')"], check=True, stdout=f)
 
     shutil.rmtree("docs", ignore_errors=True)
     subprocess.run(
@@ -452,11 +452,12 @@ def make_python_reference():
             elif v:
                 yield f"    :{k}: {v}"
         yield ""
-        yield f"    {doc}"
+        for line in doc.splitlines():
+            yield f"    {line.strip()}"
         yield ""
 
     def fix_signature(path, signature):
-        assert signature.startswith(path[-1]), (path, signature)
+        signature = re.sub(r"^[^(]+", path[-1], signature)
 
         if signature.endswith(" :"):
             signature = signature[:-2]
@@ -495,7 +496,7 @@ def make_python_reference():
             docstring = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}"
         do_walk = True
         if class_name == "module":
-            yield from directive("module", name, docstring)
+            yield from directive("module", ".".join(path), docstring)
         elif class_name == "class":
             yield from directive("class", name, docstring)
         elif class_name == "type" and name.endswith("Exception"):
@@ -529,7 +530,7 @@ def make_python_reference():
             do_walk = False
         elif class_name == "function":
             signature = inspect.signature(node)
-            yield from directive("function", f"{name}{signature}".replace("liblincs", "lincs"), docstring)
+            yield from directive("function", f"{name}{signature}".replace("liblincs", "lincs.classification"), docstring)
         elif class_name in ["bool", "str"]:
             yield from directive("data", name, description_doc, type=class_name)
             do_walk = False

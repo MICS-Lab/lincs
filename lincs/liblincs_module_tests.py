@@ -3,7 +3,8 @@
 import unittest
 import os
 
-from . import *
+from . import DataValidationException, LearningFailureException
+from .classification import *
 
 
 forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
@@ -498,8 +499,8 @@ class AlternativesTestCase(unittest.TestCase):
 
 class LearningTestCase(unittest.TestCase):
     def test_basic_mrsort_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
@@ -529,8 +530,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 971)
 
     def test_iterations_restricted_mrsort_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 1000, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
@@ -551,8 +552,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertGreater(classify_alternatives(problem, learned_model, learning_set).changed, 0)
 
     def test_terminate_when_any(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         class MyTerminationStrategy(LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
@@ -584,8 +585,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(classify_alternatives(problem, learned_model, learning_set).changed, 6)
 
     def test_python_strategies(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         class MyProfileInitializationStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
@@ -669,8 +670,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 932)
 
     def test_observers(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         class MyObserver(LearnMrsortByWeightsProfilesBreed.Observer):
@@ -707,8 +708,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(observer.final_accuracy, 200)
 
     def test_alglib_mrsort_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
@@ -737,8 +738,8 @@ class LearningTestCase(unittest.TestCase):
 
     @unittest.skipIf(forbid_gpu, "Can't use GPU")
     def test_gpu_mrsort_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
@@ -766,8 +767,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 971)
 
     def test_sat_by_coalitions_using_minisat_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set).perform()
@@ -782,8 +783,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 979)
 
     def test_sat_by_separation_using_minisat_learning(self):
-        problem = generate_classification_problem(5, 2, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 2, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set).perform()
@@ -798,8 +799,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 976)
 
     def test_max_sat_by_coalitions_using_evalmaxsat_learning(self):
-        problem = generate_classification_problem(5, 3, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set).perform()
@@ -814,8 +815,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 972)
 
     def test_max_sat_by_separation_using_evalmaxsat_learning(self):
-        problem = generate_classification_problem(5, 2, 41)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(5, 2, 41)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set).perform()
@@ -830,8 +831,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.unchanged, 976)
 
     def test_learning_failure_exception(self):
-        problem = generate_classification_problem(2, 2, 42)
-        model = generate_mrsort_classification_model(problem, 42)
+        problem = generate_problem(2, 2, 42)
+        model = generate_mrsort_model(problem, 42)
         learning_set = generate_classified_alternatives(problem, model, 100, 42)
         misclassify_alternatives(problem, learning_set, 10, 42 + 27)
 

@@ -17,13 +17,13 @@ using the Python API.
 
 .. code:: ipython3
 
-    import lincs
+    from lincs import classification as lc
 
 Generate a synthetic classification problem:
 
 .. code:: ipython3
 
-    problem = lincs.generate_classification_problem(criteria_count=4, categories_count=3, random_seed=40)
+    problem = lc.generate_problem(criteria_count=4, categories_count=3, random_seed=40)
 
 The first difference with the command-line interface is the third
 argument to the call to :doc:``generate_classification_problem``: it’s the
@@ -78,17 +78,11 @@ Generated problems are returned as Python objects of class
       - name: Best category
 
 
-Description functions are in their own module:
+Description functions generate a list of strings:
 
 .. code:: ipython3
 
-    import lincs.description
-
-They generate a list of strings:
-
-.. code:: ipython3
-
-    print("\n".join(lincs.description.describe_classification_problem(problem)))
+    print("\n".join(lc.describe_problem(problem)))
 
 
 .. parsed-literal::
@@ -111,7 +105,7 @@ explicit pseudo-random seed:
 
 .. code:: ipython3
 
-    model = lincs.generate_mrsort_classification_model(problem, random_seed=41)
+    model = lc.generate_mrsort_model(problem, random_seed=41)
     
     model.dump(problem, sys.stdout)
 
@@ -136,29 +130,28 @@ explicit pseudo-random seed:
       - *coalitions
 
 
-Visualization functions are also in their own module, and interface with
+Visualization functions interface with
 `Matplotlib <https://matplotlib.org/>`__:
 
 .. code:: ipython3
 
-    import lincs.visualization
     import matplotlib.pyplot as plt
 
 .. code:: ipython3
 
     axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
-    lincs.visualization.visualize_classification_model(problem, model, [], axes)
+    lc.visualize_model(problem, model, [], axes)
 
 
 
-.. image:: python-api_files/python-api_16_0.png
+.. image:: python-api_files/python-api_14_0.png
 
 
 Get the model’s description:
 
 .. code:: ipython3
 
-    print("\n".join(lincs.description.describe_classification_model(problem, model)))
+    print("\n".join(lc.describe_model(problem, model)))
 
 
 .. parsed-literal::
@@ -178,7 +171,7 @@ Generate a synthetic learning set (with an explicit pseudo-random seed):
 
 .. code:: ipython3
 
-    learning_set = lincs.generate_classified_alternatives(problem, model, alternatives_count=1000, random_seed=42)
+    learning_set = lc.generate_classified_alternatives(problem, model, alternatives_count=1000, random_seed=42)
 
 Dump it (in memory instead of on ``sys.stdout`` to print only the first
 few lines):
@@ -206,11 +199,11 @@ Visualize it:
 .. code:: ipython3
 
     axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
-    lincs.visualization.visualize_classification_model(problem, model, learning_set.alternatives[:5], axes)
+    lc.visualize_model(problem, model, learning_set.alternatives[:5], axes)
 
 
 
-.. image:: python-api_files/python-api_24_0.png
+.. image:: python-api_files/python-api_22_0.png
 
 
 Let’s now train a new model from this synthetic learning set. The
@@ -223,18 +216,18 @@ the Python API, you have to create these strategies yourself:
 .. code:: ipython3
 
     # @todo(Feature, v1.1) Support using temporary strategies (i.e. passing 'lincs.OptimizeWeightsUsingGlop(learning_data)' directly to 'lincs.LearnMrsortByWeightsProfilesBreed' without capturing it in a variable)
-    learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
-    profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-    weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(learning_data)
-    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-    breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
-    termination_strategy = lincs.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
+    learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
+    profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+    weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
+    profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+    breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+    termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 
 Then create the learning itself:
 
 .. code:: ipython3
 
-    learning = lincs.LearnMrsortByWeightsProfilesBreed(
+    learning = lc.LearnMrsortByWeightsProfilesBreed(
         learning_data,
         profiles_initialization_strategy,
         weights_optimization_strategy,
@@ -276,8 +269,8 @@ the new model on that testing set:
 
 .. code:: ipython3
 
-    testing_set = lincs.generate_classified_alternatives(problem, model, alternatives_count=3000, random_seed=44)
-    classification_result = lincs.classify_alternatives(problem, learned_model, testing_set)
+    testing_set = lc.generate_classified_alternatives(problem, model, alternatives_count=3000, random_seed=44)
+    classification_result = lc.classify_alternatives(problem, learned_model, testing_set)
     classification_result.changed, classification_result.unchanged
 
 
@@ -309,13 +302,13 @@ Create a ``Problem``
 
 .. code:: ipython3
 
-    # @todo(Feature, v1.1) Rename to 'ClassificationProblem'? And everything to 'ClassificationXxx'? Or namespace into 'lincs.classification'?
-    problem = lincs.Problem(
+    # @todo(Feature, v1.1) Rename to 'ClassificationProblem'? And everything to 'ClassificationXxx'? Or namespace into 'lc'?
+    problem = lc.Problem(
         criteria=[
-            lincs.Criterion("Physics grade", lincs.Criterion.IntegerValues(lincs.Criterion.PreferenceDirection.increasing, 0, 100)),
-            lincs.Criterion("Literature grade", lincs.Criterion.EnumeratedValues(["f", "e", "d", "c", "b", "a"])),
+            lc.Criterion("Physics grade", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
+            lc.Criterion("Literature grade", lc.Criterion.EnumeratedValues(["f", "e", "d", "c", "b", "a"])),
         ],
-        categories=[lincs.Category("Failed"), lincs.Category("Passed"), lincs.Category("Congratulations")],
+        categories=[lc.Category("Failed"), lc.Category("Passed"), lc.Category("Congratulations")],
     )
     
     problem.dump(sys.stdout)
@@ -467,12 +460,15 @@ Create a ``Model``
 
 .. code:: ipython3
 
-    model = lincs.Model(
+    model = lc.Model(
         problem,
-        accepted_values=[lincs.AcceptedValues(lincs.AcceptedValues.IntegerThresholds([50, 80])), lincs.AcceptedValues(lincs.AcceptedValues.EnumeratedThresholds(["c", "a"]))],
+        accepted_values=[
+            lc.AcceptedValues(lc.AcceptedValues.IntegerThresholds([50, 80])),
+            lc.AcceptedValues(lc.AcceptedValues.EnumeratedThresholds(["c", "a"])),
+        ],
         sufficient_coalitions=[
-            lincs.SufficientCoalitions(lincs.SufficientCoalitions.Weights([0.5, 0.5])),
-            lincs.SufficientCoalitions(lincs.SufficientCoalitions.Weights([0.5, 0.5])),
+            lc.SufficientCoalitions(lc.SufficientCoalitions.Weights([0.5, 0.5])),
+            lc.SufficientCoalitions(lc.SufficientCoalitions.Weights([0.5, 0.5])),
         ],
     )
     
@@ -616,20 +612,20 @@ Create (classified) ``Alternatives``
 
 .. code:: ipython3
 
-    alternatives = lincs.Alternatives(problem, [
-        lincs.Alternative(
+    alternatives = lc.Alternatives(problem, [
+        lc.Alternative(
             "Unclassified alternative",
             [
-                lincs.Performance(lincs.Performance.IntegerPerformance(50)),
-                lincs.Performance(lincs.Performance.EnumeratedPerformance("c")),
+                lc.Performance(lc.Performance.IntegerPerformance(50)),
+                lc.Performance(lc.Performance.EnumeratedPerformance("c")),
             ],
             None
         ),
-        lincs.Alternative(
+        lc.Alternative(
             "Classified alternative",
             [
-                lincs.Performance(lincs.Performance.IntegerPerformance(90)),
-                lincs.Performance(lincs.Performance.EnumeratedPerformance("a")),
+                lc.Performance(lc.Performance.IntegerPerformance(90)),
+                lc.Performance(lc.Performance.EnumeratedPerformance("a")),
             ],
             2
         ),
