@@ -16,5 +16,5 @@ from liblincs import DataValidationException, LearningFailureException
 from . import classification
 
 # General information
-__version__ = "1.0.1-dev"
+__version__ = "1.0.1.dev0"
 has_gpu = hasattr(classification, "ImproveProfilesWithAccuracyHeuristicOnGpu")
