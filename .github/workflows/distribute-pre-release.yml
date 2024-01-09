@@ -1,0 +1,171 @@
+# About caching: this workflow is typically run every two weeks,
+# and GitHub Actions evict caches unsused for 7 days,
+# so for simplicity we don't cache anything.
+
+# WARNING: This file is a partial duplication of distribute-release.yml because I don't know (yet) how to factorize
+# these workflows. Keep things in sync.
+
+name: Distribute pre-release
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+a[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+b[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+rc[0-9]+
+jobs:
+  make-source-dist:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install dependencies
+        run: pip3 install build twine
+
+      - name: Get the code
+        uses: actions/checkout@v3
+
+      - name: Build the source distribution
+        run: python3 -m build --sdist
+      - name: Check the source distribution
+        run: twine check dist/*
+
+      - name: Upload the source distribution to GitHub Actions artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: source-dist
+          path: dist
+
+  build-for-linux:
+    runs-on: ubuntu-20.04
+    needs:
+      - make-source-dist
+    strategy:
+      matrix:
+        python_version: ['3.10']
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install Python packages
+        run: pip${{ matrix.python_version }} install build auditwheel twine Chrones
+      - name: Install CUDA
+        run: |
+          sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+          sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends cuda-cudart-dev-12-1 cuda-nvcc-12-1
+          echo "/usr/local/cuda-12.1/bin" >>$GITHUB_PATH
+      - name: Install Boost
+        run: |
+            cd /home/runner/work
+            wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+            tar xf boost_*.tar.gz
+            rm boost_*.tar.gz
+            cd boost_*
+            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
+            ./bootstrap.sh
+            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage
+            sudo cp -r boost /usr/local/include
+            sudo cp -r stage/lib/* /usr/local/lib
+            sudo ldconfig
+      - name: Install OR-Tools
+        run: |
+            cd /home/runner/work
+            wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_ubuntu-20.04_v8.2.8710.tar.gz
+            tar xf or-tools_*.tar.gz
+            rm or-tools_*.tar.gz
+            cd or-tools_*
+            sudo cp -r include/* /usr/local/include
+            sudo cp -r lib/* /usr/local/lib
+            sudo ldconfig
+      - name: Install patchelf
+        run: |
+            cd /home/runner/work
+            mkdir patchelf
+            cd patchelf
+            wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz
+            tar xf *.tar.gz
+            sudo cp bin/patchelf /usr/local/bin
+
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: source-dist
+      - name: Unzip the source distribution
+        run: |
+            tar xf *.tar.gz
+            rm *.tar.gz
+
+      - name: Build the wheel
+        run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
+        env:
+          LINCS_DEV_FORCE_NVCC: "true"
+          LINCS_DEV_FORCE_CHRONES: "true"
+      - name: Make the wheel machine-independent
+        run: auditwheel repair --plat manylinux_2_31_x86_64 --strip local-dist/*.whl --wheel-dir dist
+      - name: Check the wheel
+        run: twine check dist/*.whl
+
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels-dist
+          path: dist
+
+  check:
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build-for-linux
+    strategy:
+      matrix:
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+        python_version: ['3.10']
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      # DO NOT install any other dependencies, to test that the wheels are self-contained
+
+      - name: Dowload the wheels from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-dist
+
+      - name: Install the wheel
+        run: pip${{ matrix.python_version }} install --find-links . --pre lincs
+
+      - name: Run lincs
+        run: lincs --help
+      - run: lincs generate classification-problem 3 2 --output-problem problem.yml
+      - run: lincs generate classification-model problem.yml --output-model model.yml
+      - run: lincs generate classified-alternatives problem.yml model.yml 100 --output-alternatives learning-set.csv
+      - run: lincs learn classification-model problem.yml learning-set.csv --output-model learned-model.yml
+      - run: lincs classification-accuracy problem.yml learned-model.yml learning-set.csv
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    environment:
+      name: pypi
+      url: https://pypi.org/p/lincs
+    permissions:
+      id-token: write
+    steps:
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: source-dist
+      - name: Dowload the wheels from GitHub Actions artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-dist
+
+      - name: Publish all distributions to the Python Package Index
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: .
+          verify-metadata: false
+          verbose: true
