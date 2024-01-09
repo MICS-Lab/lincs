@@ -137,41 +137,41 @@ namespace lincs {
 
 void enroll_standard_converters() {
   std_vector_converter<float>::enroll();
-  bp::class_<std::vector<float>>("floats_vector").def(bp::vector_indexing_suite<std::vector<float>>());
+  bp::class_<std::vector<float>>("Iterable[float]").def(bp::vector_indexing_suite<std::vector<float>>());
 
   std_vector_converter<int>::enroll();
-  bp::class_<std::vector<int>>("ints_vector").def(bp::vector_indexing_suite<std::vector<int>>());
+  bp::class_<std::vector<int>>("Iterable[int]").def(bp::vector_indexing_suite<std::vector<int>>());
 
   std_vector_converter<unsigned>::enroll();
 
   std_vector_converter<std::string>::enroll();
-  bp::class_<std::vector<std::string>>("strings_vector").def(bp::vector_indexing_suite<std::vector<std::string>>());
+  bp::class_<std::vector<std::string>>("Iterable[str]").def(bp::vector_indexing_suite<std::vector<std::string>>());
 
   std_vector_converter<std::vector<unsigned>>::enroll();
 
   std_vector_converter<lincs::Category>::enroll();
-  bp::class_<std::vector<lincs::Category>>("categories_vector").def(bp::vector_indexing_suite<std::vector<lincs::Category>>());
+  bp::class_<std::vector<lincs::Category>>("Iterable[Category]").def(bp::vector_indexing_suite<std::vector<lincs::Category>>());
 
   std_vector_converter<lincs::Criterion>::enroll();
-  bp::class_<std::vector<lincs::Criterion>>("criteria_vector").def(bp::vector_indexing_suite<std::vector<lincs::Criterion>>());
+  bp::class_<std::vector<lincs::Criterion>>("Iterable[Criterion]").def(bp::vector_indexing_suite<std::vector<lincs::Criterion>>());
 
   std_vector_converter<lincs::Criterion::PreferenceDirection>::enroll();
-  bp::class_<std::vector<lincs::Criterion::PreferenceDirection>>("preference_directions_vector").def(bp::vector_indexing_suite<std::vector<lincs::Criterion::PreferenceDirection>>());
+  bp::class_<std::vector<lincs::Criterion::PreferenceDirection>>("Iterable[PreferenceDirection]").def(bp::vector_indexing_suite<std::vector<lincs::Criterion::PreferenceDirection>>());
 
   std_vector_converter<lincs::Criterion::ValueType>::enroll();
-  bp::class_<std::vector<lincs::Criterion::ValueType>>("value_types_vector").def(bp::vector_indexing_suite<std::vector<lincs::Criterion::ValueType>>());
+  bp::class_<std::vector<lincs::Criterion::ValueType>>("Iterable[ValueType]").def(bp::vector_indexing_suite<std::vector<lincs::Criterion::ValueType>>());
 
   std_vector_converter<lincs::AcceptedValues>::enroll();
-  bp::class_<std::vector<lincs::AcceptedValues>>("accepted_values_vector").def(bp::vector_indexing_suite<std::vector<lincs::AcceptedValues>>());
+  bp::class_<std::vector<lincs::AcceptedValues>>("Iterable[AcceptedValues]").def(bp::vector_indexing_suite<std::vector<lincs::AcceptedValues>>());
 
   std_vector_converter<lincs::SufficientCoalitions>::enroll();
-  bp::class_<std::vector<lincs::SufficientCoalitions>>("sufficient_coalitions_vector").def(bp::vector_indexing_suite<std::vector<lincs::SufficientCoalitions>>());
+  bp::class_<std::vector<lincs::SufficientCoalitions>>("Iterable[SufficientCoalitions]").def(bp::vector_indexing_suite<std::vector<lincs::SufficientCoalitions>>());
 
   std_vector_converter<lincs::Performance>::enroll();
-  bp::class_<std::vector<lincs::Performance>>("performances_vector").def(bp::vector_indexing_suite<std::vector<lincs::Performance>>());
+  bp::class_<std::vector<lincs::Performance>>("Iterable[Performance]").def(bp::vector_indexing_suite<std::vector<lincs::Performance>>());
 
   std_vector_converter<lincs::Alternative>::enroll();
-  bp::class_<std::vector<lincs::Alternative>>("alternatives_vector").def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>());
+  bp::class_<std::vector<lincs::Alternative>>("Iterable[Alternative]").def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>());
 
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>::enroll();
 

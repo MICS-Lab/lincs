@@ -4,8 +4,10 @@ import unittest
 
 import matplotlib.pyplot as plt
 
+from . import Problem, Model, Alternatives
 
-def visualize_classification_model(problem, model, alternatives, axes: plt.Axes):
+
+def visualize_classification_model(problem: Problem, model: Model, alternatives: Alternatives, axes: plt.Axes):
     # @todo(Feature, v1.2) Visualize single-peaked criteria.
     # See the possible solutions in e-mail "Visualisation des critères single-peaked" 2023-11-24
 

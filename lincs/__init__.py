@@ -46,7 +46,9 @@ from liblincs import LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 # Learning - max-SAT by separation
 from liblincs import LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
 
-# @todo(Feature, v1.1) Move everything into 'lincs.classification'
-# @todo(Feature, v1.1) Import 'visualisation.*' and 'description.*' into 'lincs.classification'
+# @todo(Feature, v1.1) Move everything into 'lincs.classification'. Remember to check the documentation of 'describe_*' and 'visualize_*'
+
+from .visualization import visualize_classification_model
+from .description import describe_classification_problem, describe_classification_model
 
 # @todo(Feature, later) Accept learning and training set as Pandas DataFrame?

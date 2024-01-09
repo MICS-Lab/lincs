@@ -93,6 +93,7 @@ def main():
     pass
 
 
+# @todo(Project management, v1.1) Remove this command and the integration test that uses it (maybe keep the part about the CLI?)
 @main.command(
     hidden=True,
 )
