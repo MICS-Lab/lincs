@@ -30,9 +30,9 @@ It will make it easier for you when you go through our :doc:`Python API guide <p
 
 If you're a Jupyter user, you can `download the notebook <get-started.ipynb>`_ this section is based on.
 
-.. highlight:: text
+The command-line interface is the easiest way to get started with *lincs*, starting with ``{{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][0]["source"][0] }}``, which should output something like:
 
-The command-line interface is the easiest way to get started with *lincs*, starting with ``{{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][0]["source"][0] }}``, which should output something like::
+.. code:: text
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
 
@@ -41,15 +41,15 @@ It's organized into sub-commands, the first one being ``generate``, to generate 
 *lincs* is designed to handle real-world data, but it's often easier to start with synthetic data to get familiar with the tooling and required file formats.
 Synthetic data is described in our :ref:`conceptual overview documentation <overview-synthetic-data>`.
 
-.. highlight:: shell
+So, start by generating a classification problem with 4 criteria and 3 categories:
 
-So, start by generating a classification problem with 4 criteria and 3 categories::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][1]["source"][0] }}
 
-.. highlight:: yaml
+The generated ``problem.yml`` should look like:
 
-The generated ``problem.yml`` should look like::
+.. code:: yaml
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
 
@@ -60,35 +60,35 @@ Note that to keep this "Get Started" simple, we only consider the most basic kin
 with normalized minimal and maximal values, and increasing preference direction.
 There are many other kinds of criteria, and you can read about them in our user guide.
 
-.. highlight:: shell
+If you want a human-readable explanation of the problem, you can use:
 
-If you want a human-readable explanation of the problem, you can use::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][2]["source"][0] }}
 
-.. highlight:: text
+It will tell you something like:
 
-It will tell you something like::
+.. code:: text
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][2]["outputs"][0]["text"] | join('    ') }}
 
-.. highlight:: shell
+Then generate an NCS classification model:
 
-Then generate an NCS classification model::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][3]["source"][0] }}
 
-.. highlight:: yaml
+It should look like:
 
-It should look like::
+.. code:: yaml
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][3]["outputs"][0]["text"] | join('    ') }}
 
 The file format, including the ``*coalitions`` YAML reference, is documented in our :ref:`user guide <user-file-ncs-model>`.
 
-.. highlight:: shell
+You can visualize it using:
 
-You can visualize it using::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][4]["source"][1] }}
 
@@ -98,20 +98,22 @@ It should output something like:
     :alt: Model visualization
     :align: center
 
-.. highlight:: shell
-
 The model format is quite generic to ensure *lincs* can evolve to handle future models,
-so you may want to get a human-readable description of a model, including wether it's an MR-Sort or Uc-NCS model, using::
+so you may want to get a human-readable description of a model, including wether it's an MR-Sort or Uc-NCS model, using:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][5]["source"][0] }}
 
-.. highlight:: text
+It should output something like:
 
-It should output something like::
+.. code:: text
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][5]["outputs"][0]["text"] | join('    ') }}
 
-And finally generate a set of classified alternatives::
+And finally generate a set of classified alternatives:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][6]["source"][0] }}
 
@@ -121,15 +123,15 @@ The file format is documented in our :ref:`reference documentation <ref-file-alt
 Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
 Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
 
-.. highlight:: text
+It should start with something like this, and contain 1000 alternatives:
 
-It should start with something like this, and contain 1000 alternatives::
+.. code:: text
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][6]["outputs"][0]["text"] | join('    ') }}
 
-.. highlight:: shell
+You can visualize its first five alternatives using:
 
-You can visualize its first five alternatives using::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][7]["source"][1] }}
 
@@ -139,57 +141,57 @@ It should output something like:
     :alt: Alternatives visualization
     :align: center
 
-.. highlight:: shell
+You now have a (synthetic) learning set. You can use it to train a new model:
 
-You now have a (synthetic) learning set. You can use it to train a new model::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][8]["source"][0] }}
-
-.. highlight:: yaml
 
 The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same problem.
 The learning set doesn't contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
-so it is numerically different::
+so it is numerically different:
+
+.. code:: yaml
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][8]["outputs"][0]["text"] | join('    ') }}
 
 If the training is effective, the resulting trained model should however behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
-.. highlight:: shell
+First, generate a testing set from the original model:
 
-First, generate a testing set from the original model::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][9]["source"][0] }}
 
-.. highlight:: shell
+Then ask the trained model to classify it:
 
-Then ask the trained model to classify it::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][10]["source"][0] }}
 
-.. highlight:: shell
+There are a few differences between the original testing set and the reclassified one:
 
-There are a few differences between the original testing set and the reclassified one::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][10]["source"][1] }}
 
-.. highlight:: diff
+That command should show a few alternatives that are not classified the same way by the original and the trained model:
 
-That command should show a few alternatives that are not classified the same way by the original and the trained model::
+.. code:: diff
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][10]["outputs"][0]["text"] | join('    ') }}
 
-.. highlight:: shell
+You can also measure the classification accuracy of the trained model on that testing set:
 
-You can also measure the classification accuracy of the trained model on that testing set::
+.. code:: shell
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][11]["source"][0] }}
 
-.. highlight:: text
+It should be close to 100%:
 
-It should be close to 100%::
+.. code:: text
 
     {{ notebooks["doc-sources/get-started/get-started.ipynb"]["cells"][11]["outputs"][0]["text"] | join('    ') }}
 

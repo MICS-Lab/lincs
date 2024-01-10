@@ -15,13 +15,13 @@ Do it again, in Python
 First, lets do exactly the same thing as in our "Get started" guide, but
 using the Python API.
 
-.. code:: ipython3
+.. code:: python
 
     from lincs import classification as lc
 
 Generate a synthetic classification problem:
 
-.. code:: ipython3
+.. code:: python
 
     problem = lc.generate_problem(criteria_count=4, categories_count=3, random_seed=40)
 
@@ -37,17 +37,17 @@ pseudo-random.)
 Generated problems are returned as Python objects of class
 ``lincs.Problem``. You can print them:
 
-.. code:: ipython3
+.. code:: python
 
     # @todo(Feature, v1.1) Provide __repr__ and __str__ where applicable
 
-.. code:: ipython3
+.. code:: python
 
     import sys
     problem.dump(sys.stdout)
 
 
-.. parsed-literal::
+.. code:: yaml
 
     kind: classification-problem
     format_version: 1
@@ -80,12 +80,12 @@ Generated problems are returned as Python objects of class
 
 Description functions generate a list of strings:
 
-.. code:: ipython3
+.. code:: python
 
     print("\n".join(lc.describe_problem(problem)))
 
 
-.. parsed-literal::
+.. code:: text
 
     This a classification problem into 3 ordered categories named "Worst category", "Intermediate category 1" and "Best category".
     The best category is "Best category" and the worst category is "Worst category".
@@ -103,14 +103,14 @@ Description functions generate a list of strings:
 Generate a synthetic MR-Sort classification model, again with an
 explicit pseudo-random seed:
 
-.. code:: ipython3
+.. code:: python
 
     model = lc.generate_mrsort_model(problem, random_seed=41)
     
     model.dump(problem, sys.stdout)
 
 
-.. parsed-literal::
+.. code:: yaml
 
     kind: ncs-classification-model
     format_version: 1
@@ -133,11 +133,11 @@ explicit pseudo-random seed:
 Visualization functions interface with
 `Matplotlib <https://matplotlib.org/>`__:
 
-.. code:: ipython3
+.. code:: python
 
     import matplotlib.pyplot as plt
 
-.. code:: ipython3
+.. code:: python
 
     axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
     lc.visualize_model(problem, model, [], axes)
@@ -149,12 +149,12 @@ Visualization functions interface with
 
 Get the model's description:
 
-.. code:: ipython3
+.. code:: python
 
     print("\n".join(lc.describe_model(problem, model)))
 
 
-.. parsed-literal::
+.. code:: text
 
     This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries.
     The weights associated to each criterion are:
@@ -169,14 +169,14 @@ Get the model's description:
 
 Generate a synthetic learning set (with an explicit pseudo-random seed):
 
-.. code:: ipython3
+.. code:: python
 
     learning_set = lc.generate_classified_alternatives(problem, model, alternatives_count=1000, random_seed=42)
 
 Dump it (in memory instead of on ``sys.stdout`` to print only the first
 few lines):
 
-.. code:: ipython3
+.. code:: python
 
     import io
     f = io.StringIO()
@@ -184,7 +184,7 @@ few lines):
     print("\n".join(f.getvalue().splitlines()[:6]))
 
 
-.. parsed-literal::
+.. code:: text
 
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
     "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Best category"
@@ -196,7 +196,7 @@ few lines):
 
 Visualize it:
 
-.. code:: ipython3
+.. code:: python
 
     axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
     lc.visualize_model(problem, model, learning_set.alternatives[:5], axes)
@@ -213,7 +213,7 @@ learning, as described further in our `user
 guide <user-guide>`. When using
 the Python API, you have to create these strategies yourself:
 
-.. code:: ipython3
+.. code:: python
 
     # @todo(Feature, v1.1) Support using temporary strategies (i.e. passing 'lincs.OptimizeWeightsUsingGlop(learning_data)' directly to 'lincs.LearnMrsortByWeightsProfilesBreed' without capturing it in a variable)
     learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
@@ -225,7 +225,7 @@ the Python API, you have to create these strategies yourself:
 
 Then create the learning itself:
 
-.. code:: ipython3
+.. code:: python
 
     learning = lc.LearnMrsortByWeightsProfilesBreed(
         learning_data,
@@ -238,13 +238,13 @@ Then create the learning itself:
 
 And ``.perform`` it to create the learned ``Model`` object:
 
-.. code:: ipython3
+.. code:: python
 
     learned_model = learning.perform()
     learned_model.dump(problem, sys.stdout)
 
 
-.. parsed-literal::
+.. code:: yaml
 
     kind: ncs-classification-model
     format_version: 1
@@ -267,7 +267,7 @@ And ``.perform`` it to create the learned ``Model`` object:
 Create a testing set and classify it, taking notes of the accuracy of
 the new model on that testing set:
 
-.. code:: ipython3
+.. code:: python
 
     testing_set = lc.generate_classified_alternatives(problem, model, alternatives_count=3000, random_seed=44)
     classification_result = lc.classify_alternatives(problem, learned_model, testing_set)
@@ -276,7 +276,7 @@ the new model on that testing set:
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (4, 2996)
 
@@ -300,7 +300,7 @@ create ``Problem``, ``Model``, *etc.* instances yourself.
 Create a ``Problem``
 ^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     # @todo(Feature, v1.1) Rename to 'ClassificationProblem'? And everything to 'ClassificationXxx'? Or namespace into 'lc'?
     problem = lc.Problem(
@@ -314,7 +314,7 @@ Create a ``Problem``
     problem.dump(sys.stdout)
 
 
-.. parsed-literal::
+.. code:: yaml
 
     kind: classification-problem
     format_version: 1
@@ -335,121 +335,121 @@ Create a ``Problem``
 
 You can access all their attributes in code as well:
 
-.. code:: ipython3
+.. code:: python
 
     criterion = problem.criteria[0]
 
-.. code:: ipython3
+.. code:: python
 
     criterion.name
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     'Physics grade'
 
 
 
-.. code:: ipython3
+.. code:: python
 
     criterion.value_type, criterion.is_real, criterion.is_integer, criterion.is_enumerated
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.ValueType.integer, False, True, False)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     values = criterion.integer_values
 
-.. code:: ipython3
+.. code:: python
 
     values.preference_direction, values.is_increasing, values.is_decreasing
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.PreferenceDirection.isotone, True, False)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     values.min_value, values.max_value
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (0, 100)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     criterion = problem.criteria[1]
 
-.. code:: ipython3
+.. code:: python
 
     criterion.name
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     'Literature grade'
 
 
 
-.. code:: ipython3
+.. code:: python
 
     criterion.value_type, criterion.is_real, criterion.is_integer, criterion.is_enumerated
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.ValueType.enumerated, False, False, True)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     values = criterion.enumerated_values
 
-.. code:: ipython3
+.. code:: python
 
     list(values.ordered_values)
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     ['f', 'e', 'd', 'c', 'b', 'a']
 
 
 
-.. code:: ipython3
+.. code:: python
 
     values.get_value_rank(value="a")
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     5
 
@@ -458,7 +458,7 @@ You can access all their attributes in code as well:
 Create a ``Model``
 ^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     model = lc.Model(
         problem,
@@ -475,7 +475,7 @@ Create a ``Model``
     model.dump(problem, sys.stdout)
 
 
-.. parsed-literal::
+.. code:: yaml
 
     kind: ncs-classification-model
     format_version: 1
@@ -491,117 +491,117 @@ Create a ``Model``
       - *coalitions
 
 
-.. code:: ipython3
+.. code:: python
 
     accepted = model.accepted_values[0]
 
-.. code:: ipython3
+.. code:: python
 
     accepted.value_type, accepted.is_real, accepted.is_integer, accepted.is_enumerated
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.ValueType.integer, False, True, False)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     accepted.kind, accepted.is_thresholds
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.Kind.thresholds, True)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     list(accepted.integer_thresholds.thresholds)
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     [50, 80]
 
 
 
-.. code:: ipython3
+.. code:: python
 
     accepted = model.accepted_values[1]
 
-.. code:: ipython3
+.. code:: python
 
     accepted.value_type, accepted.is_real, accepted.is_integer, accepted.is_enumerated
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.ValueType.enumerated, False, False, True)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     accepted.kind, accepted.is_thresholds
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.Kind.thresholds, True)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     list(accepted.enumerated_thresholds.thresholds)
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     ['c', 'a']
 
 
 
-.. code:: ipython3
+.. code:: python
 
     sufficient = model.sufficient_coalitions[0]
 
-.. code:: ipython3
+.. code:: python
 
     sufficient.kind, sufficient.is_weights, sufficient.is_roots
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.Kind.weights, True, False)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     list(sufficient.weights.criterion_weights)
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     [0.5, 0.5]
 
@@ -610,7 +610,7 @@ Create a ``Model``
 Create (classified) ``Alternatives``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: ipython3
+.. code:: python
 
     alternatives = lc.Alternatives(problem, [
         lc.Alternative(
@@ -631,61 +631,61 @@ Create (classified) ``Alternatives``
         ),
     ])
 
-.. code:: ipython3
+.. code:: python
 
     alternative = alternatives.alternatives[0]
 
-.. code:: ipython3
+.. code:: python
 
     alternative.category_index is None
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     True
 
 
 
-.. code:: ipython3
+.. code:: python
 
     performance = alternative.profile[0]
 
-.. code:: ipython3
+.. code:: python
 
     performance.value_type, performance.is_real, performance.is_integer, performance.is_enumerated
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     (liblincs.ValueType.integer, False, True, False)
 
 
 
-.. code:: ipython3
+.. code:: python
 
     performance.integer.value
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     50
 
 
 
-.. code:: ipython3
+.. code:: python
 
     problem.ordered_categories[alternatives.alternatives[1].category_index].name
 
 
 
 
-.. parsed-literal::
+.. code:: text
 
     'Congratulations'
 

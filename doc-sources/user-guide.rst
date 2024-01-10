@@ -20,12 +20,12 @@ Formatting data for *lincs*
 "Problem" files
 ---------------
 
-.. highlight:: yaml
-
 The concept of classification problem is defined in our :ref:`conceptual overview <overview-about-classification>`.
 To describe problems, *lincs* uses YAML files conforming to the `JSON schema <https://json-schema.org/>`_ you'll find in our :ref:`reference documentation <ref-file-problem>`.
 
-Here is an example of a problem file::
+Here is an example of a problem file:
+
+.. code:: yaml
 
     kind: classification-problem
     format_version: 1
@@ -104,7 +104,9 @@ referencing the problem file by name would not be robust because files can be re
 and referencing the problem file by content (using a hash) would forbid any change in the problem file.
 So it's the user's responsibility to keep track of that information and always give *lincs* the correct problem file along with a model file.
 
-Here is an example of a model file corresponding to the problem file above::
+Here is an example of a model file corresponding to the problem file above:
+
+.. code:: yaml
 
     kind: ncs-classification-model
     format_version: 1
@@ -185,7 +187,9 @@ Sufficient coalitions ``kind``  Sufficient coalitions attributes
 ==============================  ================================
 
 Here is another model corresponding to the problem file above, but this time using the ``roots`` kind of sufficient coalitions,
-and using different coalitions for the two boundaries (so, no YAML anchor)::
+and using different coalitions for the two boundaries (so, no YAML anchor):
+
+.. code:: yaml
 
     kind: ncs-classification-model
     format_version: 1
@@ -213,9 +217,9 @@ It's a CSV file with a header line and one line per alternative.
 
 Like model files, alternatives files are always associated to a problem file.
 
-.. highlight:: text
+Here is an example corresponding to the problem above:
 
-Here is an example corresponding to the problem above::
+.. code:: text
 
     name,"Criterion 1","Criterion 2","Criterion 3",category
     "Alternative 1",10.8156891,4,A,Low
@@ -230,7 +234,9 @@ Its first column, ``name``, contains the names of the alternatives.
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, ``category``, contains the names of the categories in which each alternative is classified.
 
-Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
+Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified:
+
+.. code:: text
 
     name,"Criterion 1","Criterion 2","Criterion 3",category
     "Alternative 1",10.8156891,4.39045048,A,
@@ -271,13 +277,13 @@ When you need reproducibility, you can specify the seed to use with the ``--rand
 
 In all cases, the :ref:`comments <user-comments-in-generated-files>` left by *lincs* in the generated files specify the seed that was used.
 
-.. highlight:: shell
-
 Generating a problem
 --------------------
 
 With ``lincs generate classification-problem``, you can generate a classification problem file.
-Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`::
+Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`:
+
+.. code:: shell
 
     lincs generate classification-problem 4 3
 
@@ -300,7 +306,9 @@ Generating a model
 ------------------
 
 With ``lincs generate classification-model``, you can generate a classification model file.
-Using its default settings, you just have to pass it the problem file you want to use::
+Using its default settings, you just have to pass it the problem file you want to use:
+
+.. code:: shell
 
     lincs generate classification-model problem.yml
 
@@ -314,7 +322,9 @@ This effectively impacts how hard it is for alternatives to get into upper categ
 Generating alternatives
 -----------------------
 
-With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate::
+With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate:
+
+.. code:: shell
 
     lincs generate classified-alternatives problem.yml model.yml 100
 
@@ -343,7 +353,9 @@ Learning a model
 ================
 
 As you've seen in our get started guide, the basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
-With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives)::
+With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives):
+
+.. code:: shell
 
     lincs learn classification-model problem.yml learning-set.csv
 
@@ -432,7 +444,9 @@ That strategy uses a linear program, and lets you choose among several solvers w
 
 By default, it uses GLOP, which is a part of `Google's OR-Tools <https://developers.google.com/optimization/>`_.
 
-Here is an example using the `Alglib <https://www.alglib.net/>`_ solver::
+Here is an example using the `Alglib <https://www.alglib.net/>`_ solver:
+
+.. code:: shell
 
     lincs learn classification-model problem.yml learning-set.csv \
       --mrsort.weights-profiles-breed.linear-program.solver alglib
@@ -454,7 +468,9 @@ This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with ``lincs info has-gpu``.
 
-Here is an example::
+Here is an example:
+
+.. code:: shell
 
     lincs learn classification-model problem.yml learning-set.csv \
       --mrsort.weights-profiles-breed.accuracy-heuristic.processor gpu
@@ -473,25 +489,27 @@ The portion of the population that is reinitialized is controlled by the ``--mrs
 SAT-based strategies
 ^^^^^^^^^^^^^^^^^^^^
 
-.. highlight:: shell
-
 You can also use entirely different approaches using SAT and max-SAT solvers.
 The tradeoffs offered by these methods are highlighted in our :ref:`conceptual overview <overview-learning-methods>`.
 
 These strategies let you learn :math:`U^c \textsf{-} NCS` models, so you have to start with ``--model-type ucncs``.
-Here are two examples::
+Here are two examples:
+
+.. code:: shell
 
     lincs learn classification-model problem.yml learning-set.csv \
       --model-type ucncs --ucncs.strategy sat-by-coalitions
 
-And::
+And:
+
+.. code:: shell
 
     lincs learn classification-model problem.yml learning-set.csv \
       --model-type ucncs --ucncs.strategy max-sat-by-separation
 
-.. highlight:: yaml
+They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:
 
-They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
+.. code:: yaml
 
     # Reproduction command (with lincs version 1.1.0a1.dev0): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model

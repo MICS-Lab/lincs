@@ -420,18 +420,16 @@ def convert_notebooks():
             capture_output=True,
         )
 
-        # @todo(Documentation, v1.1) Double-check the formatting of the HTML file, in particular the input and output blocks:
-        # - highlighting of output block should be '.. highlight:: text' or sometimes '.. highlight:: yaml'
-        # - highlighting of input block should be '.. highlight:: python'
-
-        # @todo(Documentation, v1.1) Fix the "WARNING: Inline emphasis start-string without end-string" when building the Sphinx doc
-
         with open(output_path) as f:
             content = f.read()
 
         content = re.sub(r"`(.*?) <https://mics-lab.github.io/lincs/(.*?)\.html>`__", r":doc:`\1 <\2>`", content, flags=re.DOTALL)
         content = content.replace('“', '"').replace('”', '"').replace("\\ ’", "'").replace("’", "'")
         content = content.replace(":doc:``generate_problem``", "``generate_problem``")
+
+        content = content.replace(".. code:: ipython3", ".. code:: python")
+        content = content.replace(".. parsed-literal::", ".. code:: text")
+        content = content.replace(".. code:: text\n\n    kind:", ".. code:: yaml\n\n    kind:")
 
         with open(output_path, "w") as f:
             f.write(f".. WARNING: this file is generated from '{input_path}'. MANUAL EDITS WILL BE LOST.\n\n")
