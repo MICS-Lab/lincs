@@ -9,15 +9,13 @@ from .classification import *
 
 forbid_gpu = os.environ.get("LINCS_DEV_FORBID_GPU", "false") == "true"
 
-# @todo(Feature, v1.1) Test using named parameters when calling the API (e.g. Criterion(name="Criterion name", ...), Problem(criteria=[...], ...))
-
 class ProblemTestCase(unittest.TestCase):
     def test_init_simplest(self):
         problem = Problem(
-            [
-                Criterion("Criterion name", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            criteria=[
+                Criterion(name="Criterion name", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
             ],
-            [
+            categories=[
                 Category("Bad"),
                 Category("Good"),
             ],
@@ -36,7 +34,7 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(problem.ordered_categories[1].name, "Good")
 
     def test_init_not_enough_categories(self):
-        criterion = Criterion("Criterion name", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1))
+        criterion = Criterion("Criterion name", Criterion.RealValues(preference_direction=Criterion.PreferenceDirection.increasing, min_value=0, max_value=1))
         with self.assertRaises(DataValidationException) as cm:
             Problem([criterion], [])
         self.assertEqual(cm.exception.args[0], "A problem must have at least 2 categories")
@@ -131,9 +129,9 @@ class ModelTestCase(unittest.TestCase):
             [Category("Bad"), Category("Good")],
         )
         model = Model(
-            problem,
-            [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
-            [SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
+            problem=problem,
+            accepted_values=[AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
+            sufficient_coalitions=[SufficientCoalitions(SufficientCoalitions.Weights([0.75]))],
         )
         self.assertEqual(len(model.accepted_values), 1)
         self.assertEqual(model.accepted_values[0].value_type, Criterion.ValueType.real)
