@@ -2,11 +2,14 @@
 # and GitHub Actions evict caches unsused for 7 days,
 # so for simplicity we don't cache anything.
 
-name: Distribute
+# WARNING: This file is partialy duplicated in distribute-pre-release.yml because I don't know (yet) how to factorize
+# these workflows. Keep things in sync.
+
+name: Distribute release
 on:
   push:
     tags:
-      - v*
+      - v[0-9]+.[0-9]+.[0-9]+
 jobs:
   make-source-dist:
     runs-on: ubuntu-20.04
@@ -279,7 +282,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
-      # DO NOT install any other dependencies, to test that the whells are self-contained
+      # DO NOT install any other dependencies, to test that the wheels are self-contained
 
       - name: Dowload the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v3

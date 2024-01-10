@@ -141,7 +141,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       gcovr \
       joblib \
       jupyterlab \
-      semver \
+      parver \
       sphinx \
       sphinx-click \
       sphinx-jsonschema \
