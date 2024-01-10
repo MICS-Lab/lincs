@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Contributors &#8212; lincs 1.0.0 documentation</title>
+    <title>Contributors &#8212; lincs 1.1.0a0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=aa98cbf9"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -30,7 +30,7 @@
 
           <div class="body" role="main">
             
-  <p><em>lincs</em> (Learn and Infer Non Compensatory Sortings) is a collection of <a class="reference external" href="https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis">MCDA</a> algorithms, usable as a command-line utility.</p>
+  <p><em>lincs</em> (Learn and Infer Non Compensatory Sortings) is a collection of <a class="reference external" href="https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis">MCDA</a> algorithms, usable as a command-line utility and through a Python (3.8+) API.</p>
 <p><em>lincs</em> supports Linux, macOS and Windows, with the exception that GPU-based algorithms are not available on macOS, because CUDA itself is not available there.
 On these 3 OSes, <em>lincs</em> only support x86_64 CPUs.</p>
 <p><em>lincs</em> is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files <a class="reference external" href="COPYING">COPYING</a> and <a class="reference external" href="COPYING.LESSER">COPYING.LESSER</a>.</p>
@@ -82,9 +82,9 @@ and <a class="reference internal" href="reference.html"><span class="doc">refere
 <strong>at a code level</strong>: we consider a change as backward compatible if the client code doesn’t need to be modified to keep working,
 even if that change requires recompiling the client code in some cases.</p>
 <p>Future backward compatible changes might change <em>lincs</em>’ behavior, especially with regards to pseudo-random behavior.</p>
-<p>Note that we plan to make <em>lincs</em> usable as Python and C++ libraries.
-When we do that, we’ll add these interfaces to the public API.
-In the mean time, if you chose to use <em>lincs</em> that way, you must expect unanticipated changes to these interfaces.</p>
+<p>Note that we plan to make <em>lincs</em> usable as a C++ library.
+When we do that, we’ll add this interface to the public API.
+In the mean time, if you chose to use <em>lincs</em> that way, you must expect unanticipated changes to this interface.</p>
 <section id="exceptions">
 <h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this heading">¶</a></h2>
 <section id="default-values">
@@ -133,6 +133,7 @@ But if <em>lincs</em> produces a file in the new format, existing client scripts
 <li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>

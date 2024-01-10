@@ -4,9 +4,15 @@
 Changelog
 =========
 
-Version 1.1.0
-=============
+Version 1.1.0a0 (2024-01-10)
+============================
 
+This release establishes the second tier of the stable API: the Python interface.
+
+- **Breaking**: Drop support for Python 3.7
+- Support discrete criteria (with enumerated or integer values)
+- Improve validation of input data (*e.g.* check consistency between problem, model, and alternatives)
+- Publish the Python API; provide the "Get started" guide as a `Jupyter <https://jupyter.org/>`_ notebook
 - Improve ``lincs visualize``:
 
     - Replace legend by colored text annotations

@@ -4,6 +4,26 @@
 Changelog
 =========
 
+Version 1.1.0a0 (2024-01-10)
+============================
+
+This release establishes the second tier of the stable API: the Python interface.
+
+- **Breaking**: Drop support for Python 3.7
+- Support discrete criteria (with enumerated or integer values)
+- Improve validation of input data (*e.g.* check consistency between problem, model, and alternatives)
+- Publish the Python API; provide the "Get started" guide as a `Jupyter <https://jupyter.org/>`_ notebook
+- Improve ``lincs visualize``:
+
+    - Replace legend by colored text annotations
+    - Support visualizing single-criterion models
+    - Add one graduated vertical axis per criterion
+    - See the following "before" and "after" images:
+
+.. image:: changelog/visualization-improvements/model-1.0.png
+
+.. image:: changelog/visualization-improvements/model-1.1.png
+
 Version 1.0.0 (2023-11-22)
 ==========================
 

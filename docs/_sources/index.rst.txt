@@ -11,6 +11,7 @@
    conceptual-overview
    get-started
    user-guide
+   python-api
    reference
    contributor-guide
    roadmap
