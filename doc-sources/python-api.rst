@@ -3,16 +3,16 @@
 The Python API
 ==============
 
-This document builds up on :doc:`our “Get Started”
+This document builds up on :doc:`our "Get Started"
 guide <get-started>` and our
 :doc:`user guide <user-guide>`, and
-introduces *lincs*\ ’ Python API. This API is more flexible, albeit more
-complex, than the command-line interface you’ve been using so far.
+introduces *lincs*' Python API. This API is more flexible, albeit more
+complex, than the command-line interface you've been using so far.
 
 Do it again, in Python
 ----------------------
 
-First, lets do exactly the same thing as in our “Get started” guide, but
+First, lets do exactly the same thing as in our "Get started" guide, but
 using the Python API.
 
 .. code:: ipython3
@@ -26,11 +26,11 @@ Generate a synthetic classification problem:
     problem = lc.generate_problem(criteria_count=4, categories_count=3, random_seed=40)
 
 The first difference with the command-line interface is the third
-argument to the call to :doc:``generate_classification_problem``: it’s the
-pseudo-random seed optionally passed by the ``--random-seed`` option on
-the command line. All pseudo-random seeds are mandatory in the Python
-API, so that you have full control of reproducibility. If you don’t care
-about it, you can use ``random.randrange(2**30)`` to use pseudo-random
+argument to the call to ``generate_problem``: it's the pseudo-random
+seed optionally passed by the ``--random-seed`` option on the command
+line. All pseudo-random seeds are mandatory in the Python API, so that
+you have full control of reproducibility. If you don't care about it,
+you can use ``random.randrange(2**30)`` to use pseudo-random
 pseudo-random seeds. (No typo here: the pseudo-random seeds are
 pseudo-random.)
 
@@ -147,7 +147,7 @@ Visualization functions interface with
 .. image:: python-api_files/python-api_14_0.png
 
 
-Get the model’s description:
+Get the model's description:
 
 .. code:: ipython3
 
@@ -206,7 +206,7 @@ Visualize it:
 .. image:: python-api_files/python-api_22_0.png
 
 
-Let’s now train a new model from this synthetic learning set. The
+Let's now train a new model from this synthetic learning set. The
 command-line interface of ``lincs learn classification-model`` accepts
 quite a few options. Most of them set up the strategies used for the
 learning, as described further in our `user
@@ -282,9 +282,9 @@ the new model on that testing set:
 
 
 
-This covers what was done in our “Get started” guide. As you can see the
-Python API is more verbose, but for good reasons: it’s more powerful as
-you’ll see in the next section.
+This covers what was done in our "Get started" guide. As you can see the
+Python API is more verbose, but for good reasons: it's more powerful as
+you'll see in the next section.
 
 Do more, with the Python API
 ----------------------------
@@ -294,7 +294,7 @@ Do more, with the Python API
 Create classification objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You don’t have to use our pseudo-random generation functions; you can
+You don't have to use our pseudo-random generation functions; you can
 create ``Problem``, ``Model``, *etc.* instances yourself.
 
 Create a ``Problem``

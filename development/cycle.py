@@ -429,6 +429,8 @@ def convert_notebooks():
             content = f.read()
 
         content = re.sub(r"`(.*?) <https://mics-lab.github.io/lincs/(.*?)\.html>`__", r":doc:`\1 <\2>`", content, flags=re.DOTALL)
+        content = content.replace('“', '"').replace('”', '"').replace("\\ ’", "'").replace("’", "'")
+        content = content.replace(":doc:``generate_problem``", "``generate_problem``")
 
         with open(output_path, "w") as f:
             f.write(f".. WARNING: this file is generated from '{input_path}'. MANUAL EDITS WILL BE LOST.\n\n")
