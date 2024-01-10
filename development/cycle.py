@@ -438,14 +438,6 @@ def convert_notebooks():
 
 
 def make_python_reference():
-    # @todo(Project management, v1.1) Understand why this directory in not in sys.path for this interpreter,
-    # but seems to be for interpreters started after 'pip install --user whatever' is run.
-    # Does the first 'pip install --user' modify the PYTHONPATH?
-    sys.path.append("/home/user/.local/lib/python3.8/site-packages")
-    import lincs
-
-    print("doc-sources/reference/lincs.yml -> doc-sources/reference/lincs.rst")
-
     def directive(kind, name, doc, **options):
         yield f".. {kind}:: {name}"
         for k, v in options.items():
@@ -554,6 +546,10 @@ def make_python_reference():
                     continue
                 yield "    .. @to" + f"do(Documentation, v1.1) Include or exclude explicitly {'.'.join(path)}.{child_name} in doc-sources/reference/lincs.yml"
                 yield ""
+
+    print("doc-sources/reference/lincs.yml -> doc-sources/reference/lincs.rst")
+
+    import lincs
 
     with open("doc-sources/reference/lincs.yml") as f:
         description = yaml.safe_load(f)

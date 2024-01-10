@@ -174,6 +174,10 @@ USER user
 RUN mkdir -p /home/user/.local/bin
 ENV PATH=/home/user/.local/bin:$PATH:/usr/local/cuda-12.1/bin
 
+# Make sure /home/user/.local/lib/python3.8/site-packages is in sys.path
+# (useful for development/cycle.py, where 'pip install --user lincs' is run just before 'import lincs')
+RUN pip3 install --user six
+
 # CCache
 RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc
 RUN ln -s $(which ccache) /home/user/.local/bin/nvcc
