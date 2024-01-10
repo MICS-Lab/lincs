@@ -184,14 +184,15 @@ def main(
     # With lincs installed
     ######################
 
-    if not skip_notebooks:
+    if not skip_install and not skip_notebooks:
         print_title("Running Jupyter notebooks (integration tests, documentation sources)")
         run_notebooks(forbid_gpu=forbid_gpu, skip_unchanged_notebooks=skip_unchanged_notebooks)
 
     print_title("Updating templates (documentation sources)")
     update_templates()
     convert_notebooks()
-    make_python_reference()
+    if not skip_install:
+        make_python_reference()
     print()
 
     if with_docs:
