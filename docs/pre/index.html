@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>README &#8212; lincs 1.1.0a0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=aa98cbf9"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Conceptual overview" href="conceptual-overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<section id="readme">
+<h1>README<a class="headerlink" href="#readme" title="Permalink to this heading">¶</a></h1>
+<p><em>lincs</em> (Learn and Infer Non Compensatory Sortings) is a collection of <a class="reference external" href="https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis">MCDA</a> algorithms, usable as a command-line utility and through a Python (3.8+) API.</p>
+<p><em>lincs</em> supports Linux, macOS and Windows, with the exception that GPU-based algorithms are not available on macOS, because CUDA itself is not available there.
+On these 3 OSes, <em>lincs</em> only support x86_64 CPUs.</p>
+<p><em>lincs</em> is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files <a class="reference external" href="COPYING">COPYING</a> and <a class="reference external" href="COPYING.LESSER">COPYING.LESSER</a>.</p>
+<p><em>lincs</em> is available for install from the <a class="reference external" href="https://pypi.org/project/lincs/">Python package index</a>.
+Its <a class="reference external" href="http://mics-lab.github.io/lincs/">documentation</a>
+and its <a class="reference external" href="https://github.com/mics-lab/lincs/">source code</a> are on GitHub.</p>
+<p>Questions? Remarks? Bugs? Want to contribute? Open <a class="reference external" href="https://github.com/MICS-Lab/lincs/issues">an issue</a> or <a class="reference external" href="https://github.com/MICS-Lab/lincs/discussions">a discussion</a>!
+You should probably take a look at <a class="reference internal" href="roadmap.html"><span class="doc">our roadmap</span></a> first.</p>
+<p>&#64;todo(Project management, v1.1) Add a note asking academics to kindly cite our ROADEF 2024 paper.</p>
+<section id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this heading">¶</a></h2>
+<p><em>lincs</em> is developed by the <a class="reference external" href="https://mics.centralesupelec.fr/">MICS</a> research team at <a class="reference external" href="https://www.centralesupelec.fr/">CentraleSupélec</a>.</p>
+<p>Its main authors are (alphabetical order):</p>
+<ul class="simple">
+<li><p>Khaled Belahcène (domain expertise)</p></li>
+<li><p><a class="reference external" href="https://cabaretl.pages.centralesupelec.fr/">Laurent Cabaret</a> (performance optimization)</p></li>
+<li><p><a class="reference external" href="https://vincent-jacques.net">Vincent Jacques</a> (engineering)</p></li>
+<li><p><a class="reference external" href="https://www.centralesupelec.fr/fr/2EBDCB86-64A4-4747-96E8-C3066CB61F3D">Vincent Mousseau</a> (domain expertise)</p></li>
+<li><p><a class="reference external" href="https://wassilaouerdane.github.io/">Wassila Ouerdane</a> (domain expertise)</p></li>
+</ul>
+</section>
+<section id="project-goals">
+<h2>Project goals<a class="headerlink" href="#project-goals" title="Permalink to this heading">¶</a></h2>
+<section id="provide-mcda-tools-usable-out-of-the-box">
+<h3>Provide MCDA tools usable out of the box<a class="headerlink" href="#provide-mcda-tools-usable-out-of-the-box" title="Permalink to this heading">¶</a></h3>
+<p>You should be able to use <em>lincs</em> without being a specialist of MCDA and/or NCS models.
+Just follow the “Get started” section below.</p>
+</section>
+<section id="provide-a-base-for-developing-new-mcda-algorithms">
+<h3>Provide a base for developing new MCDA algorithms<a class="headerlink" href="#provide-a-base-for-developing-new-mcda-algorithms" title="Permalink to this heading">¶</a></h3>
+<p><em>lincs</em> is designed to be easy to extend with new algorithms or even replace parts of existing algorithms.
+See our <a class="reference internal" href="contributor-guide.html"><span class="doc">contributor guide</span></a> for more details.</p>
+</section>
+</section>
+<section id="get-started">
+<h2>Get started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h2>
+<p>Depending on your favorite approach, you can either start with our <a class="reference internal" href="get-started.html"><span class="doc">hands-on “Get started” guide</span></a>
+or with our <a class="reference internal" href="conceptual-overview.html"><span class="doc">conceptual overview documentation</span></a>.
+The former will show you how to use our tools, the latter will explain the concepts behind them: what’s MCDA, what are NCS models, <em>etc.</em>
+If in doubt, start with the conceptual overview.
+We highly recommend you read the other one just after.</p>
+<p>Once you’ve used <em>lincs</em> a bit, you can follow up with our <a class="reference internal" href="user-guide.html"><span class="doc">user guide</span></a>
+and <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>.</p>
+</section>
+<section id="versioning">
+<h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this heading">¶</a></h2>
+<p>Starting with version 1.0.0, <em>lincs</em> uses <a class="reference external" href="https://semver.org/">semantic versioning</a>.</p>
+<p><em>lincs</em>’ public API (that “must be declared” according to SemVer) is constituted exclusively by its <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>,
+<strong>at a code level</strong>: we consider a change as backward compatible if the client code doesn’t need to be modified to keep working,
+even if that change requires recompiling the client code in some cases.</p>
+<p>Future backward compatible changes might change <em>lincs</em>’ behavior, especially with regards to pseudo-random behavior.</p>
+<p>Note that we plan to make <em>lincs</em> usable as a C++ library.
+When we do that, we’ll add this interface to the public API.
+In the mean time, if you chose to use <em>lincs</em> that way, you must expect unanticipated changes to this interface.</p>
+<section id="exceptions">
+<h3>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this heading">¶</a></h3>
+<section id="default-values">
+<h4>Default values<a class="headerlink" href="#default-values" title="Permalink to this heading">¶</a></h4>
+<p>Default values of optional arguments are not considered part of the public API.
+They might change in future releases if we find values that perform better for most use-cases.</p>
+<p>We advice you write your scripts in an explicit way where it matters to you,
+and rely on implicit default values only where you want the potential future improvements.</p>
+</section>
+<section id="file-formats">
+<h4>File formats<a class="headerlink" href="#file-formats" title="Permalink to this heading">¶</a></h4>
+<p>The same specification applies to files read and produced by <em>lincs</em>.
+This leads to an issue about backward compatibility:
+if we allow more flexibility in input files, new versions of <em>lincs</em> will be able to read both the old and the new format, in a backward-compatible way.
+But if <em>lincs</em> produces a file in the new format, existing client scripts might not be able to read it, making this change backward-incompatible.</p>
+<p>To solve this issue, we impose an additional constraint to <em>lincs</em>’ public API:
+<em>lincs</em> will produce files in a new format only when the client uses the new feature that motivated the new format.</p>
+<p>That way, we know that the client already needs to modify their scripts, so they can adapt to the new format.</p>
+</section>
+</section>
+</section>
+<section id="develop-lincs-itself">
+<h2>Develop <em>lincs</em> itself<a class="headerlink" href="#develop-lincs-itself" title="Permalink to this heading">¶</a></h2>
+<p>See our <a class="reference internal" href="contributor-guide.html"><span class="doc">contributor guide</span></a>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">lincs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="conceptual-overview.html" title="next chapter">Conceptual overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;Copyright 2023 Vincent Jacques.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
