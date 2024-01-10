@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include <Python.h>
 // https://bugs.python.org/issue36020#msg371558

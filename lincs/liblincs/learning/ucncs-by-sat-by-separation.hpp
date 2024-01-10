@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__UCNCS_BY_SAT_BY_SEPARATION_HPP
 #define LINCS__LEARNING__UCNCS_BY_SAT_BY_SEPARATION_HPP

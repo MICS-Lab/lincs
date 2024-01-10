@@ -1,5 +1,4 @@
-# Copyright 2023 Vincent Jacques
-# @todo(Project management, v1.1) Update copyright notices everywhere
+# Copyright 2023-2024 Vincent Jacques
 
 """
 The ``lincs`` package

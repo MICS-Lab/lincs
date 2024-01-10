@@ -1,4 +1,4 @@
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
 import os
 import sys
@@ -7,7 +7,7 @@ import sys
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "lincs"
-copyright = "Copyright 2023 Vincent Jacques"
+copyright = "Copyright 2023-2024 Vincent Jacques"
 author = "Vincent Jacques"
 with open("../lincs/__init__.py") as f:
     for line in f.readlines():

@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__IO__ALTERNATIVES_HPP
 #define LINCS__IO__ALTERNATIVES_HPP

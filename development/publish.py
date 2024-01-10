@@ -1,4 +1,4 @@
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
 from __future__ import annotations
 import datetime

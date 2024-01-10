@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "ucncs-by-max-sat-by-separation.hpp"
 

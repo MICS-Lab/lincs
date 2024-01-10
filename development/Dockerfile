@@ -1,4 +1,4 @@
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
 # About the choice of Ubuntu 20.04 instead of 22.04: it an acceptable compromise:
 # - it's an LTS version as well

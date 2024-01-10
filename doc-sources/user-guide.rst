@@ -1,6 +1,6 @@
 .. WARNING: this file is generated from 'doc-sources/user-guide.rst.tmpl'. MANUAL EDITS WILL BE LOST.
 
-.. Copyright 2023 Vincent Jacques
+.. Copyright 2023-2024 Vincent Jacques
 
 ==========
 User Guide
