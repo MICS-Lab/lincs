@@ -486,7 +486,7 @@
             .. method:: load(problem: Problem, in: object) -> Model
                 :staticmethod:
 
-                Load a model for the provided `problem`, from the provided ``.read``-supporting file-like object, in YAML format
+                Load a model for the provided ``Problem``, from the provided ``.read``-supporting file-like object, in YAML format
 
             .. data:: JSON_SCHEMA
                 :type: str
@@ -632,11 +632,11 @@
 
         .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int [, normalized_min_max: bool=True [, allowed_preference_directions: Iterable[PreferenceDirection]=[] [, allowed_value_types: Iterable[ValueType]=[]]]]) -> Problem
 
-            Generate a problem with `criteria_count` criteria and `categories_count` categories.
+            Generate a problem with ``criteria_count`` criteria and ``categories_count`` categories.
 
         .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: object=None]) -> Model
 
-            Generate an MR-Sort model for the provided `problem`.
+            Generate an MR-Sort model for the provided ``Problem``.
 
         .. exception:: BalancedAlternativesGenerationException
 
@@ -644,11 +644,11 @@
 
         .. function:: generate_classified_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: object=None]) -> Alternatives
 
-            Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`.
+            Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided ``Problem``, classified according to the provided ``Model``.
 
         .. function:: misclassify_alternatives(problem: Problem, alternatives: Alternatives, count: int, random_seed: int)
 
-            Misclassify `count` alternatives from the provided `alternatives`.
+            Misclassify ``count`` alternatives from the provided ``Alternatives``.
 
         .. class:: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 
@@ -944,7 +944,7 @@
 
         .. function:: classify_alternatives(problem: Problem, model: Model, alternatives: Alternatives) -> ClassificationResult
 
-            Classify the provided `alternatives` according to the provided `model`.
+            Classify the provided ``Alternatives`` according to the provided ``Model``.
 
         .. function:: describe_model(problem: lincs.classification.Problem, model: lincs.classification.Model)
 
