@@ -7,6 +7,8 @@ The ``lincs.classification`` module
 This module contains everything related to classification.
 """
 
+# @todo(Feature, later) Provide __repr__ and __str__ where applicable
+
 # I/O
 from liblincs import Criterion, Category, Problem
 from liblincs import AcceptedValues, SufficientCoalitions, Model
@@ -49,8 +51,6 @@ from liblincs import LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 
 # Learning - max-SAT by separation
 from liblincs import LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
-
-# @todo(Feature, v1.1) Move everything into 'lincs.classification'. Remember to check the documentation of 'describe_*' and 'visualize_*'
 
 from .visualization import visualize_classification_model as visualize_model
 from .description import describe_classification_problem as describe_problem

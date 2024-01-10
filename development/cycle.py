@@ -548,6 +548,8 @@ def make_python_reference():
 
     print("doc-sources/reference/lincs.yml -> doc-sources/reference/lincs.rst")
 
+    # @todo(Documentation, v1.1) Check all occurrences of 'object' in lincs.rst
+
     import lincs
 
     with open("doc-sources/reference/lincs.yml") as f:

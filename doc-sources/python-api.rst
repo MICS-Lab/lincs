@@ -39,10 +39,6 @@ Generated problems are returned as Python objects of class
 
 .. code:: python
 
-    # @todo(Feature, v1.1) Provide __repr__ and __str__ where applicable
-
-.. code:: python
-
     import sys
     problem.dump(sys.stdout)
 
@@ -144,7 +140,7 @@ Visualization functions interface with
 
 
 
-.. image:: python-api_files/python-api_14_0.png
+.. image:: python-api_files/python-api_13_0.png
 
 
 Get the model's description:
@@ -203,7 +199,7 @@ Visualize it:
 
 
 
-.. image:: python-api_files/python-api_22_0.png
+.. image:: python-api_files/python-api_21_0.png
 
 
 Let's now train a new model from this synthetic learning set. The
@@ -302,7 +298,6 @@ Create a ``Problem``
 
 .. code:: python
 
-    # @todo(Feature, v1.1) Rename to 'ClassificationProblem'? And everything to 'ClassificationXxx'? Or namespace into 'lc'?
     problem = lc.Problem(
         criteria=[
             lc.Criterion("Physics grade", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
