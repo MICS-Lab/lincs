@@ -1,9 +1,4 @@
 children:
-  - name: visualization
-    show: false
-  - name: description
-    show: false
-
   - name: __version__
     doc: The version of *lincs*, as a string in `SemVer <https://semver.org/>`_ format
   - name: has_gpu

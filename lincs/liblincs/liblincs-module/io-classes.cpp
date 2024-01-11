@@ -103,8 +103,13 @@ void define_problem_classes() {
     .def(bp::self == bp::self)  // Private, undocumented, used only for our tests
   ;
 
-  // @todo(Project management, later) Find a way to avoid attributes (like "ValueType" below) to also be present at top-level in liblincs.
-  // (Not a big issue though, as liblincs is carefully partially imported by '__init__.py', but this would allow 'from liblincs import *' instead.)
+  // @todo(Project management, v1.1) Use bp::scope where applicable (instead of defining stuff at the global scope and assigning it as attributes)
+  // Example:
+  // {
+  //   bp::scope scope(criterion_class);
+  //   auto_enum<lincs::Criterion::ValueType>("ValueType", "The different types of values for a criterion");
+  // }
+  // Instead of:
   criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType", "The different types of values for a criterion");
 
   criterion_class.attr("PreferenceDirection") = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection")
