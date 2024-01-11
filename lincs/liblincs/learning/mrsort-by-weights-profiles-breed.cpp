@@ -60,7 +60,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     boundaries.emplace_back(boundary_profile, coalitions);
   }
 
-  return post_process(boundaries, false);
+  return post_process(boundaries);
 }
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {

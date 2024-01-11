@@ -108,7 +108,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   }
 }
 
-Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBoundary>& boundaries, const bool do_halves) const {
+Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBoundary>& boundaries) const {
   assert(boundaries.size() == boundaries_count);
 
   std::vector<AcceptedValues> accepted_values;
@@ -116,7 +116,7 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     accepted_values.push_back(dispatch(
       problem.get_criteria()[criterion_index].get_values(),
-      [this, &boundaries, criterion_index, do_halves](const Criterion::RealValues&) {
+      [this, &boundaries, criterion_index](const Criterion::RealValues&) {
         std::vector<float> thresholds;
         thresholds.reserve(boundaries_count);
         for (const auto& boundary: boundaries) {
@@ -126,8 +126,6 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
           } else if (rank == values_counts[criterion_index]) {
             // Past-the-end rank
             thresholds.push_back(real_sorted_values.at(criterion_index)[values_counts[criterion_index] - 1]);
-          } else if (do_halves) {
-            thresholds.push_back((real_sorted_values.at(criterion_index)[rank - 1] + real_sorted_values.at(criterion_index)[rank]) / 2);
           } else {
             thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
           }

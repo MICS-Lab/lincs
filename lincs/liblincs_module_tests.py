@@ -777,8 +777,8 @@ class LearningTestCase(unittest.TestCase):
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 21)
-        self.assertEqual(result.unchanged, 979)
+        self.assertEqual(result.changed, 26)
+        self.assertEqual(result.unchanged, 974)
 
     def test_sat_by_separation_using_minisat_learning(self):
         problem = generate_problem(5, 2, 41)
@@ -793,8 +793,8 @@ class LearningTestCase(unittest.TestCase):
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 24)
-        self.assertEqual(result.unchanged, 976)
+        self.assertEqual(result.changed, 28)
+        self.assertEqual(result.unchanged, 972)
 
     def test_max_sat_by_coalitions_using_evalmaxsat_learning(self):
         problem = generate_problem(5, 3, 41)
@@ -809,8 +809,8 @@ class LearningTestCase(unittest.TestCase):
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 28)
-        self.assertEqual(result.unchanged, 972)
+        self.assertEqual(result.changed, 32)
+        self.assertEqual(result.unchanged, 968)
 
     def test_max_sat_by_separation_using_evalmaxsat_learning(self):
         problem = generate_problem(5, 2, 41)
@@ -825,8 +825,8 @@ class LearningTestCase(unittest.TestCase):
 
         testing_set = generate_classified_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
-        self.assertEqual(result.changed, 24)
-        self.assertEqual(result.unchanged, 976)
+        self.assertEqual(result.changed, 25)
+        self.assertEqual(result.unchanged, 975)
 
     def test_learning_failure_exception(self):
         problem = generate_problem(2, 2, 42)

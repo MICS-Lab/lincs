@@ -35,8 +35,7 @@ class PreProcessedLearningSet {
   PreProcessedLearningSet(const Problem&, const Alternatives&);
 
  public:
-  // @todo(Project management, v1.1) Remove 'do_halves'; homogenize behavior
-  Model post_process(const std::vector<PreProcessedBoundary>&, bool do_halves=true) const;
+  Model post_process(const std::vector<PreProcessedBoundary>&) const;
 
  private:
   const Problem& problem;

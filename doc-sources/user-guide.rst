@@ -516,13 +516,13 @@ They produce a different kind of model, with the sufficient coalitions specified
     format_version: 1
     accepted_values:
       - kind: thresholds
-        thresholds: [0.999706864, 0.999706864]
+        thresholds: [1, 1]
       - kind: thresholds
-        thresholds: [0.0552680492, 0.325211823]
+        thresholds: [0.0556534864, 0.326433569]
       - kind: thresholds
-        thresholds: [0.161919117, 0.672662616]
+        thresholds: [0.162616938, 0.67343241]
       - kind: thresholds
-        thresholds: [0.995402098, 0.996754646]
+        thresholds: [0.996253729, 0.997255564]
     sufficient_coalitions:
       - &coalitions
         kind: roots
