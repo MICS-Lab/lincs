@@ -18,8 +18,7 @@ namespace bp = boost::python;
 namespace {
 
 class PythonOutputDevice : public boost::iostreams::sink {
-  public:
-
+ public:
   explicit PythonOutputDevice(bp::object out_file_) : out_file(out_file_) {}
 
   std::streamsize write(const char* s, std::streamsize n) {
@@ -27,7 +26,7 @@ class PythonOutputDevice : public boost::iostreams::sink {
     return n;
   }
 
-  private:
+ private:
   bp::object out_file;
 };
 
@@ -47,8 +46,7 @@ void dump_alternatives(const lincs::Alternatives& alternatives, const lincs::Pro
 }
 
 class PythonInputDevice : public boost::iostreams::source {
-  public:
-
+ public:
   explicit PythonInputDevice(bp::object in_file_) : in_file(in_file_) {}
 
   std::streamsize read(char* s, std::streamsize n) {
@@ -57,7 +55,7 @@ class PythonInputDevice : public boost::iostreams::source {
     return str.size();
   }
 
-  private:
+ private:
   bp::object in_file;
 };
 
@@ -105,8 +103,13 @@ void define_problem_classes() {
     .def(bp::self == bp::self)  // Private, undocumented, used only for our tests
   ;
 
-  // @todo(Project management, later) Find a way to avoid attributes (like "ValueType" below) to also be present at top-level in liblincs.
-  // (Not a big issue though, as liblincs is carefully partially imported by '__init__.py', but this would allow 'from liblincs import *' instead.)
+  // @todo(Project management, v1.1) Use bp::scope where applicable (instead of defining stuff at the global scope and assigning it as attributes)
+  // Example:
+  // {
+  //   bp::scope scope(criterion_class);
+  //   auto_enum<lincs::Criterion::ValueType>("ValueType", "The different types of values for a criterion");
+  // }
+  // Instead of:
   criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType", "The different types of values for a criterion");
 
   criterion_class.attr("PreferenceDirection") = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection")
@@ -263,8 +266,7 @@ void define_model_classes() {
       "load",
       &load_model,
       (bp::arg("problem"), "in"),
-      // @todo(Documentation, v1.1) Search for all single back-quotes and double them where appropriate
-      "Load a model for the provided `problem`, from the provided ``.read``-supporting file-like object, in YAML format"
+      "Load a model for the provided ``Problem``, from the provided ``.read``-supporting file-like object, in YAML format"
     )
     .staticmethod("load")
   ;
@@ -338,7 +340,6 @@ void define_alternative_classes() {
 }
 
 void define_io_classes() {
-  // @todo(Documentation, v1.1) Add a docstring to the exception class
   PyObject* DataValidationException_wrapper = PyErr_NewException("liblincs.DataValidationException", PyExc_RuntimeError, NULL);
   bp::register_exception_translator<lincs::DataValidationException>(
     [DataValidationException_wrapper](const lincs::DataValidationException& e) {

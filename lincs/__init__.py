@@ -17,3 +17,18 @@ from . import classification
 # General information
 __version__ = "1.1.0a1.dev0"
 has_gpu = hasattr(classification, "ImproveProfilesWithAccuracyHeuristicOnGpu")
+
+try:
+    del visualization
+except NameError:
+    pass
+
+try:
+    del description
+except NameError:
+    pass
+
+try:
+    del command_line_interface
+except NameError:
+    pass

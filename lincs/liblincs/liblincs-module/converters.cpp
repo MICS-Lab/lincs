@@ -174,8 +174,10 @@ void enroll_standard_converters() {
   bp::class_<std::vector<lincs::Alternative>>("Iterable[Alternative]").def(bp::vector_indexing_suite<std::vector<lincs::Alternative>>());
 
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>::enroll();
+  bp::class_<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>("Iterable[TerminationStrategy]").def(bp::vector_indexing_suite<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>());
 
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>::enroll();
+  bp::class_<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>("Iterable[Observer]").def(bp::vector_indexing_suite<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>());
 
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();

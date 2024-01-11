@@ -27,13 +27,13 @@ void define_generation_functions() {
       bp::arg("allowed_preference_directions")=std::vector{lincs::Criterion::PreferenceDirection::increasing},
       bp::arg("allowed_value_types")=std::vector{lincs::Criterion::ValueType::real}
     ),
-    "Generate a problem with `criteria_count` criteria and `categories_count` categories."
+    "Generate a problem with ``criteria_count`` criteria and ``categories_count`` categories."
   );
   bp::def(
     "generate_mrsort_classification_model",
     &lincs::generate_mrsort_classification_model,
     (bp::arg("problem"), "random_seed", bp::arg("fixed_weights_sum")=std::optional<float>()),
-    "Generate an MR-Sort model for the provided `problem`."
+    "Generate an MR-Sort model for the provided ``Problem``."
   );
 
   PyObject* BalancedAlternativesGenerationException_wrapper = PyErr_NewException("liblincs.BalancedAlternativesGenerationException", PyExc_RuntimeError, NULL);
@@ -48,13 +48,13 @@ void define_generation_functions() {
     "generate_classified_alternatives",
     &lincs::generate_classified_alternatives,
     (bp::arg("problem"), "model", "alternatives_count", "random_seed", bp::arg("max_imbalance")=std::optional<float>()),
-    "Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`."
+    "Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided ``Problem``, classified according to the provided ``Model``."
   );
   bp::def(
     "misclassify_alternatives",
     &lincs::misclassify_alternatives,
     (bp::arg("problem"), "alternatives", "count", "random_seed"),
-    "Misclassify `count` alternatives from the provided `alternatives`."
+    "Misclassify ``count`` alternatives from the provided ``Alternatives``."
   );
 
   bp::class_<lincs::ClassificationResult>("ClassificationResult", bp::no_init)
@@ -65,7 +65,7 @@ void define_generation_functions() {
     "classify_alternatives",
     &lincs::classify_alternatives,
     (bp::arg("problem"), "model", "alternatives"),
-    "Classify the provided `alternatives` according to the provided `model`."
+    "Classify the provided ``Alternatives`` according to the provided ``Model``."
   );
 }
 

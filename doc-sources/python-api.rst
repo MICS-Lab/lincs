@@ -211,7 +211,6 @@ the Python API, you have to create these strategies yourself:
 
 .. code:: python
 
-    # @todo(Feature, v1.1) Support using temporary strategies (i.e. passing 'lincs.OptimizeWeightsUsingGlop(learning_data)' directly to 'lincs.LearnMrsortByWeightsProfilesBreed' without capturing it in a variable)
     learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
     profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
     weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
