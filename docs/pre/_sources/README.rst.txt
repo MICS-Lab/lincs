@@ -1,4 +1,4 @@
-.. Copyright 2023 Vincent Jacques
+.. Copyright 2023-2024 Vincent Jacques
 
 .. This README is rendered to HTML in several places
     - on GitHub (https://github.com/mics-lab/lincs/)
