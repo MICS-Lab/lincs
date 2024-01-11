@@ -447,7 +447,7 @@
 
                 Descriptor for sufficient coalitions defined by roots
 
-                .. method:: __init__(criteria_count: int, upset_roots: object)
+                .. method:: __init__(criteria_count: int, upset_roots: Iterable[Iterable[int]])
 
                     .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.Roots.__init__
 
@@ -486,7 +486,7 @@
             .. method:: load(problem: Problem, in: object) -> Model
                 :staticmethod:
 
-                Load a model for the provided `problem`, from the provided ``.read``-supporting file-like object, in YAML format
+                Load a model for the provided ``Problem``, from the provided ``.read``-supporting file-like object, in YAML format
 
             .. data:: JSON_SCHEMA
                 :type: str
@@ -589,7 +589,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative
 
-            .. method:: __init__(name: str, profile: Iterable[Performance] [, category: object=None])
+            .. method:: __init__(name: str, profile: Iterable[Performance] [, category: Optional[int]=None])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.__init__
 
@@ -632,23 +632,23 @@
 
         .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int [, normalized_min_max: bool=True [, allowed_preference_directions: Iterable[PreferenceDirection]=[] [, allowed_value_types: Iterable[ValueType]=[]]]]) -> Problem
 
-            Generate a problem with `criteria_count` criteria and `categories_count` categories.
+            Generate a problem with ``criteria_count`` criteria and ``categories_count`` categories.
 
-        .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: object=None]) -> Model
+        .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: Optional[float]=None]) -> Model
 
-            Generate an MR-Sort model for the provided `problem`.
+            Generate an MR-Sort model for the provided ``Problem``.
 
         .. exception:: BalancedAlternativesGenerationException
 
             Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories
 
-        .. function:: generate_classified_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: object=None]) -> Alternatives
+        .. function:: generate_classified_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: Optional[float]=None]) -> Alternatives
 
-            Generate a set of `alternatives_count` pseudo-random alternatives for the provided `problem`, classified according to the provided `model`.
+            Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided ``Problem``, classified according to the provided ``Model``.
 
         .. function:: misclassify_alternatives(problem: Problem, alternatives: Alternatives, count: int, random_seed: int)
 
-            Misclassify `count` alternatives from the provided `alternatives`.
+            Misclassify ``count`` alternatives from the provided ``Alternatives``.
 
         .. class:: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 
@@ -702,12 +702,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy)
-
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__
-
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: object)
-                :noindex:
+            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy [, observers: Iterable[Observer]=[]])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__
 
@@ -920,7 +915,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny
 
-            .. method:: __init__(termination_strategies: object)
+            .. method:: __init__(termination_strategies: Iterable[TerminationStrategy])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny.__init__
 
@@ -944,7 +939,7 @@
 
         .. function:: classify_alternatives(problem: Problem, model: Model, alternatives: Alternatives) -> ClassificationResult
 
-            Classify the provided `alternatives` according to the provided `model`.
+            Classify the provided ``Alternatives`` according to the provided ``Model``.
 
         .. function:: describe_model(problem: lincs.classification.Problem, model: lincs.classification.Model)
 

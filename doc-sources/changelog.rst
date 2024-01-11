@@ -4,12 +4,13 @@
 Changelog
 =========
 
-Version 1.1.0a0 (2024-01-10)
-============================
+Versions 1.1.0a0 (2024-01-10), 1.1.0a1 (2024-01-11)
+===================================================
 
 This release establishes the second tier of the stable API: the Python interface.
 
 - **Breaking**: Drop support for Python 3.7
+- Homogenize post-processing: this changes the numerical values of the thresholds learned by SAT-based approaches, but not their achieved accuracy
 - Support discrete criteria (with enumerated or integer values)
 - Improve validation of input data (*e.g.* check consistency between problem, model, and alternatives)
 - Publish the Python API; provide the "Get started" guide as a `Jupyter <https://jupyter.org/>`_ notebook
