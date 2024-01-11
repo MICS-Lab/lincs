@@ -91,6 +91,8 @@ def main():
     pass
 
 
+# @todo(Project management, v1.1) Move this code into the notebook that calls it
+# @todo(Project management, v1.1) Add a integration test (notebook) that performs a recursive dir on lincs and liblincs
 @main.command(
     hidden=True,
 )
