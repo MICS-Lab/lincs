@@ -447,7 +447,7 @@
 
                 Descriptor for sufficient coalitions defined by roots
 
-                .. method:: __init__(criteria_count: int, upset_roots: object)
+                .. method:: __init__(criteria_count: int, upset_roots: Iterable[Iterable[int]])
 
                     .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.Roots.__init__
 
@@ -589,7 +589,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative
 
-            .. method:: __init__(name: str, profile: Iterable[Performance] [, category: object=None])
+            .. method:: __init__(name: str, profile: Iterable[Performance] [, category: Optional[int]=None])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.__init__
 
@@ -634,7 +634,7 @@
 
             Generate a problem with ``criteria_count`` criteria and ``categories_count`` categories.
 
-        .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: object=None]) -> Model
+        .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: Optional[float]=None]) -> Model
 
             Generate an MR-Sort model for the provided ``Problem``.
 
@@ -642,7 +642,7 @@
 
             Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories
 
-        .. function:: generate_classified_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: object=None]) -> Alternatives
+        .. function:: generate_classified_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: Optional[float]=None]) -> Alternatives
 
             Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided ``Problem``, classified according to the provided ``Model``.
 
@@ -706,7 +706,7 @@
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: object)
+            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: Iterable[Observer])
                 :noindex:
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__
@@ -920,7 +920,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny
 
-            .. method:: __init__(termination_strategies: object)
+            .. method:: __init__(termination_strategies: Iterable[TerminationStrategy])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny.__init__
 

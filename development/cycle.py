@@ -469,6 +469,11 @@ def make_python_reference():
         signature = signature.replace(f"self: object, ", "")
         signature = signature.replace(f"self: object", "")
 
+        signature = signature.replace("upset_roots: object", "upset_roots: Iterable[Iterable[int]]")
+        signature = signature.replace("category: object", "category: Optional[int]")
+        signature = signature.replace("fixed_weights_sum: object", "fixed_weights_sum: Optional[float]")
+        signature = signature.replace("max_imbalance: object", "max_imbalance: Optional[float]")
+
         if "arg1" in signature:
             signature += " @to" + f"do(Documentation, v1.1) Fix parameter names for {'.'.join(path)}"
 
@@ -547,8 +552,6 @@ def make_python_reference():
                 yield ""
 
     print("doc-sources/reference/lincs.yml -> doc-sources/reference/lincs.rst")
-
-    # @todo(Documentation, v1.1) Check all occurrences of 'object' in lincs.rst
 
     import lincs
 
