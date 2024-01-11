@@ -11,7 +11,7 @@
 
 namespace lincs {
 
-// @todo(Project management, v1.1) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
+// @todo(Project management, v1.2) Consider taking 'alternatives_' by rvalue reference and moving it in 'alternatives'
 Alternatives::Alternatives(const Problem& problem, const std::vector<Alternative>& alternatives_) :
   alternatives(alternatives_)
 {
