@@ -337,7 +337,6 @@ void define_alternative_classes() {
 }
 
 void define_io_classes() {
-  // @todo(Documentation, v1.1) Add a docstring to the exception class
   PyObject* DataValidationException_wrapper = PyErr_NewException("liblincs.DataValidationException", PyExc_RuntimeError, NULL);
   bp::register_exception_translator<lincs::DataValidationException>(
     [DataValidationException_wrapper](const lincs::DataValidationException& e) {
