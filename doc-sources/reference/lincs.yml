@@ -5,12 +5,12 @@ children:
     show: false
 
   - name: __version__
-    doc: "The version of *lincs*, as a string in `SemVer <https://semver.org/>`_ format"
+    doc: The version of *lincs*, as a string in `SemVer <https://semver.org/>`_ format
   - name: has_gpu
     doc: "``True`` if *lincs* was compiled with CUDA support"
 
   - name: DataValidationException
-    doc: "Raised by constructors when called with invalid data. ``ex.args[0]`` gives a human-readable description of the error"
+    doc: Raised by constructors when called with invalid data. ``ex.args[0]`` gives a human-readable description of the error
     children:
       - name: __init__
         show: false
@@ -352,7 +352,7 @@ children:
     - name: generate_problem
     - name: generate_mrsort_model
     - name: BalancedAlternativesGenerationException
-      doc: "Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories"
+      doc: Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories
       children:
         - name: __init__
           show: false
