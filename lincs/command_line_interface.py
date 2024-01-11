@@ -91,28 +91,7 @@ def main():
     pass
 
 
-# @todo(Project management, v1.1) Move this code into the notebook that calls it
 # @todo(Project management, v1.1) Add a integration test (notebook) that performs a recursive dir on lincs and liblincs
-@main.command(
-    hidden=True,
-)
-def help_all():
-    def walk(prefix, command):
-        if command.hidden:
-            return
-
-        title = f"lincs {' '.join(prefix)}".rstrip()
-        print(title)
-        print("=" * len(title))
-        print()
-        print(command.get_help(ctx=click.Context(info_name=" ".join(["lincs"] + prefix), command=command)))
-        print()
-
-        if isinstance(command, click.Group):
-            for name, command in command.commands.items():
-                walk(prefix + [name], command)
-
-    walk([], main)
 
 
 @main.group(
