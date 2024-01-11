@@ -18,8 +18,7 @@ namespace bp = boost::python;
 namespace {
 
 class PythonOutputDevice : public boost::iostreams::sink {
-  public:
-
+ public:
   explicit PythonOutputDevice(bp::object out_file_) : out_file(out_file_) {}
 
   std::streamsize write(const char* s, std::streamsize n) {
@@ -27,7 +26,7 @@ class PythonOutputDevice : public boost::iostreams::sink {
     return n;
   }
 
-  private:
+ private:
   bp::object out_file;
 };
 
@@ -47,8 +46,7 @@ void dump_alternatives(const lincs::Alternatives& alternatives, const lincs::Pro
 }
 
 class PythonInputDevice : public boost::iostreams::source {
-  public:
-
+ public:
   explicit PythonInputDevice(bp::object in_file_) : in_file(in_file_) {}
 
   std::streamsize read(char* s, std::streamsize n) {
@@ -57,7 +55,7 @@ class PythonInputDevice : public boost::iostreams::source {
     return str.size();
   }
 
-  private:
+ private:
   bp::object in_file;
 };
 
