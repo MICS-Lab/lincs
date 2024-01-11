@@ -26,25 +26,6 @@ void define_learning_classes() {
   bp::scope().attr("LearningFailureException") = bp::handle<>(bp::borrowed(LearningFailureException_wrapper));
 
   auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>("LearnMrsortByWeightsProfilesBreed", bp::no_init)
-    // @todo(Project management, v1.1) Merge theses two constructors with a default empty list of observers
-    .def(bp::init<
-      lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
-      lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&,
-      lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy&,
-      lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy&,
-      lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy&,
-      lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy&
-    >(
-      (
-        bp::arg("self"),
-        "learning_data",
-        "profiles_initialization_strategy",
-        "weights_optimization_strategy",
-        "profiles_improvement_strategy",
-        "breeding_strategy",
-        "termination_strategy"
-      )
-    ))
     .def(bp::init<
       lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
       lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&,
@@ -62,7 +43,7 @@ void define_learning_classes() {
         "profiles_improvement_strategy",
         "breeding_strategy",
         "termination_strategy",
-        "observers"
+        bp::arg("observers")=std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>{}
       )
     ))
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, (bp::arg("self")))

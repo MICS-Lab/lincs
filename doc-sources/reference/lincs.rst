@@ -702,12 +702,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy)
-
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__
-
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: Iterable[Observer])
-                :noindex:
+            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy [, observers: Iterable[Observer]=[]])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__
 
