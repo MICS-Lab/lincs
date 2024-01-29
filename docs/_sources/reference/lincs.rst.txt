@@ -11,7 +11,7 @@
     .. data:: __version__
         :type: str
 
-        The version of *lincs*, as a string in `SemVer <https://semver.org/>`_ format
+        The version of *lincs*, as a string in `Version Specifier <https://packaging.python.org/en/latest/specifications/version-specifiers/>`_ format
 
     .. data:: has_gpu
         :type: bool
