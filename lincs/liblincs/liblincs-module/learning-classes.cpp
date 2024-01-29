@@ -57,24 +57,69 @@ void define_learning_classes() {
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, (bp::arg("self")))
   ;
 
-  learn_wbp_class.attr("LearningData") =
+  {
+    bp::scope scope(learn_wbp_class);
+
     bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>(
       "LearningData",
       bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>(
         (bp::arg("self"), "problem", "learning_set", "models_count", "random_seed")
       )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()]
     )
-    .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")))
-    .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index)
-  ;
+      .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")))
+      .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index)
+    ;
 
-  struct ProfilesInitializationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy> {
-    void initialize_profiles(const unsigned begin, const unsigned end) override { this->get_override("initialize_profiles")(begin, end); }
-  };
+    struct ProfilesInitializationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy> {
+      void initialize_profiles(const unsigned begin, const unsigned end) override { this->get_override("initialize_profiles")(begin, end); }
+    };
 
-  learn_wbp_class.attr("ProfilesInitializationStrategy") = bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>("ProfilesInitializationStrategy")
-    .def("initialize_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles), (bp::arg("self"), "model_indexes_begin", "model_indexes_end"))
-  ;
+    bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>("ProfilesInitializationStrategy")
+      .def("initialize_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles), (bp::arg("self"), "model_indexes_begin", "model_indexes_end"))
+    ;
+
+    struct WeightsOptimizationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy> {
+      void optimize_weights() override { this->get_override("optimize_weights")(); }
+    };
+
+    bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>("WeightsOptimizationStrategy")
+      .def("optimize_weights", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights), (bp::arg("self")))
+    ;
+
+    struct ProfilesImprovementStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy> {
+      void improve_profiles() override { this->get_override("improve_profiles")(); }
+    };
+
+    bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>("ProfilesImprovementStrategy")
+      .def("improve_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles), (bp::arg("self")))
+    ;
+
+    struct BreedingStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy> {
+      void breed() override { this->get_override("breed")(); }
+    };
+
+    bp::class_<BreedingStrategyWrap, boost::noncopyable>("BreedingStrategy")
+      .def("breed", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed), (bp::arg("self")))
+    ;
+
+    struct TerminationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy> {
+      bool terminate() override { return this->get_override("terminate")(); }
+    };
+
+    bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
+      .def("terminate", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate), (bp::arg("self")))
+    ;
+
+    struct ObserverWrap : lincs::LearnMrsortByWeightsProfilesBreed::Observer, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::Observer> {
+      void after_iteration() override { this->get_override("after_iteration")(); }
+      void before_return() override { this->get_override("before_return")(); }
+    };
+
+    bp::class_<ObserverWrap, boost::noncopyable>("Observer")
+      .def("after_iteration", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration), (bp::arg("self")))
+      .def("before_return", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return), (bp::arg("self")))
+    ;
+  }
 
   bp::class_<
     lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion,
@@ -84,14 +129,6 @@ void define_learning_classes() {
     bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))[bp::with_custodian_and_ward<1, 2>()]
   )
     .def("initialize_profiles", &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles, (bp::arg("self"), "model_indexes_begin", "model_indexes_end"))
-  ;
-
-  struct WeightsOptimizationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy> {
-    void optimize_weights() override { this->get_override("optimize_weights")(); }
-  };
-
-  learn_wbp_class.attr("WeightsOptimizationStrategy") = bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>("WeightsOptimizationStrategy")
-    .def("optimize_weights", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights), (bp::arg("self")))
   ;
 
   bp::class_<
@@ -112,14 +149,6 @@ void define_learning_classes() {
     bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"))[bp::with_custodian_and_ward<1, 2>()]
   )
     .def("optimize_weights", &lincs::OptimizeWeightsUsingAlglib::optimize_weights, (bp::arg("self")))
-  ;
-
-  struct ProfilesImprovementStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy> {
-    void improve_profiles() override { this->get_override("improve_profiles")(); }
-  };
-
-  learn_wbp_class.attr("ProfilesImprovementStrategy") = bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>("ProfilesImprovementStrategy")
-    .def("improve_profiles", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles), (bp::arg("self")))
   ;
 
   bp::class_<
@@ -145,14 +174,6 @@ void define_learning_classes() {
   ;
   #endif  // LINCS_HAS_NVCC
 
-  struct BreedingStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy> {
-    void breed() override { this->get_override("breed")(); }
-  };
-
-  learn_wbp_class.attr("BreedingStrategy") = bp::class_<BreedingStrategyWrap, boost::noncopyable>("BreedingStrategy")
-    .def("breed", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed), (bp::arg("self")))
-  ;
-
   bp::class_<lincs::ReinitializeLeastAccurate, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy>>(
     "ReinitializeLeastAccurate",
     bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&, unsigned>(
@@ -160,14 +181,6 @@ void define_learning_classes() {
     )[bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3>>()]
   )
     .def("breed", &lincs::ReinitializeLeastAccurate::breed, (bp::arg("self")))
-  ;
-
-  struct TerminationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy> {
-    bool terminate() override { return this->get_override("terminate")(); }
-  };
-
-  learn_wbp_class.attr("TerminationStrategy") = bp::class_<TerminationStrategyWrap, boost::noncopyable>("TerminationStrategy")
-    .def("terminate", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate), (bp::arg("self")))
   ;
 
   bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
@@ -210,16 +223,6 @@ void define_learning_classes() {
     bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>((bp::arg("self"), "termination_strategies"))[bp::with_custodian_and_ward<1, 2>()]
   )
     .def("terminate", &lincs::TerminateWhenAny::terminate, (bp::arg("self")))
-  ;
-
-  struct ObserverWrap : lincs::LearnMrsortByWeightsProfilesBreed::Observer, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::Observer> {
-    void after_iteration() override { this->get_override("after_iteration")(); }
-    void before_return() override { this->get_override("before_return")(); }
-  };
-
-  learn_wbp_class.attr("Observer") = bp::class_<ObserverWrap, boost::noncopyable>("Observer")
-    .def("after_iteration", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration), (bp::arg("self")))
-    .def("before_return", bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return), (bp::arg("self")))
   ;
 
 
