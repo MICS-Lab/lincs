@@ -132,14 +132,14 @@ TEST_CASE("Basic classification using weights") {
   };
 
   Alternatives alternatives{problem, {
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
   }};
 
   auto result = classify_alternatives(problem, model, &alternatives);
@@ -177,14 +177,14 @@ TEST_CASE("Basic classification using upset roots") {
   };
 
   Alternatives alternatives{problem, {
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.49))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
   }};
 
   auto result = classify_alternatives(problem, model, &alternatives);
@@ -222,14 +222,14 @@ TEST_CASE("Classification with decreasing criteria") {
   };
 
   Alternatives alternatives{problem, {
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.51))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.51))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.50)), Performance(Performance::RealPerformance(0.51))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.50))}, std::nullopt},
-    {"A", {Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.51)), Performance(Performance::RealPerformance(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51))}, std::nullopt},
   }};
 
   auto result = classify_alternatives(problem, model, &alternatives);

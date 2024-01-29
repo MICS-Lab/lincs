@@ -39,16 +39,16 @@ int main() {
       {
         "Alice",
         {
-          lincs::Performance(lincs::Performance::RealPerformance(11)),
-          lincs::Performance(lincs::Performance::RealPerformance(12)),
+          lincs::Performance(lincs::Performance::Real(11)),
+          lincs::Performance(lincs::Performance::Real(12)),
         },
         1
       },
       {
         "Bob",
         {
-          lincs::Performance(lincs::Performance::RealPerformance(9)),
-          lincs::Performance(lincs::Performance::RealPerformance(11)),
+          lincs::Performance(lincs::Performance::Real(9)),
+          lincs::Performance(lincs::Performance::Real(11)),
         },
         0
       },

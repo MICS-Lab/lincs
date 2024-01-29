@@ -15,12 +15,12 @@ namespace lincs {
 
 class Performance {
  public:
-  class RealPerformance {
+  class Real {
    public:
-    RealPerformance(float value_) : value(value_) {}
+    Real(float value_) : value(value_) {}
 
    public:
-    bool operator==(const RealPerformance& other) const { return value == other.value; }
+    bool operator==(const Real& other) const { return value == other.value; }
 
    public:
     float get_value() const { return value; }
@@ -29,12 +29,12 @@ class Performance {
     float value;
   };
 
-  class IntegerPerformance {
+  class Integer {
    public:
-    IntegerPerformance(int value_) : value(value_) {}
+    Integer(int value_) : value(value_) {}
 
    public:
-    bool operator==(const IntegerPerformance& other) const { return value == other.value; }
+    bool operator==(const Integer& other) const { return value == other.value; }
 
    public:
     int get_value() const { return value; }
@@ -43,12 +43,12 @@ class Performance {
     int value;
   };
 
-  class EnumeratedPerformance {
+  class Enumerated {
    public:
-    EnumeratedPerformance(std::string value_) : value(value_) {}
+    Enumerated(std::string value_) : value(value_) {}
 
    public:
-    bool operator==(const EnumeratedPerformance& other) const { return value == other.value; }
+    bool operator==(const Enumerated& other) const { return value == other.value; }
 
    public:
     std::string get_value() const { return value; }
@@ -57,7 +57,7 @@ class Performance {
     std::string value;
   };
 
-  typedef std::variant<RealPerformance, IntegerPerformance, EnumeratedPerformance> Self;
+  typedef std::variant<Real, Integer, Enumerated> Self;
 
  public:
   Performance(const Self& self_) : self(self_) {}
@@ -78,13 +78,13 @@ class Performance {
   const Self& get() const { return self; }
 
   bool is_real() const { return get_value_type() == Criterion::ValueType::real; }
-  RealPerformance get_real() const { return std::get<RealPerformance>(self); }
+  Real get_real() const { return std::get<Real>(self); }
 
   bool is_integer() const { return get_value_type() == Criterion::ValueType::integer; }
-  IntegerPerformance get_integer() const { return std::get<IntegerPerformance>(self); }
+  Integer get_integer() const { return std::get<Integer>(self); }
 
   bool is_enumerated() const { return get_value_type() == Criterion::ValueType::enumerated; }
-  EnumeratedPerformance get_enumerated() const { return std::get<EnumeratedPerformance>(self); }
+  Enumerated get_enumerated() const { return std::get<Enumerated>(self); }
 
  private:
   Self self;

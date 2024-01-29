@@ -56,13 +56,13 @@ void Alternatives::dump(const Problem& problem, std::ostream& os) const {
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       dispatch(
         alternative.get_profile()[criterion_index].get(),
-        [&doc, criterion_index, alternative_index](const Performance::RealPerformance& perf) {
+        [&doc, criterion_index, alternative_index](const Performance::Real& perf) {
           doc.SetCell<float>(criterion_index + 1, alternative_index, perf.get_value());
         },
-        [&doc, criterion_index, alternative_index](const Performance::IntegerPerformance& perf) {
+        [&doc, criterion_index, alternative_index](const Performance::Integer& perf) {
           doc.SetCell<int>(criterion_index + 1, alternative_index, perf.get_value());
         },
-        [&doc, criterion_index, alternative_index](const Performance::EnumeratedPerformance& perf) {
+        [&doc, criterion_index, alternative_index](const Performance::Enumerated& perf) {
           doc.SetCell<std::string>(criterion_index + 1, alternative_index, perf.get_value());
         }
       );
@@ -126,13 +126,13 @@ Alternatives Alternatives::load(const Problem& problem, std::istream& is) {
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       switch (problem.get_criteria()[criterion_index].get_value_type()) {
         case Criterion::ValueType::real:
-          profile.push_back(Performance(Performance::RealPerformance(doc.GetCell<float>(criterion_column_indexes[criterion_index], row_index))));
+          profile.push_back(Performance(Performance::Real(doc.GetCell<float>(criterion_column_indexes[criterion_index], row_index))));
           break;
         case Criterion::ValueType::integer:
-          profile.push_back(Performance(Performance::IntegerPerformance(doc.GetCell<int>(criterion_column_indexes[criterion_index], row_index))));
+          profile.push_back(Performance(Performance::Integer(doc.GetCell<int>(criterion_column_indexes[criterion_index], row_index))));
           break;
         case Criterion::ValueType::enumerated:
-          profile.push_back(Performance(Performance::EnumeratedPerformance(doc.GetCell<std::string>(criterion_column_indexes[criterion_index], row_index))));
+          profile.push_back(Performance(Performance::Enumerated(doc.GetCell<std::string>(criterion_column_indexes[criterion_index], row_index))));
           break;
       }
     }
@@ -160,8 +160,8 @@ TEST_CASE("Dump then load preserves data - real criterion") {
   Alternatives alternatives(
     problem,
     {
-      {"Alt 1", {Performance(Performance::RealPerformance(0.5))}, 0},
-      {"Alt 2", {Performance(Performance::RealPerformance(0.75))}, 1},
+      {"Alt 1", {Performance(Performance::Real(0.5))}, 0},
+      {"Alt 2", {Performance(Performance::Real(0.75))}, 1},
     }
   );
 
@@ -183,9 +183,9 @@ TEST_CASE("Dump then load preserves data - numerical values requiring more decim
   };
 
   Alternatives alternatives(problem, {
-    {"Alt 1", {Performance(Performance::RealPerformance(0x1.259b36p-6))}, 0},
-    {"Alt 2", {Performance(Performance::RealPerformance(0x1.652bf4p-2))}, 1},
-    {"Alt 3", {Performance(Performance::RealPerformance(0x1.87662ap-3))}, 1},
+    {"Alt 1", {Performance(Performance::Real(0x1.259b36p-6))}, 0},
+    {"Alt 2", {Performance(Performance::Real(0x1.652bf4p-2))}, 1},
+    {"Alt 3", {Performance(Performance::Real(0x1.87662ap-3))}, 1},
   });
 
   std::stringstream ss;
@@ -209,8 +209,8 @@ TEST_CASE("Dump then load preserves data - integer criterion") {
   Alternatives alternatives(
     problem,
     {
-      {"Alt 1", {Performance(Performance::IntegerPerformance(5))}, 0},
-      {"Alt 2", {Performance(Performance::IntegerPerformance(6))}, 1},
+      {"Alt 1", {Performance(Performance::Integer(5))}, 0},
+      {"Alt 2", {Performance(Performance::Integer(6))}, 1},
     }
   );
 
@@ -234,8 +234,8 @@ TEST_CASE("Dump then load preserves data - enumerated criterion") {
   Alternatives alternatives(
     problem,
     {
-      {"Alt 1", {Performance(Performance::EnumeratedPerformance("a"))}, 0},
-      {"Alt 2", {Performance(Performance::EnumeratedPerformance("b b"))}, 1},
+      {"Alt 1", {Performance(Performance::Enumerated("a"))}, 0},
+      {"Alt 2", {Performance(Performance::Enumerated("b b"))}, 1},
     }
   );
 

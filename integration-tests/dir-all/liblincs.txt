@@ -238,13 +238,13 @@ liblincs: module
         __init__: function
         optimize_weights: function
     Performance: class
-        EnumeratedPerformance: class
+        Enumerated: class
             __init__: function
             value: property
-        IntegerPerformance: class
+        Integer: class
             __init__: function
             value: property
-        RealPerformance: class
+        Real: class
             __init__: function
             value: property
         __init__: function

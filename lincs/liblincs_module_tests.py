@@ -425,9 +425,9 @@ class AlternativesTestCase(unittest.TestCase):
         alternatives = Alternatives(
             problem,
             [
-                Alternative("First alternative", [Performance(Performance.RealPerformance(5.)), Performance(Performance.RealPerformance(5.)), Performance(Performance.RealPerformance(5))], 0),
-                Alternative("Second alternative", [Performance(Performance.RealPerformance(1.)), Performance(Performance.RealPerformance(2.)), Performance(Performance.RealPerformance(3.))], None),
-                Alternative("Third alternative", [Performance(Performance.RealPerformance(2.)), Performance(Performance.RealPerformance(4.)), Performance(Performance.RealPerformance(6.))]),
+                Alternative("First alternative", [Performance(Performance.Real(5.)), Performance(Performance.Real(5.)), Performance(Performance.Real(5))], 0),
+                Alternative("Second alternative", [Performance(Performance.Real(1.)), Performance(Performance.Real(2.)), Performance(Performance.Real(3.))], None),
+                Alternative("Third alternative", [Performance(Performance.Real(2.)), Performance(Performance.Real(4.)), Performance(Performance.Real(6.))]),
             ],
         )
         self.assertEqual(len(alternatives.alternatives), 3)
@@ -471,7 +471,7 @@ class AlternativesTestCase(unittest.TestCase):
             Alternatives(
                 problem,
                 [
-                    Alternative("First alternative", [Performance(Performance.RealPerformance(5.)), Performance(Performance.RealPerformance(5.))], 0),
+                    Alternative("First alternative", [Performance(Performance.Real(5.)), Performance(Performance.Real(5.))], 0),
                 ],
             )
         self.assertEqual(cm.exception.args[0], "The profile of an alternative must have as many performances as there are criteria in the problem")
@@ -489,7 +489,7 @@ class AlternativesTestCase(unittest.TestCase):
             Alternatives(
                 problem,
                 [
-                    Alternative("First alternative", [Performance(Performance.IntegerPerformance(5))], 0),
+                    Alternative("First alternative", [Performance(Performance.Integer(5))], 0),
                 ],
             )
         self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the criterion in the problem")

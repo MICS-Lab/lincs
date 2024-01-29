@@ -34,16 +34,16 @@ alternatives = lincs.classification.Alternatives(
         lincs.classification.Alternative(
             "Alice",
             [
-                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(11.)),
-                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(12.)),
+                lincs.classification.Performance(lincs.classification.Performance.Real(11.)),
+                lincs.classification.Performance(lincs.classification.Performance.Real(12.)),
             ],
             1,
         ),
         lincs.classification.Alternative(
             "Bob",
             [
-                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(9.)),
-                lincs.classification.Performance(lincs.classification.Performance.RealPerformance(11.)),
+                lincs.classification.Performance(lincs.classification.Performance.Real(9.)),
+                lincs.classification.Performance(lincs.classification.Performance.Real(11.)),
             ],
             0,
         ),

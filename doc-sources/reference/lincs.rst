@@ -497,16 +497,16 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance
 
-            .. method:: __init__(performance: RealPerformance)
+            .. method:: __init__(performance: Real)
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.__init__
 
-            .. method:: __init__(performance: IntegerPerformance)
+            .. method:: __init__(performance: Integer)
                 :noindex:
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.__init__
 
-            .. method:: __init__(performance: EnumeratedPerformance)
+            .. method:: __init__(performance: Enumerated)
                 :noindex:
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.__init__
@@ -531,57 +531,57 @@
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.is_enumerated
 
-            .. class:: RealPerformance
+            .. class:: Real
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.RealPerformance
+                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Real
 
                 .. method:: __init__(value: float)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.RealPerformance.__init__
+                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Real.__init__
 
                 .. property:: value
                     :type: float
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.RealPerformance.value
+                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Real.value
 
             .. property:: real
-                :type: RealPerformance
+                :type: Real
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.real
 
-            .. class:: IntegerPerformance
+            .. class:: Integer
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.IntegerPerformance
+                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Integer
 
                 .. method:: __init__(value: int)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.IntegerPerformance.__init__
+                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Integer.__init__
 
                 .. property:: value
                     :type: int
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.IntegerPerformance.value
+                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Integer.value
 
             .. property:: integer
-                :type: IntegerPerformance
+                :type: Integer
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.integer
 
-            .. class:: EnumeratedPerformance
+            .. class:: Enumerated
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.EnumeratedPerformance
+                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Enumerated
 
                 .. method:: __init__(value: str)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.EnumeratedPerformance.__init__
+                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Enumerated.__init__
 
                 .. property:: value
                     :type: str
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.EnumeratedPerformance.value
+                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Enumerated.value
 
             .. property:: enumerated
-                :type: EnumeratedPerformance
+                :type: Enumerated
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.enumerated
 

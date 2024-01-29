@@ -281,9 +281,9 @@ void define_alternative_classes() {
   {
     bp::scope scope(
       bp::class_<lincs::Performance>("Performance", bp::no_init)
-        .def(bp::init<lincs::Performance::RealPerformance>((bp::arg("self"), "performance")))
-        .def(bp::init<lincs::Performance::IntegerPerformance>((bp::arg("self"), "performance")))
-        .def(bp::init<lincs::Performance::EnumeratedPerformance>((bp::arg("self"), "performance")))
+        .def(bp::init<lincs::Performance::Real>((bp::arg("self"), "performance")))
+        .def(bp::init<lincs::Performance::Integer>((bp::arg("self"), "performance")))
+        .def(bp::init<lincs::Performance::Enumerated>((bp::arg("self"), "performance")))
         .add_property("value_type", &lincs::Performance::get_value_type)
         .add_property("is_real", &lincs::Performance::is_real)
         .add_property("is_integer", &lincs::Performance::is_integer)
@@ -293,25 +293,25 @@ void define_alternative_classes() {
         .add_property("enumerated",  bp::make_function(&lincs::Performance::get_enumerated, bp::return_value_policy<bp::return_by_value>()))
     );
 
-    bp::class_<lincs::Performance::RealPerformance>(
-      "RealPerformance",
+    bp::class_<lincs::Performance::Real>(
+      "Real",
       bp::init<float>((bp::arg("self"), "value"))
     )
-      .add_property("value", &lincs::Performance::RealPerformance::get_value)
+      .add_property("value", &lincs::Performance::Real::get_value)
     ;
 
-    bp::class_<lincs::Performance::IntegerPerformance>(
-      "IntegerPerformance",
+    bp::class_<lincs::Performance::Integer>(
+      "Integer",
       bp::init<int>((bp::arg("self"), "value"))
     )
-      .add_property("value", &lincs::Performance::IntegerPerformance::get_value)
+      .add_property("value", &lincs::Performance::Integer::get_value)
     ;
 
-    bp::class_<lincs::Performance::EnumeratedPerformance>(
-      "EnumeratedPerformance",
+    bp::class_<lincs::Performance::Enumerated>(
+      "Enumerated",
       bp::init<std::string>((bp::arg("self"), "value"))
     )
-      .add_property("value", bp::make_function(&lincs::Performance::EnumeratedPerformance::get_value, bp::return_value_policy<bp::return_by_value>()))
+      .add_property("value", bp::make_function(&lincs::Performance::Enumerated::get_value, bp::return_value_policy<bp::return_by_value>()))
     ;
   }
 

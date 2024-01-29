@@ -305,27 +305,27 @@ children:
           type: bool
         - name: is_enumerated
           type: bool
-        - name: RealPerformance
+        - name: Real
           children:
             - name: __init__
             - name: value
               type: float
         - name: real
-          type: RealPerformance
-        - name: IntegerPerformance
+          type: Real
+        - name: Integer
           children:
             - name: __init__
             - name: value
               type: int
         - name: integer
-          type: IntegerPerformance
-        - name: EnumeratedPerformance
+          type: Integer
+        - name: Enumerated
           children:
             - name: __init__
             - name: value
               type: str
         - name: enumerated
-          type: EnumeratedPerformance
+          type: Enumerated
     - name: Alternative
       children:
         - name: __init__

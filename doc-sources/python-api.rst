@@ -610,16 +610,16 @@ Create (classified) ``Alternatives``
         lc.Alternative(
             "Unclassified alternative",
             [
-                lc.Performance(lc.Performance.IntegerPerformance(50)),
-                lc.Performance(lc.Performance.EnumeratedPerformance("c")),
+                lc.Performance(lc.Performance.Integer(50)),
+                lc.Performance(lc.Performance.Enumerated("c")),
             ],
             None
         ),
         lc.Alternative(
             "Classified alternative",
             [
-                lc.Performance(lc.Performance.IntegerPerformance(90)),
-                lc.Performance(lc.Performance.EnumeratedPerformance("a")),
+                lc.Performance(lc.Performance.Integer(90)),
+                lc.Performance(lc.Performance.Enumerated("a")),
             ],
             2
         ),

@@ -357,13 +357,13 @@ Alternatives generate_uniform_classified_alternatives(
       profile.push_back(dispatch(
         problem.get_criteria()[criterion_index].get_values(),
         [&real_values_distributions, &gen, criterion_index](const Criterion::RealValues& values) {
-          return Performance(Performance::RealPerformance(real_values_distributions[criterion_index](gen)));
+          return Performance(Performance::Real(real_values_distributions[criterion_index](gen)));
         },
         [&int_values_distributions, &gen, criterion_index](const Criterion::IntegerValues& values) {
-          return Performance(Performance::IntegerPerformance(int_values_distributions[criterion_index](gen)));
+          return Performance(Performance::Integer(int_values_distributions[criterion_index](gen)));
         },
         [&enum_values_distributions, &gen, criterion_index](const Criterion::EnumeratedValues& values) {
-          return Performance(Performance::EnumeratedPerformance(values.get_ordered_values()[enum_values_distributions[criterion_index](gen)]));
+          return Performance(Performance::Enumerated(values.get_ordered_values()[enum_values_distributions[criterion_index](gen)]));
         }
       ));
     }
