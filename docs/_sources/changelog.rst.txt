@@ -4,8 +4,8 @@
 Changelog
 =========
 
-Version 1.1.0a2 (2024-01-29)
-============================
+Version 1.1.0a2, 1.1.0a3 (2024-01-29)
+=====================================
 
 - Build a Docker image on release (not published since 0.5.0)
 
