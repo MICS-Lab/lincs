@@ -1,5 +1,7 @@
 # Copyright 2023-2024 Vincent Jacques
 
+import copy
+import pickle
 import unittest
 import os
 
@@ -100,6 +102,67 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(criterion.enumerated_values.get_value_rank("a a"), 0)
         self.assertEqual(criterion.enumerated_values.get_value_rank("b"), 1)
         self.assertEqual(criterion.enumerated_values.get_value_rank("c"), 2)
+
+    def test_pickle_and_deep_copy(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+        pickled_problem = pickle.dumps(problem)
+        self.assertIsInstance(pickled_problem, bytes)
+        unpickled_problem = pickle.loads(pickled_problem)
+        copied_problem = copy.deepcopy(problem)
+
+        for p in (problem, unpickled_problem, copied_problem):
+            self.assertEqual(len(p.criteria), 3)
+            self.assertEqual(p.criteria[0].name, "Real criterion")
+            self.assertEqual(p.criteria[0].value_type, Criterion.ValueType.real)
+            self.assertTrue(p.criteria[0].is_real)
+            self.assertFalse(p.criteria[0].is_integer)
+            self.assertFalse(p.criteria[0].is_enumerated)
+            self.assertEqual(p.criteria[0].real_values.preference_direction, Criterion.PreferenceDirection.increasing)
+            self.assertEqual(p.criteria[0].real_values.min_value, 5)
+            self.assertEqual(p.criteria[0].real_values.max_value, 10)
+            self.assertEqual(p.criteria[1].name, "Integer criterion")
+            self.assertEqual(p.criteria[1].value_type, Criterion.ValueType.integer)
+            self.assertFalse(p.criteria[1].is_real)
+            self.assertTrue(p.criteria[1].is_integer)
+            self.assertFalse(p.criteria[1].is_enumerated)
+            self.assertEqual(p.criteria[1].integer_values.preference_direction, Criterion.PreferenceDirection.decreasing)
+            self.assertEqual(p.criteria[1].integer_values.min_value, 15)
+            self.assertEqual(p.criteria[1].integer_values.max_value, 100)
+            self.assertEqual(p.criteria[2].name, "Enumerated criterion")
+            self.assertEqual(p.criteria[2].value_type, Criterion.ValueType.enumerated)
+            self.assertFalse(p.criteria[2].is_real)
+            self.assertFalse(p.criteria[2].is_integer)
+            self.assertTrue(p.criteria[2].is_enumerated)
+            self.assertEqual(list(p.criteria[2].enumerated_values.ordered_values), ["a", "b", "c"])
+            self.assertEqual(p.criteria[2].enumerated_values.get_value_rank("a"), 0)
+            self.assertEqual(p.criteria[2].enumerated_values.get_value_rank("b"), 1)
+            self.assertEqual(p.criteria[2].enumerated_values.get_value_rank("c"), 2)
+            self.assertEqual(len(p.ordered_categories), 3)
+            self.assertEqual(p.ordered_categories[0].name, "Bad")
+            self.assertEqual(p.ordered_categories[1].name, "Medium")
+            self.assertEqual(p.ordered_categories[2].name, "Good")
+
+        for p in (unpickled_problem, copied_problem):
+            self.assertIsNot(p, problem)
+            self.assertIsNot(p.criteria, problem.criteria)
+            self.assertIsNot(p.criteria[0], problem.criteria[0])
+            self.assertIsNot(p.criteria[1], problem.criteria[1])
+            self.assertIsNot(p.criteria[2], problem.criteria[2])
+            self.assertIsNot(p.ordered_categories, problem.ordered_categories)
+            self.assertIsNot(p.ordered_categories[0], problem.ordered_categories[0])
+            self.assertIsNot(p.ordered_categories[1], problem.ordered_categories[1])
+            self.assertIsNot(p.ordered_categories[2], problem.ordered_categories[2])
 
 
 class ModelTestCase(unittest.TestCase):
@@ -391,6 +454,95 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.accepted_values[0].enumerated_thresholds.thresholds), 1)
         self.assertEqual(model.accepted_values[0].enumerated_thresholds.thresholds[0], "mid")
 
+    def test_pickle_and_deep_copy(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+        model = Model(
+            problem=problem,
+            accepted_values=[
+                AcceptedValues(AcceptedValues.RealThresholds([7, 9])),
+                AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+            ],
+            sufficient_coalitions=[
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                SufficientCoalitions(SufficientCoalitions.Roots(3, [[0, 1], [0, 2]])),
+            ],
+        )
+        pickled_model = pickle.dumps(model)
+        self.assertIsInstance(pickled_model, bytes)
+        unpickled_model = pickle.loads(pickled_model)
+        copied_model = copy.deepcopy(model)
+
+        for m in (model, unpickled_model, copied_model):
+            self.assertEqual(len(m.accepted_values), 3)
+            self.assertEqual(m.accepted_values[0].value_type, Criterion.ValueType.real)
+            self.assertTrue(m.accepted_values[0].is_real)
+            self.assertFalse(m.accepted_values[0].is_integer)
+            self.assertFalse(m.accepted_values[0].is_enumerated)
+            self.assertEqual(m.accepted_values[0].kind, AcceptedValues.Kind.thresholds)
+            self.assertTrue(m.accepted_values[0].is_thresholds)
+            self.assertEqual(len(m.accepted_values[0].real_thresholds.thresholds), 2)
+            self.assertEqual(m.accepted_values[0].real_thresholds.thresholds[0], 7)
+            self.assertEqual(m.accepted_values[0].real_thresholds.thresholds[1], 9)
+            self.assertEqual(m.accepted_values[1].value_type, Criterion.ValueType.integer)
+            self.assertFalse(m.accepted_values[1].is_real)
+            self.assertTrue(m.accepted_values[1].is_integer)
+            self.assertFalse(m.accepted_values[1].is_enumerated)
+            self.assertEqual(m.accepted_values[1].kind, AcceptedValues.Kind.thresholds)
+            self.assertTrue(m.accepted_values[1].is_thresholds)
+            self.assertEqual(len(m.accepted_values[1].integer_thresholds.thresholds), 2)
+            self.assertEqual(m.accepted_values[1].integer_thresholds.thresholds[0], 50)
+            self.assertEqual(m.accepted_values[1].integer_thresholds.thresholds[1], 25)
+            self.assertEqual(m.accepted_values[2].value_type, Criterion.ValueType.enumerated)
+            self.assertFalse(m.accepted_values[2].is_real)
+            self.assertFalse(m.accepted_values[2].is_integer)
+            self.assertTrue(m.accepted_values[2].is_enumerated)
+            self.assertEqual(m.accepted_values[2].kind, AcceptedValues.Kind.thresholds)
+            self.assertTrue(m.accepted_values[2].is_thresholds)
+            self.assertEqual(len(m.accepted_values[2].enumerated_thresholds.thresholds), 2)
+            self.assertEqual(m.accepted_values[2].enumerated_thresholds.thresholds[0], "b")
+            self.assertEqual(m.accepted_values[2].enumerated_thresholds.thresholds[1], "c")
+            self.assertEqual(len(m.sufficient_coalitions), 2)
+            self.assertEqual(m.sufficient_coalitions[0].kind, SufficientCoalitions.Kind.weights)
+            self.assertTrue(m.sufficient_coalitions[0].is_weights)
+            self.assertFalse(m.sufficient_coalitions[0].is_roots)
+            self.assertEqual(len(m.sufficient_coalitions[0].weights.criterion_weights), 3)
+            self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[0], 0.5)
+            self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[1], 0.5)
+            self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[2], 0.5)
+            self.assertEqual(m.sufficient_coalitions[1].kind, SufficientCoalitions.Kind.roots)
+            self.assertFalse(m.sufficient_coalitions[1].is_weights)
+            self.assertTrue(m.sufficient_coalitions[1].is_roots)
+            self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[0][0], 0)
+            self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[0][1], 1)
+            self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[1][0], 0)
+            self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[1][1], 2)
+
+        for m in (unpickled_model, copied_model):
+            self.assertIsNot(m, model)
+            self.assertIsNot(m.accepted_values, model.accepted_values)
+            self.assertIsNot(m.accepted_values[0], model.accepted_values[0])
+            self.assertIsNot(m.accepted_values[1], model.accepted_values[1])
+            self.assertIsNot(m.accepted_values[2], model.accepted_values[2])
+            self.assertIsNot(m.sufficient_coalitions, model.sufficient_coalitions)
+            self.assertIsNot(m.sufficient_coalitions[0], model.sufficient_coalitions[0])
+            self.assertIsNot(m.sufficient_coalitions[1], model.sufficient_coalitions[1])
+
+    def test_pickle_empty_roots(self):
+        r = pickle.loads(pickle.dumps(SufficientCoalitions.Roots(3, [])))
+        self.assertEqual(r.upset_roots, [])
+
 
 class AlternativesTestCase(unittest.TestCase):
     def test_init_wrong_types(self):
@@ -493,6 +645,50 @@ class AlternativesTestCase(unittest.TestCase):
                 ],
             )
         self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the criterion in the problem")
+
+    def test_pickle_and_deep_copy(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+        alternatives = Alternatives(
+            problem,
+            [
+                Alternative("First alternative", [Performance(Performance.Real(8.)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("a"))], 0),
+                Alternative("Second alternative", [Performance(Performance.Real(6.)), Performance(Performance.Integer(50)), Performance(Performance.Enumerated("b"))], None),
+            ],
+        )
+        pickled_alternatives = pickle.dumps(alternatives)
+        self.assertIsInstance(pickled_alternatives, bytes)
+        unpickled_alternatives = pickle.loads(pickled_alternatives)
+        copied_alternatives = copy.deepcopy(alternatives)
+
+        for a in (alternatives, unpickled_alternatives, copied_alternatives):
+            self.assertEqual(len(a.alternatives), 2)
+            self.assertEqual(a.alternatives[0].name, "First alternative")
+            self.assertEqual(a.alternatives[0].profile[0].real.value, 8.)
+            self.assertEqual(a.alternatives[0].profile[1].integer.value, 25)
+            self.assertEqual(a.alternatives[0].profile[2].enumerated.value, "a")
+            self.assertEqual(a.alternatives[0].category_index, 0)
+            self.assertEqual(a.alternatives[1].name, "Second alternative")
+            self.assertEqual(a.alternatives[1].profile[0].real.value, 6.)
+            self.assertEqual(a.alternatives[1].profile[1].integer.value, 50)
+            self.assertEqual(a.alternatives[1].profile[2].enumerated.value, "b")
+            self.assertIsNone(a.alternatives[1].category_index)
+
+        for a in (unpickled_alternatives, copied_alternatives):
+            self.assertIsNot(a, alternatives)
+            self.assertIsNot(a.alternatives, alternatives.alternatives)
+            self.assertIsNot(a.alternatives[0], alternatives.alternatives[0])
+            self.assertIsNot(a.alternatives[1], alternatives.alternatives[1])
 
 
 class LearningTestCase(unittest.TestCase):

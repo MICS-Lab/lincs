@@ -121,6 +121,16 @@ liblincs: module
         __init__: wrapper_descriptor
         args: getset_descriptor
         with_traceback: method_descriptor
+    Enumerated: class
+        __init__: function
+        value: property
+    EnumeratedThresholds: class
+        __init__: function
+        thresholds: property
+    EnumeratedValues: class
+        __init__: function
+        get_value_rank: function
+        ordered_values: property
     ImproveProfilesWithAccuracyHeuristicOnCpu: class
         __init__: function
         improve_profiles: function
@@ -130,6 +140,19 @@ liblincs: module
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion: class
         __init__: function
         initialize_profiles: function
+    Integer: class
+        __init__: function
+        value: property
+    IntegerThresholds: class
+        __init__: function
+        thresholds: property
+    IntegerValues: class
+        __init__: function
+        is_decreasing: property
+        is_increasing: property
+        max_value: property
+        min_value: property
+        preference_direction: property
     Iterable[AcceptedValues]: class
         __init__: function
         append: function
@@ -182,6 +205,22 @@ liblincs: module
         __init__: function
         append: function
         extend: function
+    Kind: type
+        __init__: wrapper_descriptor
+        as_integer_ratio: method_descriptor
+        bit_length: method_descriptor
+        conjugate: method_descriptor
+        denominator: getset_descriptor
+        from_bytes: builtin_function_or_method
+        imag: getset_descriptor
+        name: member_descriptor
+        names: dict
+        numerator: getset_descriptor
+        real: getset_descriptor
+        roots: Kind
+        to_bytes: method_descriptor
+        values: dict
+        weights: Kind
     LearnMrsortByWeightsProfilesBreed: class
         BreedingStrategy: class
             __init__: function
@@ -255,6 +294,24 @@ liblincs: module
         is_real: property
         real: property
         value_type: property
+    PreferenceDirection: type
+        __init__: wrapper_descriptor
+        antitone: PreferenceDirection
+        as_integer_ratio: method_descriptor
+        bit_length: method_descriptor
+        conjugate: method_descriptor
+        decreasing: PreferenceDirection
+        denominator: getset_descriptor
+        from_bytes: builtin_function_or_method
+        imag: getset_descriptor
+        increasing: PreferenceDirection
+        isotone: PreferenceDirection
+        name: member_descriptor
+        names: dict
+        numerator: getset_descriptor
+        real: getset_descriptor
+        to_bytes: method_descriptor
+        values: dict
     Problem: class
         JSON_SCHEMA: str
         __init__: function
@@ -262,9 +319,25 @@ liblincs: module
         dump: function
         load: function
         ordered_categories: property
+    Real: class
+        __init__: function
+        value: property
+    RealThresholds: class
+        __init__: function
+        thresholds: property
+    RealValues: class
+        __init__: function
+        is_decreasing: property
+        is_increasing: property
+        max_value: property
+        min_value: property
+        preference_direction: property
     ReinitializeLeastAccurate: class
         __init__: function
         breed: function
+    Roots: class
+        __init__: function
+        upset_roots: property
     SufficientCoalitions: class
         Kind: type
             __init__: wrapper_descriptor
@@ -312,6 +385,25 @@ liblincs: module
     TerminateWhenAny: class
         __init__: function
         terminate: function
+    ValueType: type
+        __init__: wrapper_descriptor
+        as_integer_ratio: method_descriptor
+        bit_length: method_descriptor
+        conjugate: method_descriptor
+        denominator: getset_descriptor
+        enumerated: ValueType
+        from_bytes: builtin_function_or_method
+        imag: getset_descriptor
+        integer: ValueType
+        name: member_descriptor
+        names: dict
+        numerator: getset_descriptor
+        real: ValueType
+        to_bytes: method_descriptor
+        values: dict
+    Weights: class
+        __init__: function
+        criterion_weights: property
     classify_alternatives: function
     generate_classification_problem: function
     generate_classified_alternatives: function

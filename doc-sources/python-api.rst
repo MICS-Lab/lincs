@@ -685,6 +685,8 @@ Create (classified) ``Alternatives``
 
 
 
+@todo(Documentation, v1.1) Talk about ``copy.deepcopy`` and ``pickle``
+
 Load from files
 ---------------
 

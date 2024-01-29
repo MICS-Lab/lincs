@@ -164,7 +164,7 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
     );
   }
 
-  // @todo(Feature, v1.1) Validate the constraints of NCS models (inclusions of sufficient coalitions, of accepted values, etc.)
+  // @todo(Feature, v1.1) Validate the constraints of NCS models (inclusions of sufficient coalitions, of accepted values (ordering of thresholds), that thresholds belong to the criterion's values, etc.)
   // The issue is: we're dealing with floating point data, so we need to analyse if precision loss could lead us to reject an actually correct model.
 }
 

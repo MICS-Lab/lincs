@@ -135,6 +135,7 @@ class SufficientCoalitions {
    public:
     Roots(const std::vector<boost::dynamic_bitset<>>& upset_roots_) : upset_roots(upset_roots_) {}
 
+    // @todo(Feature, v1.1) Should this ctor accept the Problem instead of the criteria_count?
     Roots(const unsigned criteria_count, const std::vector<std::vector<unsigned>>& upset_roots_) {
       upset_roots.reserve(upset_roots_.size());
       for (const auto& root: upset_roots_) {
@@ -199,6 +200,12 @@ class SufficientCoalitions {
 class Model {
  public:
   Model(const Problem&, const std::vector<AcceptedValues>&, const std::vector<SufficientCoalitions>&);
+
+  // @todo(Project management, v1.1) Make this ctor private
+  Model(const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
+    accepted_values(accepted_values_),
+    sufficient_coalitions(sufficient_coalitions_)
+  {}
 
   // Copyable and movable
   Model(const Model&) = default;
