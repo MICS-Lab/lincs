@@ -101,7 +101,7 @@ class AcceptedValues {
   }
 
  private:
-  Self self;  // @todo(Feature, v1.1) Evaluate wether we could remove the class and use directly the variant. Are there any potential future attributes to be added?
+  Self self;
 };
 
 class SufficientCoalitions {
@@ -193,7 +193,7 @@ class SufficientCoalitions {
   const Roots& get_roots() const { return std::get<Roots>(self); }
 
  private:
-  Self self;  // @todo(Feature, v1.1) Evaluate wether we could remove the class and use directly the variant. Are there any potential future attributes to be added?
+  Self self;
 };
 
 class Model {

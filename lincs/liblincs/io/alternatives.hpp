@@ -87,7 +87,7 @@ class Performance {
   EnumeratedPerformance get_enumerated() const { return std::get<EnumeratedPerformance>(self); }
 
  private:
-  Self self;  // @todo(Feature, v1.1) Evaluate wether we could remove the class and use directly the variant. Are there any potential future attributes to be added?
+  Self self;
 };
 
 class Alternative {
