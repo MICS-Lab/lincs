@@ -1,12 +1,12 @@
 # Copyright 2023-2024 Vincent Jacques
 
 from __future__ import annotations
+
 import contextlib
 import json
 import math
 import os
 import random
-import re
 import sys
 
 import click
@@ -89,9 +89,6 @@ def options_tree(name, kwds, dependents):
 @click.version_option(version=lincs.__version__, message="%(version)s")
 def main():
     pass
-
-
-# @todo(Project management, v1.1) Add a integration test (notebook) that performs a recursive dir on lincs and liblincs
 
 
 @main.group(

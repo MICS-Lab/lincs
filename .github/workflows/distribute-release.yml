@@ -327,6 +327,7 @@ jobs:
           verbose: true
 
 # @todo(Project Management, v1.1) Publish a Docker image with lincs pre-installed?
+# See https://github.com/MICS-Lab/lincs/actions/new
 
   # @todo(Project Management, later) Purge previous artifacts to avoid using storage on MISCLab's account
   # This requires a token with appropriate permissions on the org-owned repo.
