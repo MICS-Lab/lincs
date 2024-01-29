@@ -1,6 +1,6 @@
 children:
   - name: __version__
-    doc: The version of *lincs*, as a string in `SemVer <https://semver.org/>`_ format
+    doc: The version of *lincs*, as a string in `Version Specifier <https://packaging.python.org/en/latest/specifications/version-specifiers/>`_ format
   - name: has_gpu
     doc: "``True`` if *lincs* was compiled with CUDA support"
 
