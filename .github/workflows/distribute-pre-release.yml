@@ -184,8 +184,8 @@ jobs:
           path: docker
 
       - name: Build the Docker image
-        run: docker build --pull --no-cache --tag jacquev6/lincs:1.1.0a1 docker
+        run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker
       - name: Login into Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD_JACQUEV6 }}" | docker login -u jacquev6 --password-stdin
       - name: Push the Docker image
-        run: docker push jacquev6/lincs:1.1.0a1
+        run: docker push jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//')
