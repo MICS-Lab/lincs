@@ -409,31 +409,53 @@ def update_templates():
 def convert_notebooks():
     for name in ["python-api"]:
         input_path = f"doc-sources/{name}/{name}.ipynb"
-        output_path = f"doc-sources/{name}.rst"
+        output_path = f"doc-sources/{name}.md"
         print(input_path, "->", output_path)
 
         shutil.rmtree(f"doc-sources/{name}_files", ignore_errors=True)
 
         subprocess.run(
-            ["jupyter", "nbconvert", "--to", "rst", input_path, "--output-dir", "doc-sources"],
+            ["jupyter", "nbconvert", "--to", "markdown", input_path, "--output-dir", "doc-sources"],
             check=True,
             capture_output=True,
         )
 
         with open(output_path) as f:
-            content = f.read()
+            old_lines = [line.rstrip() for line in f.readlines()]
 
-        content = re.sub(r"`(.*?) <https://mics-lab.github.io/lincs/(.*?)\.html>`__", r":doc:`\1 <\2>`", content, flags=re.DOTALL)
-        content = content.replace('“', '"').replace('”', '"').replace("\\ ’", "'").replace("’", "'")
-        content = content.replace(":doc:``generate_problem``", "``generate_problem``")
-
-        content = content.replace(".. code:: ipython3", ".. code:: python")
-        content = content.replace(".. parsed-literal::", ".. code:: text")
-        content = content.replace(".. code:: text\n\n    kind:", ".. code:: yaml\n\n    kind:")
+        new_lines = [
+            f"<!-- WARNING: this file is generated from '{input_path}'. MANUAL EDITS WILL BE LOST. -->",
+            "",
+        ]
+        in_block = False
+        in_python = False
+        for line in old_lines:
+            line = re.sub(r"\[(.*?)\]\(https://mics-lab.github.io/lincs/(.*?)\.html\)", r"{doc}`\1 <\2>`", line)
+            if in_python:
+                if line.startswith("```"):
+                    in_python = False
+            else:
+                if line.startswith("```python"):
+                    in_python = True
+            if not in_python:
+                if not in_block:
+                    if line.startswith("    kind:"):
+                        new_lines.append("```yaml")
+                        in_block = True
+                    elif line.startswith("    "):
+                        new_lines.append("```text")
+                        in_block = True
+                if in_block:
+                    if line.startswith("    "):
+                        line = line[4:]
+                    else:
+                        in_block = False
+                        new_lines.append("```")
+            new_lines.append(line)
 
         with open(output_path, "w") as f:
-            f.write(f".. WARNING: this file is generated from '{input_path}'. MANUAL EDITS WILL BE LOST.\n\n")
-            f.write(content)
+            for line in new_lines:
+                f.write(line + "\n")
 
 
 def make_python_reference():

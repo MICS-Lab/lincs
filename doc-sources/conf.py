@@ -62,3 +62,7 @@ extensions.append("sphinx-jsonschema")
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-the-python-domain
 
 python_use_unqualified_type_names = True
+
+# Markdown
+
+extensions.append("myst_parser")
