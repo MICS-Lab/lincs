@@ -204,7 +204,7 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
       }
     );
   }
-  for (unsigned coalition_index = 0; coalition_index != 1 << criteria_count; ++coalition_index) {
+  for (unsigned coalition_index = 0; coalition_index != unsigned(1 << criteria_count); ++coalition_index) {
     boost::dynamic_bitset<> coalition(criteria_count, coalition_index);
     for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
       bool accepted_by_upper = std::visit(
