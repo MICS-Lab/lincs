@@ -200,7 +200,7 @@ void define_problem_classes() {
   };
 
   bp::class_<lincs::Category>("Category", "A category of a classification ``Problem``", bp::init<std::string>((bp::arg("self"), "name")))
-    // @todo(Project management, v1.1) Investigate return policies and stop returning everything by values, where const refs would be more appropriate
+    // @todo(Performance, v1.2) Investigate return policies and stop returning everything by values, where const refs would be more appropriate
     .add_property("name", bp::make_function(&lincs::Category::get_name, bp::return_value_policy<bp::return_by_value>()), "The name of this category")
     .def_pickle(CategoryPickleSuite())
   ;
