@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "../chrones.hpp"
+#include "../classification.hpp"
 #include "../unreachable.hpp"
 #include "../vendored/magic_enum.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
@@ -135,17 +136,56 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
   const unsigned boundaries_count = categories_count - 1;
   validate(accepted_values.size() == criteria_count, "The number of accepted values descriptors in the model must be equal to the number of criteria in the problem");
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    validate(accepted_values[criterion_index].get_value_type() == problem.get_criteria()[criterion_index].get_value_type(), "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion");
+    const auto& criterion = problem.get_criteria()[criterion_index];
+    validate(accepted_values[criterion_index].get_value_type() == criterion.get_value_type(), "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion");
     dispatch(
       accepted_values[criterion_index].get(),
-      [boundaries_count](const AcceptedValues::RealThresholds& thresholds) {
+      [&criterion, criterion_index, boundaries_count](const AcceptedValues::RealThresholds& thresholds) {
         validate(thresholds.get_thresholds().size() == boundaries_count, "The number of real thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+        const auto& criterion_values = criterion.get_real_values();
+        for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+          validate(criterion_values.is_acceptable(thresholds.get_thresholds()[boundary_index]), "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding real criterion");
+        }
+        for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
+          validate(
+            better_or_equal(
+              criterion_values.get_preference_direction(),
+              thresholds.get_thresholds()[boundary_index],
+              thresholds.get_thresholds()[boundary_index - 1]
+            ),
+            "The real thresholds in an accepted values descriptor must be in preference order"
+          );
+        }
       },
-      [boundaries_count](const AcceptedValues::IntegerThresholds& thresholds) {
+      [&criterion, criterion_index, boundaries_count](const AcceptedValues::IntegerThresholds& thresholds) {
         validate(thresholds.get_thresholds().size() == boundaries_count, "The number of integer thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+        const auto& criterion_values = criterion.get_integer_values();
+        for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+          validate(criterion_values.is_acceptable(thresholds.get_thresholds()[boundary_index]), "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding integer criterion");
+        }
+        for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
+          validate(
+            better_or_equal(
+              criterion.get_integer_values().get_preference_direction(),
+              thresholds.get_thresholds()[boundary_index],
+              thresholds.get_thresholds()[boundary_index - 1]
+            ),
+            "The integer thresholds in an accepted values descriptor must be in preference order"
+          );
+        }
       },
-      [boundaries_count](const AcceptedValues::EnumeratedThresholds& thresholds) {
+      [&criterion, criterion_index, boundaries_count](const AcceptedValues::EnumeratedThresholds& thresholds) {
         validate(thresholds.get_thresholds().size() == boundaries_count, "The number of enumerated thresholds in an accepted values descriptor must be one less than the number of categories in the problem");
+        const auto& criterion_values = criterion.get_enumerated_values();
+        for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+          validate(criterion_values.is_acceptable(thresholds.get_thresholds()[boundary_index]), "Each threshold in an accepted values descriptor must be in the enumerated values for the corresponding criterion");
+        }
+        for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
+          validate(
+            criterion_values.get_value_rank(thresholds.get_thresholds()[boundary_index]) >= criterion_values.get_value_rank(thresholds.get_thresholds()[boundary_index - 1]),
+            "The enumerated thresholds in an accepted values descriptor must be in preference order"
+          );
+        }
       }
     );
   };

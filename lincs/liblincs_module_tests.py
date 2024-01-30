@@ -546,6 +546,152 @@ class ModelTestCase(unittest.TestCase):
         r = pickle.loads(pickle.dumps(SufficientCoalitions.Roots(problem, [])))
         self.assertEqual(r.upset_roots, [])
 
+    def test_init_unordered_profiles(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+
+        Model(
+            problem, [
+                AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+            ], [
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+            ],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([9., 7.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The real thresholds in an accepted values descriptor must be in preference order")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([25, 50])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The integer thresholds in an accepted values descriptor must be in preference order")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "a"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "The enumerated thresholds in an accepted values descriptor must be in preference order")
+
+    def test_init_profiles_outside_range(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+
+        Model(
+            problem, [
+                AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+            ], [
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+            ],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([3., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding real criterion")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 11.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding real criterion")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 10])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding integer criterion")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([110, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding integer criterion")
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "d"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "Each threshold in an accepted values descriptor must be in the enumerated values for the corresponding criterion")
+
 
 class AlternativesTestCase(unittest.TestCase):
     def test_init_wrong_types(self):

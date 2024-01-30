@@ -48,6 +48,8 @@ class Criterion {
 
     float get_max_value() const { return max_value; }
 
+    bool is_acceptable(float value) const { return min_value <= value && value <= max_value; }
+
    private:
     PreferenceDirection preference_direction;
     float min_value;
@@ -75,6 +77,8 @@ class Criterion {
     int get_min_value() const { return min_value; }
 
     int get_max_value() const { return max_value; }
+
+    bool is_acceptable(int value) const { return min_value <= value && value <= max_value; }
 
    private:
     PreferenceDirection preference_direction;
@@ -104,6 +108,8 @@ class Criterion {
     const std::map<std::string, unsigned>& get_value_ranks() const { return value_ranks; }
 
     unsigned get_value_rank(const std::string& value) const { return value_ranks.at(value); }
+
+    bool is_acceptable(const std::string& value) const { return value_ranks.count(value) == 1; }
 
    private:
     std::vector<std::string> ordered_values;
