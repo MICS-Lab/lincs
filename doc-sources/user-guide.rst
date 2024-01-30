@@ -204,6 +204,7 @@ and using different coalitions for the two boundaries (so, no YAML anchor):
       - kind: roots
         upset_roots:
           - [1]
+          - [0, 2]
       - kind: roots
         upset_roots:
           - [0, 2]

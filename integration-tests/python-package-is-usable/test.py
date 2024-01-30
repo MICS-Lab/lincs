@@ -7,8 +7,8 @@ import lincs
 
 problem = lincs.classification.Problem(
     [
-        lincs.classification.Criterion("Physics grade", lincs.classification.Criterion.RealValues(lincs.classification.Criterion.PreferenceDirection.increasing, 0, 1)),
-        lincs.classification.Criterion("Literature grade", lincs.classification.Criterion.RealValues(lincs.classification.Criterion.PreferenceDirection.increasing, 0, 1)),
+        lincs.classification.Criterion("Physics grade", lincs.classification.Criterion.RealValues(lincs.classification.Criterion.PreferenceDirection.increasing, 0, 20)),
+        lincs.classification.Criterion("Literature grade", lincs.classification.Criterion.RealValues(lincs.classification.Criterion.PreferenceDirection.increasing, 0, 20)),
     ],
     (
         lincs.classification.Category("Bad"),

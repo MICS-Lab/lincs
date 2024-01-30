@@ -11,6 +11,7 @@ sufficient_coalitions:
   - kind: roots
     upset_roots:
       - [1]
+      - [0, 2]
   - kind: roots
     upset_roots:
       - [0, 2]
