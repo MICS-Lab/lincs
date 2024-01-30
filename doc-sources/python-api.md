@@ -128,7 +128,7 @@ lc.visualize_model(problem, model, [], axes)
 
 
 
-![png](python-api_files/python-api_13_0.png)
+![png](python-api_files/python-api_15_0.png)
 
 
 
@@ -189,7 +189,7 @@ lc.visualize_model(problem, model, learning_set.alternatives[:5], axes)
 
 
 
-![png](python-api_files/python-api_21_0.png)
+![png](python-api_files/python-api_23_0.png)
 
 
 
@@ -272,8 +272,6 @@ This covers what was done in our "Get started" guide.
 As you can see the Python API is more verbose, but for good reasons: it's more powerful as you'll see in the next section.
 
 ## Do more, with the Python API
-
-@todo(Documentation, v1.1) Write this section
 
 ### Create classification objects
 
@@ -699,8 +697,114 @@ problem.ordered_categories[alternatives.alternatives[1].category_index].name
 
 
 
-@todo(Documentation, v1.1) Talk about `copy.deepcopy` and `pickle`
+### Clone classification objects
 
-## Load from files
+Just use [`copy.deepcopy`](https://docs.python.org/3/library/copy.html#copy.deepcopy):
 
-@todo(Documentation, v1.1) Demonstrate and document loading from files
+
+```python
+import copy
+
+copied_problem = copy.deepcopy(problem)
+copied_model = copy.deepcopy(model)
+copied_alternatives = copy.deepcopy(alternatives)
+```
+
+This is especially useful *e.g.* if you want to identify alternatives that are classified differently by two models, because `lc.classify_alternatives` mutates the alternatives: clone the `Alternatives`, classify the copy and iterate over the [`zip`](https://docs.python.org/3/library/functions.html#zip) of both `Alternatives`, comparing their `.category_index`.
+
+### Serialize classification objects
+
+#### In YAML and CSV like the command-line
+
+(and the upcomming C++ API)
+
+Classification objects have a `.dump` method, and their classes have a static `.load` method that accept file-like objects.
+
+We've used them above to print classification objects to `sys.stdout`. Here is an example of how to use them with actual files:
+
+
+```python
+with open("problem.yml", "w") as f:
+    problem.dump(f)
+
+with open("model.yml", "w") as f:
+    model.dump(problem, f)
+
+with open("alternatives.csv", "w") as f:
+    alternatives.dump(problem, f)
+
+with open("problem.yml") as f:
+    problem = lc.Problem.load(f)
+
+with open("model.yml") as f:
+    model = lc.Model.load(problem, f)
+
+with open("alternatives.csv") as f:
+    alternatives = lc.Alternatives.load(problem, f)
+```
+
+And here with in-memory [io](https://docs.python.org/3/library/io.html) objects:
+
+
+```python
+f = io.StringIO()
+problem.dump(f)
+s = f.getvalue()
+print(s)
+```
+
+```yaml
+kind: classification-problem
+format_version: 1
+criteria:
+  - name: Physics grade
+    value_type: integer
+    preference_direction: increasing
+    min_value: 0
+    max_value: 100
+  - name: Literature grade
+    value_type: enumerated
+    ordered_values: [f, e, d, c, b, a]
+ordered_categories:
+  - name: Failed
+  - name: Passed
+  - name: Congratulations
+```
+
+
+
+
+```python
+f = io.StringIO(s)
+problem = lc.Problem.load(f)
+```
+
+#### Using the Python-specific `pickle` module
+
+Classification objects simply support [pickling](https://docs.python.org/3/library/pickle.html) and unpickling. We recommend using the YAML and CSV formats whenever possible because they are not tied to the Python language (or the *lincs* library for that matter).
+
+
+```python
+import pickle
+
+pickle.loads(pickle.dumps(problem)).dump(sys.stdout)
+```
+
+```yaml
+kind: classification-problem
+format_version: 1
+criteria:
+  - name: Physics grade
+    value_type: integer
+    preference_direction: increasing
+    min_value: 0
+    max_value: 100
+  - name: Literature grade
+    value_type: enumerated
+    ordered_values: [f, e, d, c, b, a]
+ordered_categories:
+  - name: Failed
+  - name: Passed
+  - name: Congratulations
+```
+

@@ -4,7 +4,7 @@
 .. from appearing in the navigation bar on the left. This is unrelated to the use of '.. include::'.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :hidden:
 
    self
