@@ -155,7 +155,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
         std::generate(
           ranks.begin(), ranks.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
-        std::sort(ranks.begin(), ranks.end(), [](float left, float right) { return right >= left; });
+        std::sort(ranks.begin(), ranks.end(), [](unsigned left, unsigned right) { return right >= left; });
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
           profiles[profile_index][criterion_index] = values.get_ordered_values()[ranks[profile_index]];
         }
