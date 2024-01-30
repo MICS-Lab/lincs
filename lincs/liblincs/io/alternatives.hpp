@@ -8,6 +8,7 @@
 #include <variant>
 #include <vector>
 
+#include "../internal.hpp"
 #include "problem.hpp"
 
 
@@ -126,8 +127,7 @@ class Alternatives {
  public:
   Alternatives(const Problem&, const std::vector<Alternative>&);
 
-  // @todo(Project management, v1.1) Make this ctor private
-  Alternatives(const std::vector<Alternative>& alternatives_) : alternatives(alternatives_) {}
+  Alternatives(Internal, const std::vector<Alternative>& alternatives_) : alternatives(alternatives_) {}
 
  public:
   bool operator==(const Alternatives& other) const {

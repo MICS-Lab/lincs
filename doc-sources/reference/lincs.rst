@@ -469,11 +469,6 @@
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Model.__init__
 
-            .. method:: __init__(accepted_values: Iterable[AcceptedValues], sufficient_coalitions: Iterable[SufficientCoalitions])
-                :noindex:
-
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Model.__init__
-
             .. property:: accepted_values
                 :type: Iterable[AcceptedValues]
 
@@ -618,11 +613,6 @@
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternatives
 
             .. method:: __init__(problem: Problem, alternatives: Iterable[Alternative])
-
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternatives.__init__
-
-            .. method:: __init__(alternatives: Iterable[Alternative])
-                :noindex:
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternatives.__init__
 

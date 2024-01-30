@@ -514,6 +514,8 @@ def make_python_reference():
                     continue
                 doc = doc.splitlines()
                 signature = doc[0]
+                if "(Internal)internal" in signature:
+                    continue
                 doc = "\n".join(d.strip() for d in doc[1:])
                 if not doc:
                     doc = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}"

@@ -5,6 +5,7 @@
 
 #include <boost/dynamic_bitset.hpp>
 
+#include "../internal.hpp"
 #include "problem.hpp"
 
 
@@ -201,8 +202,7 @@ class Model {
  public:
   Model(const Problem&, const std::vector<AcceptedValues>&, const std::vector<SufficientCoalitions>&);
 
-  // @todo(Project management, v1.1) Make this ctor private
-  Model(const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
+  Model(Internal, const std::vector<AcceptedValues>& accepted_values_, const std::vector<SufficientCoalitions>& sufficient_coalitions_) :
     accepted_values(accepted_values_),
     sufficient_coalitions(sufficient_coalitions_)
   {}

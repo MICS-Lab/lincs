@@ -87,6 +87,18 @@ auto auto_enum(const char* name, const char* docstring = nullptr) {
 
 namespace lincs {
 
+void define_internal_classes() {
+  struct InternalPickleSuite : bp::pickle_suite {
+    static bp::tuple getinitargs(const lincs::Internal& internal) {
+      return bp::make_tuple();
+    }
+  };
+
+  bp::class_<lincs::Internal>("Internal", bp::init<>(bp::arg("self")))
+    .def_pickle(InternalPickleSuite())
+  ;
+}
+
 void define_problem_classes() {
   struct CriterionPickleSuite : bp::pickle_suite {
     static bp::tuple getinitargs(const lincs::Criterion& criterion) {
@@ -357,7 +369,7 @@ void define_model_classes() {
 
   struct ModelPickleSuite : bp::pickle_suite {
     static bp::tuple getinitargs(const lincs::Model& model) {
-      return bp::make_tuple(bp::list(model.get_accepted_values()), bp::list(model.get_sufficient_coalitions()));
+      return bp::make_tuple(lincs::Internal(), bp::list(model.get_accepted_values()), bp::list(model.get_sufficient_coalitions()));
     }
   };
 
@@ -366,8 +378,7 @@ void define_model_classes() {
     bp::no_init
   )
     .def(bp::init<const lincs::Problem&, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>((bp::arg("self"), "problem", "accepted_values", "sufficient_coalitions")))
-    // @todo(Project management, v1.1) Make sure this ctor is *not* documented in the reference: it's only for unpickling
-    .def(bp::init<const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>((bp::arg("self"), "accepted_values", "sufficient_coalitions")))
+    .def(bp::init<lincs::Internal, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>((bp::arg("self"), "internal", "accepted_values", "sufficient_coalitions")))
     .add_property("accepted_values", bp::make_function(&lincs::Model::get_accepted_values, bp::return_value_policy<bp::return_by_value>()), "The accepted values for each criterion")
     .add_property("sufficient_coalitions", bp::make_function(&lincs::Model::get_sufficient_coalitions, bp::return_value_policy<bp::return_by_value>()), "The sufficient coalitions for each category")
     .def(
@@ -474,7 +485,7 @@ void define_alternative_classes() {
 
   struct AlternativesPickleSuite : bp::pickle_suite {
     static bp::tuple getinitargs(const lincs::Alternatives& alternatives) {
-      return bp::make_tuple(bp::list(alternatives.get_alternatives()));
+      return bp::make_tuple(lincs::Internal(), bp::list(alternatives.get_alternatives()));
     }
   };
 
@@ -483,8 +494,7 @@ void define_alternative_classes() {
     bp::no_init
   )
     .def(bp::init<const lincs::Problem&, const std::vector<lincs::Alternative>&>((bp::arg("self"), "problem", "alternatives")))
-    // @todo(Project management, v1.1) Make sure this ctor is *not* documented in the reference: it's only for unpickling
-    .def(bp::init<const std::vector<lincs::Alternative>&>((bp::arg("self"), "alternatives")))
+    .def(bp::init<lincs::Internal, const std::vector<lincs::Alternative>&>((bp::arg("self"), "internal", "alternatives")))
     .add_property("alternatives", bp::make_function(&lincs::Alternatives::get_alternatives, bp::return_value_policy<bp::return_by_value>()))
     .def(
       "dump",
@@ -512,6 +522,7 @@ void define_io_classes() {
   );
   bp::scope().attr("DataValidationException") = bp::handle<>(bp::borrowed(DataValidationException_wrapper));
 
+  define_internal_classes();
   define_problem_classes();
   define_model_classes();
   define_alternative_classes();

@@ -153,6 +153,8 @@ liblincs: module
         max_value: property
         min_value: property
         preference_direction: property
+    Internal: class
+        __init__: function
     Iterable[AcceptedValues]: class
         __init__: function
         append: function
