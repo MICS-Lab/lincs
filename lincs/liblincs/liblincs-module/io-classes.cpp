@@ -351,9 +351,9 @@ void define_model_classes() {
     static bp::tuple getinitargs(const lincs::SufficientCoalitions::Roots& roots) {
       const auto& bitsets = roots.get_upset_roots_as_bitsets();
       if (bitsets.empty()) {
-        return bp::make_tuple(0, bp::list());
+        return bp::make_tuple(lincs::Internal(), 0, bp::list());
       } else {
-        return bp::make_tuple(bitsets[0].size(), bp::list(roots.get_upset_roots_as_vectors()));
+        return bp::make_tuple(lincs::Internal(), bitsets[0].size(), bp::list(roots.get_upset_roots_as_vectors()));
       }
     }
   };
@@ -361,8 +361,10 @@ void define_model_classes() {
   sufficient_coalitions_class.attr("Roots") = bp::class_<lincs::SufficientCoalitions::Roots>(
     "Roots",
     "Descriptor for sufficient coalitions defined by roots",
-    bp::init<unsigned, const std::vector<std::vector<unsigned>>&>((bp::arg("self"), "criteria_count", "upset_roots"))
+    bp::no_init
   )
+    .def(bp::init<const Problem&, const std::vector<std::vector<unsigned>>&>((bp::arg("self"), "problem", "upset_roots")))
+    .def(bp::init<lincs::Internal, unsigned, const std::vector<std::vector<unsigned>>&>((bp::arg("self"), "internal", "criteria_count", "upset_roots")))
     .add_property("upset_roots", bp::make_function(&lincs::SufficientCoalitions::Roots::get_upset_roots_as_vectors, bp::return_value_policy<bp::return_by_value>()), "The roots of the upset of sufficient coalitions")
     .def_pickle(RootsPickleSuite())
   ;

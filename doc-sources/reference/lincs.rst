@@ -447,7 +447,7 @@
 
                 Descriptor for sufficient coalitions defined by roots
 
-                .. method:: __init__(criteria_count: int, upset_roots: Iterable[Iterable[int]])
+                .. method:: __init__(problem: Problem, upset_roots: Iterable[Iterable[int]])
 
                     .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.Roots.__init__
 

@@ -317,7 +317,7 @@ class ModelTestCase(unittest.TestCase):
                     AcceptedValues(AcceptedValues.IntegerThresholds([50])),
                 ],
                 [
-                    SufficientCoalitions(SufficientCoalitions.Roots(1, [[0]])),
+                    SufficientCoalitions(SufficientCoalitions.Roots(problem, [[0]])),
                 ],
             )
         self.assertEqual(cm.exception.args[0], "The value type of an accepted values descriptor must be the same as the value type of the corresponding criterion")
@@ -341,7 +341,7 @@ class ModelTestCase(unittest.TestCase):
                 AcceptedValues(AcceptedValues.EnumeratedThresholds(["b"])),
             ],
             [
-                SufficientCoalitions(SufficientCoalitions.Roots(3, [[0, 1], [0, 2]])),
+                SufficientCoalitions(SufficientCoalitions.Roots(problem, [[0, 1], [0, 2]])),
             ],
         )
         self.assertEqual(len(model.accepted_values), 3)
@@ -390,17 +390,8 @@ class ModelTestCase(unittest.TestCase):
         with self.assertRaises(DataValidationException) as cm:
             Model(
                 problem,
-                [
-                    AcceptedValues(AcceptedValues.RealThresholds([0.5])),
-                ],
-                [SufficientCoalitions(SufficientCoalitions.Roots(2, [[0]]))],
-            )
-        self.assertEqual(cm.exception.args[0], "The maximum number of elements in a root in a sufficient coalitions descriptor must be equal to the number of criteria in the problem")
-        with self.assertRaises(DataValidationException) as cm:
-            Model(
-                problem,
                 [AcceptedValues(AcceptedValues.RealThresholds([0.5]))],
-                [SufficientCoalitions(SufficientCoalitions.Roots(3, [[3]]))],
+                [SufficientCoalitions(SufficientCoalitions.Roots(problem, [[3]]))],
             )
         self.assertEqual(cm.exception.args[0], "An element index in a root in a sufficient coalitions descriptor must be less than the number of criteria in the problem")
 
@@ -476,7 +467,7 @@ class ModelTestCase(unittest.TestCase):
             ],
             sufficient_coalitions=[
                 SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
-                SufficientCoalitions(SufficientCoalitions.Roots(3, [[0, 1], [0, 2]])),
+                SufficientCoalitions(SufficientCoalitions.Roots(problem, [[0, 1], [0, 2]])),
             ],
         )
         pickled_model = pickle.dumps(model)
@@ -540,7 +531,19 @@ class ModelTestCase(unittest.TestCase):
             self.assertIsNot(m.sufficient_coalitions[1], model.sufficient_coalitions[1])
 
     def test_pickle_empty_roots(self):
-        r = pickle.loads(pickle.dumps(SufficientCoalitions.Roots(3, [])))
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+        r = pickle.loads(pickle.dumps(SufficientCoalitions.Roots(problem, [])))
         self.assertEqual(r.upset_roots, [])
 
 

@@ -240,7 +240,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
       }
     }
 
-    boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(roots)));
+    boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));
   }
 
   return learning_set.post_process(boundaries);

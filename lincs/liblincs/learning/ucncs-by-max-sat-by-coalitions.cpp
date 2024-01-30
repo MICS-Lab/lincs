@@ -233,7 +233,7 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
       }
     }
 
-    boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(roots)));
+    boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));
   }
 
   return learning_set.post_process(boundaries);

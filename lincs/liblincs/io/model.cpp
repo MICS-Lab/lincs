@@ -252,7 +252,7 @@ SufficientCoalitions load_sufficient_coalitions(const Problem& problem, const YA
     case SufficientCoalitions::Kind::weights:
       return SufficientCoalitions(SufficientCoalitions::Weights(node["criterion_weights"].as<std::vector<float>>()));
     case SufficientCoalitions::Kind::roots:
-      return SufficientCoalitions(SufficientCoalitions::Roots(problem.get_criteria().size(), node["upset_roots"].as<std::vector<std::vector<unsigned>>>()));
+      return SufficientCoalitions(SufficientCoalitions::Roots(problem, node["upset_roots"].as<std::vector<std::vector<unsigned>>>()));
   }
   unreachable();
 }
@@ -347,7 +347,7 @@ TEST_CASE("dumping then loading model preserves data - roots") {
       AcceptedValues(AcceptedValues::RealThresholds({0.5})),
       AcceptedValues(AcceptedValues::RealThresholds({0.6})),
     },
-    {SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}}))},
+    {SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}}))},
   };
 
   std::stringstream ss;
@@ -491,7 +491,7 @@ TEST_CASE("dumping empty roots uses flow style") {
   Model model{
     problem,
     {AcceptedValues(AcceptedValues::RealThresholds({0.5}))},
-    {SufficientCoalitions(SufficientCoalitions::Roots(3, {}))},
+    {SufficientCoalitions(SufficientCoalitions::Roots(problem, {}))},
   };
 
   std::stringstream ss;
@@ -528,9 +528,9 @@ TEST_CASE("dumping uses references to avoid duplication of sufficient coalitions
       AcceptedValues(AcceptedValues::RealThresholds({0.4, 0.6, 0.8})),
     },
     {
-      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
-      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
-      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
     },
   };
 
@@ -577,9 +577,9 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
       AcceptedValues(AcceptedValues::RealThresholds({0.4, 0.6, 0.8})),
     },
     {
-      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
-      SufficientCoalitions(SufficientCoalitions::Roots(3, {{1}, {0, 2}})),
-      SufficientCoalitions(SufficientCoalitions::Roots(3, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{1}, {0, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
     },
   };
 

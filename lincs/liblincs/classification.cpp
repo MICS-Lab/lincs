@@ -173,7 +173,7 @@ TEST_CASE("Basic classification using upset roots") {
       AcceptedValues(AcceptedValues::RealThresholds({0.5})),
       AcceptedValues(AcceptedValues::RealThresholds({0.5})),
     },
-    {SufficientCoalitions(SufficientCoalitions::Roots(3, {{0, 2}, {1, 2}}))},
+    {SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0, 2}, {1, 2}}))},
   };
 
   Alternatives alternatives{problem, {

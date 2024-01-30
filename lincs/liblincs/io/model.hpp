@@ -134,10 +134,13 @@ class SufficientCoalitions {
 
   class Roots {
    public:
-    Roots(const std::vector<boost::dynamic_bitset<>>& upset_roots_) : upset_roots(upset_roots_) {}
+    Roots(const Problem& problem, const std::vector<std::vector<unsigned>>& upset_roots_) :
+      Roots(Internal(), problem.get_criteria().size(), upset_roots_) {}
 
-    // @todo(Feature, v1.1) Should this ctor accept the Problem instead of the criteria_count?
-    Roots(const unsigned criteria_count, const std::vector<std::vector<unsigned>>& upset_roots_) {
+    Roots(Internal, const std::vector<boost::dynamic_bitset<>>& upset_roots_) :
+      upset_roots(upset_roots_) {}
+
+    Roots(Internal, const unsigned criteria_count, const std::vector<std::vector<unsigned>>& upset_roots_) {
       upset_roots.reserve(upset_roots_.size());
       for (const auto& root: upset_roots_) {
         boost::dynamic_bitset<>& upset_root = upset_roots.emplace_back(criteria_count);

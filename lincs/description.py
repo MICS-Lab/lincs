@@ -245,8 +245,8 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                     AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
                 ],
                 [
-                    SufficientCoalitions(SufficientCoalitions.Roots(4, [[0, 1], [0, 2], [1, 2, 3]])),
-                    SufficientCoalitions(SufficientCoalitions.Roots(4, [[0, 1], [0, 2], [1, 2, 3]])),
+                    SufficientCoalitions(SufficientCoalitions.Roots(self.problem, [[0, 1], [0, 2], [1, 2, 3]])),
+                    SufficientCoalitions(SufficientCoalitions.Roots(self.problem, [[0, 1], [0, 2], [1, 2, 3]])),
                 ],
             ),
             [
@@ -272,7 +272,7 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                     AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
                 ],
                 [
-                    SufficientCoalitions(SufficientCoalitions.Roots(4, [[0, 1], [0, 2], [1, 2, 3]])),
+                    SufficientCoalitions(SufficientCoalitions.Roots(self.problem, [[0, 1], [0, 2], [1, 2, 3]])),
                     SufficientCoalitions(SufficientCoalitions.Weights([0.7, 0.5, 0.4, 0.2])),
                 ],
             ),
