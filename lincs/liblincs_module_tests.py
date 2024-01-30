@@ -692,6 +692,43 @@ class ModelTestCase(unittest.TestCase):
             )
         self.assertEqual(cm.exception.args[0], "Each threshold in an accepted values descriptor must be in the enumerated values for the corresponding criterion")
 
+    def test_init_accepted_values_not_imbricated(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+
+        Model(
+            problem, [
+                AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+            ], [
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+            ],
+        )
+        with self.assertRaises(DataValidationException) as cm:
+            Model(
+                problem, [
+                    AcceptedValues(AcceptedValues.RealThresholds([7., 9.])),
+                    AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
+                    AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                ], [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([1, 1, 1])),
+                ],
+            )
+        self.assertEqual(cm.exception.args[0], "Sufficient coalitions must be imbricated")
+
 
 class AlternativesTestCase(unittest.TestCase):
     def test_init_wrong_types(self):

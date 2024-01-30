@@ -54,33 +54,17 @@ bool is_good_enough(
   assert(model.get_sufficient_coalitions().size() == boundaries_count);
   assert(boundary_index < boundaries_count);
 
-  return dispatch(
-    model.get_sufficient_coalitions()[boundary_index].get(),
-    [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const SufficientCoalitions::Weights& weights) {
-      float weight_at_or_better_than_profile = 0;
-      for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-        if (better_or_equal(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
-          weight_at_or_better_than_profile += weights.get_criterion_weights()[criterion_index];
-        }
-      }
-      return weight_at_or_better_than_profile >= 1.f;
-    },
-    [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const SufficientCoalitions::Roots& roots) {
+  return std::visit(
+    [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const auto& sufficient_coalitions) {
       boost::dynamic_bitset<> at_or_better_than_profile(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
         if (better_or_equal(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
           at_or_better_than_profile[criterion_index] = true;
         }
       }
-
-      for (const boost::dynamic_bitset<>& root: roots.get_upset_roots_as_bitsets()) {
-        if ((at_or_better_than_profile & root) == root) {
-          return true;
-        }
-      }
-
-      return false;
-    }
+      return sufficient_coalitions.accept(at_or_better_than_profile);
+    },
+    model.get_sufficient_coalitions()[boundary_index].get()
   );
 }
 

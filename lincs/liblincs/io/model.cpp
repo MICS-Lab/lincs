@@ -189,6 +189,7 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
       }
     );
   };
+
   validate(sufficient_coalitions.size() == boundaries_count, "The number of sufficient coalitions in the model must be one less than the number of categories in the problem");
   for (const auto& sufficient_coalitions_ : sufficient_coalitions) {
     dispatch(
@@ -203,9 +204,26 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
       }
     );
   }
-
-  // @todo(Feature, v1.1) Validate the constraints of NCS models (inclusions of sufficient coalitions, of accepted values (ordering of thresholds), that thresholds belong to the criterion's values, etc.)
-  // The issue is: we're dealing with floating point data, so we need to analyse if precision loss could lead us to reject an actually correct model.
+  for (unsigned coalition_index = 0; coalition_index != 1 << criteria_count; ++coalition_index) {
+    boost::dynamic_bitset<> coalition(criteria_count, coalition_index);
+    for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
+      bool accepted_by_upper = std::visit(
+        [&coalition](const auto& sufficient_coalitions_) {
+          return sufficient_coalitions_.accept(coalition);
+        },
+        sufficient_coalitions[boundary_index].get()
+      );
+      if (accepted_by_upper) {
+        const bool accepted_by_lower = std::visit(
+          [&coalition](const auto& sufficient_coalitions_) {
+            return sufficient_coalitions_.accept(coalition);
+          },
+          sufficient_coalitions[boundary_index - 1].get()
+        );
+        validate(accepted_by_lower, "Sufficient coalitions must be imbricated");
+      }
+    }
+  }
 }
 
 void Model::dump(const Problem& problem, std::ostream& os) const {
@@ -617,8 +635,8 @@ TEST_CASE("dumping doesn't use references when coalitions differ") {
       AcceptedValues(AcceptedValues::RealThresholds({0.4, 0.6, 0.8})),
     },
     {
-      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
-      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{1}, {0, 2}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{}})),
+      SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1}, {2}})),
       SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0}, {1, 2}})),
     },
   };
@@ -638,12 +656,12 @@ accepted_values:
 sufficient_coalitions:
   - kind: roots
     upset_roots:
-      - [0]
-      - [1, 2]
+      - []
   - kind: roots
     upset_roots:
+      - [0]
       - [1]
-      - [0, 2]
+      - [2]
   - kind: roots
     upset_roots:
       - [0]

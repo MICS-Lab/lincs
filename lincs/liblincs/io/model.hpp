@@ -128,6 +128,16 @@ class SufficientCoalitions {
    public:
     const std::vector<float>& get_criterion_weights() const { return criterion_weights; }
 
+    bool accept(const boost::dynamic_bitset<>& coalition) const {
+      float sum = 0;
+      for (unsigned criterion_index = 0; criterion_index < criterion_weights.size(); ++criterion_index) {
+        if (coalition[criterion_index]) {
+          sum += criterion_weights[criterion_index];
+        }
+      }
+      return sum >= 1;
+    }
+
    private:
     std::vector<float> criterion_weights;  // Indexed by [criterion_index]
   };
@@ -161,6 +171,15 @@ class SufficientCoalitions {
 
     std::vector<boost::dynamic_bitset<>> get_upset_roots_as_bitsets() const {
       return upset_roots;
+    }
+
+    bool accept(const boost::dynamic_bitset<>& coalition) const {
+      for (const auto& root: upset_roots) {
+        if ((coalition & root) == root) {
+          return true;
+        }
+      }
+      return false;
     }
 
    private:
