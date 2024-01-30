@@ -752,9 +752,9 @@ class AlternativesTestCase(unittest.TestCase):
     def test_init_three_criteria_two_categories(self):
         problem = Problem(
             [
-                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
-                Criterion("Criterion 2", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
-                Criterion("Criterion 3", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 10)),
+                Criterion("Criterion 2", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 10)),
+                Criterion("Criterion 3", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 10)),
             ], [
                 Category("Category 1"),
                 Category("Category 2"),
@@ -816,21 +816,28 @@ class AlternativesTestCase(unittest.TestCase):
 
     def test_init_type_mismatch(self):
         problem = Problem(
-            [
-                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
-            ], [
-                Category("Category 1"),
-                Category("Category 2"),
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
             ],
         )
+
+        Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("a"))], 0)])
         with self.assertRaises(DataValidationException) as cm:
-            Alternatives(
-                problem,
-                [
-                    Alternative("First alternative", [Performance(Performance.Integer(5))], 0),
-                ],
-            )
-        self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the criterion in the problem")
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Integer(8)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("a"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the real-valued criterion in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Real(25)), Performance(Performance.Enumerated("a"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the integer-valued criterion in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Integer(25)), Performance(Performance.Integer(42))], 0)])
+        self.assertEqual(cm.exception.args[0], "The type of the performance of an alternative must match the type of the enumerated criterion in the problem")
 
     def test_pickle_and_deep_copy(self):
         problem = Problem(
@@ -875,6 +882,37 @@ class AlternativesTestCase(unittest.TestCase):
             self.assertIsNot(a.alternatives, alternatives.alternatives)
             self.assertIsNot(a.alternatives[0], alternatives.alternatives[0])
             self.assertIsNot(a.alternatives[1], alternatives.alternatives[1])
+
+    def test_init_out_of_range(self):
+        problem = Problem(
+            criteria=[
+                Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
+                Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
+                Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+            ],
+            categories=[
+                Category("Bad"),
+                Category("Medium"),
+                Category("Good"),
+            ],
+        )
+
+        Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("a"))], 0)])
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(3.)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("a"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The performance of an alternative must be between the min and max values for the real-valued criterion in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(11.)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("a"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The performance of an alternative must be between the min and max values for the real-valued criterion in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Integer(10)), Performance(Performance.Enumerated("a"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The performance of an alternative must be between the min and max values for the integer-valued criterion in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Integer(110)), Performance(Performance.Enumerated("a"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The performance of an alternative must be between the min and max values for the integer-valued criterion in the problem")
+        with self.assertRaises(DataValidationException) as cm:
+            Alternatives(problem, [Alternative("Name", [Performance(Performance.Real(8.)), Performance(Performance.Integer(25)), Performance(Performance.Enumerated("d"))], 0)])
+        self.assertEqual(cm.exception.args[0], "The performance of an alternative must be int the enumerated values for a criterion in the problem")
 
 
 class LearningTestCase(unittest.TestCase):

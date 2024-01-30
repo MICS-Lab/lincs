@@ -21,9 +21,23 @@ Alternatives::Alternatives(const Problem& problem, const std::vector<Alternative
       alternative.get_profile().size() == problem.get_criteria().size(),
       "The profile of an alternative must have as many performances as there are criteria in the problem");
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      validate(
-        alternative.get_profile()[criterion_index].get_value_type() == problem.get_criteria()[criterion_index].get_value_type(),
-        "The type of the performance of an alternative must match the type of the criterion in the problem");
+      const auto& criterion = problem.get_criteria()[criterion_index];
+      const auto& performance = alternative.get_profile()[criterion_index];
+      dispatch(
+        criterion.get_values(),
+        [&performance](const Criterion::RealValues& values) {
+          validate(performance.is_real(), "The type of the performance of an alternative must match the type of the real-valued criterion in the problem");
+          validate(values.is_acceptable(performance.get_real().get_value()), "The performance of an alternative must be between the min and max values for the real-valued criterion in the problem");
+        },
+        [&performance](const Criterion::IntegerValues& values) {
+          validate(performance.is_integer(), "The type of the performance of an alternative must match the type of the integer-valued criterion in the problem");
+          validate(values.is_acceptable(performance.get_integer().get_value()), "The performance of an alternative must be between the min and max values for the integer-valued criterion in the problem");
+        },
+        [&performance](const Criterion::EnumeratedValues& values) {
+          validate(performance.is_enumerated(), "The type of the performance of an alternative must match the type of the enumerated criterion in the problem");
+          validate(values.is_acceptable(performance.get_enumerated().get_value()), "The performance of an alternative must be int the enumerated values for a criterion in the problem");
+        }
+      );
     }
   }
 }
