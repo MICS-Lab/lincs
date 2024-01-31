@@ -16,7 +16,7 @@
     .. data:: has_gpu
         :type: bool
 
-        ``True`` if *lincs* was compiled with CUDA support.
+        ``True`` if *lincs* was built with CUDA support.
 
     .. exception:: DataValidationException
 
@@ -632,11 +632,11 @@
 
         .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int [, normalized_min_max: bool=True [, allowed_preference_directions: Iterable[PreferenceDirection]=[] [, allowed_value_types: Iterable[ValueType]=[]]]]) -> Problem
 
-            Generate a problem with ``criteria_count`` criteria and ``categories_count`` categories.
+            Generate a :py:class:`Problem` with ``criteria_count`` criteria and ``categories_count`` categories.
 
         .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: Optional[float]=None]) -> Model
 
-            Generate an MR-Sort model for the provided ``Problem``.
+            Generate an MR-Sort model for the provided :py:class:`Problem`.
 
         .. exception:: BalancedAlternativesGenerationException
 
@@ -644,312 +644,312 @@
 
         .. function:: generate_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: Optional[float]=None]) -> Alternatives
 
-            Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided ``Problem``, classified according to the provided ``Model``.
+            Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided :py:class:`Problem`, classified according to the provided :py:class:`Model`.
 
         .. function:: misclassify_alternatives(problem: Problem, alternatives: Alternatives, count: int, random_seed: int)
 
-            Misclassify ``count`` alternatives from the provided ``Alternatives``.
+            Misclassify ``count`` alternatives from the provided :py:class:`Alternatives`.
 
         .. class:: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: perform() -> Model
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.perform.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: perform() -> Model
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.perform.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: LearnUcncsBySatByCoalitionsUsingMinisat
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: perform() -> Model
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.perform.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: LearnUcncsBySatBySeparationUsingMinisat
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: perform() -> Model
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.perform.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: LearnMrsortByWeightsProfilesBreed
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy [, observers: Iterable[Observer]=[]])
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: LearningData
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: __init__(problem: Problem, learning_set: Alternatives, models_count: int, random_seed: int)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.__init__.
+                    @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: get_best_accuracy() -> int
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.get_best_accuracy.
+                    @todo(Documentation, v1.1) Add a docstring.
 
                 .. property:: iteration_index
                     :type: int
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.iteration_index.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: ProfilesInitializationStrategy
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: initialize_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy.initialize_profiles.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: WeightsOptimizationStrategy
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: optimize_weights()
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy.optimize_weights.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: ProfilesImprovementStrategy
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: improve_profiles()
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy.improve_profiles.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: BreedingStrategy
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.BreedingStrategy.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: breed()
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.BreedingStrategy.breed.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: TerminationStrategy
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: terminate() -> bool
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy.terminate.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. class:: Observer
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.
+                @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: after_iteration()
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.after_iteration.
+                    @todo(Documentation, v1.1) Add a docstring.
 
                 .. method:: before_return()
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.before_return.
+                    @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: perform() -> Model
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.LearnMrsortByWeightsProfilesBreed.perform.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: initialize_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.initialize_profiles.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: OptimizeWeightsUsingAlglib
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.OptimizeWeightsUsingAlglib.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.OptimizeWeightsUsingAlglib.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: optimize_weights()
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.OptimizeWeightsUsingAlglib.optimize_weights.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: OptimizeWeightsUsingGlop
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.OptimizeWeightsUsingGlop.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.OptimizeWeightsUsingGlop.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: optimize_weights()
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.OptimizeWeightsUsingGlop.optimize_weights.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: ImproveProfilesWithAccuracyHeuristicOnCpu
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: improve_profiles()
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.improve_profiles.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: ImproveProfilesWithAccuracyHeuristicOnGpu
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: improve_profiles()
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.improve_profiles.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: ReinitializeLeastAccurate
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ReinitializeLeastAccurate.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, count: int)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ReinitializeLeastAccurate.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: breed()
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ReinitializeLeastAccurate.breed.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: TerminateAfterIterations
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterIterations.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData, max_iteration_index: int)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterIterations.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: terminate() -> bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterIterations.terminate.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: TerminateAfterIterationsWithoutProgress
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterIterationsWithoutProgress.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData, max_iterations_count: int)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterIterationsWithoutProgress.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: terminate() -> bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterIterationsWithoutProgress.terminate.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: TerminateAfterSeconds
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterSeconds.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(max_seconds: float)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterSeconds.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: terminate() -> bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterSeconds.terminate.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: TerminateAfterSecondsWithoutProgress
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterSecondsWithoutProgress.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData, max_seconds: float)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterSecondsWithoutProgress.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: terminate() -> bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAfterSecondsWithoutProgress.terminate.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: TerminateAtAccuracy
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAtAccuracy.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(learning_data: LearningData, target_accuracy: int)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAtAccuracy.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: terminate() -> bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateAtAccuracy.terminate.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: TerminateWhenAny
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny.
+            @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: __init__(termination_strategies: Iterable[TerminationStrategy])
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny.__init__.
+                @todo(Documentation, v1.1) Add a docstring.
 
             .. method:: terminate() -> bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.TerminateWhenAny.terminate.
+                @todo(Documentation, v1.1) Add a docstring.
 
         .. class:: ClassificationResult
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ClassificationResult.
+            Return type for ``classify_alternatives``.
 
             .. property:: changed
                 :type: int
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ClassificationResult.changed.
+                Number of alternatives that were not in the same category before and after classification.
 
             .. property:: unchanged
                 :type: int
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.ClassificationResult.unchanged.
+                Number of alternatives that were in the same category before and after classification.
 
         .. function:: classify_alternatives(problem: Problem, model: Model, alternatives: Alternatives) -> ClassificationResult
 
-            Classify the provided ``Alternatives`` according to the provided ``Model``.
+            Classify the provided :py:class:`Alternatives` according to the provided :py:class:`Model`.
 
-        .. function:: describe_model(problem: lincs.classification.Problem, model: lincs.classification.Model)
+        .. function:: describe_model(problem: lincs.classification.Problem, model: lincs.classification.Model) -> Iterable[str]
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.describe_model.
+            Generate a human-readable description of a classification model.
 
-        .. function:: describe_problem(problem: lincs.classification.Problem)
+        .. function:: describe_problem(problem: lincs.classification.Problem) -> Iterable[str]
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.describe_problem.
+            Generate a human-readable description of a classification problem.
 
-        .. function:: visualize_model(problem: lincs.classification.Problem, model: lincs.classification.Model, alternatives: lincs.classification.Alternatives, axes: matplotlib.axes._axes.Axes)
+        .. function:: visualize_model(problem: lincs.classification.Problem, model: lincs.classification.Model, alternatives: Iterable[lincs.classification.Alternative], axes: matplotlib.axes._axes.Axes)
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.visualize_model.
+            Create a visual representation of a classification model and classified alternatives, using Matplotlib.
 

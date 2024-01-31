@@ -1,9 +1,14 @@
+from typing import Iterable
 import unittest
 
 from .classification import Problem, Criterion, Category, Model, AcceptedValues, SufficientCoalitions
 
 
-def describe_classification_problem(problem: Problem):
+def describe_classification_problem(problem: Problem) -> Iterable[str]:
+    """
+    Generate a human-readable description of a classification problem.
+    """
+
     categories_count = len(problem.ordered_categories)
     assert categories_count >= 2
     criteria_count = len(problem.criteria)
@@ -110,7 +115,11 @@ class DescribeClassificationProblemTestCase(unittest.TestCase):
         )
 
 
-def describe_classification_model(problem: Problem, model: Model):
+def describe_classification_model(problem: Problem, model: Model) -> Iterable[str]:
+    """
+    Generate a human-readable description of a classification model.
+    """
+
     criteria_count = len(problem.criteria)
     assert len(model.accepted_values) == criteria_count
     assert criteria_count > 0

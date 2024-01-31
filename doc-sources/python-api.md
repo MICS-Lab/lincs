@@ -808,3 +808,5 @@ ordered_categories:
   - name: Congratulations
 ```
 
+
+Note however that learning objects (*e.g.* instances of `LearnMrsortByWeightsProfilesBreed`) are *not* picklable.

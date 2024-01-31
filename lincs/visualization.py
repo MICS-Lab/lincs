@@ -1,13 +1,18 @@
 # Copyright 2023-2024 Vincent Jacques
 
+from typing import Iterable
 import unittest
 
 import matplotlib.pyplot as plt
 
-from .classification import Problem, Model, Alternatives
+from .classification import Problem, Model, Alternative
 
 
-def visualize_classification_model(problem: Problem, model: Model, alternatives: Alternatives, axes: plt.Axes):
+def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: plt.Axes):
+    """
+    Create a visual representation of a classification model and classified alternatives, using Matplotlib.
+    """
+
     # @todo(Feature, v1.2) Visualize single-peaked criteria.
     # See the possible solutions in e-mail "Visualisation des critères single-peaked" 2023-11-24
 
