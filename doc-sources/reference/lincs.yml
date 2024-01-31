@@ -1,11 +1,11 @@
 children:
   - name: __version__
-    doc: The version of *lincs*, as a string in `Version Specifier <https://packaging.python.org/en/latest/specifications/version-specifiers/>`_ format
+    doc: The version of *lincs*, as a string in `Version Specifier <https://packaging.python.org/en/latest/specifications/version-specifiers/>`_ format.
   - name: has_gpu
-    doc: "``True`` if *lincs* was compiled with CUDA support"
+    doc: "``True`` if *lincs* was compiled with CUDA support."
 
   - name: DataValidationException
-    doc: Raised by constructors when called with invalid data. ``ex.args[0]`` gives a human-readable description of the error
+    doc: Raised by constructors when called with invalid data. ``ex.args[0]`` gives a human-readable description of the error.
     children:
       - name: __init__
         show: false
@@ -14,7 +14,7 @@ children:
       - name: with_traceback
         show: false
   - name: LearningFailureException
-    doc: Raised by learning algorithms when they can't reach their objective
+    doc: Raised by learning algorithms when they can't reach their objective.
     children:
       - name: __init__
         show: false
@@ -33,11 +33,11 @@ children:
         - name: ValueType
           children:
             - name: real
-              doc: Real values
+              doc: Real values.
             - name: integer
-              doc: Integer values
+              doc: Integer values.
             - name: enumerated
-              doc: Enumerated values
+              doc: Enumerated values.
             - name: __init__
               show: false
             - name: as_integer_ratio
@@ -73,13 +73,13 @@ children:
         - name: PreferenceDirection
           children:
             - name: increasing
-              doc: For criteria where higher numerical values are known to be better
+              doc: For criteria where higher numerical values are known to be better.
             - name: decreasing
-              doc: For criteria where lower numerical values are known to be better
+              doc: For criteria where lower numerical values are known to be better.
             - name: isotone
-              doc: Synonym for ``increasing``
+              doc: Synonym for ``increasing``.
             - name: antitone
-              doc: Synonym for ``decreasing``
+              doc: Synonym for ``decreasing``.
             - name: __init__
               show: false
             - name: as_integer_ratio
@@ -160,7 +160,7 @@ children:
         - name: load
           staticmethod: true
         - name: JSON_SCHEMA
-          doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string
+          doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string.
     - name: AcceptedValues
       children:
         - name: __init__
@@ -175,7 +175,7 @@ children:
         - name: Kind
           children:
             - name: thresholds
-              doc: A threshold for each category
+              doc: A threshold for each category.
             - name: __init__
               show: false
             - name: as_integer_ratio
@@ -233,9 +233,9 @@ children:
         - name: Kind
           children:
             - name: weights
-              doc: For sufficient coalitions described by criterion weights
+              doc: For sufficient coalitions described by criterion weights.
             - name: roots
-              doc: For sufficient coalitions described by the roots of their upset
+              doc: For sufficient coalitions described by the roots of their upset.
             - name: __init__
               show: false
             - name: as_integer_ratio
@@ -293,7 +293,7 @@ children:
         - name: load
           staticmethod: true
         - name: JSON_SCHEMA
-          doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string
+          doc: The JSON schema defining the format used by ``dump`` and ``load``, as a string.
     - name: Performance
       children:
         - name: __init__
@@ -347,7 +347,7 @@ children:
     - name: generate_problem
     - name: generate_mrsort_model
     - name: BalancedAlternativesGenerationException
-      doc: Raised by ``generate_alternatives`` when it fails to find alternatives to balance the categories
+      doc: Raised by ``generate_alternatives`` when it fails to find alternatives to balance the categories.
       children:
         - name: __init__
           show: false

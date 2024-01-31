@@ -508,12 +508,16 @@ def make_python_reference():
         name = path[-1]
         class_name = node.__class__.__name__
 
-        description_doc = description.get("doc", ".. @to" + f"do(Documentation, v1.1) Document {'.'.join(path)} in doc-sources/reference/lincs.yml")
+        description_doc = description.get("doc", ".. @to" + f"do(Documentation, v1.1) Document {'.'.join(path)} in doc-sources/reference/lincs.yml.")
+        assert description_doc.endswith("."), (path, description_doc)
         docstring = getattr(node, "__doc__", None)
         if docstring:
             docstring = docstring.strip()
         else:
-            docstring = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}"
+            docstring = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}."
+        if class_name != "builtin_function_or_method":
+            if not docstring.endswith("."):
+                docstring += ". @to" + f"do(Documentation, v1.1) Add a dot at the end of the docstring of {'.'.join(path)}."
         do_walk = True
         if class_name == "module":
             yield from directive("module", ".".join(path), docstring)
@@ -540,7 +544,9 @@ def make_python_reference():
                     continue
                 doc = "\n".join(d.strip() for d in doc[1:])
                 if not doc:
-                    doc = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}"
+                    doc = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}."
+                if not doc.endswith("."):
+                    doc += ". @to" + f"do(Documentation, v1.1) Add a dot at the end of the docstring of {'.'.join(path)}."
                 parent_class_name = parent.__class__.__name__
                 if parent_class_name == "class":
                     directive_name = "method"
