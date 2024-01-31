@@ -241,7 +241,7 @@
 
             A classification problem, with criteria and categories
 
-            .. method:: __init__(criteria: Iterable[Criterion], categories: Iterable[Category])
+            .. method:: __init__(criteria: Iterable[Criterion], ordered_categories: Iterable[Category])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Problem.__init__
 
@@ -589,7 +589,7 @@
 
             .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative
 
-            .. method:: __init__(name: str, profile: Iterable[Performance] [, category: Optional[int]=None])
+            .. method:: __init__(name: str, profile: Iterable[Performance] [, category_index: object=None])
 
                 .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.__init__
 
@@ -640,9 +640,9 @@
 
         .. exception:: BalancedAlternativesGenerationException
 
-            Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories
+            Raised by ``generate_alternatives`` when it fails to find alternatives to balance the categories
 
-        .. function:: generate_classified_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: Optional[float]=None]) -> Alternatives
+        .. function:: generate_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: Optional[float]=None]) -> Alternatives
 
             Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided ``Problem``, classified according to the provided ``Model``.
 

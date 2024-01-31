@@ -17,7 +17,7 @@ class ProblemTestCase(unittest.TestCase):
             criteria=[
                 Criterion(name="Criterion name", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Good"),
             ],
@@ -110,7 +110,7 @@ class ProblemTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -452,7 +452,7 @@ class ModelTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -537,7 +537,7 @@ class ModelTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -553,7 +553,7 @@ class ModelTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -614,7 +614,7 @@ class ModelTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -699,7 +699,7 @@ class ModelTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -821,7 +821,7 @@ class AlternativesTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -846,7 +846,7 @@ class AlternativesTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -890,7 +890,7 @@ class AlternativesTestCase(unittest.TestCase):
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
             ],
-            categories=[
+            ordered_categories=[
                 Category("Bad"),
                 Category("Medium"),
                 Category("Good"),
@@ -919,7 +919,7 @@ class LearningTestCase(unittest.TestCase):
     def test_basic_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
@@ -942,7 +942,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
@@ -950,7 +950,7 @@ class LearningTestCase(unittest.TestCase):
     def test_learn_with_deleted_strategies(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         best_accuracies = []
 
@@ -1002,7 +1002,7 @@ class LearningTestCase(unittest.TestCase):
     def test_iterations_restricted_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 1000, 43)
+        learning_set = generate_alternatives(problem, model, 1000, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
@@ -1024,7 +1024,7 @@ class LearningTestCase(unittest.TestCase):
     def test_terminate_when_any(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         class MyTerminationStrategy(LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
             def __init__(self):
@@ -1057,7 +1057,7 @@ class LearningTestCase(unittest.TestCase):
     def test_python_strategies(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         class MyProfileInitializationStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
             def __init__(self, learning_data):
@@ -1134,7 +1134,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 8)
         self.assertEqual(result.unchanged, 192)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 68)
         self.assertEqual(result.unchanged, 932)
@@ -1142,7 +1142,7 @@ class LearningTestCase(unittest.TestCase):
     def test_observers(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         class MyObserver(LearnMrsortByWeightsProfilesBreed.Observer):
             def __init__(self, learning_data):
@@ -1180,7 +1180,7 @@ class LearningTestCase(unittest.TestCase):
     def test_alglib_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
@@ -1201,7 +1201,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 21)
         self.assertEqual(result.unchanged, 979)
@@ -1210,7 +1210,7 @@ class LearningTestCase(unittest.TestCase):
     def test_gpu_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
@@ -1231,7 +1231,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 29)
         self.assertEqual(result.unchanged, 971)
@@ -1239,7 +1239,7 @@ class LearningTestCase(unittest.TestCase):
     def test_sat_by_coalitions_using_minisat_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set).perform()
 
@@ -1247,7 +1247,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 26)
         self.assertEqual(result.unchanged, 974)
@@ -1255,7 +1255,7 @@ class LearningTestCase(unittest.TestCase):
     def test_sat_by_separation_using_minisat_learning(self):
         problem = generate_problem(5, 2, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set).perform()
 
@@ -1263,7 +1263,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 28)
         self.assertEqual(result.unchanged, 972)
@@ -1271,7 +1271,7 @@ class LearningTestCase(unittest.TestCase):
     def test_max_sat_by_coalitions_using_evalmaxsat_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set).perform()
 
@@ -1279,7 +1279,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 32)
         self.assertEqual(result.unchanged, 968)
@@ -1287,7 +1287,7 @@ class LearningTestCase(unittest.TestCase):
     def test_max_sat_by_separation_using_evalmaxsat_learning(self):
         problem = generate_problem(5, 2, 41)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 200, 43)
+        learning_set = generate_alternatives(problem, model, 200, 43)
 
         learned_model = LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set).perform()
 
@@ -1295,7 +1295,7 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 0)
         self.assertEqual(result.unchanged, 200)
 
-        testing_set = generate_classified_alternatives(problem, model, 1000, 44)
+        testing_set = generate_alternatives(problem, model, 1000, 44)
         result = classify_alternatives(problem, learned_model, testing_set)
         self.assertEqual(result.changed, 25)
         self.assertEqual(result.unchanged, 975)
@@ -1303,7 +1303,7 @@ class LearningTestCase(unittest.TestCase):
     def test_learning_failure_exception(self):
         problem = generate_problem(2, 2, 42)
         model = generate_mrsort_model(problem, 42)
-        learning_set = generate_classified_alternatives(problem, model, 100, 42)
+        learning_set = generate_alternatives(problem, model, 100, 42)
         misclassify_alternatives(problem, learning_set, 10, 42 + 27)
 
         learning = LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)

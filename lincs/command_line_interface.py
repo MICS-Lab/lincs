@@ -368,7 +368,7 @@ def classified_alternatives(
         model = lincs.classification.Model.load(problem, model)
 
     try:
-        alternatives = lincs.classification.generate_classified_alternatives(
+        alternatives = lincs.classification.generate_alternatives(
             problem,
             model,
             alternatives_count,

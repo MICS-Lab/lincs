@@ -18,7 +18,7 @@ from liblincs import Performance, Alternative, Alternatives
 from liblincs import BalancedAlternativesGenerationException
 from liblincs import generate_classification_problem as generate_problem
 from liblincs import generate_mrsort_classification_model as generate_mrsort_model
-from liblincs import generate_classified_alternatives
+from liblincs import generate_classified_alternatives as generate_alternatives
 from liblincs import misclassify_alternatives
 
 # Classification

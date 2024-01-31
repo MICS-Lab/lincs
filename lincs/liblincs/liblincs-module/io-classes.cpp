@@ -214,7 +214,7 @@ void define_problem_classes() {
   auto problem_class = bp::class_<lincs::Problem>(
     "Problem",
     "A classification problem, with criteria and categories",
-    bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>((bp::arg("self"), "criteria", "categories"))
+    bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>((bp::arg("self"), "criteria", "ordered_categories"))
   )
     .add_property("criteria", bp::make_function(&lincs::Problem::get_criteria, bp::return_value_policy<bp::return_by_value>()), "The criteria of this problem")
     .add_property("ordered_categories", bp::make_function(&lincs::Problem::get_ordered_categories, bp::return_value_policy<bp::return_by_value>()), "The categories of this problem, from the worst to the best")
@@ -476,7 +476,7 @@ void define_alternative_classes() {
   bp::class_<lincs::Alternative>(
     "Alternative",
     bp::init<std::string, std::vector<lincs::Performance>, std::optional<unsigned>>(
-      (bp::arg("self"), "name", "profile", (bp::arg("category")=std::optional<unsigned>()))
+      (bp::arg("self"), "name", "profile", (bp::arg("category_index")=std::optional<unsigned>()))
     )
   )
     .add_property("name", bp::make_function(&lincs::Alternative::get_name, bp::return_value_policy<bp::return_by_value>()))

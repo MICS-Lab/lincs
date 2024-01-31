@@ -347,7 +347,7 @@ children:
     - name: generate_problem
     - name: generate_mrsort_model
     - name: BalancedAlternativesGenerationException
-      doc: Raised by ``generate_classified_alternatives`` when it fails to find alternatives to balance the categories
+      doc: Raised by ``generate_alternatives`` when it fails to find alternatives to balance the categories
       children:
         - name: __init__
           show: false
@@ -355,7 +355,7 @@ children:
           show: false
         - name: with_traceback
           show: false
-    - name: generate_classified_alternatives
+    - name: generate_alternatives
     - name: misclassify_alternatives
 
     - name: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat

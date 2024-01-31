@@ -264,7 +264,7 @@ lincs: module
         classify_alternatives: function
         describe_model: function
         describe_problem: function
-        generate_classified_alternatives: function
+        generate_alternatives: function
         generate_mrsort_model: function
         generate_problem: function
         misclassify_alternatives: function

@@ -156,7 +156,7 @@ Generate a synthetic learning set (with an explicit pseudo-random seed):
 
 
 ```python
-learning_set = lc.generate_classified_alternatives(problem, model, alternatives_count=1000, random_seed=42)
+learning_set = lc.generate_alternatives(problem, model, alternatives_count=1000, random_seed=42)
 ```
 
 Dump it (in memory instead of on `sys.stdout` to print only the first few lines):
@@ -254,7 +254,7 @@ Create a testing set and classify it, taking notes of the accuracy of the new mo
 
 
 ```python
-testing_set = lc.generate_classified_alternatives(problem, model, alternatives_count=3000, random_seed=44)
+testing_set = lc.generate_alternatives(problem, model, alternatives_count=3000, random_seed=44)
 classification_result = lc.classify_alternatives(problem, learned_model, testing_set)
 classification_result.changed, classification_result.unchanged
 ```
@@ -286,7 +286,7 @@ problem = lc.Problem(
         lc.Criterion("Physics grade", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
         lc.Criterion("Literature grade", lc.Criterion.EnumeratedValues(["f", "e", "d", "c", "b", "a"])),
     ],
-    categories=[lc.Category("Failed"), lc.Category("Passed"), lc.Category("Congratulations")],
+    ordered_categories=[lc.Category("Failed"), lc.Category("Passed"), lc.Category("Congratulations")],
 )
 
 problem.dump(sys.stdout)
