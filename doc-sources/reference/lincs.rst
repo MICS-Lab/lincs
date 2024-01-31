@@ -35,7 +35,7 @@
 
         .. class:: Criterion
 
-            A classification criterion, to be used in a classification ``Problem``
+            A classification criterion, to be used in a classification :py:class:`Problem`
 
             .. method:: __init__(name: str, values: RealValues)
 
@@ -100,7 +100,7 @@
 
             .. class:: PreferenceDirection
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Criterion.PreferenceDirection
+                What values are preferred for a criterion
 
                 .. property:: increasing
                     :classmethod:
@@ -132,7 +132,7 @@
 
                 .. method:: __init__(preference_direction: PreferenceDirection, min_value: float, max_value: float)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Criterion.RealValues.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: min_value
                     :type: float
@@ -170,7 +170,7 @@
 
                 .. method:: __init__(preference_direction: PreferenceDirection, min_value: int, max_value: int)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Criterion.IntegerValues.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: min_value
                     :type: float
@@ -208,7 +208,7 @@
 
                 .. method:: __init__(ordered_values: Iterable[str])
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Criterion.EnumeratedValues.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. method:: get_value_rank(value: str) -> int
 
@@ -226,11 +226,11 @@
 
         .. class:: Category
 
-            A category of a classification ``Problem``
+            A category of a classification :py:class:`Problem`
 
             .. method:: __init__(name: str)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Category.__init__
+                Parameters map exactly to attributes with identical names
 
             .. property:: name
                 :type: str
@@ -243,7 +243,7 @@
 
             .. method:: __init__(criteria: Iterable[Criterion], ordered_categories: Iterable[Category])
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Problem.__init__
+                Parameters map exactly to attributes with identical names
 
             .. property:: criteria
                 :type: Iterable[Criterion]
@@ -271,21 +271,21 @@
 
         .. class:: AcceptedValues
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues
+            The values accepted by a model for a criterion
 
             .. method:: __init__(values: RealThresholds)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues.__init__
+                Constructor for thresholds on a real-valued criterion
 
             .. method:: __init__(values: IntegerThresholds)
                 :noindex:
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues.__init__
+                Constructor for thresholds on an integer-valued criterion
 
             .. method:: __init__(values: EnumeratedThresholds)
                 :noindex:
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues.__init__
+                Constructor for thresholds on an enumerated criterion
 
             .. property:: value_type
                 :type: ValueType
@@ -333,7 +333,7 @@
 
                 .. method:: __init__(thresholds: Iterable[float])
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues.RealThresholds.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: thresholds
                     :type: Iterable[float]
@@ -351,7 +351,7 @@
 
                 .. method:: __init__(thresholds: Iterable[int])
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues.IntegerThresholds.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: thresholds
                     :type: Iterable[int]
@@ -369,7 +369,7 @@
 
                 .. method:: __init__(thresholds: Iterable[str])
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.AcceptedValues.EnumeratedThresholds.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: thresholds
                     :type: Iterable[str]
@@ -383,16 +383,16 @@
 
         .. class:: SufficientCoalitions
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions
+            The coalitions of sufficient criteria to accept an alternative in a category
 
             .. method:: __init__(weights: Weights)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.__init__
+                Constructor for sufficient coalitions defined by weights
 
             .. method:: __init__(roots: Roots)
                 :noindex:
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.__init__
+                Constructor for sufficient coalitions defined by roots
 
             .. class:: Kind
 
@@ -431,7 +431,7 @@
 
                 .. method:: __init__(criterion_weights: Iterable[float])
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.Weights.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: criterion_weights
                     :type: Iterable[float]
@@ -449,7 +449,7 @@
 
                 .. method:: __init__(problem: Problem, upset_roots: Iterable[Iterable[int]])
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.SufficientCoalitions.Roots.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: upset_roots
                     :type: Iterable[Iterable[int]]
@@ -463,11 +463,11 @@
 
         .. class:: Model
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Model
+            An NCS classification model
 
             .. method:: __init__(problem: Problem, accepted_values: Iterable[AcceptedValues], sufficient_coalitions: Iterable[SufficientCoalitions])
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Model.__init__
+                The :py:class:`Model` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names
 
             .. property:: accepted_values
                 :type: Iterable[AcceptedValues]
@@ -495,131 +495,131 @@
 
         .. class:: Performance
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance
+            The performance of an alternative on a criterion
 
             .. method:: __init__(performance: Real)
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.__init__
+                Constructor for a real-valued performance
 
             .. method:: __init__(performance: Integer)
                 :noindex:
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.__init__
+                Constructor for an integer-valued performance
 
             .. method:: __init__(performance: Enumerated)
                 :noindex:
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.__init__
+                Constructor for an enumerated performance
 
             .. property:: value_type
                 :type: ValueType
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.value_type
+                The type of values for the corresponding criterion
 
             .. property:: is_real
                 :type: bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.is_real
+                ``True`` if the corresponding criterion is real-valued
 
             .. property:: is_integer
                 :type: bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.is_integer
+                ``True`` if the corresponding criterion is integer-valued
 
             .. property:: is_enumerated
                 :type: bool
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.is_enumerated
+                ``True`` if the corresponding criterion takes enumerated values
 
             .. class:: Real
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Real
+                A performance for a real-valued criterion
 
                 .. method:: __init__(value: float)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Real.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: value
                     :type: float
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Real.value
+                    The numerical value of the real performance
 
             .. property:: real
                 :type: Real
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.real
+                The real performance, accessible if ``is_real``
 
             .. class:: Integer
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Integer
+                A performance for an integer-valued criterion
 
                 .. method:: __init__(value: int)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Integer.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: value
                     :type: int
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Integer.value
+                    The numerical value of the integer performance
 
             .. property:: integer
                 :type: Integer
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.integer
+                The integer performance, accessible if ``is_integer``
 
             .. class:: Enumerated
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Enumerated
+                A performance for a criterion taking enumerated values
 
                 .. method:: __init__(value: str)
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Enumerated.__init__
+                    Parameters map exactly to attributes with identical names
 
                 .. property:: value
                     :type: str
 
-                    .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.Enumerated.value
+                    The string value of the enumerated performance
 
             .. property:: enumerated
                 :type: Enumerated
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Performance.enumerated
+                The enumerated performance, accessible if ``is_enumerated``
 
         .. class:: Alternative
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative
+            An alternative, with its performance on each criterion, maybe classified
 
             .. method:: __init__(name: str, profile: Iterable[Performance] [, category_index: object=None])
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.__init__
+                Parameters map exactly to attributes with identical names
 
             .. property:: name
                 :type: str
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.name
+                The name of the alternative
 
             .. property:: profile
                 :type: Iterable[Performance]
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.profile
+                The performance profile of the alternative
 
             .. property:: category_index
                 :type: Optional[int]
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternative.category_index
+                The index of the category of the alternative, if it is classified
 
         .. class:: Alternatives
 
-            .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternatives
+            A set of alternatives, maybe classified
 
             .. method:: __init__(problem: Problem, alternatives: Iterable[Alternative])
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternatives.__init__
+                The :py:class:`Alternatives` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names
 
             .. property:: alternatives
                 :type: Iterable[Alternative]
 
-                .. @todo(Documentation, v1.1) Add a docstring to lincs.classification.Alternatives.alternatives
+                The :py:class:`Alternative` objects in this set
 
             .. method:: dump(problem: Problem, out: object)
 

@@ -94,7 +94,8 @@ void define_internal_classes() {
     }
   };
 
-  bp::class_<lincs::Internal>("Internal", bp::init<>(bp::arg("self")))
+  bp::class_<lincs::Internal>("Internal", bp::no_init)
+    .def(bp::init<>(bp::arg("self")))
     .def_pickle(InternalPickleSuite())
   ;
 }
@@ -109,7 +110,11 @@ void define_problem_classes() {
     }
   };
 
-  auto criterion_class = bp::class_<lincs::Criterion>("Criterion", "A classification criterion, to be used in a classification ``Problem``", bp::no_init)
+  auto criterion_class = bp::class_<lincs::Criterion>(
+    "Criterion",
+    "A classification criterion, to be used in a classification :py:class:`Problem`",
+    bp::no_init
+  )
     .def(bp::init<std::string, lincs::Criterion::RealValues>((bp::arg("self"), "name", "values"), "Constructor for real-valued criterion"))
     .def(bp::init<std::string, lincs::Criterion::IntegerValues>((bp::arg("self"), "name", "values"), "Constructor for integer-valued criterion"))
     .def(bp::init<std::string, lincs::Criterion::EnumeratedValues>((bp::arg("self"), "name", "values"), "Constructor for criterion with enumerated values"))
@@ -126,9 +131,15 @@ void define_problem_classes() {
   ;
 
   // We're not using bp::scope to add attributes to the class, because pickling requires the nested classes to be defined in the global scope
-  criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>("ValueType", "The different types of values for a criterion");
+  criterion_class.attr("ValueType") = auto_enum<lincs::Criterion::ValueType>(
+    "ValueType",
+    "The different types of values for a criterion"
+  );
 
-  criterion_class.attr("PreferenceDirection") = auto_enum<lincs::Criterion::PreferenceDirection>("PreferenceDirection")
+  criterion_class.attr("PreferenceDirection") = auto_enum<lincs::Criterion::PreferenceDirection>(
+    "PreferenceDirection",
+    "What values are preferred for a criterion"
+  )
     .value("isotone", lincs::Criterion::PreferenceDirection::isotone)
     .value("antitone", lincs::Criterion::PreferenceDirection::antitone)
   ;
@@ -142,10 +153,12 @@ void define_problem_classes() {
   criterion_class.attr("RealValues") = bp::class_<lincs::Criterion::RealValues>(
     "RealValues",
     "Descriptor of the real values allowed for a criterion",
-    bp::init<lincs::Criterion::PreferenceDirection, float, float>(
-      (bp::arg("self"), "preference_direction", "min_value", "max_value")
-    )
+    bp::no_init
   )
+    .def(bp::init<lincs::Criterion::PreferenceDirection, float, float>(
+      (bp::arg("self"), "preference_direction", "min_value", "max_value"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("preference_direction", &lincs::Criterion::RealValues::get_preference_direction, "The preference direction for this criterion")
     .add_property("is_increasing", &lincs::Criterion::RealValues::is_increasing, "``True`` if the criterion has increasing preference direction")
     .add_property("is_decreasing", &lincs::Criterion::RealValues::is_decreasing, "``True`` if the criterion has decreasing preference direction")
@@ -163,10 +176,12 @@ void define_problem_classes() {
   criterion_class.attr("IntegerValues") = bp::class_<lincs::Criterion::IntegerValues>(
     "IntegerValues",
     "Descriptor of the integer values allowed for a criterion",
-    bp::init<lincs::Criterion::PreferenceDirection, int, int>(
-      (bp::arg("self"), "preference_direction", "min_value", "max_value")
-    )
+    bp::no_init
   )
+    .def(bp::init<lincs::Criterion::PreferenceDirection, int, int>(
+      (bp::arg("self"), "preference_direction", "min_value", "max_value"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("preference_direction", &lincs::Criterion::IntegerValues::get_preference_direction, "The preference direction for this criterion")
     .add_property("is_increasing", &lincs::Criterion::IntegerValues::is_increasing, "``True`` if the criterion has increasing preference direction")
     .add_property("is_decreasing", &lincs::Criterion::IntegerValues::is_decreasing, "``True`` if the criterion has decreasing preference direction")
@@ -184,10 +199,12 @@ void define_problem_classes() {
   criterion_class.attr("EnumeratedValues") = bp::class_<lincs::Criterion::EnumeratedValues>(
     "EnumeratedValues",
     "Descriptor of the enumerated values allowed for a criterion",
-    bp::init<std::vector<std::string>>(
-      (bp::arg("self"), "ordered_values")
-    )
+    bp::no_init
   )
+    .def(bp::init<std::vector<std::string>>(
+      (bp::arg("self"), "ordered_values"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("ordered_values", bp::make_function(&lincs::Criterion::EnumeratedValues::get_ordered_values, bp::return_value_policy<bp::return_by_value>()), "The values for this criterion, from the worst to the best")
     .def("get_value_rank", &lincs::Criterion::EnumeratedValues::get_value_rank, (bp::arg("self"), "value"), "Get the rank of a given value")
     .def_pickle(EnumeratedValuesPickleSuite())
@@ -199,7 +216,15 @@ void define_problem_classes() {
     }
   };
 
-  bp::class_<lincs::Category>("Category", "A category of a classification ``Problem``", bp::init<std::string>((bp::arg("self"), "name")))
+  bp::class_<lincs::Category>(
+    "Category",
+    "A category of a classification :py:class:`Problem`",
+    bp::no_init
+  )
+    .def(bp::init<std::string>(
+      (bp::arg("self"), "name"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     // @todo(Performance, v1.2) Investigate return policies and stop returning everything by values, where const refs would be more appropriate
     .add_property("name", bp::make_function(&lincs::Category::get_name, bp::return_value_policy<bp::return_by_value>()), "The name of this category")
     .def_pickle(CategoryPickleSuite())
@@ -214,8 +239,12 @@ void define_problem_classes() {
   auto problem_class = bp::class_<lincs::Problem>(
     "Problem",
     "A classification problem, with criteria and categories",
-    bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>((bp::arg("self"), "criteria", "ordered_categories"))
+    bp::no_init
   )
+    .def(bp::init<std::vector<lincs::Criterion>, std::vector<lincs::Category>>(
+      (bp::arg("self"), "criteria", "ordered_categories"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("criteria", bp::make_function(&lincs::Problem::get_criteria, bp::return_value_policy<bp::return_by_value>()), "The criteria of this problem")
     .add_property("ordered_categories", bp::make_function(&lincs::Problem::get_ordered_categories, bp::return_value_policy<bp::return_by_value>()), "The categories of this problem, from the worst to the best")
     .def(
@@ -246,10 +275,23 @@ void define_model_classes() {
     }
   };
 
-  auto accepted_values_class = bp::class_<lincs::AcceptedValues>("AcceptedValues", bp::no_init)
-    .def(bp::init<lincs::AcceptedValues::RealThresholds>((bp::args("self"), "values")))
-    .def(bp::init<lincs::AcceptedValues::IntegerThresholds>((bp::args("self"), "values")))
-    .def(bp::init<lincs::AcceptedValues::EnumeratedThresholds>((bp::args("self"), "values")))
+  auto accepted_values_class = bp::class_<lincs::AcceptedValues>(
+    "AcceptedValues",
+    "The values accepted by a model for a criterion",
+    bp::no_init
+  )
+    .def(bp::init<lincs::AcceptedValues::RealThresholds>(
+      (bp::args("self"), "values"),
+      "Constructor for thresholds on a real-valued criterion"
+    ))
+    .def(bp::init<lincs::AcceptedValues::IntegerThresholds>(
+      (bp::args("self"), "values"),
+      "Constructor for thresholds on an integer-valued criterion"
+    ))
+    .def(bp::init<lincs::AcceptedValues::EnumeratedThresholds>(
+      (bp::args("self"), "values"),
+      "Constructor for thresholds on an enumerated criterion"
+    ))
     .add_property("value_type", &lincs::AcceptedValues::get_value_type, "The type of values for the corresponding criterion")
     .add_property("is_real", &lincs::AcceptedValues::is_real, "``True`` if the corresponding criterion is real-valued")
     .add_property("is_integer", &lincs::AcceptedValues::is_integer, "``True`` if the corresponding criterion is integer-valued")
@@ -273,8 +315,12 @@ void define_model_classes() {
   accepted_values_class.attr("RealThresholds") = bp::class_<lincs::AcceptedValues::RealThresholds>(
     "RealThresholds",
     "Descriptor for thresholds for an real-valued criterion",
-    bp::init<const std::vector<float>&>((bp::arg("self"), "thresholds"))
+    bp::no_init
   )
+    .def(bp::init<const std::vector<float>&>(
+      (bp::arg("self"), "thresholds"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("thresholds", bp::make_function(&lincs::AcceptedValues::RealThresholds::get_thresholds, bp::return_value_policy<bp::return_by_value>()), "The thresholds for this descriptor")
     .def_pickle(RealThresholdsPickleSuite())
   ;
@@ -288,8 +334,12 @@ void define_model_classes() {
   accepted_values_class.attr("IntegerThresholds") = bp::class_<lincs::AcceptedValues::IntegerThresholds>(
     "IntegerThresholds",
     "Descriptor for thresholds for an integer-valued criterion",
-    bp::init<const std::vector<int>&>((bp::arg("self"), "thresholds"))
+    bp::no_init
   )
+    .def(bp::init<const std::vector<int>&>(
+      (bp::arg("self"), "thresholds"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("thresholds", bp::make_function(&lincs::AcceptedValues::IntegerThresholds::get_thresholds, bp::return_value_policy<bp::return_by_value>()), "The thresholds for this descriptor")
     .def_pickle(IntegerThresholdsPickleSuite())
   ;
@@ -303,8 +353,12 @@ void define_model_classes() {
   accepted_values_class.attr("EnumeratedThresholds") = bp::class_<lincs::AcceptedValues::EnumeratedThresholds>(
     "EnumeratedThresholds",
     "Descriptor for thresholds for a criterion taking enumerated values",
-    bp::init<const std::vector<std::string>&>((bp::arg("self"), "thresholds"))
+    bp::no_init
   )
+    .def(bp::init<const std::vector<std::string>&>(
+      (bp::arg("self"), "thresholds"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("thresholds", bp::make_function(&lincs::AcceptedValues::EnumeratedThresholds::get_thresholds, bp::return_value_policy<bp::return_by_value>()), "The thresholds for this descriptor")
     .def_pickle(EnumeratedThresholdsPickleSuite())
   ;
@@ -318,9 +372,19 @@ void define_model_classes() {
     }
   };
 
-  auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>("SufficientCoalitions", bp::no_init)
-    .def(bp::init<lincs::SufficientCoalitions::Weights>((bp::args("self"), "weights")))
-    .def(bp::init<lincs::SufficientCoalitions::Roots>((bp::args("self"), "roots")))
+  auto sufficient_coalitions_class = bp::class_<lincs::SufficientCoalitions>(
+    "SufficientCoalitions",
+    "The coalitions of sufficient criteria to accept an alternative in a category",
+    bp::no_init
+  )
+    .def(bp::init<lincs::SufficientCoalitions::Weights>(
+      (bp::args("self"), "weights"),
+      "Constructor for sufficient coalitions defined by weights"
+    ))
+    .def(bp::init<lincs::SufficientCoalitions::Roots>(
+      (bp::args("self"), "roots"),
+      "Constructor for sufficient coalitions defined by roots"
+    ))
     .add_property("kind", &lincs::SufficientCoalitions::get_kind, "The kind of descriptor for these sufficient coalitions")
     .add_property("is_weights", &lincs::SufficientCoalitions::is_weights, "``True`` if the descriptor is a set of weights")
     .add_property("is_roots", &lincs::SufficientCoalitions::is_roots, "``True`` if the descriptor is a set of roots")
@@ -330,7 +394,10 @@ void define_model_classes() {
     .def(bp::self == bp::self)
   ;
 
-  sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>("Kind", "The different kinds of descriptors for sufficient coalitions");
+  sufficient_coalitions_class.attr("Kind") = auto_enum<lincs::SufficientCoalitions::Kind>(
+    "Kind",
+    "The different kinds of descriptors for sufficient coalitions"
+  );
 
   struct WeightsPickleSuite : bp::pickle_suite {
     static bp::tuple getinitargs(const lincs::SufficientCoalitions::Weights& weights) {
@@ -341,8 +408,12 @@ void define_model_classes() {
   sufficient_coalitions_class.attr("Weights") = bp::class_<lincs::SufficientCoalitions::Weights>(
     "Weights",
     "Descriptor for sufficient coalitions defined by weights",
-    bp::init<const std::vector<float>&>((bp::arg("self"), "criterion_weights"))
+    bp::no_init
   )
+    .def(bp::init<const std::vector<float>&>(
+      (bp::arg("self"), "criterion_weights"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .add_property("criterion_weights", bp::make_function(&lincs::SufficientCoalitions::Weights::get_criterion_weights, bp::return_value_policy<bp::return_by_value>()), "The weights for each criterion")
     .def_pickle(WeightsPickleSuite())
   ;
@@ -363,7 +434,10 @@ void define_model_classes() {
     "Descriptor for sufficient coalitions defined by roots",
     bp::no_init
   )
-    .def(bp::init<const Problem&, const std::vector<std::vector<unsigned>>&>((bp::arg("self"), "problem", "upset_roots")))
+    .def(bp::init<const Problem&, const std::vector<std::vector<unsigned>>&>(
+      (bp::arg("self"), "problem", "upset_roots"),
+      "Parameters map exactly to attributes with identical names"
+    ))
     .def(bp::init<lincs::Internal, unsigned, const std::vector<std::vector<unsigned>>&>((bp::arg("self"), "internal", "criteria_count", "upset_roots")))
     .add_property("upset_roots", bp::make_function(&lincs::SufficientCoalitions::Roots::get_upset_roots_as_vectors, bp::return_value_policy<bp::return_by_value>()), "The roots of the upset of sufficient coalitions")
     .def_pickle(RootsPickleSuite())
@@ -377,9 +451,13 @@ void define_model_classes() {
 
   auto model_class = bp::class_<lincs::Model>(
     "Model",
+    "An NCS classification model",
     bp::no_init
   )
-    .def(bp::init<const lincs::Problem&, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>((bp::arg("self"), "problem", "accepted_values", "sufficient_coalitions")))
+    .def(bp::init<const lincs::Problem&, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>(
+      (bp::arg("self"), "problem", "accepted_values", "sufficient_coalitions"),
+      "The :py:class:`Model` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names"
+    ))
     .def(bp::init<lincs::Internal, const std::vector<lincs::AcceptedValues>&, const std::vector<lincs::SufficientCoalitions>&>((bp::arg("self"), "internal", "accepted_values", "sufficient_coalitions")))
     .add_property("accepted_values", bp::make_function(&lincs::Model::get_accepted_values, bp::return_value_policy<bp::return_by_value>()), "The accepted values for each criterion")
     .add_property("sufficient_coalitions", bp::make_function(&lincs::Model::get_sufficient_coalitions, bp::return_value_policy<bp::return_by_value>()), "The sufficient coalitions for each category")
@@ -411,17 +489,30 @@ void define_alternative_classes() {
     }
   };
 
-  auto performance_class = bp::class_<lincs::Performance>("Performance", bp::no_init)
-    .def(bp::init<lincs::Performance::Real>((bp::arg("self"), "performance")))
-    .def(bp::init<lincs::Performance::Integer>((bp::arg("self"), "performance")))
-    .def(bp::init<lincs::Performance::Enumerated>((bp::arg("self"), "performance")))
-    .add_property("value_type", &lincs::Performance::get_value_type)
-    .add_property("is_real", &lincs::Performance::is_real)
-    .add_property("is_integer", &lincs::Performance::is_integer)
-    .add_property("is_enumerated", &lincs::Performance::is_enumerated)
-    .add_property("real",  bp::make_function(&lincs::Performance::get_real, bp::return_value_policy<bp::return_by_value>()))
-    .add_property("integer",  bp::make_function(&lincs::Performance::get_integer, bp::return_value_policy<bp::return_by_value>()))
-    .add_property("enumerated",  bp::make_function(&lincs::Performance::get_enumerated, bp::return_value_policy<bp::return_by_value>()))
+  auto performance_class = bp::class_<lincs::Performance>(
+    "Performance",
+    "The performance of an alternative on a criterion",
+    bp::no_init
+  )
+    .def(bp::init<lincs::Performance::Real>(
+      (bp::arg("self"), "performance"),
+      "Constructor for a real-valued performance"
+    ))
+    .def(bp::init<lincs::Performance::Integer>(
+      (bp::arg("self"), "performance"),
+      "Constructor for an integer-valued performance"
+    ))
+    .def(bp::init<lincs::Performance::Enumerated>(
+      (bp::arg("self"), "performance"),
+      "Constructor for an enumerated performance"
+    ))
+    .add_property("value_type", &lincs::Performance::get_value_type, "The type of values for the corresponding criterion")
+    .add_property("is_real", &lincs::Performance::is_real, "``True`` if the corresponding criterion is real-valued")
+    .add_property("is_integer", &lincs::Performance::is_integer, "``True`` if the corresponding criterion is integer-valued")
+    .add_property("is_enumerated", &lincs::Performance::is_enumerated, "``True`` if the corresponding criterion takes enumerated values")
+    .add_property("real", bp::make_function(&lincs::Performance::get_real, bp::return_value_policy<bp::return_by_value>()), "The real performance, accessible if ``is_real``")
+    .add_property("integer", bp::make_function(&lincs::Performance::get_integer, bp::return_value_policy<bp::return_by_value>()), "The integer performance, accessible if ``is_integer``")
+    .add_property("enumerated", bp::make_function(&lincs::Performance::get_enumerated, bp::return_value_policy<bp::return_by_value>()), "The enumerated performance, accessible if ``is_enumerated``")
     .def_pickle(PerformancePickleSuite())
   ;
 
@@ -433,9 +524,14 @@ void define_alternative_classes() {
 
   performance_class.attr("Real") = bp::class_<lincs::Performance::Real>(
     "Real",
-    bp::init<float>((bp::arg("self"), "value"))
+    "A performance for a real-valued criterion",
+    bp::no_init
   )
-    .add_property("value", &lincs::Performance::Real::get_value)
+    .def(bp::init<float>(
+      (bp::arg("self"), "value"),
+      "Parameters map exactly to attributes with identical names"
+    ))
+    .add_property("value", &lincs::Performance::Real::get_value, "The numerical value of the real performance")
     .def_pickle(RealPickleSuite())
   ;
 
@@ -447,9 +543,14 @@ void define_alternative_classes() {
 
   performance_class.attr("Integer") = bp::class_<lincs::Performance::Integer>(
     "Integer",
-    bp::init<int>((bp::arg("self"), "value"))
+    "A performance for an integer-valued criterion",
+    bp::no_init
   )
-    .add_property("value", &lincs::Performance::Integer::get_value)
+    .def(bp::init<int>(
+      (bp::arg("self"), "value"),
+      "Parameters map exactly to attributes with identical names"
+    ))
+    .add_property("value", &lincs::Performance::Integer::get_value, "The numerical value of the integer performance")
     .def_pickle(IntegerPickleSuite())
   ;
 
@@ -461,9 +562,14 @@ void define_alternative_classes() {
 
   performance_class.attr("Enumerated") = bp::class_<lincs::Performance::Enumerated>(
     "Enumerated",
-    bp::init<std::string>((bp::arg("self"), "value"))
+    "A performance for a criterion taking enumerated values",
+    bp::no_init
   )
-    .add_property("value", bp::make_function(&lincs::Performance::Enumerated::get_value, bp::return_value_policy<bp::return_by_value>()))
+    .def(bp::init<std::string>(
+      (bp::arg("self"), "value"),
+      "Parameters map exactly to attributes with identical names"
+    ))
+    .add_property("value", bp::make_function(&lincs::Performance::Enumerated::get_value, bp::return_value_policy<bp::return_by_value>()), "The string value of the enumerated performance")
     .def_pickle(EnumeratedPickleSuite())
   ;
 
@@ -475,13 +581,16 @@ void define_alternative_classes() {
 
   bp::class_<lincs::Alternative>(
     "Alternative",
-    bp::init<std::string, std::vector<lincs::Performance>, std::optional<unsigned>>(
-      (bp::arg("self"), "name", "profile", (bp::arg("category_index")=std::optional<unsigned>()))
-    )
+    "An alternative, with its performance on each criterion, maybe classified",
+    bp::no_init
   )
-    .add_property("name", bp::make_function(&lincs::Alternative::get_name, bp::return_value_policy<bp::return_by_value>()))
-    .add_property("profile", bp::make_function(&lincs::Alternative::get_profile, bp::return_value_policy<bp::return_by_value>()))
-    .add_property("category_index", bp::make_function(&lincs::Alternative::get_category_index, bp::return_value_policy<bp::return_by_value>()), &lincs::Alternative::set_category_index)
+    .def(bp::init<std::string, std::vector<lincs::Performance>, std::optional<unsigned>>(
+      (bp::arg("self"), "name", "profile", (bp::arg("category_index")=std::optional<unsigned>())),
+      "Parameters map exactly to attributes with identical names"
+    ))
+    .add_property("name", bp::make_function(&lincs::Alternative::get_name, bp::return_value_policy<bp::return_by_value>()), "The name of the alternative")
+    .add_property("profile", bp::make_function(&lincs::Alternative::get_profile, bp::return_value_policy<bp::return_by_value>()), "The performance profile of the alternative")
+    .add_property("category_index", bp::make_function(&lincs::Alternative::get_category_index, bp::return_value_policy<bp::return_by_value>()), &lincs::Alternative::set_category_index, "The index of the category of the alternative, if it is classified")
     .def_pickle(AlternativePickleSuite())
   ;
 
@@ -493,11 +602,15 @@ void define_alternative_classes() {
 
   bp::class_<lincs::Alternatives>(
     "Alternatives",
+    "A set of alternatives, maybe classified",
     bp::no_init
   )
-    .def(bp::init<const lincs::Problem&, const std::vector<lincs::Alternative>&>((bp::arg("self"), "problem", "alternatives")))
+    .def(bp::init<const lincs::Problem&, const std::vector<lincs::Alternative>&>(
+      (bp::arg("self"), "problem", "alternatives"),
+      "The :py:class:`Alternatives` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names"
+    ))
     .def(bp::init<lincs::Internal, const std::vector<lincs::Alternative>&>((bp::arg("self"), "internal", "alternatives")))
-    .add_property("alternatives", bp::make_function(&lincs::Alternatives::get_alternatives, bp::return_value_policy<bp::return_by_value>()))
+    .add_property("alternatives", bp::make_function(&lincs::Alternatives::get_alternatives, bp::return_value_policy<bp::return_by_value>()), "The :py:class:`Alternative` objects in this set")
     .def(
       "dump",
       &dump_alternatives,
