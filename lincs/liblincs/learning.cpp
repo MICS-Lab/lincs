@@ -53,7 +53,10 @@ void check_exact_real_learning(
   const std::set<unsigned> bad_seeds_c = {},
   const unsigned seeds_count = default_seeds_count
 ) {
+  std::string kind;
   if (!skip_long) {
+    kind = "increasing";
+    CAPTURE(kind);
     lincs::Problem problem = lincs::generate_classification_problem(
       criteria_count, categories_count,
       41,
@@ -67,6 +70,8 @@ void check_exact_real_learning(
   }
 
   if (!skip_long) {
+    kind = "decreasing";
+    CAPTURE(kind);
     lincs::Problem problem = lincs::generate_classification_problem(
       criteria_count, categories_count,
       41,
@@ -80,6 +85,8 @@ void check_exact_real_learning(
   }
 
   if (true) {
+    kind = "both";
+    CAPTURE(kind);
     lincs::Problem problem = lincs::generate_classification_problem(
       criteria_count, categories_count,
       41,
@@ -144,7 +151,10 @@ void check_non_exact_real_learning(
   std::set<unsigned> bad_seeds_c = {},
   const unsigned seeds_count = default_seeds_count
 ) {
+  std::string kind;
   if (!skip_long) {
+    kind = "increasing";
+    CAPTURE(kind);
     lincs::Problem problem = lincs::generate_classification_problem(
       criteria_count, categories_count,
       41,
@@ -158,6 +168,8 @@ void check_non_exact_real_learning(
   }
 
   if (!skip_long) {
+    kind = "decreasing";
+    CAPTURE(kind);
     lincs::Problem problem = lincs::generate_classification_problem(
       criteria_count, categories_count,
       41,
@@ -171,6 +183,8 @@ void check_non_exact_real_learning(
   }
 
   if (true) {
+    kind = "both";
+    CAPTURE(kind);
     lincs::Problem problem = lincs::generate_classification_problem(
       criteria_count, categories_count,
       41,
