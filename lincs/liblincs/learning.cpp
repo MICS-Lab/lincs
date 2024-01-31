@@ -431,8 +431,11 @@ TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::s
 TEST_CASE("Alglib WPB learning - real criteria") {
   check_exact_real_learning<AlglibWpbWrapper>(1, 2);
   check_exact_real_learning<AlglibWpbWrapper>(3, 2);
-  check_exact_real_learning<AlglibWpbWrapper>(7, 2, {}, {48}, {});
   check_exact_real_learning<AlglibWpbWrapper>(1, 3);
+}
+
+TEST_CASE("Alglib WPB learning - real criteria - long" * doctest::skip(skip_long)) {
+  check_exact_real_learning<AlglibWpbWrapper>(7, 2, {}, {48}, {});
   check_exact_real_learning<AlglibWpbWrapper>(4, 3, {55, 59}, {}, {5, 55});
 }
 
