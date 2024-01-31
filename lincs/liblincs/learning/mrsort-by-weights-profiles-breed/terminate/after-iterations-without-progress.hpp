@@ -27,7 +27,7 @@ class TerminateAfterIterationsWithoutProgress : public LearnMrsortByWeightsProfi
       last_progress_iteration_index = learning_data.iteration_index;
       previous_best_accuracy = new_best_accuracy;
       return false;
-    } else if (learning_data.iteration_index - last_progress_iteration_index > max_iterations_count) {
+    } else if (learning_data.iteration_index - last_progress_iteration_index >= max_iterations_count) {
       return true;
     } else {
       return false;

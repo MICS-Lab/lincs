@@ -10,16 +10,16 @@ namespace lincs {
 
 class TerminateAfterIterations : public LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
  public:
-  explicit TerminateAfterIterations(const LearningData& learning_data_, const unsigned max_iteration_index_) : learning_data(learning_data_), max_iteration_index(max_iteration_index_) {}
+  explicit TerminateAfterIterations(const LearningData& learning_data_, const unsigned max_iterations_count_) : learning_data(learning_data_), max_iterations_count(max_iterations_count_) {}
 
  public:
   bool terminate() override {
-    return learning_data.iteration_index > max_iteration_index;
+    return learning_data.iteration_index >= max_iterations_count - 1;
   }
 
  private:
   const LearningData& learning_data;
-  const unsigned max_iteration_index;
+  const unsigned max_iterations_count;
 };
 
 }  // namespace lincs
