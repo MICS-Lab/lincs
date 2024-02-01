@@ -4,6 +4,25 @@
 Changelog
 =========
 
+Version 1.1.0a5 (2024-02-01)
+============================
+
+- **Breaking** Rename function ``lincs.classification.generate_classified_alternatives`` to ``lincs.classification.generate_alternatives``
+- **Breaking** Rename parameter ``categories`` to ``ordered_categories`` in ``lincs.classification.Model.__init__``
+- **Breaking** Rename parameter ``category`` to ``category_index`` in ``lincs.classification.Alternative.__init__``
+- **Breaking** Pass a ``Problem`` instead of its ``criteria_count`` to ``lincs.classification.SufficientCoalitions.Roots.__init__``
+- **Breaking** Rename ``Performance.RealPerformance`` to ``Performance.Real``, ``Performance.IntegerPerformance`` to ``Performance.Integer``, and ``Performance.EnumeratedPerformance`` to ``Performance.Enumerated``
+- Fix ``TerminateAterIterations`` and ``TerminateAterIterationsWithoutProgress`` strategies: they were allowing slightly too many iterations
+- Improve our "Python API" guide and reference
+- Validate input data in the Python constructors (previously done only when loading from files)
+- Support ``copy.deepcopy`` on I/O objects
+- Support pickling of I/O objects
+
+Versions 1.1.0a2 to 1.1.0a4 (2024-01-29)
+========================================
+
+- Build a Docker image on release (not published since 0.5.0), documented in our "Get started" guide
+
 Versions 1.1.0a0 (2024-01-10), 1.1.0a1 (2024-01-11)
 ===================================================
 

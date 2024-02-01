@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reference &#8212; lincs 1.1.0a1 documentation</title>
+    <title>Reference &#8212; lincs 1.1.0a5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=0ee04fe0"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f2915547"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -1169,25 +1169,25 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py data">
 <dt class="sig sig-object py" id="lincs.__version__">
 <span class="sig-prename descclassname"><span class="pre">lincs.</span></span><span class="sig-name descname"><span class="pre">__version__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.__version__" title="Permalink to this definition">¶</a></dt>
-<dd><p>The version of <em>lincs</em>, as a string in <a class="reference external" href="https://semver.org/">SemVer</a> format</p>
+<dd><p>The version of <em>lincs</em>, as a string in <a class="reference external" href="https://packaging.python.org/en/latest/specifications/version-specifiers/">Version Specifier</a> format.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="lincs.has_gpu">
 <span class="sig-prename descclassname"><span class="pre">lincs.</span></span><span class="sig-name descname"><span class="pre">has_gpu</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.has_gpu" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if <em>lincs</em> was compiled with CUDA support</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if <em>lincs</em> was built with CUDA support.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="lincs.DataValidationException">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.</span></span><span class="sig-name descname"><span class="pre">DataValidationException</span></span><a class="headerlink" href="#lincs.DataValidationException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Raised by constructors when called with invalid data. <code class="docutils literal notranslate"><span class="pre">ex.args[0]</span></code> gives a human-readable description of the error</p>
+<dd><p>Raised by constructors when called with invalid data. <code class="docutils literal notranslate"><span class="pre">ex.args[0]</span></code> gives a human-readable description of the error.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="lincs.LearningFailureException">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.</span></span><span class="sig-name descname"><span class="pre">LearningFailureException</span></span><a class="headerlink" href="#lincs.LearningFailureException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Raised by learning algorithms when they can’t reach their objective</p>
+<dd><p>Raised by learning algorithms when they can’t reach their objective.</p>
 </dd></dl>
 
 <span class="target" id="module-lincs.classification"></span><section id="the-lincs-classification-module">
@@ -1196,51 +1196,51 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Criterion">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Criterion</span></span><a class="headerlink" href="#lincs.classification.Criterion" title="Permalink to this definition">¶</a></dt>
-<dd><p>A classification criterion, to be used in a classification <code class="docutils literal notranslate"><span class="pre">Problem</span></code></p>
+<dd><p>A classification criterion, to be used in a classification <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Criterion.RealValues" title="lincs.classification.Criterion.RealValues"><span class="pre">RealValues</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Criterion.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor for real-valued criterion</p>
+<dd><p>Constructor for real-valued criterion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Criterion.IntegerValues" title="lincs.classification.Criterion.IntegerValues"><span class="pre">IntegerValues</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Constructor for integer-valued criterion</p>
+<dd><p>Constructor for integer-valued criterion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Criterion.EnumeratedValues" title="lincs.classification.Criterion.EnumeratedValues"><span class="pre">EnumeratedValues</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Constructor for criterion with enumerated values</p>
+<dd><p>Constructor for criterion with enumerated values.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.name">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Criterion.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of the criterion</p>
+<dd><p>The name of the criterion.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.ValueType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ValueType</span></span><a class="headerlink" href="#lincs.classification.Criterion.ValueType" title="Permalink to this definition">¶</a></dt>
-<dd><p>The different types of values for a criterion</p>
+<dd><p>The different types of values for a criterion.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.ValueType.real">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.ValueType" title="lincs.classification.Criterion.ValueType"><span class="pre">ValueType</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.ValueType.real" title="Permalink to this definition">¶</a></dt>
-<dd><p>Real values</p>
+<dd><p>Real values.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.ValueType.integer">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.ValueType" title="lincs.classification.Criterion.ValueType"><span class="pre">ValueType</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.ValueType.integer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Integer values</p>
+<dd><p>Integer values.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.ValueType.enumerated">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.ValueType" title="lincs.classification.Criterion.ValueType"><span class="pre">ValueType</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.ValueType.enumerated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enumerated values</p>
+<dd><p>Enumerated values.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1248,52 +1248,53 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.value_type">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.ValueType" title="lincs.classification.Criterion.ValueType"><span class="pre">ValueType</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.value_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>The type of values for this criterion</p>
+<dd><p>The type of values for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.is_real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.is_real" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is real-valued</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is real-valued.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.is_integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.is_integer" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is integer-valued</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is integer-valued.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.is_enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.is_enumerated" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion takes enumerated values</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion takes enumerated values.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.PreferenceDirection">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PreferenceDirection</span></span><a class="headerlink" href="#lincs.classification.Criterion.PreferenceDirection" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py property">
+<dd><p>What values are preferred for a criterion.</p>
+<dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.PreferenceDirection.increasing">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">increasing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.PreferenceDirection.increasing" title="Permalink to this definition">¶</a></dt>
-<dd><p>For criteria where higher numerical values are known to be better</p>
+<dd><p>For criteria where higher numerical values are known to be better.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.PreferenceDirection.decreasing">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decreasing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.PreferenceDirection.decreasing" title="Permalink to this definition">¶</a></dt>
-<dd><p>For criteria where lower numerical values are known to be better</p>
+<dd><p>For criteria where lower numerical values are known to be better.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.PreferenceDirection.isotone">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isotone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.PreferenceDirection.isotone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Synonym for <code class="docutils literal notranslate"><span class="pre">increasing</span></code></p>
+<dd><p>Synonym for <code class="docutils literal notranslate"><span class="pre">increasing</span></code>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.PreferenceDirection.antitone">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">antitone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.PreferenceDirection.antitone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Synonym for <code class="docutils literal notranslate"><span class="pre">decreasing</span></code></p>
+<dd><p>Synonym for <code class="docutils literal notranslate"><span class="pre">decreasing</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1301,40 +1302,41 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RealValues</span></span><a class="headerlink" href="#lincs.classification.Criterion.RealValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the real values allowed for a criterion</p>
+<dd><p>Descriptor of the real values allowed for a criterion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preference_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Criterion.RealValues.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues.min_value">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#lincs.classification.Criterion.RealValues.min_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>The minimum value allowed for this criterion</p>
+<dd><p>The minimum value allowed for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues.max_value">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#lincs.classification.Criterion.RealValues.max_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>The maximum value allowed for this criterion</p>
+<dd><p>The maximum value allowed for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues.preference_direction">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preference_direction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.RealValues.preference_direction" title="Permalink to this definition">¶</a></dt>
-<dd><p>The preference direction for this criterion</p>
+<dd><p>The preference direction for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues.is_increasing">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_increasing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.RealValues.is_increasing" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has increasing preference direction</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has increasing preference direction.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.RealValues.is_decreasing">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_decreasing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.RealValues.is_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has decreasing preference direction</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has decreasing preference direction.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1342,46 +1344,47 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.real_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.RealValues" title="lincs.classification.Criterion.RealValues"><span class="pre">RealValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.real_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the real values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code></p>
+<dd><p>Descriptor of the real values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IntegerValues</span></span><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the integer values allowed for a criterion</p>
+<dd><p>Descriptor of the integer values allowed for a criterion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preference_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues.min_value">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues.min_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>The minimum value allowed for this criterion</p>
+<dd><p>The minimum value allowed for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues.max_value">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues.max_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>The maximum value allowed for this criterion</p>
+<dd><p>The maximum value allowed for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues.preference_direction">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">preference_direction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.PreferenceDirection" title="lincs.classification.Criterion.PreferenceDirection"><span class="pre">PreferenceDirection</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues.preference_direction" title="Permalink to this definition">¶</a></dt>
-<dd><p>The preference direction for this criterion</p>
+<dd><p>The preference direction for this criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues.is_increasing">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_increasing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues.is_increasing" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has increasing preference direction</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has increasing preference direction.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.IntegerValues.is_decreasing">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_decreasing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.IntegerValues.is_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has decreasing preference direction</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion has decreasing preference direction.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1389,28 +1392,29 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.integer_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.IntegerValues" title="lincs.classification.Criterion.IntegerValues"><span class="pre">IntegerValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.integer_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the integer values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code></p>
+<dd><p>Descriptor of the integer values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.EnumeratedValues">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnumeratedValues</span></span><a class="headerlink" href="#lincs.classification.Criterion.EnumeratedValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the enumerated values allowed for a criterion</p>
+<dd><p>Descriptor of the enumerated values allowed for a criterion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.EnumeratedValues.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordered_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Criterion.EnumeratedValues.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.EnumeratedValues.get_value_rank">
 <span class="sig-name descname"><span class="pre">get_value_rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#lincs.classification.Criterion.EnumeratedValues.get_value_rank" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the rank of a given value</p>
+<dd><p>Get the rank of a given value.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.EnumeratedValues.ordered_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ordered_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Criterion.EnumeratedValues.ordered_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>The values for this criterion, from the worst to the best</p>
+<dd><p>The values for this criterion, from the worst to the best.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1418,7 +1422,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.enumerated_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.EnumeratedValues" title="lincs.classification.Criterion.EnumeratedValues"><span class="pre">EnumeratedValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.enumerated_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the enumerated values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code></p>
+<dd><p>Descriptor of the enumerated values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1426,16 +1430,17 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Category">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Category</span></span><a class="headerlink" href="#lincs.classification.Category" title="Permalink to this definition">¶</a></dt>
-<dd><p>A category of a classification <code class="docutils literal notranslate"><span class="pre">Problem</span></code></p>
+<dd><p>A category of a classification <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Category.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Category.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Category.name">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Category.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The name of this category</p>
+<dd><p>The name of this category.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1443,40 +1448,41 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Problem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Problem</span></span><a class="headerlink" href="#lincs.classification.Problem" title="Permalink to this definition">¶</a></dt>
-<dd><p>A classification problem, with criteria and categories</p>
+<dd><p>A classification problem, with criteria and categories.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Problem.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Criterion" title="lincs.classification.Criterion"><span class="pre">Criterion</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Category" title="lincs.classification.Category"><span class="pre">Category</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Problem.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Criterion" title="lincs.classification.Criterion"><span class="pre">Criterion</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered_categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Category" title="lincs.classification.Category"><span class="pre">Category</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Problem.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Problem.criteria">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Criterion" title="lincs.classification.Criterion"><span class="pre">Criterion</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Problem.criteria" title="Permalink to this definition">¶</a></dt>
-<dd><p>The criteria of this problem</p>
+<dd><p>The criteria of this problem.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Problem.ordered_categories">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ordered_categories</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Category" title="lincs.classification.Category"><span class="pre">Category</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Problem.ordered_categories" title="Permalink to this definition">¶</a></dt>
-<dd><p>The categories of this problem, from the worst to the best</p>
+<dd><p>The categories of this problem, from the worst to the best.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Problem.dump">
 <span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Problem.dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dump the problem to the provided <code class="docutils literal notranslate"><span class="pre">.write</span></code>-supporting file-like object, in YAML format</p>
+<dd><p>Dump the problem to the provided <code class="docutils literal notranslate"><span class="pre">.write</span></code>-supporting file-like object, in YAML format.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Problem.load">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in:</span> <span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></span><a class="headerlink" href="#lincs.classification.Problem.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a problem from the provided <code class="docutils literal notranslate"><span class="pre">.read</span></code>-supporting file-like object, in YAML format</p>
+<dd><p>Load a problem from the provided <code class="docutils literal notranslate"><span class="pre">.read</span></code>-supporting file-like object, in YAML format.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="lincs.classification.Problem.JSON_SCHEMA">
 <span class="sig-name descname"><span class="pre">JSON_SCHEMA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Problem.JSON_SCHEMA" title="Permalink to this definition">¶</a></dt>
-<dd><p>The JSON schema defining the format used by <code class="docutils literal notranslate"><span class="pre">dump</span></code> and <code class="docutils literal notranslate"><span class="pre">load</span></code>, as a string</p>
+<dd><p>The JSON schema defining the format used by <code class="docutils literal notranslate"><span class="pre">dump</span></code> and <code class="docutils literal notranslate"><span class="pre">load</span></code>, as a string.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1484,53 +1490,57 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">AcceptedValues</span></span><a class="headerlink" href="#lincs.classification.AcceptedValues" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>The values accepted by a model for a criterion.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.AcceptedValues.RealThresholds" title="lincs.classification.AcceptedValues.RealThresholds"><span class="pre">RealThresholds</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.AcceptedValues.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Constructor for thresholds on a real-valued criterion.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerThresholds" title="lincs.classification.AcceptedValues.IntegerThresholds"><span class="pre">IntegerThresholds</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Constructor for thresholds on an integer-valued criterion.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.AcceptedValues.EnumeratedThresholds" title="lincs.classification.AcceptedValues.EnumeratedThresholds"><span class="pre">EnumeratedThresholds</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Constructor for thresholds on an enumerated criterion.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.value_type">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.ValueType" title="lincs.classification.Criterion.ValueType"><span class="pre">ValueType</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.value_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>The type of values for the corresponding criterion</p>
+<dd><p>The type of values for the corresponding criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_real" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_integer" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_enumerated" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.Kind">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Kind</span></span><a class="headerlink" href="#lincs.classification.AcceptedValues.Kind" title="Permalink to this definition">¶</a></dt>
-<dd><p>The different kinds of descriptors for accepted values</p>
+<dd><p>The different kinds of descriptors for accepted values.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.Kind.thresholds">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.Kind" title="lincs.classification.AcceptedValues.Kind"><span class="pre">Kind</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.Kind.thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>A threshold for each category</p>
+<dd><p>A threshold for each category.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1538,28 +1548,29 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.kind">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.Kind" title="lincs.classification.AcceptedValues.Kind"><span class="pre">Kind</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.kind" title="Permalink to this definition">¶</a></dt>
-<dd><p>The kind of descriptor for these accepted values</p>
+<dd><p>The kind of descriptor for these accepted values.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of thresholds</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of thresholds.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.RealThresholds">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RealThresholds</span></span><a class="headerlink" href="#lincs.classification.AcceptedValues.RealThresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor for thresholds for an real-valued criterion</p>
+<dd><p>Descriptor for thresholds for an real-valued criterion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.RealThresholds.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thresholds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.AcceptedValues.RealThresholds.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.RealThresholds.thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.RealThresholds.thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>The thresholds for this descriptor</p>
+<dd><p>The thresholds for this descriptor.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1567,22 +1578,23 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.real_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.RealThresholds" title="lincs.classification.AcceptedValues.RealThresholds"><span class="pre">RealThresholds</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.real_thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the real thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code></p>
+<dd><p>Descriptor of the real thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.IntegerThresholds">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IntegerThresholds</span></span><a class="headerlink" href="#lincs.classification.AcceptedValues.IntegerThresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor for thresholds for an integer-valued criterion</p>
+<dd><p>Descriptor for thresholds for an integer-valued criterion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.IntegerThresholds.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thresholds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.AcceptedValues.IntegerThresholds.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.IntegerThresholds.thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.IntegerThresholds.thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>The thresholds for this descriptor</p>
+<dd><p>The thresholds for this descriptor.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1590,22 +1602,23 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.integer_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerThresholds" title="lincs.classification.AcceptedValues.IntegerThresholds"><span class="pre">IntegerThresholds</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.integer_thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the integer thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code></p>
+<dd><p>Descriptor of the integer thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.EnumeratedThresholds">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnumeratedThresholds</span></span><a class="headerlink" href="#lincs.classification.AcceptedValues.EnumeratedThresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor for thresholds for a criterion taking enumerated values</p>
+<dd><p>Descriptor for thresholds for a criterion taking enumerated values.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.EnumeratedThresholds.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thresholds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.AcceptedValues.EnumeratedThresholds.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.EnumeratedThresholds.thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.EnumeratedThresholds.thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>The thresholds for this descriptor</p>
+<dd><p>The thresholds for this descriptor.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1613,7 +1626,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.enumerated_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.EnumeratedThresholds" title="lincs.classification.AcceptedValues.EnumeratedThresholds"><span class="pre">EnumeratedThresholds</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.enumerated_thresholds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the enumerated thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code></p>
+<dd><p>Descriptor of the enumerated thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1621,30 +1634,33 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">SufficientCoalitions</span></span><a class="headerlink" href="#lincs.classification.SufficientCoalitions" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>The coalitions of sufficient criteria to accept an alternative in a category.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Weights" title="lincs.classification.SufficientCoalitions.Weights"><span class="pre">Weights</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Constructor for sufficient coalitions defined by weights.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Roots" title="lincs.classification.SufficientCoalitions.Roots"><span class="pre">Roots</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Constructor for sufficient coalitions defined by roots.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Kind">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Kind</span></span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Kind" title="Permalink to this definition">¶</a></dt>
-<dd><p>The different kinds of descriptors for sufficient coalitions</p>
+<dd><p>The different kinds of descriptors for sufficient coalitions.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Kind.weights">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Kind" title="lincs.classification.SufficientCoalitions.Kind"><span class="pre">Kind</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Kind.weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>For sufficient coalitions described by criterion weights</p>
+<dd><p>For sufficient coalitions described by criterion weights.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Kind.roots">
 <em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">roots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Kind" title="lincs.classification.SufficientCoalitions.Kind"><span class="pre">Kind</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Kind.roots" title="Permalink to this definition">¶</a></dt>
-<dd><p>For sufficient coalitions described by the roots of their upset</p>
+<dd><p>For sufficient coalitions described by the roots of their upset.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1652,34 +1668,35 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.kind">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Kind" title="lincs.classification.SufficientCoalitions.Kind"><span class="pre">Kind</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.kind" title="Permalink to this definition">¶</a></dt>
-<dd><p>The kind of descriptor for these sufficient coalitions</p>
+<dd><p>The kind of descriptor for these sufficient coalitions.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.is_weights">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.is_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of weights</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of weights.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.is_roots">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_roots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.is_roots" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of roots</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of roots.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Weights">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Weights</span></span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor for sufficient coalitions defined by weights</p>
+<dd><p>Descriptor for sufficient coalitions defined by weights.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Weights.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criterion_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Weights.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Weights.criterion_weights">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">criterion_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Weights.criterion_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>The weights for each criterion</p>
+<dd><p>The weights for each criterion.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1687,22 +1704,23 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.weights">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Weights" title="lincs.classification.SufficientCoalitions.Weights"><span class="pre">Weights</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the weights, accessible if <code class="docutils literal notranslate"><span class="pre">is_weights</span></code></p>
+<dd><p>Descriptor of the weights, accessible if <code class="docutils literal notranslate"><span class="pre">is_weights</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Roots">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Roots</span></span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Roots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor for sufficient coalitions defined by roots</p>
+<dd><p>Descriptor for sufficient coalitions defined by roots.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Roots.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upset_roots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Roots.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">upset_roots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Roots.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.Roots.upset_roots">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">upset_roots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.Roots.upset_roots" title="Permalink to this definition">¶</a></dt>
-<dd><p>The roots of the upset of sufficient coalitions</p>
+<dd><p>The roots of the upset of sufficient coalitions.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1710,7 +1728,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.roots">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">roots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Roots" title="lincs.classification.SufficientCoalitions.Roots"><span class="pre">Roots</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.roots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor of the roots, accessible if <code class="docutils literal notranslate"><span class="pre">is_roots</span></code></p>
+<dd><p>Descriptor of the roots, accessible if <code class="docutils literal notranslate"><span class="pre">is_roots</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1718,39 +1736,41 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="headerlink" href="#lincs.classification.Model" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>An NCS classification model.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Model.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.AcceptedValues" title="lincs.classification.AcceptedValues"><span class="pre">AcceptedValues</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sufficient_coalitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.SufficientCoalitions" title="lincs.classification.SufficientCoalitions"><span class="pre">SufficientCoalitions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Model.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The <a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a> being initialized must correspond to the given <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>. Other parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Model.accepted_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">accepted_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.AcceptedValues" title="lincs.classification.AcceptedValues"><span class="pre">AcceptedValues</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Model.accepted_values" title="Permalink to this definition">¶</a></dt>
-<dd><p>The accepted values for each criterion</p>
+<dd><p>The accepted values for each criterion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Model.sufficient_coalitions">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sufficient_coalitions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.SufficientCoalitions" title="lincs.classification.SufficientCoalitions"><span class="pre">SufficientCoalitions</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Model.sufficient_coalitions" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sufficient coalitions for each category</p>
+<dd><p>The sufficient coalitions for each category.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Model.dump">
 <span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Model.dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dump the model to the provided <code class="docutils literal notranslate"><span class="pre">.write</span></code>-supporting file-like object, in YAML format</p>
+<dd><p>Dump the model to the provided <code class="docutils literal notranslate"><span class="pre">.write</span></code>-supporting file-like object, in YAML format.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Model.load">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem:</span> <span class="pre">Problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in:</span> <span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.Model.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a model for the provided <code class="docutils literal notranslate"><span class="pre">Problem</span></code>, from the provided <code class="docutils literal notranslate"><span class="pre">.read</span></code>-supporting file-like object, in YAML format</p>
+<dd><p>Load a model for the provided <code class="docutils literal notranslate"><span class="pre">Problem</span></code>, from the provided <code class="docutils literal notranslate"><span class="pre">.read</span></code>-supporting file-like object, in YAML format.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="lincs.classification.Model.JSON_SCHEMA">
 <span class="sig-name descname"><span class="pre">JSON_SCHEMA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Model.JSON_SCHEMA" title="Permalink to this definition">¶</a></dt>
-<dd><p>The JSON schema defining the format used by <code class="docutils literal notranslate"><span class="pre">dump</span></code> and <code class="docutils literal notranslate"><span class="pre">load</span></code>, as a string</p>
+<dd><p>The JSON schema defining the format used by <code class="docutils literal notranslate"><span class="pre">dump</span></code> and <code class="docutils literal notranslate"><span class="pre">load</span></code>, as a string.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1758,140 +1778,168 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Performance">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Performance</span></span><a class="headerlink" href="#lincs.classification.Performance" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>The performance of an alternative on a criterion.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Performance.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Performance.RealPerformance" title="lincs.classification.Performance.RealPerformance"><span class="pre">RealPerformance</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Performance.Real" title="lincs.classification.Performance.Real"><span class="pre">Real</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for a real-valued performance.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Performance.IntegerPerformance" title="lincs.classification.Performance.IntegerPerformance"><span class="pre">IntegerPerformance</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Performance.Integer" title="lincs.classification.Performance.Integer"><span class="pre">Integer</span></a></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Constructor for an integer-valued performance.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Performance.EnumeratedPerformance" title="lincs.classification.Performance.EnumeratedPerformance"><span class="pre">EnumeratedPerformance</span></a></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Performance.Enumerated" title="lincs.classification.Performance.Enumerated"><span class="pre">Enumerated</span></a></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Constructor for an enumerated performance.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.value_type">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.ValueType" title="lincs.classification.Criterion.ValueType"><span class="pre">ValueType</span></a></em><a class="headerlink" href="#lincs.classification.Performance.value_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The type of values for the corresponding criterion.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.is_real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Performance.is_real" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.is_integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Performance.is_integer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.is_enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Performance.is_enumerated" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values.</p>
+</dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="lincs.classification.Performance.RealPerformance">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RealPerformance</span></span><a class="headerlink" href="#lincs.classification.Performance.RealPerformance" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="lincs.classification.Performance.RealPerformance.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.RealPerformance.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="lincs.classification.Performance.Real">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Real</span></span><a class="headerlink" href="#lincs.classification.Performance.Real" title="Permalink to this definition">¶</a></dt>
+<dd><p>A performance for a real-valued criterion.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lincs.classification.Performance.Real.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.Real.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="lincs.classification.Performance.RealPerformance.value">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#lincs.classification.Performance.RealPerformance.value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="lincs.classification.Performance.Real.value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#lincs.classification.Performance.Real.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The numerical value of the real performance.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.real">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.RealPerformance" title="lincs.classification.Performance.RealPerformance"><span class="pre">RealPerformance</span></a></em><a class="headerlink" href="#lincs.classification.Performance.real" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Real" title="lincs.classification.Performance.Real"><span class="pre">Real</span></a></em><a class="headerlink" href="#lincs.classification.Performance.real" title="Permalink to this definition">¶</a></dt>
+<dd><p>The real performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code>.</p>
+</dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="lincs.classification.Performance.IntegerPerformance">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IntegerPerformance</span></span><a class="headerlink" href="#lincs.classification.Performance.IntegerPerformance" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="lincs.classification.Performance.IntegerPerformance.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.IntegerPerformance.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="lincs.classification.Performance.Integer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Integer</span></span><a class="headerlink" href="#lincs.classification.Performance.Integer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A performance for an integer-valued criterion.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lincs.classification.Performance.Integer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.Integer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="lincs.classification.Performance.IntegerPerformance.value">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#lincs.classification.Performance.IntegerPerformance.value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="lincs.classification.Performance.Integer.value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#lincs.classification.Performance.Integer.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The numerical value of the integer performance.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.integer">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.IntegerPerformance" title="lincs.classification.Performance.IntegerPerformance"><span class="pre">IntegerPerformance</span></a></em><a class="headerlink" href="#lincs.classification.Performance.integer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Integer" title="lincs.classification.Performance.Integer"><span class="pre">Integer</span></a></em><a class="headerlink" href="#lincs.classification.Performance.integer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integer performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code>.</p>
+</dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="lincs.classification.Performance.EnumeratedPerformance">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnumeratedPerformance</span></span><a class="headerlink" href="#lincs.classification.Performance.EnumeratedPerformance" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="lincs.classification.Performance.EnumeratedPerformance.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.EnumeratedPerformance.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="lincs.classification.Performance.Enumerated">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Enumerated</span></span><a class="headerlink" href="#lincs.classification.Performance.Enumerated" title="Permalink to this definition">¶</a></dt>
+<dd><p>A performance for a criterion taking enumerated values.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lincs.classification.Performance.Enumerated.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Performance.Enumerated.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="lincs.classification.Performance.EnumeratedPerformance.value">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Performance.EnumeratedPerformance.value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="lincs.classification.Performance.Enumerated.value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Performance.Enumerated.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The string value of the enumerated performance.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.enumerated">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.EnumeratedPerformance" title="lincs.classification.Performance.EnumeratedPerformance"><span class="pre">EnumeratedPerformance</span></a></em><a class="headerlink" href="#lincs.classification.Performance.enumerated" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Enumerated" title="lincs.classification.Performance.Enumerated"><span class="pre">Enumerated</span></a></em><a class="headerlink" href="#lincs.classification.Performance.enumerated" title="Permalink to this definition">¶</a></dt>
+<dd><p>The enumerated performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code>.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Alternative">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Alternative</span></span><a class="headerlink" href="#lincs.classification.Alternative" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>An alternative, with its performance on each criterion, maybe classified.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Alternative.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile:</span> <span class="pre">Iterable[Performance]</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">category:</span> <span class="pre">Optional[int]=None</span></span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Alternative.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile:</span> <span class="pre">Iterable[Performance]</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">category_index:</span> <span class="pre">object=None</span></span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Alternative.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Alternative.name">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#lincs.classification.Alternative.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The name of the alternative.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Alternative.profile">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">profile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Performance" title="lincs.classification.Performance"><span class="pre">Performance</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Alternative.profile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The performance profile of the alternative.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Alternative.category_index">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">category_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#lincs.classification.Alternative.category_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The index of the category of the alternative, if it is classified.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.Alternatives">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">Alternatives</span></span><a class="headerlink" href="#lincs.classification.Alternatives" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>A set of alternatives, maybe classified.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Alternatives.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Alternative" title="lincs.classification.Alternative"><span class="pre">Alternative</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.Alternatives.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The <a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><code class="xref py py-class docutils literal notranslate"><span class="pre">Alternatives</span></code></a> being initialized must correspond to the given <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>. Other parameters map exactly to attributes with identical names.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Alternatives.alternatives">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alternatives</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Alternative" title="lincs.classification.Alternative"><span class="pre">Alternative</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#lincs.classification.Alternatives.alternatives" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The <a class="reference internal" href="#lincs.classification.Alternative" title="lincs.classification.Alternative"><code class="xref py py-class docutils literal notranslate"><span class="pre">Alternative</span></code></a> objects in this set.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.Alternatives.dump">
@@ -1910,408 +1958,482 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.generate_problem">
 <span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">generate_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria_count:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories_count:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">normalized_min_max:</span> <span class="pre">bool=True</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">allowed_preference_directions:</span> <span class="pre">Iterable[PreferenceDirection]=[]</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">allowed_value_types:</span> <span class="pre">Iterable[ValueType]=[]</span></span></em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></span><a class="headerlink" href="#lincs.classification.generate_problem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a problem with <code class="docutils literal notranslate"><span class="pre">criteria_count</span></code> criteria and <code class="docutils literal notranslate"><span class="pre">categories_count</span></code> categories.</p>
+<dd><p>Generate a <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a> with <code class="docutils literal notranslate"><span class="pre">criteria_count</span></code> criteria and <code class="docutils literal notranslate"><span class="pre">categories_count</span></code> categories.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.generate_mrsort_model">
 <span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">generate_mrsort_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem:</span> <span class="pre">Problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">fixed_weights_sum:</span> <span class="pre">Optional[float]=None</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.generate_mrsort_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate an MR-Sort model for the provided <code class="docutils literal notranslate"><span class="pre">Problem</span></code>.</p>
+<dd><p>Generate an MR-Sort model for the provided <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="lincs.classification.BalancedAlternativesGenerationException">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">BalancedAlternativesGenerationException</span></span><a class="headerlink" href="#lincs.classification.BalancedAlternativesGenerationException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Raised by <code class="docutils literal notranslate"><span class="pre">generate_classified_alternatives</span></code> when it fails to find alternatives to balance the categories</p>
+<dd><p>Raised by <code class="docutils literal notranslate"><span class="pre">generate_alternatives</span></code> when it fails to find alternatives to balance the categories.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="lincs.classification.generate_classified_alternatives">
-<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">generate_classified_alternatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem:</span> <span class="pre">Problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives_count:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">max_imbalance:</span> <span class="pre">Optional[float]=None</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></span><a class="headerlink" href="#lincs.classification.generate_classified_alternatives" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a set of <code class="docutils literal notranslate"><span class="pre">alternatives_count</span></code> pseudo-random alternatives for the provided <code class="docutils literal notranslate"><span class="pre">Problem</span></code>, classified according to the provided <code class="docutils literal notranslate"><span class="pre">Model</span></code>.</p>
+<dt class="sig sig-object py" id="lincs.classification.generate_alternatives">
+<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">generate_alternatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem:</span> <span class="pre">Problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives_count:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">max_imbalance:</span> <span class="pre">Optional[float]=None</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></span><a class="headerlink" href="#lincs.classification.generate_alternatives" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of <code class="docutils literal notranslate"><span class="pre">alternatives_count</span></code> pseudo-random alternatives for the provided <a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code></a>, classified according to the provided <a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.misclassify_alternatives">
 <span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">misclassify_alternatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.misclassify_alternatives" title="Permalink to this definition">¶</a></dt>
-<dd><p>Misclassify <code class="docutils literal notranslate"><span class="pre">count</span></code> alternatives from the provided <code class="docutils literal notranslate"><span class="pre">Alternatives</span></code>.</p>
+<dd><p>Misclassify <code class="docutils literal notranslate"><span class="pre">count</span></code> alternatives from the provided <a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><code class="xref py py-class docutils literal notranslate"><span class="pre">Alternatives</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat</span></span><a class="headerlink" href="#lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.perform">
 <span class="sig-name descname"><span class="pre">perform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat.perform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">LearnUcncsByMaxSatBySeparationUsingEvalmaxsat</span></span><a class="headerlink" href="#lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.perform">
 <span class="sig-name descname"><span class="pre">perform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat.perform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">LearnUcncsBySatByCoalitionsUsingMinisat</span></span><a class="headerlink" href="#lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.perform">
 <span class="sig-name descname"><span class="pre">perform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat.perform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsBySatBySeparationUsingMinisat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">LearnUcncsBySatBySeparationUsingMinisat</span></span><a class="headerlink" href="#lincs.classification.LearnUcncsBySatBySeparationUsingMinisat" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.perform">
 <span class="sig-name descname"><span class="pre">perform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.LearnUcncsBySatBySeparationUsingMinisat.perform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">LearnMrsortByWeightsProfilesBreed</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data:</span> <span class="pre">LearningData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiles_initialization_strategy:</span> <span class="pre">ProfilesInitializationStrategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_optimization_strategy:</span> <span class="pre">WeightsOptimizationStrategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiles_improvement_strategy:</span> <span class="pre">ProfilesImprovementStrategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breeding_strategy:</span> <span class="pre">BreedingStrategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">termination_strategy:</span> <span class="pre">TerminationStrategy</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">observers:</span> <span class="pre">Iterable[Observer]=[]</span></span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LearningData</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">models_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.get_best_accuracy">
 <span class="sig-name descname"><span class="pre">get_best_accuracy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.get_best_accuracy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.iteration_index">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iteration_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.iteration_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProfilesInitializationStrategy</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy.initialize_profiles">
 <span class="sig-name descname"><span class="pre">initialize_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_indexes_begin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_indexes_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy.initialize_profiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WeightsOptimizationStrategy</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy.optimize_weights">
 <span class="sig-name descname"><span class="pre">optimize_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy.optimize_weights" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ProfilesImprovementStrategy</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy.improve_profiles">
 <span class="sig-name descname"><span class="pre">improve_profiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy.improve_profiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.BreedingStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BreedingStrategy</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.BreedingStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.BreedingStrategy.breed">
 <span class="sig-name descname"><span class="pre">breed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.BreedingStrategy.breed" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TerminationStrategy</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Observer</span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.after_iteration">
 <span class="sig-name descname"><span class="pre">after_iteration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.after_iteration" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.before_return">
 <span class="sig-name descname"><span class="pre">before_return</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.before_return" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.LearnMrsortByWeightsProfilesBreed.perform">
 <span class="sig-name descname"><span class="pre">perform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></span><a class="headerlink" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.perform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion</span></span><a class="headerlink" href="#lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.initialize_profiles">
 <span class="sig-name descname"><span class="pre">initialize_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_indexes_begin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_indexes_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion.initialize_profiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.OptimizeWeightsUsingAlglib">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">OptimizeWeightsUsingAlglib</span></span><a class="headerlink" href="#lincs.classification.OptimizeWeightsUsingAlglib" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.OptimizeWeightsUsingAlglib.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.OptimizeWeightsUsingAlglib.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.OptimizeWeightsUsingAlglib.optimize_weights">
 <span class="sig-name descname"><span class="pre">optimize_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.OptimizeWeightsUsingAlglib.optimize_weights" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.OptimizeWeightsUsingGlop">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">OptimizeWeightsUsingGlop</span></span><a class="headerlink" href="#lincs.classification.OptimizeWeightsUsingGlop" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.OptimizeWeightsUsingGlop.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.OptimizeWeightsUsingGlop.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.OptimizeWeightsUsingGlop.optimize_weights">
 <span class="sig-name descname"><span class="pre">optimize_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.OptimizeWeightsUsingGlop.optimize_weights" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">ImproveProfilesWithAccuracyHeuristicOnCpu</span></span><a class="headerlink" href="#lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.improve_profiles">
 <span class="sig-name descname"><span class="pre">improve_profiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu.improve_profiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">ImproveProfilesWithAccuracyHeuristicOnGpu</span></span><a class="headerlink" href="#lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.improve_profiles">
 <span class="sig-name descname"><span class="pre">improve_profiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu.improve_profiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.ReinitializeLeastAccurate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">ReinitializeLeastAccurate</span></span><a class="headerlink" href="#lincs.classification.ReinitializeLeastAccurate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.ReinitializeLeastAccurate.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiles_initialization_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy"><span class="pre">ProfilesInitializationStrategy</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.ReinitializeLeastAccurate.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.ReinitializeLeastAccurate.breed">
 <span class="sig-name descname"><span class="pre">breed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.ReinitializeLeastAccurate.breed" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterIterations">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">TerminateAfterIterations</span></span><a class="headerlink" href="#lincs.classification.TerminateAfterIterations" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterIterations.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iteration_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.TerminateAfterIterations.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterIterations.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.TerminateAfterIterations.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterIterationsWithoutProgress">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">TerminateAfterIterationsWithoutProgress</span></span><a class="headerlink" href="#lincs.classification.TerminateAfterIterationsWithoutProgress" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterIterationsWithoutProgress.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.TerminateAfterIterationsWithoutProgress.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterIterationsWithoutProgress.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.TerminateAfterIterationsWithoutProgress.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterSeconds">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">TerminateAfterSeconds</span></span><a class="headerlink" href="#lincs.classification.TerminateAfterSeconds" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterSeconds.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.TerminateAfterSeconds.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterSeconds.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.TerminateAfterSeconds.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterSecondsWithoutProgress">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">TerminateAfterSecondsWithoutProgress</span></span><a class="headerlink" href="#lincs.classification.TerminateAfterSecondsWithoutProgress" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterSecondsWithoutProgress.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.TerminateAfterSecondsWithoutProgress.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAfterSecondsWithoutProgress.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.TerminateAfterSecondsWithoutProgress.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAtAccuracy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">TerminateAtAccuracy</span></span><a class="headerlink" href="#lincs.classification.TerminateAtAccuracy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAtAccuracy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData"><span class="pre">LearningData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_accuracy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.TerminateAtAccuracy.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateAtAccuracy.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.TerminateAtAccuracy.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.TerminateWhenAny">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">TerminateWhenAny</span></span><a class="headerlink" href="#lincs.classification.TerminateWhenAny" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateWhenAny.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">termination_strategies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy" title="lincs.classification.LearnMrsortByWeightsProfilesBreed.TerminationStrategy"><span class="pre">TerminationStrategy</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.TerminateWhenAny.__init__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lincs.classification.TerminateWhenAny.terminate">
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#lincs.classification.TerminateWhenAny.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>&#64;todo(Documentation, v1.1) Add a docstring.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lincs.classification.ClassificationResult">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">ClassificationResult</span></span><a class="headerlink" href="#lincs.classification.ClassificationResult" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py property">
+<dd><p>Return type for <code class="docutils literal notranslate"><span class="pre">classify_alternatives</span></code>.</p>
+<dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.ClassificationResult.changed">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">changed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#lincs.classification.ClassificationResult.changed" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Number of alternatives that were not in the same category before and after classification.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.ClassificationResult.unchanged">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unchanged</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#lincs.classification.ClassificationResult.unchanged" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Number of alternatives that were in the same category before and after classification.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.classify_alternatives">
 <span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">classify_alternatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lincs.classification.ClassificationResult" title="lincs.classification.ClassificationResult"><span class="pre">ClassificationResult</span></a></span></span><a class="headerlink" href="#lincs.classification.classify_alternatives" title="Permalink to this definition">¶</a></dt>
-<dd><p>Classify the provided <code class="docutils literal notranslate"><span class="pre">Alternatives</span></code> according to the provided <code class="docutils literal notranslate"><span class="pre">Model</span></code>.</p>
+<dd><p>Classify the provided <a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><code class="xref py py-class docutils literal notranslate"><span class="pre">Alternatives</span></code></a> according to the provided <a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.describe_model">
-<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">describe_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.describe_model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">describe_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lincs.classification.describe_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a human-readable description of a classification model.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.describe_problem">
-<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">describe_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.describe_problem" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">describe_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#lincs.classification.describe_problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a human-readable description of a classification problem.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.visualize_model">
-<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">visualize_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Alternatives" title="lincs.classification.Alternatives"><span class="pre">Alternatives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">matplotlib.axes._axes.Axes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.visualize_model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">visualize_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Alternative" title="lincs.classification.Alternative"><span class="pre">Alternative</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">matplotlib.axes._axes.Axes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.visualize_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a visual representation of a classification model and classified alternatives, using Matplotlib.</p>
+</dd></dl>
 
 </section>
 </section>
@@ -2342,9 +2464,20 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#file-formats">File formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#command-line-interface">Command-line interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-formats">File formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-problem-file">The problem file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-ncs-model-file">The NCS model file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-alternatives-file">The alternatives file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-interface">Command-line interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lincs">lincs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#python-api">Python API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-lincs-package">The <code class="docutils literal notranslate"><span class="pre">lincs</span></code> package</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
