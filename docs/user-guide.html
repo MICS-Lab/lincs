@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>User Guide &#8212; lincs 1.1.0a4 documentation</title>
+    <title>User Guide &#8212; lincs 1.1.0a5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=56e9d15e"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f2915547"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -208,6 +208,7 @@ and using different coalitions for the two boundaries (so, no YAML anchor):</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
 <span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roots</span>
 <span class="w">    </span><span class="nt">upset_roots</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
@@ -440,7 +441,7 @@ Here are two examples:</p>
 </pre></div>
 </div>
 <p>They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0a4): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0a5): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">accepted_values</span><span class="p">:</span>
@@ -522,10 +523,33 @@ Feel free to reach out to us if you have any question or feedback, as said at th
 <li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#formatting-data-for-lincs">Formatting data for <em>lincs</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#generating-synthetic-data">Generating synthetic data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#learning-a-model">Learning a model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#using-a-model">Using a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#formatting-data-for-lincs">Formatting data for <em>lincs</em></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#problem-files">“Problem” files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-files">“Model” files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alternatives-files">“Alternatives” files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comments-in-generated-files">Comments in generated files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-synthetic-data">Generating synthetic data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#about-randomness">About randomness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-a-problem">Generating a problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-a-model">Generating a model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-alternatives">Generating alternatives</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#learning-a-model">Learning a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#an-whole-tree-of-options">An whole tree of options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#strategies">Strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-learning-sub-strategies">Available learning (sub-)strategies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-model">Using a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#classifying-alternatives">Classifying alternatives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computing-a-classification-accuracy">Computing a classification accuracy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-human-readable-information-about-a-problem-or-model">Getting human-readable information about a problem or model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visualizing-a-model-and-alternatives">Visualizing a model and alternatives</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#what-s-next">What’s next?</a></li>
 </ul>
 </li>
