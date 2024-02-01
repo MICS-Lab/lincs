@@ -810,3 +810,11 @@ ordered_categories:
 
 
 Note however that learning objects (*e.g.* instances of `LearnMrsortByWeightsProfilesBreed`) are *not* picklable.
+
+### Customize the model visualization
+
+@todo(Documentation, v1.1) Write this section. Explain that `visualize_model` is written in terms of the public Python API and can be used as a base (*i.e.* copy-pasted).
+
+### Create your own learning strategies
+
+@todo(Documentation, v1.1) Write this section. Include a demo of how to create a custom `Observer` that keeps the best model at iterations 1, 2, 4, *etc.*
