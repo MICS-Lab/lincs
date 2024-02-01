@@ -855,7 +855,7 @@
 
             @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: __init__(learning_data: LearningData, max_iteration_index: int)
+            .. method:: __init__(learning_data: LearningData, max_iterations_count: int)
 
                 @todo(Documentation, v1.1) Add a docstring.
 

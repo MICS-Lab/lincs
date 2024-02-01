@@ -314,7 +314,7 @@ void define_learning_classes() {
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>(
-      (bp::arg("self"), "learning_data", "max_iteration_index"),
+      (bp::arg("self"), "learning_data", "max_iterations_count"),
       "@todo(Documentation, v1.1) Add a docstring."
     )[bp::with_custodian_and_ward<1, 2>()])
     .def("terminate", &lincs::TerminateAfterIterations::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
