@@ -333,6 +333,7 @@ def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
                 notebook = json.load(f)
             for (i, cell) in enumerate(notebook["cells"]):
                 cell["metadata"].pop("execution", None)
+                cell["metadata"].pop("jp-MarkdownHeadingCollapsed", None)
                 if cell["cell_type"] == "code":
                     cell["source"] = original_cell_sources[i]
                 original_outputs = cell.get("outputs")
