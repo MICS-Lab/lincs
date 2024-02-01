@@ -14,7 +14,9 @@ so running ``pip install lincs --only-binary lincs`` should be enough on those s
 We generally recommend you use ``pip`` in a virtual environment (``python -m venv``) or directly ``pipx`` to install any package, including *lincs*.
 Recent Ubuntu systems will even enforce that, by `refusing to install PyPI packages <https://itsfoss.com/externally-managed-environment/>`_ in the "externally managed" default environment.
 
-If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
+Alternatively, you can use our `Docker image <https://hub.docker.com/repository/docker/jacquev6/lincs>`_ (``docker run --rm -it jacquev6/lincs:latest``) and run the commands below in there.
+
+If you're on a platform for which we don't make wheels and our Docker image doesn't cover your needs, you'll have to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
 If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml>`_ we use to build the binary wheels.
 You'll probably start by trying ``pip install lincs``, see what dependencies are missing, install them and iterate from there.

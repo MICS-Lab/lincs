@@ -340,10 +340,12 @@ jobs:
           path: docker
       - name: Build the Docker image
         run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker
+      - run: docker tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') jacquev6/lincs:latest
       - name: Login into Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD_JACQUEV6 }}" | docker login -u jacquev6 --password-stdin
       - name: Push the Docker image
         run: docker push jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//')
+      - run: docker push jacquev6/lincs:latest
 
   # @todo(Project Management, later) Purge previous artifacts to avoid using storage on MISCLab's account
   # This requires a token with appropriate permissions on the org-owned repo.
