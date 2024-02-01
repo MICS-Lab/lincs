@@ -74,8 +74,9 @@ void define_learning_classes() {
         (bp::arg("self"), "problem", "learning_set", "models_count", "random_seed"),
         "@todo(Documentation, v1.1) Add a docstring."
       )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
+      // @todo(Feature, v1.1) Expose all useful attributes
       .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
-      // @todo Use get_iteration_index
+      // @todo(Feature, v1.1) Use get_iteration_index
       .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "@todo(Documentation, v1.1) Add a docstring.")
     ;
 
