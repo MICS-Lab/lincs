@@ -22,7 +22,7 @@ namespace bp = boost::python;
 
 namespace lincs {
 
-void enroll_standard_converters();
+void enroll_converters();
 void define_io_classes();
 void define_generation_functions();
 void define_learning_classes();
@@ -32,7 +32,7 @@ void define_learning_classes();
 BOOST_PYTHON_MODULE(liblincs) {
   bp::docstring_options docstring_options(true, true, false);
 
-  lincs::enroll_standard_converters();
+  lincs::enroll_converters();
   lincs::define_io_classes();
   lincs::define_generation_functions();
   lincs::define_learning_classes();

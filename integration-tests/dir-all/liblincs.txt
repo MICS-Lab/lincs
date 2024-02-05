@@ -44,6 +44,20 @@ liblincs: module
         alternatives: property
         dump: function
         load: function
+    Array1D<Host, unsigned>: class
+        __init__: builtin_function_or_method
+    Array2D<Host, float>: class
+        __init__: builtin_function_or_method
+    Array2D<Host, unsigned>: class
+        __init__: builtin_function_or_method
+    Array3D<Host, unsigned>: class
+        __init__: builtin_function_or_method
+    ArrayView1D<Host, float>: class
+        __init__: builtin_function_or_method
+    ArrayView1D<Host, unsigned>: class
+        __init__: builtin_function_or_method
+    ArrayView2D<Host, unsigned>: class
+        __init__: builtin_function_or_method
     BalancedAlternativesGenerationException: type
         __init__: wrapper_descriptor
         args: getset_descriptor
@@ -191,6 +205,10 @@ liblincs: module
         __init__: function
         append: function
         extend: function
+    Iterable[UniformRandomBitsGenerator]: class
+        __init__: function
+        append: function
+        extend: function
     Iterable[ValueType]: class
         __init__: function
         append: function
@@ -204,6 +222,10 @@ liblincs: module
         append: function
         extend: function
     Iterable[str]: class
+        __init__: function
+        append: function
+        extend: function
+    Iterable[uint]: class
         __init__: function
         append: function
         extend: function
@@ -229,8 +251,22 @@ liblincs: module
             breed: function
         LearningData: class
             __init__: function
+            accuracies: property
+            alternatives_count: property
+            assignments: property
+            boundaries_count: property
+            categories_count: property
+            criteria_count: property
             get_best_accuracy: function
+            get_best_model: function
             iteration_index: property
+            model_indexes: property
+            models_count: property
+            performance_ranks: property
+            profile_ranks: property
+            urbgs: property
+            values_counts: property
+            weights: property
         Observer: class
             __init__: function
             after_iteration: function
@@ -387,6 +423,9 @@ liblincs: module
     TerminateWhenAny: class
         __init__: function
         terminate: function
+    UniformRandomBitsGenerator: class
+        __call__: function
+        __init__: builtin_function_or_method
     ValueType: type
         __init__: wrapper_descriptor
         as_integer_ratio: method_descriptor

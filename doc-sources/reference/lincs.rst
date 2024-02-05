@@ -26,6 +26,14 @@
 
         Raised by learning algorithms when they can't reach their objective.
 
+    .. class:: UniformRandomBitsGenerator
+
+        @todo(Documentation, v1.1) Add a docstring.
+
+        .. method:: __call__(arg: UniformRandomBitsGenerator1) -> int
+
+            @todo(Documentation, v1.1) Add a docstring.
+
     .. module:: lincs.classification
 
         The ``lincs.classification`` module
@@ -714,12 +722,81 @@
 
                     @todo(Documentation, v1.1) Add a docstring.
 
-                .. method:: get_best_accuracy() -> int
+                .. property:: criteria_count
+                    :type: int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: categories_count
+                    :type: int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: boundaries_count
+                    :type: int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: alternatives_count
+                    :type: int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: values_counts
+                    :type: Iterable[int]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: performance_ranks
+                    :type: Iterable[Iterable[int]]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: assignments
+                    :type: Iterable[int]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: models_count
+                    :type: int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: urbgs
+                    :type: Iterable[UniformRandomBitsGenerator]
 
                     @todo(Documentation, v1.1) Add a docstring.
 
                 .. property:: iteration_index
                     :type: int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: model_indexes
+                    :type: Iterable[int]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: weights
+                    :type: Iterable[Iterable[int]]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: profile_ranks
+                    :type: Iterable[Iterable[Iterable[int]]]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. property:: accuracies
+                    :type: Iterable[int]
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. method:: get_best_accuracy() -> int
+
+                    @todo(Documentation, v1.1) Add a docstring.
+
+                .. method:: get_best_model() -> Model
 
                     @todo(Documentation, v1.1) Add a docstring.
 

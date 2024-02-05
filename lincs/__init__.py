@@ -11,6 +11,9 @@ It contains general information (version, GPU availability, *etc.*) and items of
 # General exceptions
 from liblincs import DataValidationException, LearningFailureException
 
+# General utilities
+from liblincs import UniformRandomBitsGenerator
+
 # Classification
 from . import classification
 

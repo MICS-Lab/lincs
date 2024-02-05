@@ -74,10 +74,24 @@ void define_learning_classes() {
         (bp::arg("self"), "problem", "learning_set", "models_count", "random_seed"),
         "@todo(Documentation, v1.1) Add a docstring."
       )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
-      // @todo(Feature, v1.1) Expose all useful attributes
+      // About the problem and learning set:
+      .add_property("criteria_count", &lincs::PreProcessedLearningSet::criteria_count, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("categories_count", &lincs::PreProcessedLearningSet::categories_count, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("alternatives_count", &lincs::PreProcessedLearningSet::alternatives_count, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("values_counts", &lincs::PreProcessedLearningSet::values_counts, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("assignments", &lincs::PreProcessedLearningSet::assignments, "@todo(Documentation, v1.1) Add a docstring.")
+      // About WPB:
+      .add_property("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("urbgs", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::urbgs, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::profile_ranks, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("weights", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::weights, "@todo(Documentation, v1.1) Add a docstring.")
       .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
-      // @todo(Feature, v1.1) Use get_iteration_index
-      .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "@todo(Documentation, v1.1) Add a docstring.")
+      .def("get_best_model", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_model, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
     ;
 
     struct ProfilesInitializationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy> {

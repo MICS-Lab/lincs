@@ -23,6 +23,12 @@ children:
       - name: with_traceback
         show: false
 
+  - name: UniformRandomBitsGenerator
+    children:
+      - name: __init__
+        show: false
+      - name: __call__
+
   - name: classification
     children:
     - name: Criterion
@@ -380,9 +386,36 @@ children:
         - name: LearningData
           children:
             - name: __init__
-            - name: get_best_accuracy
+            - name: criteria_count
+              type: int
+            - name: categories_count
+              type: int
+            - name: boundaries_count
+              type: int
+            - name: alternatives_count
+              type: int
+            - name: values_counts
+              type: Iterable[int]
+            - name: performance_ranks
+              type: Iterable[Iterable[int]]
+            - name: assignments
+              type: Iterable[int]
+            - name: models_count
+              type: int
+            - name: urbgs
+              type: Iterable[UniformRandomBitsGenerator]
             - name: iteration_index
               type: int
+            - name: model_indexes
+              type: Iterable[int]
+            - name: weights
+              type: Iterable[Iterable[int]]
+            - name: profile_ranks
+              type: Iterable[Iterable[Iterable[int]]]
+            - name: accuracies
+              type: Iterable[int]
+            - name: get_best_accuracy
+            - name: get_best_model
         - name: ProfilesInitializationStrategy
           children:
             - name: __init__

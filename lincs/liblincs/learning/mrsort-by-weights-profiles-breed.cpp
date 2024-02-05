@@ -19,13 +19,13 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
     const unsigned random_seed
 ) :
   PreProcessedLearningSet(problem, learning_set),
-  iteration_index(0),
   models_count(models_count_),
+  urbgs(models_count),
+  iteration_index(0),
   model_indexes(models_count),
-  weights(models_count, criteria_count, uninitialized),
-  profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
   accuracies(models_count, zeroed),
-  urbgs(models_count)
+  profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  weights(models_count, criteria_count, uninitialized)
 {
   CHRONE();
 

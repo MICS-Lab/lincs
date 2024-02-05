@@ -7,6 +7,9 @@ lincs: module
         __init__: wrapper_descriptor
         args: getset_descriptor
         with_traceback: method_descriptor
+    UniformRandomBitsGenerator: class
+        __call__: function
+        __init__: builtin_function_or_method
     classification: module
         AcceptedValues: class
             EnumeratedThresholds: class
@@ -141,8 +144,22 @@ lincs: module
                 breed: function
             LearningData: class
                 __init__: function
+                accuracies: property
+                alternatives_count: property
+                assignments: property
+                boundaries_count: property
+                categories_count: property
+                criteria_count: property
                 get_best_accuracy: function
+                get_best_model: function
                 iteration_index: property
+                model_indexes: property
+                models_count: property
+                performance_ranks: property
+                profile_ranks: property
+                urbgs: property
+                values_counts: property
+                weights: property
             Observer: class
                 __init__: function
                 after_iteration: function

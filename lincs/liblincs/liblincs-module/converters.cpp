@@ -6,13 +6,16 @@
 #undef vsnprintf
 
 #include <optional>
+#include <random>
 #include <string>
 #include <vector>
 
 #include <boost/python.hpp>
+#include <boost/python/iterator.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "../lincs.hpp"
+#include "../vendored/lov-e.hpp"
 
 
 namespace bp = boost::python;
@@ -143,6 +146,7 @@ void enroll_standard_converters() {
   bp::class_<std::vector<int>>("Iterable[int]").def(bp::vector_indexing_suite<std::vector<int>>());
 
   std_vector_converter<unsigned>::enroll();
+  bp::class_<std::vector<unsigned>>("Iterable[uint]").def(bp::vector_indexing_suite<std::vector<unsigned>>());
 
   std_vector_converter<std::string>::enroll();
   bp::class_<std::vector<std::string>>("Iterable[str]").def(bp::vector_indexing_suite<std::vector<std::string>>());
@@ -179,8 +183,190 @@ void enroll_standard_converters() {
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>::enroll();
   bp::class_<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>("Iterable[Observer]").def(bp::vector_indexing_suite<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>());
 
+  bp::class_<std::mt19937>("UniformRandomBitsGenerator", "@todo(Documentation, v1.1) Add a docstring.", bp::no_init)
+    .def("__call__", &std::mt19937::operator(), "@todo(Documentation, v1.1) Add a docstring.")
+  ;
+  bp::class_<std::vector<std::mt19937>>("Iterable[UniformRandomBitsGenerator]").def(bp::vector_indexing_suite<std::vector<std::mt19937>>());
+
   std_optional_converter<float>::enroll();
   std_optional_converter<unsigned>::enroll();
+}
+
+}  // namespace lincs
+
+namespace {
+
+template<typename T>
+class HostArray1DIndexingSuite : public bp::def_visitor<HostArray1DIndexingSuite<T>> {
+ private:
+  typedef Array1D<Host, T> Container;
+
+ public:
+  template<typename Class>
+  static void visit(Class& cl) {
+    cl
+      .def("__len__", &len)
+      .def("__getitem__", &getitem)
+    ;
+  }
+
+ private:
+  static unsigned len(const Container& c) {
+    return c.s0();
+  }
+
+  static T getitem(const Container& c, unsigned i) {
+    if (i < 0 || i >= c.s0()) {
+      PyErr_SetString(PyExc_IndexError, "index out of range");
+      bp::throw_error_already_set();
+    }
+    return c[i];
+  }
+};
+
+template<typename T>
+class HostArrayView1DIndexingSuite : public bp::def_visitor<HostArrayView1DIndexingSuite<T>> {
+ private:
+  typedef ArrayView1D<Host, T> Container;
+
+ public:
+  template<typename Class>
+  static void visit(Class& cl) {
+    cl
+      .def("__len__", &len)
+      .def("__getitem__", &getitem)
+    ;
+  }
+
+ private:
+  static unsigned len(const Container& c) {
+    return c.s0();
+  }
+
+  static T getitem(const Container& c, unsigned i) {
+    if (i < 0 || i >= c.s0()) {
+      PyErr_SetString(PyExc_IndexError, "index out of range");
+      bp::throw_error_already_set();
+    }
+    return c[i];
+  }
+};
+
+template<typename T>
+class HostArray2DIndexingSuite : public bp::def_visitor<HostArray2DIndexingSuite<T>> {
+ private:
+  typedef Array2D<Host, T> Container;
+
+ public:
+  template<typename Class>
+  static void visit(Class& cl) {
+    cl
+      .def("__len__", &len)
+      .def("__getitem__", &getitem)
+    ;
+  }
+
+ private:
+  static unsigned len(const Container& c) {
+    return c.s1();
+  }
+
+  static ArrayView1D<Host, T> getitem(const Container& c, unsigned i) {
+    if (i < 0 || i >= c.s1()) {
+      PyErr_SetString(PyExc_IndexError, "index out of range");
+      bp::throw_error_already_set();
+    }
+    return c[i];
+  }
+};
+
+template<typename T>
+class HostArrayView2DIndexingSuite : public bp::def_visitor<HostArrayView2DIndexingSuite<T>> {
+ private:
+  typedef ArrayView2D<Host, T> Container;
+
+ public:
+  template<typename Class>
+  static void visit(Class& cl) {
+    cl
+      .def("__len__", &len)
+      .def("__getitem__", &getitem)
+    ;
+  }
+
+ private:
+  static unsigned len(const Container& c) {
+    return c.s1();
+  }
+
+  static ArrayView1D<Host, T> getitem(const Container& c, unsigned i) {
+    if (i < 0 || i >= c.s1()) {
+      PyErr_SetString(PyExc_IndexError, "index out of range");
+      bp::throw_error_already_set();
+    }
+    return c[i];
+  }
+};
+
+template<typename T>
+class HostArray3DIndexingSuite : public bp::def_visitor<HostArray3DIndexingSuite<T>> {
+ private:
+  typedef Array3D<Host, T> Container;
+
+ public:
+  template<typename Class>
+  static void visit(Class& cl) {
+    cl
+      .def("__len__", &len)
+      .def("__getitem__", &getitem)
+    ;
+  }
+
+ private:
+  static unsigned len(const Container& c) {
+    return c.s2();
+  }
+
+  static ArrayView2D<Host, T> getitem(const Container& c, unsigned i) {
+    if (i < 0 || i >= c.s2()) {
+      PyErr_SetString(PyExc_IndexError, "index out of range");
+      bp::throw_error_already_set();
+    }
+    return c[i];
+  }
+};
+
+}  // namespace
+
+namespace lincs {
+
+void enroll_love_converters() {
+  bp::class_<Array1D<Host, unsigned>, boost::noncopyable>("Array1D<Host, unsigned>", bp::no_init)
+    .def(HostArray1DIndexingSuite<unsigned>())
+  ;
+  bp::class_<ArrayView1D<Host, unsigned>>("ArrayView1D<Host, unsigned>", bp::no_init)
+    .def(HostArrayView1DIndexingSuite<unsigned>())
+  ;
+  bp::class_<Array2D<Host, unsigned>, boost::noncopyable>("Array2D<Host, unsigned>", bp::no_init)
+    .def(HostArray2DIndexingSuite<unsigned>())
+  ;
+  bp::class_<ArrayView2D<Host, unsigned>>("ArrayView2D<Host, unsigned>", bp::no_init)
+    .def(HostArrayView2DIndexingSuite<unsigned>())
+  ;
+  bp::class_<Array3D<Host, unsigned>, boost::noncopyable>("Array3D<Host, unsigned>", bp::no_init)
+    .def(HostArray3DIndexingSuite<unsigned>())
+  ;
+  bp::class_<ArrayView1D<Host, float>>("ArrayView1D<Host, float>", bp::no_init)
+    .def(HostArrayView1DIndexingSuite<float>())
+  ;
+  bp::class_<Array2D<Host, float>, boost::noncopyable>("Array2D<Host, float>", bp::no_init)
+    .def(HostArray2DIndexingSuite<float>())
+  ;
+}
+
+void enroll_converters() {
+  enroll_love_converters();
+  enroll_standard_converters();
 }
 
 }  // namespace lincs
