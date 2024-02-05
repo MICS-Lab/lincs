@@ -337,6 +337,9 @@ def classification_model(
     default=None,
     help="Ensure that categories are balanced, by forcing their size to differ from the perfectly balanced size by at most this fraction.",
 )
+# @todo(Feature, later) Consider creating a 'lincs misclassify-alternatives' command
+# that mimics the 'lincs generate classified-alternatives --misclassified-count' option below,
+# but on a pre-existing learning set
 @click.option(
     "--misclassified-count",
     type=click.IntRange(min=0),
@@ -887,6 +890,8 @@ def classification_model(
         if ucncs__strategy == "sat-by-coalitions":
             learning = lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
         elif ucncs__strategy == "sat-by-separation":
+            # @todo(Feature, later) Consider adding parameters to EvalMaxSAT corresponding to the three command-line options here:
+            # https://github.com/normal-account/EvalMaxSAT2022/blob/main/main.cpp#L43-L50
             learning = lincs.classification.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
         elif ucncs__strategy == "max-sat-by-coalitions":
             learning = lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
