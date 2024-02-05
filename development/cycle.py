@@ -577,7 +577,7 @@ def make_python_reference():
                     for line in walk(path + [child_name], node, child, child_description):
                         yield f"    {line}"
             for child_name in sorted(undocumented_children_names):
-                if child_name.startswith("_") and child_name not in ["__init__"]:
+                if child_name.startswith("_") and child_name not in ["__init__", "__call__"]:
                     continue
                 yield "    .. @to" + f"do(Documentation, v1.1) Include or exclude explicitly {'.'.join(path)}.{child_name} in doc-sources/reference/lincs.yml"
                 yield ""

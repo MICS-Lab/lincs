@@ -477,11 +477,17 @@ children:
       children:
         - name: __init__
           show: false
+        - name: __call__
+          show: false
     - name: describe_problem
       children:
         - name: __init__
           show: false
+        - name: __call__
+          show: false
     - name: visualize_model
       children:
         - name: __init__
+          show: false
+        - name: __call__
           show: false
