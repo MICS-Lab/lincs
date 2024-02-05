@@ -530,6 +530,54 @@ def learn():
     pass
 
 
+max_sat_options = [
+    (
+        "solver",
+        dict(
+            help="The solver to use to solve the MaxSAT problem.",
+            type=click.Choice(["eval-max-sat"]),
+            default="eval-max-sat",
+            show_default=True,
+        ),
+        {
+            "eval-max-sat": [
+                # These three options correspond to EvalMaxSAT's command-line options here:
+                # https://github.com/normal-account/EvalMaxSAT2022/blob/main/main.cpp#L43-L50
+                (
+                    "nb-minimize-threads",
+                    dict(
+                        help="The number of threads to use to minimize the MaxSAT problem. Passed directly to the EvalMaxSAT solver.",
+                        type=click.IntRange(min=0),
+                        default=0,
+                        show_default=True,
+                    ),
+                    {},
+                ),
+                (
+                    "timeout-fast-minimize",
+                    dict(
+                        help="The maximum duration of the \"fast minimize\" phase of solving the MaxSAT problem, in seconds. Passed directly to the EvalMaxSAT solver.",
+                        type=click.IntRange(min=0),
+                        default=60,
+                        show_default=True,
+                    ),
+                    {},
+                ),
+                (
+                    "coef-minimize-time",
+                    dict(
+                        help="The coefficient to use to multiply the time spent minimizing the MaxSAT problem. Passed directly to the EvalMaxSAT solver.",
+                        type=click.IntRange(min=0),
+                        default=2,
+                        show_default=True,
+                    ),
+                    {},
+                ),
+            ],
+        },
+    ),
+]
+
 @learn.command(
     help="""
         Learn a classification model.
@@ -754,7 +802,10 @@ def learn():
                     default="sat-by-coalitions",
                     show_default=True,
                 ),
-                {},
+                {
+                    "max-sat-by-coalitions": max_sat_options,
+                    "max-sat-by-separation": max_sat_options,
+                },
             ),
         ],
     },
@@ -782,6 +833,14 @@ def classification_model(
     mrsort__weights_profiles_breed__verbose,
     mrsort__weights_profiles_breed__output_metadata,
     ucncs__strategy,
+    ucncs__max_sat_by_coalitions__solver,
+    ucncs__max_sat_by_coalitions__eval_max_sat__nb_minimize_threads,
+    ucncs__max_sat_by_coalitions__eval_max_sat__timeout_fast_minimize,
+    ucncs__max_sat_by_coalitions__eval_max_sat__coef_minimize_time,
+    ucncs__max_sat_by_separation__solver,
+    ucncs__max_sat_by_separation__eval_max_sat__nb_minimize_threads,
+    ucncs__max_sat_by_separation__eval_max_sat__timeout_fast_minimize,
+    ucncs__max_sat_by_separation__eval_max_sat__coef_minimize_time,
 ):
     command_line = ["lincs", "learn", "classification-model", get_input_file_name(problem), get_input_file_name(learning_set), "--model-type", model_type]
 
@@ -890,13 +949,37 @@ def classification_model(
         if ucncs__strategy == "sat-by-coalitions":
             learning = lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
         elif ucncs__strategy == "sat-by-separation":
-            # @todo(Feature, later) Consider adding parameters to EvalMaxSAT corresponding to the three command-line options here:
-            # https://github.com/normal-account/EvalMaxSAT2022/blob/main/main.cpp#L43-L50
             learning = lincs.classification.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
         elif ucncs__strategy == "max-sat-by-coalitions":
-            learning = lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
+            command_line += ["--ucncs.max-sat-by-coalitions.solver", ucncs__max_sat_by_coalitions__solver]
+            if ucncs__max_sat_by_coalitions__solver == "eval-max-sat":
+                command_line += [
+                    "--ucncs.max-sat-by-coalitions.eval-max-sat.nb-minimize-threads", ucncs__max_sat_by_coalitions__eval_max_sat__nb_minimize_threads,
+                    "--ucncs.max-sat-by-coalitions.eval-max-sat.timeout-fast-minimize", ucncs__max_sat_by_coalitions__eval_max_sat__timeout_fast_minimize,
+                    "--ucncs.max-sat-by-coalitions.eval-max-sat.coef-minimize-time", ucncs__max_sat_by_coalitions__eval_max_sat__coef_minimize_time,
+                ]
+                learning = lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(
+                    problem,
+                    learning_set,
+                    ucncs__max_sat_by_coalitions__eval_max_sat__nb_minimize_threads,
+                    ucncs__max_sat_by_coalitions__eval_max_sat__timeout_fast_minimize,
+                    ucncs__max_sat_by_coalitions__eval_max_sat__coef_minimize_time,
+                )
         elif ucncs__strategy == "max-sat-by-separation":
-            learning = lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
+            command_line += ["--ucncs.max-sat-by-separation.solver", ucncs__max_sat_by_separation__solver]
+            if ucncs__max_sat_by_separation__solver == "eval-max-sat":
+                command_line += [
+                    "--ucncs.max-sat-by-separation.eval-max-sat.nb-minimize-threads", ucncs__max_sat_by_separation__eval_max_sat__nb_minimize_threads,
+                    "--ucncs.max-sat-by-separation.eval-max-sat.timeout-fast-minimize", ucncs__max_sat_by_separation__eval_max_sat__timeout_fast_minimize,
+                    "--ucncs.max-sat-by-separation.eval-max-sat.coef-minimize-time", ucncs__max_sat_by_separation__eval_max_sat__coef_minimize_time,
+                ]
+                learning = lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(
+                    problem,
+                    learning_set,
+                    ucncs__max_sat_by_separation__eval_max_sat__nb_minimize_threads,
+                    ucncs__max_sat_by_separation__eval_max_sat__timeout_fast_minimize,
+                    ucncs__max_sat_by_separation__eval_max_sat__coef_minimize_time,
+                )
 
     try:
         model = learning.perform()

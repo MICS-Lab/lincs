@@ -12,7 +12,8 @@ namespace lincs {
 template<typename MaxSatProblem>
 class MaxSatSeparationUcncsLearning {
  public:
-  MaxSatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_) :
+  template<class... U>
+  MaxSatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
     learning_set(problem, learning_set_),
     subgoal_weight(1),
     goal_weight(learning_set.boundaries_count * learning_set.alternatives_count),
@@ -20,7 +21,7 @@ class MaxSatSeparationUcncsLearning {
     worse_alternative_indexes(),
     better(),
     separates(),
-    sat()
+    sat(std::forward<U>(u)...)
   {}
 
  public:

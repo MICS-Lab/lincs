@@ -397,7 +397,10 @@ void define_learning_classes() {
     "@todo(Documentation, v1.1) Add a docstring.",
     bp::no_init
   )
-    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
+    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned, unsigned>(
+      (bp::arg("self"), "problem", "learning_set", bp::arg("nb_minimize_threads") = 0, bp::arg("timeout_fast_minimize") = 60, bp::arg("coef_minimize_time") = 2),
+      "@todo(Documentation, v1.1) Add a docstring."
+    )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
     .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
   ;
 
@@ -406,7 +409,10 @@ void define_learning_classes() {
     "@todo(Documentation, v1.1) Add a docstring.",
     bp::no_init
   )
-    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
+    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned, unsigned>(
+      (bp::arg("self"), "problem", "learning_set", bp::arg("nb_minimize_threads") = 0, bp::arg("timeout_fast_minimize") = 60, bp::arg("coef_minimize_time") = 2),
+      "@todo(Documentation, v1.1) Add a docstring."
+    )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
     .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
   ;
 }

@@ -24,7 +24,14 @@ namespace lincs {
 
 class EvalmaxsatMaxSatProblem {
  public:
-  EvalmaxsatMaxSatProblem() : solver(0) {}
+  EvalmaxsatMaxSatProblem(
+    unsigned nb_minimize_threads = 0,
+    unsigned timeout_fast_minimize = 60,  // Seconds. Documented as "Magic number" in EvalMaxSAT source code.
+    unsigned coef_minimize_time = 2  // Documented as "Magic number" in EvalMaxSAT source code.
+  ) : solver(nb_minimize_threads) {
+    solver.setTimeOutFast(timeout_fast_minimize);
+    solver.setCoefMinimize(coef_minimize_time);
+  }
 
  public:
   typedef int variable_type;

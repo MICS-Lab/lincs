@@ -662,7 +662,7 @@
 
             @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: __init__(problem: Problem, learning_set: Alternatives)
+            .. method:: __init__(problem: Problem, learning_set: Alternatives [, nb_minimize_threads: int=0 [, timeout_fast_minimize: int=60 [, coef_minimize_time: int=2]]])
 
                 @todo(Documentation, v1.1) Add a docstring.
 
@@ -674,7 +674,7 @@
 
             @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: __init__(problem: Problem, learning_set: Alternatives)
+            .. method:: __init__(problem: Problem, learning_set: Alternatives [, nb_minimize_threads: int=0 [, timeout_fast_minimize: int=60 [, coef_minimize_time: int=2]]])
 
                 @todo(Documentation, v1.1) Add a docstring.
 

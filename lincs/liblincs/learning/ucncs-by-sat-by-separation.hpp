@@ -12,13 +12,14 @@ namespace lincs {
 template<typename SatProblem>
 class SatSeparationUcncsLearning {
  public:
-  SatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_) :
+  template<class... U>
+  SatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
     learning_set(problem, learning_set_),
     better_alternative_indexes(),
     worse_alternative_indexes(),
     better(),
     separates(),
-    sat()
+    sat(std::forward<U>(u)...)
   {}
 
  public:
