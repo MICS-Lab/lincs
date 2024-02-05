@@ -5,6 +5,8 @@
 This document builds up on {doc}`our "Get Started" guide <get-started>` and our {doc}`user guide <user-guide>`, and introduces *lincs*' Python API.
 This API is more flexible, albeit more complex, than the command-line interface you've been using so far.
 
+If you're a Jupyter user, you can [download the notebook](python-api/python-api.ipynb) this document is based on.
+
 ## Do it again, in Python
 
 First, lets do exactly the same thing as in our "Get started" guide, but using the Python API.
