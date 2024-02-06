@@ -4,6 +4,23 @@
 Changelog
 =========
 
+Version 1.1.0a6 (2024-02-06)
+============================
+
+- **Breaking** Rename ``max_iteration_index`` to ``max_iterations_count`` in ``...TerminateAfterIterations.__init__``
+- Make the Python API guide Jupyter Notebook downloadable
+- Expose all attributes of ``WPB.LearningData``; start to document them in our Python API guide
+- Expose parameters of EvalMaxSAT in our API and command-line interface (see ``lincs learn classification-model --help``):
+
+    - ``--ucncs.max-sat-by-separation.solver`` (for consistency, always ``"eval-max-sat"`` for now)
+    - ``--ucncs.max-sat-by-separation.eval-max-sat.nb-minimize-threads``
+    - ``--ucncs.max-sat-by-separation.eval-max-sat.timeout-fast-minimize``
+    - ``--ucncs.max-sat-by-separation.eval-max-sat.coef-minimize-time``
+    - ``--ucncs.max-sat-by-coalitions.solver`` (for consistency, always ``"eval-max-sat"`` for now)
+    - ``--ucncs.max-sat-by-coalitions.eval-max-sat.nb-minimize-threads``
+    - ``--ucncs.max-sat-by-coalitions.eval-max-sat.timeout-fast-minimize``
+    - ``--ucncs.max-sat-by-coalitions.eval-max-sat.coef-minimize-time``
+
 Version 1.1.0a5 (2024-02-01)
 ============================
 
