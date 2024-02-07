@@ -606,26 +606,21 @@ def make_python_reference():
                     assert parameter[2] == "None"
                     parameter[1] = "Optional[float]"
 
-        text_parameters = ""
-        defaults = 0
+        text_parameters = []
         for parameter in parameters:
-            comma = ", " if text_parameters else ""
-
-            if len(parameter) == 3:
-                defaults += 1
-            if defaults:
-                (name, type, default) = parameter
-                text_parameters += f"{comma}{name}: {type}={default}"
-            else:
+            if len(parameter) == 2:
                 (name, type) = parameter
-                text_parameters += f"{comma}{name}: {type}"
+                text_parameters.append(f"{name}: {type}")
+            else:
+                (name, type, default) = parameter
+                text_parameters .append(f"{name}: {type}={default}")
 
         if return_type == "None":
             text_return_type = ""
         else:
             text_return_type = f" -> {return_type}"
 
-        return f"{path[-1]}({text_parameters}){text_return_type}"
+        return f"{path[-1]}({', '.join(text_parameters)}){text_return_type}"
 
     def walk(path, parent, node, description):
         assert isinstance(description, dict)
