@@ -235,6 +235,7 @@ class HostArrayView1DIndexingSuite : public bp::def_visitor<HostArrayView1DIndex
     cl
       .def("__len__", &len)
       .def("__getitem__", &getitem)
+      .def("__setitem__", &setitem)
     ;
   }
 
@@ -249,6 +250,14 @@ class HostArrayView1DIndexingSuite : public bp::def_visitor<HostArrayView1DIndex
       bp::throw_error_already_set();
     }
     return c[i];
+  }
+
+  static void setitem(Container& c, unsigned i, T v) {
+    if (i < 0 || i >= c.s0()) {
+      PyErr_SetString(PyExc_IndexError, "index out of range");
+      bp::throw_error_already_set();
+    }
+    c[i] = v;
   }
 };
 

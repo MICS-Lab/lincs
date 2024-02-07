@@ -820,7 +820,9 @@ Note however that learning objects (*e.g.* instances of `LearnMrsortByWeightsPro
 
 ### Create your own learning strategies
 
-@todo(Documentation, v1.1) Introduce this section.
+The "Weights, profiles, breed" learning approach uses strategies for each of its steps. *lincs* provides effective strategies as you've seen in the first part of this guide. You can also define your own strategies, to experiment with new ways to learn.
+
+Let's create a problem and learning set for this section:
 
 
 ```python
@@ -832,24 +834,23 @@ problem = lc.Problem(
     ],
     [lc.Category("Bad"), lc.Category("Medium"), lc.Category("Good")],
 )
-model = lc.generate_mrsort_model(problem, random_seed=42)
-learning_set = lc.generate_alternatives(problem, model, alternatives_count=1000, random_seed=43)
+learning_set = lc.generate_alternatives(problem, lc.generate_mrsort_model(problem, random_seed=42), alternatives_count=1000, random_seed=43)
 ```
 
 #### `LearningData`
 
-First, let's get more familiar with the `LearningData`:
+First, let's get more familiar with the `LearningData`. You've seen it briefly in the first part of this guide but its purpose might still be quite obscure at this point.
 
 
 ```python
 learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
 ```
 
-It contains two families of attributes.
+This object is shared by all strategies. They communicate by changing it, using side effects. It's the state of the WPB algorithm. It contains two families of attributes.
 
 ##### Input data
 
-The first one is about the problem and learning set. These attributes never change. First, the counts:
+The first family of attributes is about the problem and learning set. These attributes never change. First, the counts:
 
 
 ```python
@@ -865,7 +866,7 @@ The first one is about the problem and learning set. These attributes never chan
 
 
 
-The learning set is pre-processed in the `LearningData` so that learning algorithms don't have to manipulate the different type of criterion values. In the `LearningData`, we keep only the ranks of the performances of each alternative in the learning set. The learning set is also destructured into a few arrays. Here are the attributes that describe this pre-processed learning set:
+The learning set is pre-processed in the `LearningData` so that the WPB algorithm doesn't have to manipulate the different type of criterion values. In the `LearningData`, we keep only the ranks of the performances of each alternative in the learning set. The learning set is also destructured into a few arrays. Here are the attributes that describe this pre-processed learning set:
 
 The number of distinct values actually seen for each criterion (including the min and max values for numerical criteria):
 
@@ -883,21 +884,7 @@ list(learning_data.values_counts)  # Indexed by [criterion_index]
 
 
 
-
-```python
-(learning_data.values_counts[0], learning_data.values_counts[learning_data.criteria_count - 1])
-```
-
-
-
-
-```text
-(1002, 6)
-```
-
-
-
-We see that the learning data knows 1002 values for the real-valued criterion. This is usual as it's rare that two floating point values are exactly equal, so the 1000 alternatives have distinct values, and the min and max are two more values. The learning data contains 101 values for the integer-valued criterion, meaning that the alternatives in the learning set do actually cover the whole set of possible values. And similarly, 6 values for the enumerated criterion.
+We see that the learning data knows 1002 values for the real-valued criterion. This is usual as it's rare for two floating point values to be exactly equal, so the 1000 alternatives have distinct values, and the min and max are two more values. The learning data contains 101 values for the integer-valued criterion, meaning that the alternatives in the learning set do actually cover the whole set of possible values. And similarly, 6 values for the enumerated criterion.
 
 For each criterion, the ranks of the performance of each alternative:
 
@@ -913,20 +900,6 @@ For each criterion, the ranks of the performance of each alternative:
 [[883, 900, 753, 216, 365, 410, 302, 852, 738, 45, '...'],
  [50, 13, 17, 86, 4, 2, 25, 81, 47, 87, '...'],
  [3, 0, 1, 0, 3, 3, 2, 0, 0, 3, '...']]
-```
-
-
-
-
-```python
-(learning_data.performance_ranks[0][0], learning_data.performance_ranks[learning_data.criteria_count - 1][learning_data.alternatives_count - 1])
-```
-
-
-
-
-```text
-(883, 3)
 ```
 
 
@@ -947,25 +920,27 @@ list(learning_data.assignments)[:10] + ['...']  # Indexed by [alternative_index]
 
 
 
+All these attributes are iterable and allow random access through an integer index. They do not support splicing.
+
 
 ```python
-(learning_data.assignments[0], learning_data.assignments[learning_data.alternatives_count - 1])
+learning_data.assignments[0]
 ```
 
 
 
 
 ```text
-(2, 2)
+2
 ```
 
 
 
 ##### In-progress data
 
-The second family of attributes is about the WeightsProfilesBreed algorithm itself.
+The second family of attributes is about the WPB algorithm itself.
 
-The `LearningData` contains several "in progress" models. Their number is constant:
+The WPB approach operates on several "in progress" models. Their number is constant:
 
 
 ```python
@@ -1029,7 +1004,7 @@ This lets heuristic strategies operate in parallel on models and still produce d
 
 
 
-WPB learning is iterative, and the `iteration_index` is stored in the learning data. It starts at zero and tells you the current iteration:
+The WPB learning approach is iterative, and the `iteration_index` is stored in the learning data. It starts at zero and tells you the current iteration:
 
 
 ```python
@@ -1116,7 +1091,7 @@ True
 
 
 
-@todo(Documentation, v1.1) Introduce profiles
+Its `profile_ranks` hold, for each in-progress model, boundary, and criterion, the rank of the boundary's performance, on the same scale as the `performance_ranks` attributes.
 
 
 ```python
@@ -1140,7 +1115,7 @@ True
 
 
 
-@todo(Documentation, v1.1) Introduce weights
+Its `weights` attribute holds the MR-Sort weight of each criterion in each in-progress model.
 
 
 ```python
@@ -1164,9 +1139,49 @@ True
 
 
 
-#### `Observer`
+Finaly, `LearningData` has two methods about the best model so far: `get_best_model` and `get_best_accuracy`, which respectively return the best `Model` so far and its accuracy.
 
-With this better understanding of `LearningData`, let's write our own `Observer` strategy. It's arguably the simplest to starts with, because it's not expected to *change* the `LearningData`.
+
+```python
+learning_data.get_best_model().dump(problem, sys.stdout)
+```
+
+```yaml
+kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [7.7909708, 4.06594753]
+  - kind: thresholds
+    thresholds: [20, 20]
+  - kind: thresholds
+    thresholds: [D, C]
+sufficient_coalitions:
+  - &coalitions
+    kind: weights
+    criterion_weights: [1, 0.999998987, 1.01327896e-06]
+  - *coalitions
+```
+
+
+
+```python
+learning_data.get_best_accuracy()
+```
+
+
+
+
+```text
+833
+```
+
+
+
+#### `Observer` strategies
+
+With this hopefully better understanding of `LearningData`, let's write our own `Observer` strategy.
+It's arguably the simplest to starts with, because it's not expected to *change* the `LearningData`, but only *observe* it at some key points of the learning.
 
 To start as simple as possible, lets reproduce the behavior of the `--...-verbose` flag on the command line, by creating an observer that just prints the best accuracy at each step.
 
@@ -1340,16 +1355,146 @@ sufficient_coalitions:
 
 #### Other strategies
 
-@todo(Documentation, v1.1) Write this section
+Comming up with new interesting strategies is far from easy, so in this guide, we'll just describe the interfaces that the WPB approach expects from these strategies, and not even *try* to do anything inteligent. That part is up to you!
+
+@todo(Documentation, v1.1) Describe each interface
 
 
 ```python
-class SillyWeightsStrategy(lc.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
-    pass
+class SillyProfilesInitializationStrategy(lc.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
+    def __init__(self, learning_data):
+        super().__init__()
+        self.learning_data = learning_data
+
+    def initialize_profiles(self, model_indexes_begin, model_indexes_end):
+        print("initialize_profiles", model_indexes_begin, model_indexes_end, file=sys.stderr)
+        for model_index in range(model_indexes_begin, model_indexes_end):
+            for boundary_index in range(self.learning_data.boundaries_count):
+                for criterion_index in range(self.learning_data.criteria_count):
+                    self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
 ```
 
 
 ```python
-class SillyProfilesStrategy(lc.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
-    pass
+class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
+    def __init__(self, learning_data):
+        super().__init__()
+        self.learning_data = learning_data
+
+    def optimize_weights(self):
+        print("optimize_weights", file=sys.stderr)
+        for model_index in range(self.learning_data.models_count):
+            for criterion_index in range(self.learning_data.criteria_count):
+                self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
 ```
+
+
+```python
+class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
+    def __init__(self, learning_data):
+        super().__init__()
+        self.learning_data = learning_data
+
+    def improve_profiles(self):
+        print("improve_profiles", file=sys.stderr)
+        for model_index in range(self.learning_data.models_count):
+            for boundary_index in range(self.learning_data.boundaries_count):
+                for criterion_index in range(self.learning_data.criteria_count):
+                    rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))
+                    self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = rank
+```
+
+
+```python
+class SillyBreedingStrategy(lc.LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
+    def __init__(self, learning_data):
+        super().__init__()
+        self.learning_data = learning_data
+
+    def breed(self):
+        print("breed", file=sys.stderr)
+```
+
+
+```python
+class SillyTerminationStrategy(lc.LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
+    def __init__(self, learning_data):
+        super().__init__()
+        self.learning_data = learning_data
+
+    def terminate(self):
+        print("terminate", file=sys.stderr)
+        return self.learning_data.iteration_index == 3
+```
+
+
+```python
+problem = lc.Problem(
+    [
+        lc.Criterion("Criterion 1", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.decreasing, 0, 10)),
+        lc.Criterion("Criterion 2", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
+        lc.Criterion("Criterion 3", lc.Criterion.EnumeratedValues(["F", "E", "D", "C", "B", "A"])),
+    ],
+    [lc.Category("Bad"), lc.Category("Medium"), lc.Category("Good")],
+)
+learning_set = lc.generate_alternatives(problem, lc.generate_mrsort_model(problem, random_seed=42), alternatives_count=1000, random_seed=43)
+
+learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
+profiles_initialization_strategy = SillyProfilesInitializationStrategy(learning_data)
+weights_optimization_strategy = SillyWeightsOptimizationStrategy(learning_data)
+profiles_improvement_strategy = SillyProfilesImprovementStrategy(learning_data)
+breeding_strategy = SillyBreedingStrategy(learning_data)
+termination_strategy = SillyTerminationStrategy(learning_data)
+
+learned_model = lc.LearnMrsortByWeightsProfilesBreed(
+    learning_data,
+    profiles_initialization_strategy,
+    weights_optimization_strategy,
+    profiles_improvement_strategy,
+    breeding_strategy,
+    termination_strategy,
+).perform()
+```
+
+```text
+initialize_profiles 0 9
+optimize_weights
+improve_profiles
+terminate
+breed
+optimize_weights
+improve_profiles
+terminate
+breed
+optimize_weights
+improve_profiles
+terminate
+breed
+optimize_weights
+improve_profiles
+terminate
+```
+
+
+
+```python
+learned_model.dump(problem, sys.stdout)
+```
+
+```yaml
+kind: ncs-classification-model
+format_version: 1
+accepted_values:
+  - kind: thresholds
+    thresholds: [6.94936371, 3.24692106]
+  - kind: thresholds
+    thresholds: [33, 66]
+  - kind: thresholds
+    thresholds: [D, B]
+sufficient_coalitions:
+  - &coalitions
+    kind: weights
+    criterion_weights: [0.366666675, 0.366666675, 0.366666675]
+  - *coalitions
+```
+

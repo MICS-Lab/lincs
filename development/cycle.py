@@ -331,23 +331,28 @@ def run_notebooks(*, forbid_gpu, skip_unchanged_notebooks):
             # Reduce git diff
             with open(notebook_path) as f:
                 notebook = json.load(f)
-            for (i, cell) in enumerate(notebook["cells"]):
+            for (cell_index, cell) in enumerate(notebook["cells"]):
                 cell["metadata"].pop("execution", None)
                 cell["metadata"].pop("jp-MarkdownHeadingCollapsed", None)
                 if cell["cell_type"] == "code":
-                    cell["source"] = original_cell_sources[i]
-                original_outputs = cell.get("outputs")
-                if original_outputs:
-                    if original_outputs[0]["output_type"] == "stream":
-                        new_output = original_outputs[0]
-                        for output in original_outputs[1:]:
-                            assert output["name"] == new_output["name"]
-                            assert output["output_type"] == "stream"
-                            new_output["text"] += output["text"]
-                        cell["outputs"] = [new_output]
-                    else:
-                        assert len(original_outputs) == 1, original_outputs
-                        assert original_outputs[0]["output_type"] in ["display_data", "execute_result"], original_outputs
+                    cell["source"] = original_cell_sources[cell_index]
+                if "outputs" in cell:
+                    new_outputs = {}
+                    for (output_index, output) in enumerate(cell["outputs"]):
+                        key = [output["output_type"]]
+                        if output["output_type"] == "stream":
+                            key.append(output["name"])
+                            key = tuple(key)
+                            if key in new_outputs:
+                                new_outputs[key]["text"] += output["text"]
+                            else:
+                                new_outputs[key] = output
+                        else:
+                            assert output["output_type"] in ["display_data", "execute_result"], output
+                            key.append(output_index)
+                            key = tuple(key)
+                            new_outputs[key] = output
+                    cell["outputs"] = [item[1] for item in sorted(new_outputs.items())]
             with open(notebook_path, "w") as f:
                 json.dump(notebook, f, indent=1, sort_keys=True)
                 f.write("\n")

@@ -1139,6 +1139,124 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(result.changed, 68)
         self.assertEqual(result.unchanged, 932)
 
+    def test_silly_strategies(self):
+        class SillyProfilesInitializationStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
+            def __init__(self, log, learning_data):
+                super().__init__()
+                self.log = log
+                self.learning_data = learning_data
+
+            def initialize_profiles(self, model_indexes_begin, model_indexes_end):
+                self.log.append(("initialize_profiles", model_indexes_begin, model_indexes_end))
+                for model_index in range(model_indexes_begin, model_indexes_end):
+                    for boundary_index in range(self.learning_data.boundaries_count):
+                        for criterion_index in range(self.learning_data.criteria_count):
+                            self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
+
+        class SillyWeightsOptimizationStrategy(LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
+            def __init__(self, log, learning_data):
+                super().__init__()
+                self.log = log
+                self.learning_data = learning_data
+
+            def optimize_weights(self):
+                self.log.append(("optimize_weights",))
+                for model_index in range(self.learning_data.models_count):
+                    for criterion_index in range(self.learning_data.criteria_count):
+                        self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
+
+        class SillyProfilesImprovementStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
+            def __init__(self, log, learning_data):
+                super().__init__()
+                self.log = log
+                self.learning_data = learning_data
+
+            def improve_profiles(self):
+                self.log.append(("improve_profiles",))
+                for model_index in range(self.learning_data.models_count):
+                    for boundary_index in range(self.learning_data.boundaries_count):
+                        for criterion_index in range(self.learning_data.criteria_count):
+                            rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))
+                            self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = rank
+
+        class SillyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
+            def __init__(self, log, learning_data):
+                super().__init__()
+                self.log = log
+                self.learning_data = learning_data
+
+            def breed(self):
+                self.log.append(("breed",))
+
+        class SillyTerminationStrategy(LearnMrsortByWeightsProfilesBreed.TerminationStrategy):
+            def __init__(self, log, learning_data):
+                super().__init__()
+                self.log = log
+                self.learning_data = learning_data
+
+            def terminate(self):
+                self.log.append(("terminate",))
+                return self.learning_data.iteration_index == 3
+
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 0, 10)),
+                Criterion("Criterion 2", Criterion.IntegerValues(Criterion.PreferenceDirection.increasing, 0, 100)),
+                Criterion("Criterion 3", Criterion.EnumeratedValues(["F", "E", "D", "C", "B", "A"])),
+            ],
+            [Category("Bad"), Category("Medium"), Category("Good")],
+        )
+        learning_set = generate_alternatives(problem, generate_mrsort_model(problem, random_seed=42), alternatives_count=1000, random_seed=43)
+
+        log = []
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
+        profiles_initialization_strategy = SillyProfilesInitializationStrategy(log, learning_data)
+        weights_optimization_strategy = SillyWeightsOptimizationStrategy(log, learning_data)
+        profiles_improvement_strategy = SillyProfilesImprovementStrategy(log, learning_data)
+        breeding_strategy = SillyBreedingStrategy(log, learning_data)
+        termination_strategy = SillyTerminationStrategy(log, learning_data)
+
+        learned_model = LearnMrsortByWeightsProfilesBreed(
+            learning_data,
+            profiles_initialization_strategy,
+            weights_optimization_strategy,
+            profiles_improvement_strategy,
+            breeding_strategy,
+            termination_strategy,
+        ).perform()
+
+        self.assertEqual(log, [
+            ("initialize_profiles", 0, 9),
+            ("optimize_weights",),
+            ("improve_profiles",),
+            ("terminate",),
+            ("breed",),
+            ("optimize_weights",),
+            ("improve_profiles",),
+            ("terminate",),
+            ("breed",),
+            ("optimize_weights",),
+            ("improve_profiles",),
+            ("terminate",),
+            ("breed",),
+            ("optimize_weights",),
+            ("improve_profiles",),
+            ("terminate",),
+        ])
+
+        self.assertAlmostEqual(learned_model.accepted_values[0].real_thresholds.thresholds[0], 6.9493637)
+        self.assertAlmostEqual(learned_model.accepted_values[0].real_thresholds.thresholds[1], 3.2469211)
+        self.assertEqual(learned_model.accepted_values[1].integer_thresholds.thresholds[0], 33)
+        self.assertEqual(learned_model.accepted_values[1].integer_thresholds.thresholds[1], 66)
+        self.assertEqual(learned_model.accepted_values[2].enumerated_thresholds.thresholds[0], "D")
+        self.assertEqual(learned_model.accepted_values[2].enumerated_thresholds.thresholds[1], "B")
+        self.assertAlmostEqual(learned_model.sufficient_coalitions[0].weights.criterion_weights[0], 1.1 / 3)
+        self.assertAlmostEqual(learned_model.sufficient_coalitions[0].weights.criterion_weights[1], 1.1 / 3)
+        self.assertAlmostEqual(learned_model.sufficient_coalitions[0].weights.criterion_weights[2], 1.1 / 3)
+        self.assertAlmostEqual(learned_model.sufficient_coalitions[1].weights.criterion_weights[0], 1.1 / 3)
+        self.assertAlmostEqual(learned_model.sufficient_coalitions[1].weights.criterion_weights[1], 1.1 / 3)
+        self.assertAlmostEqual(learned_model.sufficient_coalitions[1].weights.criterion_weights[2], 1.1 / 3)
+
     def test_observers(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)
