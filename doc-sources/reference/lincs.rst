@@ -30,7 +30,7 @@
 
         @todo(Documentation, v1.1) Add a docstring.
 
-        .. method:: __call__(arg: UniformRandomBitsGenerator1) -> int
+        .. method:: __call__() -> int
 
             @todo(Documentation, v1.1) Add a docstring.
 
@@ -597,7 +597,7 @@
 
             An alternative, with its performance on each criterion, maybe classified.
 
-            .. method:: __init__(name: str, profile: Iterable[Performance] [, category_index: object=None])
+            .. method:: __init__(name: str, profile: Iterable[Performance] [, category_index: Optional[float]=None])
 
                 Parameters map exactly to attributes with identical names.
 
@@ -812,7 +812,7 @@
 
                 @todo(Documentation, v1.1) Add a docstring.
 
-                .. method:: optimize_weights()
+                .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
 
                     @todo(Documentation, v1.1) Add a docstring.
 
@@ -820,7 +820,7 @@
 
                 @todo(Documentation, v1.1) Add a docstring.
 
-                .. method:: improve_profiles()
+                .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
                     @todo(Documentation, v1.1) Add a docstring.
 
@@ -876,7 +876,7 @@
 
                 @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: optimize_weights()
+            .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
 
                 @todo(Documentation, v1.1) Add a docstring.
 
@@ -888,7 +888,7 @@
 
                 @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: optimize_weights()
+            .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
 
                 @todo(Documentation, v1.1) Add a docstring.
 
@@ -900,7 +900,7 @@
 
                 @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: improve_profiles()
+            .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
                 @todo(Documentation, v1.1) Add a docstring.
 
@@ -912,7 +912,7 @@
 
                 @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: improve_profiles()
+            .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
                 @todo(Documentation, v1.1) Add a docstring.
 

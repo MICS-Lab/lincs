@@ -121,7 +121,7 @@ void define_learning_classes() {
       .def(
         "optimize_weights",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights),
-        (bp::arg("self")),
+        (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
         "@todo(Documentation, v1.1) Add a docstring."
       )
     ;
@@ -137,7 +137,7 @@ void define_learning_classes() {
       .def(
         "improve_profiles",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles),
-        (bp::arg("self")),
+        (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
         "@todo(Documentation, v1.1) Add a docstring."
       )
     ;
@@ -233,7 +233,7 @@ void define_learning_classes() {
     .def(
       "optimize_weights",
       &lincs::OptimizeWeightsUsingGlop::optimize_weights,
-      (bp::arg("self")),
+      (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
       "@todo(Documentation, v1.1) Add a docstring."
     )
   ;
@@ -253,7 +253,7 @@ void define_learning_classes() {
     .def(
       "optimize_weights",
       &lincs::OptimizeWeightsUsingAlglib::optimize_weights,
-      (bp::arg("self")),
+      (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
       "@todo(Documentation, v1.1) Add a docstring."
     )
   ;
@@ -270,7 +270,7 @@ void define_learning_classes() {
     .def(
       "improve_profiles",
       &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles,
-      (bp::arg("self")),
+      (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
       "@todo(Documentation, v1.1) Add a docstring."
     )
   ;
@@ -292,7 +292,7 @@ void define_learning_classes() {
     .def(
       "improve_profiles",
       &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles,
-      (bp::arg("self")),
+      (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
       "@todo(Documentation, v1.1) Add a docstring."
     )
   ;

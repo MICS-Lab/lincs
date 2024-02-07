@@ -141,6 +141,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       gcovr \
       joblib \
       jupyterlab \
+      lark \
       myst-parser \
       parver \
       sphinx \

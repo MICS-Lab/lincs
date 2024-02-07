@@ -11,13 +11,13 @@ import random
 import re
 import shutil
 import subprocess
-import sys
 import textwrap
 import time
 
 import click
 import jinja2
 import joblib
+import lark
 import yaml
 
 
@@ -477,35 +477,156 @@ def make_python_reference():
             yield f"    {line.strip()}"
         yield ""
 
+    signature_parser = lark.Lark(
+        r"""
+        signature: CNAME "(" parameters ")" "->" type ":"
+
+        parameters: mandatory_parameters optional_parameters | optional_parameters_only
+
+        mandatory_parameters: [parameter ("," parameter)*]
+
+        optional_parameters: ["[" "," optional_parameter optional_parameters "]"]
+
+        optional_parameters_only: "[" optional_parameter optional_parameters "]"
+
+        optional_parameter: parameter "=" default_value
+
+        parameter: "(" type ")" CNAME
+
+        default_value: "None" -> none
+                    | "True" -> true
+                    | "False" -> false
+                    | SIGNED_NUMBER -> number
+                    | "[]" -> empty_list
+
+        type: CNAME -> type_name
+            | iterable_type
+        iterable_type: "Iterable" "[" type "]"
+
+        %import common.CNAME
+        %import common.SIGNED_NUMBER
+
+        %import common.WS
+        %ignore WS
+        """,
+        start="signature",
+    )
+
+    class SignatureTransformer(lark.Transformer):
+        def signature(self, args):
+            return (args[1], args[2])
+
+        def parameters(self, args):
+            if len(args) == 1 or args[1] is None:
+                return args[0]
+            else:
+                return args[0] + args[1]
+
+        def mandatory_parameters(self, args):
+            if args[0] is None:
+                return []
+            else:
+                return args
+
+        def optional_parameters(self, args):
+            if args[0] is None:
+                return []
+            elif args[1] is None:
+                return [args[0]]
+            else:
+                return [args[0]] + args[1]
+
+        def optional_parameters_only(self, args):
+            if args[1] is None:
+                return [args[0]]
+            else:
+                return [args[0]] + args[1]
+
+        def optional_parameter(self, args):
+            (name, type) = args[0]
+            return [name, type, args[1]]
+
+        def none(self, _):
+            return "None"
+
+        def number(self, args):
+            return args[0].value
+        
+        def true(self, _):
+            return "True"
+
+        def false(self, _):
+            return "False"
+
+        def empty_list(self, _):
+            return "[]"
+
+        def parameter(self, args):
+            return [args[1].value, args[0]]
+
+        def type(self, args):
+            return args[0]
+        
+        def type_name(self, args):
+            return args[0].value
+
+        def iterable_type(self, args):
+            return f"Iterable[{args[0]}]"
+
     def fix_signature(path, signature):
-        signature = re.sub(r"^[^(]+", path[-1], signature)
-
-        if signature.endswith(" :"):
-            signature = signature[:-2]
-
-        if signature.endswith(" -> None"):
-            signature = signature[:-8]
-
-        signature = signature.replace("( ", "(")
-
+        # @todo(Project management, later) Do this in the grammar. I don't yet know how
         signature = re.sub(r"<liblincs.Iterable\[.*?\] object at 0x............>", "[]", signature)
-        signature = re.sub(r"\(([a-zA-Z_]+)\)([a-z_]+)", r"\2: \1", signature)
-        signature = re.sub(r"\((Iterable\[[a-zA-Z_]+\])\)([a-z_]+)", r"\2: \1", signature)
 
-        signature = signature.replace(f"self: {path[-2]}, ", "")
-        signature = signature.replace(f"self: {path[-2]}", "")
-        signature = signature.replace(f"self: object, ", "")
-        signature = signature.replace(f"self: object", "")
+        parameters, return_type = SignatureTransformer().transform(signature_parser.parse(signature))
 
-        signature = signature.replace("upset_roots: object", "upset_roots: Iterable[Iterable[int]]")
-        signature = signature.replace("category: object", "category: Optional[int]")
-        signature = signature.replace("fixed_weights_sum: object", "fixed_weights_sum: Optional[float]")
-        signature = signature.replace("max_imbalance: object", "max_imbalance: Optional[float]")
+        if parameters[0][0] == "self":
+            if path[-1] == "__init__":
+                assert parameters[0][1] == "object"
+            else:
+                assert parameters[0][1] == path[-2]
+            parameters = parameters[1:]
 
-        if "arg1" in signature:
-            signature += " @to" + f"do(Documentation, v1.1) Fix parameter names for {'.'.join(path)}"
+        for parameter in parameters:
+            assert parameter[0] != "arg1", f"Set parameter names in {path}"
 
-        return signature
+            if path == ["lincs", "classification", "SufficientCoalitions", "Roots", "__init__"]:
+                if parameter[0] == "upset_roots":
+                    assert len(parameter) == 2
+                    parameter[1] = "Iterable[Iterable[int]]"
+            if path == ["lincs", "classification", "Alternative", "__init__"]:
+                if parameter[0] == "category_index":
+                    assert parameter[2] == "None"
+                    parameter[1] = "Optional[float]"
+            if path == ["lincs", "classification", "generate_mrsort_model"]:
+                if parameter[0] == "fixed_weights_sum":
+                    assert parameter[2] == "None"
+                    parameter[1] = "Optional[float]"
+            if path == ["lincs", "classification", "generate_alternatives"]:
+                if parameter[0] == "max_imbalance":
+                    assert parameter[2] == "None"
+                    parameter[1] = "Optional[float]"
+
+        text_parameters = ""
+        defaults = 0
+        for parameter in parameters:
+            comma = ", " if text_parameters else ""
+
+            if len(parameter) == 3:
+                defaults += 1
+            if defaults:
+                (name, type, default) = parameter
+                text_parameters += f" [{comma}{name}: {type}={default}"
+            else:
+                (name, type) = parameter
+                text_parameters += f"{comma}{name}: {type}"
+        text_parameters += defaults * "]"
+
+        if return_type == "None":
+            text_return_type = ""
+        else:
+            text_return_type = f" -> {return_type}"
+
+        return f"{path[-1]}({text_parameters}){text_return_type}"
 
     def walk(path, parent, node, description):
         assert isinstance(description, dict)
