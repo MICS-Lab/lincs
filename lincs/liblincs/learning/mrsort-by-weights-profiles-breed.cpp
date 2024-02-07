@@ -70,8 +70,8 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 
   while (true) {
     // Improve
-    weights_optimization_strategy.optimize_weights();
-    profiles_improvement_strategy.improve_profiles();
+    weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
+    profiles_improvement_strategy.improve_profiles(0, learning_data.models_count);
 
     // @todo(Feature, later) Rework this main loop. Its current problems:
     //   - we return models that have gone through a last profiles improvement, but their weights have not been optimized

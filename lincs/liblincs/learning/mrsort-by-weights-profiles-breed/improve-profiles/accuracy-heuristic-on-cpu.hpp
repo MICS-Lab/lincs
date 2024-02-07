@@ -14,7 +14,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
   explicit ImproveProfilesWithAccuracyHeuristicOnCpu(LearningData& learning_data_) : learning_data(learning_data_) {}
 
  public:
-  void improve_profiles() override;
+  void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
   void improve_model_profiles(const unsigned model_index);

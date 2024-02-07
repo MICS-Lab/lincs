@@ -88,14 +88,15 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
 }
 
 void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  unsigned model_indexes_begin,
+  const unsigned model_indexes_begin,
   const unsigned model_indexes_end
 ) {
   CHRONE();
 
+  // @todo(Performance, later) Parallelize these loops?
   // Embarrassingly parallel
-  for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
-    const unsigned model_index = learning_data.model_indexes[model_indexes_begin];
+  for (unsigned model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
+    const unsigned model_index = learning_data.model_indexes[model_indexes_index];
 
     // Embarrassingly parallel
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {

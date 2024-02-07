@@ -14,7 +14,7 @@ class OptimizeWeightsUsingLinearProgram : public LearnMrsortByWeightsProfilesBre
   OptimizeWeightsUsingLinearProgram(LearningData& learning_data_) : learning_data(learning_data_) {}
 
  public:
-  void optimize_weights() override;
+  void optimize_weights(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
   void optimize_model_weights(unsigned model_index);

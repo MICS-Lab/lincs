@@ -1381,9 +1381,9 @@ class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.Weig
         super().__init__()
         self.learning_data = learning_data
 
-    def optimize_weights(self):
+    def optimize_weights(self, model_indexes_begin, model_indexes_end):
         print("optimize_weights", file=sys.stderr)
-        for model_index in range(self.learning_data.models_count):
+        for model_index in range(model_indexes_begin, model_indexes_end):
             for criterion_index in range(self.learning_data.criteria_count):
                 self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
 ```
@@ -1395,9 +1395,9 @@ class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.Prof
         super().__init__()
         self.learning_data = learning_data
 
-    def improve_profiles(self):
+    def improve_profiles(self, model_indexes_begin, model_indexes_end):
         print("improve_profiles", file=sys.stderr)
-        for model_index in range(self.learning_data.models_count):
+        for model_index in range(model_indexes_begin, model_indexes_end):
             for boundary_index in range(self.learning_data.boundaries_count):
                 for criterion_index in range(self.learning_data.criteria_count):
                     rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))

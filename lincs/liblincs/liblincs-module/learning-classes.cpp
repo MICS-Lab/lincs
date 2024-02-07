@@ -111,7 +111,7 @@ void define_learning_classes() {
     ;
 
     struct WeightsOptimizationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy> {
-      void optimize_weights() override { this->get_override("optimize_weights")(); }
+      void optimize_weights(const unsigned begin, const unsigned end) override { this->get_override("optimize_weights")(begin, end); }
     };
 
     bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>(
@@ -127,7 +127,7 @@ void define_learning_classes() {
     ;
 
     struct ProfilesImprovementStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy> {
-      void improve_profiles() override { this->get_override("improve_profiles")(); }
+      void improve_profiles(const unsigned begin, const unsigned end) override { this->get_override("improve_profiles")(begin, end); }
     };
 
     bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>(

@@ -8,12 +8,15 @@
 
 namespace lincs {
 
-void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles() {
+void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(
+  const unsigned model_indexes_begin,
+  const unsigned model_indexes_end
+) {
   CHRONE();
 
-  const int models_count = learning_data.models_count;
   #pragma omp parallel for
-  for (int model_index = 0; model_index < models_count; ++model_index) {
+  for (unsigned model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
+    const unsigned model_index = learning_data.model_indexes[model_indexes_index];
     improve_model_profiles(model_index);
   }
 }

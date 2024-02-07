@@ -1075,9 +1075,9 @@ class LearningTestCase(unittest.TestCase):
                 self.strategy = OptimizeWeightsUsingGlop(learning_data)
                 self.called_count = 0
 
-            def optimize_weights(self):
+            def optimize_weights(self, begin, end):
                 self.called_count += 1
-                return self.strategy.optimize_weights()
+                return self.strategy.optimize_weights(begin, end)
 
         class MyProfilesImprovementStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
             def __init__(self, learning_data):
@@ -1085,9 +1085,9 @@ class LearningTestCase(unittest.TestCase):
                 self.strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
                 self.called_count = 0
 
-            def improve_profiles(self):
+            def improve_profiles(self, begin, end):
                 self.called_count += 1
-                return self.strategy.improve_profiles()
+                return self.strategy.improve_profiles(begin, end)
 
         class MyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
             def __init__(self, learning_data, profiles_initialization_strategy, count):
@@ -1159,9 +1159,9 @@ class LearningTestCase(unittest.TestCase):
                 self.log = log
                 self.learning_data = learning_data
 
-            def optimize_weights(self):
+            def optimize_weights(self, model_indexes_begin, model_indexes_end):
                 self.log.append(("optimize_weights",))
-                for model_index in range(self.learning_data.models_count):
+                for model_index in range(model_indexes_begin, model_indexes_end):
                     for criterion_index in range(self.learning_data.criteria_count):
                         self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
 
@@ -1171,9 +1171,9 @@ class LearningTestCase(unittest.TestCase):
                 self.log = log
                 self.learning_data = learning_data
 
-            def improve_profiles(self):
+            def improve_profiles(self, model_indexes_begin, model_indexes_end):
                 self.log.append(("improve_profiles",))
-                for model_index in range(self.learning_data.models_count):
+                for model_index in range(model_indexes_begin, model_indexes_end):
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
                             rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))

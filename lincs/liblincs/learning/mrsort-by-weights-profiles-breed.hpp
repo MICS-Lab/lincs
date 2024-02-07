@@ -93,7 +93,7 @@ struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
 
   virtual ~WeightsOptimizationStrategy() {}
 
-  virtual void optimize_weights() = 0;
+  virtual void optimize_weights(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
@@ -101,7 +101,7 @@ struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
 
   virtual ~ProfilesImprovementStrategy() {}
 
-  virtual void improve_profiles() = 0;
+  virtual void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
