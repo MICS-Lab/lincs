@@ -16,11 +16,9 @@ Recent Ubuntu systems will even enforce that, by `refusing to install PyPI packa
 
 Alternatively, you can use our `Docker image <https://hub.docker.com/repository/docker/jacquev6/lincs>`_ (``docker run --rm -it jacquev6/lincs:latest``) and run the commands below in there.
 
-.. @todo(Documentation, v1.1) Update the link to the GitHub Actions workflow below
-
 If you're on a platform for which we don't make wheels and our Docker image doesn't cover your needs, you'll have to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
-If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml>`_ we use to build the binary wheels.
+If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute-release.yml>`_ we use to build the binary wheels.
 You'll probably start by trying ``pip install lincs``, see what dependencies are missing, install them and iterate from there.
 If you end up modifying *lincs* to make it work on your platform, we kindly ask you to contribute your changes back to the project.
 
