@@ -597,7 +597,7 @@
 
             An alternative, with its performance on each criterion, maybe classified.
 
-            .. method:: __init__(name: str, profile: Iterable[Performance] [, category_index: Optional[float]=None])
+            .. method:: __init__(name: str, profile: Iterable[Performance], category_index: Optional[float]=None)
 
                 Parameters map exactly to attributes with identical names.
 
@@ -638,11 +638,11 @@
 
                 Load a set of alternatives (classified or not) from the provided ``.read``-supporting file-like object, in CSV format.
 
-        .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int [, normalized_min_max: bool=True [, allowed_preference_directions: Iterable[PreferenceDirection]=[] [, allowed_value_types: Iterable[ValueType]=[]]]]) -> Problem
+        .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int, normalized_min_max: bool=True, allowed_preference_directions: Iterable[PreferenceDirection]=[], allowed_value_types: Iterable[ValueType]=[]) -> Problem
 
             Generate a :py:class:`Problem` with ``criteria_count`` criteria and ``categories_count`` categories.
 
-        .. function:: generate_mrsort_model(problem: Problem, random_seed: int [, fixed_weights_sum: Optional[float]=None]) -> Model
+        .. function:: generate_mrsort_model(problem: Problem, random_seed: int, fixed_weights_sum: Optional[float]=None) -> Model
 
             Generate an MR-Sort model for the provided :py:class:`Problem`.
 
@@ -650,7 +650,7 @@
 
             Raised by ``generate_alternatives`` when it fails to find alternatives to balance the categories.
 
-        .. function:: generate_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int [, max_imbalance: Optional[float]=None]) -> Alternatives
+        .. function:: generate_alternatives(problem: Problem, model: Model, alternatives_count: int, random_seed: int, max_imbalance: Optional[float]=None) -> Alternatives
 
             Generate a set of ``alternatives_count`` pseudo-random alternatives for the provided :py:class:`Problem`, classified according to the provided :py:class:`Model`.
 
@@ -662,7 +662,7 @@
 
             @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: __init__(problem: Problem, learning_set: Alternatives [, nb_minimize_threads: int=0 [, timeout_fast_minimize: int=60 [, coef_minimize_time: int=2]]])
+            .. method:: __init__(problem: Problem, learning_set: Alternatives, nb_minimize_threads: int=0, timeout_fast_minimize: int=60, coef_minimize_time: int=2)
 
                 @todo(Documentation, v1.1) Add a docstring.
 
@@ -674,7 +674,7 @@
 
             @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: __init__(problem: Problem, learning_set: Alternatives [, nb_minimize_threads: int=0 [, timeout_fast_minimize: int=60 [, coef_minimize_time: int=2]]])
+            .. method:: __init__(problem: Problem, learning_set: Alternatives, nb_minimize_threads: int=0, timeout_fast_minimize: int=60, coef_minimize_time: int=2)
 
                 @todo(Documentation, v1.1) Add a docstring.
 
@@ -710,7 +710,7 @@
 
             @todo(Documentation, v1.1) Add a docstring.
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy [, observers: Iterable[Observer]=[]])
+            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: Iterable[Observer]=[])
 
                 @todo(Documentation, v1.1) Add a docstring.
 

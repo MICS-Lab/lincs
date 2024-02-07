@@ -615,11 +615,10 @@ def make_python_reference():
                 defaults += 1
             if defaults:
                 (name, type, default) = parameter
-                text_parameters += f" [{comma}{name}: {type}={default}"
+                text_parameters += f"{comma}{name}: {type}={default}"
             else:
                 (name, type) = parameter
                 text_parameters += f"{comma}{name}: {type}"
-        text_parameters += defaults * "]"
 
         if return_type == "None":
             text_return_type = ""
