@@ -28,11 +28,11 @@
 
     .. class:: UniformRandomBitsGenerator
 
-        @todo(Documentation, v1.1) Add a docstring.
+        Random number generator.
 
         .. method:: __call__() -> int
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Generate the next pseudo-random integer.
 
     .. module:: lincs.classification
 
@@ -660,345 +660,345 @@
 
         .. class:: LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The "max-SAT by coalitions" approach to learn Uc-NCS models.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives, nb_minimize_threads: int=0, timeout_fast_minimize: int=60, coef_minimize_time: int=2)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor.
 
             .. method:: perform() -> Model
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Actually perform the learning and return the learned model.
 
         .. class:: LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The "max-SAT by separation" approach to learn Uc-NCS models.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives, nb_minimize_threads: int=0, timeout_fast_minimize: int=60, coef_minimize_time: int=2)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor.
 
             .. method:: perform() -> Model
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Actually perform the learning and return the learned model.
 
         .. class:: LearnUcncsBySatByCoalitionsUsingMinisat
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The "SAT by coalitions" approach to learn Uc-NCS models.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor.
 
             .. method:: perform() -> Model
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Actually perform the learning and return the learned model.
 
         .. class:: LearnUcncsBySatBySeparationUsingMinisat
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The "SAT by separation" approach to learn Uc-NCS models.
 
             .. method:: __init__(problem: Problem, learning_set: Alternatives)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor.
 
             .. method:: perform() -> Model
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Actually perform the learning and return the learned model.
 
         .. class:: LearnMrsortByWeightsProfilesBreed
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The approach described in Olivier Sobrie's PhD thesis to learn MR-Sort models.
 
             .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: Iterable[Observer]=[])
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor accepting the strategies to use for each step of the learning.
 
             .. class:: LearningData
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Data shared by all the strategies used in this learning.
 
                 .. method:: __init__(problem: Problem, learning_set: Alternatives, models_count: int, random_seed: int)
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Constructor, pre-processing the learning set into a simpler form for strategies.
 
                 .. property:: criteria_count
                     :type: int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Number of criteria in the :py:class:`Problem`.
 
                 .. property:: categories_count
                     :type: int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Number of categories in the :py:class:`Problem`.
 
                 .. property:: boundaries_count
                     :type: int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.
 
                 .. property:: alternatives_count
                     :type: int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Number of alternatives in the ``learning_set``.
 
                 .. property:: values_counts
                     :type: Iterable[int]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.
 
                 .. property:: performance_ranks
                     :type: Iterable[Iterable[int]]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.
 
                 .. property:: assignments
                     :type: Iterable[int]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.
 
                 .. property:: models_count
                     :type: int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    The number of in-progress models for this learning.
 
                 .. property:: urbgs
                     :type: Iterable[UniformRandomBitsGenerator]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[model_index]``. Random number generators associated to each in-progress model.
 
                 .. property:: iteration_index
                     :type: int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    The index of the current iteration of the WPB algorithm.
 
                 .. property:: model_indexes
                     :type: Iterable[int]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.
 
                 .. property:: weights
                     :type: Iterable[Iterable[int]]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.
 
                 .. property:: profile_ranks
                     :type: Iterable[Iterable[Iterable[int]]]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each profile, for each model and criterion.
 
                 .. property:: accuracies
                     :type: Iterable[int]
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Indexed by ``[model_index]``. Accuracy of each in-progress model.
 
                 .. method:: get_best_accuracy() -> int
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Return the accuracy of the best model so far.
 
                 .. method:: get_best_model() -> Model
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Return the best model so far.
 
             .. class:: ProfilesInitializationStrategy
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Abstract base class for profiles initialization strategies.
 
                 .. method:: initialize_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override. Should initialize all ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: WeightsOptimizationStrategy
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Abstract base class for weights optimization strategies.
 
                 .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override. Should optimize ``weights`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: ProfilesImprovementStrategy
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Abstract base class for profiles improvement strategies.
 
                 .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override. Should improve ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: BreedingStrategy
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Abstract base class for breeding strategies.
 
                 .. method:: breed()
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override.
 
             .. class:: TerminationStrategy
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Abstract base class for termination strategies.
 
                 .. method:: terminate() -> bool
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override. Should return ``True`` if the learning should stop, ``False`` otherwise.
 
             .. class:: Observer
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Abstract base class for observation strategies.
 
                 .. method:: after_iteration()
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override. Called after each iteration. Should not change anything in the learning data.
 
                 .. method:: before_return()
 
-                    @todo(Documentation, v1.1) Add a docstring.
+                    Method to override. Called just before returning the learned model. Should not change anything in the learning data.
 
             .. method:: perform() -> Model
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Actually perform the learning and return the learned model.
 
         .. class:: InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The profiles initialization strategy described in Olivier Sobrie's PhD thesis.
 
             .. method:: __init__(learning_data: LearningData)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: initialize_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: OptimizeWeightsUsingAlglib
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using AlgLib.
 
             .. method:: __init__(learning_data: LearningData)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: OptimizeWeightsUsingGlop
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using GLOP.
 
             .. method:: __init__(learning_data: LearningData)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: ImproveProfilesWithAccuracyHeuristicOnCpu
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CPU.
 
             .. method:: __init__(learning_data: LearningData)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: ImproveProfilesWithAccuracyHeuristicOnGpu
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CUDA-capable GPU.
 
             .. method:: __init__(learning_data: LearningData)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: ReinitializeLeastAccurate
 
-            @todo(Documentation, v1.1) Add a docstring.
+            The breeding strategy described in Olivier Sobrie's PhD thesis: re-initializes ``count`` in-progress models.
 
             .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, count: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps references to the profiles initialization strategy and the learning data.
 
             .. method:: breed()
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: TerminateAfterIterations
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Termination strategy. Terminates the learning after a given number of iterations.
 
             .. method:: __init__(learning_data: LearningData, max_iterations_count: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: terminate() -> bool
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: TerminateAfterIterationsWithoutProgress
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Termination strategy. Terminates the learning after a given number of iterations without progress.
 
             .. method:: __init__(learning_data: LearningData, max_iterations_count: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: terminate() -> bool
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: TerminateAfterSeconds
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Termination strategy. Terminates the learning after a given duration.
 
             .. method:: __init__(max_seconds: float)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor.
 
             .. method:: terminate() -> bool
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: TerminateAfterSecondsWithoutProgress
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Termination strategy. Terminates the learning after a given duration without progress.
 
             .. method:: __init__(learning_data: LearningData, max_seconds: float)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: terminate() -> bool
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: TerminateAtAccuracy
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Termination strategy. Terminates the learning when the best model reaches a given accuracy.
 
             .. method:: __init__(learning_data: LearningData, target_accuracy: int)
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps a reference to the learning data.
 
             .. method:: terminate() -> bool
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: TerminateWhenAny
 
-            @todo(Documentation, v1.1) Add a docstring.
+            Termination strategy. Terminates the learning when one or more termination strategies decide to terminate.
 
             .. method:: __init__(termination_strategies: Iterable[TerminationStrategy])
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Constructor. Keeps references to each termination strategies.
 
             .. method:: terminate() -> bool
 
-                @todo(Documentation, v1.1) Add a docstring.
+                Overrides the base method.
 
         .. class:: ClassificationResult
 

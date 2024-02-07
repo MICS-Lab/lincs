@@ -1148,7 +1148,8 @@ class LearningTestCase(unittest.TestCase):
 
             def initialize_profiles(self, model_indexes_begin, model_indexes_end):
                 self.log.append(("initialize_profiles", model_indexes_begin, model_indexes_end))
-                for model_index in range(model_indexes_begin, model_indexes_end):
+                for model_index_index in range(model_indexes_begin, model_indexes_end):
+                    model_index = learning_data.model_indexes[model_index_index]
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
                             self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
@@ -1161,7 +1162,8 @@ class LearningTestCase(unittest.TestCase):
 
             def optimize_weights(self, model_indexes_begin, model_indexes_end):
                 self.log.append(("optimize_weights",))
-                for model_index in range(model_indexes_begin, model_indexes_end):
+                for model_index_index in range(model_indexes_begin, model_indexes_end):
+                    model_index = learning_data.model_indexes[model_index_index]
                     for criterion_index in range(self.learning_data.criteria_count):
                         self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
 
@@ -1173,7 +1175,8 @@ class LearningTestCase(unittest.TestCase):
 
             def improve_profiles(self, model_indexes_begin, model_indexes_end):
                 self.log.append(("improve_profiles",))
-                for model_index in range(model_indexes_begin, model_indexes_end):
+                for model_index_index in range(model_indexes_begin, model_indexes_end):
+                    model_index = learning_data.model_indexes[model_index_index]
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
                             rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))

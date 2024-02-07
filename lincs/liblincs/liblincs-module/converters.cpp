@@ -183,12 +183,12 @@ void enroll_standard_converters() {
   std_vector_converter<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>::enroll();
   bp::class_<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>("Iterable[Observer]").def(bp::vector_indexing_suite<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>>());
 
-  bp::class_<std::mt19937>("UniformRandomBitsGenerator", "@todo(Documentation, v1.1) Add a docstring.", bp::no_init)
+  bp::class_<std::mt19937>("UniformRandomBitsGenerator", "Random number generator.", bp::no_init)
     .def(
       "__call__",
       &std::mt19937::operator(),
       (bp::arg("self")),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Generate the next pseudo-random integer."
     )
   ;
   bp::class_<std::vector<std::mt19937>>("Iterable[UniformRandomBitsGenerator]").def(bp::vector_indexing_suite<std::vector<std::mt19937>>());

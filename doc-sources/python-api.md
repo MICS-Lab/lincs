@@ -1368,7 +1368,8 @@ class SillyProfilesInitializationStrategy(lc.LearnMrsortByWeightsProfilesBreed.P
 
     def initialize_profiles(self, model_indexes_begin, model_indexes_end):
         print("initialize_profiles", model_indexes_begin, model_indexes_end, file=sys.stderr)
-        for model_index in range(model_indexes_begin, model_indexes_end):
+        for model_index_index in range(model_indexes_begin, model_indexes_end):
+            model_index = learning_data.model_indexes[model_index_index]
             for boundary_index in range(self.learning_data.boundaries_count):
                 for criterion_index in range(self.learning_data.criteria_count):
                     self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
@@ -1383,7 +1384,8 @@ class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.Weig
 
     def optimize_weights(self, model_indexes_begin, model_indexes_end):
         print("optimize_weights", file=sys.stderr)
-        for model_index in range(model_indexes_begin, model_indexes_end):
+        for model_index_index in range(model_indexes_begin, model_indexes_end):
+            model_index = learning_data.model_indexes[model_index_index]
             for criterion_index in range(self.learning_data.criteria_count):
                 self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
 ```
@@ -1397,7 +1399,8 @@ class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.Prof
 
     def improve_profiles(self, model_indexes_begin, model_indexes_end):
         print("improve_profiles", file=sys.stderr)
-        for model_index in range(model_indexes_begin, model_indexes_end):
+        for model_index_index in range(model_indexes_begin, model_indexes_end):
+            model_index = learning_data.model_indexes[model_index_index]
             for boundary_index in range(self.learning_data.boundaries_count):
                 for criterion_index in range(self.learning_data.criteria_count):
                     rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))

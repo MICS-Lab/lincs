@@ -27,7 +27,7 @@ void define_learning_classes() {
 
   auto learn_wbp_class = bp::class_<lincs::LearnMrsortByWeightsProfilesBreed>(
     "LearnMrsortByWeightsProfilesBreed",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The approach described in Olivier Sobrie's PhD thesis to learn MR-Sort models.",
     bp::no_init
   )
     .def(bp::init<
@@ -49,7 +49,7 @@ void define_learning_classes() {
         "termination_strategy",
         bp::arg("observers")=std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>{}
       ),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor accepting the strategies to use for each step of the learning."
     )[
       bp::with_custodian_and_ward<1, 2,
       bp::with_custodian_and_ward<1, 3,
@@ -59,7 +59,7 @@ void define_learning_classes() {
       bp::with_custodian_and_ward<1, 7,
       bp::with_custodian_and_ward<1, 8
     >>>>>>>()])
-    .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, (bp::arg("self")), "Actually perform the learning and return the learned model.")
   ;
 
   {
@@ -67,31 +67,31 @@ void define_learning_classes() {
 
     bp::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData, boost::noncopyable>(
       "LearningData",
-      "@todo(Documentation, v1.1) Add a docstring.",
+      "Data shared by all the strategies used in this learning.",
       bp::no_init
     )
       .def(bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>(
         (bp::arg("self"), "problem", "learning_set", "models_count", "random_seed"),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Constructor, pre-processing the learning set into a simpler form for strategies."
       )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
       // About the problem and learning set:
-      .add_property("criteria_count", &lincs::PreProcessedLearningSet::criteria_count, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("categories_count", &lincs::PreProcessedLearningSet::categories_count, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("alternatives_count", &lincs::PreProcessedLearningSet::alternatives_count, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("values_counts", &lincs::PreProcessedLearningSet::values_counts, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("assignments", &lincs::PreProcessedLearningSet::assignments, "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("criteria_count", &lincs::PreProcessedLearningSet::criteria_count, "Number of criteria in the :py:class:`Problem`.")
+      .add_property("categories_count", &lincs::PreProcessedLearningSet::categories_count, "Number of categories in the :py:class:`Problem`.")
+      .add_property("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.")
+      .add_property("alternatives_count", &lincs::PreProcessedLearningSet::alternatives_count, "Number of alternatives in the ``learning_set``.")
+      .add_property("values_counts", &lincs::PreProcessedLearningSet::values_counts, "Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.")
+      .add_property("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.")
+      .add_property("assignments", &lincs::PreProcessedLearningSet::assignments, "Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.")
       // About WPB:
-      .add_property("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("urbgs", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::urbgs, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::profile_ranks, "@todo(Documentation, v1.1) Add a docstring.")
-      .add_property("weights", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::weights, "@todo(Documentation, v1.1) Add a docstring.")
-      .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
-      .def("get_best_model", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_model, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+      .add_property("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "The number of in-progress models for this learning.")
+      .add_property("urbgs", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::urbgs, "Indexed by ``[model_index]``. Random number generators associated to each in-progress model.")
+      .add_property("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "The index of the current iteration of the WPB algorithm.")
+      .add_property("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.")
+      .add_property("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "Indexed by ``[model_index]``. Accuracy of each in-progress model.")
+      .add_property("profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::profile_ranks, "Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each profile, for each model and criterion.")
+      .add_property("weights", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::weights, "Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.")
+      .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, (bp::arg("self")), "Return the accuracy of the best model so far.")
+      .def("get_best_model", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_model, (bp::arg("self")), "Return the best model so far.")
     ;
 
     struct ProfilesInitializationStrategyWrap : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, bp::wrapper<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy> {
@@ -100,13 +100,13 @@ void define_learning_classes() {
 
     bp::class_<ProfilesInitializationStrategyWrap, boost::noncopyable>(
       "ProfilesInitializationStrategy",
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Abstract base class for profiles initialization strategies."
     )
       .def(
         "initialize_profiles",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles),
         (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override. Should initialize all ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
       )
     ;
 
@@ -116,13 +116,13 @@ void define_learning_classes() {
 
     bp::class_<WeightsOptimizationStrategyWrap, boost::noncopyable>(
       "WeightsOptimizationStrategy",
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Abstract base class for weights optimization strategies."
     )
       .def(
         "optimize_weights",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights),
         (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override. Should optimize ``weights`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
       )
     ;
 
@@ -132,13 +132,13 @@ void define_learning_classes() {
 
     bp::class_<ProfilesImprovementStrategyWrap, boost::noncopyable>(
       "ProfilesImprovementStrategy",
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Abstract base class for profiles improvement strategies."
     )
       .def(
         "improve_profiles",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles),
         (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override. Should improve ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
       )
     ;
 
@@ -148,13 +148,13 @@ void define_learning_classes() {
 
     bp::class_<BreedingStrategyWrap, boost::noncopyable>(
       "BreedingStrategy",
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Abstract base class for breeding strategies."
     )
       .def(
         "breed",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed),
         (bp::arg("self")),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override."
       )
     ;
 
@@ -164,13 +164,13 @@ void define_learning_classes() {
 
     bp::class_<TerminationStrategyWrap, boost::noncopyable>(
       "TerminationStrategy",
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Abstract base class for termination strategies."
     )
       .def(
         "terminate",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate),
         (bp::arg("self")),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override. Should return ``True`` if the learning should stop, ``False`` otherwise."
       )
     ;
 
@@ -181,19 +181,19 @@ void define_learning_classes() {
 
     bp::class_<ObserverWrap, boost::noncopyable>(
       "Observer",
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Abstract base class for observation strategies."
     )
       .def(
         "after_iteration",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration),
         (bp::arg("self")),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override. Called after each iteration. Should not change anything in the learning data."
       )
       .def(
         "before_return",
         bp::pure_virtual(&lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return),
         (bp::arg("self")),
-        "@todo(Documentation, v1.1) Add a docstring."
+        "Method to override. Called just before returning the learned model. Should not change anything in the learning data."
       )
     ;
   }
@@ -203,18 +203,18 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy>
   >(
     "InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The profiles initialization strategy described in Olivier Sobrie's PhD thesis.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(
       (bp::arg("self"), "learning_data"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
     .def(
       "initialize_profiles",
       &lincs::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles,
       (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Overrides the base method."
     )
   ;
 
@@ -223,18 +223,18 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy>
   >(
     "OptimizeWeightsUsingGlop",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using GLOP.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(
       (bp::arg("self"), "learning_data"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
     .def(
       "optimize_weights",
       &lincs::OptimizeWeightsUsingGlop::optimize_weights,
       (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Overrides the base method."
     )
   ;
 
@@ -243,18 +243,18 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy>
   >(
     "OptimizeWeightsUsingAlglib",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using AlgLib.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(
       (bp::arg("self"), "learning_data"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
     .def(
       "optimize_weights",
       &lincs::OptimizeWeightsUsingAlglib::optimize_weights,
       (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Overrides the base method."
     )
   ;
 
@@ -263,15 +263,18 @@ void define_learning_classes() {
     bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy>
   >(
     "ImproveProfilesWithAccuracyHeuristicOnCpu",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CPU.",
     bp::no_init
   )
-    .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>((bp::arg("self"), "learning_data"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2>()])
+    .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(
+      (bp::arg("self"), "learning_data"),
+      "Constructor. Keeps a reference to the learning data."
+    )[bp::with_custodian_and_ward<1, 2>()])
     .def(
       "improve_profiles",
       &lincs::ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles,
       (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Overrides the base method."
     )
   ;
 
@@ -282,138 +285,185 @@ void define_learning_classes() {
     boost::noncopyable
   >(
     "ImproveProfilesWithAccuracyHeuristicOnGpu",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CUDA-capable GPU.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(
       (bp::arg("self"), "learning_data"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
     .def(
       "improve_profiles",
       &lincs::ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles,
       (bp::arg("self"), "model_indexes_begin", "model_indexes_end"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Overrides the base method."
     )
   ;
   #endif  // LINCS_HAS_NVCC
 
   bp::class_<lincs::ReinitializeLeastAccurate, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy>>(
     "ReinitializeLeastAccurate",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The breeding strategy described in Olivier Sobrie's PhD thesis: re-initializes ``count`` in-progress models.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&, unsigned>(
       (bp::arg("self"), "learning_data", "profiles_initialization_strategy", "count"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps references to the profiles initialization strategy and the learning data."
     )[bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3>>()])
-    .def("breed", &lincs::ReinitializeLeastAccurate::breed, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(
+      "breed",
+      &lincs::ReinitializeLeastAccurate::breed,
+      (bp::arg("self")), 
+      "Overrides the base method."
+    )
   ;
 
   bp::class_<lincs::TerminateAtAccuracy, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAtAccuracy",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "Termination strategy. Terminates the learning when the best model reaches a given accuracy.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>(
       (bp::arg("self"), "learning_data", "target_accuracy"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
-    .def("terminate", &lincs::TerminateAtAccuracy::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(
+      "terminate",
+      &lincs::TerminateAtAccuracy::terminate,
+      (bp::arg("self")),
+      "Overrides the base method."
+    )
   ;
 
   bp::class_<lincs::TerminateAfterIterations, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterIterations",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "Termination strategy. Terminates the learning after a given number of iterations.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>(
       (bp::arg("self"), "learning_data", "max_iterations_count"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
-    .def("terminate", &lincs::TerminateAfterIterations::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(
+      "terminate",
+      &lincs::TerminateAfterIterations::terminate,
+      (bp::arg("self")),
+      "Overrides the base method."
+    )
   ;
 
   bp::class_<lincs::TerminateAfterIterationsWithoutProgress, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterIterationsWithoutProgress",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "Termination strategy. Terminates the learning after a given number of iterations without progress.",
     bp::no_init
   )
     .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, unsigned>(
       (bp::arg("self"), "learning_data", "max_iterations_count"),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor. Keeps a reference to the learning data."
     )[bp::with_custodian_and_ward<1, 2>()])
-    .def("terminate", &lincs::TerminateAfterIterationsWithoutProgress::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(
+      "terminate",
+      &lincs::TerminateAfterIterationsWithoutProgress::terminate,
+      (bp::arg("self")),
+      "Overrides the base method."
+    )
   ;
 
   bp::class_<lincs::TerminateAfterSeconds, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterSeconds",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "Termination strategy. Terminates the learning after a given duration.",
     bp::no_init
   )
-    .def(bp::init<float>((bp::arg("self"), "max_seconds"), "@todo(Documentation, v1.1) Add a docstring."))
-    .def("terminate", &lincs::TerminateAfterSeconds::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(bp::init<float>((bp::arg("self"), "max_seconds"), "Constructor."))
+    .def(
+      "terminate",
+      &lincs::TerminateAfterSeconds::terminate,
+      (bp::arg("self")),
+      "Overrides the base method."
+    )
   ;
 
   bp::class_<lincs::TerminateAfterSecondsWithoutProgress, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateAfterSecondsWithoutProgress",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "Termination strategy. Terminates the learning after a given duration without progress.",
     bp::no_init
   )
-    .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, float>((bp::arg("self"), "learning_data", "max_seconds"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2>()])
-    .def("terminate", &lincs::TerminateAfterSecondsWithoutProgress::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, float>(
+      (bp::arg("self"), "learning_data", "max_seconds"),
+      "Constructor. Keeps a reference to the learning data."
+    )[bp::with_custodian_and_ward<1, 2>()])
+    .def(
+      "terminate",
+      &lincs::TerminateAfterSecondsWithoutProgress::terminate,
+      (bp::arg("self")),
+      "Overrides the base method."
+    )
   ;
 
   bp::class_<lincs::TerminateWhenAny, bp::bases<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy>>(
     "TerminateWhenAny",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "Termination strategy. Terminates the learning when one or more termination strategies decide to terminate.",
     bp::no_init
   )
-    .def(bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>((bp::arg("self"), "termination_strategies"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2>()])
-    .def("terminate", &lincs::TerminateWhenAny::terminate, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(bp::init<std::vector<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy*>>(
+      (bp::arg("self"), "termination_strategies"),
+      "Constructor. Keeps references to each termination strategies."
+    )[bp::with_custodian_and_ward<1, 2>()])
+    .def(
+      "terminate",
+      &lincs::TerminateWhenAny::terminate,
+      (bp::arg("self")),
+      "Overrides the base method."
+    )
   ;
 
 
   bp::class_<lincs::LearnUcncsBySatByCoalitionsUsingMinisat, boost::noncopyable>(
     "LearnUcncsBySatByCoalitionsUsingMinisat",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The \"SAT by coalitions\" approach to learn Uc-NCS models.",
     bp::no_init
   )
-    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
-    .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingMinisat::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&>(
+      (bp::arg("self"), "problem", "learning_set"),
+      "Constructor."
+    )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
+    .def("perform", &lincs::LearnUcncsBySatByCoalitionsUsingMinisat::perform, (bp::arg("self")), "Actually perform the learning and return the learned model.")
   ;
 
   bp::class_<lincs::LearnUcncsBySatBySeparationUsingMinisat, boost::noncopyable>(
     "LearnUcncsBySatBySeparationUsingMinisat",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The \"SAT by separation\" approach to learn Uc-NCS models.",
     bp::no_init
   )
-    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&>((bp::arg("self"), "problem", "learning_set"), "@todo(Documentation, v1.1) Add a docstring.")[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
-    .def("perform", &lincs::LearnUcncsBySatBySeparationUsingMinisat::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def(bp::init<const lincs::Problem&, const lincs::Alternatives&>(
+      (bp::arg("self"), "problem", "learning_set"),
+      "Constructor."
+    )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
+    .def("perform", &lincs::LearnUcncsBySatBySeparationUsingMinisat::perform, (bp::arg("self")), "Actually perform the learning and return the learned model.")
   ;
 
   bp::class_<lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat, boost::noncopyable>(
     "LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The \"max-SAT by coalitions\" approach to learn Uc-NCS models.",
     bp::no_init
   )
     .def(bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned, unsigned>(
       (bp::arg("self"), "problem", "learning_set", bp::arg("nb_minimize_threads") = 0, bp::arg("timeout_fast_minimize") = 60, bp::arg("coef_minimize_time") = 2),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor."
     )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
-    .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def("perform", &lincs::LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat::perform, (bp::arg("self")), "Actually perform the learning and return the learned model.")
   ;
 
   bp::class_<lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat, boost::noncopyable>(
     "LearnUcncsByMaxSatBySeparationUsingEvalmaxsat",
-    "@todo(Documentation, v1.1) Add a docstring.",
+    "The \"max-SAT by separation\" approach to learn Uc-NCS models.",
     bp::no_init
   )
     .def(bp::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned, unsigned>(
       (bp::arg("self"), "problem", "learning_set", bp::arg("nb_minimize_threads") = 0, bp::arg("timeout_fast_minimize") = 60, bp::arg("coef_minimize_time") = 2),
-      "@todo(Documentation, v1.1) Add a docstring."
+      "Constructor."
     )[bp::with_custodian_and_ward<1, 2 /* No reference kept on 'learning_set' => no custodian_and_ward */>()])
-    .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform, (bp::arg("self")), "@todo(Documentation, v1.1) Add a docstring.")
+    .def("perform", &lincs::LearnUcncsByMaxSatBySeparationUsingEvalmaxsat::perform, (bp::arg("self")), "Actually perform the learning and return the learned model.")
   ;
 }
 
