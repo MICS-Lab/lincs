@@ -4,8 +4,8 @@
 Changelog
 =========
 
-Versions 1.1.0a7 to 1.1.0a9 (2024-02-08)
-========================================
+Versions 1.1.0a7 to 1.1.0a10 (2024-02-08)
+=========================================
 
 - Publish pre-releases more similar to releases to detects issues earlier
 - Fix the GitHub Actions publication workflow
