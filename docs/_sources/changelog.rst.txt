@@ -4,11 +4,12 @@
 Changelog
 =========
 
-Versions 1.1.0a7 to 1.1.0a14 (2024-02-08)
+Versions 1.1.0a7 to 1.1.0a15 (2024-02-08)
 =========================================
 
 - Publish pre-releases more similar to releases to detects issues earlier
-- Fix the GitHub Actions publication workflow
+- Fix GitHub Actions publication workflow for all three OSes
+- Fix code for building on Windows and macOS
 - Improve documentation
 
 Version 1.1.0a6 (2024-02-06)
