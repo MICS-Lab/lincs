@@ -195,7 +195,9 @@ def publish(dev_version, public_version, next_dev_version, expected_branch, dry_
     input("Please check built documentation 'docs/index.html' then press enter to proceed, Ctrl+C to cancel.")
     if not dry_run:
         push_public_version(public_version)
-        write_version(public_version, next_dev_version)
+        if expected_branch == "main":
+            subprocess.run(["git", "checkout", "develop"], check=True)
+            subprocess.run(["git", "merge", "main", "--ff-only"], check=True)
         push_next_dev_version()
 
 
@@ -207,7 +209,8 @@ def check_cleanliness(expected_branch):
 
     branch = subprocess.run(["git", "branch", "--show-current"], stdout=subprocess.PIPE, universal_newlines=True, check=True)
     if branch.stdout.strip() != expected_branch:
-        input(f"WARNING: you're not on branch '{expected_branch}'. Press enter to proceed, Ctrl+C to cancel.")
+        print(f"ERROR: you're not on branch '{expected_branch}'.")
+        exit(1)
 
     not_committed = subprocess.run(["git", "diff", "--stat", "--staged", "--exit-code"], stdout=subprocess.DEVNULL)
     if not_committed.returncode != 0:
