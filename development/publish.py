@@ -189,7 +189,10 @@ def publish(dev_version, public_version, next_dev_version, expected_branch, dry_
     check_cleanliness(expected_branch)
     write_version(dev_version, public_version)
     update_changelog(public_version)
+    input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
+    input("Please edit 'doc-sources/roadmap.rst' then press enter to proceed, Ctrl+C to cancel.")
     build_sphinx_documentation()
+    input("Please check built documentation 'docs/index.html' then press enter to proceed, Ctrl+C to cancel.")
     if not dry_run:
         push_public_version(public_version)
         write_version(public_version, next_dev_version)
@@ -248,9 +251,6 @@ def update_changelog(public_version):
 
     with open("doc-sources/changelog.rst", "w") as f:
         f.write("\n".join(lines) + "\n")
-
-    input("Please edit 'doc-sources/changelog.rst' then press enter to proceed, Ctrl+C to cancel.")
-    input("Please edit 'doc-sources/roadmap.rst' then press enter to proceed, Ctrl+C to cancel.")
 
 
 def push_public_version(public_version):
