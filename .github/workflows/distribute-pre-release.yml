@@ -54,6 +54,8 @@ jobs:
         id: cuda-toolkit
         with:
           cuda: '12.1.0'
+          use-github-cache: false
+          use-local-cache: false
           method: network
           sub-packages: '["nvcc"]'
       - name: Install MSys2
