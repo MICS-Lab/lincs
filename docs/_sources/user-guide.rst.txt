@@ -512,7 +512,7 @@ They produce a different kind of model, with the sufficient coalitions specified
 
 .. code:: yaml
 
-    # Reproduction command (with lincs version 1.1.0a10): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
+    # Reproduction command (with lincs version 1.1.0a11): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
