@@ -108,7 +108,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist-python-${{ matrix.python_version }}
+          name: wheels-dist-linux-${{ matrix.python_version }}
           path: dist
 
   build-for-windows:
@@ -192,7 +192,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist
+          name: wheels-dist-windows-${{ matrix.python_version }}
           path: dist
 
   build-for-macos:
@@ -259,7 +259,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist
+          name: wheels-dist-macos-${{ matrix.python_version }}
           path: dist
 
   check:
@@ -285,7 +285,8 @@ jobs:
       - name: Dowload the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wheels-dist
+          pattern: wheels-dist-*-${{ matrix.python_version }}
+          merge-multiple: true
 
       - name: Install the wheel
         run: pip${{ matrix.python_version }} install --find-links . --pre lincs
