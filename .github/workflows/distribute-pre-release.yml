@@ -117,7 +117,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.10', '3.11']
+        python_version: ['3.8', '3.10']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
