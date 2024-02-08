@@ -106,7 +106,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist
+          name: wheel-dist-${{ matrix.python_version }}-linux
           path: dist
 
   build-for-windows:
@@ -123,13 +123,22 @@ jobs:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
         run: pip install build delvewheel twine
-      # The 'Jimver/cuda-toolkit' action seems to work, but takes 20 minutes
-      # @todo(Project management, later) Find a quicker way to install CUDA on Windows
+      # @toto(Project management, soon) Consider replacing the Jimver/cuda-toolkit action by these two steps
+      # - name: Download CUDA installer
+      #   run: Invoke-WebRequest -URI https://developer.download.nvidia.com/compute/cuda/12.1.0/network_installers/cuda_12.1.0_windows_network.exe -OutFile cuda_12.1.0_windows_network.exe
+      # - name: Install CUDA
+      #   # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
+      #   run: .\cuda_12.1.0_windows_network.exe -s nvcc_12.1 cudart_12.1
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
         with:
           cuda: '12.1.0'
+          use-github-cache: false
+          use-local-cache: false
+          method: network
+          # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
+          sub-packages: '["nvcc", "cudart"]'
       - name: Install MSys2
         uses: msys2/setup-msys2@v2
         with:
@@ -190,7 +199,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist
+          name: wheel-dist-${{ matrix.python_version }}-windows
           path: dist
 
   build-for-macos:
@@ -257,7 +266,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist
+          name: wheel-dist-${{ matrix.python_version }}-macos
           path: dist
 
   check:
@@ -287,7 +296,8 @@ jobs:
       - name: Dowload the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wheels-dist
+          pattern: wheel-dist-${{ matrix.python_version }}-*
+          merge-multiple: true
 
       - name: Install the wheel
         run: pip${{ matrix.python_version }} install --find-links . --pre lincs
@@ -317,8 +327,8 @@ jobs:
       - name: Dowload the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wheels-dist
-
+          pattern: wheel-dist-*
+          merge-multiple: true
       - name: Publish all distributions to the Python Package Index
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -336,7 +346,7 @@ jobs:
       - name: Download the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wheels-dist
+          name: wheel-dist-3.10-linux
           path: docker
       - name: Build the Docker image
         run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker

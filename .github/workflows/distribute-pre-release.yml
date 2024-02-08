@@ -108,7 +108,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist-linux-${{ matrix.python_version }}
+          name: wheel-dist-${{ matrix.python_version }}-linux
           path: dist
 
   build-for-windows:
@@ -201,7 +201,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist-windows-${{ matrix.python_version }}
+          name: wheel-dist-${{ matrix.python_version }}-windows
           path: dist
 
   build-for-macos:
@@ -268,7 +268,7 @@ jobs:
       - name: Upload the wheel to GitHub Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-dist-macos-${{ matrix.python_version }}
+          name: wheel-dist-${{ matrix.python_version }}-macos
           path: dist
 
   check:
@@ -281,8 +281,12 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
+          - ubuntu-22.04
           - windows-2019
+          - windows-2022
           - macos-11
+          - macos-12
+          - macos-13
         python_version: ['3.8', '3.10']
     steps:
       - name: Install Python
@@ -294,7 +298,7 @@ jobs:
       - name: Dowload the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: wheels-dist-*-${{ matrix.python_version }}
+          pattern: wheel-dist-${{ matrix.python_version }}-*
           merge-multiple: true
 
       - name: Install the wheel
@@ -325,9 +329,8 @@ jobs:
       - name: Dowload the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: wheels-dist-*
+          pattern: wheel-dist-*
           merge-multiple: true
-
       - name: Publish all distributions to the Python Package Index
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -345,9 +348,8 @@ jobs:
       - name: Download the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wheels-dist-python-3.10
+          name: wheel-dist-3.10-linux
           path: docker
-
       - name: Build the Docker image
         run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker
       - name: Login into Docker Hub
