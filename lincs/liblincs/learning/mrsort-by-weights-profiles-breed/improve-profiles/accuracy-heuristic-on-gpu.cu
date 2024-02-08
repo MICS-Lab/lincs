@@ -261,7 +261,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
   copy(host_learning_data.profile_ranks, ref(gpu_learning_data.profile_ranks));
 
   #pragma omp parallel for
-  for (unsigned model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
+  for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
     const unsigned model_index = host_learning_data.model_indexes[model_indexes_index];
     improve_model_profiles(model_index);
   }
