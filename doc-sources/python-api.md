@@ -816,7 +816,7 @@ Note however that learning objects (*e.g.* instances of `LearnMrsortByWeightsPro
 
 ### Customize the model visualization
 
-We've decided to not implement any customization fo the visualizations produced by `lincs.classification.visualize_model` (and thus `lincs visualize classification-model`) because this would make it less robust and increase its complexity beyond the scope of *lincs*.
+We've decided to not implement any customization for the visualizations produced by `lincs.classification.visualize_model` (and thus `lincs visualize classification-model`) because this would make it less robust and increase its complexity beyond the scope of *lincs*.
 
 However, `lincs.classification.visualize_model` is written in Python, using the Python API described in this guide. This means that you can get inspiration from its [source code](https://github.com/MICS-Lab/lincs/blob/main/lincs/visualization.py) (*i.e.* copy-paste it) to produce custom visualizations for your needs.
 
