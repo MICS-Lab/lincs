@@ -111,97 +111,13 @@ jobs:
           name: wheels-dist-linux-${{ matrix.python_version }}
           path: dist
 
-  build-for-windows:
-    runs-on: windows-2019
-    needs:
-      - make-source-dist
-    strategy:
-      matrix:
-        python_version: ['3.8', '3.10']
-    steps:
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install Python packages
-        run: pip install build delvewheel twine
-      # The 'Jimver/cuda-toolkit' action seems to work, but takes 20 minutes
-      # @todo(Project management, later) Find a quicker way to install CUDA on Windows
-      - name: Install CUDA
-        uses: Jimver/cuda-toolkit@v0.2.14
-        id: cuda-toolkit
-        with:
-          cuda: '12.1.0'
-      - name: Install MSys2
-        uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          msystem: UCRT64
-          install: >-
-              gzip
-              tar
-              unzip
-              wget
-      - name: Install boost
-        shell: msys2 {0}
-        run: |
-            cd /d/a
-            wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
-            tar xf boost_*.tar.gz
-            rm boost_*.tar.gz
-            mv boost_* boost
-            cd boost
-            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
-            ./bootstrap.bat
-            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage || true
-            mkdir -p /d/lincs-deps/include /d/lincs-deps/lib
-            cp -r boost /d/lincs-deps/include
-            cp -r stage/lib/* /d/lincs-deps/lib
-      - name: Install OR-Tools
-        shell: msys2 {0}
-        run: |
-            cd /d/a
-            wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_VisualStudio2019-64bit_v8.2.8710.zip
-            unzip or-tools_*.zip
-            rm or-tools_*.zip
-            cd or-tools_*
-            cp -r include/* /d/lincs-deps/include
-            cp -r lib/* /d/lincs-deps/lib
-
-      - name: Dowload the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        shell: msys2 {0}
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
-
-      - name: Build the wheel
-        run: python -m build --wheel --outdir local-dist (get-item lincs-*)
-        env:
-          LINCS_DEV_FORCE_NVCC: "true"
-          LINCS_DEV_DEPENDENCIES: d:\lincs-deps
-          LINCS_DEV_VC_VERSION: 142
-      - name: Make the wheel machine-independent
-        run: delvewheel repair --strip (get-item local-dist\*.whl) --wheel-dir dist --add-path d:\lincs-deps\lib
-      - name: Check the wheel
-        run: twine check (get-item dist\*.whl)
-
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-dist-windows-${{ matrix.python_version }}
-          path: dist
-
   build-for-macos:
     runs-on: macos-11
     needs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.10']
+        python_version: ['3.8', '3.10', '3.11']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -266,13 +182,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
       - build-for-linux
-      - build-for-windows
       - build-for-macos
     strategy:
       matrix:
         os:
           - ubuntu-20.04
-          - windows-2019
           - macos-11
         python_version: ['3.8', '3.10']
     steps:
