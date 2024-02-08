@@ -2,8 +2,8 @@
 # and GitHub Actions evict caches unsused for 7 days,
 # so for simplicity we don't cache anything.
 
-# WARNING: This file is a partial duplication of distribute-release.yml because I don't know (yet) how to factorize
-# these workflows. Keep things in sync.
+# WARNING: There is a lot of duplication between distribute{,-pre}-release.yml because I don't know (yet) how
+# to factorize these workflows. Keep things in sync.
 
 name: Distribute pre-release
 on:
@@ -356,3 +356,16 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD_JACQUEV6 }}" | docker login -u jacquev6 --password-stdin
       - name: Push the Docker image
         run: docker push jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//')
+
+  # @todo(Project Management, later) Purge previous artifacts to avoid using storage on MISCLab's account
+  # This requires a token with appropriate permissions on the org-owned repo.
+  # In the mean time, do it manualy. Ideally after each release.
+  # purge:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - check
+  #   steps:
+  #     - uses: kolpav/purge-artifacts-action@v1
+  #       with:
+  #         token: ${{ secrets.TOKEN_FOR_PURGE_ARTIFACTS_ACTION }}
+  #         expire-in: 0  # Purge all artifacts from previous runs, keep the new ones from this run

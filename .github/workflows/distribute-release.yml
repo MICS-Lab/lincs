@@ -2,8 +2,8 @@
 # and GitHub Actions evict caches unsused for 7 days,
 # so for simplicity we don't cache anything.
 
-# WARNING: This file is partialy duplicated in distribute-pre-release.yml because I don't know (yet) how to factorize
-# these workflows. Keep things in sync.
+# WARNING: There is a lot of duplication between distribute{,-pre}-release.yml because I don't know (yet) how
+# to factorize these workflows. Keep things in sync.
 
 name: Distribute release
 on:
