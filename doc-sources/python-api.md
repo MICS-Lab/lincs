@@ -719,7 +719,7 @@ This is especially useful *e.g.* if you want to identify alternatives that are c
 
 #### In YAML and CSV like the command-line
 
-(and the upcomming C++ API)
+(and the upcoming C++ API)
 
 Classification objects have a `.dump` method, and their classes have a static `.load` method that accept file-like objects.
 
@@ -820,7 +820,7 @@ We've decided to not implement any customization fo the visualizations produced 
 
 However, `lincs.classification.visualize_model` is written in Python, using the Python API described in this guide. This means that you can get inspiration from its [source code](https://github.com/MICS-Lab/lincs/blob/main/lincs/visualization.py) (*i.e.* copy-paste it) to produce custom visualizations for your needs.
 
-Be aware that our implementation supports a few edge cases, so it might be a bit more complex than what you actualy need:
+Be aware that our implementation supports a few edge cases, so it might be a bit more complex than what you actually need:
 
 - problems and models with a single criterion are visualized in a sensible way
 
@@ -1251,7 +1251,7 @@ Its `weights` attribute holds the MR-Sort weight of each criterion in each in-pr
 
 
 
-Finaly, `LearningData` has two methods about the best model so far: `get_best_model` and `get_best_accuracy`, which respectively return the best `Model` so far and its accuracy.
+Finally, `LearningData` has two methods about the best model so far: `get_best_model` and `get_best_accuracy`, which respectively return the best `Model` so far and its accuracy.
 
 
 ```python
@@ -1467,7 +1467,7 @@ sufficient_coalitions:
 
 #### Other strategies
 
-Comming up with new interesting strategies is far from easy, so in this guide, we'll just describe the interfaces that the WPB approach expects from these strategies, and not even *try* to do anything inteligent. That part is up to you!
+Coming up with new interesting strategies is far from easy, so in this guide, we'll just describe the interfaces that the WPB approach expects from these strategies, and not even *try* to do anything intelligent. That part is up to you!
 
 Each strategy must inherit from a given abstract base class, as you can see below. Each strategy must override a given method as is detailed below.
 
@@ -1538,7 +1538,7 @@ class SillyBreedingStrategy(lc.LearnMrsortByWeightsProfilesBreed.BreedingStrateg
         print("breed", file=sys.stderr)
 ```
 
-Termination strategies must imlement `.terminate()`, that should return `True` to terminate the learning.
+Termination strategies must implement `.terminate()`, that should return `True` to terminate the learning.
 
 
 ```python
