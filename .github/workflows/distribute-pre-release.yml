@@ -55,7 +55,7 @@ jobs:
           use-github-cache: false
           use-local-cache: false
           method: network
-          sub-packages: '["nvcc", "cuda-runtime"]'
+          sub-packages: '["nvcc", "cudart"]'
       - name: Install MSys2
         uses: msys2/setup-msys2@v2
         with:
