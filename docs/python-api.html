@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The Python API &#8212; lincs 1.1.0a6 documentation</title>
+    <title>The Python API &#8212; lincs 1.1.0a7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=c569df2d"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=61115b34"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -488,7 +488,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <h3>Serialize classification objects<a class="headerlink" href="#serialize-classification-objects" title="Permalink to this heading">¶</a></h3>
 <section id="in-yaml-and-csv-like-the-command-line">
 <h4>In YAML and CSV like the command-line<a class="headerlink" href="#in-yaml-and-csv-like-the-command-line" title="Permalink to this heading">¶</a></h4>
-<p>(and the upcomming C++ API)</p>
+<p>(and the upcoming C++ API)</p>
 <p>Classification objects have a <code class="docutils literal notranslate"><span class="pre">.dump</span></code> method, and their classes have a static <code class="docutils literal notranslate"><span class="pre">.load</span></code> method that accept file-like objects.</p>
 <p>We’ve used them above to print classification objects to <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code>. Here is an example of how to use them with actual files:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;problem.yml&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -569,11 +569,92 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </section>
 <section id="customize-the-model-visualization">
 <h3>Customize the model visualization<a class="headerlink" href="#customize-the-model-visualization" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, v1.1) Write this section. Explain that <code class="docutils literal notranslate"><span class="pre">visualize_model</span></code> is written in terms of the public Python API and can be used as a base (<em>i.e.</em> copy-pasted).</p>
+<p>We’ve decided to not implement any customization for the visualizations produced by <code class="docutils literal notranslate"><span class="pre">lincs.classification.visualize_model</span></code> (and thus <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span> <span class="pre">classification-model</span></code>) because this would make it less robust and increase its complexity beyond the scope of <em>lincs</em>.</p>
+<p>However, <code class="docutils literal notranslate"><span class="pre">lincs.classification.visualize_model</span></code> is written in Python, using the Python API described in this guide. This means that you can get inspiration from its <a class="reference external" href="https://github.com/MICS-Lab/lincs/blob/main/lincs/visualization.py">source code</a> (<em>i.e.</em> copy-paste it) to produce custom visualizations for your needs.</p>
+<p>Be aware that our implementation supports a few edge cases, so it might be a bit more complex than what you actually need:</p>
+<ul class="simple">
+<li><p>problems and models with a single criterion are visualized in a sensible way</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">([</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Criterion&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))],</span> <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)])</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">lc</span><span class="o">.</span><span class="n">visualize_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="p">[],</span> <span class="n">axes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="png" src="_images/python-api_89_0.png" /></p>
+<ul class="simple">
+<li><p>all value types (real, integer and enumerated) are visualized on vertical axes</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Real criterion&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Integer criterion&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Enumerated criterion&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">EnumeratedValues</span><span class="p">([</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">])),</span>
+    <span class="p">],</span>
+    <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)]</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="mi">43</span><span class="p">)</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">lc</span><span class="o">.</span><span class="n">visualize_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="p">[],</span> <span class="n">axes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="png" src="_images/python-api_91_0.png" /></p>
+<ul class="simple">
+<li><p>increasing and decreasing criteria are visualized with axes going up or down</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Increasing criterion&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Decreasing criterion&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">decreasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+    <span class="p">],</span>
+    <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)]</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">lc</span><span class="o">.</span><span class="n">visualize_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="p">[],</span> <span class="n">axes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="png" src="_images/python-api_93_0.png" /></p>
+<ul class="simple">
+<li><p>any min and max values are aligned horizontally at the top and bottom of vertical axes</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
+    <span class="p">],</span>
+    <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)]</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="mi">44</span><span class="p">)</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">lc</span><span class="o">.</span><span class="n">visualize_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="p">[],</span> <span class="n">axes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="png" src="_images/python-api_95_0.png" /></p>
+<ul class="simple">
+<li><p>labels for integer criteria with any number of intervals</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;1 interval&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;2 intervals&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;3 intervals&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Even number</span><span class="se">\n</span><span class="s2">of intervals&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Odd number</span><span class="se">\n</span><span class="s2">of intervals&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1201</span><span class="p">)),</span>
+    <span class="p">],</span>
+    <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)]</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="mi">43</span><span class="p">)</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">lc</span><span class="o">.</span><span class="n">visualize_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="p">[],</span> <span class="n">axes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="png" src="_images/python-api_97_0.png" /></p>
 </section>
 <section id="create-your-own-learning-strategies">
 <h3>Create your own learning strategies<a class="headerlink" href="#create-your-own-learning-strategies" title="Permalink to this heading">¶</a></h3>
-<p>&#64;todo(Documentation, v1.1) Introduce this section.</p>
+<p>The “Weights, profiles, breed” learning approach uses strategies for each of its steps. <em>lincs</em> provides effective strategies as you’ve seen in the first part of this guide. You can also define your own strategies, to experiment with new ways to learn.</p>
+<p>Let’s create a problem and learning set for this section:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
     <span class="p">[</span>
         <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Criterion 1&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">decreasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
@@ -582,27 +663,26 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
     <span class="p">],</span>
     <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Medium&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)],</span>
 <span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="n">learning_set</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_alternatives</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">alternatives_count</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
+<span class="n">learning_set</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_alternatives</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span> <span class="n">alternatives_count</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="learningdata">
 <h4><code class="docutils literal notranslate"><span class="pre">LearningData</span></code><a class="headerlink" href="#learningdata" title="Permalink to this heading">¶</a></h4>
-<p>First, let’s get more familiar with the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>:</p>
+<p>First, let’s get more familiar with the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>. You’ve seen it briefly in the first part of this guide but its purpose might still be quite obscure at this point.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_data</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">LearningData</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">learning_set</span><span class="p">,</span> <span class="n">models_count</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>It contains two families of attributes.</p>
+<p>This object is shared by all strategies. They communicate by changing it, using side effects. It’s the state of the WPB algorithm. It contains two families of attributes.</p>
 <section id="input-data">
 <h5>Input data<a class="headerlink" href="#input-data" title="Permalink to this heading">¶</a></h5>
-<p>The first one is about the problem and learning set. These attributes never change. First, the counts:</p>
+<p>The first family of attributes is about the problem and learning set. These attributes never change. First, the counts:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span><span class="p">,</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">categories_count</span><span class="p">,</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span><span class="p">,</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">alternatives_count</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(3, 3, 2, 1000)
 </pre></div>
 </div>
-<p>The learning set is pre-processed in the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code> so that learning algorithms don’t have to manipulate the different type of criterion values. In the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>, we keep only the ranks of the performances of each alternative in the learning set. The learning set is also destructured into a few arrays. Here are the attributes that describe this pre-processed learning set:</p>
+<p>The learning set is pre-processed in the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code> so that the WPB algorithm doesn’t have to manipulate the different type of criterion values. In the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>, we keep only the ranks of the performances of each alternative in the learning set. The learning set is also destructured into a few arrays. Here are the attributes that describe this pre-processed learning set:</p>
 <p>The number of distinct values actually seen for each criterion (including the min and max values for numerical criteria):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">learning_data</span><span class="o">.</span><span class="n">values_counts</span><span class="p">)</span>  <span class="c1"># Indexed by [criterion_index]</span>
 </pre></div>
@@ -610,13 +690,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[1002, 101, 6]
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">learning_data</span><span class="o">.</span><span class="n">values_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">values_counts</span><span class="p">[</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(1002, 6)
-</pre></div>
-</div>
-<p>We see that the learning data knows 1002 values for the real-valued criterion. This is usual as it’s rare that two floating point values are exactly equal, so the 1000 alternatives have distinct values, and the min and max are two more values. The learning data contains 101 values for the integer-valued criterion, meaning that the alternatives in the learning set do actually cover the whole set of possible values. And similarly, 6 values for the enumerated criterion.</p>
+<p>We see that the learning data knows 1002 values for the real-valued criterion. This is usual as it’s rare for two floating point values to be exactly equal, so the 1000 alternatives have distinct values, and the min and max are two more values. The learning data contains 101 values for the integer-valued criterion, meaning that the alternatives in the learning set do actually cover the whole set of possible values. And similarly, 6 values for the enumerated criterion.</p>
 <p>For each criterion, the ranks of the performance of each alternative:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;...&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">performance_ranks</span><span class="p">]</span>  <span class="c1"># Indexed by [criterion_index][alternative_index]</span>
 </pre></div>
@@ -626,12 +700,6 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
  [3, 0, 1, 0, 3, 3, 2, 0, 0, 3, &#39;...&#39;]]
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">learning_data</span><span class="o">.</span><span class="n">performance_ranks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">performance_ranks</span><span class="p">[</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">learning_data</span><span class="o">.</span><span class="n">alternatives_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(883, 3)
-</pre></div>
-</div>
 <p>The assignment of each alternative, <em>i.e.</em> the index of its category:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">learning_data</span><span class="o">.</span><span class="n">assignments</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;...&#39;</span><span class="p">]</span>  <span class="c1"># Indexed by [alternative_index]</span>
 </pre></div>
@@ -639,17 +707,18 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[2, 2, 2, 0, 1, 1, 1, 2, 2, 0, &#39;...&#39;]
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">learning_data</span><span class="o">.</span><span class="n">assignments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">assignments</span><span class="p">[</span><span class="n">learning_data</span><span class="o">.</span><span class="n">alternatives_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+<p>All these attributes are iterable and allow random access through an integer index. They do not support splicing.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_data</span><span class="o">.</span><span class="n">assignments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(2, 2)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2
 </pre></div>
 </div>
 </section>
 <section id="in-progress-data">
 <h5>In-progress data<a class="headerlink" href="#in-progress-data" title="Permalink to this heading">¶</a></h5>
-<p>The second family of attributes is about the WeightsProfilesBreed algorithm itself.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">LearningData</span></code> contains several “in progress” models. Their number is constant:</p>
+<p>The second family of attributes is about the WPB algorithm itself.</p>
+<p>The WPB approach operates on several “in progress” models. Their number is constant:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_data</span><span class="o">.</span><span class="n">models_count</span>
 </pre></div>
 </div>
@@ -686,7 +755,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
  2542538607]
 </pre></div>
 </div>
-<p>WPB learning is iterative, and the <code class="docutils literal notranslate"><span class="pre">iteration_index</span></code> is stored in the learning data. It starts at zero and tells you the current iteration:</p>
+<p>The WPB learning approach is iterative, and the <code class="docutils literal notranslate"><span class="pre">iteration_index</span></code> is stored in the learning data. It starts at zero and tells you the current iteration:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_data</span><span class="o">.</span><span class="n">iteration_index</span>
 </pre></div>
 </div>
@@ -734,7 +803,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>True
 </pre></div>
 </div>
-<p>&#64;todo(Documentation, v1.1) Introduce profiles</p>
+<p>Its <code class="docutils literal notranslate"><span class="pre">profile_ranks</span></code> hold, for each in-progress model, boundary, and criterion, the rank of the boundary’s performance, on the same scale as the <code class="docutils literal notranslate"><span class="pre">performance_ranks</span></code> attributes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">profile_ranks</span><span class="p">]</span>  <span class="c1"># Indexed by [model_index][boundary_index][criterion_index]</span>
 </pre></div>
 </div>
@@ -749,7 +818,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
  [[261, 52, 0], [262, 52, 3]]]
 </pre></div>
 </div>
-<p>&#64;todo(Documentation, v1.1) Introduce weights</p>
+<p>Its <code class="docutils literal notranslate"><span class="pre">weights</span></code> attribute holds the MR-Sort weight of each criterion in each in-progress model.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">weights</span><span class="p">]</span>  <span class="c1"># Indexed by [model_index][criterion_index]</span>
 </pre></div>
 </div>
@@ -764,11 +833,38 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
  [0.9999989867210388, 0.0, 0.9999989867210388]]
 </pre></div>
 </div>
+<p>Finally, <code class="docutils literal notranslate"><span class="pre">LearningData</span></code> has two methods about the best model so far: <code class="docutils literal notranslate"><span class="pre">get_best_model</span></code> and <code class="docutils literal notranslate"><span class="pre">get_best_accuracy</span></code>, which respectively return the best <code class="docutils literal notranslate"><span class="pre">Model</span></code> so far and its accuracy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_data</span><span class="o">.</span><span class="n">get_best_model</span><span class="p">()</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7.7909708</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">4.06594753</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">20</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">20</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">D</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">C</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.999998987</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.01327896e-06</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_data</span><span class="o">.</span><span class="n">get_best_accuracy</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>833
+</pre></div>
+</div>
 </section>
 </section>
-<section id="observer">
-<h4><code class="docutils literal notranslate"><span class="pre">Observer</span></code><a class="headerlink" href="#observer" title="Permalink to this heading">¶</a></h4>
-<p>With this better understanding of <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>, let’s write our own <code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategy. It’s arguably the simplest to starts with, because it’s not expected to <em>change</em> the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>.</p>
+<section id="observer-strategies">
+<h4><code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategies<a class="headerlink" href="#observer-strategies" title="Permalink to this heading">¶</a></h4>
+<p>With this hopefully better understanding of <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>, let’s write our own <code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategy.
+It’s arguably the simplest to starts with, because it’s not expected to <em>change</em> the <code class="docutils literal notranslate"><span class="pre">LearningData</span></code>, but only <em>observe</em> it at some key points of the learning.</p>
 <p>To start as simple as possible, lets reproduce the behavior of the <code class="docutils literal notranslate"><span class="pre">--...-verbose</span></code> flag on the command line, by creating an observer that just prints the best accuracy at each step.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategies must define two methods to be called by the learning algorithm: <code class="docutils literal notranslate"><span class="pre">after_iteration</span></code>, to be called at the end of each iteration, after the breeding of models is done, and <code class="docutils literal notranslate"><span class="pre">before_return</span></code>, to be called just before the final model is returned.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VerboseObserver</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">Observer</span><span class="p">):</span>
@@ -928,13 +1024,139 @@ Final accuracy (after 9 iterations): 1000
 </section>
 <section id="other-strategies">
 <h4>Other strategies<a class="headerlink" href="#other-strategies" title="Permalink to this heading">¶</a></h4>
-<p>&#64;todo(Documentation, v1.1) Write this section</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyWeightsStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">WeightsOptimizationStrategy</span><span class="p">):</span>
-    <span class="k">pass</span>
+<p>Coming up with new interesting strategies is far from easy, so in this guide, we’ll just describe the interfaces that the WPB approach expects from these strategies, and not even <em>try</em> to do anything intelligent. That part is up to you!</p>
+<p>Each strategy must inherit from a given abstract base class, as you can see below. Each strategy must override a given method as is detailed below.</p>
+<p>Profiles initialization strategies must implement <code class="docutils literal notranslate"><span class="pre">.initialize_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should initialize all <code class="docutils literal notranslate"><span class="pre">profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesInitializationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesInitializationStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span> <span class="o">=</span> <span class="n">learning_data</span>
+
+    <span class="k">def</span> <span class="nf">initialize_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;initialize_profiles&quot;</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">model_index_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+            <span class="n">model_index</span> <span class="o">=</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">boundary_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">criterion_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesImprovementStrategy</span><span class="p">):</span>
-    <span class="k">pass</span>
+<p>Weights optimization strategies must implement <code class="docutils literal notranslate"><span class="pre">.optimize_weights(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should optimize all <code class="docutils literal notranslate"><span class="pre">weights</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyWeightsOptimizationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">WeightsOptimizationStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span> <span class="o">=</span> <span class="n">learning_data</span>
+
+    <span class="k">def</span> <span class="nf">optimize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;optimize_weights&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">model_index_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+            <span class="n">model_index</span> <span class="o">=</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">criterion_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span>
+</pre></div>
+</div>
+<p>Profiles improvement strategies must implement <code class="docutils literal notranslate"><span class="pre">.improve_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should improve <code class="docutils literal notranslate"><span class="pre">profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesImprovementStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesImprovementStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span> <span class="o">=</span> <span class="n">learning_data</span>
+
+    <span class="k">def</span> <span class="nf">improve_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;improve_profiles&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">model_index_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+            <span class="n">model_index</span> <span class="o">=</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">boundary_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">criterion_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span><span class="p">):</span>
+                    <span class="n">rank</span> <span class="o">=</span> <span class="p">(</span><span class="n">boundary_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">values_counts</span><span class="p">[</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">rank</span>
+</pre></div>
+</div>
+<p>Breeding strategies must implement <code class="docutils literal notranslate"><span class="pre">.breed()</span></code>, that should breed all models.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyBreedingStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">BreedingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span> <span class="o">=</span> <span class="n">learning_data</span>
+
+    <span class="k">def</span> <span class="nf">breed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;breed&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Termination strategies must implement <code class="docutils literal notranslate"><span class="pre">.terminate()</span></code>, that should return <code class="docutils literal notranslate"><span class="pre">True</span></code> to terminate the learning.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyTerminationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">TerminationStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span> <span class="o">=</span> <span class="n">learning_data</span>
+
+    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;terminate&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">iteration_index</span> <span class="o">==</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Criterion 1&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">RealValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">decreasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Criterion 2&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
+        <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Criterion 3&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">EnumeratedValues</span><span class="p">([</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">])),</span>
+    <span class="p">],</span>
+    <span class="p">[</span><span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Bad&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Medium&quot;</span><span class="p">),</span> <span class="n">lc</span><span class="o">.</span><span class="n">Category</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)],</span>
+<span class="p">)</span>
+<span class="n">learning_set</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_alternatives</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_mrsort_model</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span> <span class="n">alternatives_count</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
+
+<span class="n">learning_data</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">LearningData</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">learning_set</span><span class="p">,</span> <span class="n">models_count</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
+<span class="n">profiles_initialization_strategy</span> <span class="o">=</span> <span class="n">SillyProfilesInitializationStrategy</span><span class="p">(</span><span class="n">learning_data</span><span class="p">)</span>
+<span class="n">weights_optimization_strategy</span> <span class="o">=</span> <span class="n">SillyWeightsOptimizationStrategy</span><span class="p">(</span><span class="n">learning_data</span><span class="p">)</span>
+<span class="n">profiles_improvement_strategy</span> <span class="o">=</span> <span class="n">SillyProfilesImprovementStrategy</span><span class="p">(</span><span class="n">learning_data</span><span class="p">)</span>
+<span class="n">breeding_strategy</span> <span class="o">=</span> <span class="n">SillyBreedingStrategy</span><span class="p">(</span><span class="n">learning_data</span><span class="p">)</span>
+<span class="n">termination_strategy</span> <span class="o">=</span> <span class="n">SillyTerminationStrategy</span><span class="p">(</span><span class="n">learning_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here are the logs produced by these silly strategies during the learning:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learned_model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="p">(</span>
+    <span class="n">learning_data</span><span class="p">,</span>
+    <span class="n">profiles_initialization_strategy</span><span class="p">,</span>
+    <span class="n">weights_optimization_strategy</span><span class="p">,</span>
+    <span class="n">profiles_improvement_strategy</span><span class="p">,</span>
+    <span class="n">breeding_strategy</span><span class="p">,</span>
+    <span class="n">termination_strategy</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">perform</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>initialize_profiles 0 9
+optimize_weights
+improve_profiles
+terminate
+breed
+optimize_weights
+improve_profiles
+terminate
+breed
+optimize_weights
+improve_profiles
+terminate
+breed
+optimize_weights
+improve_profiles
+terminate
+</pre></div>
+</div>
+<p>And here is the silly model they produce:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learned_model</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">6.94936371</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">3.24692106</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">33</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">66</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">D</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">B</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.366666675</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.366666675</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.366666675</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
 </pre></div>
 </div>
 </section>

@@ -4,6 +4,12 @@
 Changelog
 =========
 
+Version 1.1.0a7 (2024-02-08)
+============================
+
+- Publish pre-releases more similar to releases to detects issues earlier
+- Improve documentation
+
 Version 1.1.0a6 (2024-02-06)
 ============================
 

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>README &#8212; lincs 1.1.0a6 documentation</title>
+    <title>README &#8212; lincs 1.1.0a7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=c569df2d"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=61115b34"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -82,7 +82,7 @@ and <a class="reference internal" href="reference.html"><span class="doc">refere
 </section>
 <section id="versioning">
 <h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this heading">¶</a></h2>
-<p>Starting with version 1.0.0, <em>lincs</em> uses <a class="reference external" href="https://semver.org/">semantic versioning</a>.</p>
+<p><em>lincs</em> uses <a class="reference external" href="https://semver.org/">semantic versioning</a>.</p>
 <p><em>lincs</em>’ public API (that “must be declared” according to SemVer) is constituted exclusively by its <a class="reference internal" href="reference.html"><span class="doc">reference documentation</span></a>,
 <strong>at a code level</strong>: we consider a change as backward compatible if the client code doesn’t need to be modified to keep working,
 even if that change requires recompiling the client code in some cases.</p>
@@ -96,13 +96,13 @@ In the mean time, if you chose to use <em>lincs</em> that way, you must expect u
 <h4>Default values<a class="headerlink" href="#default-values" title="Permalink to this heading">¶</a></h4>
 <p>Default values of optional arguments are not considered part of the public API.
 They might change in future releases if we find values that perform better for most use-cases.</p>
-<p>We advice you write your scripts in an explicit way where it matters to you,
+<p>We advice you write your code in an explicit way where it matters to you,
 and rely on implicit default values only where you want the potential future improvements.</p>
 </section>
 <section id="file-formats">
 <h4>File formats<a class="headerlink" href="#file-formats" title="Permalink to this heading">¶</a></h4>
 <p>The same specification applies to files read and produced by <em>lincs</em>.
-This leads to an issue about backward compatibility:
+This leads to an issue with regard to backward compatibility:
 if we allow more flexibility in input files, new versions of <em>lincs</em> will be able to read both the old and the new format, in a backward-compatible way.
 But if <em>lincs</em> produces a file in the new format, existing client scripts might not be able to read it, making this change backward-incompatible.</p>
 <p>To solve this issue, we impose an additional constraint to <em>lincs</em>’ public API:

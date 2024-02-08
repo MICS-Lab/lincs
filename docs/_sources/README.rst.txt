@@ -69,7 +69,7 @@ and :doc:`reference documentation <reference>`.
 Versioning
 ==========
 
-Starting with version 1.0.0, *lincs* uses `semantic versioning <https://semver.org/>`_.
+*lincs* uses `semantic versioning <https://semver.org/>`_.
 
 *lincs*' public API (that "must be declared" according to SemVer) is constituted exclusively by its :doc:`reference documentation <reference>`,
 **at a code level**: we consider a change as backward compatible if the client code doesn't need to be modified to keep working,
@@ -90,14 +90,14 @@ Default values
 Default values of optional arguments are not considered part of the public API.
 They might change in future releases if we find values that perform better for most use-cases.
 
-We advice you write your scripts in an explicit way where it matters to you,
+We advice you write your code in an explicit way where it matters to you,
 and rely on implicit default values only where you want the potential future improvements.
 
 File formats
 ^^^^^^^^^^^^
 
 The same specification applies to files read and produced by *lincs*.
-This leads to an issue about backward compatibility:
+This leads to an issue with regard to backward compatibility:
 if we allow more flexibility in input files, new versions of *lincs* will be able to read both the old and the new format, in a backward-compatible way.
 But if *lincs* produces a file in the new format, existing client scripts might not be able to read it, making this change backward-incompatible.
 
