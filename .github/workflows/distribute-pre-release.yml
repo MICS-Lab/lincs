@@ -47,8 +47,6 @@ jobs:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
         run: pip install build delvewheel twine
-      # The 'Jimver/cuda-toolkit' action seems to work, but takes 20 minutes
-      # @todo(Project management, later) Find a quicker way to install CUDA on Windows
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
@@ -57,7 +55,7 @@ jobs:
           use-github-cache: false
           use-local-cache: false
           method: network
-          sub-packages: '["nvcc", "runtime"]'
+          sub-packages: '["nvcc", "cuda-runtime"]'
       - name: Install MSys2
         uses: msys2/setup-msys2@v2
         with:
