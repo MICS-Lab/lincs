@@ -47,6 +47,12 @@ jobs:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
         run: pip install build delvewheel twine
+      # @toto(Project management, soon) Consider replacing the Jimver/cuda-toolkit action by these two steps
+      # - name: Download CUDA installer
+      #   run: Invoke-WebRequest -URI https://developer.download.nvidia.com/compute/cuda/12.1.0/network_installers/cuda_12.1.0_windows_network.exe -OutFile cuda_12.1.0_windows_network.exe
+      # - name: Install CUDA
+      #   # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
+      #   run: .\cuda_12.1.0_windows_network.exe -s nvcc_12.1 cudart_12.1
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
@@ -55,6 +61,7 @@ jobs:
           use-github-cache: false
           use-local-cache: false
           method: network
+          # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
           sub-packages: '["nvcc", "cudart"]'
       - name: Install MSys2
         uses: msys2/setup-msys2@v2
