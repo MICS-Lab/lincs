@@ -57,7 +57,7 @@ jobs:
           use-github-cache: false
           use-local-cache: false
           method: network
-          sub-packages: '["nvcc"]'
+          sub-packages: '["nvcc", "runtime"]'
       - name: Install MSys2
         uses: msys2/setup-msys2@v2
         with:
