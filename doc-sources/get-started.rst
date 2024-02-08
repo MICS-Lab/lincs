@@ -73,7 +73,7 @@ The generated ``problem.yml`` should look like:
 
 .. code:: yaml
 
-    # Reproduction command (with lincs version 1.1.0a14): lincs generate classification-problem 4 3 --random-seed 40
+    # Reproduction command (with lincs version 1.1.0a15.dev0): lincs generate classification-problem 4 3 --random-seed 40
     kind: classification-problem
     format_version: 1
     criteria:
@@ -144,7 +144,7 @@ It should look like:
 
 .. code:: yaml
 
-    # Reproduction command (with lincs version 1.1.0a14): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort
+    # Reproduction command (with lincs version 1.1.0a15.dev0): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
@@ -217,7 +217,7 @@ It should start with something like this, and contain 1000 alternatives:
 
 .. code:: text
 
-    # Reproduction command (with lincs version 1.1.0a14): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
+    # Reproduction command (with lincs version 1.1.0a15.dev0): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
     "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Best category"
     "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Intermediate category 1"
@@ -253,7 +253,7 @@ so it is numerically different:
 
 .. code:: yaml
 
-    # Reproduction command (with lincs version 1.1.0a14): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
+    # Reproduction command (with lincs version 1.1.0a15.dev0): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
