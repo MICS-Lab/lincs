@@ -3,12 +3,12 @@
 from typing import Iterable
 import unittest
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot
 
 from .classification import Problem, Model, Alternative
 
 
-def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: plt.Axes):
+def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: matplotlib.pyplot.Axes):
     """
     Create a visual representation of a classification model and classified alternatives, using Matplotlib.
     """
@@ -69,31 +69,31 @@ def visualize_classification_model(problem: Problem, model: Model, alternatives:
     colors = [collection.get_facecolor()[0] for collection in collections]
 
     for (x, criterion) in zip(xs, problem.criteria):
-        secondary_ax = axes.secondary_yaxis(x)
+        criterion_axis = axes.secondary_yaxis(x)
         if criterion.is_real:
             values = criterion.real_values
-            ticks = [0, 0.5, 1]
-            labels = [f"{values.min_value:.1f}", f"{(values.min_value + values.max_value) / 2:.1f}", f"{values.max_value:.1f}"]
+            ticks = [0, 0.25, 0.5, 0.75, 1]
+            labels = [f"{values.min_value + tick * (values.max_value - values.min_value):.1f}" for tick in ticks]
             if values.is_increasing:
-                secondary_ax.set_yticks(ticks, labels)
+                criterion_axis.set_yticks(ticks, labels)
             else:
                 assert values.is_decreasing
-                secondary_ax.set_yticks(ticks, reversed(labels))
+                criterion_axis.set_yticks(ticks, reversed(labels))
         elif criterion.is_integer:
             values = criterion.integer_values
             labels = list(make_integer_labels(values.min_value, values.max_value))
             ticks = [(label - values.min_value) / (values.max_value - values.min_value) for label in labels]
             if values.is_increasing:
-                secondary_ax.set_yticks(ticks, labels)
+                criterion_axis.set_yticks(ticks, labels)
             else:
                 assert values.is_decreasing
-                secondary_ax.set_yticks(ticks, reversed(labels))
+                criterion_axis.set_yticks(ticks, reversed(labels))
         else:
             assert criterion.is_enumerated
             values = criterion.enumerated_values
             ticks_count = len(values.ordered_values)
             ticks = [n / (ticks_count - 1) for n in range(ticks_count)]
-            secondary_ax.set_yticks(ticks, values.ordered_values)
+            criterion_axis.set_yticks(ticks, values.ordered_values)
 
     for (category_index, category) in enumerate(problem.ordered_categories):
         if category_index == 0:
@@ -148,11 +148,6 @@ def make_integer_labels(min_value, max_value):
     elif intervals_count == 2:
         yield min_value
         yield min_value + 1
-        yield max_value
-    elif intervals_count == 3:
-        yield min_value
-        yield min_value + 1
-        yield min_value + 2
         yield max_value
     elif intervals_count % 2 == 0:
         yield min_value

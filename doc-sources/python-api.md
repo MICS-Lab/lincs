@@ -816,7 +816,119 @@ Note however that learning objects (*e.g.* instances of `LearnMrsortByWeightsPro
 
 ### Customize the model visualization
 
-@todo(Documentation, v1.1) Write this section. Explain that `visualize_model` is written in terms of the public Python API and can be used as a base (*i.e.* copy-pasted).
+We've decided to not implement any customization fo the visualizations produced by `lincs.classification.visualize_model` (and thus `lincs visualize classification-model`) because this would make it less robust and increase its complexity beyond the scope of *lincs*.
+
+However, `lincs.classification.visualize_model` is written in Python, using the Python API described in this guide. This means that you can get inspiration from its [source code](https://github.com/MICS-Lab/lincs/blob/main/lincs/visualization.py) (*i.e.* copy-paste it) to produce custom visualizations for your needs.
+
+Be aware that our implementation supports a few edge cases, so it might be a bit more complex than what you actualy need:
+
+- problems and models with a single criterion are visualized in a sensible way
+
+
+```python
+problem = lc.Problem([lc.Criterion("Criterion", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.increasing, 0, 100))], [lc.Category("Bad"), lc.Category("Good")])
+model = lc.generate_mrsort_model(problem, 42)
+axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
+lc.visualize_model(problem, model, [], axes)
+```
+
+
+
+![png](python-api_files/python-api_89_0.png)
+
+
+
+- all value types (real, integer and enumerated) are visualized on vertical axes
+
+
+```python
+problem = lc.Problem(
+    [
+        lc.Criterion("Real criterion", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
+        lc.Criterion("Integer criterion", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
+        lc.Criterion("Enumerated criterion", lc.Criterion.EnumeratedValues(["E", "D", "C", "B", "A"])),
+    ],
+    [lc.Category("Bad"), lc.Category("Good")]
+)
+model = lc.generate_mrsort_model(problem, 43)
+axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
+lc.visualize_model(problem, model, [], axes)
+```
+
+
+
+![png](python-api_files/python-api_91_0.png)
+
+
+
+- increasing and decreasing criteria are visualized with axes going up or down
+
+
+```python
+problem = lc.Problem(
+    [
+        lc.Criterion("Increasing criterion", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.increasing, 0, 100)),
+        lc.Criterion("Decreasing criterion", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.decreasing, 0, 100)),
+    ],
+    [lc.Category("Bad"), lc.Category("Good")]
+)
+model = lc.generate_mrsort_model(problem, 42)
+axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
+lc.visualize_model(problem, model, [], axes)
+```
+
+
+
+![png](python-api_files/python-api_93_0.png)
+
+
+
+- any min and max values are aligned horizontally at the top and bottom of vertical axes
+
+
+```python
+problem = lc.Problem(
+    [
+        lc.Criterion("A", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.increasing, 0, 1)),
+        lc.Criterion("B", lc.Criterion.RealValues(lc.Criterion.PreferenceDirection.increasing, -10, 10)),
+    ],
+    [lc.Category("Bad"), lc.Category("Good")]
+)
+model = lc.generate_mrsort_model(problem, 44)
+axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
+lc.visualize_model(problem, model, [], axes)
+```
+
+
+
+![png](python-api_files/python-api_95_0.png)
+
+
+
+- labels for integer criteria with any number of intervals
+
+
+```python
+problem = lc.Problem(
+    [
+        lc.Criterion("1 interval", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 0, 1)),
+        lc.Criterion("2 intervals", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 10, 12)),
+        lc.Criterion("3 intervals", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, -10, -7)),
+        lc.Criterion("Even number\nof intervals", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 100, 200)),
+        lc.Criterion("Odd number\nof intervals", lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.increasing, 1000, 1201)),
+    ],
+    [lc.Category("Bad"), lc.Category("Good")]
+)
+model = lc.generate_mrsort_model(problem, 43)
+axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")[1]
+lc.visualize_model(problem, model, [], axes)
+```
+
+
+
+![png](python-api_files/python-api_97_0.png)
+
+
 
 ### Create your own learning strategies
 
