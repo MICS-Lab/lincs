@@ -5,12 +5,10 @@
 
 #include "../vendored/valijson/schema.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
+#include "exception.hpp"
+
 
 namespace lincs {
-
-struct DataValidationException : public std::runtime_error {
-  DataValidationException(const std::string& message) : std::runtime_error(message) {}
-};
 
 class JsonValidator {
  public:
@@ -21,12 +19,6 @@ class JsonValidator {
  private:
   valijson::Schema schema;
 };
-
-inline void validate(const bool ok, const std::string& message) {
-  if (!ok) {
-    throw DataValidationException(message);
-  }
-}
 
 }  // namespace lincs
 

@@ -10,7 +10,7 @@
 
 #include "../variant-dispatch.hpp"
 #include "../unreachable.hpp"
-#include "validation.hpp"
+#include "exception.hpp"
 
 
 namespace lincs {
