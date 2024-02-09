@@ -4,20 +4,41 @@
 Changelog
 =========
 
-Versions 1.1.0a7 to 1.1.0a20 (2024-02-08)
-=========================================
+Version 1.1.0 (2024-02-08)
+==========================
 
-- Publish pre-releases more similar to releases to detects issues earlier
-- Fix GitHub Actions publication workflow for all three OSes
-- Fix code for building on Windows and macOS
-- Improve documentation
+Publish the Python API
+----------------------
 
-Version 1.1.0a6 (2024-02-06)
-============================
+This release establishes the second tier of the stable API: the Python interface.
 
-- **Breaking** Rename ``max_iteration_index`` to ``max_iterations_count`` in ``...TerminateAfterIterations.__init__``
-- Make the Python API guide Jupyter Notebook downloadable
-- Expose all attributes of ``WPB.LearningData``; start to document them in our Python API guide
+- Introduction: :doc:`our "Python API" guide <python-api>`, downloadable as a Jupyter Notebook
+- Reference: in :ref:`our complete reference documentation <ref-python-api>`
+
+Improve ``lincs visualize``
+---------------------------
+
+- Replace legend by colored text annotations
+- Support visualizing single-criterion models
+- Add one graduated vertical axis per criterion
+
+See the following "before" and "after" images:
+
+.. image:: changelog/visualization-improvements/model-1.0.png
+
+.. image:: changelog/visualization-improvements/model-1.1.png
+
+Smaller changes
+---------------
+
+- **Breaking**: Drop support for Python 3.7
+- Support discrete criteria (with enumerated or integer values)
+- Homogenize post-processing: this changes the numerical values of the thresholds learned by SAT-based approaches, but not their achieved accuracy
+- Improve validation of input data (*e.g.* check consistency between problem, model, and alternatives)
+- Build a Docker image on release (not published since 0.5.0), documented in our "Get started" guide
+- Support ``copy.deepcopy`` on I/O objects
+- Support pickling of I/O objects
+- Fix ``TerminateAfterIterations`` and ``TerminateAfterIterationsWithoutProgress`` strategies: they were allowing slightly too many iterations
 - Expose parameters of EvalMaxSAT in our API and command-line interface (see ``lincs learn classification-model --help``):
 
     - ``--ucncs.max-sat-by-separation.solver`` (for consistency, always ``"eval-max-sat"`` for now)
@@ -28,46 +49,6 @@ Version 1.1.0a6 (2024-02-06)
     - ``--ucncs.max-sat-by-coalitions.eval-max-sat.nb-minimize-threads``
     - ``--ucncs.max-sat-by-coalitions.eval-max-sat.timeout-fast-minimize``
     - ``--ucncs.max-sat-by-coalitions.eval-max-sat.coef-minimize-time``
-
-Version 1.1.0a5 (2024-02-01)
-============================
-
-- **Breaking** Rename function ``lincs.classification.generate_classified_alternatives`` to ``lincs.classification.generate_alternatives``
-- **Breaking** Rename parameter ``categories`` to ``ordered_categories`` in ``lincs.classification.Model.__init__``
-- **Breaking** Rename parameter ``category`` to ``category_index`` in ``lincs.classification.Alternative.__init__``
-- **Breaking** Pass a ``Problem`` instead of its ``criteria_count`` to ``lincs.classification.SufficientCoalitions.Roots.__init__``
-- **Breaking** Rename ``Performance.RealPerformance`` to ``Performance.Real``, ``Performance.IntegerPerformance`` to ``Performance.Integer``, and ``Performance.EnumeratedPerformance`` to ``Performance.Enumerated``
-- Fix ``TerminateAterIterations`` and ``TerminateAterIterationsWithoutProgress`` strategies: they were allowing slightly too many iterations
-- Improve our "Python API" guide and reference
-- Validate input data in the Python constructors (previously done only when loading from files)
-- Support ``copy.deepcopy`` on I/O objects
-- Support pickling of I/O objects
-
-Versions 1.1.0a2 to 1.1.0a4 (2024-01-29)
-========================================
-
-- Build a Docker image on release (not published since 0.5.0), documented in our "Get started" guide
-
-Versions 1.1.0a0 (2024-01-10), 1.1.0a1 (2024-01-11)
-===================================================
-
-This release establishes the second tier of the stable API: the Python interface.
-
-- **Breaking**: Drop support for Python 3.7
-- Homogenize post-processing: this changes the numerical values of the thresholds learned by SAT-based approaches, but not their achieved accuracy
-- Support discrete criteria (with enumerated or integer values)
-- Improve validation of input data (*e.g.* check consistency between problem, model, and alternatives)
-- Publish the Python API; provide the "Get started" guide as a `Jupyter <https://jupyter.org/>`_ notebook
-- Improve ``lincs visualize``:
-
-    - Replace legend by colored text annotations
-    - Support visualizing single-criterion models
-    - Add one graduated vertical axis per criterion
-    - See the following "before" and "after" images:
-
-.. image:: changelog/visualization-improvements/model-1.0.png
-
-.. image:: changelog/visualization-improvements/model-1.1.png
 
 Version 1.0.0 (2023-11-22)
 ==========================

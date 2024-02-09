@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Get started &#8212; lincs 1.1.0a20 documentation</title>
+    <title>Get started &#8212; lincs 1.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=766a3aa6"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=def9ab29"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -80,7 +80,7 @@ Synthetic data is described in our <a class="reference internal" href="conceptua
 </pre></div>
 </div>
 <p>The generated <code class="docutils literal notranslate"><span class="pre">problem.yml</span></code> should look like:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0a20): lincs generate classification-problem 4 3 --random-seed 40</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0): lincs generate classification-problem 4 3 --random-seed 40</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-problem</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">criteria</span><span class="p">:</span>
@@ -139,7 +139,7 @@ Higher values of &quot;Criterion 4&quot; are known to be better.
 </pre></div>
 </div>
 <p>It should look like:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0a20): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">accepted_values</span><span class="p">:</span>
@@ -191,7 +191,7 @@ To get into an upper category, an alternative must be better than the following 
 Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
 Then we’ll need to think about the how the <code class="docutils literal notranslate"><span class="pre">--max-imbalance</span></code> option interacts with that feature.</p>
 <p>It should start with something like this, and contain 1000 alternatives:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Reproduction command (with lincs version 1.1.0a20): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Reproduction command (with lincs version 1.1.0): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
 name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,&quot;Criterion 4&quot;,category
 &quot;Alternative 1&quot;,0.37454012,0.796543002,0.95071429,0.183434784,&quot;Best category&quot;
 &quot;Alternative 2&quot;,0.731993914,0.779690981,0.598658502,0.596850157,&quot;Intermediate category 1&quot;
@@ -214,7 +214,7 @@ name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,&qu
 The learning set doesn’t contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
 so it is numerically different:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0a20): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 1.1.0): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">accepted_values</span><span class="p">:</span>
