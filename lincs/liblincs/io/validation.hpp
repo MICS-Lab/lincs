@@ -1,10 +1,12 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__IO__VALIDATION_HPP
 #define LINCS__IO__VALIDATION_HPP
 
 #include "../vendored/valijson/schema.hpp"
 #include "../vendored/yaml-cpp/yaml.h"
+#include "exception.hpp"
+
 
 namespace lincs {
 

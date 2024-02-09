@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_COALITIONS_HPP
 #define LINCS__LEARNING__UCNCS_BY_MAX_SAT_BY_COALITIONS_HPP
@@ -12,13 +12,14 @@ namespace lincs {
 template<typename MaxSatProblem>
 class MaxSatCoalitionsUcncsLearning {
  public:
-  MaxSatCoalitionsUcncsLearning(const Problem& problem, const Alternatives& learning_set_) :
+  template<class... U>
+  MaxSatCoalitionsUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
     learning_set(problem, learning_set_),
     coalitions_count(1 << learning_set.criteria_count),
     goal_weight(1),
     better(),
     sufficient(),
-    sat()
+    sat(std::forward<U>(u)...)
   {}
 
   // Not copyable

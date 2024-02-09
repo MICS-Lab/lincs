@@ -1,9 +1,14 @@
+from typing import Iterable
 import unittest
 
-from . import Problem, Criterion, Category, Model, SufficientCoalitions
+from .classification import Problem, Criterion, Category, Model, AcceptedValues, SufficientCoalitions
 
 
-def describe_problem(problem: Problem):
+def describe_classification_problem(problem: Problem) -> Iterable[str]:
+    """
+    Generate a human-readable description of a classification problem.
+    """
+
     categories_count = len(problem.ordered_categories)
     assert categories_count >= 2
     criteria_count = len(problem.criteria)
@@ -19,22 +24,38 @@ def describe_problem(problem: Problem):
     else:
         yield f"There are {criteria_count} classification criteria (in no particular order)."
     for criterion in problem.criteria:
-        yield f'Criterion "{criterion.name}" takes {criterion.value_type.name} values between {criterion.min_value:.1f} and {criterion.max_value:.1f} included.'
-        if criterion.preference_direction == criterion.PreferenceDirection.increasing:
-            yield f'Higher values of "{criterion.name}" are known to be better.'
+        if criterion.is_real:
+            values = criterion.real_values
+            yield f'Criterion "{criterion.name}" takes real values between {values.min_value:.1f} and {values.max_value:.1f} included.'
+            if values.is_increasing:
+                yield f'Higher values of "{criterion.name}" are known to be better.'
+            else:
+                yield f'Lower values of "{criterion.name}" are known to be better.'
+        elif criterion.is_integer:
+            values = criterion.integer_values
+            yield f'Criterion "{criterion.name}" takes integer values between {values.min_value} and {values.max_value} included.'
+            if values.is_increasing:
+                yield f'Higher values of "{criterion.name}" are known to be better.'
+            else:
+                yield f'Lower values of "{criterion.name}" are known to be better.'
         else:
-            yield f'Lower values of "{criterion.name}" are known to be better.'
+            assert criterion.is_enumerated
+            values = criterion.enumerated_values
+            yield f'Criterion "{criterion.name}" takes values in the following set: {", ".join(f"{value}" for value in values.ordered_values)}.'
+            yield f'The best value for criterion "{criterion.name}" is "{values.ordered_values[-1]}" and the worst value is "{values.ordered_values[0]}".'
 
 
-class DescribeProblemTestCase(unittest.TestCase):
+class DescribeClassificationProblemTestCase(unittest.TestCase):
+    maxDiff = None
+
     def _test(self, problem, expected):
-        self.assertEqual(list(describe_problem(problem)), expected)
+        self.assertEqual(list(describe_classification_problem(problem)), expected)
 
     def test_simplest(self):
         self._test(
             Problem(
                 [
-                    Criterion("Criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                    Criterion("Criterion", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
                 ],
                 [Category("Bad"), Category("Good")],
             ),
@@ -51,7 +72,7 @@ class DescribeProblemTestCase(unittest.TestCase):
         self._test(
             Problem(
                 [
-                    Criterion("Criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
+                    Criterion("Criterion", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
                 ],
                 [Category("Worsestest"), Category("Interm 1"), Category("Interm 2"), Category("Interm 3"), Category("Bestestest")],
             ),
@@ -68,29 +89,44 @@ class DescribeProblemTestCase(unittest.TestCase):
         self._test(
             Problem(
                 [
-                    Criterion("Increasing criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, -5.2, 10.3),
-                    Criterion("Decreasing criterion", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 5, 15),
+                    Criterion("Increasing real criterion", Criterion.RealValues(Criterion.PreferenceDirection.increasing, -5.2, 10.3)),
+                    Criterion("Decreasing real criterion", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 5, 15)),
+                    Criterion("Increasing integer criterion", Criterion.IntegerValues(Criterion.PreferenceDirection.increasing, 0, 10)),
+                    Criterion("Decreasing integer criterion", Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 4, 16)),
+                    Criterion("Enumerated criterion", Criterion.EnumeratedValues(["A", "B", "C"])),
                 ],
                 [Category("Bad"), Category("Good")],
             ),
             [
                 'This a classification problem into 2 ordered categories named "Bad" and "Good".',
                 'The best category is "Good" and the worst category is "Bad".',
-                'There are 2 classification criteria (in no particular order).',
-                'Criterion "Increasing criterion" takes real values between -5.2 and 10.3 included.',
-                'Higher values of "Increasing criterion" are known to be better.',
-                'Criterion "Decreasing criterion" takes real values between 5.0 and 15.0 included.',
-                'Lower values of "Decreasing criterion" are known to be better.',
+                'There are 5 classification criteria (in no particular order).',
+                'Criterion "Increasing real criterion" takes real values between -5.2 and 10.3 included.',
+                'Higher values of "Increasing real criterion" are known to be better.',
+                'Criterion "Decreasing real criterion" takes real values between 5.0 and 15.0 included.',
+                'Lower values of "Decreasing real criterion" are known to be better.',
+                'Criterion "Increasing integer criterion" takes integer values between 0 and 10 included.',
+                'Higher values of "Increasing integer criterion" are known to be better.',
+                'Criterion "Decreasing integer criterion" takes integer values between 4 and 16 included.',
+                'Lower values of "Decreasing integer criterion" are known to be better.',
+                'Criterion "Enumerated criterion" takes values in the following set: A, B, C.',
+                'The best value for criterion "Enumerated criterion" is "C" and the worst value is "A".',
             ]
         )
 
 
-def describe_model(problem: Problem, model: Model):
-    categories_count = len(problem.ordered_categories)
-    assert categories_count >= 2
-    assert len(model.boundaries) == categories_count - 1
+def describe_classification_model(problem: Problem, model: Model) -> Iterable[str]:
+    """
+    Generate a human-readable description of a classification model.
+    """
+
     criteria_count = len(problem.criteria)
-    assert criteria_count >= 1
+    assert len(model.accepted_values) == criteria_count
+    assert criteria_count > 0
+    categories_count = len(problem.ordered_categories)
+    boundaries_count = categories_count - 1
+    assert boundaries_count > 0
+    assert len(model.sufficient_coalitions) == boundaries_count
 
     def comma_and(s):
         s = list(s)
@@ -101,68 +137,73 @@ def describe_model(problem: Problem, model: Model):
         else:
             return ", ".join(s[:-1]) + ", and " + s[-1]  # https://en.wikipedia.org/wiki/Serial_comma
 
-    def make_coalitions(boundary):
-        assert boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.roots
-        for coalition in boundary.sufficient_coalitions.upset_roots:
+    def make_upset_roots(upset_roots):
+        for coalition in upset_roots:
             criterion_names = []
             for criterion_index in coalition:
                 criterion = problem.criteria[criterion_index]
                 criterion_names.append(f'"{criterion.name}"')
             yield f'  - {comma_and(criterion_names)}'
 
-    def make_profile(boundary):
-        assert len(boundary.profile) == criteria_count
-        for criterion, limit in zip(problem.criteria, boundary.profile):
-            constraint = "at least" if criterion.preference_direction == criterion.PreferenceDirection.increasing else "at most"
-            yield f'{constraint} {limit:.2f} on criterion "{criterion.name}"'
+    def make_profile(accepted_values, boundary_index):
+        for criterion_index, criterion in enumerate(problem.criteria):
+            assert accepted_values[criterion_index].is_thresholds
+            if criterion.is_real:
+                assert len(accepted_values[criterion_index].real_thresholds.thresholds) == boundaries_count
+                values = criterion.real_values
+                constraint = "at least" if values.is_increasing else "at most"
+                yield f'{constraint} {accepted_values[criterion_index].real_thresholds.thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
+            elif criterion.is_integer:
+                assert len(accepted_values[criterion_index].integer_thresholds.thresholds) == boundaries_count
+                values = criterion.integer_values
+                constraint = "at least" if values.is_increasing else "at most"
+                yield f'{constraint} {accepted_values[criterion_index].integer_thresholds.thresholds[boundary_index]} on criterion "{criterion.name}"'
+            else:
+                assert criterion.is_enumerated
+                assert len(accepted_values[criterion_index].enumerated_thresholds.thresholds) == boundaries_count
+                yield f'at least "{accepted_values[criterion_index].enumerated_thresholds.thresholds[boundary_index]}" on criterion "{criterion.name}"'
 
-    is_uc = all(
-        # @todo Provide equality operator (on the C++ side?).
-        boundary.sufficient_coalitions.kind == model.boundaries[0].sufficient_coalitions.kind
-        and list(boundary.sufficient_coalitions.criterion_weights) == list(model.boundaries[0].sufficient_coalitions.criterion_weights)
-        and list(boundary.sufficient_coalitions.upset_roots) == list(model.boundaries[0].sufficient_coalitions.upset_roots)
-        for boundary in model.boundaries
-    )
+    is_uc = all(sufficient_coalitions == model.sufficient_coalitions[0] for sufficient_coalitions in model.sufficient_coalitions[1:])
     if is_uc:
-        first_boundary = model.boundaries[0]
-        if first_boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.weights:
+        first_sufficient_coalitions = model.sufficient_coalitions[0]
+        if first_sufficient_coalitions.is_weights:
             yield "This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries."
             yield "The weights associated to each criterion are:"
-            assert len(first_boundary.sufficient_coalitions.criterion_weights) == criteria_count
-            for criterion, weight in zip(problem.criteria, first_boundary.sufficient_coalitions.criterion_weights):
+            assert len(first_sufficient_coalitions.weights.criterion_weights) == criteria_count
+            for criterion, weight in zip(problem.criteria, first_sufficient_coalitions.weights.criterion_weights):
                 yield f'  - Criterion "{criterion.name}": {weight:.2f}'
             yield "To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:"
         else:
-            assert first_boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.roots
+            assert first_sufficient_coalitions.is_roots
             yield "This is a Uc-NCS model: an NCS model with the same sufficient coalitions for all boundaries."
             yield "The sufficient coalitions of criteria are the following, as well as any of their unions:"
-            yield from make_coalitions(first_boundary)
+            yield from make_upset_roots(first_sufficient_coalitions.roots.upset_roots)
             yield "To get into an upper category, an alternative must be better than the following profiles on a sufficient coalition of criteria:"
-        for category, boundary in zip(problem.ordered_categories[1:], model.boundaries):
-            yield f'  - For category "{category.name}": {comma_and(make_profile(boundary))}'
+        for boundary_index, category in enumerate(problem.ordered_categories[1:]):
+            yield f'  - For category "{category.name}": {comma_and(make_profile(model.accepted_values, boundary_index))}'
     else:
         yield "This is a generic NCS model; sufficient coalitions are specified for each boundary."
-        for category, boundary in zip(problem.ordered_categories[1:], model.boundaries):
-            if boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.weights:
+        for boundary_index, (category, sufficient_coalitions) in enumerate(zip(problem.ordered_categories[1:], model.sufficient_coalitions)):
+            if sufficient_coalitions.is_weights:
                 yield f'To get into category "{category.name}", an alternative must be better than the following profile on a set of criteria whose weights add up to at least 1:'
-                for profile, weight in zip(make_profile(boundary), boundary.sufficient_coalitions.criterion_weights):
+                for profile, weight in zip(make_profile(model.accepted_values, boundary_index), sufficient_coalitions.weights.criterion_weights):
                     yield f'  - {profile} (weight: {weight:.2f})'
             else:
-                assert boundary.sufficient_coalitions.kind == SufficientCoalitions.Kind.roots
+                assert sufficient_coalitions.is_roots
                 yield f'The sufficient coalitions for category "{category.name}" are the following, as well as any of their unions:'
-                yield from make_coalitions(boundary)
-                yield f'To get into category "{category.name}", an alternative must be better than the following profile on a sufficient coalition of criteria: {comma_and(make_profile(boundary))}'
+                yield from make_upset_roots(sufficient_coalitions.roots.upset_roots)
+                yield f'To get into category "{category.name}", an alternative must be better than the following profile on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
 
 
-class DescribeModelTestCase(unittest.TestCase):
+class DescribeClassificationModelTestCase(unittest.TestCase):
     maxDiff = None
 
     problem = Problem(
         [
-            Criterion("Criterion 1", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-            Criterion("Criterion 2", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 0, 1),
-            Criterion("Criterion 3", Criterion.ValueType.real, Criterion.PreferenceDirection.increasing, 0, 1),
-            Criterion("Criterion 4", Criterion.ValueType.real, Criterion.PreferenceDirection.decreasing, 0, 1),
+            Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            Criterion("Criterion 2", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 0, 1)),
+            Criterion("Criterion 3", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            Criterion("Criterion 4", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 0, 1)),
         ],
         [
             Category("Bad"),
@@ -172,15 +213,21 @@ class DescribeModelTestCase(unittest.TestCase):
     )
 
     def _test(self, model, expected):
-        self.assertEqual(list(describe_model(self.problem, model)), expected)
+        self.assertEqual(list(describe_classification_model(self.problem, model)), expected)
 
     def test_mrsort(self):
         self._test(
             Model(
                 self.problem,
                 [
-                    Model.Boundary([0.2, 0.8, 0.4, 0.7], SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.5, 0.4, 0.2])),
-                    Model.Boundary([0.7, 0.7, 0.5, 0.3], SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.5, 0.4, 0.2])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.2, 0.7])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.8, 0.7])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.4, 0.5])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
+                ],
+                [
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.7, 0.5, 0.4, 0.2])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.7, 0.5, 0.4, 0.2])),
                 ],
             ),
             [
@@ -201,8 +248,14 @@ class DescribeModelTestCase(unittest.TestCase):
             Model(
                 self.problem,
                 [
-                    Model.Boundary([0.2, 0.8, 0.4, 0.7], SufficientCoalitions(SufficientCoalitions.roots, 4, [[0, 1], [0, 2], [1, 2, 3]])),
-                    Model.Boundary([0.7, 0.7, 0.5, 0.3], SufficientCoalitions(SufficientCoalitions.roots, 4, [[0, 1], [0, 2], [1, 2, 3]])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.2, 0.7])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.8, 0.7])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.4, 0.5])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
+                ],
+                [
+                    SufficientCoalitions(SufficientCoalitions.Roots(self.problem, [[0, 1], [0, 2], [1, 2, 3]])),
+                    SufficientCoalitions(SufficientCoalitions.Roots(self.problem, [[0, 1], [0, 2], [1, 2, 3]])),
                 ],
             ),
             [
@@ -222,8 +275,14 @@ class DescribeModelTestCase(unittest.TestCase):
             Model(
                 self.problem,
                 [
-                    Model.Boundary([0.2, 0.8, 0.4, 0.7], SufficientCoalitions(SufficientCoalitions.roots, 4, [[0, 1], [0, 2], [1, 2, 3]])),
-                    Model.Boundary([0.7, 0.7, 0.5, 0.3], SufficientCoalitions(SufficientCoalitions.weights, [0.7, 0.5, 0.4, 0.2])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.2, 0.7])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.8, 0.7])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.4, 0.5])),
+                    AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
+                ],
+                [
+                    SufficientCoalitions(SufficientCoalitions.Roots(self.problem, [[0, 1], [0, 2], [1, 2, 3]])),
+                    SufficientCoalitions(SufficientCoalitions.Weights([0.7, 0.5, 0.4, 0.2])),
                 ],
             ),
             [

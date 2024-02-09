@@ -1,6 +1,7 @@
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
 from __future__ import annotations
+
 import contextlib
 import json
 import math
@@ -9,10 +10,9 @@ import random
 import sys
 
 import click
+import matplotlib.pyplot as plt
 
 import lincs
-import lincs.visualization
-import lincs.description
 
 
 def options_tree(name, kwds, dependents):
@@ -91,81 +91,6 @@ def main():
     pass
 
 
-@main.command(
-    hidden=True,
-)
-def help_all():
-    def walk(prefix, command):
-        if command.hidden:
-            return
-
-        title = f"lincs {' '.join(prefix)}".rstrip()
-        print(title)
-        print("=" * len(title))
-        print()
-        print(command.get_help(ctx=click.Context(info_name=" ".join(["lincs"] + prefix), command=command)))
-        print()
-
-        if isinstance(command, click.Group):
-            for name, command in command.commands.items():
-                walk(prefix + [name], command)
-
-    walk([], main)
-
-    def walk(path, node, type_name=None):
-        if '.'.join(path) in [
-            "lincs.command_line_interface",
-            "lincs.visualization.plt",
-            "lincs.description.unittest",
-        ]:
-            return
-
-        if len(path) >= 3 and path[0] == "lincs" and path[1] == "description" and not path[2].startswith("describe_"):
-            return
-
-        if len(path) >= 3 and path[0] == "lincs" and path[1] == "visualization" and not path[2].startswith("visualize_"):
-            return
-
-        title = f"{'.'.join(path)}: {type_name or type(node).__name__}"
-        print(title)
-        print("-" * len(title))
-
-        if type_name is not None:
-            return
-
-        if type(node) in [str, bool, dict, property]:
-            print()
-            return
-
-        if node.__doc__:
-            print(node.__doc__)
-        print()
-
-        if type(node) in [type(walk), type(lincs.Model.dump)]:
-            return
-
-        if '.'.join(path) in [
-            "lincs.Criterion.PreferenceDirection",
-            "lincs.Criterion.ValueType",
-            "lincs.SufficientCoalitions.Kind",
-        ]:
-            for name in node.names:
-                walk(path + [name], name, type_name="value")
-            return
-
-        for name in sorted(dir(node)):
-            if name not in ["__init__"] and name.startswith("__") and name.endswith("__"):
-                continue
-
-            # Avoid weird recursion
-            if name in path:
-                continue
-
-            walk(path + [name], getattr(node, name))
-
-    walk(["lincs"], lincs)
-
-
 @main.group(
     help="Get information about lincs itself."
 )
@@ -217,9 +142,29 @@ def generate():
     help="Generate criteria with random denormalized min and max values. (By default, min and max value are 0 and 1)",
 )
 @click.option(
+    "--forbid-increasing-criteria",
+    is_flag=True,
+    help="Forbid criteria to have increasing preference direction. (Requires '--allow-decreasing-criteria')",
+)
+@click.option(
     "--allow-decreasing-criteria",
     is_flag=True,
     help="Allow criteria to have decreasing preference direction. (By default, all criteria have increasing preference direction)",
+)
+@click.option(
+    "--forbid-real-criteria",
+    is_flag=True,
+    help="Forbid criteria with real values. (Requires another '--allow-...-criteria' option)",
+)
+@click.option(
+    "--allow-enumerated-criteria",
+    is_flag=True,
+    help="Allow criteria with enumerated values. (By default, all criteria are real)",
+)
+@click.option(
+    "--allow-integer-criteria",
+    is_flag=True,
+    help="Allow criteria with integer values. (By default, all criteria are real)",
 )
 @click.option(
     "--output-problem",
@@ -237,23 +182,55 @@ def classification_problem(
     criteria_count,
     categories_count,
     denormalized_min_max,
-    allow_decreasing_criteria,
+    forbid_increasing_criteria, allow_decreasing_criteria,
+    forbid_real_criteria, allow_enumerated_criteria, allow_integer_criteria,
     output_problem,
     random_seed
 ):
     command_line = ["lincs", "generate", "classification-problem", criteria_count, categories_count, "--random-seed", random_seed]
     if denormalized_min_max:
         command_line += ["--denormalized-min-max"]
+
+    allowed_preference_directions = []
+    if forbid_increasing_criteria:
+        command_line += ["--forbid-increasing-criteria"]
+    else:
+        allowed_preference_directions.append(lincs.classification.Criterion.PreferenceDirection.increasing)
     if allow_decreasing_criteria:
         command_line += ["--allow-decreasing-criteria"]
+        allowed_preference_directions.append(lincs.classification.Criterion.PreferenceDirection.decreasing)
+
+    allowed_value_types = []
+    if forbid_real_criteria:
+        command_line += ["--forbid-real-criteria"]
+    else:
+        allowed_value_types.append(lincs.classification.Criterion.ValueType.real)
+    if allow_enumerated_criteria:
+        command_line += ["--allow-enumerated-criteria"]
+        allowed_value_types.append(lincs.classification.Criterion.ValueType.enumerated)
+    if allow_integer_criteria:
+        command_line += ["--allow-integer-criteria"]
+        allowed_value_types.append(lincs.classification.Criterion.ValueType.integer)
+
+    if not allowed_value_types:
+        print("ERROR: no allowed value type. '--forbid-real-criteria' requires at least one of '--allow-enumerated-criteria' or '--allow-integer-criteria'", file=sys.stderr)
+        print(make_reproduction_command(command_line), file=sys.stderr)
+        exit(1)
+
+    if not allowed_preference_directions:
+        print("ERROR: no allowed preference direction. '--forbid-increasing-criteria' requires '--allow-decreasing-criteria'", file=sys.stderr)
+        print(make_reproduction_command(command_line), file=sys.stderr)
+        exit(1)
+
     print(f"# {make_reproduction_command(command_line)}", file=output_problem, flush=True)
 
-    problem = lincs.generate_classification_problem(
+    problem = lincs.classification.generate_problem(
         criteria_count,
         categories_count,
         random_seed=random_seed,
         normalized_min_max=not denormalized_min_max,
-        allow_decreasing_criteria=allow_decreasing_criteria,
+        allowed_preference_directions=allowed_preference_directions,
+        allowed_value_types=allowed_value_types,
     )
     problem.dump(output_problem)
 
@@ -317,10 +294,10 @@ def classification_model(
     print(f"# {make_reproduction_command(command_line)}", file=output_model, flush=True)
 
     with loading_guard():
-        problem = lincs.Problem.load(problem)
+        problem = lincs.classification.Problem.load(problem)
 
     assert model_type == "mrsort"
-    model = lincs.generate_mrsort_classification_model(
+    model = lincs.classification.generate_mrsort_model(
         problem,
         random_seed=random_seed,
         fixed_weights_sum=mrsort__fixed_weights_sum,
@@ -360,6 +337,9 @@ def classification_model(
     default=None,
     help="Ensure that categories are balanced, by forcing their size to differ from the perfectly balanced size by at most this fraction.",
 )
+# @todo(Feature, later) Consider creating a 'lincs misclassify-alternatives' command
+# that mimics the 'lincs generate classified-alternatives --misclassified-count' option below,
+# but on a pre-existing learning set
 @click.option(
     "--misclassified-count",
     type=click.IntRange(min=0),
@@ -387,24 +367,24 @@ def classified_alternatives(
     command_line += ["--misclassified-count", misclassified_count]
 
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-        model = lincs.Model.load(problem, model)
+        problem = lincs.classification.Problem.load(problem)
+        model = lincs.classification.Model.load(problem, model)
 
     try:
-        alternatives = lincs.generate_classified_alternatives(
+        alternatives = lincs.classification.generate_alternatives(
             problem,
             model,
             alternatives_count,
             random_seed=random_seed,
             max_imbalance=max_imbalance,
         )
-    except lincs.BalancedAlternativesGenerationException:
+    except lincs.classification.BalancedAlternativesGenerationException:
         print("ERROR: lincs is unable to generate a balanced set of classified alternatives. Try to increase the allowed imbalance, or use a more lenient model?", file=sys.stderr)
         print(make_reproduction_command(command_line), file=sys.stderr)
         exit(1)
     else:
         if misclassified_count:
-            lincs.misclassify_alternatives(
+            lincs.classification.misclassify_alternatives(
                 problem,
                 alternatives,
                 misclassified_count,
@@ -460,11 +440,19 @@ def classification_model(
     output,
 ):
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-        model = lincs.Model.load(problem, model)
-        if alternatives is not None:
-            alternatives = lincs.Alternatives.load(problem, alternatives)
-    lincs.visualization.visualize_model(problem, model, alternatives, alternatives_count, output)
+        problem = lincs.classification.Problem.load(problem)
+        model = lincs.classification.Model.load(problem, model)
+        if alternatives is None:
+            alternatives = []
+        else:
+            alternatives = lincs.classification.Alternatives.load(problem, alternatives).alternatives
+            if alternatives_count is not None:
+                alternatives = alternatives[:alternatives_count]
+
+    figure, axes = plt.subplots(1, 1, figsize=(6, 4), layout="constrained")
+    lincs.classification.visualize_model(problem, model, alternatives, axes)
+    figure.savefig(output, format="png", dpi=100)
+    plt.close(figure)
 
 
 @main.group(
@@ -496,8 +484,8 @@ def classification_problem(
     output_description,
 ):
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-    for line in lincs.description.describe_problem(problem):
+        problem = lincs.classification.Problem.load(problem)
+    for line in lincs.classification.describe_problem(problem):
         print(line, file=output_description)
 
 
@@ -529,9 +517,9 @@ def classification_model(
     output_description,
 ):
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-        model = lincs.Model.load(problem, model)
-    for line in lincs.description.describe_model(problem, model):
+        problem = lincs.classification.Problem.load(problem)
+        model = lincs.classification.Model.load(problem, model)
+    for line in lincs.classification.describe_model(problem, model):
         print(line, file=output_description)
 
 
@@ -541,6 +529,54 @@ def classification_model(
 def learn():
     pass
 
+
+max_sat_options = [
+    (
+        "solver",
+        dict(
+            help="The solver to use to solve the MaxSAT problem.",
+            type=click.Choice(["eval-max-sat"]),
+            default="eval-max-sat",
+            show_default=True,
+        ),
+        {
+            "eval-max-sat": [
+                # These three options correspond to EvalMaxSAT's command-line options here:
+                # https://github.com/normal-account/EvalMaxSAT2022/blob/main/main.cpp#L43-L50
+                (
+                    "nb-minimize-threads",
+                    dict(
+                        help="The number of threads to use to minimize the MaxSAT problem. Passed directly to the EvalMaxSAT solver.",
+                        type=click.IntRange(min=0),
+                        default=0,
+                        show_default=True,
+                    ),
+                    {},
+                ),
+                (
+                    "timeout-fast-minimize",
+                    dict(
+                        help="The maximum duration of the \"fast minimize\" phase of solving the MaxSAT problem, in seconds. Passed directly to the EvalMaxSAT solver.",
+                        type=click.IntRange(min=0),
+                        default=60,
+                        show_default=True,
+                    ),
+                    {},
+                ),
+                (
+                    "coef-minimize-time",
+                    dict(
+                        help="The coefficient to use to multiply the time spent minimizing the MaxSAT problem. Passed directly to the EvalMaxSAT solver.",
+                        type=click.IntRange(min=0),
+                        default=2,
+                        show_default=True,
+                    ),
+                    {},
+                ),
+            ],
+        },
+    ),
+]
 
 @learn.command(
     help="""
@@ -766,7 +802,10 @@ def learn():
                     default="sat-by-coalitions",
                     show_default=True,
                 ),
-                {},
+                {
+                    "max-sat-by-coalitions": max_sat_options,
+                    "max-sat-by-separation": max_sat_options,
+                },
             ),
         ],
     },
@@ -794,12 +833,20 @@ def classification_model(
     mrsort__weights_profiles_breed__verbose,
     mrsort__weights_profiles_breed__output_metadata,
     ucncs__strategy,
+    ucncs__max_sat_by_coalitions__solver,
+    ucncs__max_sat_by_coalitions__eval_max_sat__nb_minimize_threads,
+    ucncs__max_sat_by_coalitions__eval_max_sat__timeout_fast_minimize,
+    ucncs__max_sat_by_coalitions__eval_max_sat__coef_minimize_time,
+    ucncs__max_sat_by_separation__solver,
+    ucncs__max_sat_by_separation__eval_max_sat__nb_minimize_threads,
+    ucncs__max_sat_by_separation__eval_max_sat__timeout_fast_minimize,
+    ucncs__max_sat_by_separation__eval_max_sat__coef_minimize_time,
 ):
     command_line = ["lincs", "learn", "classification-model", get_input_file_name(problem), get_input_file_name(learning_set), "--model-type", model_type]
 
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-        learning_set = lincs.Alternatives.load(problem, learning_set)
+        problem = lincs.classification.Problem.load(problem)
+        learning_set = lincs.classification.Alternatives.load(problem, learning_set)
 
     if model_type == "mrsort":
         command_line += ["--mrsort.strategy", mrsort__strategy]
@@ -807,60 +854,60 @@ def classification_model(
             command_line += ["--mrsort.weights-profiles-breed.models-count", mrsort__weights_profiles_breed__models_count]
             command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed", mrsort__weights_profiles_breed__accuracy_heuristic__random_seed]
 
-            learning_data = lincs.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            learning_data = lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             command_line += ["--mrsort.weights-profiles-breed.initialization-strategy", mrsort__weights_profiles_breed__initialization_strategy]
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
-                profiles_initialization_strategy = lincs.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+                profiles_initialization_strategy = lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 
             command_line += ["--mrsort.weights-profiles-breed.weights-strategy", mrsort__weights_profiles_breed__weights_strategy]
             if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
                 command_line += ["--mrsort.weights-profiles-breed.linear-program.solver", mrsort__weights_profiles_breed__linear_program__solver]
                 if mrsort__weights_profiles_breed__linear_program__solver == "glop":
-                    weights_optimization_strategy = lincs.OptimizeWeightsUsingGlop(learning_data)
+                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingGlop(learning_data)
                 elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
-                    weights_optimization_strategy = lincs.OptimizeWeightsUsingAlglib(learning_data)
+                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingAlglib(learning_data)
 
             command_line += ["--mrsort.weights-profiles-breed.profiles-strategy", mrsort__weights_profiles_breed__profiles_strategy]
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
                 command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.processor", mrsort__weights_profiles_breed__accuracy_heuristic__processor]
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
-                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
                 elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
                     assert lincs.has_gpu
-                    profiles_improvement_strategy = lincs.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
+                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
 
             command_line += ["--mrsort.weights-profiles-breed.breed-strategy", mrsort__weights_profiles_breed__breed_strategy]
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
                 command_line += ["--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion", mrsort__weights_profiles_breed__reinitialize_least_accurate__portion]
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
-                breeding_strategy = lincs.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+                breeding_strategy = lincs.classification.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
 
             command_line += ["--mrsort.weights-profiles-breed.target-accuracy", mrsort__weights_profiles_breed__target_accuracy]
-            termination_strategies = [lincs.TerminateAtAccuracy(
+            termination_strategies = [lincs.classification.TerminateAtAccuracy(
                 learning_data,
                 math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
             )]
             if mrsort__weights_profiles_breed__max_iterations is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-iterations", mrsort__weights_profiles_breed__max_iterations]
-                termination_strategies.append(lincs.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
+                termination_strategies.append(lincs.classification.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
             if mrsort__weights_profiles_breed__max_iterations_without_progress is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-iterations-without-progress", mrsort__weights_profiles_breed__max_iterations_without_progress]
-                termination_strategies.append(lincs.TerminateAfterIterationsWithoutProgress(learning_data, mrsort__weights_profiles_breed__max_iterations_without_progress))
+                termination_strategies.append(lincs.classification.TerminateAfterIterationsWithoutProgress(learning_data, mrsort__weights_profiles_breed__max_iterations_without_progress))
             if mrsort__weights_profiles_breed__max_duration is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-duration", mrsort__weights_profiles_breed__max_duration]
-                termination_strategies.append(lincs.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration))
+                termination_strategies.append(lincs.classification.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration))
             if mrsort__weights_profiles_breed__max_duration_without_progress is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-duration-without-progress", mrsort__weights_profiles_breed__max_duration_without_progress]
-                termination_strategies.append(lincs.TerminateAfterSecondsWithoutProgress(mrsort__weights_profiles_breed__max_duration_without_progress))
+                termination_strategies.append(lincs.classification.TerminateAfterSecondsWithoutProgress(mrsort__weights_profiles_breed__max_duration_without_progress))
             if len(termination_strategies) == 1:
                 termination_strategy = termination_strategies[0]
             else:
-                termination_strategy = lincs.TerminateWhenAny(termination_strategies)
+                termination_strategy = lincs.classification.TerminateWhenAny(termination_strategies)
 
             observers = []
             if mrsort__weights_profiles_breed__verbose:
-                class VerboseObserver(lincs.LearnMrsortByWeightsProfilesBreed.Observer):
+                class VerboseObserver(lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer):
                     def __init__(self, learning_data):
                         super().__init__()
                         self.learning_data = learning_data
@@ -873,7 +920,7 @@ def classification_model(
 
                 observers.append(VerboseObserver(learning_data))
             if mrsort__weights_profiles_breed__output_metadata:
-                class MetadataObserver(lincs.LearnMrsortByWeightsProfilesBreed.Observer):
+                class MetadataObserver(lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer):
                     def __init__(self, learning_data):
                         super().__init__()
                         self.learning_data = learning_data
@@ -888,7 +935,7 @@ def classification_model(
                 metadata_observer = MetadataObserver(learning_data)
                 observers.append(metadata_observer)
 
-            learning = lincs.LearnMrsortByWeightsProfilesBreed(
+            learning = lincs.classification.LearnMrsortByWeightsProfilesBreed(
                 learning_data,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,
@@ -900,13 +947,39 @@ def classification_model(
     elif model_type == "ucncs":
         command_line += ["--ucncs.strategy", ucncs__strategy]
         if ucncs__strategy == "sat-by-coalitions":
-            learning = lincs.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
+            learning = lincs.classification.LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set)
         elif ucncs__strategy == "sat-by-separation":
-            learning = lincs.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
+            learning = lincs.classification.LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set)
         elif ucncs__strategy == "max-sat-by-coalitions":
-            learning = lincs.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set)
+            command_line += ["--ucncs.max-sat-by-coalitions.solver", ucncs__max_sat_by_coalitions__solver]
+            if ucncs__max_sat_by_coalitions__solver == "eval-max-sat":
+                command_line += [
+                    "--ucncs.max-sat-by-coalitions.eval-max-sat.nb-minimize-threads", ucncs__max_sat_by_coalitions__eval_max_sat__nb_minimize_threads,
+                    "--ucncs.max-sat-by-coalitions.eval-max-sat.timeout-fast-minimize", ucncs__max_sat_by_coalitions__eval_max_sat__timeout_fast_minimize,
+                    "--ucncs.max-sat-by-coalitions.eval-max-sat.coef-minimize-time", ucncs__max_sat_by_coalitions__eval_max_sat__coef_minimize_time,
+                ]
+                learning = lincs.classification.LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(
+                    problem,
+                    learning_set,
+                    ucncs__max_sat_by_coalitions__eval_max_sat__nb_minimize_threads,
+                    ucncs__max_sat_by_coalitions__eval_max_sat__timeout_fast_minimize,
+                    ucncs__max_sat_by_coalitions__eval_max_sat__coef_minimize_time,
+                )
         elif ucncs__strategy == "max-sat-by-separation":
-            learning = lincs.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set)
+            command_line += ["--ucncs.max-sat-by-separation.solver", ucncs__max_sat_by_separation__solver]
+            if ucncs__max_sat_by_separation__solver == "eval-max-sat":
+                command_line += [
+                    "--ucncs.max-sat-by-separation.eval-max-sat.nb-minimize-threads", ucncs__max_sat_by_separation__eval_max_sat__nb_minimize_threads,
+                    "--ucncs.max-sat-by-separation.eval-max-sat.timeout-fast-minimize", ucncs__max_sat_by_separation__eval_max_sat__timeout_fast_minimize,
+                    "--ucncs.max-sat-by-separation.eval-max-sat.coef-minimize-time", ucncs__max_sat_by_separation__eval_max_sat__coef_minimize_time,
+                ]
+                learning = lincs.classification.LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(
+                    problem,
+                    learning_set,
+                    ucncs__max_sat_by_separation__eval_max_sat__nb_minimize_threads,
+                    ucncs__max_sat_by_separation__eval_max_sat__timeout_fast_minimize,
+                    ucncs__max_sat_by_separation__eval_max_sat__coef_minimize_time,
+                )
 
     try:
         model = learning.perform()
@@ -920,11 +993,11 @@ def classification_model(
             for termination_strategy in termination_strategies:
                 if termination_strategy.terminate():
                     termination_condition = {
-                        lincs.TerminateAtAccuracy: "target accuracy reached",
-                        lincs.TerminateAfterIterations: "maximum total number of iterations reached",
-                        lincs.TerminateAfterIterationsWithoutProgress: "maximum number of iterations without progress reached",
-                        lincs.TerminateAfterSeconds: "maximum total duration reached",
-                        lincs.TerminateAfterSecondsWithoutProgress: "maximum duration without progress reached",
+                        lincs.classification.TerminateAtAccuracy: "target accuracy reached",
+                        lincs.classification.TerminateAfterIterations: "maximum total number of iterations reached",
+                        lincs.classification.TerminateAfterIterationsWithoutProgress: "maximum number of iterations without progress reached",
+                        lincs.classification.TerminateAfterSeconds: "maximum total duration reached",
+                        lincs.classification.TerminateAfterSecondsWithoutProgress: "maximum duration without progress reached",
                     }.get(
                         termination_strategy.__class__,
                         f"{termination_strategy.__class__.__name__} (Unexpected, please let the lincs maintainers know about this)"
@@ -980,11 +1053,11 @@ def classify(
     command_line = ["lincs", "classify", get_input_file_name(problem), get_input_file_name(model), get_input_file_name(alternatives)]
 
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-        model = lincs.Model.load(problem, model)
-        alternatives = lincs.Alternatives.load(problem, alternatives)
+        problem = lincs.classification.Problem.load(problem)
+        model = lincs.classification.Model.load(problem, model)
+        alternatives = lincs.classification.Alternatives.load(problem, alternatives)
 
-    lincs.classify_alternatives(problem, model, alternatives)
+    lincs.classification.classify_alternatives(problem, model, alternatives)
     print(f"# {make_reproduction_command(command_line)}", file=output_alternatives, flush=True)
     alternatives.dump(problem, output_alternatives)
 
@@ -1018,11 +1091,11 @@ def classification_accuracy(
     testing_set,
 ):
     with loading_guard():
-        problem = lincs.Problem.load(problem)
-        model = lincs.Model.load(problem, model)
-        testing_set = lincs.Alternatives.load(problem, testing_set)
+        problem = lincs.classification.Problem.load(problem)
+        model = lincs.classification.Model.load(problem, model)
+        testing_set = lincs.classification.Alternatives.load(problem, testing_set)
 
-    result = lincs.classify_alternatives(problem, model, testing_set)
+    result = lincs.classification.classify_alternatives(problem, model, testing_set)
     print(f"{result.unchanged}/{result.changed + result.unchanged}")
 
 

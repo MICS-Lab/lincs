@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "validation.hpp"
 
@@ -6,7 +6,6 @@
 #include "../vendored/valijson/adapters/yaml_cpp_adapter.hpp"
 #include "../vendored/valijson/schema_parser.hpp"
 #include "../vendored/valijson/validator.hpp"
-#include "exception.hpp"
 
 
 namespace lincs {

@@ -21,8 +21,6 @@ properties:
             thresholds:
               description: For each category but the lowest, the threshold to be accepted in that category according to that criterion.
               type: array
-              items:
-                type: number
               minItems: 1
           required:
             - kind

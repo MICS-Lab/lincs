@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
 set -o errexit
 cd "$(dirname "${BASH_SOURCE[0]}")/"
@@ -43,14 +43,14 @@ docker build --build-arg UID=$(id -u) development --tag lincs-development
 docker run \
   --rm --interactive --tty \
   --env CCACHE_DIR=/wd/ccache \
-  --env LINCS_DEV_PYTHON_VERSIONS=3.7 \
+  --env LINCS_DEV_PYTHON_VERSIONS=3.8 \
   --volume "$PWD:/wd" --workdir /wd \
   $docker_run_gpu_arguments \
   --publish "8888:8888" \
   lincs-development bash -c """
 set -o errexit
 
-python3.7 -m pip install --user .
+python3.8 -m pip install --user .
 
 jupyter-lab \
   --no-browser \

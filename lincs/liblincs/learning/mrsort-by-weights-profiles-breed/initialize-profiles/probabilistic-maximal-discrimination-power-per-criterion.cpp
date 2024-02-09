@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "probabilistic-maximal-discrimination-power-per-criterion.hpp"
 
@@ -88,14 +88,15 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
 }
 
 void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::initialize_profiles(
-  unsigned model_indexes_begin,
+  const unsigned model_indexes_begin,
   const unsigned model_indexes_end
 ) {
   CHRONE();
 
+  // @todo(Performance, later) Parallelize these loops?
   // Embarrassingly parallel
-  for (; model_indexes_begin != model_indexes_end; ++model_indexes_begin) {
-    const unsigned model_index = learning_data.model_indexes[model_indexes_begin];
+  for (unsigned model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
+    const unsigned model_index = learning_data.model_indexes[model_indexes_index];
 
     // Embarrassingly parallel
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
@@ -118,18 +119,8 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
 TEST_CASE("Initialize profiles - respect ordering") {
   Problem problem{
     {
-      Criterion(
-        "Criterion 1",
-        Criterion::ValueType::real,
-        Criterion::PreferenceDirection::increasing,
-        0.0, 1.0
-      ),
-      Criterion(
-        "Criterion 2",
-        Criterion::ValueType::real,
-        Criterion::PreferenceDirection::decreasing,
-        0.0, 1.0
-      )
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
     },
     {
       Category("Category 1"),

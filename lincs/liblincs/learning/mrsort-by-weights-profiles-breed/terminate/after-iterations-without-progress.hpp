@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__TERMINATE__AFTER_ITERATIONS_WITHOUT_PROGRESS_HPP
 #define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__TERMINATE__AFTER_ITERATIONS_WITHOUT_PROGRESS_HPP
@@ -27,7 +27,7 @@ class TerminateAfterIterationsWithoutProgress : public LearnMrsortByWeightsProfi
       last_progress_iteration_index = learning_data.iteration_index;
       previous_best_accuracy = new_best_accuracy;
       return false;
-    } else if (learning_data.iteration_index - last_progress_iteration_index > max_iterations_count) {
+    } else if (learning_data.iteration_index - last_progress_iteration_index >= max_iterations_count) {
       return true;
     } else {
       return false;

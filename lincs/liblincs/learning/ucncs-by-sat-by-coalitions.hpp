@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__UCNCS_BY_SAT_BY_COALITIONS_HPP
 #define LINCS__LEARNING__UCNCS_BY_SAT_BY_COALITIONS_HPP
@@ -12,12 +12,13 @@ namespace lincs {
 template<typename SatProblem>
 class SatCoalitionsUcncsLearning {
  public:
-  SatCoalitionsUcncsLearning(const Problem& problem, const Alternatives& learning_set_) :
+  template<class... U>
+  SatCoalitionsUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
     learning_set(problem, learning_set_),
     coalitions_count(1 << learning_set.criteria_count),
     better(),
     sufficient(),
-    sat()
+    sat(std::forward<U>(u)...)
   {}
 
   // Not copyable

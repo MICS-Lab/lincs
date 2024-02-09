@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "mrsort-by-weights-profiles-breed.hpp"
 
@@ -19,13 +19,13 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
     const unsigned random_seed
 ) :
   PreProcessedLearningSet(problem, learning_set),
-  iteration_index(0),
   models_count(models_count_),
+  urbgs(models_count),
+  iteration_index(0),
   model_indexes(models_count),
-  weights(models_count, criteria_count, uninitialized),
-  profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
   accuracies(models_count, zeroed),
-  urbgs(models_count)
+  profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  weights(models_count, criteria_count, uninitialized)
 {
   CHRONE();
 
@@ -46,9 +46,9 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
     model_weights.push_back(weights[model_index][criterion_index]);
   }
-  SufficientCoalitions coalitions{SufficientCoalitions::weights, model_weights};
+  SufficientCoalitions coalitions = SufficientCoalitions(SufficientCoalitions::Weights(model_weights));
 
-  std::vector<PreProcessedModel::Boundary> boundaries;
+  std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
     std::vector<unsigned> boundary_profile;
@@ -60,7 +60,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     boundaries.emplace_back(boundary_profile, coalitions);
   }
 
-  return post_process(PreProcessedModel{boundaries}, false);
+  return post_process(boundaries);
 }
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {
@@ -70,8 +70,13 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 
   while (true) {
     // Improve
-    weights_optimization_strategy.optimize_weights();
-    profiles_improvement_strategy.improve_profiles();
+    weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
+    profiles_improvement_strategy.improve_profiles(0, learning_data.models_count);
+
+    // @todo(Feature, later) Rework this main loop. Its current problems:
+    //   - we return models that have gone through a last profiles improvement, but their weights have not been optimized
+    //   - we decide to stop the learning based on the accuracy of those models in this weird state
+    // Beware, if optimize_weights is run after improve_profiles, it must also be run during the breeding strategy.
 
     // Sort model_indexes by increasing model accuracy
     for (unsigned model_index = 0; model_index != learning_data.models_count; ++model_index) {

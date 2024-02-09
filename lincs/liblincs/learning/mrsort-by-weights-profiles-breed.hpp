@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED_HPP
 #define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED_HPP
@@ -63,18 +63,19 @@ class LearnMrsortByWeightsProfilesBreed {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLearningSet {
-  unsigned iteration_index;
   unsigned models_count;
-  std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes
-  Array2D<Host, float> weights;  // [model_index][criterion_index]
-  Array3D<Host, unsigned> profile_ranks;  // [model_index][profile_index][criterion_index]
-  Array1D<Host, unsigned> accuracies;  // [model_index]
-  // @todo(Performance, later) Add models' ages
   std::vector<std::mt19937> urbgs;  // [model_index]
+  unsigned iteration_index;
+  std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes
+  Array1D<Host, unsigned> accuracies;  // [model_index]
+  Array3D<Host, unsigned> profile_ranks;  // [model_index][profile_index][criterion_index]
+  Array2D<Host, float> weights;  // [model_index][criterion_index]
+  // @todo(Performance, later) Add models' ages
 
   LearningData(const Problem& problem, const Alternatives& learning_set, const unsigned models_count, const unsigned random_seed);
 
   unsigned get_best_accuracy() const { return accuracies[model_indexes.back()]; }
+  Model get_best_model() const { return get_model(model_indexes.back()); }
 
   Model get_model(const unsigned model_index) const;
 };
@@ -92,7 +93,7 @@ struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
 
   virtual ~WeightsOptimizationStrategy() {}
 
-  virtual void optimize_weights() = 0;
+  virtual void optimize_weights(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
@@ -100,7 +101,7 @@ struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
 
   virtual ~ProfilesImprovementStrategy() {}
 
-  virtual void improve_profiles() = 0;
+  virtual void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {

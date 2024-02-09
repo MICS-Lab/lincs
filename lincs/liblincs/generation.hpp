@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__GENERATION_HPP
 #define LINCS__GENERATION_HPP
@@ -16,7 +16,12 @@ namespace lincs {
 // generate_mrsort_classification_model(problem, 42, {.fixed_weights_sum = 2.0f}})
 
 Problem generate_classification_problem(
-  unsigned criteria_count, unsigned categories_count, unsigned random_seed, bool normalized_min_max=true, bool allow_decreasing_criteria=false);
+  unsigned criteria_count, unsigned categories_count,
+  unsigned random_seed,
+  bool normalized_min_max=true,
+  const std::vector<Criterion::PreferenceDirection>& allowed_preference_directions={Criterion::PreferenceDirection::increasing},
+  const std::vector<Criterion::ValueType>& allowed_value_types={Criterion::ValueType::real}
+);
 
 Model generate_mrsort_classification_model(
   const Problem&, unsigned random_seed, std::optional<float> fixed_weights_sum = std::nullopt);

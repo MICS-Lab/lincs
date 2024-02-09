@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "ucncs-by-max-sat-by-separation.hpp"
 
@@ -282,13 +282,13 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     }
   }
 
-  std::vector<PreProcessedModel::Boundary> boundaries;
+  std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-    boundaries.emplace_back(profile_ranks[boundary_index], SufficientCoalitions{SufficientCoalitions::roots, roots});
+    boundaries.emplace_back(profile_ranks[boundary_index], SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));
   }
 
-  return learning_set.post_process(PreProcessedModel{boundaries});
+  return learning_set.post_process(boundaries);
 }
 
 template class MaxSatSeparationUcncsLearning<EvalmaxsatMaxSatProblem>;

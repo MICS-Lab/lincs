@@ -1,4 +1,4 @@
-.. Copyright 2023 Vincent Jacques
+.. Copyright 2023-2024 Vincent Jacques
 
 .. This README is rendered to HTML in several places
     - on GitHub (https://github.com/mics-lab/lincs/)
@@ -6,7 +6,7 @@
     - on GitHub Pages (https://mics-lab.github.io/lincs/)
     So when you change it, take care to check all those places.
 
-*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of `MCDA <https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis>`_ algorithms, usable as a command-line utility.
+*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of `MCDA <https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis>`_ algorithms, usable as a command-line utility and through a Python (3.8+) API.
 
 *lincs* supports Linux, macOS and Windows, with the exception that GPU-based algorithms are not available on macOS, because CUDA itself is not available there.
 On these 3 OSes, *lincs* only support x86_64 CPUs.
@@ -69,7 +69,7 @@ and :doc:`reference documentation <reference>`.
 Versioning
 ==========
 
-Starting with version 1.0.0, *lincs* uses `semantic versioning <https://semver.org/>`_.
+*lincs* uses `semantic versioning <https://semver.org/>`_.
 
 *lincs*' public API (that "must be declared" according to SemVer) is constituted exclusively by its :doc:`reference documentation <reference>`,
 **at a code level**: we consider a change as backward compatible if the client code doesn't need to be modified to keep working,
@@ -77,9 +77,9 @@ even if that change requires recompiling the client code in some cases.
 
 Future backward compatible changes might change *lincs*' behavior, especially with regards to pseudo-random behavior.
 
-Note that we plan to make *lincs* usable as Python and C++ libraries.
-When we do that, we'll add these interfaces to the public API.
-In the mean time, if you chose to use *lincs* that way, you must expect unanticipated changes to these interfaces.
+Note that we plan to make *lincs* usable as a C++ library.
+When we do that, we'll add this interface to the public API.
+In the mean time, if you chose to use *lincs* that way, you must expect unanticipated changes to this interface.
 
 Exceptions
 ----------
@@ -90,14 +90,14 @@ Default values
 Default values of optional arguments are not considered part of the public API.
 They might change in future releases if we find values that perform better for most use-cases.
 
-We advice you write your scripts in an explicit way where it matters to you,
+We advice you write your code in an explicit way where it matters to you,
 and rely on implicit default values only where you want the potential future improvements.
 
 File formats
 ^^^^^^^^^^^^
 
 The same specification applies to files read and produced by *lincs*.
-This leads to an issue about backward compatibility:
+This leads to an issue with regard to backward compatibility:
 if we allow more flexibility in input files, new versions of *lincs* will be able to read both the old and the new format, in a backward-compatible way.
 But if *lincs* produces a file in the new format, existing client scripts might not be able to read it, making this change backward-incompatible.
 

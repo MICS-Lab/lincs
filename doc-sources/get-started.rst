@@ -1,6 +1,6 @@
 .. WARNING: this file is generated from 'doc-sources/get-started.rst.tmpl'. MANUAL EDITS WILL BE LOST.
 
-.. Copyright 2023 Vincent Jacques
+.. Copyright 2023-2024 Vincent Jacques
 
 ===========
 Get started
@@ -16,9 +16,11 @@ so running ``pip install lincs --only-binary lincs`` should be enough on those s
 We generally recommend you use ``pip`` in a virtual environment (``python -m venv``) or directly ``pipx`` to install any package, including *lincs*.
 Recent Ubuntu systems will even enforce that, by `refusing to install PyPI packages <https://itsfoss.com/externally-managed-environment/>`_ in the "externally managed" default environment.
 
-If you're on a platform for which we don't make wheels, you'll need to build *lincs* from sources.
+Alternatively, you can use our `Docker image <https://hub.docker.com/repository/docker/jacquev6/lincs>`_ (``docker run --rm -it jacquev6/lincs:latest``) and run the commands below in there.
+
+If you're on a platform for which we don't make wheels and our Docker image doesn't cover your needs, you'll have to build *lincs* from sources.
 We don't recommend you do that, because it can be a lot of work.
-If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute.yml>`_ we use to build the binary wheels.
+If you really want to go that route, you may want to start by reading the `GitHub Actions workflow <https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute-release.yml>`_ we use to build the binary wheels.
 You'll probably start by trying ``pip install lincs``, see what dependencies are missing, install them and iterate from there.
 If you end up modifying *lincs* to make it work on your platform, we kindly ask you to contribute your changes back to the project.
 
@@ -27,11 +29,14 @@ If you end up modifying *lincs* to make it work on your platform, we kindly ask 
 Start using *lincs*' command-line interface
 ===========================================
 
+Even if you plan to use *lincs* mainly through its Python API, we do recommend you go through this section first.
+It will make it easier for you when you go through our :doc:`Python API guide <python-api>`.
+
 If you're a Jupyter user, you can `download the notebook <get-started.ipynb>`_ this section is based on.
 
-.. highlight:: text
+The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like:
 
-The command-line interface is the easiest way to get started with *lincs*, starting with ``lincs --help``, which should output something like::
+.. code:: text
 
     Usage: lincs [OPTIONS] COMMAND [ARGS]...
     
@@ -57,18 +62,18 @@ It's organized into sub-commands, the first one being ``generate``, to generate 
 *lincs* is designed to handle real-world data, but it's often easier to start with synthetic data to get familiar with the tooling and required file formats.
 Synthetic data is described in our :ref:`conceptual overview documentation <overview-synthetic-data>`.
 
-.. highlight:: shell
+So, start by generating a classification problem with 4 criteria and 3 categories:
 
-So, start by generating a classification problem with 4 criteria and 3 categories::
+.. code:: shell
 
     lincs generate classification-problem 4 3 --output-problem problem.yml
 
 
-.. highlight:: yaml
+The generated ``problem.yml`` should look like:
 
-The generated ``problem.yml`` should look like::
+.. code:: yaml
 
-    # Reproduction command (with lincs version 1.0.1-dev): lincs generate classification-problem 4 3 --random-seed 40
+    # Reproduction command (with lincs version 1.1.0a21.dev0): lincs generate classification-problem 4 3 --random-seed 40
     kind: classification-problem
     format_version: 1
     criteria:
@@ -101,12 +106,19 @@ The generated ``problem.yml`` should look like::
 You can edit this file to change the criteria names, the number of categories, *etc.* as long as you keep the same format.
 That format is explained in details in our :ref:`user guide <user-file-problem>`.
 The concept of "classification problem" is described in our :ref:`conceptual overview documentation <overview-about-classification>`.
+Note that to keep this "Get Started" simple, we only consider the most basic kind of criteria: real-valued,
+with normalized minimal and maximal values, and increasing preference direction.
+There are many other kinds of criteria, and you can read about them in our user guide.
 
-If you want a human-readable explanation of the problem, you can use::
+If you want a human-readable explanation of the problem, you can use:
+
+.. code:: shell
 
     lincs describe classification-problem problem.yml
 
-It will tell you something like::
+It will tell you something like:
+
+.. code:: text
 
     This a classification problem into 3 ordered categories named "Worst category", "Intermediate category 1" and "Best category".
     The best category is "Best category" and the worst category is "Worst category".
@@ -121,18 +133,18 @@ It will tell you something like::
     Higher values of "Criterion 4" are known to be better.
 
 
-.. highlight:: shell
+Then generate an NCS classification model:
 
-Then generate an NCS classification model::
+.. code:: shell
 
     lincs generate classification-model problem.yml --output-model model.yml
 
 
-.. highlight:: yaml
+It should look like:
 
-It should look like::
+.. code:: yaml
 
-    # Reproduction command (with lincs version 1.0.1-dev): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort
+    # Reproduction command (with lincs version 1.1.0a21.dev0): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
@@ -153,9 +165,9 @@ It should look like::
 
 The file format, including the ``*coalitions`` YAML reference, is documented in our :ref:`user guide <user-file-ncs-model>`.
 
-.. highlight:: shell
+You can visualize it using:
 
-You can visualize it using::
+.. code:: shell
 
     lincs visualize classification-model problem.yml model.yml model.png
 
@@ -167,11 +179,15 @@ It should output something like:
     :align: center
 
 The model format is quite generic to ensure *lincs* can evolve to handle future models,
-so you may want to get a human-readable description of a model, including wether it's an MR-Sort or Uc-NCS model, using::
+so you may want to get a human-readable description of a model, including wether it's an MR-Sort or Uc-NCS model, using:
+
+.. code:: shell
 
     lincs describe classification-model problem.yml model.yml
 
-It should output something like::
+It should output something like:
+
+.. code:: text
 
     This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries.
     The weights associated to each criterion are:
@@ -184,7 +200,9 @@ It should output something like::
       - For category "Best category": at least 0.68 on criterion "Criterion 1", at least 0.32 on criterion "Criterion 2", at least 0.67 on criterion "Criterion 3", and at least 0.60 on criterion "Criterion 4"
 
 
-And finally generate a set of classified alternatives::
+And finally generate a set of classified alternatives:
+
+.. code:: shell
 
     lincs generate classified-alternatives problem.yml model.yml 1000 --output-alternatives learning-set.csv
 
@@ -195,11 +213,11 @@ The file format is documented in our :ref:`reference documentation <ref-file-alt
 Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
 Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
 
-.. highlight:: text
+It should start with something like this, and contain 1000 alternatives:
 
-It should start with something like this, and contain 1000 alternatives::
+.. code:: text
 
-    # Reproduction command (with lincs version 1.0.1-dev): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
+    # Reproduction command (with lincs version 1.1.0a21.dev0): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
     name,"Criterion 1","Criterion 2","Criterion 3","Criterion 4",category
     "Alternative 1",0.37454012,0.796543002,0.95071429,0.183434784,"Best category"
     "Alternative 2",0.731993914,0.779690981,0.598658502,0.596850157,"Intermediate category 1"
@@ -208,9 +226,9 @@ It should start with something like this, and contain 1000 alternatives::
     "Alternative 5",0.601114988,0.14286682,0.708072603,0.650888503,"Intermediate category 1"
 
 
-.. highlight:: shell
+You can visualize its first five alternatives using:
 
-You can visualize its first five alternatives using::
+.. code:: shell
 
     lincs visualize classification-model problem.yml model.yml --alternatives learning-set.csv --alternatives-count 5 alternatives.png
 
@@ -221,23 +239,21 @@ It should output something like:
     :alt: Alternatives visualization
     :align: center
 
-@todo(Feature, v1.1) Remove the legend, place names (categories and alternatives) directly on the graph
+You now have a (synthetic) learning set. You can use it to train a new model:
 
-.. highlight:: shell
-
-You now have a (synthetic) learning set. You can use it to train a new model::
+.. code:: shell
 
     lincs learn classification-model problem.yml learning-set.csv --output-model trained-model.yml
 
 
-.. highlight:: yaml
-
 The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same problem.
 The learning set doesn't contain all the information from the original model,
 and the trained model was reconstituted from this partial information,
-so it is numerically different::
+so it is numerically different:
 
-    # Reproduction command (with lincs version 1.0.1-dev): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
+.. code:: yaml
+
+    # Reproduction command (with lincs version 1.1.0a21.dev0): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0
     kind: ncs-classification-model
     format_version: 1
     accepted_values:
@@ -259,28 +275,28 @@ so it is numerically different::
 If the training is effective, the resulting trained model should however behave closely to the original one.
 To see how close a trained model is to the original one, you can reclassify a testing set.
 
-.. highlight:: shell
+First, generate a testing set from the original model:
 
-First, generate a testing set from the original model::
+.. code:: shell
 
     lincs generate classified-alternatives problem.yml model.yml 3000 --output-alternatives testing-set.csv
 
-.. highlight:: shell
+Then ask the trained model to classify it:
 
-Then ask the trained model to classify it::
+.. code:: shell
 
     lincs classify problem.yml trained-model.yml testing-set.csv --output-alternatives reclassified-testing-set.csv
 
 
-.. highlight:: shell
+There are a few differences between the original testing set and the reclassified one:
 
-There are a few differences between the original testing set and the reclassified one::
+.. code:: shell
 
     diff testing-set.csv reclassified-testing-set.csv
 
-.. highlight:: diff
+That command should show a few alternatives that are not classified the same way by the original and the trained model:
 
-That command should show a few alternatives that are not classified the same way by the original and the trained model::
+.. code:: diff
 
     522c522
     < "Alternative 520",0.617141366,0.326259822,0.901315808,0.460642993,"Best category"
@@ -300,15 +316,15 @@ That command should show a few alternatives that are not classified the same way
     > "Alternative 2608",0.881479025,0.055544015,0.82936728,0.853676081,"Worst category"
 
 
-.. highlight:: shell
+You can also measure the classification accuracy of the trained model on that testing set:
 
-You can also measure the classification accuracy of the trained model on that testing set::
+.. code:: shell
 
     lincs classification-accuracy problem.yml trained-model.yml testing-set.csv
 
-.. highlight:: text
+It should be close to 100%:
 
-It should be close to 100%::
+.. code:: text
 
     2996/3000
 

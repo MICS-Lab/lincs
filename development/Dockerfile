@@ -1,4 +1,4 @@
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
 # About the choice of Ubuntu 20.04 instead of 22.04: it an acceptable compromise:
 # - it's an LTS version as well
@@ -80,6 +80,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       gpg-agent \
       graphviz \
       jq \
+      pandoc \
       python3-dev \
       python3-venv \
       software-properties-common \
@@ -87,7 +88,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       sudo
 
 # Python versions
-ENV LINCS_DEV_PYTHON_VERSIONS="3.7 3.8 3.9 3.10 3.11"
+ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,from=download-get-pip,source=/download,target=/download \
@@ -140,7 +141,9 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       gcovr \
       joblib \
       jupyterlab \
-      semver \
+      lark \
+      myst-parser \
+      parver \
       sphinx \
       sphinx-click \
       sphinx-jsonschema \
@@ -172,6 +175,10 @@ RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/user
 USER user
 RUN mkdir -p /home/user/.local/bin
 ENV PATH=/home/user/.local/bin:$PATH:/usr/local/cuda-12.1/bin
+
+# Make sure /home/user/.local/lib/python3.8/site-packages is in sys.path
+# (useful for development/cycle.py, where 'pip install --user lincs' is run just before 'import lincs')
+RUN pip3 install --user six
 
 # CCache
 RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc

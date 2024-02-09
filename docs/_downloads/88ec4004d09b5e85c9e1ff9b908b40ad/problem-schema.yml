@@ -13,28 +13,46 @@ properties:
     type: array
     items:
       type: object
-      properties:
-        name:
-          type: string
-        value_type:
-          description: May be extended in the future to handle criteria with integer values, or explicitly enumerated values.
-          type: string
-          enum: [real]
-        preference_direction:
-          description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
-          type: string
-          enum: [increasing, isotone, decreasing, antitone]
-        min_value:
-          type: number
-        max_value:
-          type: number
-      required:
-        - name
-        - value_type
-        - preference_direction
-        - min_value
-        - max_value
-      additionalProperties: false
+      oneOf:
+        - properties:
+            name:
+              type: string
+            value_type:
+              description: May be extended in the future to handle criteria with integer values, or explicitly enumerated values.
+              type: string
+              enum: [real, integer]
+            preference_direction:
+              description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
+              type: string
+              enum: [increasing, isotone, decreasing, antitone]
+            min_value:
+              type: number
+            max_value:
+              type: number
+          required:
+            - name
+            - value_type
+            - preference_direction
+            - min_value
+            - max_value
+          additionalProperties: false
+        - properties:
+            name:
+              type: string
+            value_type:
+              type: string
+              const: enumerated
+            ordered_values:
+              description: Ordered list of values that can be taken by the criterion.
+              type: array
+              items:
+                type: string
+              minItems: 1
+          required:
+            - name
+            - value_type
+            - ordered_values
+          additionalProperties: false
     minItems: 1
   ordered_categories:
     description: Structural information about categories in the classification problem, ordered from the worst to the best.

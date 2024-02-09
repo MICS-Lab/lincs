@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LINEAR_PROGRAMMING__GLOP_HPP
 #define LINCS__LINEAR_PROGRAMMING__GLOP_HPP

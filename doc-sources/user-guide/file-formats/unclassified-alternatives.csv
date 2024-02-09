@@ -1,6 +1,6 @@
-name,"Criterion 1","Criterion 2",category
-"Alternative 1",10.8156891,4.39045048,
-"Alternative 2",0.25551182,-1.45864725,
-"Alternative 3",18.4786396,4.31117153,
-"Alternative 4",18.0154629,1.33949804,
-"Alternative 5",9.30789757,2.66963387,
+name,"Criterion 1","Criterion 2","Criterion 3",category
+"Alternative 1",10.8156891,4.39045048,A,
+"Alternative 2",0.25551182,-1.45864725,D,
+"Alternative 3",18.4786396,4.31117153,B,
+"Alternative 4",18.0154629,1.33949804,F,
+"Alternative 5",9.30789757,2.66963387,A,

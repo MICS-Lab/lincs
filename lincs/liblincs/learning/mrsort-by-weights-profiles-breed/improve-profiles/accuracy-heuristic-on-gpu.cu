@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "accuracy-heuristic-on-gpu.hpp"
 
@@ -249,7 +249,10 @@ ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(cons
   destination_ranks(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
 {}
 
-void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
+void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
+  const unsigned model_indexes_begin,
+  const unsigned model_indexes_end
+) {
   CHRONE();
 
   // Get optimized weights
@@ -258,7 +261,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles() {
   copy(host_learning_data.profile_ranks, ref(gpu_learning_data.profile_ranks));
 
   #pragma omp parallel for
-  for (int model_index = 0; model_index < host_learning_data.models_count; ++model_index) {
+  for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
+    const unsigned model_index = host_learning_data.model_indexes[model_indexes_index];
     improve_model_profiles(model_index);
   }
 

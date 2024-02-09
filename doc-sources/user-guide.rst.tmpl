@@ -1,4 +1,4 @@
-.. Copyright 2023 Vincent Jacques
+.. Copyright 2023-2024 Vincent Jacques
 
 ==========
 User Guide
@@ -18,12 +18,12 @@ Formatting data for *lincs*
 "Problem" files
 ---------------
 
-.. highlight:: yaml
-
 The concept of classification problem is defined in our :ref:`conceptual overview <overview-about-classification>`.
 To describe problems, *lincs* uses YAML files conforming to the `JSON schema <https://json-schema.org/>`_ you'll find in our :ref:`reference documentation <ref-file-problem>`.
 
-Here is an example of a problem file::
+Here is an example of a problem file:
+
+.. code:: yaml
 
     {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][0]["outputs"][0]["text"] | join('    ') }}
 
@@ -40,8 +40,10 @@ Each criterion has a ``name``.
 
 Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
 We expect this could evolve to also support criteria with integer or explicitly enumerated values.
+A criterion's ``value_type`` specifies the kind of values it can take: ``real``, ``integer`` or ``enumerated``.
 
-Then, the ``preference_direction`` key describe what makes "good values" for this criterion.
+For numerical criteria (*i.e* with ``real`` or ``integer`` ``value_type``),
+the ``preference_direction`` key describe what makes "good values" for this criterion.
 If it is ``increasing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
@@ -50,8 +52,10 @@ where intermediate numerical value correspond to upper categories, and extreme v
 We also expect this could evolve to support criteria with unknown preference direction,
 to support the case where no expert knowledge is available and delegate this choice to the learning process.
 
-Finally, for criteria with numerical ``value_type`` (currently all of them),
-the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
+For ``enumerated`` criteria, the ``ordered_values`` key is a list of the values the criterion can take, each one as a string.
+The preference direction is implied in that case: the list must be sorted from the worst value to the best one.
+
+Finally, for numerical criteria, the ``min_value`` and ``max_value`` keys describe the range of values the criterion can take.
 
 Categories
 ^^^^^^^^^^
@@ -78,7 +82,9 @@ referencing the problem file by name would not be robust because files can be re
 and referencing the problem file by content (using a hash) would forbid any change in the problem file.
 So it's the user's responsibility to keep track of that information and always give *lincs* the correct problem file along with a model file.
 
-Here is an example of a model file corresponding to the problem file above::
+Here is an example of a model file corresponding to the problem file above:
+
+.. code:: yaml
 
     {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
 
@@ -145,7 +151,9 @@ Sufficient coalitions ``kind``  Sufficient coalitions attributes
 ==============================  ================================
 
 Here is another model corresponding to the problem file above, but this time using the ``roots`` kind of sufficient coalitions,
-and using different coalitions for the two boundaries (so, no YAML anchor)::
+and using different coalitions for the two boundaries (so, no YAML anchor):
+
+.. code:: yaml
 
     {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][2]["outputs"][0]["text"] | join('    ') }}
 
@@ -157,9 +165,9 @@ It's a CSV file with a header line and one line per alternative.
 
 Like model files, alternatives files are always associated to a problem file.
 
-.. highlight:: text
+Here is an example corresponding to the problem above:
 
-Here is an example corresponding to the problem above::
+.. code:: text
 
     {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][3]["outputs"][0]["text"] | join('    ') }}
 
@@ -168,7 +176,9 @@ Its first column, ``name``, contains the names of the alternatives.
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, ``category``, contains the names of the categories in which each alternative is classified.
 
-Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified::
+Values in the ``category`` column can be empty to describe alternatives that are not (yet) classified:
+
+.. code:: text
 
     {{ notebooks["doc-sources/user-guide/file-formats/file-formats.ipynb"]["cells"][4]["outputs"][0]["text"] | join('    ') }}
 
@@ -203,27 +213,38 @@ When you need reproducibility, you can specify the seed to use with the ``--rand
 
 In all cases, the :ref:`comments <user-comments-in-generated-files>` left by *lincs* in the generated files specify the seed that was used.
 
-.. highlight:: shell
-
 Generating a problem
 --------------------
 
 With ``lincs generate classification-problem``, you can generate a classification problem file.
-Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`::
+Using its default settings, you just have to pass it the numbers of criteria and categories you want, as you saw in our :doc:`get started guide <get-started>`:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][0]["source"][0] }}
 
 The ``--help`` option on the command-line and our :ref:`reference documentation <ref-cli>` describe the options available to tweak the generated problem.
-Most notably:
 
-- ``--denormalized-min-max`` generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion. By default, they are always set at 0 and 1.
-- ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``. By default, all criteria have ``increasing`` preference direction.
+A set of options selects the ``value_type`` of the criteria in the generated problem.
+By default, they are all ``real``.
+The ``--allow-integer-criteria`` and ``--allow-enumerated-criteria`` options let you generate problems with ``integer`` and ``enumerated`` criteria respectively.
+The ``--forbid-real-criteria``... forbids ``real`` criteria.
+The ``value_type`` of each criterion is chosen pseudo-randomly among the allowed ones.
+
+For numerical criteria, the ``--denormalized-min-max`` option generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion.
+By default, they are always set at 0 and 1.
+
+For numerical criteria, ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``.
+By default, all criteria have ``increasing`` preference direction.
+It can be used in conjunction with ``--forbid-increasing-criteria`` to generate problems with only ``decreasing`` criteria.
 
 Generating a model
 ------------------
 
 With ``lincs generate classification-model``, you can generate a classification model file.
-Using its default settings, you just have to pass it the problem file you want to use::
+Using its default settings, you just have to pass it the problem file you want to use:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][1]["source"][0] }}
 
@@ -237,7 +258,9 @@ This effectively impacts how hard it is for alternatives to get into upper categ
 Generating alternatives
 -----------------------
 
-With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate::
+With its default settings, ``lincs generate classified-alternatives`` requires only the problem and model files and the number of alternatives to generate:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][2]["source"][0] }}
 
@@ -266,7 +289,9 @@ Learning a model
 ================
 
 As you've seen in our get started guide, the basic command to learn a classification model with *lincs* is ``lincs learn classification-model``.
-With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives)::
+With its default settings, you just have to pass it a problem file and a learning set file (of classified alternatives):
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/synthetic-data/synthetic-data.ipynb"]["cells"][3]["source"][0] }}
 
@@ -355,7 +380,9 @@ That strategy uses a linear program, and lets you choose among several solvers w
 
 By default, it uses GLOP, which is a part of `Google's OR-Tools <https://developers.google.com/optimization/>`_.
 
-Here is an example using the `Alglib <https://www.alglib.net/>`_ solver::
+Here is an example using the `Alglib <https://www.alglib.net/>`_ solver:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/alglib-learning/alglib-learning.ipynb"]["cells"][1]["source"] | join('    ') }}
 
@@ -376,7 +403,9 @@ This is the case for example on macOS, where CUDA is not supported.
 Binary wheels for Linux and Windows do support it though.
 You can check with ``lincs info has-gpu``.
 
-Here is an example::
+Here is an example:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/gpu-learning/gpu-learning.ipynb"]["cells"][1]["source"] | join('    ') }}
 
@@ -394,23 +423,25 @@ The portion of the population that is reinitialized is controlled by the ``--mrs
 SAT-based strategies
 ^^^^^^^^^^^^^^^^^^^^
 
-.. highlight:: shell
-
 You can also use entirely different approaches using SAT and max-SAT solvers.
 The tradeoffs offered by these methods are highlighted in our :ref:`conceptual overview <overview-learning-methods>`.
 
 These strategies let you learn :math:`U^c \textsf{-} NCS` models, so you have to start with ``--model-type ucncs``.
-Here are two examples::
+Here are two examples:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/sat-learning/sat-learning.ipynb"]["cells"][1]["source"] | join('    ') }}
 
-And::
+And:
+
+.. code:: shell
 
     {{ notebooks["doc-sources/user-guide/sat-learning/sat-learning.ipynb"]["cells"][2]["source"] | join('    ') }}
 
-.. highlight:: yaml
+They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:
 
-They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots::
+.. code:: yaml
 
     {{ notebooks["doc-sources/user-guide/sat-learning/sat-learning.ipynb"]["cells"][1]["outputs"][0]["text"] | join('    ') }}
 
@@ -454,6 +485,7 @@ You've seen an example in our "Get started" guide.
 What's next?
 ============
 
-You now know pretty much everything you need to use *lincs*.
+You now know pretty much everything you need to use *lincs* from the command-line.
+You can learn how to use *lincs* from Python, as described in our :doc:`Python API guide <python-api>`.
 You may find some additional details in our :doc:`reference documentation <reference>`.
 Feel free to reach out to us if you have any question or feedback, as said at the top of the :doc:`Readme <index>`.

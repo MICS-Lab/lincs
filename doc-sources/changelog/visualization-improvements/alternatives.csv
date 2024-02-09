@@ -1,0 +1,5 @@
+name,"Real criterion","Integer criterion","Enumerated criterion",category
+"Unclassified alternative",10,4,medium,
+"Good alternative",95,-15,good,"Good category"
+"Medium alternative",50,6,good,"Medium category"
+"Bad alternative",22,18,worst,"Bad category"

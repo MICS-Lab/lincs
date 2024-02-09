@@ -1,19 +1,13 @@
-# Copyright 2023 Vincent Jacques
-
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+# Copyright 2023-2024 Vincent Jacques
 
 import os
 import sys
 
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "lincs"
-copyright = "Copyright 2023 Vincent Jacques"
+copyright = "Copyright 2023-2024 Vincent Jacques"
 author = "Vincent Jacques"
 with open("../lincs/__init__.py") as f:
     for line in f.readlines():
@@ -63,3 +57,12 @@ extensions.append("sphinx.ext.graphviz")
 # JSON Schemas
 
 extensions.append("sphinx-jsonschema")
+
+# Python domain
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-the-python-domain
+
+python_use_unqualified_type_names = True
+
+# Markdown
+
+extensions.append("myst_parser")

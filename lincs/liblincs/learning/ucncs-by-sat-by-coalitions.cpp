@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "ucncs-by-sat-by-coalitions.hpp"
 
@@ -13,7 +13,16 @@
 
 namespace lincs {
 
-// @todo(Project management, later) Factorize common parts of all SAT approaches
+// @todo(Project management, v1.2) Factorize common parts of all SAT approaches (when we implement single-peaked criteria)
+// For example:
+// - 'decode' is almost identical between the 'by separation' approaches
+// - 'decode' is identical between the 'by coalitions' approaches
+// - 'add_structural_constraints' are identical between the 'by coalitions' approaches
+// - 'add_structural_constraints' are identical between the 'by separation' approaches
+// - 'add_structural_constraints' have a common part between all approaches
+// - 'add_learning_set_constraints' have a common part between the 'by separation' approaches
+// But:
+// - 'add_learning_set_constraints' are very similar, but fundamentally different between 'by coalitions' approaches
 
 template<typename V>
 std::vector<V> implies(V a, V b) {
@@ -208,7 +217,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     }
   }
 
-  std::vector<PreProcessedModel::Boundary> boundaries;
+  std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     std::vector<unsigned> profile_ranks(learning_set.criteria_count);
@@ -231,10 +240,10 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
       }
     }
 
-    boundaries.emplace_back(profile_ranks, SufficientCoalitions{SufficientCoalitions::roots, roots});
+    boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));
   }
 
-  return learning_set.post_process(PreProcessedModel{boundaries});
+  return learning_set.post_process(boundaries);
 }
 
 template class SatCoalitionsUcncsLearning<MinisatSatProblem>;

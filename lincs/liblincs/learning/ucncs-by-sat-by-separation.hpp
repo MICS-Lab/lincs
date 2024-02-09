@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__UCNCS_BY_SAT_BY_SEPARATION_HPP
 #define LINCS__LEARNING__UCNCS_BY_SAT_BY_SEPARATION_HPP
@@ -12,13 +12,14 @@ namespace lincs {
 template<typename SatProblem>
 class SatSeparationUcncsLearning {
  public:
-  SatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_) :
+  template<class... U>
+  SatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
     learning_set(problem, learning_set_),
     better_alternative_indexes(),
     worse_alternative_indexes(),
     better(),
     separates(),
-    sat()
+    sat(std::forward<U>(u)...)
   {}
 
  public:

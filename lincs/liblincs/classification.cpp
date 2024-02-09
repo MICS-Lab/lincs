@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #include "classification.hpp"
 
@@ -12,75 +12,82 @@
 
 namespace lincs {
 
-bool better_or_equal(Criterion::PreferenceDirection preference_direction, float lhs, float rhs) {
-  switch (preference_direction) {
-    case Criterion::PreferenceDirection::increasing:
-      return lhs >= rhs;
-    case Criterion::PreferenceDirection::decreasing:
-      return lhs <= rhs;
-  }
- unreachable();
+bool better_or_equal(
+  const Problem& problem,
+  const Model& model,
+  const Alternatives& alternatives,
+  const unsigned boundary_index,
+  const unsigned alternative_index,
+  const unsigned criterion_index
+) {
+  const auto& performance = alternatives.get_alternatives()[alternative_index].get_profile()[criterion_index];
+  const auto& accepted_values = model.get_accepted_values()[criterion_index];
+  return dispatch(
+    problem.get_criteria()[criterion_index].get_values(),
+    [&model, &performance, &accepted_values, boundary_index](const Criterion::RealValues& values) {
+      const float threshold = accepted_values.get_real_thresholds().get_thresholds()[boundary_index];
+      return better_or_equal(values.get_preference_direction(), performance.get_real().get_value(), threshold);
+    },
+    [&model, &performance, &accepted_values, boundary_index](const Criterion::IntegerValues& values) {
+      const int threshold = accepted_values.get_integer_thresholds().get_thresholds()[boundary_index];
+      return better_or_equal(values.get_preference_direction(), performance.get_integer().get_value(), threshold);;
+    },
+    [&model, &performance, &accepted_values, boundary_index](const Criterion::EnumeratedValues& values) {
+      const std::string threshold_enum = accepted_values.get_enumerated_thresholds().get_thresholds()[boundary_index];
+      return values.get_value_ranks().at(performance.get_enumerated().get_value()) >= values.get_value_ranks().at(threshold_enum);
+    }
+  );
 }
 
-bool is_good_enough(const Problem& problem, const Model::Boundary& boundary, const Alternative& alternative) {
-  const unsigned criteria_count = problem.criteria.size();
+bool is_good_enough(
+  const Problem& problem,
+  const Model& model,
+  const Alternatives& alternatives,
+  const unsigned boundary_index,
+  const unsigned alternative_index
+) {
+  const unsigned criteria_count = problem.get_criteria().size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
+  const unsigned boundaries_count = categories_count - 1;
 
-  switch (boundary.sufficient_coalitions.kind) {
-    case SufficientCoalitions::Kind::weights: {
-      float weight_at_or_better_than_profile = 0;
-      for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-        const float alternative_value = alternative.profile[criterion_index];
-        const float profile_value = boundary.profile[criterion_index];
-        if (better_or_equal(problem.criteria[criterion_index].preference_direction, alternative_value, profile_value)) {
-          weight_at_or_better_than_profile += boundary.sufficient_coalitions.criterion_weights[criterion_index];
-        }
-      }
-      return weight_at_or_better_than_profile >= 1.f;
-    }
-    case SufficientCoalitions::Kind::roots: {
+  assert(model.get_accepted_values().size() == criteria_count);
+  assert(model.get_sufficient_coalitions().size() == boundaries_count);
+  assert(boundary_index < boundaries_count);
+
+  return std::visit(
+    [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const auto& sufficient_coalitions) {
       boost::dynamic_bitset<> at_or_better_than_profile(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-        const float alternative_value = alternative.profile[criterion_index];
-        const float profile_value = boundary.profile[criterion_index];
-        if (better_or_equal(problem.criteria[criterion_index].preference_direction, alternative_value, profile_value)) {
+        if (better_or_equal(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
           at_or_better_than_profile[criterion_index] = true;
         }
       }
-
-      for (boost::dynamic_bitset<> root: boundary.sufficient_coalitions.upset_roots) {
-        if ((at_or_better_than_profile & root) == root) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-  }
-  unreachable();
+      return sufficient_coalitions.accept(at_or_better_than_profile);
+    },
+    model.get_sufficient_coalitions()[boundary_index].get()
+  );
 }
 
 ClassificationResult classify_alternatives(const Problem& problem, const Model& model, Alternatives* alternatives) {
   CHRONE();
 
-  assert(&(model.problem) == &problem);
-  assert(&(alternatives->problem) == &problem);
-
-  const unsigned categories_count = problem.ordered_categories.size();
+  const unsigned categories_count = problem.get_ordered_categories().size();
+  const unsigned alternatives_count = alternatives->get_alternatives().size();
 
   ClassificationResult result{0, 0};
 
-  for (auto& alternative: alternatives->alternatives) {
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     unsigned category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
-      if (is_good_enough(problem, model.boundaries[category_index - 1], alternative)) {
+      if (is_good_enough(problem, model, *alternatives, category_index - 1, alternative_index)) {
         break;
       }
     }
 
-    if (alternative.category_index == category_index) {
+    if (alternatives->get_alternatives()[alternative_index].get_category_index() == category_index) {
       ++result.unchanged;
     } else {
-      alternative.category_index = category_index;
+      alternatives->get_writable_alternatives()[alternative_index].set_category_index(category_index);
       ++result.changed;
     }
   }
@@ -91,39 +98,44 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
 TEST_CASE("Basic classification using weights") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::weights, {0.3, 0.6, 0.8}}}},
+    {
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+    },
+    {SufficientCoalitions(SufficientCoalitions::Weights({0.3, 0.6, 0.8}))},
   };
 
   Alternatives alternatives{problem, {
-    {"A", {0.49, 0.49, 0.49}, std::nullopt},
-    {"A", {0.50, 0.49, 0.49}, std::nullopt},
-    {"A", {0.49, 0.50, 0.49}, std::nullopt},
-    {"A", {0.49, 0.49, 0.50}, std::nullopt},
-    {"A", {0.49, 0.50, 0.50}, std::nullopt},
-    {"A", {0.50, 0.49, 0.50}, std::nullopt},
-    {"A", {0.50, 0.50, 0.49}, std::nullopt},
-    {"A", {0.50, 0.50, 0.50}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
   }};
 
   auto result = classify_alternatives(problem, model, &alternatives);
 
-  CHECK(alternatives.alternatives[0].category_index == 0);
-  CHECK(alternatives.alternatives[1].category_index == 0);
-  CHECK(alternatives.alternatives[2].category_index == 0);
-  CHECK(alternatives.alternatives[3].category_index == 0);
-  CHECK(alternatives.alternatives[4].category_index == 1);
-  CHECK(alternatives.alternatives[5].category_index == 1);
-  CHECK(alternatives.alternatives[6].category_index == 0);
-  CHECK(alternatives.alternatives[7].category_index == 1);
+  CHECK(alternatives.get_alternatives()[0].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[1].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[2].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[3].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[4].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[5].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[6].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[7].get_category_index() == 1);
   CHECK(result.unchanged == 0);
   CHECK(result.changed == 8);
 }
@@ -131,39 +143,44 @@ TEST_CASE("Basic classification using weights") {
 TEST_CASE("Basic classification using upset roots") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::increasing, 0, 1},
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::roots, 3, {{0, 2}, {1, 2}}}}},
+    {
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+    },
+    {SufficientCoalitions(SufficientCoalitions::Roots(problem, {{0, 2}, {1, 2}}))},
   };
 
   Alternatives alternatives{problem, {
-    {"A", {0.49, 0.49, 0.49}, std::nullopt},
-    {"A", {0.50, 0.49, 0.49}, std::nullopt},
-    {"A", {0.49, 0.50, 0.49}, std::nullopt},
-    {"A", {0.49, 0.49, 0.50}, std::nullopt},
-    {"A", {0.49, 0.50, 0.50}, std::nullopt},
-    {"A", {0.50, 0.49, 0.50}, std::nullopt},
-    {"A", {0.50, 0.50, 0.49}, std::nullopt},
-    {"A", {0.50, 0.50, 0.50}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
   }};
 
   auto result = classify_alternatives(problem, model, &alternatives);
 
-  CHECK(alternatives.alternatives[0].category_index == 0);
-  CHECK(alternatives.alternatives[1].category_index == 0);
-  CHECK(alternatives.alternatives[2].category_index == 0);
-  CHECK(alternatives.alternatives[3].category_index == 0);
-  CHECK(alternatives.alternatives[4].category_index == 1);
-  CHECK(alternatives.alternatives[5].category_index == 1);
-  CHECK(alternatives.alternatives[6].category_index == 0);
-  CHECK(alternatives.alternatives[7].category_index == 1);
+  CHECK(alternatives.get_alternatives()[0].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[1].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[2].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[3].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[4].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[5].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[6].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[7].get_category_index() == 1);
   CHECK(result.unchanged == 0);
   CHECK(result.changed == 8);
 }
@@ -171,39 +188,44 @@ TEST_CASE("Basic classification using upset roots") {
 TEST_CASE("Classification with decreasing criteria") {
   Problem problem{
     {
-      {"Criterion 1", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, 0, 1},
-      {"Criterion 2", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, 0, 1},
-      {"Criterion 3", Criterion::ValueType::real, Criterion::PreferenceDirection::decreasing, 0, 1},
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
+      Criterion("Criterion 2", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
+      Criterion("Criterion 3", Criterion::RealValues(Criterion::PreferenceDirection::decreasing, 0, 1)),
     },
     {{"Category 1"}, {"Category 2"}},
   };
 
   Model model{
     problem,
-    {{{0.5, 0.5, 0.5}, {SufficientCoalitions::weights, {0.3, 0.6, 0.8}}}},
+    {
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+      AcceptedValues(AcceptedValues::RealThresholds({0.5})),
+    },
+    {SufficientCoalitions(SufficientCoalitions::Weights({0.3, 0.6, 0.8}))},
   };
 
   Alternatives alternatives{problem, {
-    {"A", {0.50, 0.50, 0.50}, std::nullopt},
-    {"A", {0.51, 0.50, 0.50}, std::nullopt},
-    {"A", {0.50, 0.51, 0.50}, std::nullopt},
-    {"A", {0.50, 0.50, 0.51}, std::nullopt},
-    {"A", {0.50, 0.51, 0.51}, std::nullopt},
-    {"A", {0.51, 0.50, 0.51}, std::nullopt},
-    {"A", {0.51, 0.51, 0.50}, std::nullopt},
-    {"A", {0.51, 0.51, 0.51}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50)), Performance(Performance::Real(0.51))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51)), Performance(Performance::Real(0.51))}, std::nullopt},
   }};
 
   auto result = classify_alternatives(problem, model, &alternatives);
 
-  CHECK(alternatives.alternatives[0].category_index == 1);
-  CHECK(alternatives.alternatives[1].category_index == 1);
-  CHECK(alternatives.alternatives[2].category_index == 1);
-  CHECK(alternatives.alternatives[3].category_index == 0);
-  CHECK(alternatives.alternatives[4].category_index == 0);
-  CHECK(alternatives.alternatives[5].category_index == 0);
-  CHECK(alternatives.alternatives[6].category_index == 0);
-  CHECK(alternatives.alternatives[7].category_index == 0);
+  CHECK(alternatives.get_alternatives()[0].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[1].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[2].get_category_index() == 1);
+  CHECK(alternatives.get_alternatives()[3].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[4].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[5].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[6].get_category_index() == 0);
+  CHECK(alternatives.get_alternatives()[7].get_category_index() == 0);
   CHECK(result.unchanged == 0);
   CHECK(result.changed == 8);
 }

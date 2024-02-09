@@ -1,51 +1,37 @@
-# Copyright 2023 Vincent Jacques
+# Copyright 2023-2024 Vincent Jacques
 
-__version__ = "1.0.1-dev"
+"""
+The ``lincs`` package
+=====================
 
-# I/O
-from liblincs import DataValidationException
+This is the main module for the *lincs* library.
+It contains general information (version, GPU availability, *etc.*) and items of general usage (*e.g.* the exception for invalid data).
+"""
 
-from liblincs import Criterion, Category, Problem
+# General exceptions
+from liblincs import DataValidationException, LearningFailureException
 
-from liblincs import SufficientCoalitions, Model
-from liblincs import Alternative, Alternatives
-
-# Generation (incl. misclassification)
-from liblincs import BalancedAlternativesGenerationException
-from liblincs import generate_classification_problem, generate_mrsort_classification_model, generate_classified_alternatives, misclassify_alternatives
+# General utilities
+from liblincs import UniformRandomBitsGenerator
 
 # Classification
-from liblincs import classify_alternatives
+from . import classification
 
-# Learning
-from liblincs import LearningFailureException
+# General information
+__version__ = "1.1.0a21.dev0"
+has_gpu = hasattr(classification, "ImproveProfilesWithAccuracyHeuristicOnGpu")
 
-# Learning - weights-profiles-breed
-from liblincs import LearnMrsortByWeightsProfilesBreed
-from liblincs import InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
-from liblincs import OptimizeWeightsUsingGlop, OptimizeWeightsUsingAlglib
-from liblincs import ImproveProfilesWithAccuracyHeuristicOnCpu
 try:
-    from liblincs import ImproveProfilesWithAccuracyHeuristicOnGpu
-    has_gpu = True
-except ImportError:
-    has_gpu = False
-from liblincs import ReinitializeLeastAccurate
-from liblincs import TerminateAtAccuracy
-from liblincs import TerminateAfterSeconds, TerminateAfterSecondsWithoutProgress
-from liblincs import TerminateAfterIterations, TerminateAfterIterationsWithoutProgress
-from liblincs import TerminateWhenAny
+    del visualization
+except NameError:
+    pass
 
-# Learning - SAT by coalitions
-from liblincs import LearnUcncsBySatByCoalitionsUsingMinisat
+try:
+    del description
+except NameError:
+    pass
 
-# Learning - SAT by separation
-from liblincs import LearnUcncsBySatBySeparationUsingMinisat
-
-# Learning - max-SAT by coalitions
-from liblincs import LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
-
-# Learning - max-SAT by separation
-from liblincs import LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
-
-# @todo(Feature, later) Accept learning and training set as Pandas DataFrame?
+try:
+    del command_line_interface
+except NameError:
+    pass

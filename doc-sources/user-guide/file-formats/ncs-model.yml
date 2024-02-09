@@ -4,11 +4,14 @@ accepted_values:
   - kind: thresholds
     thresholds: [7.49331188, 15.9249287]
   - kind: thresholds
-    thresholds: [4.49812794, -3.15932083]
+    thresholds: [4, -3]
+  - kind: thresholds
+    thresholds: [D, B]
 sufficient_coalitions:
   - kind: roots
     upset_roots:
       - [1]
+      - [0, 2]
   - kind: roots
     upset_roots:
-      - [0, 1]
+      - [0, 2]

@@ -1,4 +1,4 @@
-// Copyright 2023 Vincent Jacques
+// Copyright 2023-2024 Vincent Jacques
 
 #ifndef LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__OPTIMIZE_WEIGHTS__LINEAR_PROGRAM_HPP
 #define LINCS__LEARNING__MRSORT_BY_WEIGHTS_PROFILES_BREED__OPTIMIZE_WEIGHTS__LINEAR_PROGRAM_HPP
@@ -14,7 +14,7 @@ class OptimizeWeightsUsingLinearProgram : public LearnMrsortByWeightsProfilesBre
   OptimizeWeightsUsingLinearProgram(LearningData& learning_data_) : learning_data(learning_data_) {}
 
  public:
-  void optimize_weights() override;
+  void optimize_weights(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
   void optimize_model_weights(unsigned model_index);
