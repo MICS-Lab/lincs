@@ -997,7 +997,7 @@ class LearningTestCase(unittest.TestCase):
 
         learning.perform()
 
-        self.assertEqual(best_accuracies, [182, 192, 192, 193, 193, 194, 193, 199, 200])
+        self.assertEqual(best_accuracies, [182, 192, 192, 193, 193, 194, 196, 199, 200])
 
     def test_iterations_restricted_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
@@ -1125,7 +1125,7 @@ class LearningTestCase(unittest.TestCase):
         ).perform()
 
         self.assertEqual(profiles_initialization_strategy.called_count, 2)
-        self.assertEqual(weights_optimization_strategy.called_count, 2)
+        self.assertEqual(weights_optimization_strategy.called_count, 4)
         self.assertEqual(profiles_improvement_strategy.called_count, 2)
         self.assertEqual(breeding_strategy.called_count, 1)
         self.assertEqual(termination_strategy.accuracies, [182, 192])
@@ -1232,18 +1232,22 @@ class LearningTestCase(unittest.TestCase):
             ("initialize_profiles", 0, 9),
             ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
+            ("optimize_weights", 0, 9),
             ("terminate",),
             ("breed",),
             ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
+            ("optimize_weights", 0, 9),
             ("terminate",),
             ("breed",),
             ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
+            ("optimize_weights", 0, 9),
             ("terminate",),
             ("breed",),
             ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
+            ("optimize_weights", 0, 9),
             ("terminate",),
         ])
 
@@ -1295,7 +1299,7 @@ class LearningTestCase(unittest.TestCase):
             [observer],
         ).perform()
 
-        self.assertEqual(observer.best_accuracies, [182, 192, 192, 193, 193, 194, 193, 199])
+        self.assertEqual(observer.best_accuracies, [182, 192, 192, 193, 193, 194, 196, 199])
         self.assertEqual(observer.final_accuracy, 200)
 
     def test_alglib_mrsort_learning(self):

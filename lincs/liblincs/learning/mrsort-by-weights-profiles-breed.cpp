@@ -67,16 +67,12 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
   CHRONE();
 
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
+  weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
 
   while (true) {
     // Improve
-    weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
     profiles_improvement_strategy.improve_profiles(0, learning_data.models_count);
-
-    // @todo(Feature, later) Rework this main loop. Its current problems:
-    //   - we return models that have gone through a last profiles improvement, but their weights have not been optimized
-    //   - we decide to stop the learning based on the accuracy of those models in this weird state
-    // Beware, if optimize_weights is run after improve_profiles, it must also be run during the breeding strategy.
+    weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
 
     // Sort model_indexes by increasing model accuracy
     for (unsigned model_index = 0; model_index != learning_data.models_count; ++model_index) {
@@ -100,6 +96,9 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     // Breed
     // @todo(Feature, later) Keep the best model and reinit half of the others
     breeding_strategy.breed();
+    // @todo(Feature, now) Put this call to 'optimize_weights' inside the breeding strategy
+    // to avoid optimizing all the weights: only the weights of the new models need to be optimized
+    weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
 
     // Observe
     for (auto observer : observers) {

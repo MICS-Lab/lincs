@@ -1182,7 +1182,7 @@ list(learning_data.accuracies)  # Indexed by model_index
 
 
 ```text
-[728, 593, 725, 671, 637, 609, 676, 833, 640]
+[764, 595, 725, 666, 637, 609, 676, 830, 640]
 ```
 
 
@@ -1238,14 +1238,14 @@ Its `weights` attribute holds the MR-Sort weight of each criterion in each in-pr
 
 
 ```text
-[[1.0132789611816406e-06, 0.9999989867210388, 1.0132789611816406e-06],
- [0.9999989867210388, 0.9999989867210388, 1.0132789611816406e-06],
- [1.0, 0.0, 0.9999989867210388],
- [0.5000004768371582, 0.4999994933605194, 0.4999994933605194],
- [1.0132789611816406e-06, 0.9999989867210388, 0.0],
- [0.9999989867210388, 0.0, 1.0132789611816406e-06],
- [1.0, 0.0, 0.0],
+[[0.5, 0.5, 0.5],
  [1.0, 0.9999989867210388, 1.0132789611816406e-06],
+ [1.0, 0.0, 0.9999989867210388],
+ [1.0, 0.0, 0.9999989867210388],
+ [1.0132789611816406e-06, 0.9999989867210388, 0.0],
+ [1.0132789611816406e-06, 0.0, 0.9999989867210388],
+ [1.0, 0.0, 0.9999989867210388],
+ [1.0, 0.0, 1.0],
  [0.9999989867210388, 0.0, 0.9999989867210388]]
 ```
 
@@ -1271,7 +1271,7 @@ accepted_values:
 sufficient_coalitions:
   - &coalitions
     kind: weights
-    criterion_weights: [1, 0.999998987, 1.01327896e-06]
+    criterion_weights: [1, 0, 1]
   - *coalitions
 ```
 
@@ -1285,7 +1285,7 @@ learning_data.get_best_accuracy()
 
 
 ```text
-833
+830
 ```
 
 
@@ -1404,7 +1404,7 @@ accepted_values:
 sufficient_coalitions:
   - &coalitions
     kind: weights
-    criterion_weights: [1, 0.999998987, 1.01327896e-06]
+    criterion_weights: [1, 0, 1]
   - *coalitions
 kind: ncs-classification-model
 format_version: 1
@@ -1438,9 +1438,9 @@ kind: ncs-classification-model
 format_version: 1
 accepted_values:
   - kind: thresholds
-    thresholds: [7.96338844, 3.74707603]
+    thresholds: [7.95116329, 3.72116661]
   - kind: thresholds
-    thresholds: [94, 99]
+    thresholds: [97, 99]
   - kind: thresholds
     thresholds: [B, B]
 sufficient_coalitions:
@@ -1454,7 +1454,7 @@ accepted_values:
   - kind: thresholds
     thresholds: [7.95116329, 3.74707603]
   - kind: thresholds
-    thresholds: [94, 99]
+    thresholds: [73, 99]
   - kind: thresholds
     thresholds: [B, B]
 sufficient_coalitions:
@@ -1499,7 +1499,7 @@ class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.Weig
         self.learning_data = learning_data
 
     def optimize_weights(self, model_indexes_begin, model_indexes_end):
-        print("optimize_weights", file=sys.stderr)
+        print("optimize_weights", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
             model_index = learning_data.model_indexes[model_index_index]
             for criterion_index in range(self.learning_data.criteria_count):
@@ -1516,7 +1516,7 @@ class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.Prof
         self.learning_data = learning_data
 
     def improve_profiles(self, model_indexes_begin, model_indexes_end):
-        print("improve_profiles", file=sys.stderr)
+        print("improve_profiles", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
             model_index = learning_data.model_indexes[model_index_index]
             for boundary_index in range(self.learning_data.boundaries_count):
@@ -1588,20 +1588,24 @@ learned_model = lc.LearnMrsortByWeightsProfilesBreed(
 
 ```text
 initialize_profiles 0 9
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
+optimize_weights 0 9
 terminate
 breed
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
+optimize_weights 0 9
 terminate
 breed
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
+optimize_weights 0 9
 terminate
 breed
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
+optimize_weights 0 9
 terminate
 ```
 

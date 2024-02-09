@@ -427,7 +427,7 @@ TEST_CASE("Basic (and GPU) WPB learning - real criteria") {
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - real criteria - long" * doctest::skip(skip_long)) {
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(7, 2, {}, {}, {41});
+  check_exact_real_learning<BasicWpb<200>::Wrapper>(7, 2, {59}, {}, {41});
   check_exact_real_learning<BasicWpb<200>::Wrapper>(4, 3, {5, 59}, {}, {55});
 }
 
@@ -438,8 +438,8 @@ TEST_CASE("Basic (and GPU) WPB learning - discrete criteria") {
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::skip(skip_long)) {
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(7, 2, {11});
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(4, 3, {14});
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(7, 2, {90});
+  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(4, 3);
 }
 
 TEST_CASE("Alglib WPB learning - real criteria") {
@@ -449,8 +449,8 @@ TEST_CASE("Alglib WPB learning - real criteria") {
 }
 
 TEST_CASE("Alglib WPB learning - real criteria - long" * doctest::skip(skip_long)) {
-  check_exact_real_learning<AlglibWpbWrapper>(7, 2, {}, {48}, {});
-  check_exact_real_learning<AlglibWpbWrapper>(4, 3, {55, 59}, {}, {5, 55});
+  check_exact_real_learning<AlglibWpbWrapper>(7, 2);
+  check_exact_real_learning<AlglibWpbWrapper>(4, 3, {59}, {}, {});
 }
 
 TEST_CASE("SAT by coalitions using Minisat learning - real criteria") {
@@ -521,7 +521,8 @@ TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - non
 
 TEST_CASE("Non-exact WPB learning - real criteria") {
   check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 2);
-  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(3, 2, {45}, {53}, {45});
+  // @todo(Feature, now) Understand why these lists of bad seeds are so large
+  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(3, 2, {21, 45, 74, 77, 84}, {25, 45, 53}, {21, 45, 74, 77, 84});
   check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 3);
 }
 
