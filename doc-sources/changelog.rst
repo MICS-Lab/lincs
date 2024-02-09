@@ -4,7 +4,7 @@
 Changelog
 =========
 
-Version 1.1.0 (2024-02-08)
+Version 1.1.0 (2024-02-09)
 ==========================
 
 Publish the Python API
