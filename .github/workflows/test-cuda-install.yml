@@ -1,0 +1,105 @@
+name: Test CUDA install
+on:
+  push
+jobs:
+  make-source-dist:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install dependencies
+        run: pip3 install build twine
+
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Build the source distribution
+        run: python3 -m build --sdist
+      - name: Check the source distribution
+        run: twine check dist/*
+
+      - name: Upload the source distribution to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-dist
+          path: dist
+
+  build-for-windows:
+    runs-on: windows-2019
+    needs:
+      - make-source-dist
+    strategy:
+      matrix:
+        python_version: ['3.8']
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install Python packages
+        run: pip install build delvewheel twine
+      - name: Download CUDA installer
+        run: Invoke-WebRequest -URI https://developer.download.nvidia.com/compute/cuda/12.1.0/network_installers/cuda_12.1.0_windows_network.exe -OutFile cuda_12.1.0_windows_network.exe
+      - name: Install CUDA
+        # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
+        run: .\cuda_12.1.0_windows_network.exe -s nvcc_12.1 cudart_12.1
+      - name: Install MSys2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          msystem: UCRT64
+          install: >-
+              gzip
+              tar
+              unzip
+              wget
+      - name: Install boost
+        shell: msys2 {0}
+        run: |
+            cd /d/a
+            wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+            tar xf boost_*.tar.gz
+            rm boost_*.tar.gz
+            mv boost_* boost
+            cd boost
+            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
+            ./bootstrap.bat
+            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage || true
+            mkdir -p /d/lincs-deps/include /d/lincs-deps/lib
+            cp -r boost /d/lincs-deps/include
+            cp -r stage/lib/* /d/lincs-deps/lib
+      - name: Install OR-Tools
+        shell: msys2 {0}
+        run: |
+            cd /d/a
+            wget https://github.com/google/or-tools/releases/download/v8.2/or-tools_VisualStudio2019-64bit_v8.2.8710.zip
+            unzip or-tools_*.zip
+            rm or-tools_*.zip
+            cd or-tools_*
+            cp -r include/* /d/lincs-deps/include
+            cp -r lib/* /d/lincs-deps/lib
+
+      - name: Dowload the source distribution from GitHub Actions artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: source-dist
+      - name: Unzip the source distribution
+        shell: msys2 {0}
+        run: |
+            tar xf *.tar.gz
+            rm *.tar.gz
+
+      - name: Build the wheel
+        run: python -m build --wheel --outdir local-dist (get-item lincs-*)
+        env:
+          LINCS_DEV_FORCE_NVCC: "true"
+          LINCS_DEV_DEPENDENCIES: d:\lincs-deps
+          LINCS_DEV_VC_VERSION: 142
+      - name: Make the wheel machine-independent
+        run: delvewheel repair --strip (get-item local-dist\*.whl) --wheel-dir dist --add-path d:\lincs-deps\lib
+      - name: Check the wheel
+        run: twine check (get-item dist\*.whl)
+
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-windows
+          path: dist
