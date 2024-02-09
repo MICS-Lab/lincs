@@ -96,9 +96,6 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     // Breed
     // @todo(Feature, later) Keep the best model and reinit half of the others
     breeding_strategy.breed();
-    // @todo(Feature, now) Put this call to 'optimize_weights' inside the breeding strategy
-    // to avoid optimizing all the weights: only the weights of the new models need to be optimized
-    weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
 
     // Observe
     for (auto observer : observers) {

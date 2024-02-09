@@ -13,10 +13,12 @@ class ReinitializeLeastAccurate : public LearnMrsortByWeightsProfilesBreed::Bree
   explicit ReinitializeLeastAccurate(
     LearningData& learning_data_,
     LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy& profiles_initialization_strategy_,
+    LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy& weights_optimization_strategy_,
     unsigned count_
   ) :
     learning_data(learning_data_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
+    weights_optimization_strategy(weights_optimization_strategy_),
     count(count_)
   {}
 
@@ -26,6 +28,7 @@ class ReinitializeLeastAccurate : public LearnMrsortByWeightsProfilesBreed::Bree
  private:
   LearningData& learning_data;
   LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy& profiles_initialization_strategy;
+  LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy& weights_optimization_strategy;
   unsigned count;
 };
 

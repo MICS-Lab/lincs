@@ -207,7 +207,7 @@ learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learn
 profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
 profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, count=4)
 termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 ```
 
@@ -1140,7 +1140,7 @@ learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learn
 profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
 profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, count=4)
 termination_strategy = lc.TerminateAfterIterations(learning_data, max_iterations_count=1)
 
 lc.LearnMrsortByWeightsProfilesBreed(
@@ -1320,7 +1320,7 @@ We can now pass it to a learning and perform that learning to observe its effect
 profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
 profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, count=4)
 termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 observer = VerboseObserver(learning_data)
 
@@ -1372,7 +1372,7 @@ learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learn
 profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
 weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
 profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, count=4)
 termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 observer = IntermediatesObserver(problem, learning_data)
 
@@ -1593,17 +1593,14 @@ improve_profiles 0 9
 optimize_weights 0 9
 terminate
 breed
-optimize_weights 0 9
 improve_profiles 0 9
 optimize_weights 0 9
 terminate
 breed
-optimize_weights 0 9
 improve_profiles 0 9
 optimize_weights 0 9
 terminate
 breed
-optimize_weights 0 9
 improve_profiles 0 9
 optimize_weights 0 9
 terminate

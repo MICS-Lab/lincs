@@ -306,10 +306,10 @@ void define_learning_classes() {
     "The breeding strategy described in Olivier Sobrie's PhD thesis: re-initializes ``count`` in-progress models.",
     bp::no_init
   )
-    .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&, unsigned>(
-      (bp::arg("self"), "learning_data", "profiles_initialization_strategy", "count"),
-      "Constructor. Keeps references to the profiles initialization strategy and the learning data."
-    )[bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3>>()])
+    .def(bp::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&, lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&, lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy&, unsigned>(
+      (bp::arg("self"), "learning_data", "profiles_initialization_strategy", "weights_optimization_strategy", "count"),
+      "Constructor. Keeps references to the strategies and the learning data."
+    )[bp::with_custodian_and_ward<1, 2, bp::with_custodian_and_ward<1, 3, bp::with_custodian_and_ward<1, 4>>>()])
     .def(
       "breed",
       &lincs::ReinitializeLeastAccurate::breed,

@@ -925,7 +925,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
@@ -972,7 +972,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
         observer = MyObserver(learning_data)
         observers = [observer]
@@ -1008,7 +1008,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = TerminateAfterIterations(learning_data, 1)
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
@@ -1039,7 +1039,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         my_termination_strategy = MyTerminationStrategy()
         termination_strategy = TerminateWhenAny([my_termination_strategy, TerminateAtAccuracy(learning_data, len(learning_set.alternatives))])
         learned_model = LearnMrsortByWeightsProfilesBreed(
@@ -1090,9 +1090,9 @@ class LearningTestCase(unittest.TestCase):
                 return self.strategy.improve_profiles(begin, end)
 
         class MyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
-            def __init__(self, learning_data, profiles_initialization_strategy, count):
+            def __init__(self, learning_data, profiles_initialization_strategy, weights_optimization_strategy, count):
                 super().__init__()
-                self.strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+                self.strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, count)
                 self.called_count = 0
 
             def breed(self):
@@ -1113,7 +1113,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = MyProfileInitializationStrategy(learning_data)
         weights_optimization_strategy = MyWeightsOptimizationStrategy(learning_data)
         profiles_improvement_strategy = MyProfilesImprovementStrategy(learning_data)
-        breeding_strategy = MyBreedingStrategy(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = MyBreedingStrategy(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = MyTerminationStrategy(learning_data)
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
@@ -1235,17 +1235,14 @@ class LearningTestCase(unittest.TestCase):
             ("optimize_weights", 0, 9),
             ("terminate",),
             ("breed",),
-            ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
             ("optimize_weights", 0, 9),
             ("terminate",),
             ("breed",),
-            ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
             ("optimize_weights", 0, 9),
             ("terminate",),
             ("breed",),
-            ("optimize_weights", 0, 9),
             ("improve_profiles", 0, 9),
             ("optimize_weights", 0, 9),
             ("terminate",),
@@ -1286,7 +1283,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
         observer = MyObserver(learning_data)
         LearnMrsortByWeightsProfilesBreed(
@@ -1311,7 +1308,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingAlglib(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,
@@ -1341,7 +1338,7 @@ class LearningTestCase(unittest.TestCase):
         profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
         weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
         profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
-        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, weights_optimization_strategy, 4)
         termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
         learned_model = LearnMrsortByWeightsProfilesBreed(
             learning_data,

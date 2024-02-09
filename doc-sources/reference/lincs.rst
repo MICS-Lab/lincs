@@ -920,9 +920,9 @@
 
             The breeding strategy described in Olivier Sobrie's PhD thesis: re-initializes ``count`` in-progress models.
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, count: int)
+            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, count: int)
 
-                Constructor. Keeps references to the profiles initialization strategy and the learning data.
+                Constructor. Keeps references to the strategies and the learning data.
 
             .. method:: breed()
 
