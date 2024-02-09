@@ -113,7 +113,7 @@ def main(
     python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
     if single_python_version:
         python_versions = [python_versions[0]]  # Use the lowest version to ensure backward compatibility
-        os.environ["LINCS_DEV_PYTHON_VERSIONS"] = python_versions[0]
+    os.environ["LINCS_DEV_PYTHON_VERSIONS"] = " ".join(python_versions)
 
     shutil.rmtree("build", ignore_errors=True)
 

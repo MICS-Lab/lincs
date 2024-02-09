@@ -88,7 +88,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       sudo
 
 # Python versions
-ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11"
+ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11 3.12"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,from=download-get-pip,source=/download,target=/download \
@@ -162,7 +162,8 @@ RUN --mount=type=bind,from=download-patchelf,source=/download,target=/download \
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       click~=8.1 \
-      matplotlib~=3.5 \
+      matplotlib~=3.7 \
+      six~=1.16 \
     || exit 1; done
 
 # Finalization
@@ -178,7 +179,7 @@ ENV PATH=/home/user/.local/bin:$PATH:/usr/local/cuda-12.1/bin
 
 # Make sure /home/user/.local/lib/python3.8/site-packages is in sys.path
 # (useful for development/cycle.py, where 'pip install --user lincs' is run just before 'import lincs')
-RUN pip3 install --user six
+RUN pip3 install --user noop
 
 # CCache
 RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc

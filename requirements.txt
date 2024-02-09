@@ -1,4 +1,5 @@
 # Copyright 2023-2024 Vincent Jacques
 
 click~=8.1
-matplotlib~=3.5
+matplotlib~=3.7
+six~=1.16  # Not a direct dependency, but without it, six 1.14 gets installed, which fails with "No module named 'six.moves'" on Python 3.12
