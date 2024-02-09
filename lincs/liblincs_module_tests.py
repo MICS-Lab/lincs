@@ -1161,7 +1161,7 @@ class LearningTestCase(unittest.TestCase):
                 self.learning_data = learning_data
 
             def optimize_weights(self, model_indexes_begin, model_indexes_end):
-                self.log.append(("optimize_weights",))
+                self.log.append(("optimize_weights", model_indexes_begin, model_indexes_end))
                 for model_index_index in range(model_indexes_begin, model_indexes_end):
                     model_index = learning_data.model_indexes[model_index_index]
                     for criterion_index in range(self.learning_data.criteria_count):
@@ -1174,7 +1174,7 @@ class LearningTestCase(unittest.TestCase):
                 self.learning_data = learning_data
 
             def improve_profiles(self, model_indexes_begin, model_indexes_end):
-                self.log.append(("improve_profiles",))
+                self.log.append(("improve_profiles", model_indexes_begin, model_indexes_end))
                 for model_index_index in range(model_indexes_begin, model_indexes_end):
                     model_index = learning_data.model_indexes[model_index_index]
                     for boundary_index in range(self.learning_data.boundaries_count):
@@ -1230,20 +1230,20 @@ class LearningTestCase(unittest.TestCase):
 
         self.assertEqual(log, [
             ("initialize_profiles", 0, 9),
-            ("optimize_weights",),
-            ("improve_profiles",),
+            ("optimize_weights", 0, 9),
+            ("improve_profiles", 0, 9),
             ("terminate",),
             ("breed",),
-            ("optimize_weights",),
-            ("improve_profiles",),
+            ("optimize_weights", 0, 9),
+            ("improve_profiles", 0, 9),
             ("terminate",),
             ("breed",),
-            ("optimize_weights",),
-            ("improve_profiles",),
+            ("optimize_weights", 0, 9),
+            ("improve_profiles", 0, 9),
             ("terminate",),
             ("breed",),
-            ("optimize_weights",),
-            ("improve_profiles",),
+            ("optimize_weights", 0, 9),
+            ("improve_profiles", 0, 9),
             ("terminate",),
         ])
 
