@@ -263,6 +263,7 @@ def push_public_version(public_version):
     subprocess.run(["git", "commit", "-m", f"Publish version {public_version}"], stdout=subprocess.DEVNULL, check=True)
     subprocess.run(["git", "tag", f"v{public_version}"], check=True)
     subprocess.run(["git", "push", f"--tags"], check=True)
+    subprocess.run(["git", "push"], check=True)
 
 
 def push_next_dev_version():
