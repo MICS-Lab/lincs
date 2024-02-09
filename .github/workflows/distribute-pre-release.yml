@@ -131,6 +131,7 @@ jobs:
       # - name: Install CUDA
       #   # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
       #   run: .\cuda_12.1.0_windows_network.exe -s nvcc_12.1 cudart_12.1
+      # Note: tried it, and it failed because 'setup.py' could not find 'nvcc' in the PATH
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
