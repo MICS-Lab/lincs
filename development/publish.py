@@ -198,6 +198,7 @@ def publish(dev_version, public_version, next_dev_version, expected_branch, dry_
         if expected_branch == "main":
             subprocess.run(["git", "checkout", "develop"], check=True)
             subprocess.run(["git", "merge", "main", "--ff-only"], check=True)
+        write_version(public_version, next_dev_version)
         push_next_dev_version()
 
 
