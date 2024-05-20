@@ -1559,6 +1559,8 @@ class LearningTestCase(unittest.TestCase):
         learnings = [
             # @todo(bug, now) Investigate and fix bug: these should all be 50.
             (make_wpb_learning(), 50),
+            (LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set), 50),
+            (LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set), 45),
             (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set), 46),
             (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set), 28),
         ]
