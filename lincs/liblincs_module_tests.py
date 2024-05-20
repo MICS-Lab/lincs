@@ -1,7 +1,9 @@
 # Copyright 2023-2024 Vincent Jacques
 
 import copy
+import io
 import pickle
+import textwrap
 import unittest
 import os
 
@@ -1431,3 +1433,139 @@ class LearningTestCase(unittest.TestCase):
 
         with self.assertRaises(LearningFailureException):
             learned_model = learning.perform()
+
+    def test_bug_found_by_laurent_cabaret_in_real_life_data(self):
+        problem = Problem.load(io.StringIO(textwrap.dedent("""\
+            kind: classification-problem
+            format_version: 1
+            criteria:
+              - name: a
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 1
+              - name: b
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 1
+              - name: c
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 1  # Setting to 2 improves accuracy. Why?
+              - name: d
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 1  # Setting to 2 improves accuracy. Why?
+              - name: e
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 4  # Setting to 5 improves accuracy. Why?
+              - name: f
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 15  # Setting to 16 improves accuracy. Why?
+              - name: g
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 15
+              - name: h
+                value_type: integer
+                preference_direction: increasing
+                min_value: 0
+                max_value: 10
+
+            ordered_categories:
+              - name: 4
+              - name: 3
+              - name: 2
+              - name: 1
+        """)))
+        learning_set = Alternatives.load(problem, io.StringIO(textwrap.dedent("""\
+            name,a,b,c,d,e,f,g,h,category
+            01,1,1,1,1,4,12,10,7,1
+            02,1,1,1,1,0,15,9,9,1
+            03,1,1,1,1,4,13,8,7,1
+            04,1,1,1,1,4,12,6,5,1
+            05,1,1,1,1,1,15,10,5,1
+            06,1,1,1,1,4,12,1,5,1
+            07,1,1,1,1,4,13,12,10,1
+            08,1,1,1,1,4,14,14,10,1
+            09,1,1,1,1,0,15,14,10,1
+            10,1,1,1,1,4,6,5,6,1
+            11,0,1,1,1,3,15,4,5,2
+            12,1,1,1,1,4,8,12,10,1
+            13,0,1,1,1,4,4,6,7,3
+            14,1,1,1,1,3,15,14,10,1
+            15,1,0,1,1,4,12,2,0,3
+            16,1,1,1,1,4,12,13,4,1
+            17,1,1,1,1,0,15,14,7,1
+            18,1,1,1,1,4,7,11,7,1
+            19,1,1,1,1,4,10,5,5,1
+            20,0,1,1,1,4,2,15,7,3
+            21,1,1,1,1,4,12,7,7,1
+            22,1,1,1,1,0,15,7,7,1
+            23,1,1,1,1,4,12,5,8,1
+            24,1,0,1,1,2,15,3,1,3
+            25,1,0,1,1,4,12,2,2,3
+            26,0,1,1,1,4,12,9,9,2
+            27,0,1,1,1,4,12,12,10,2
+            28,1,1,1,1,3,15,10,9,1
+            29,0,1,1,1,4,12,11,9,2
+            30,0,1,1,1,4,3,4,7,3
+            31,1,1,1,1,0,15,13,5,1
+            32,0,1,1,1,4,12,11,4,2
+            33,1,1,1,1,3,15,5,8,1
+            34,0,1,1,1,4,11,7,7,2
+            35,1,0,1,1,2,15,2,5,3
+            36,1,1,1,1,4,11,7,7,1
+            37,0,1,0,0,4,5,6,5,4
+            38,1,1,1,1,4,6,13,8,1
+            39,0,0,0,1,2,15,4,7,4
+            40,1,0,1,1,2,15,2,1,3
+            41,1,1,1,1,4,12,7,8,1
+            42,0,1,1,1,4,1,4,4,3
+            43,1,0,1,1,4,9,10,9,2
+            44,1,0,1,1,4,12,2,7,3
+            45,0,1,1,1,4,0,7,5,3
+            46,0,1,1,1,3,15,11,3,2
+            47,1,1,1,1,4,7,8,4,1
+            48,1,0,1,1,4,11,4,1,3
+            49,1,0,1,1,4,12,0,0,3
+            50,1,0,1,1,3,15,4,1,3
+        """)))
+
+        def make_wpb_learning():
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+            termination_strategy = TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        learnings = [
+            # @todo(bug, now) Investigate and fix bug: these should all be 50.
+            (make_wpb_learning(), 50),
+            (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set), 46),
+            (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set), 28),
+        ]
+
+        for (learning, expected_accuracy) in learnings:
+            model = learning.perform()
+
+            learning_set_copy = copy.deepcopy(learning_set)
+            classification_result = classify_alternatives(problem, model, learning_set_copy)
+            self.assertEqual(classification_result.unchanged, expected_accuracy)
