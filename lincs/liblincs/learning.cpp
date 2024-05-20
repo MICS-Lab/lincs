@@ -125,6 +125,7 @@ void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed
   CAPTURE(problem.get_ordered_categories().size());
   CAPTURE(seed);
 
+  // @todo(Project management, later) Should we use 'fixed_weights_sum'? Would it make the tests more significant? (By avoiding cases where one or a few criteria convey all the useful information)
   lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
   lincs::Alternatives learning_set = lincs::generate_classified_alternatives(problem, model, 200, seed);
   lincs::misclassify_alternatives(problem, &learning_set, 10, seed);
