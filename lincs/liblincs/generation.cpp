@@ -144,7 +144,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
         std::generate(
           column.begin(), column.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
-        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.get_preference_direction(), right, left); });
+        std::sort(column.begin(), column.end(), [&values](int left, int right) { return better_or_equal(values.get_preference_direction(), right, left); });
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
           profiles[profile_index][criterion_index] = column[profile_index];
         }
