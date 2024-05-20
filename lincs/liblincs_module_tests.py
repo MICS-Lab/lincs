@@ -1479,13 +1479,13 @@ class LearningTestCase(unittest.TestCase):
                 preference_direction: increasing
                 min_value: 0
                 max_value: 10
-
             ordered_categories:
               - name: 4
               - name: 3
               - name: 2
               - name: 1
         """)))
+
         learning_set = Alternatives.load(problem, io.StringIO(textwrap.dedent("""\
             name,a,b,c,d,e,f,g,h,category
             01,1,1,1,1,4,12,10,7,1
