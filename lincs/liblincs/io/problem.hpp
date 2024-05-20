@@ -15,6 +15,28 @@
 
 namespace lincs {
 
+/*
+Things that must change for single-peaked criteria:
+
+- 'Problem' and associated file format
+- 'Model' and associated file format
+- Python interfaces to 'Problem' and 'Model'
+- 'generate_classification_problem'
+- 'generate_mrsort_classification_model'
+- 'classify_alternatives'
+- 'lincs describe problem'
+- 'lincs describe model'
+- 'lincs visualize model [alternatives]'
+- all learning strategies
+  - WPB
+  - {,Max}SatBy{Coalitions,Separation}
+
+Things that should not need to change:
+- 'Alternatives'
+- 'generate_classified_alternatives'
+- 'misclassify_alternatives'
+*/
+
 class Criterion {
  public:
   enum class PreferenceDirection {
