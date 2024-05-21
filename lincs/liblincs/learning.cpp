@@ -23,8 +23,35 @@ const bool skip_long = env_is_true("LINCS_DEV_SKIP_LONG");
 const bool coverage = env_is_true("LINCS_DEV_COVERAGE");
 const unsigned default_seeds_count = coverage ? 1 : (skip_long ? 10 : 100);
 
+class LearningsCounter {
+ public:
+  LearningsCounter() : exact(0), non_exact(0) {}
+
+  ~LearningsCounter() {
+    if (exact != (skip_long ? 290 : 10700)) {
+      std::cerr
+        << "=====================================" << std::endl
+        << "UNEXPECTED NUMBER OF EXACT LEARNINGS: " << exact << std::endl
+        << "=====================================" << std::endl;
+    }
+    if (non_exact != (skip_long ? 120 : 4800)) {
+      std::cerr
+        << "=========================================" << std::endl
+        << "UNEXPECTED NUMBER OF NON-EXACT LEARNINGS: " << non_exact << std::endl
+        << "=========================================" << std::endl;
+    }
+  }
+
+ public:
+  unsigned exact;
+  unsigned non_exact;
+};
+
+LearningsCounter learnings_counter;
+
 template<typename T>
 void check_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
+  ++learnings_counter.exact;
   CAPTURE(problem.get_criteria().size());
   CAPTURE(problem.get_ordered_categories().size());
   CAPTURE(seed);
@@ -121,6 +148,7 @@ void check_exact_discrete_learning(
 
 template<typename T>
 void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
+  ++learnings_counter.non_exact;
   CAPTURE(problem.get_criteria().size());
   CAPTURE(problem.get_ordered_categories().size());
   CAPTURE(seed);
