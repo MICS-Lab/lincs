@@ -14,6 +14,10 @@ class MaxSatCoalitionsUcncsLearning {
  public:
   template<class... U>
   MaxSatCoalitionsUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
+    #ifndef NDEBUG
+    input_problem(problem),
+    input_learning_set(learning_set_),
+    #endif
     learning_set(problem, learning_set_),
     coalitions_count(1 << learning_set.criteria_count),
     goal_weight(1),
@@ -40,6 +44,10 @@ class MaxSatCoalitionsUcncsLearning {
   Model decode(const std::vector<bool>& solution);
 
  private:
+  #ifndef NDEBUG
+  const Problem& input_problem;
+  const Alternatives& input_learning_set;
+  #endif
   PreProcessedLearningSet learning_set;
   const unsigned coalitions_count;
   typedef boost::dynamic_bitset<> Coalition;

@@ -26,6 +26,8 @@ struct ClassificationResult {
 
 ClassificationResult classify_alternatives(const Problem&, const Model&, Alternatives*);
 
+unsigned count_correctly_classified_alternatives(const Problem&, const Model&, const Alternatives&);
+
 }  // namespace lincs
 
 #endif  // LINCS__CLASSIFICATION_HPP

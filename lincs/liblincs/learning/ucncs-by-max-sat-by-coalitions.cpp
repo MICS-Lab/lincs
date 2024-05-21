@@ -7,6 +7,7 @@
 #include <type_traits>
 
 #include "../chrones.hpp"
+#include "../classification.hpp"
 #include "../sat/eval-max-sat.hpp"
 #include "exception.hpp"
 
@@ -236,7 +237,20 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));
   }
 
-  return learning_set.post_process(boundaries);
+  const Model model = learning_set.post_process(boundaries);
+  #ifndef NDEBUG
+  unsigned expected_correct_count = 0;
+  for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives_count; ++alternative_index) {
+    if (solution[correct[alternative_index]]) {
+      ++expected_correct_count;
+    }
+  }
+  // @todo(bug, now) Replace with a plain assert (when we don't need to catch it from the Python unit-tests anymore)
+  if (count_correctly_classified_alternatives(input_problem, model, input_learning_set) != expected_correct_count) {
+    throw LearningFailureException();
+  }
+  #endif
+  return model;
 }
 
 template class MaxSatCoalitionsUcncsLearning<EvalmaxsatMaxSatProblem>;

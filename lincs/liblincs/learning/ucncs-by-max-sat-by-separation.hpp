@@ -14,6 +14,10 @@ class MaxSatSeparationUcncsLearning {
  public:
   template<class... U>
   MaxSatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
+    #ifndef NDEBUG
+    input_problem(problem),
+    input_learning_set(learning_set_),
+    #endif
     learning_set(problem, learning_set_),
     subgoal_weight(1),
     goal_weight(learning_set.boundaries_count * learning_set.alternatives_count),
@@ -36,6 +40,10 @@ class MaxSatSeparationUcncsLearning {
   Model decode(const std::vector<bool>& solution);
 
  private:
+  #ifndef NDEBUG
+  const Problem& input_problem;
+  const Alternatives& input_learning_set;
+  #endif
   PreProcessedLearningSet learning_set;
   const typename MaxSatProblem::weight_type subgoal_weight;
   const typename MaxSatProblem::weight_type goal_weight;

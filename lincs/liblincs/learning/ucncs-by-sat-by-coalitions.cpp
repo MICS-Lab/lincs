@@ -7,6 +7,7 @@
 #include <type_traits>
 
 #include "../chrones.hpp"
+#include "../classification.hpp"
 #include "../sat/minisat.hpp"
 #include "exception.hpp"
 
@@ -243,7 +244,14 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     boundaries.emplace_back(profile_ranks, SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));
   }
 
-  return learning_set.post_process(boundaries);
+  const Model model = learning_set.post_process(boundaries);
+  #ifndef NDEBUG
+  // @todo(bug, now) Replace with a plain assert (when we don't need to catch it from the Python unit-tests anymore)
+  if (count_correctly_classified_alternatives(input_problem, model, input_learning_set) != learning_set.alternatives_count) {
+    throw LearningFailureException();
+  }
+  #endif
+  return model;
 }
 
 template class SatCoalitionsUcncsLearning<MinisatSatProblem>;

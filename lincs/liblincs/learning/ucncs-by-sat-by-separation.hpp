@@ -14,6 +14,10 @@ class SatSeparationUcncsLearning {
  public:
   template<class... U>
   SatSeparationUcncsLearning(const Problem& problem, const Alternatives& learning_set_, U&&... u) :
+    #ifndef NDEBUG
+    input_problem(problem),
+    input_learning_set(learning_set_),
+    #endif
     learning_set(problem, learning_set_),
     better_alternative_indexes(),
     worse_alternative_indexes(),
@@ -33,6 +37,10 @@ class SatSeparationUcncsLearning {
   Model decode(const std::vector<bool>& solution);
 
  private:
+  #ifndef NDEBUG
+  const Problem& input_problem;
+  const Alternatives& input_learning_set;
+  #endif
   PreProcessedLearningSet learning_set;
   // Alternatives better than category k
   std::vector<std::vector<unsigned>> better_alternative_indexes;

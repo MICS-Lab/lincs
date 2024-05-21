@@ -95,6 +95,30 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
   return result;
 }
 
+unsigned count_correctly_classified_alternatives(const Problem& problem, const Model& model, const Alternatives& alternatives) {
+  CHRONE();
+
+  const unsigned categories_count = problem.get_ordered_categories().size();
+  const unsigned alternatives_count = alternatives.get_alternatives().size();
+
+  unsigned result = 0;
+
+  for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
+    unsigned category_index;
+    for (category_index = categories_count - 1; category_index != 0; --category_index) {
+      if (is_good_enough(problem, model, alternatives, category_index - 1, alternative_index)) {
+        break;
+      }
+    }
+
+    if (alternatives.get_alternatives()[alternative_index].get_category_index() == category_index) {
+      ++result;
+    }
+  }
+
+  return result;
+}
+
 TEST_CASE("Basic classification using weights") {
   Problem problem{
     {

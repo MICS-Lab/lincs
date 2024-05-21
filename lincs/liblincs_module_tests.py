@@ -1558,16 +1558,20 @@ class LearningTestCase(unittest.TestCase):
 
         learnings = [
             # @todo(bug, now) Investigate and fix bug: these should all be 50.
-            (make_wpb_learning(), 50),
-            (LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set), 50),
-            (LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set), 45),
-            (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set), 46),
-            (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set), 28),
+            (make_wpb_learning(), 50, True),
+            (LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set), 50, True),
+            (LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set), 45, False),
+            (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set), 46, False),
+            (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set), 28, False),
         ]
 
-        for (learning, expected_accuracy) in learnings:
-            model = learning.perform()
+        for (learning, expected_accuracy, expect_success) in learnings:
+            if expect_success:
+                model = learning.perform()
 
-            learning_set_copy = copy.deepcopy(learning_set)
-            classification_result = classify_alternatives(problem, model, learning_set_copy)
-            self.assertEqual(classification_result.unchanged, expected_accuracy)
+                learning_set_copy = copy.deepcopy(learning_set)
+                classification_result = classify_alternatives(problem, model, learning_set_copy)
+                self.assertEqual(classification_result.unchanged, expected_accuracy)
+            else:
+                with self.assertRaises(LearningFailureException):
+                    learning.perform()
