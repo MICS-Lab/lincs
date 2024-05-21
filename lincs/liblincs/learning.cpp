@@ -52,9 +52,6 @@ LearningsCounter learnings_counter;
 template<typename T>
 void check_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   ++learnings_counter.exact;
-  CAPTURE(problem.get_criteria().size());
-  CAPTURE(problem.get_ordered_categories().size());
-  CAPTURE(seed);
 
   lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
   lincs::Alternatives learning_set = lincs::generate_classified_alternatives(problem, model, 200, seed);
@@ -72,86 +69,81 @@ void check_exact_learning(const lincs::Problem& problem, const unsigned seed, co
 }
 
 template<typename T>
+void check_exact_learnings(
+  const bool always,  // @todo(Project management, now) Remove this parameter: use skip_long
+  const unsigned criteria_count,
+  const unsigned categories_count,
+  const std::vector<lincs::Criterion::PreferenceDirection>& allowed_preference_directions,
+  const std::vector<lincs::Criterion::ValueType>& allowed_value_types,
+  const std::set<unsigned> bad_seeds = {}
+) {
+  if (always || !skip_long) {
+    CAPTURE(criteria_count);
+    CAPTURE(categories_count);
+    CAPTURE(allowed_preference_directions);
+    CAPTURE(allowed_value_types);
+
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      allowed_preference_directions,
+      allowed_value_types);
+
+    for (unsigned seed = 0; seed != default_seeds_count; ++seed) {
+      CAPTURE(seed);
+      check_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
+    }
+  }
+}
+
+template<typename T>
 void check_exact_real_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
   const std::set<unsigned> bad_seeds_a = {},
   const std::set<unsigned> bad_seeds_b = {},
-  const std::set<unsigned> bad_seeds_c = {},
-  const unsigned seeds_count = default_seeds_count
+  const std::set<unsigned> bad_seeds_c = {}
 ) {
-  std::string kind;
-  if (!skip_long) {
-    kind = "increasing";
-    CAPTURE(kind);
-    lincs::Problem problem = lincs::generate_classification_problem(
-      criteria_count, categories_count,
-      41,
-      false,
-      {lincs::Criterion::PreferenceDirection::increasing},
-      {lincs::Criterion::ValueType::real});
+  check_exact_learnings<T>(
+    false,
+    criteria_count, categories_count,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    bad_seeds_a);
 
-    for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      check_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
-    }
-  }
+  check_exact_learnings<T>(
+    false,
+    criteria_count, categories_count,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    bad_seeds_b);
 
-  if (!skip_long) {
-    kind = "decreasing";
-    CAPTURE(kind);
-    lincs::Problem problem = lincs::generate_classification_problem(
-      criteria_count, categories_count,
-      41,
-      false,
-      {lincs::Criterion::PreferenceDirection::decreasing},
-      {lincs::Criterion::ValueType::real});
-
-    for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      check_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
-    }
-  }
-
-  if (true) {
-    kind = "both";
-    CAPTURE(kind);
-    lincs::Problem problem = lincs::generate_classification_problem(
-      criteria_count, categories_count,
-      41,
-      false,
-      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-      {lincs::Criterion::ValueType::real});
-
-    for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      check_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
-    }
-  }
+  check_exact_learnings<T>(
+    true,
+    criteria_count, categories_count,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    bad_seeds_c);
 }
 
 template<typename T>
 void check_exact_discrete_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
-  const std::set<unsigned> bad_seeds = {},
-  const unsigned seeds_count = default_seeds_count
+  const std::set<unsigned> bad_seeds = {}
 ) {
-  lincs::Problem problem = lincs::generate_classification_problem(
+  check_exact_learnings<T>(
+    true,
     criteria_count, categories_count,
-    41,
-    false,
     {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated});
-
-  for (unsigned seed = 0; seed != seeds_count; ++seed) {
-    check_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
-  }
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    bad_seeds);
 }
 
 template<typename T>
 void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   ++learnings_counter.non_exact;
-  CAPTURE(problem.get_criteria().size());
-  CAPTURE(problem.get_ordered_categories().size());
-  CAPTURE(seed);
 
   // @todo(Project management, later) Should we use 'fixed_weights_sum'? Would it make the tests more significant? (By avoiding cases where one or a few criteria convey all the useful information)
   lincs::Model model = lincs::generate_mrsort_classification_model(problem, seed);
@@ -172,59 +164,62 @@ void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed
 }
 
 template<typename T>
+void check_non_exact_learnings(
+  const bool always,  // @todo(Project management, now) Remove this parameter: use skip_long
+  const unsigned criteria_count,
+  const unsigned categories_count,
+  const std::vector<lincs::Criterion::PreferenceDirection>& allowed_preference_directions,
+  const std::vector<lincs::Criterion::ValueType>& allowed_value_types,
+  const std::set<unsigned> bad_seeds = {}
+) {
+  if (always || !skip_long) {
+    CAPTURE(criteria_count);
+    CAPTURE(categories_count);
+    CAPTURE(allowed_preference_directions);
+    CAPTURE(allowed_value_types);
+
+    lincs::Problem problem = lincs::generate_classification_problem(
+      criteria_count, categories_count,
+      41,
+      false,
+      allowed_preference_directions,
+      allowed_value_types);
+
+    for (unsigned seed = 0; seed != default_seeds_count; ++seed) {
+      CAPTURE(seed);
+      check_non_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
+    }
+  }
+}
+
+template<typename T>
 void check_non_exact_real_learning(
   const unsigned criteria_count,
   const unsigned categories_count,
   std::set<unsigned> bad_seeds_a = {},
   std::set<unsigned> bad_seeds_b = {},
-  std::set<unsigned> bad_seeds_c = {},
-  const unsigned seeds_count = default_seeds_count
+  std::set<unsigned> bad_seeds_c = {}
 ) {
-  std::string kind;
-  if (!skip_long) {
-    kind = "increasing";
-    CAPTURE(kind);
-    lincs::Problem problem = lincs::generate_classification_problem(
-      criteria_count, categories_count,
-      41,
-      false,
-      {lincs::Criterion::PreferenceDirection::increasing},
-      {lincs::Criterion::ValueType::real});
+  check_non_exact_learnings<T>(
+    false,
+    criteria_count, categories_count,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    bad_seeds_a);
 
-    for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      check_non_exact_learning<T>(problem, seed, bad_seeds_a.find(seed) == bad_seeds_a.end());
-    }
-  }
+  check_non_exact_learnings<T>(
+    false,
+    criteria_count, categories_count,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    bad_seeds_b);
 
-  if (!skip_long) {
-    kind = "decreasing";
-    CAPTURE(kind);
-    lincs::Problem problem = lincs::generate_classification_problem(
-      criteria_count, categories_count,
-      41,
-      false,
-      {lincs::Criterion::PreferenceDirection::decreasing},
-      {lincs::Criterion::ValueType::real});
-
-    for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      check_non_exact_learning<T>(problem, seed, bad_seeds_b.find(seed) == bad_seeds_b.end());
-    }
-  }
-
-  if (true) {
-    kind = "both";
-    CAPTURE(kind);
-    lincs::Problem problem = lincs::generate_classification_problem(
-      criteria_count, categories_count,
-      41,
-      false,
-      {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-      {lincs::Criterion::ValueType::real});
-
-    for (unsigned seed = 0; seed != seeds_count; ++seed) {
-      check_non_exact_learning<T>(problem, seed, bad_seeds_c.find(seed) == bad_seeds_c.end());
-    }
-  }
+  check_non_exact_learnings<T>(
+    true,
+    criteria_count, categories_count,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    bad_seeds_c);
 }
 
 template<typename T>
@@ -234,16 +229,12 @@ void check_non_exact_discrete_learning(
   std::set<unsigned> bad_seeds = {},
   const unsigned seeds_count = default_seeds_count
 ) {
-  lincs::Problem problem = lincs::generate_classification_problem(
+  check_non_exact_learnings<T>(
+    true,
     criteria_count, categories_count,
-    41,
-    false,
     {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated});
-
-  for (unsigned seed = 0; seed != seeds_count; ++seed) {
-    check_non_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
-  }
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    bad_seeds);
 }
 
 struct AccuracyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
