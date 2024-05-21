@@ -98,50 +98,6 @@ void check_exact_learnings(
 }
 
 template<typename T>
-void check_exact_real_learning(
-  const unsigned criteria_count,
-  const unsigned categories_count,
-  const std::set<unsigned> bad_seeds_a = {},
-  const std::set<unsigned> bad_seeds_b = {},
-  const std::set<unsigned> bad_seeds_c = {}
-) {
-  check_exact_learnings<T>(
-    false,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::increasing},
-    {lincs::Criterion::ValueType::real},
-    bad_seeds_a);
-
-  check_exact_learnings<T>(
-    false,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::real},
-    bad_seeds_b);
-
-  check_exact_learnings<T>(
-    true,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::real},
-    bad_seeds_c);
-}
-
-template<typename T>
-void check_exact_discrete_learning(
-  const unsigned criteria_count,
-  const unsigned categories_count,
-  const std::set<unsigned> bad_seeds = {}
-) {
-  check_exact_learnings<T>(
-    true,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
-    bad_seeds);
-}
-
-template<typename T>
 void check_non_exact_learning(const lincs::Problem& problem, const unsigned seed, const bool should_succeed) {
   ++learnings_counter.non_exact;
 
@@ -190,51 +146,6 @@ void check_non_exact_learnings(
       check_non_exact_learning<T>(problem, seed, bad_seeds.find(seed) == bad_seeds.end());
     }
   }
-}
-
-template<typename T>
-void check_non_exact_real_learning(
-  const unsigned criteria_count,
-  const unsigned categories_count,
-  std::set<unsigned> bad_seeds_a = {},
-  std::set<unsigned> bad_seeds_b = {},
-  std::set<unsigned> bad_seeds_c = {}
-) {
-  check_non_exact_learnings<T>(
-    false,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::increasing},
-    {lincs::Criterion::ValueType::real},
-    bad_seeds_a);
-
-  check_non_exact_learnings<T>(
-    false,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::real},
-    bad_seeds_b);
-
-  check_non_exact_learnings<T>(
-    true,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::real},
-    bad_seeds_c);
-}
-
-template<typename T>
-void check_non_exact_discrete_learning(
-  const unsigned criteria_count,
-  const unsigned categories_count,
-  std::set<unsigned> bad_seeds = {},
-  const unsigned seeds_count = default_seeds_count
-) {
-  check_non_exact_learnings<T>(
-    true,
-    criteria_count, categories_count,
-    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
-    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
-    bad_seeds);
 }
 
 struct AccuracyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
@@ -441,114 +352,1024 @@ class AlglibWpbWrapper {
 }  // namespace
 
 TEST_CASE("Basic (and GPU) WPB learning - real criteria") {
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(1, 2);
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(3, 2);
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(1, 3);
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - real criteria - long" * doctest::skip(skip_long)) {
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(7, 2, {}, {}, {41});
-  check_exact_real_learning<BasicWpb<200>::Wrapper>(4, 3, {5, 59}, {}, {55});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {41});
+
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {5, 59});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {55});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - discrete criteria") {
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(1, 2);
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(3, 2, {6});
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(1, 3);
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {});
+
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {6});
+
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::skip(skip_long)) {
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(7, 2, {11});
-  check_exact_discrete_learning<BasicWpb<200>::Wrapper>(4, 3, {14});
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {11});
+
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {14});
 }
 
 TEST_CASE("Alglib WPB learning - real criteria") {
-  check_exact_real_learning<AlglibWpbWrapper>(1, 2);
-  check_exact_real_learning<AlglibWpbWrapper>(3, 2);
-  check_exact_real_learning<AlglibWpbWrapper>(1, 3);
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Alglib WPB learning - real criteria - long" * doctest::skip(skip_long)) {
-  check_exact_real_learning<AlglibWpbWrapper>(7, 2, {}, {48}, {});
-  check_exact_real_learning<AlglibWpbWrapper>(4, 3, {55, 59}, {}, {5, 55});
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {48});
+  check_exact_learnings<AlglibWpbWrapper>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {55, 59});
+  check_exact_learnings<AlglibWpbWrapper>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<AlglibWpbWrapper>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {5, 55});
 }
 
 TEST_CASE("SAT by coalitions using Minisat learning - real criteria") {
-  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 2);
-  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 2);
-  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(7, 2);
-  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(1, 3);
-  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(4, 3);
-  check_exact_real_learning<LearnUcncsBySatByCoalitionsUsingMinisat>(3, 5);
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
+    true,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - real criteria - exact") {
-  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
-  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
-  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
-  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
-  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
-  check_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - real criteria - non-exact") {
-  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 2);
-  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 2);
-  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(1, 3);
-  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(4, 3);
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by coalitions using EvalMaxSat learning - real criteria - non-exact - long" * doctest::skip(skip_long)) {
-  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(7, 2);
-  check_non_exact_real_learning<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(3, 5);
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat>(
+    true,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("SAT by separation using Minisat learning - real criteria") {
-  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 2);
-  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 2);
-  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(1, 3);
-  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(4, 3);
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("SAT by separation using Minisat learning - real criteria - long" * doctest::skip(skip_long)) {
-  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(7, 2);
-  check_exact_real_learning<LearnUcncsBySatBySeparationUsingMinisat>(3, 5);
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsBySatBySeparationUsingMinisat>(
+    true,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - exact") {
-  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
-  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
-  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
-  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - exact - long" * doctest::skip(skip_long)) {
-  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
-  check_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - non-exact") {
-  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 2);
-  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(1, 3);
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Max-SAT by separation using EvalMaxSat learning - real criteria - non-exact - long" * doctest::skip(skip_long)) {
-  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 2);
-  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(4, 3);
-  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(7, 2);
-  check_non_exact_real_learning<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(3, 5);
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    false,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<LearnUcncsByMaxSatBySeparationUsingEvalmaxsat>(
+    true,
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Non-exact WPB learning - real criteria") {
-  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 2);
-  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(3, 2, {45}, {53}, {45});
-  check_non_exact_real_learning<BasicWpb<190>::Wrapper>(1, 3);
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    false,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {45});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    false,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {53});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {45});
+
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    false,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::real},
+    {});
 }
 
 TEST_CASE("Non-exact WPB learning - discrete criteria") {
-  check_non_exact_discrete_learning<BasicWpb<190>::Wrapper>(1, 2);
-  check_non_exact_discrete_learning<BasicWpb<190>::Wrapper>(3, 2, {6});
-  check_non_exact_discrete_learning<BasicWpb<190>::Wrapper>(1, 3);
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    true,
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    true,
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {6});
+  check_non_exact_learnings<BasicWpb<190>::Wrapper>(
+    true,
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
+    {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {});
 }
 
 }  // namespace lincs
