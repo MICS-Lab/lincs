@@ -227,7 +227,9 @@ def run_cpp_tests(*, python_version, skip_long, doctest_options):
     else:
         command += ["-d"]
     command += list(doctest_options)
+    before = time.monotonic()
     subprocess.run(command, check=True, env=env)
+    print(f"[doctest] Duration: {time.monotonic() - before:.1f}s")
 
 
 def run_python_tests(*, python_version):
