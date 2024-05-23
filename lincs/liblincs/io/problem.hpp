@@ -23,9 +23,23 @@ Things that must change for single-peaked criteria:
 - 'generate_classification_problem': DONE
 - 'generate_mrsort_classification_model': DONE
 - 'classify_alternatives': DONE
-- all learning strategies
+- the pre- and post-processing: DONE
+- the testing: DONE
+- all learning strategies:
+  - SatByCoalitions
+    - change variables named 'better' to 'accepted'
+    - replace clauses about monotonous implications by clauses about three variables: accepted at low value & accepted at high value => accepted at intermediate value
   - WPB
-  - {,Max}SatBy{Coalitions,Separation}
+    - LearningData:
+      - rename 'profiles' to 'low_profiles
+      - add 'high_profiles' for single-peaked criteria
+    - Initialisation: treat low profiles exactly as if they were high profiles for a decreasing criterion, with ordering contraint between low and high profiles
+    - Weights optimisation: idem
+    - Profiles improvement: alternate between moving low and high profiles, with ordering contraints between lowest, lower, low, high, higher, highest profiles
+    - Breeding: nothing to do
+  - MaxSatByCoalitions
+  - SatBySeparation
+  - MaxSatBySeparation
 - Python interfaces to 'Problem' and 'Model'
 - Python interface to 'generate_classification_problem'
 - Python interface to 'generate_mrsort_classification_model'
@@ -37,10 +51,6 @@ Things that should not need to change:
 - 'Alternatives': INDEED
 - 'generate_classified_alternatives': INDEED
 - 'misclassify_alternatives': INDEED
-
-Questions for Vincent Mousseau:
-
-- Do we want to support single-peaked enumerated criteria?
 */
 
 class Criterion {
