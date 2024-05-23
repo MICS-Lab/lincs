@@ -9,7 +9,7 @@
 namespace lincs {
 
 struct LearningFailureException : public std::runtime_error {
- LearningFailureException() : std::runtime_error("Unable to learn from this dataset using this algorithm.") {}
+  LearningFailureException(const char* message) : std::runtime_error(message) {}
 };
 
 }  // namespace lincs

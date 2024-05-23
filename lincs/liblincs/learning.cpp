@@ -250,7 +250,7 @@ class BasicWpb {
           CHECK(*cpu_model == *gpu_model);
           return *cpu_model;
         } else {
-          throw LearningFailureException();
+          throw LearningFailureException("Both CPU and GPU failed");
         }
       } else {
         if (cpu_success) {

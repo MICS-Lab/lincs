@@ -33,7 +33,7 @@ Model SatSeparationUcncsLearning<SatProblem>::perform() {
   std::optional<std::vector<bool>> solution = sat.solve();
 
   if (!solution) {
-    throw LearningFailureException();
+    throw LearningFailureException("SatSeparation failed to find a solution.");
   }
 
   return decode(*solution);
@@ -251,7 +251,7 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   #ifndef NDEBUG
   // @todo(bug, now) Replace with a plain assert (when we don't need to catch it from the Python unit-tests anymore)
   if (count_correctly_classified_alternatives(input_problem, model, input_learning_set) != learning_set.alternatives_count) {
-    throw LearningFailureException();
+    throw LearningFailureException("The learned model failed to classify all alternatives correctly. THIS IS A BUG, please report it.");
   }
   #endif
   return model;
