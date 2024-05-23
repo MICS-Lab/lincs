@@ -20,23 +20,23 @@ Things that must change for single-peaked criteria:
 
 - 'Problem' and associated file format: DONE
 - 'Model' and associated file format: DONE
-- Python interfaces to 'Problem' and 'Model'
-- 'generate_classification_problem'
-- Python interface to 'generate_classification_problem'
-- 'generate_mrsort_classification_model'
-- Python interface to 'generate_mrsort_classification_model'
-- 'classify_alternatives'
-- 'lincs describe problem'
-- 'lincs describe model'
-- 'lincs visualize model [alternatives]'
+- 'generate_classification_problem': DONE
+- 'generate_mrsort_classification_model': DONE
+- 'classify_alternatives': DONE
 - all learning strategies
   - WPB
   - {,Max}SatBy{Coalitions,Separation}
+- Python interfaces to 'Problem' and 'Model'
+- Python interface to 'generate_classification_problem'
+- Python interface to 'generate_mrsort_classification_model'
+- 'lincs describe problem'
+- 'lincs describe model'
+- 'lincs visualize model [alternatives]'
 
 Things that should not need to change:
-- 'Alternatives'
-- 'generate_classified_alternatives'
-- 'misclassify_alternatives'
+- 'Alternatives': INDEED
+- 'generate_classified_alternatives': INDEED
+- 'misclassify_alternatives': INDEED
 
 Questions for Vincent Mousseau:
 
