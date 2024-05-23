@@ -21,20 +21,36 @@ bool better_or_equal(
   const unsigned criterion_index
 ) {
   const auto& performance = alternatives.get_alternatives()[alternative_index].get_profile()[criterion_index];
-  const auto& accepted_values = model.get_accepted_values()[criterion_index];
+  const auto& criterion = problem.get_criteria()[criterion_index];
   return dispatch(
-    problem.get_criteria()[criterion_index].get_values(),
-    [&model, &performance, &accepted_values, boundary_index](const Criterion::RealValues& values) {
-      const float threshold = accepted_values.get_real_thresholds().get_thresholds()[boundary_index];
-      return better_or_equal(values.get_preference_direction(), performance.get_real().get_value(), threshold);
+    model.get_accepted_values()[criterion_index].get(),
+    [&model, &performance, &criterion, boundary_index](const AcceptedValues::RealThresholds& accepted_values) {
+      const float value = performance.get_real().get_value();
+      const float threshold = accepted_values.get_thresholds()[boundary_index];
+      switch (criterion.get_real_values().get_preference_direction()) {
+        case Criterion::PreferenceDirection::increasing:
+          return value >= threshold;
+        case Criterion::PreferenceDirection::decreasing:
+          return value <= threshold;
+      }
+      unreachable();
     },
-    [&model, &performance, &accepted_values, boundary_index](const Criterion::IntegerValues& values) {
-      const int threshold = accepted_values.get_integer_thresholds().get_thresholds()[boundary_index];
-      return better_or_equal(values.get_preference_direction(), performance.get_integer().get_value(), threshold);;
+    [&model, &performance, &criterion, boundary_index](const AcceptedValues::IntegerThresholds& accepted_values) {
+      const int value = performance.get_integer().get_value();
+      const int threshold = accepted_values.get_thresholds()[boundary_index];
+      switch (criterion.get_integer_values().get_preference_direction()) {
+        case Criterion::PreferenceDirection::increasing:
+          return value >= threshold;
+        case Criterion::PreferenceDirection::decreasing:
+          return value <= threshold;
+      }
+      unreachable();
     },
-    [&model, &performance, &accepted_values, boundary_index](const Criterion::EnumeratedValues& values) {
-      const std::string threshold_enum = accepted_values.get_enumerated_thresholds().get_thresholds()[boundary_index];
-      return values.get_value_ranks().at(performance.get_enumerated().get_value()) >= values.get_value_ranks().at(threshold_enum);
+    [&model, &performance, &criterion, boundary_index](const AcceptedValues::EnumeratedThresholds& accepted_values) {
+      const auto& ranks = criterion.get_enumerated_values().get_value_ranks();
+      const std::string& value = performance.get_enumerated().get_value();
+      const std::string& threshold = accepted_values.get_thresholds()[boundary_index];
+      return ranks.at(value) >= ranks.at(threshold);
     }
   );
 }

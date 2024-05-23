@@ -147,14 +147,14 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
           validate(criterion_values.is_acceptable(thresholds.get_thresholds()[boundary_index]), "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding real criterion");
         }
         for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
-          validate(
-            better_or_equal(
-              criterion_values.get_preference_direction(),
-              thresholds.get_thresholds()[boundary_index],
-              thresholds.get_thresholds()[boundary_index - 1]
-            ),
-            "The real thresholds in an accepted values descriptor must be in preference order"
-          );
+          switch (criterion_values.get_preference_direction()) {
+            case Criterion::PreferenceDirection::increasing:
+              validate(thresholds.get_thresholds()[boundary_index] >= thresholds.get_thresholds()[boundary_index - 1], "The real thresholds in an accepted values descriptor must be in preference order");
+              break;
+            case Criterion::PreferenceDirection::decreasing:
+              validate(thresholds.get_thresholds()[boundary_index] <= thresholds.get_thresholds()[boundary_index - 1], "The real thresholds in an accepted values descriptor must be in preference order");
+              break;
+          }
         }
       },
       [&criterion, criterion_index, boundaries_count](const AcceptedValues::IntegerThresholds& thresholds) {
@@ -164,14 +164,14 @@ Model::Model(const Problem& problem, const std::vector<AcceptedValues>& accepted
           validate(criterion_values.is_acceptable(thresholds.get_thresholds()[boundary_index]), "Each threshold in an accepted values descriptor must be between the min and max values for the corresponding integer criterion");
         }
         for (unsigned boundary_index = 1; boundary_index != boundaries_count; ++boundary_index) {
-          validate(
-            better_or_equal(
-              criterion.get_integer_values().get_preference_direction(),
-              thresholds.get_thresholds()[boundary_index],
-              thresholds.get_thresholds()[boundary_index - 1]
-            ),
-            "The integer thresholds in an accepted values descriptor must be in preference order"
-          );
+          switch (criterion_values.get_preference_direction()) {
+            case Criterion::PreferenceDirection::increasing:
+              validate(thresholds.get_thresholds()[boundary_index] >= thresholds.get_thresholds()[boundary_index - 1], "The integer thresholds in an accepted values descriptor must be in preference order");
+              break;
+            case Criterion::PreferenceDirection::decreasing:
+              validate(thresholds.get_thresholds()[boundary_index] <= thresholds.get_thresholds()[boundary_index - 1], "The integer thresholds in an accepted values descriptor must be in preference order");
+              break;
+          }
         }
       },
       [&criterion, criterion_index, boundaries_count](const AcceptedValues::EnumeratedThresholds& thresholds) {

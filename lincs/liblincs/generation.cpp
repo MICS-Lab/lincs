@@ -132,7 +132,15 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           column.begin(), column.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
         // ... sort it according to the criterion's preference direction...
-        std::sort(column.begin(), column.end(), [&values](float left, float right) { return better_or_equal(values.get_preference_direction(), right, left); });
+        std::sort(column.begin(), column.end(), [&values](float left, float right) {
+          switch (values.get_preference_direction()) {
+            case Criterion::PreferenceDirection::increasing:
+              return left < right;
+            case Criterion::PreferenceDirection::decreasing:
+              return left > right;
+          }
+          unreachable();
+        });
         // ... and assign that column across all profiles.
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
           profiles[profile_index][criterion_index] = column[profile_index];
@@ -144,7 +152,15 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
         std::generate(
           column.begin(), column.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
-        std::sort(column.begin(), column.end(), [&values](int left, int right) { return better_or_equal(values.get_preference_direction(), right, left); });
+        std::sort(column.begin(), column.end(), [&values](int left, int right) {
+          switch (values.get_preference_direction()) {
+            case Criterion::PreferenceDirection::increasing:
+              return left < right;
+            case Criterion::PreferenceDirection::decreasing:
+              return left > right;
+          }
+          unreachable();
+        });
         for (unsigned profile_index = 0; profile_index != boundaries_count; ++profile_index) {
           profiles[profile_index][criterion_index] = column[profile_index];
         }
