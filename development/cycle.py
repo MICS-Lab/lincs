@@ -48,6 +48,18 @@ import yaml
     help="Skip long unit tests to save time.",
 )
 @click.option(
+    "--skip-wpb-unit", is_flag=True,
+    help="Skip WPB learnings unit tests to save time.",
+)
+@click.option(
+    "--skip-sat-unit", is_flag=True,
+    help="Skip SAT-based learnings unit tests to save time.",
+)
+@click.option(
+    "--skip-max-sat-unit", is_flag=True,
+    help="Skip Max-SAT-based learnings unit tests to save time.",
+)
+@click.option(
     "--skip-cpp-unit", is_flag=True,
     help="Skip C++ unit tests to save time.",
 )
@@ -89,6 +101,9 @@ def main(
     unit_coverage,
     skip_unit,
     skip_long_unit,
+    skip_wpb_unit,
+    skip_sat_unit,
+    skip_max_sat_unit,
     skip_cpp_unit,
     skip_python_unit,
     skip_install,
@@ -140,7 +155,14 @@ def main(
 
         if not skip_cpp_unit:
             print_title("Running C++ unit tests")
-            run_cpp_tests(python_version=python_versions[0], skip_long=skip_long_unit, doctest_options=doctest_option)
+            run_cpp_tests(
+                python_version=python_versions[0],
+                skip_long=skip_long_unit,
+                skip_wpb=skip_wpb_unit,
+                skip_sat=skip_sat_unit,
+                skip_max_sat=skip_max_sat_unit,
+                doctest_options=doctest_option,
+            )
             print()
 
         if not skip_python_unit:
@@ -209,7 +231,7 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, python_version, skip_long, doctest_options):
+def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_sat, skip_max_sat, doctest_options):
     suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
@@ -222,12 +244,20 @@ def run_cpp_tests(*, python_version, skip_long, doctest_options):
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
     command = ["/tmp/lincs-tests"]
+    if skip_wpb:
+        env["LINCS_DEV_SKIP_WPB"] = "true"
+    if skip_sat:
+        env["LINCS_DEV_SKIP_SAT"] = "true"
+    if skip_max_sat:
+        env["LINCS_DEV_SKIP_MAX_SAT"] = "true"
     if skip_long:
         env["LINCS_DEV_SKIP_LONG"] = "true"
     else:
         command += ["-d"]
     command += list(doctest_options)
+    before = time.monotonic()
     subprocess.run(command, check=True, env=env)
+    print(f"[doctest] Duration: {time.monotonic() - before:.1f}s")
 
 
 def run_python_tests(*, python_version):
