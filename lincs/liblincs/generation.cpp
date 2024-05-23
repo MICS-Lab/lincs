@@ -211,7 +211,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
     accepted_values.push_back(dispatch(
       problem.get_criteria()[criterion_index].get_values(),
       [boundaries_count, &profiles, criterion_index](const Criterion::RealValues&) {
-          std::vector<float> thresholds;
+          std::vector<std::optional<float>> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
             thresholds.push_back(std::get<float>(profiles[boundary_index][criterion_index]));
@@ -219,7 +219,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           return AcceptedValues(AcceptedValues::RealThresholds(thresholds));
       },
       [boundaries_count, &profiles, criterion_index](const Criterion::IntegerValues&) {
-          std::vector<int> thresholds;
+          std::vector<std::optional<int>> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
             thresholds.push_back(std::get<int>(profiles[boundary_index][criterion_index]));
@@ -227,7 +227,7 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           return AcceptedValues(AcceptedValues::IntegerThresholds(thresholds));
       },
       [boundaries_count, &profiles, criterion_index](const Criterion::EnumeratedValues&) {
-          std::vector<std::string> thresholds;
+          std::vector<std::optional<std::string>> thresholds;
           thresholds.reserve(boundaries_count);
           for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
             thresholds.push_back(std::get<std::string>(profiles[boundary_index][criterion_index]));
@@ -671,12 +671,12 @@ TEST_CASE("Random min/max") {
 
   CHECK(problem.get_criteria()[0].get_real_values().get_min_value() == doctest::Approx(-25.092));
   CHECK(problem.get_criteria()[0].get_real_values().get_max_value() == doctest::Approx(59.3086));
-  CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(6.52194));
+  CHECK(*model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(6.52194));
   CHECK(alternatives.get_alternatives()[0].get_profile()[0].get_real().get_value() == doctest::Approx(45.3692));
 
   CHECK(problem.get_criteria()[1].get_real_values().get_min_value() == doctest::Approx(-63.313));
   CHECK(problem.get_criteria()[1].get_real_values().get_max_value() == doctest::Approx(46.3988));
-  CHECK(model.get_accepted_values()[1].get_real_thresholds().get_thresholds()[0] == doctest::Approx(24.0712));
+  CHECK(*model.get_accepted_values()[1].get_real_thresholds().get_thresholds()[0] == doctest::Approx(24.0712));
   CHECK(alternatives.get_alternatives()[0].get_profile()[1].get_real().get_value() == doctest::Approx(-15.8581));
 }
 
@@ -692,8 +692,8 @@ TEST_CASE("Decreasing criterion") {
 
   CHECK(problem.get_criteria()[0].get_real_values().get_preference_direction() == Criterion::PreferenceDirection::decreasing);
   // Profiles are in decreasing order
-  CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(0.790612));
-  CHECK(model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[1] == doctest::Approx(0.377049));
+  CHECK(*model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[0] == doctest::Approx(0.790612));
+  CHECK(*model.get_accepted_values()[0].get_real_thresholds().get_thresholds()[1] == doctest::Approx(0.377049));
 
   CHECK(alternatives.get_alternatives()[0].get_profile()[0].get_real().get_value() == doctest::Approx(0.834842));
   CHECK(*alternatives.get_alternatives()[0].get_category_index() == 0);

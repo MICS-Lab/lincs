@@ -3,6 +3,8 @@
 #ifndef LINCS__IO__MODEL_HPP
 #define LINCS__IO__MODEL_HPP
 
+#include <optional>
+
 #include <boost/dynamic_bitset.hpp>
 
 #include "../internal.hpp"
@@ -15,7 +17,7 @@ class AcceptedValues {
  public:
   class RealThresholds {
    public:
-    RealThresholds(const std::vector<float>& thresholds_) : thresholds(thresholds_) {}
+    RealThresholds(const std::vector<std::optional<float>>& thresholds_) : thresholds(thresholds_) {}
 
    public:
     bool operator==(const RealThresholds& other) const {
@@ -23,15 +25,15 @@ class AcceptedValues {
     }
 
    public:
-    const std::vector<float>& get_thresholds() const { return thresholds; }
+    const std::vector<std::optional<float>>& get_thresholds() const { return thresholds; }
 
    private:
-    std::vector<float> thresholds;
+    std::vector<std::optional<float>> thresholds;
   };
 
   class IntegerThresholds {
    public:
-    IntegerThresholds(const std::vector<int>& thresholds_) : thresholds(thresholds_) {}
+    IntegerThresholds(const std::vector<std::optional<int>>& thresholds_) : thresholds(thresholds_) {}
 
    public:
     bool operator==(const IntegerThresholds& other) const {
@@ -39,15 +41,15 @@ class AcceptedValues {
     }
 
    public:
-    const std::vector<int>& get_thresholds() const { return thresholds; }
+    const std::vector<std::optional<int>>& get_thresholds() const { return thresholds; }
 
    private:
-    std::vector<int> thresholds;
+    std::vector<std::optional<int>> thresholds;
   };
 
   class EnumeratedThresholds {
    public:
-    EnumeratedThresholds(const std::vector<std::string>& thresholds_) : thresholds(thresholds_) {}
+    EnumeratedThresholds(const std::vector<std::optional<std::string>>& thresholds_) : thresholds(thresholds_) {}
 
    public:
     bool operator==(const EnumeratedThresholds& other) const {
@@ -55,10 +57,10 @@ class AcceptedValues {
     }
 
    public:
-    const std::vector<std::string>& get_thresholds() const { return thresholds; }
+    const std::vector<std::optional<std::string>>& get_thresholds() const { return thresholds; }
 
    private:
-    std::vector<std::string> thresholds;
+    std::vector<std::optional<std::string>> thresholds;
   };
 
   // WARNING: keep the enum and the variant consistent with 'Criterion::ValueType'

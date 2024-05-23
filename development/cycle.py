@@ -628,6 +628,18 @@ def make_python_reference():
                 if parameter[0] == "upset_roots":
                     assert len(parameter) == 2
                     parameter[1] = "Iterable[Iterable[int]]"
+            if path == ["lincs", "classification", "AcceptedValues", "RealThresholds", "__init__"]:
+                if parameter[0] == "thresholds":
+                    assert len(parameter) == 2
+                    parameter[1] = "Iterable[Optional[float]]"
+            if path == ["lincs", "classification", "AcceptedValues", "IntegerThresholds", "__init__"]:
+                if parameter[0] == "thresholds":
+                    assert len(parameter) == 2
+                    parameter[1] = "Iterable[Optional[int]]"
+            if path == ["lincs", "classification", "AcceptedValues", "EnumeratedThresholds", "__init__"]:
+                if parameter[0] == "thresholds":
+                    assert len(parameter) == 2
+                    parameter[1] = "Iterable[Optional[str]]"
             if path == ["lincs", "classification", "Alternative", "__init__"]:
                 if parameter[0] == "category_index":
                     assert parameter[2] == "None"

@@ -297,10 +297,7 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
       ++expected_correct_count;
     }
   }
-  // @todo(bug, now) Replace with a plain assert (when we don't need to catch it from the Python unit-tests anymore)
-  if (count_correctly_classified_alternatives(input_problem, model, input_learning_set) != expected_correct_count) {
-    throw LearningFailureException("The learned model failed to classify the expected alternatives correctly. THIS IS A BUG, please report it.");
-  }
+  assert(count_correctly_classified_alternatives(input_problem, model, input_learning_set) == expected_correct_count);
   #endif
   return model;
 }

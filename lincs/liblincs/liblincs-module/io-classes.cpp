@@ -317,7 +317,7 @@ void define_model_classes() {
     "Descriptor for thresholds for an real-valued criterion.",
     bp::no_init
   )
-    .def(bp::init<const std::vector<float>&>(
+    .def(bp::init<const std::vector<std::optional<float>>&>(
       (bp::arg("self"), "thresholds"),
       "Parameters map exactly to attributes with identical names."
     ))
@@ -336,7 +336,7 @@ void define_model_classes() {
     "Descriptor for thresholds for an integer-valued criterion.",
     bp::no_init
   )
-    .def(bp::init<const std::vector<int>&>(
+    .def(bp::init<const std::vector<std::optional<int>>&>(
       (bp::arg("self"), "thresholds"),
       "Parameters map exactly to attributes with identical names."
     ))
@@ -355,7 +355,7 @@ void define_model_classes() {
     "Descriptor for thresholds for a criterion taking enumerated values.",
     bp::no_init
   )
-    .def(bp::init<const std::vector<std::string>&>(
+    .def(bp::init<const std::vector<std::optional<std::string>>&>(
       (bp::arg("self"), "thresholds"),
       "Parameters map exactly to attributes with identical names."
     ))

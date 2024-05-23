@@ -117,35 +117,42 @@ Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBounda
     accepted_values.push_back(dispatch(
       problem.get_criteria()[criterion_index].get_values(),
       [this, &boundaries, criterion_index](const Criterion::RealValues&) {
-        std::vector<float> thresholds;
+        std::vector<std::optional<float>> thresholds;
         thresholds.reserve(boundaries_count);
         for (const auto& boundary: boundaries) {
-          unsigned rank = boundary.profile_ranks[criterion_index];
-          // Handle past-the-end rank
-          rank = std::min(rank, values_counts[criterion_index] - 1);
-          thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
+          const unsigned rank = boundary.profile_ranks[criterion_index];
+          if (rank < values_counts[criterion_index]) {
+            thresholds.push_back(real_sorted_values.at(criterion_index)[rank]);
+          } else {
+            // Past-the-end rank => this criterion cannot help reach this category
+            thresholds.push_back(std::nullopt);
+          }
         }
         return AcceptedValues(AcceptedValues::RealThresholds(thresholds));
       },
       [this, &boundaries, criterion_index](const Criterion::IntegerValues&) {
-        std::vector<int> thresholds;
+        std::vector<std::optional<int>> thresholds;
         thresholds.reserve(boundaries_count);
         for (const auto& boundary: boundaries) {
-          unsigned rank = boundary.profile_ranks[criterion_index];
-          // Handle past-the-end rank
-          rank = std::min(rank, values_counts[criterion_index] - 1);
-          thresholds.push_back(integer_sorted_values.at(criterion_index)[rank]);
+          const unsigned rank = boundary.profile_ranks[criterion_index];
+          if (rank < values_counts[criterion_index]) {
+            thresholds.push_back(integer_sorted_values.at(criterion_index)[rank]);
+          } else {
+            thresholds.push_back(std::nullopt);
+          }
         }
         return AcceptedValues(AcceptedValues::IntegerThresholds(thresholds));
       },
       [this, &boundaries, criterion_index](const Criterion::EnumeratedValues& values) {
-        std::vector<std::string> thresholds;
+        std::vector<std::optional<std::string>> thresholds;
         thresholds.reserve(boundaries_count);
         for (const auto& boundary: boundaries) {
-          unsigned rank = boundary.profile_ranks[criterion_index];
-          // Handle past-the-end rank
-          rank = std::min(rank, values_counts[criterion_index] - 1);
-          thresholds.push_back(values.get_ordered_values()[rank]);
+          const unsigned rank = boundary.profile_ranks[criterion_index];
+          if (rank < values_counts[criterion_index]) {
+            thresholds.push_back(values.get_ordered_values()[rank]);
+          } else {
+            thresholds.push_back(std::nullopt);
+          }
         }
         return AcceptedValues(AcceptedValues::EnumeratedThresholds(thresholds));
       }));

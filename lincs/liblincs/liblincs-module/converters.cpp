@@ -99,6 +99,50 @@ struct std_vector_converter<std::vector<T>> {
 };
 
 template<typename T>
+struct std_vector_converter<std::optional<T>> {
+  static PyObject* convert(const std::vector<std::optional<T>>& xs) {
+    bp::list result;
+    for (const std::optional<T>& x : xs) {
+      if (x) {
+        result.append(*x);
+      } else {
+        result.append(bp::object());
+      }
+    }
+    return bp::incref(result.ptr());
+  }
+
+  static void* convertible(PyObject* obj) {
+    if (PyObject_GetIter(obj)) {
+      return obj;
+    } else {
+      return nullptr;
+    }
+  }
+
+  static void construct(PyObject* obj, bp::converter::rvalue_from_python_stage1_data* data) {
+    bp::handle<> handle(bp::borrowed(obj));
+
+    typedef bp::converter::rvalue_from_python_storage<std::vector<std::optional<T>>> storage_type;
+    void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
+
+    typedef bp::stl_input_iterator<typename std::vector<std::optional<T>>::value_type> iterator;
+
+    new (storage) std::vector<std::optional<T>>(iterator(bp::object(handle)), iterator());
+    data->convertible = storage;
+  }
+
+  static void enroll() {
+    bp::to_python_converter<std::vector<std::optional<T>>, std_vector_converter<std::optional<T>>>();
+    bp::converter::registry::push_back(
+      &std_vector_converter<std::optional<T>>::convertible,
+      &std_vector_converter<std::optional<T>>::construct,
+      bp::type_id<std::vector<std::optional<T>>>()
+    );
+  }
+};
+
+template<typename T>
 struct std_optional_converter {
   static PyObject* convert(const std::optional<T>& value) {
     if (value) {
@@ -151,6 +195,12 @@ void enroll_standard_converters() {
   std_vector_converter<std::string>::enroll();
   bp::class_<std::vector<std::string>>("Iterable[str]").def(bp::vector_indexing_suite<std::vector<std::string>>());
 
+  std_vector_converter<std::optional<float>>::enroll();
+
+  std_vector_converter<std::optional<int>>::enroll();
+
+  std_vector_converter<std::optional<std::string>>::enroll();
+
   std_vector_converter<std::vector<unsigned>>::enroll();
 
   std_vector_converter<lincs::Category>::enroll();
@@ -194,6 +244,8 @@ void enroll_standard_converters() {
   bp::class_<std::vector<std::mt19937>>("Iterable[UniformRandomBitsGenerator]").def(bp::vector_indexing_suite<std::vector<std::mt19937>>());
 
   std_optional_converter<float>::enroll();
+  std_optional_converter<int>::enroll();
+  std_optional_converter<std::string>::enroll();
   std_optional_converter<unsigned>::enroll();
 }
 

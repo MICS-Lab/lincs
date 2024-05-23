@@ -216,21 +216,21 @@ children:
           children:
             - name: __init__
             - name: thresholds
-              type: Iterable[float]
+              type: Iterable[Optional[float]]
         - name: real_thresholds
           type: RealThresholds
         - name: IntegerThresholds
           children:
             - name: __init__
             - name: thresholds
-              type: Iterable[int]
+              type: Iterable[Optional[int]]
         - name: integer_thresholds
           type: IntegerThresholds
         - name: EnumeratedThresholds
           children:
             - name: __init__
             - name: thresholds
-              type: Iterable[str]
+              type: Iterable[Optional[str]]
         - name: enumerated_thresholds
           type: EnumeratedThresholds
     - name: SufficientCoalitions

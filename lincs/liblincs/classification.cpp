@@ -26,31 +26,43 @@ bool better_or_equal(
     model.get_accepted_values()[criterion_index].get(),
     [&model, &performance, &criterion, boundary_index](const AcceptedValues::RealThresholds& accepted_values) {
       const float value = performance.get_real().get_value();
-      const float threshold = accepted_values.get_thresholds()[boundary_index];
-      switch (criterion.get_real_values().get_preference_direction()) {
-        case Criterion::PreferenceDirection::increasing:
-          return value >= threshold;
-        case Criterion::PreferenceDirection::decreasing:
-          return value <= threshold;
+      const std::optional<float> threshold = accepted_values.get_thresholds()[boundary_index];
+      if (threshold) {
+        switch (criterion.get_real_values().get_preference_direction()) {
+          case Criterion::PreferenceDirection::increasing:
+            return value >= *threshold;
+          case Criterion::PreferenceDirection::decreasing:
+            return value <= *threshold;
+        }
+        unreachable();
+      } else {
+        return false;
       }
-      unreachable();
     },
     [&model, &performance, &criterion, boundary_index](const AcceptedValues::IntegerThresholds& accepted_values) {
       const int value = performance.get_integer().get_value();
-      const int threshold = accepted_values.get_thresholds()[boundary_index];
-      switch (criterion.get_integer_values().get_preference_direction()) {
-        case Criterion::PreferenceDirection::increasing:
-          return value >= threshold;
-        case Criterion::PreferenceDirection::decreasing:
-          return value <= threshold;
+      const std::optional<int> threshold = accepted_values.get_thresholds()[boundary_index];
+      if (threshold) {
+        switch (criterion.get_integer_values().get_preference_direction()) {
+          case Criterion::PreferenceDirection::increasing:
+            return value >= *threshold;
+          case Criterion::PreferenceDirection::decreasing:
+            return value <= *threshold;
+        }
+        unreachable();
+      } else {
+        return false;
       }
-      unreachable();
     },
     [&model, &performance, &criterion, boundary_index](const AcceptedValues::EnumeratedThresholds& accepted_values) {
       const auto& ranks = criterion.get_enumerated_values().get_value_ranks();
       const std::string& value = performance.get_enumerated().get_value();
-      const std::string& threshold = accepted_values.get_thresholds()[boundary_index];
-      return ranks.at(value) >= ranks.at(threshold);
+      const std::optional<std::string>& threshold = accepted_values.get_thresholds()[boundary_index];
+      if (threshold) {
+        return ranks.at(value) >= ranks.at(*threshold);
+      } else {
+        return false;
+      }
     }
   );
 }
@@ -268,6 +280,68 @@ TEST_CASE("Classification with decreasing criteria") {
   CHECK(alternatives.get_alternatives()[7].get_category_index() == 0);
   CHECK(result.unchanged == 0);
   CHECK(result.changed == 8);
+}
+
+TEST_CASE("Classification with unreachable thresholds") {
+  Problem problem{
+    {
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::increasing, 0, 1)),
+    },
+    {{"Cat 1"}, {"Cat 2"}, {"Cat 3"}, {"Cat 4"}},
+  };
+
+  Alternatives alternatives{problem, {
+    {"A", {Performance(Performance::Real(0.24))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.25))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.49))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.50))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.74))}, std::nullopt},
+    {"A", {Performance(Performance::Real(0.75))}, std::nullopt},
+  }};
+
+  classify_alternatives(
+    problem,
+    Model{
+      problem,
+      {
+        AcceptedValues(AcceptedValues::RealThresholds({0.25, 0.5, 0.75})),
+      },
+      {
+        SufficientCoalitions(SufficientCoalitions::Weights({1})),
+        SufficientCoalitions(SufficientCoalitions::Weights({1})),
+        SufficientCoalitions(SufficientCoalitions::Weights({1})),
+      },
+    },
+    &alternatives);
+
+  CHECK(*alternatives.get_alternatives()[0].get_category_index() == 0);
+  CHECK(*alternatives.get_alternatives()[1].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[2].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[3].get_category_index() == 2);
+  CHECK(*alternatives.get_alternatives()[4].get_category_index() == 2);
+  CHECK(*alternatives.get_alternatives()[5].get_category_index() == 3);
+
+  classify_alternatives(
+    problem,
+    Model{
+      problem,
+      {
+        AcceptedValues(AcceptedValues::RealThresholds({0.25, 0.5, std::nullopt})),
+      },
+      {
+        SufficientCoalitions(SufficientCoalitions::Weights({1})),
+        SufficientCoalitions(SufficientCoalitions::Weights({1})),
+        SufficientCoalitions(SufficientCoalitions::Weights({1})),
+      },
+    },
+    &alternatives);
+
+  CHECK(*alternatives.get_alternatives()[0].get_category_index() == 0);
+  CHECK(*alternatives.get_alternatives()[1].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[2].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[3].get_category_index() == 2);
+  CHECK(*alternatives.get_alternatives()[4].get_category_index() == 2);
+  CHECK(*alternatives.get_alternatives()[5].get_category_index() == 2);
 }
 
 }  // namespace lincs

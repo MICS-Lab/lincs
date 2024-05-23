@@ -1435,6 +1435,13 @@ class LearningTestCase(unittest.TestCase):
             learned_model = learning.perform()
 
     def test_bug_found_by_laurent_cabaret_in_real_life_data(self):
+        # Previously, in (max-)SAT learning methods, when the SAT solver returned a solution where no value was accepted
+        # for a given criterion, we used the maximum value for that criterion (as configured in the problem) as the threshold.
+        # This was incorrect, and would in rare occasions cause the resulting model to classify alternatives in a higher
+        # category that expected. To solve this issue, we had to allow "unreachable thresholds", materialized by None in
+        # Python, and null in YAML. That change broke the public interface of the library, so it required releasing a
+        # major version.
+
         problem = Problem.load(io.StringIO(textwrap.dedent("""\
             kind: classification-problem
             format_version: 1
@@ -1540,38 +1547,200 @@ class LearningTestCase(unittest.TestCase):
             50,1,0,1,1,3,15,4,1,3
         """)))
 
-        def make_wpb_learning():
-            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
-            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
-            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
-            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
-            termination_strategy = TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
-            return LearnMrsortByWeightsProfilesBreed(
-                learning_data,
-                profiles_initialization_strategy,
-                weights_optimization_strategy,
-                profiles_improvement_strategy,
-                breeding_strategy,
-                termination_strategy,
-            )
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
+        profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+        weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+        profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+        breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
+        termination_strategy = TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
+        model = LearnMrsortByWeightsProfilesBreed(learning_data, profiles_initialization_strategy, weights_optimization_strategy, profiles_improvement_strategy, breeding_strategy, termination_strategy).perform()
+        model_dump = io.StringIO()
+        model.dump(problem, model_dump)
+        self.assertEqual(model_dump.getvalue(), textwrap.dedent("""\
+            kind: ncs-classification-model
+            format_version: 1
+            accepted_values:
+              - kind: thresholds
+                thresholds: [0, 1, 1]
+              - kind: thresholds
+                thresholds: [0, 1, 1]
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [3, 3, 4]
+              - kind: thresholds
+                thresholds: [5, 5, 14]
+              - kind: thresholds
+                thresholds: [3, 9, 9]
+              - kind: thresholds
+                thresholds: [0, 1, 5]
+            sufficient_coalitions:
+              - &coalitions
+                kind: weights
+                criterion_weights: [0.166666836, 0.333332658, 0.166666836, 0.166666836, 0.166666836, 0.166666836, 0.166665822, 0]
+              - *coalitions
+              - *coalitions
+        """))
+        learning_set_copy = copy.deepcopy(learning_set)
+        classification_result = classify_alternatives(problem, model, learning_set_copy)
+        self.assertEqual(classification_result.unchanged, 50)
 
-        learnings = [
-            # @todo(bug, now) Investigate and fix bug: these should all be 50.
-            (make_wpb_learning(), 50, True),
-            (LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set), 50, True),
-            (LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set), 45, False),
-            (LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set), 46, False),
-            (LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set), 28, False),
-        ]
+        model = LearnUcncsBySatBySeparationUsingMinisat(problem, learning_set).perform()
+        model_dump = io.StringIO()
+        model.dump(problem, model_dump)
+        self.assertEqual(model_dump.getvalue(), textwrap.dedent("""\
+            kind: ncs-classification-model
+            format_version: 1
+            accepted_values:
+              - kind: thresholds
+                thresholds: [0, 0, 1]
+              - kind: thresholds
+                thresholds: [0, 1, 1]
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [1, null, null]
+              - kind: thresholds
+                thresholds: [0, 3, 3]
+              - kind: thresholds
+                thresholds: [0, 6, 6]
+              - kind: thresholds
+                thresholds: [5, 5, 5]
+              - kind: thresholds
+                thresholds: [0, 8, 10]
+            sufficient_coalitions:
+              - &coalitions
+                kind: roots
+                upset_roots:
+                  - [0, 1, 2, 4, 5]
+                  - [0, 1, 2, 5, 6]
+                  - [0, 2, 4, 5, 6, 7]
+              - *coalitions
+              - *coalitions
+        """))
+        learning_set_copy = copy.deepcopy(learning_set)
+        classification_result = classify_alternatives(problem, model, learning_set_copy)
+        self.assertEqual(classification_result.unchanged, 50)
 
-        for (learning, expected_accuracy, expect_success) in learnings:
-            if expect_success:
-                model = learning.perform()
+        model = LearnUcncsBySatByCoalitionsUsingMinisat(problem, learning_set).perform()
+        model_dump = io.StringIO()
+        model.dump(problem, model_dump)
+        self.assertEqual(model_dump.getvalue(), textwrap.dedent("""\
+            kind: ncs-classification-model
+            format_version: 1
+            accepted_values:
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [0, 1, 1]
+              - kind: thresholds
+                thresholds: [1, null, null]
+              - kind: thresholds
+                thresholds: [1, 1, null]
+              - kind: thresholds
+                thresholds: [3, 3, null]
+              - kind: thresholds
+                thresholds: [6, 9, null]
+              - kind: thresholds
+                thresholds: [0, 4, 13]
+              - kind: thresholds
+                thresholds: [0, 8, null]
+            sufficient_coalitions:
+              - &coalitions
+                kind: roots
+                upset_roots:
+                  - [0, 1]
+                  - [1, 2, 6]
+                  - [1, 4, 5, 6]
+                  - [1, 2, 4, 5, 7]
+                  - [1, 3, 4, 6, 7]
+                  - [0, 3, 4, 5, 6, 7]
+              - *coalitions
+              - *coalitions
+        """))
+        learning_set_copy = copy.deepcopy(learning_set)
+        classification_result = classify_alternatives(problem, model, learning_set_copy)
+        self.assertEqual(classification_result.unchanged, 50)
 
-                learning_set_copy = copy.deepcopy(learning_set)
-                classification_result = classify_alternatives(problem, model, learning_set_copy)
-                self.assertEqual(classification_result.unchanged, expected_accuracy)
-            else:
-                with self.assertRaises(LearningFailureException):
-                    learning.perform()
+        model = LearnUcncsByMaxSatBySeparationUsingEvalmaxsat(problem, learning_set).perform()
+        model_dump = io.StringIO()
+        model.dump(problem, model_dump)
+        self.assertEqual(model_dump.getvalue(), textwrap.dedent("""\
+            kind: ncs-classification-model
+            format_version: 1
+            accepted_values:
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [0, 1, 1]
+              - kind: thresholds
+                thresholds: [1, 1, null]
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [0, 3, 4]
+              - kind: thresholds
+                thresholds: [0, 6, 10]
+              - kind: thresholds
+                thresholds: [0, 3, 8]
+              - kind: thresholds
+                thresholds: [0, 3, 4]
+            sufficient_coalitions:
+              - &coalitions
+                kind: roots
+                upset_roots:
+                  - [0, 1, 3, 4, 7]
+                  - [0, 1, 3, 5, 7]
+                  - [0, 2, 3, 4, 5, 6, 7]
+                  - [1, 2, 3, 4, 5, 6, 7]
+              - *coalitions
+              - *coalitions
+        """))
+        learning_set_copy = copy.deepcopy(learning_set)
+        classification_result = classify_alternatives(problem, model, learning_set_copy)
+        self.assertEqual(classification_result.unchanged, 50)
+
+        model = LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat(problem, learning_set).perform()
+        model_dump = io.StringIO()
+        model.dump(problem, model_dump)
+        self.assertEqual(model_dump.getvalue(), textwrap.dedent("""\
+            kind: ncs-classification-model
+            format_version: 1
+            accepted_values:
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [1, 1, 1]
+              - kind: thresholds
+                thresholds: [1, null, null]
+              - kind: thresholds
+                thresholds: [null, null, null]
+              - kind: thresholds
+                thresholds: [3, null, null]
+              - kind: thresholds
+                thresholds: [11, 11, null]
+              - kind: thresholds
+                thresholds: [7, null, null]
+              - kind: thresholds
+                thresholds: [8, 8, null]
+            sufficient_coalitions:
+              - &coalitions
+                kind: roots
+                upset_roots:
+                  - [0, 1]
+                  - [1, 2, 4]
+                  - [1, 3, 4]
+                  - [1, 5]
+                  - [2, 5]
+                  - [3, 5]
+                  - [4, 5]
+                  - [6]
+                  - [7]
+              - *coalitions
+              - *coalitions
+        """))
+        learning_set_copy = copy.deepcopy(learning_set)
+        classification_result = classify_alternatives(problem, model, learning_set_copy)
+        self.assertEqual(classification_result.unchanged, 50)
