@@ -69,10 +69,24 @@ bool better_or_equal(
       }
     },
     [&model, &performance, &criterion, boundary_index](const AcceptedValues::RealIntervals& accepted_values) -> bool {
-      assert(false);  // @todo Implement
+      assert(criterion.get_real_values().get_preference_direction() == Criterion::PreferenceDirection::single_peaked);
+      const float value = performance.get_real().get_value();
+      const auto& interval = accepted_values.get_intervals()[boundary_index];
+      if (interval) {
+        return value >= interval->first && value <= interval->second;
+      } else {
+        return false;
+      }
     },
     [&model, &performance, &criterion, boundary_index](const AcceptedValues::IntegerIntervals& accepted_values) -> bool {
-      assert(false);  // @todo Implement
+      assert(criterion.get_integer_values().get_preference_direction() == Criterion::PreferenceDirection::single_peaked);
+      const int value = performance.get_integer().get_value();
+      const auto& interval = accepted_values.get_intervals()[boundary_index];
+      if (interval) {
+        return value >= interval->first && value <= interval->second;
+      } else {
+        return false;
+      }
     }
   );
 }
@@ -352,6 +366,58 @@ TEST_CASE("Classification with unreachable thresholds") {
   CHECK(*alternatives.get_alternatives()[3].get_category_index() == 2);
   CHECK(*alternatives.get_alternatives()[4].get_category_index() == 2);
   CHECK(*alternatives.get_alternatives()[5].get_category_index() == 2);
+}
+
+TEST_CASE("Classification with single-peaked criteria") {
+  Problem problem{
+    {
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::single_peaked, 0, 1)),
+      Criterion("Criterion 2", Criterion::IntegerValues(Criterion::PreferenceDirection::single_peaked, 0, 100)),
+    },
+    {
+      {"Bad"},
+      {"Average"},
+      {"Good"},
+      {"God-like (unreachable)"}
+    },
+  };
+
+  Model model{
+    problem,
+    {
+      AcceptedValues(AcceptedValues::RealIntervals({std::make_pair(0.2, 0.8), std::make_pair(0.4, 0.6), std::nullopt})),
+      AcceptedValues(AcceptedValues::IntegerIntervals({std::make_pair(20, 80), std::make_pair(40, 60), std::nullopt})),
+    },
+    {
+      SufficientCoalitions(SufficientCoalitions::Weights({0.5, 0.5})),
+      SufficientCoalitions(SufficientCoalitions::Weights({0.5, 0.5})),
+      SufficientCoalitions(SufficientCoalitions::Weights({0.5, 0.5})),
+    },
+  };
+
+  Alternatives alternatives{problem, {
+    {"Good on both", {Performance(Performance::Real(0.5)), Performance(Performance::Integer(50))}, std::nullopt},
+    {"Low on 1 => average", {Performance(Performance::Real(0.3)), Performance(Performance::Integer(50))}, std::nullopt},
+    {"Low on 2 => average", {Performance(Performance::Real(0.5)), Performance(Performance::Integer(30))}, std::nullopt},
+    {"Very low on 1 => bad", {Performance(Performance::Real(0.1)), Performance(Performance::Integer(50))}, std::nullopt},
+    {"Very low on 2 => bad", {Performance(Performance::Real(0.5)), Performance(Performance::Integer(10))}, std::nullopt},
+    {"High on 1 => average", {Performance(Performance::Real(0.7)), Performance(Performance::Integer(50))}, std::nullopt},
+    {"High on 2 => average", {Performance(Performance::Real(0.5)), Performance(Performance::Integer(70))}, std::nullopt},
+    {"Very high on 1 => bad", {Performance(Performance::Real(0.9)), Performance(Performance::Integer(50))}, std::nullopt},
+    {"Very high on 2 => bad", {Performance(Performance::Real(0.5)), Performance(Performance::Integer(90))}, std::nullopt},
+  }};
+
+  classify_alternatives(problem, model, &alternatives);
+
+  CHECK(*alternatives.get_alternatives()[0].get_category_index() == 2);
+  CHECK(*alternatives.get_alternatives()[1].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[2].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[3].get_category_index() == 0);
+  CHECK(*alternatives.get_alternatives()[4].get_category_index() == 0);
+  CHECK(*alternatives.get_alternatives()[5].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[6].get_category_index() == 1);
+  CHECK(*alternatives.get_alternatives()[7].get_category_index() == 0);
+  CHECK(*alternatives.get_alternatives()[8].get_category_index() == 0);
 }
 
 }  // namespace lincs
