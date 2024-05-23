@@ -9,7 +9,7 @@ This is not set in stone and can change based on the time we can spend working o
 external contributions, *etc.*
 Items listed in named versions are more likely to happen than items listed in "later versions".
 
-Version 1.2
+Version 2.0
 ===========
 
 (planned late 2024)

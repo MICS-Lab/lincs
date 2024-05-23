@@ -4,6 +4,12 @@
 Changelog
 =========
 
+Version 2.0.0a0 (2024-05-23)
+============================
+
+- **Breaking** Let some thresholds be unreachable! (Fix bug found in real-life ASA data)
+- Support Python 3.12
+
 Version 1.1.0 (2024-02-08)
 ==========================
 

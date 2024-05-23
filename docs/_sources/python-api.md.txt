@@ -1499,7 +1499,7 @@ class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.Weig
         self.learning_data = learning_data
 
     def optimize_weights(self, model_indexes_begin, model_indexes_end):
-        print("optimize_weights", file=sys.stderr)
+        print("optimize_weights", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
             model_index = learning_data.model_indexes[model_index_index]
             for criterion_index in range(self.learning_data.criteria_count):
@@ -1516,7 +1516,7 @@ class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.Prof
         self.learning_data = learning_data
 
     def improve_profiles(self, model_indexes_begin, model_indexes_end):
-        print("improve_profiles", file=sys.stderr)
+        print("improve_profiles", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
             model_index = learning_data.model_indexes[model_index_index]
             for boundary_index in range(self.learning_data.boundaries_count):
@@ -1588,20 +1588,20 @@ learned_model = lc.LearnMrsortByWeightsProfilesBreed(
 
 ```text
 initialize_profiles 0 9
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
 terminate
 breed
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
 terminate
 breed
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
 terminate
 breed
-optimize_weights
-improve_profiles
+optimize_weights 0 9
+improve_profiles 0 9
 terminate
 ```
 

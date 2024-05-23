@@ -339,12 +339,12 @@
 
                 Descriptor for thresholds for an real-valued criterion.
 
-                .. method:: __init__(thresholds: Iterable[float])
+                .. method:: __init__(thresholds: Iterable[Optional[float]])
 
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[float]
+                    :type: Iterable[Optional[float]]
 
                     The thresholds for this descriptor.
 
@@ -357,12 +357,12 @@
 
                 Descriptor for thresholds for an integer-valued criterion.
 
-                .. method:: __init__(thresholds: Iterable[int])
+                .. method:: __init__(thresholds: Iterable[Optional[int]])
 
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[int]
+                    :type: Iterable[Optional[int]]
 
                     The thresholds for this descriptor.
 
@@ -375,12 +375,12 @@
 
                 Descriptor for thresholds for a criterion taking enumerated values.
 
-                .. method:: __init__(thresholds: Iterable[str])
+                .. method:: __init__(thresholds: Iterable[Optional[str]])
 
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[str]
+                    :type: Iterable[Optional[str]]
 
                     The thresholds for this descriptor.
 
