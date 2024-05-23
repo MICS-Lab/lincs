@@ -40,7 +40,8 @@ class LearnMrsortByWeightsProfilesBreed {
     profiles_improvement_strategy(profiles_improvement_strategy_),
     breeding_strategy(breeding_strategy_),
     termination_strategy(termination_strategy_),
-    observers(observers_) {}
+    observers(observers_)
+  {}
 
  public:
   Model perform();
