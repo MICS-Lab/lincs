@@ -51,7 +51,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
-    std::vector<unsigned> boundary_profile;
+    std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> boundary_profile;
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       const unsigned profile_rank = profile_ranks[model_index][boundary_index][criterion_index];
@@ -65,6 +65,12 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {
   CHRONE();
+
+  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
+    if (learning_data.single_peaked[criterion_index]) {
+      throw LearningFailureException("WeightsProfilesBreed doesn't support single-peaked criteria.");
+    }
+  }
 
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 

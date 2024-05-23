@@ -24,6 +24,12 @@ template<typename MaxSatProblem>
 Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::perform() {
   CHRONE();
 
+  for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
+    if (learning_set.single_peaked[criterion_index]) {
+      throw LearningFailureException("MaxSatCoalitions doesn't support single-peaked criteria.");
+    }
+  }
+
   create_all_coalitions();
   create_variables();
   add_structural_constraints();
@@ -218,7 +224,7 @@ Model MaxSatCoalitionsUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
   std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-    std::vector<unsigned> profile_ranks(learning_set.criteria_count);
+    std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> profile_ranks(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
       bool found = false;
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {

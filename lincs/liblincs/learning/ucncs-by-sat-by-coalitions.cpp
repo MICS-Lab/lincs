@@ -35,6 +35,12 @@ template<typename SatProblem>
 Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   CHRONE();
 
+  for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
+    if (learning_set.single_peaked[criterion_index]) {
+      throw LearningFailureException("SatCoalitions doesn't support single-peaked criteria.");
+    }
+  }
+
   create_all_coalitions();
   create_variables();
   add_structural_constraints();
@@ -221,7 +227,7 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   std::vector<PreProcessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-    std::vector<unsigned> profile_ranks(learning_set.criteria_count);
+    std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> profile_ranks(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
       bool found = false;
       // @todo(Performance, later) Replace next loop with a binary search

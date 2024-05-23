@@ -25,6 +25,12 @@ template<typename SatProblem>
 Model SatSeparationUcncsLearning<SatProblem>::perform() {
   CHRONE();
 
+  for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
+    if (learning_set.single_peaked[criterion_index]) {
+      throw LearningFailureException("SatSeparation doesn't support single-peaked criteria.");
+    }
+  }
+
   partition_alternatives();
   create_variables();
   add_structural_constraints();
@@ -194,9 +200,9 @@ template<typename SatProblem>
 Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& solution) {
   CHRONE();
 
-  std::vector<std::vector<unsigned>> profile_ranks(learning_set.boundaries_count);
+  std::vector<std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>>> profile_ranks(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-    std::vector<unsigned>& ranks = profile_ranks[boundary_index];
+    std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>>& ranks = profile_ranks[boundary_index];
     ranks.resize(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
       bool found = false;
@@ -219,7 +225,7 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     for (unsigned good_alternative_index : better_alternative_indexes[boundary_index]) {
       boost::dynamic_bitset<> coalition(learning_set.criteria_count);
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-        const bool is_better = learning_set.performance_ranks[criterion_index][good_alternative_index] >= profile_ranks[boundary_index][criterion_index];
+        const bool is_better = learning_set.performance_ranks[criterion_index][good_alternative_index] >= std::get<unsigned>(profile_ranks[boundary_index][criterion_index]);
         if (is_better) {
           coalition.set(criterion_index);
         }
