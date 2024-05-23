@@ -33,6 +33,8 @@ bool better_or_equal(
             return value >= *threshold;
           case Criterion::PreferenceDirection::decreasing:
             return value <= *threshold;
+          case Criterion::PreferenceDirection::single_peaked:
+            assert(false);
         }
         unreachable();
       } else {
@@ -48,6 +50,8 @@ bool better_or_equal(
             return value >= *threshold;
           case Criterion::PreferenceDirection::decreasing:
             return value <= *threshold;
+          case Criterion::PreferenceDirection::single_peaked:
+            assert(false);
         }
         unreachable();
       } else {
@@ -63,6 +67,12 @@ bool better_or_equal(
       } else {
         return false;
       }
+    },
+    [&model, &performance, &criterion, boundary_index](const AcceptedValues::RealIntervals& accepted_values) -> bool {
+      assert(false);  // @todo Implement
+    },
+    [&model, &performance, &criterion, boundary_index](const AcceptedValues::IntegerIntervals& accepted_values) -> bool {
+      assert(false);  // @todo Implement
     }
   );
 }

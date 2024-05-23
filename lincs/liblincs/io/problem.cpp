@@ -37,9 +37,9 @@ properties:
               type: string
               enum: [real, integer]
             preference_direction:
-              description: May be extended in the future to handle single-peaked criteria, or criteria with unknown preference direction.
+              description: May be extended in the future to handle criteria with unknown preference direction.
               type: string
-              enum: [increasing, isotone, decreasing, antitone]
+              enum: [increasing, isotone, decreasing, antitone, single-peaked]
             min_value:
               type: number
             max_value:
@@ -97,6 +97,12 @@ JsonValidator validator(schema);
 
 }  // namespace
 
+void dump_preference_direction(YAML::Emitter& out, Criterion::PreferenceDirection preference_direction) {
+  std::string s(magic_enum::enum_name(preference_direction));
+  std::replace(s.begin(), s.end(), '_', '-');
+  out << s;
+}
+
 void Problem::dump(std::ostream& os) const {
   CHRONE();
 
@@ -120,12 +126,14 @@ void Problem::dump(std::ostream& os) const {
     dispatch(
       criterion.get_values(),
       [&out](const Criterion::RealValues& values) {
-        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.get_preference_direction()));
+        out << YAML::Key << "preference_direction" << YAML::Value;
+        dump_preference_direction(out, values.get_preference_direction());
         out << YAML::Key << "min_value" << YAML::Value << values.get_min_value();
         out << YAML::Key << "max_value" << YAML::Value << values.get_max_value();
       },
       [&out](const Criterion::IntegerValues& values) {
-        out << YAML::Key << "preference_direction" << YAML::Value << std::string(magic_enum::enum_name(values.get_preference_direction()));
+        out << YAML::Key << "preference_direction" << YAML::Value;
+        dump_preference_direction(out, values.get_preference_direction());
         out << YAML::Key << "min_value" << YAML::Value << values.get_min_value();
         out << YAML::Key << "max_value" << YAML::Value << values.get_max_value();
       },
@@ -155,7 +163,8 @@ void Problem::dump(std::ostream& os) const {
 }
 
 Criterion::PreferenceDirection load_preference_direction(const YAML::Node& node) {
-  const std::string preference_direction = node.as<std::string>();
+  std::string preference_direction = node.as<std::string>();
+  std::replace(preference_direction.begin(), preference_direction.end(), '-', '_');
   if (preference_direction == "isotone") {
     return Criterion::PreferenceDirection::increasing;
   } else if (preference_direction == "antitone") {
@@ -358,6 +367,56 @@ criteria:
   - name: Criterion 1
     value_type: enumerated
     ordered_values: [F, E, D, C, B, A]
+ordered_categories:
+  - name: Category 1
+  - name: Category 2
+)");
+
+  CHECK(Problem::load(ss) == problem);
+}
+
+TEST_CASE("dumping then loading problem preserves data - single-peaked real") {
+  Problem problem{
+    {Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::single_peaked, 0.5, 20.5))},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::stringstream ss;
+  problem.dump(ss);
+
+  CHECK(ss.str() == R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: real
+    preference_direction: single-peaked
+    min_value: 0.5
+    max_value: 20.5
+ordered_categories:
+  - name: Category 1
+  - name: Category 2
+)");
+
+  CHECK(Problem::load(ss) == problem);
+}
+
+TEST_CASE("dumping then loading problem preserves data - single-peaked integer") {
+  Problem problem{
+    {Criterion("Criterion 1", Criterion::IntegerValues(Criterion::PreferenceDirection::single_peaked, 0, 20))},
+    {{"Category 1"}, {"Category 2"}},
+  };
+
+  std::stringstream ss;
+  problem.dump(ss);
+
+  CHECK(ss.str() == R"(kind: classification-problem
+format_version: 1
+criteria:
+  - name: Criterion 1
+    value_type: integer
+    preference_direction: single-peaked
+    min_value: 0
+    max_value: 20
 ordered_categories:
   - name: Category 1
   - name: Category 2

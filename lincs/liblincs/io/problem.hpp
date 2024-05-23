@@ -18,11 +18,13 @@ namespace lincs {
 /*
 Things that must change for single-peaked criteria:
 
-- 'Problem' and associated file format
-- 'Model' and associated file format
+- 'Problem' and associated file format: DONE
+- 'Model' and associated file format: DONE
 - Python interfaces to 'Problem' and 'Model'
 - 'generate_classification_problem'
+- Python interface to 'generate_classification_problem'
 - 'generate_mrsort_classification_model'
+- Python interface to 'generate_mrsort_classification_model'
 - 'classify_alternatives'
 - 'lincs describe problem'
 - 'lincs describe model'
@@ -35,6 +37,10 @@ Things that should not need to change:
 - 'Alternatives'
 - 'generate_classified_alternatives'
 - 'misclassify_alternatives'
+
+Questions for Vincent Mousseau:
+
+- Do we want to support single-peaked enumerated criteria?
 */
 
 class Criterion {
@@ -44,7 +50,7 @@ class Criterion {
     isotone=increasing,
     decreasing,
     antitone=decreasing,
-    // @todo(Feature, v1.2) Add single-peaked
+    single_peaked,
     // @todo(Feature, later) Add unknown
   };
 
@@ -65,6 +71,8 @@ class Criterion {
     bool is_increasing() const { return preference_direction == PreferenceDirection::increasing; }
 
     bool is_decreasing() const { return preference_direction == PreferenceDirection::decreasing; }
+
+    bool is_single_peaked() const { return preference_direction == PreferenceDirection::single_peaked; }
 
     float get_min_value() const { return min_value; }
 
@@ -95,6 +103,8 @@ class Criterion {
     bool is_increasing() const { return preference_direction == PreferenceDirection::increasing; }
 
     bool is_decreasing() const { return preference_direction == PreferenceDirection::decreasing; }
+
+    bool is_single_peaked() const { return preference_direction == PreferenceDirection::single_peaked; }
 
     int get_min_value() const { return min_value; }
 

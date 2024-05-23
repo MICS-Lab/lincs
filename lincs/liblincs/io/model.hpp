@@ -4,6 +4,7 @@
 #define LINCS__IO__MODEL_HPP
 
 #include <optional>
+#include <utility>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -63,10 +64,47 @@ class AcceptedValues {
     std::vector<std::optional<std::string>> thresholds;
   };
 
-  // WARNING: keep the enum and the variant consistent with 'Criterion::ValueType'
-  // WARNING: Adding a value to the enum will require fixing 'get_value_type' (and obviously 'get_kind' and 'is_thresholds')
-  enum class Kind { thresholds };
-  typedef std::variant<RealThresholds, IntegerThresholds, EnumeratedThresholds> Self;
+  class RealIntervals {
+   public:
+    RealIntervals(const std::vector<std::optional<std::pair<float, float>>>& intervals_) : intervals(intervals_) {}
+
+   public:
+    bool operator==(const RealIntervals& other) const {
+      return intervals == other.intervals;
+    }
+
+   public:
+    const std::vector<std::optional<std::pair<float, float>>>& get_intervals() const { return intervals; }
+
+   private:
+    std::vector<std::optional<std::pair<float, float>>> intervals;
+  };
+
+  class IntegerIntervals {
+   public:
+    IntegerIntervals(const std::vector<std::optional<std::pair<int, int>>>& intervals_) : intervals(intervals_) {}
+
+   public:
+    bool operator==(const IntegerIntervals& other) const {
+      return intervals == other.intervals;
+    }
+
+   public:
+    const std::vector<std::optional<std::pair<int, int>>>& get_intervals() const { return intervals; }
+
+   private:
+    std::vector<std::optional<std::pair<int, int>>> intervals;
+  };
+
+  // WARNING: keep the enum and the variant consistent with 'Criterion::ValueType', 'get_kind', and 'get_value_type'
+  enum class Kind { thresholds, intervals };
+  typedef std::variant<
+    RealThresholds,
+    IntegerThresholds,
+    EnumeratedThresholds,
+    RealIntervals,
+    IntegerIntervals
+  > Self;
 
  public:
   AcceptedValues(const Self& self_) : self(self_) {}
@@ -83,24 +121,60 @@ class AcceptedValues {
   }
 
  public:
-  Kind get_kind() const { return Kind::thresholds; }
-  Criterion::ValueType get_value_type() const { return Criterion::ValueType(self.index()); }
+  Kind get_kind() const {
+    switch (self.index()) {
+      case 0:
+      case 1:
+      case 2:
+        return Kind::thresholds;
+      case 3:
+      case 4:
+        return Kind::intervals;
+      default:
+        unreachable();
+    }
+  }
+  Criterion::ValueType get_value_type() const {
+    switch (self.index()) {
+      case 0:
+      case 3:
+        return Criterion::ValueType::real;
+      case 1:
+      case 4:
+        return Criterion::ValueType::integer;
+      case 2:
+        return Criterion::ValueType::enumerated;
+      default:
+        unreachable();
+    }
+  }
   const Self& get() const { return self; }
 
   bool is_real() const { return get_value_type() == Criterion::ValueType::real; }
-  bool is_thresholds() const { return true; }
+  bool is_integer() const { return get_value_type() == Criterion::ValueType::integer; }
+  bool is_enumerated() const { return get_value_type() == Criterion::ValueType::enumerated; }
+
+  bool is_thresholds() const { return get_kind() == Kind::thresholds; }
+  bool is_intervals() const { return get_kind() == Kind::intervals; }
+
   const RealThresholds& get_real_thresholds() const {
     return std::get<RealThresholds>(self);
   }
 
-  bool is_integer() const { return get_value_type() == Criterion::ValueType::integer; }
   const IntegerThresholds& get_integer_thresholds() const {
     return std::get<IntegerThresholds>(self);
   }
 
-  bool is_enumerated() const { return get_value_type() == Criterion::ValueType::enumerated; }
   const EnumeratedThresholds& get_enumerated_thresholds() const {
     return std::get<EnumeratedThresholds>(self);
+  }
+
+  const RealIntervals& get_real_intervals() const {
+    return std::get<RealIntervals>(self);
+  }
+
+  const IntegerIntervals& get_integer_intervals() const {
+    return std::get<IntegerIntervals>(self);
   }
 
  private:

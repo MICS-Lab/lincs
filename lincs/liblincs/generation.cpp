@@ -138,6 +138,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
               return left < right;
             case Criterion::PreferenceDirection::decreasing:
               return left > right;
+            case Criterion::PreferenceDirection::single_peaked:
+              assert(false);
           }
           unreachable();
         });
@@ -158,6 +160,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
               return left < right;
             case Criterion::PreferenceDirection::decreasing:
               return left > right;
+            case Criterion::PreferenceDirection::single_peaked:
+              assert(false);
           }
           unreachable();
         });
