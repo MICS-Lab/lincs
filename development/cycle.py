@@ -40,6 +40,10 @@ import yaml
     help="Measure coverage of unit tests, stop right after that. Implies --single-python-version. Quite long.",
 )
 @click.option(
+    "--skip-build", is_flag=True,
+    help="Skip build to save time.",
+)
+@click.option(
     "--skip-unit", is_flag=True,
     help="Skip unit tests to save time.",
 )
@@ -99,6 +103,7 @@ def main(
     with_docs,
     single_python_version,
     unit_coverage,
+    skip_build,
     skip_unit,
     skip_long_unit,
     skip_wpb_unit,
@@ -130,8 +135,6 @@ def main(
         python_versions = [python_versions[0]]  # Use the lowest version to ensure backward compatibility
     os.environ["LINCS_DEV_PYTHON_VERSIONS"] = " ".join(python_versions)
 
-    shutil.rmtree("build", ignore_errors=True)
-
     # With lincs not installed
     ##########################
 
@@ -139,19 +142,21 @@ def main(
         if unit_coverage:
             os.environ["LINCS_DEV_COVERAGE"] = "true"
 
-        for file_name in glob.glob("liblincs.cpython-*-x86_64-linux-gnu.so"):
-            os.unlink(file_name)
-        for python_version in python_versions:
-            print_title(f"Building extension module in debug mode for Python {python_version}")
-            subprocess.run(
-                [
-                    f"python{python_version}", "setup.py", "build_ext",
-                    "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
-                    "--parallel", str(multiprocessing.cpu_count() - 1),
-                ],
-                check=True,
-            )
-            print()
+        if not skip_build:
+            shutil.rmtree("build", ignore_errors=True)
+            for file_name in glob.glob("liblincs.cpython-*-x86_64-linux-gnu.so"):
+                os.unlink(file_name)
+            for python_version in python_versions:
+                print_title(f"Building extension module in debug mode for Python {python_version}")
+                subprocess.run(
+                    [
+                        f"python{python_version}", "setup.py", "build_ext",
+                        "--inplace", "--debug", "--undef", "NDEBUG,DOCTEST_CONFIG_DISABLE",
+                        "--parallel", str(multiprocessing.cpu_count() - 1),
+                    ],
+                    check=True,
+                )
+                print()
 
         if not skip_cpp_unit:
             print_title("Running C++ unit tests")
