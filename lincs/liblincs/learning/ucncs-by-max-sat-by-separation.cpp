@@ -25,12 +25,6 @@ template<typename MaxSatProblem>
 Model MaxSatSeparationUcncsLearning<MaxSatProblem>::perform() {
   CHRONE();
 
-  for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    if (learning_set.single_peaked[criterion_index]) {
-      throw LearningFailureException("MaxSatSeparation doesn't support single-peaked criteria.");
-    }
-  }
-
   partition_alternatives();
   create_variables();
   add_structural_constraints();
@@ -68,21 +62,23 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::partition_alternatives() {
   }
 }
 
-// This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
+// This implementation was initially based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
 // specifically its section B2. That article is a summary of this thesis: https://www.theses.fr/2022UPAST071.
+// This implementation was then modified to handle single-peaked criteria (see clauses P'1 below).
+// See more comments in 'ucncs-by-sat-by-coalitions.cpp'
 
 template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::create_variables() {
   CHRONE();
 
   // Variables "a" in the article
-  better.resize(learning_set.criteria_count);
+  accepted.resize(learning_set.criteria_count);
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    better[criterion_index].resize(learning_set.boundaries_count);
+    accepted[criterion_index].resize(learning_set.boundaries_count);
     for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-      better[criterion_index][boundary_index].resize(learning_set.values_counts[criterion_index]);
+      accepted[criterion_index][boundary_index].resize(learning_set.values_counts[criterion_index]);
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
-        better[criterion_index][boundary_index][value_rank] = sat.create_variable();
+        accepted[criterion_index][boundary_index][value_rank] = sat.create_variable();
       }
     }
   }
@@ -127,27 +123,44 @@ template<typename MaxSatProblem>
 void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_structural_constraints() {
   CHRONE();
 
-  // Clauses "P'1" in the article
-  // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-      for (unsigned value_rank = 1; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
-        sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_rank - 1],
-          better[criterion_index][boundary_index][value_rank]
-        ));
+    const unsigned values_count = learning_set.values_counts[criterion_index];
+
+    if (learning_set.single_peaked[criterion_index]) {
+      if (values_count >= 3) {
+        for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
+          for (unsigned value_rank_a = 0; value_rank_a != values_count - 2; ++value_rank_a) {
+            for (unsigned value_rank_c = value_rank_a + 2; value_rank_c != values_count; ++value_rank_c) {
+              sat.add_clause({
+                -accepted[criterion_index][boundary_index][value_rank_a],
+                -accepted[criterion_index][boundary_index][value_rank_c],
+                accepted[criterion_index][boundary_index][value_rank_a + 1],
+                accepted[criterion_index][boundary_index][value_rank_c - 1],
+              });
+            }
+          }
+        }
+      }
+    } else {
+      // Clauses "P'1" in the article
+      for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
+        for (unsigned value_rank = 1; value_rank != values_count; ++value_rank) {
+          sat.add_clause(implies(
+            accepted[criterion_index][boundary_index][value_rank - 1],
+            accepted[criterion_index][boundary_index][value_rank]
+          ));
+        }
       }
     }
   }
 
   // Clauses "P'2" in the article
-  // Profiles are ordered so if a value is better than a profile, then it is also better than lower profiles
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
     for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
       for (unsigned boundary_index = 1; boundary_index != learning_set.boundaries_count; ++boundary_index) {
         sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_rank],
-          better[criterion_index][boundary_index - 1][value_rank]
+          accepted[criterion_index][boundary_index][value_rank],
+          accepted[criterion_index][boundary_index - 1][value_rank]
         ));
       }
     }
@@ -167,7 +180,7 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
           for (unsigned good_alternative_index : better_alternative_indexes[boundary_index_b]) {
             sat.add_clause(implies(
               separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
-              -better[criterion_index][boundary_index_a][bad_value_rank]
+              -accepted[criterion_index][boundary_index_a][bad_value_rank]
             ));
           }
         }
@@ -184,7 +197,7 @@ void MaxSatSeparationUcncsLearning<MaxSatProblem>::add_learning_set_constraints(
           for (unsigned bad_alternative_index : worse_alternative_indexes[boundary_index_a]) {
             sat.add_clause(implies(
               separates[criterion_index][boundary_index_a][boundary_index_b][good_alternative_index][bad_alternative_index],
-              better[criterion_index][boundary_index_b][good_value_rank]
+              accepted[criterion_index][boundary_index_b][good_value_rank]
             ));
           }
         }
@@ -242,17 +255,37 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
     std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>>& ranks = profile_ranks[boundary_index];
     ranks.resize(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-      bool found = false;
-      for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
-        if (solution[better[criterion_index][boundary_index][value_rank]]) {
-          ranks[criterion_index] = value_rank;
-          found = true;
-          break;
+      const unsigned values_count = learning_set.values_counts[criterion_index];
+      if (learning_set.single_peaked[criterion_index]) {
+        bool found = false;
+        unsigned low = 0;
+        unsigned high = values_count;
+        for (unsigned value_rank = 0; value_rank != values_count; ++value_rank) {
+          if (solution[accepted[criterion_index][boundary_index][value_rank]]) {
+            if (!found) {
+              low = value_rank;
+            }
+            found = true;
+            high = value_rank;
+          }
         }
-      }
-      if (!found) {
-        // Past-the-end rank
-        ranks[criterion_index] = learning_set.values_counts[criterion_index];
+        if (found) {
+          ranks[criterion_index] = std::make_pair(low, high);
+        } else {
+          ranks[criterion_index] = std::make_pair(values_count, values_count);
+        }
+      } else {
+        bool found = false;
+        for (unsigned value_rank = 0; value_rank != values_count; ++value_rank) {
+          if (solution[accepted[criterion_index][boundary_index][value_rank]]) {
+            ranks[criterion_index] = value_rank;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          ranks[criterion_index] = values_count;
+        }
       }
     }
   }
@@ -267,8 +300,18 @@ Model MaxSatSeparationUcncsLearning<MaxSatProblem>::decode(const std::vector<boo
 
       boost::dynamic_bitset<> coalition(learning_set.criteria_count);
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-        const bool is_better = learning_set.performance_ranks[criterion_index][good_alternative_index] >= std::get<unsigned>(profile_ranks[boundary_index][criterion_index]);
-        if (is_better) {
+        const unsigned performance_rank = learning_set.performance_ranks[criterion_index][good_alternative_index];
+        const auto profile_rank = profile_ranks[boundary_index][criterion_index];
+        const bool is_accepted = ([&]() {
+          if (learning_set.single_peaked[criterion_index]) {
+            const auto [low, high] = std::get<std::pair<unsigned, unsigned>>(profile_rank);
+            return low <= performance_rank && performance_rank <= high;
+          } else {
+            const unsigned rank = std::get<unsigned>(profile_rank);
+            return performance_rank >= rank;
+          }
+        })();
+        if (is_accepted) {
           coalition.set(criterion_index);
         }
       }

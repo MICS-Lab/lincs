@@ -35,12 +35,6 @@ template<typename SatProblem>
 Model SatCoalitionsUcncsLearning<SatProblem>::perform() {
   CHRONE();
 
-  for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    if (learning_set.single_peaked[criterion_index]) {
-      throw LearningFailureException("SatCoalitions doesn't support single-peaked criteria.");
-    }
-  }
-
   create_all_coalitions();
   create_variables();
   add_structural_constraints();
@@ -65,22 +59,23 @@ void SatCoalitionsUcncsLearning<SatProblem>::create_all_coalitions() {
   }
 }
 
-// This implementation is based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
+// This implementation was initially based on https://www.sciencedirect.com/science/article/abs/pii/S0377221721006858,
 // specifically its "Definition 4.1", with the special case for Uc-NCS at the end of section 4.1.
 // That article is a summary of this thesis: https://www.theses.fr/2022UPAST071.
+// This implementation was then modified to handle single-peaked criteria (see clauses C1 below).
 
 template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::create_variables() {
   CHRONE();
 
   // Variables "a" in the article
-  better.resize(learning_set.criteria_count);
+  accepted.resize(learning_set.criteria_count);
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    better[criterion_index].resize(learning_set.categories_count);
+    accepted[criterion_index].resize(learning_set.categories_count);
     for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-      better[criterion_index][boundary_index].resize(learning_set.values_counts[criterion_index]);
+      accepted[criterion_index][boundary_index].resize(learning_set.values_counts[criterion_index]);
       for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
-        better[criterion_index][boundary_index][value_rank] = sat.create_variable();
+        accepted[criterion_index][boundary_index][value_rank] = sat.create_variable();
       }
     }
   }
@@ -98,27 +93,51 @@ template<typename SatProblem>
 void SatCoalitionsUcncsLearning<SatProblem>::add_structural_constraints() {
   CHRONE();
 
-  // Clauses "C1" in the article
-  // Values are ordered so if a value is better than a profile, then values better than it are also better than that profile
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-    for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
-      for (unsigned value_rank = 1; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
-        sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_rank - 1],
-          better[criterion_index][boundary_index][value_rank]
-        ));
+    const unsigned values_count = learning_set.values_counts[criterion_index];
+
+    if (learning_set.single_peaked[criterion_index]) {
+      // In this branch, "accepted" means "inside the interval"
+
+      if (values_count >= 3) {
+        for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
+          for (unsigned value_rank_a = 0; value_rank_a != values_count - 2; ++value_rank_a) {
+            for (unsigned value_rank_c = value_rank_a + 2; value_rank_c != values_count; ++value_rank_c) {
+              sat.add_clause({
+                -accepted[criterion_index][boundary_index][value_rank_a],
+                -accepted[criterion_index][boundary_index][value_rank_c],
+                // These two variables are the same when value_rank_c == value_rank_a + 2, but it doesn't hurt
+                accepted[criterion_index][boundary_index][value_rank_a + 1],
+                accepted[criterion_index][boundary_index][value_rank_c - 1],
+              });
+            }
+          }
+        }
+      }
+    } else {
+      // In this branch, "accepted" means "above the profile"
+
+      // Clauses "C1" in the article
+      // Values are ordered so if a value is above a profile, then values above it are also above that profile
+      for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
+        for (unsigned value_rank = 1; value_rank != values_count; ++value_rank) {
+          sat.add_clause(implies(
+            accepted[criterion_index][boundary_index][value_rank - 1],
+            accepted[criterion_index][boundary_index][value_rank]
+          ));
+        }
       }
     }
   }
 
   // Clauses "C2" in the article
-  // Profiles are ordered so if a value is better than a profile, then it is also better than lower profiles
+  // Boundaries are ordered so if a value is accepted by a boundary, then it is also accepted by less strict boundaries
   for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
     for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
       for (unsigned boundary_index = 1; boundary_index != learning_set.boundaries_count; ++boundary_index) {
         sat.add_clause(implies(
-          better[criterion_index][boundary_index][value_rank],
-          better[criterion_index][boundary_index - 1][value_rank]
+          accepted[criterion_index][boundary_index][value_rank],
+          accepted[criterion_index][boundary_index - 1][value_rank]
         ));
       }
     }
@@ -145,14 +164,14 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
   CHRONE();
 
   // Clauses "C5" in the article
-  // Alternatives are outranked by the boundary better than them
+  // Alternatives are not accepted by the boundary of the category better than theirs
   for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives_count; ++alternative_index) {
     const unsigned category_index = learning_set.assignments[alternative_index];
     if (category_index == learning_set.categories_count - 1) {
       continue;
     }
 
-    // This boundary is *just better than* the alternative, so the alternative can't be better than it on a sufficient coalition
+    // This boundary barely doesn't accept the alternative, so it can't accept the alternative on a sufficient coalition
     const unsigned boundary_index = category_index;
 
     for (const Coalition& coalition : all_coalitions) {
@@ -162,9 +181,9 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
           const unsigned value_rank = learning_set.performance_ranks[criterion_index][alternative_index];
-          assert(value_rank < better[criterion_index][boundary_index].size());
-          // ... or the alternative is worse than the profile on at least one necessary criterion
-          clause.push_back(-better[criterion_index][boundary_index][value_rank]);
+          assert(value_rank < accepted[criterion_index][boundary_index].size());
+          // ... or the alternative is not accepted on at least one necessary criterion
+          clause.push_back(-accepted[criterion_index][boundary_index][value_rank]);
         }
       }
       sat.add_clause(clause);
@@ -172,14 +191,14 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
   }
 
   // Clauses "C6" in the article
-  // Alternatives outrank the boundary worse than them
+  // Alternatives are accepted by the boundary of their category
   for (unsigned alternative_index = 0; alternative_index != learning_set.alternatives_count; ++alternative_index) {
     const unsigned category_index = learning_set.assignments[alternative_index];
     if (category_index == 0) {
       continue;
     }
 
-    // This boundary is *just worse than* the alternative, so the alternative has to be better than it on a sufficient coalition
+    // This boundary barely accepts the alternative, so it has to accept the alternative on a sufficient coalition
     const unsigned boundary_index = category_index - 1;
 
     for (const Coalition& coalition : all_coalitions) {
@@ -189,8 +208,8 @@ void SatCoalitionsUcncsLearning<SatProblem>::add_learning_set_constraints() {
       for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
         if (coalition[criterion_index]) {
           const unsigned value_rank = learning_set.performance_ranks[criterion_index][alternative_index];
-          assert(value_rank < better[criterion_index][boundary_index].size());
-          clause.push_back(better[criterion_index][boundary_index][value_rank]);
+          assert(value_rank < accepted[criterion_index][boundary_index].size());
+          clause.push_back(accepted[criterion_index][boundary_index][value_rank]);
         }
       }
       sat.add_clause(clause);
@@ -229,21 +248,47 @@ Model SatCoalitionsUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> profile_ranks(learning_set.criteria_count);
     for (unsigned criterion_index = 0; criterion_index != learning_set.criteria_count; ++criterion_index) {
-      bool found = false;
-      // @todo(Performance, later) Replace next loop with a binary search
-      // Same in "max-SAT by coalitions" approach
-      // Same in "SAT by separation" approach
-      // Same in "max-SAT by separation" approach
-      for (unsigned value_rank = 0; value_rank != learning_set.values_counts[criterion_index]; ++value_rank) {
-        if (solution[better[criterion_index][boundary_index][value_rank]]) {
-          profile_ranks[criterion_index] = value_rank;
-          found = true;
-          break;
+      const unsigned values_count = learning_set.values_counts[criterion_index];
+      if (learning_set.single_peaked[criterion_index]) {
+        // In this branch, "accepted" means "inside the interval"
+
+        bool found = false;
+        unsigned low = 0;
+        unsigned high = values_count;
+        for (unsigned value_rank = 0; value_rank != values_count; ++value_rank) {
+          if (solution[accepted[criterion_index][boundary_index][value_rank]]) {
+            if (!found) {
+              low = value_rank;
+            }
+            found = true;
+            high = value_rank;
+          }
         }
-      }
-      if (!found) {
-        // Past-the-end rank
-        profile_ranks[criterion_index] = learning_set.values_counts[criterion_index];
+        if (found) {
+          profile_ranks[criterion_index] = std::make_pair(low, high);
+        } else {
+          // Past-the-end rank
+          profile_ranks[criterion_index] = std::make_pair(values_count, values_count);
+        }
+      } else {
+        // In this branch, "accepted" means "above the profile"
+
+        bool found = false;
+        // @todo(Performance, later) Replace next loop with a binary search
+        // Same in "max-SAT by coalitions" approach
+        // Same in "SAT by separation" approach
+        // Same in "max-SAT by separation" approach
+        for (unsigned value_rank = 0; value_rank != values_count; ++value_rank) {
+          if (solution[accepted[criterion_index][boundary_index][value_rank]]) {
+            profile_ranks[criterion_index] = value_rank;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          // Past-the-end rank
+          profile_ranks[criterion_index] = values_count;
+        }
       }
     }
 

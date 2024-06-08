@@ -20,7 +20,7 @@ class SatCoalitionsUcncsLearning {
     #endif
     learning_set(problem, learning_set_),
     coalitions_count(1 << learning_set.criteria_count),
-    better(),
+    accepted(),
     sufficient(),
     sat(std::forward<U>(u)...)
   {}
@@ -54,8 +54,8 @@ class SatCoalitionsUcncsLearning {
   // Same in "max-SAT by coalitions"
   typedef boost::dynamic_bitset<> Coalition;
   std::vector<Coalition> all_coalitions;
-  // better[criterion_index][boundary_index][value_rank]: value is better than profile on criterion
-  std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> better;
+  // accepted[criterion_index][boundary_index][value_rank]: value is accepted by boundary on criterion (above profile for monotonous criteria, inside interval for single-peaked criteria)
+  std::vector<std::vector<std::vector<typename SatProblem::variable_type>>> accepted;
   // sufficient[coalition.to_ulong()]: coalition is sufficient
   std::vector<typename SatProblem::variable_type> sufficient;
   SatProblem sat;

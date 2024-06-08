@@ -26,7 +26,7 @@ Things that must change for single-peaked criteria:
 - the pre- and post-processing: DONE
 - the testing: DONE
 - all learning strategies:
-  - SatByCoalitions
+  - All SAT-based approaches: DONE
     - change variables named 'better' to 'accepted'
     - replace clauses about monotonous implications by clauses about three variables: accepted at low value & accepted at high value => accepted at intermediate value
   - WPB
@@ -37,9 +37,6 @@ Things that must change for single-peaked criteria:
     - Weights optimisation: idem
     - Profiles improvement: alternate between moving low and high profiles, with ordering contraints between lowest, lower, low, high, higher, highest profiles
     - Breeding: nothing to do
-  - MaxSatByCoalitions
-  - SatBySeparation
-  - MaxSatBySeparation
 - Python interfaces to 'Problem' and 'Model'
 - Python interface to 'generate_classification_problem'
 - Python interface to 'generate_mrsort_classification_model'
