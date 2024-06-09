@@ -40,6 +40,7 @@ Things that must change for single-peaked criteria:
 - Python interfaces to 'Problem' and 'Model'
 - Python interface to 'generate_classification_problem'
 - Python interface to 'generate_mrsort_classification_model'
+- Command-line interface for generate-classification-problem
 - 'lincs describe problem'
 - 'lincs describe model'
 - 'lincs visualize model [alternatives]'
