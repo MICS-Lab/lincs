@@ -1,321 +1,321 @@
-lincs
-    DataValidationException
-        __init__
-        __setstate__
-        args
-        with_traceback
-    LearningFailureException
-        __init__
-        __setstate__
-        args
-        with_traceback
-    UniformRandomBitsGenerator
-        __call__
-        __init__
-    __builtins__
-    __cached__
-    __file__
-    __name__
-    __package__
-    __path__
-    __version__
-    classification
-        AcceptedValues
-            EnumeratedThresholds
-                __getstate__
-                __init__
-                __setstate__
-                thresholds
-            IntegerThresholds
-                __getstate__
-                __init__
-                __setstate__
-                thresholds
-            Kind
-                __entries
-                __getstate__
-                __init__
-                __members__
-                __setstate__
-                name
-                thresholds
-                value
-            RealThresholds
-                __getstate__
-                __init__
-                __setstate__
-                thresholds
-            __getstate__
-            __init__
-            __setstate__
-            enumerated_thresholds
-            integer_thresholds
-            is_enumerated
-            is_integer
-            is_real
-            is_thresholds
-            kind
-            real_thresholds
-            value_type
-        Alternative
-            __getstate__
-            __init__
-            __setstate__
-            category_index
-            name
-            profile
-        Alternatives
-            __getstate__
-            __init__
-            __setstate__
-            alternatives
-            dump
-            load
-        BalancedAlternativesGenerationException
-            __init__
-            __setstate__
-            args
-            with_traceback
-        Category
-            __getstate__
-            __init__
-            __setstate__
-            name
-        ClassificationResult
-            __init__
-            changed
-            unchanged
-        Criterion
-            EnumeratedValues
-                __getstate__
-                __init__
-                __setstate__
-                get_value_rank
-                ordered_values
-            IntegerValues
-                __getstate__
-                __init__
-                __setstate__
-                is_decreasing
-                is_increasing
-                max_value
-                min_value
-                preference_direction
-            PreferenceDirection
-                __entries
-                __getstate__
-                __init__
-                __members__
-                __setstate__
-                antitone
-                decreasing
-                increasing
-                isotone
-                name
-                value
-            RealValues
-                __getstate__
-                __init__
-                __setstate__
-                is_decreasing
-                is_increasing
-                max_value
-                min_value
-                preference_direction
-            ValueType
-                __entries
-                __getstate__
-                __init__
-                __members__
-                __setstate__
-                enumerated
-                integer
-                name
-                real
-                value
-            __getstate__
-            __init__
-            __setstate__
-            enumerated_values
-            integer_values
-            is_enumerated
-            is_integer
-            is_real
-            name
-            real_values
-            value_type
-        ImproveProfilesWithAccuracyHeuristicOnCpu
-            __init__
-            improve_profiles
-        ImproveProfilesWithAccuracyHeuristicOnGpu
-            __init__
-            improve_profiles
-        InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
-            __init__
-            initialize_profiles
-        LearnMrsortByWeightsProfilesBreed
-            BreedingStrategy
-                __init__
-                breed
-            LearningData
-                __init__
-                accuracies
-                alternatives_count
-                assignments
-                boundaries_count
-                categories_count
-                criteria_count
-                get_best_accuracy
-                get_best_model
-                iteration_index
-                model_indexes
-                models_count
-                performance_ranks
-                profile_ranks
-                urbgs
-                values_counts
-                weights
-            Observer
-                __init__
-                after_iteration
-                before_return
-            ProfilesImprovementStrategy
-                __init__
-                improve_profiles
-            ProfilesInitializationStrategy
-                __init__
-                initialize_profiles
-            TerminationStrategy
-                __init__
-                terminate
-            WeightsOptimizationStrategy
-                __init__
-                optimize_weights
-            __init__
-            perform
-        LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
-            __init__
-            perform
-        LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
-            __init__
-            perform
-        LearnUcncsBySatByCoalitionsUsingMinisat
-            __init__
-            perform
-        LearnUcncsBySatBySeparationUsingMinisat
-            __init__
-            perform
-        Model
-            JSON_SCHEMA
-            __getstate__
-            __init__
-            __setstate__
-            accepted_values
-            dump
-            load
-            sufficient_coalitions
-        OptimizeWeightsUsingAlglib
-            __init__
-            optimize_weights
-        OptimizeWeightsUsingGlop
-            __init__
-            optimize_weights
-        Performance
-            Enumerated
-                __getstate__
-                __init__
-                __setstate__
-                value
-            Integer
-                __getstate__
-                __init__
-                __setstate__
-                value
-            Real
-                __getstate__
-                __init__
-                __setstate__
-                value
-            __getstate__
-            __init__
-            __setstate__
-            enumerated
-            integer
-            is_enumerated
-            is_integer
-            is_real
-            real
-            value_type
-        Problem
-            JSON_SCHEMA
-            __getstate__
-            __init__
-            __setstate__
-            criteria
-            dump
-            load
-            ordered_categories
-        ReinitializeLeastAccurate
-            __init__
-            breed
-        SufficientCoalitions
-            Kind
-                __entries
-                __getstate__
-                __init__
-                __members__
-                __setstate__
-                name
-                roots
-                value
-                weights
-            Roots
-                __getstate__
-                __init__
-                __setstate__
-                upset_roots
-            Weights
-                __getstate__
-                __init__
-                __setstate__
-                criterion_weights
-            __getstate__
-            __init__
-            __setstate__
-            is_roots
-            is_weights
-            kind
-            roots
-            weights
-        TerminateAfterIterations
-            __init__
-            terminate
-        TerminateAfterIterationsWithoutProgress
-            __init__
-            terminate
-        TerminateAfterSeconds
-            __init__
-            terminate
-        TerminateAfterSecondsWithoutProgress
-            __init__
-            terminate
-        TerminateAtAccuracy
-            __init__
-            terminate
-        TerminateWhenAny
-            __init__
-            terminate
-        __builtins__
-        __cached__
-        __file__
-        __name__
-        __package__
-        classify_alternatives
-        describe_model
-        describe_problem
-        generate_alternatives
-        generate_mrsort_model
-        generate_problem
-        misclassify_alternatives
-        visualize_model
-    has_gpu
+lincs: module
+    DataValidationException: type
+        __init__: wrapper_descriptor
+        __setstate__: method_descriptor
+        args: getset_descriptor
+        with_traceback: method_descriptor
+    LearningFailureException: type
+        __init__: wrapper_descriptor
+        __setstate__: method_descriptor
+        args: getset_descriptor
+        with_traceback: method_descriptor
+    UniformRandomBitsGenerator: pybind11_type
+        __call__: instancemethod
+        __init__: wrapper_descriptor
+    __builtins__: dict
+    __cached__: str
+    __file__: str
+    __name__: str
+    __package__: str
+    __path__: list
+    __version__: str
+    classification: module
+        AcceptedValues: pybind11_type
+            EnumeratedThresholds: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                thresholds: property
+            IntegerThresholds: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                thresholds: property
+            Kind: pybind11_type
+                __entries: dict
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __members__: dict
+                __setstate__: instancemethod
+                name: property
+                thresholds: Kind
+                value: property
+            RealThresholds: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                thresholds: property
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            enumerated_thresholds: property
+            integer_thresholds: property
+            is_enumerated: property
+            is_integer: property
+            is_real: property
+            is_thresholds: property
+            kind: property
+            real_thresholds: property
+            value_type: property
+        Alternative: pybind11_type
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            category_index: property
+            name: property
+            profile: property
+        Alternatives: pybind11_type
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            alternatives: property
+            dump: instancemethod
+            load: builtin_function_or_method
+        BalancedAlternativesGenerationException: type
+            __init__: wrapper_descriptor
+            __setstate__: method_descriptor
+            args: getset_descriptor
+            with_traceback: method_descriptor
+        Category: pybind11_type
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            name: property
+        ClassificationResult: pybind11_type
+            __init__: wrapper_descriptor
+            changed: property
+            unchanged: property
+        Criterion: pybind11_type
+            EnumeratedValues: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                get_value_rank: instancemethod
+                ordered_values: property
+            IntegerValues: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                is_decreasing: property
+                is_increasing: property
+                max_value: property
+                min_value: property
+                preference_direction: property
+            PreferenceDirection: pybind11_type
+                __entries: dict
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __members__: dict
+                __setstate__: instancemethod
+                antitone: PreferenceDirection
+                decreasing: PreferenceDirection
+                increasing: PreferenceDirection
+                isotone: PreferenceDirection
+                name: property
+                value: property
+            RealValues: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                is_decreasing: property
+                is_increasing: property
+                max_value: property
+                min_value: property
+                preference_direction: property
+            ValueType: pybind11_type
+                __entries: dict
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __members__: dict
+                __setstate__: instancemethod
+                enumerated: ValueType
+                integer: ValueType
+                name: property
+                real: ValueType
+                value: property
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            enumerated_values: property
+            integer_values: property
+            is_enumerated: property
+            is_integer: property
+            is_real: property
+            name: property
+            real_values: property
+            value_type: property
+        ImproveProfilesWithAccuracyHeuristicOnCpu: pybind11_type
+            __init__: instancemethod
+            improve_profiles: instancemethod
+        ImproveProfilesWithAccuracyHeuristicOnGpu: pybind11_type
+            __init__: instancemethod
+            improve_profiles: instancemethod
+        InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion: pybind11_type
+            __init__: instancemethod
+            initialize_profiles: instancemethod
+        LearnMrsortByWeightsProfilesBreed: pybind11_type
+            BreedingStrategy: pybind11_type
+                __init__: instancemethod
+                breed: instancemethod
+            LearningData: pybind11_type
+                __init__: instancemethod
+                accuracies: property
+                alternatives_count: property
+                assignments: property
+                boundaries_count: property
+                categories_count: property
+                criteria_count: property
+                get_best_accuracy: instancemethod
+                get_best_model: instancemethod
+                iteration_index: property
+                model_indexes: property
+                models_count: property
+                performance_ranks: property
+                profile_ranks: property
+                urbgs: property
+                values_counts: property
+                weights: property
+            Observer: pybind11_type
+                __init__: instancemethod
+                after_iteration: instancemethod
+                before_return: instancemethod
+            ProfilesImprovementStrategy: pybind11_type
+                __init__: instancemethod
+                improve_profiles: instancemethod
+            ProfilesInitializationStrategy: pybind11_type
+                __init__: instancemethod
+                initialize_profiles: instancemethod
+            TerminationStrategy: pybind11_type
+                __init__: instancemethod
+                terminate: instancemethod
+            WeightsOptimizationStrategy: pybind11_type
+                __init__: instancemethod
+                optimize_weights: instancemethod
+            __init__: instancemethod
+            perform: instancemethod
+        LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat: pybind11_type
+            __init__: instancemethod
+            perform: instancemethod
+        LearnUcncsByMaxSatBySeparationUsingEvalmaxsat: pybind11_type
+            __init__: instancemethod
+            perform: instancemethod
+        LearnUcncsBySatByCoalitionsUsingMinisat: pybind11_type
+            __init__: instancemethod
+            perform: instancemethod
+        LearnUcncsBySatBySeparationUsingMinisat: pybind11_type
+            __init__: instancemethod
+            perform: instancemethod
+        Model: pybind11_type
+            JSON_SCHEMA: str
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            accepted_values: property
+            dump: instancemethod
+            load: builtin_function_or_method
+            sufficient_coalitions: property
+        OptimizeWeightsUsingAlglib: pybind11_type
+            __init__: instancemethod
+            optimize_weights: instancemethod
+        OptimizeWeightsUsingGlop: pybind11_type
+            __init__: instancemethod
+            optimize_weights: instancemethod
+        Performance: pybind11_type
+            Enumerated: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                value: property
+            Integer: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                value: property
+            Real: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                value: property
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            enumerated: property
+            integer: property
+            is_enumerated: property
+            is_integer: property
+            is_real: property
+            real: property
+            value_type: property
+        Problem: pybind11_type
+            JSON_SCHEMA: str
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            criteria: property
+            dump: instancemethod
+            load: builtin_function_or_method
+            ordered_categories: property
+        ReinitializeLeastAccurate: pybind11_type
+            __init__: instancemethod
+            breed: instancemethod
+        SufficientCoalitions: pybind11_type
+            Kind: pybind11_type
+                __entries: dict
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __members__: dict
+                __setstate__: instancemethod
+                name: property
+                roots: Kind
+                value: property
+                weights: Kind
+            Roots: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                upset_roots: property
+            Weights: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                criterion_weights: property
+            __getstate__: instancemethod
+            __init__: instancemethod
+            __setstate__: instancemethod
+            is_roots: property
+            is_weights: property
+            kind: property
+            roots: property
+            weights: property
+        TerminateAfterIterations: pybind11_type
+            __init__: instancemethod
+            terminate: instancemethod
+        TerminateAfterIterationsWithoutProgress: pybind11_type
+            __init__: instancemethod
+            terminate: instancemethod
+        TerminateAfterSeconds: pybind11_type
+            __init__: instancemethod
+            terminate: instancemethod
+        TerminateAfterSecondsWithoutProgress: pybind11_type
+            __init__: instancemethod
+            terminate: instancemethod
+        TerminateAtAccuracy: pybind11_type
+            __init__: instancemethod
+            terminate: instancemethod
+        TerminateWhenAny: pybind11_type
+            __init__: instancemethod
+            terminate: instancemethod
+        __builtins__: dict
+        __cached__: str
+        __file__: str
+        __name__: str
+        __package__: str
+        classify_alternatives: builtin_function_or_method
+        describe_model: function
+        describe_problem: function
+        generate_alternatives: builtin_function_or_method
+        generate_mrsort_model: builtin_function_or_method
+        generate_problem: builtin_function_or_method
+        misclassify_alternatives: builtin_function_or_method
+        visualize_model: function
+    has_gpu: bool
