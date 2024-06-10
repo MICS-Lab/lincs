@@ -144,6 +144,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       lark \
       myst-parser \
       parver \
+      pybind11 \
       sphinx \
       sphinx-click \
       sphinx-jsonschema \

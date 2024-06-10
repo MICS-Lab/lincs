@@ -1,7 +1,6 @@
 # Copyright 2023-2024 Vincent Jacques
 
 import glob
-import itertools
 import os
 import setuptools
 import setuptools.command.build_ext
@@ -211,7 +210,7 @@ def make_liblincs_extension():
 
     try:
         chrones_dir = subprocess.run(
-            ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True
+            ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True,
         ).stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         chrones_dir = None
@@ -225,15 +224,21 @@ def make_liblincs_extension():
         else:
             print("WARNING: 'chrones' was not found, lincs will be compiled without Chrones", file=sys.stderr)
 
+    pybind11_dirs = [
+        option[2:]
+        for option in subprocess.run(
+            [sys.executable, "-m", "pybind11", "--includes"], capture_output=True, universal_newlines=True, check=True,
+        ).stdout.strip().split(" ")
+    ]
+    include_dirs += pybind11_dirs
+
     if sys.platform == "linux":
         extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp"]
         extra_compile_args["vendored-c++"] = ["-std=c++17", "-Werror=switch", "-w", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]
         extra_link_args += ["-fopenmp"]
         libraries += [
-            f"boost_python{sys.version_info.major}{sys.version_info.minor}",
             "ortools",
-            # Weirdly required because of BoostPython:
-            f"python{sys.version_info.major}.{sys.version_info.minor}{'m' if sys.hexversion < 0x03080000 else ''}",
+            f"python{sys.version_info.major}.{sys.version_info.minor}",
         ]
         if os.environ.get("LINCS_DEV_COVERAGE", "false") == "true":
             extra_compile_args["c++"] += ["--coverage", "-O0"]
@@ -250,7 +255,6 @@ def make_liblincs_extension():
         library_dirs += [os.path.join(lincs_dependencies, "lib")]
         vc_version = os.environ.get("LINCS_DEV_VC_VERSION", "143")
         libraries += [
-            f"boost_python{sys.version_info.major}{sys.version_info.minor}-vc{vc_version}-mt-x64-1_82",
             "ortools",
             f"python{sys.version_info.major}{sys.version_info.minor}",
         ]
@@ -259,7 +263,6 @@ def make_liblincs_extension():
         extra_compile_args["vendored-c++"] = ["-std=c++17", "-Werror=switch", "-w", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]
         extra_link_args += ["-lomp"]
         libraries += [
-            f"boost_python{sys.version_info.major}{sys.version_info.minor}",
             "ortools",
         ]
     else:

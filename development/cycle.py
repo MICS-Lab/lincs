@@ -514,30 +514,21 @@ def make_python_reference():
 
     signature_parser = lark.Lark(
         r"""
-        signature: CNAME "(" parameters ")" "->" type ":"
+        signature: CNAME "(" parameters ")" "->" TNAME
 
-        parameters: mandatory_parameters optional_parameters | optional_parameters_only
+        parameters: [parameter ("," parameter)*]
 
-        mandatory_parameters: [parameter ("," parameter)*]
-
-        optional_parameters: ["[" "," optional_parameter optional_parameters "]"]
-
-        optional_parameters_only: "[" optional_parameter optional_parameters "]"
-
-        optional_parameter: parameter "=" default_value
-
-        parameter: "(" type ")" CNAME
+        parameter: CNAME ":" TNAME ["=" default_value]
 
         default_value: "None" -> none
                     | "True" -> true
                     | "False" -> false
                     | SIGNED_NUMBER -> number
                     | "[]" -> empty_list
+                    | "<" CNAME "." CNAME ":" SIGNED_NUMBER ">" -> enum
+                    | "[" default_value "]" -> list
 
-        type: CNAME -> type_name
-            | iterable_type
-        iterable_type: "Iterable" "[" type "]"
-
+        TNAME: /[a-zA-Z0-9.\[\]:]+/
         %import common.CNAME
         %import common.SIGNED_NUMBER
 
@@ -552,34 +543,7 @@ def make_python_reference():
             return (args[1], args[2])
 
         def parameters(self, args):
-            if len(args) == 1 or args[1] is None:
-                return args[0]
-            else:
-                return args[0] + args[1]
-
-        def mandatory_parameters(self, args):
-            if args[0] is None:
-                return []
-            else:
-                return args
-
-        def optional_parameters(self, args):
-            if args[0] is None:
-                return []
-            elif args[1] is None:
-                return [args[0]]
-            else:
-                return [args[0]] + args[1]
-
-        def optional_parameters_only(self, args):
-            if args[1] is None:
-                return [args[0]]
-            else:
-                return [args[0]] + args[1]
-
-        def optional_parameter(self, args):
-            (name, type) = args[0]
-            return [name, type, args[1]]
+            return args
 
         def none(self, _):
             return "None"
@@ -596,78 +560,49 @@ def make_python_reference():
         def empty_list(self, _):
             return "[]"
 
+        def enum(self, args):
+            return f"{args[0]}.{args[1]}"
+
+        def list(self, args):
+            return f"[{', '.join(args)}]"
+
         def parameter(self, args):
-            return [args[1].value, args[0]]
-
-        def type(self, args):
-            return args[0]
-        
-        def type_name(self, args):
-            return args[0].value
-
-        def iterable_type(self, args):
-            return f"Iterable[{args[0]}]"
+            return (args[0].value, args[1].value, args[2])
 
     def fix_signature(path, signature):
-        # @todo(Project management, later) Do this in the grammar. I don't yet know how
-        signature = re.sub(r"<liblincs.Iterable\[.*?\] object at 0x............>", "[]", signature)
-
-        parameters, return_type = SignatureTransformer().transform(signature_parser.parse(signature))
+        parsed = signature_parser.parse(signature)
+        parameters, return_type = SignatureTransformer().transform(parsed)
 
         if parameters[0][0] == "self":
-            if path[-1] == "__init__":
-                assert parameters[0][1] == "object"
-            else:
-                assert parameters[0][1] == path[-2]
+            assert parameters[0][1].split(".")[-1] == path[-2], (parameters[0][1], path[-2])
             parameters = parameters[1:]
 
         for parameter in parameters:
-            assert parameter[0] != "arg1", f"Set parameter names in {path}"
-
-            if path == ["lincs", "classification", "SufficientCoalitions", "Roots", "__init__"]:
-                if parameter[0] == "upset_roots":
-                    assert len(parameter) == 2
-                    parameter[1] = "Iterable[Iterable[int]]"
-            if path == ["lincs", "classification", "AcceptedValues", "RealThresholds", "__init__"]:
-                if parameter[0] == "thresholds":
-                    assert len(parameter) == 2
-                    parameter[1] = "Iterable[Optional[float]]"
-            if path == ["lincs", "classification", "AcceptedValues", "IntegerThresholds", "__init__"]:
-                if parameter[0] == "thresholds":
-                    assert len(parameter) == 2
-                    parameter[1] = "Iterable[Optional[int]]"
-            if path == ["lincs", "classification", "AcceptedValues", "EnumeratedThresholds", "__init__"]:
-                if parameter[0] == "thresholds":
-                    assert len(parameter) == 2
-                    parameter[1] = "Iterable[Optional[str]]"
-            if path == ["lincs", "classification", "Alternative", "__init__"]:
-                if parameter[0] == "category_index":
-                    assert parameter[2] == "None"
-                    parameter[1] = "Optional[float]"
-            if path == ["lincs", "classification", "generate_mrsort_model"]:
-                if parameter[0] == "fixed_weights_sum":
-                    assert parameter[2] == "None"
-                    parameter[1] = "Optional[float]"
-            if path == ["lincs", "classification", "generate_alternatives"]:
-                if parameter[0] == "max_imbalance":
-                    assert parameter[2] == "None"
-                    parameter[1] = "Optional[float]"
+            assert not parameter[0].startswith("arg"), f"Set parameter names in {path}"
 
         text_parameters = []
         for parameter in parameters:
-            if len(parameter) == 2:
-                (name, type) = parameter
+            (name, type, default) = parameter
+
+            type = type.replace("liblincs.", "")
+            type = type.replace("Criterion.", "")
+            type = type.replace("LearnMrsortByWeightsProfilesBreed.", "")
+            type = type.replace("AcceptedValues.", "")
+            type = type.replace("SufficientCoalitions.", "")
+            type = type.replace("Performance.", "")
+
+            if default is None:
                 text_parameters.append(f"{name}: {type}")
             else:
-                (name, type, default) = parameter
-                text_parameters .append(f"{name}: {type}={default}")
+                text_parameters.append(f"{name}: {type}={default}")
 
         if return_type == "None":
-            text_return_type = ""
+            return_type = ""
         else:
-            text_return_type = f" -> {return_type}"
+            return_type = return_type.replace("liblincs.", "")
+            return_type = f" -> {return_type}"
 
-        return f"{path[-1]}({', '.join(text_parameters)}){text_return_type}"
+        return f"{path[-1]}({', '.join(text_parameters)}){return_type}"
 
     def walk(path, parent, node, description):
         assert isinstance(description, dict)
@@ -689,44 +624,39 @@ def make_python_reference():
         do_walk = True
         if class_name == "module":
             yield from directive("module", ".".join(path), docstring)
-        elif class_name == "class":
+        elif class_name == "pybind11_type":
             yield from directive("class", name, docstring)
         elif class_name == "type" and name.endswith("Exception"):
             yield from directive("exception", name, description_doc)
-        elif class_name == "type":
-            yield from directive("class", name, docstring)
         elif class_name == path[-2]:
             yield from directive("property", name, description_doc, classmethod=True, type=".".join(path[:-1]))
             do_walk = False
         elif class_name == "property":
             yield from directive("property", name, docstring, type=description.get("type", "@to" + f"do(Documentation, v1.1) Add type to {'.'.join(path)} in doc-sources/reference/lincs.yml"))
             do_walk = False
-        elif class_name == "builtin_function_or_method":
-            docs = docstring.split("\n\n")
-            for i, doc in enumerate(docs):
-                if len(docs) == 2 and i == 1 and "arg1" in doc and doc.endswith(") -> None"):
-                    continue
-                doc = doc.splitlines()
-                signature = doc[0]
-                if "(Internal)internal" in signature:
-                    continue
-                doc = "\n".join(d.strip() for d in doc[1:])
+        elif class_name in ["instancemethod" , "builtin_function_or_method"]:
+            parent_class_name = parent.__class__.__name__
+            if parent_class_name == "pybind11_type":
+                directive_name = "method"
+            elif parent_class_name == "module":
+                directive_name = "function"
+            else:
+                directive_name = "@to" + f"do(Documentation, v1.1) Handle parent {'.'.join(path[:-1])} (of type {parent_class_name}) in the ad-hoc generator"
+            if docstring.splitlines()[1] == "Overloaded function.":
+                docstring = docstring.splitlines()[3:]
+                for i, (signature, doc) in enumerate(zip(docstring[0::4], docstring[2::4])):
+                    yield from directive(directive_name, fix_signature(path, signature.split(". ", 1)[1]), doc, noindex=i > 0)
+            else:
+                signature, doc = docstring.split("\n\n", 1)
                 if not doc:
                     doc = ".. @to" + f"do(Documentation, v1.1) Add a docstring to {'.'.join(path)}."
                 if not doc.endswith("."):
                     doc += ". @to" + f"do(Documentation, v1.1) Add a dot at the end of the docstring of {'.'.join(path)}."
-                parent_class_name = parent.__class__.__name__
-                if parent_class_name == "class":
-                    directive_name = "method"
-                elif parent_class_name == "module":
-                    directive_name = "function"
-                else:
-                    directive_name = "@to" + f"do(Documentation, v1.1) Handle {'.'.join(path[:-1])} (of type {parent_class_name}) in the ad-hoc generator"
-                yield from directive(directive_name, fix_signature(path, signature), doc, noindex=i != 0, staticmethod=description.get("staticmethod", False))
+                yield from directive(directive_name, fix_signature(path, signature), doc, staticmethod=description.get("staticmethod", False))
             do_walk = False
         elif class_name == "function":
             signature = inspect.signature(node)
-            yield from directive("function", f"{name}{signature}".replace("liblincs", "lincs.classification"), docstring)
+            yield from directive("function", f"{name}{signature}".replace("liblincs.", "lincs.classification."), docstring)
         elif class_name in ["bool", "str"]:
             yield from directive("data", name, description_doc, type=class_name)
             do_walk = False
@@ -738,11 +668,14 @@ def make_python_reference():
             undocumented_children_names = set(dir(node))
             for child_description in description.get("children", []):
                 child_name = child_description["name"]
-                undocumented_children_names.remove(child_name)
-                child = getattr(node, child_name)
-                if child_description.get("show", True):
-                    for line in walk(path + [child_name], node, child, child_description):
-                        yield f"    {line}"
+                if child_name in undocumented_children_names:
+                    undocumented_children_names.remove(child_name)
+                    child = getattr(node, child_name)
+                    if child_description.get("show", True):
+                        for line in walk(path + [child_name], node, child, child_description):
+                            yield f"    {line}"
+                else:
+                    yield ".. @to" + f"do(Documentation, v1.1) Remove {'.'.join(path + [child_name])} from doc-sources/reference/lincs.yml"
             for child_name in sorted(undocumented_children_names):
                 if child_name.startswith("_") and child_name not in ["__init__", "__call__"]:
                     continue

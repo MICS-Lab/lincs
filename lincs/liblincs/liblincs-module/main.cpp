@@ -1,11 +1,7 @@
 // Copyright 2023-2024 Vincent Jacques
 
-#include <Python.h>
-// https://bugs.python.org/issue36020#msg371558
-#undef snprintf
-#undef vsnprintf
-
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "../chrones.hpp"
 
@@ -17,23 +13,23 @@
 
 CHRONABLE("lincs");
 
-// @todo(Project management, later) Consider using pybind11, which advertises itself as an evolved and simplified version of Boost.Python
-namespace bp = boost::python;
+namespace py = pybind11;
 
 namespace lincs {
 
-void enroll_converters();
-void define_io_classes();
-void define_generation_functions();
-void define_learning_classes();
+void enroll_converters(py::module&);
+void define_io_classes(py::module&);
+void define_generation_functions(py::module&);
+void define_learning_classes(py::module&);
 
 }  // namespace lincs
 
-BOOST_PYTHON_MODULE(liblincs) {
-  bp::docstring_options docstring_options(true, true, false);
+PYBIND11_MODULE(liblincs, m) {
+  py::options options;
+  options.disable_enum_members_docstring();
 
-  lincs::enroll_converters();
-  lincs::define_io_classes();
-  lincs::define_generation_functions();
-  lincs::define_learning_classes();
+  lincs::enroll_converters(m);
+  lincs::define_io_classes(m);
+  lincs::define_generation_functions(m);
+  lincs::define_learning_classes(m);
 }
