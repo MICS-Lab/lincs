@@ -22,38 +22,32 @@ lincs
     classification
         AcceptedValues
             EnumeratedThresholds
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 thresholds
             IntegerThresholds
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 thresholds
             Kind
+                __entries
+                __getstate__
                 __init__
-                as_integer_ratio
-                bit_length
-                conjugate
-                denominator
-                from_bytes
-                imag
+                __members__
+                __setstate__
                 name
-                names
-                numerator
-                real
                 thresholds
-                to_bytes
-                values
+                value
             RealThresholds
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 thresholds
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             enumerated_thresholds
             integer_thresholds
             is_enumerated
@@ -64,16 +58,16 @@ lincs
             real_thresholds
             value_type
         Alternative
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             category_index
             name
             profile
         Alternatives
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             alternatives
             dump
             load
@@ -83,9 +77,9 @@ lincs
             args
             with_traceback
         Category
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             name
         ClassificationResult
             __init__
@@ -93,66 +87,55 @@ lincs
             unchanged
         Criterion
             EnumeratedValues
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 get_value_rank
                 ordered_values
             IntegerValues
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 is_decreasing
                 is_increasing
                 max_value
                 min_value
                 preference_direction
             PreferenceDirection
+                __entries
+                __getstate__
                 __init__
+                __members__
+                __setstate__
                 antitone
-                as_integer_ratio
-                bit_length
-                conjugate
                 decreasing
-                denominator
-                from_bytes
-                imag
                 increasing
                 isotone
                 name
-                names
-                numerator
-                real
-                to_bytes
-                values
+                value
             RealValues
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 is_decreasing
                 is_increasing
                 max_value
                 min_value
                 preference_direction
             ValueType
+                __entries
+                __getstate__
                 __init__
-                as_integer_ratio
-                bit_length
-                conjugate
-                denominator
+                __members__
+                __setstate__
                 enumerated
-                from_bytes
-                imag
                 integer
                 name
-                names
-                numerator
                 real
-                to_bytes
-                values
-            __getinitargs__
+                value
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             enumerated_values
             integer_values
             is_enumerated
@@ -224,9 +207,9 @@ lincs
             perform
         Model
             JSON_SCHEMA
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             accepted_values
             dump
             load
@@ -239,23 +222,23 @@ lincs
             optimize_weights
         Performance
             Enumerated
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 value
             Integer
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 value
             Real
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 value
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             enumerated
             integer
             is_enumerated
@@ -265,9 +248,9 @@ lincs
             value_type
         Problem
             JSON_SCHEMA
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             criteria
             dump
             load
@@ -277,34 +260,28 @@ lincs
             breed
         SufficientCoalitions
             Kind
+                __entries
+                __getstate__
                 __init__
-                as_integer_ratio
-                bit_length
-                conjugate
-                denominator
-                from_bytes
-                imag
+                __members__
+                __setstate__
                 name
-                names
-                numerator
-                real
                 roots
-                to_bytes
-                values
+                value
                 weights
             Roots
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 upset_roots
             Weights
-                __getinitargs__
+                __getstate__
                 __init__
-                __safe_for_unpickling__
+                __setstate__
                 criterion_weights
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             is_roots
             is_weights
             kind

@@ -1,38 +1,32 @@
 liblincs
     AcceptedValues
         EnumeratedThresholds
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             thresholds
         IntegerThresholds
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             thresholds
         Kind
+            __entries
+            __getstate__
             __init__
-            as_integer_ratio
-            bit_length
-            conjugate
-            denominator
-            from_bytes
-            imag
+            __members__
+            __setstate__
             name
-            names
-            numerator
-            real
             thresholds
-            to_bytes
-            values
+            value
         RealThresholds
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             thresholds
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         enumerated_thresholds
         integer_thresholds
         is_enumerated
@@ -43,16 +37,16 @@ liblincs
         real_thresholds
         value_type
     Alternative
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         category_index
         name
         profile
     Alternatives
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         alternatives
         dump
         load
@@ -60,6 +54,7 @@ liblincs
         __getitem__
         __init__
         __len__
+        __setitem__
     Array2D<Host, float>
         __getitem__
         __init__
@@ -92,9 +87,9 @@ liblincs
         args
         with_traceback
     Category
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         name
     ClassificationResult
         __init__
@@ -102,66 +97,55 @@ liblincs
         unchanged
     Criterion
         EnumeratedValues
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             get_value_rank
             ordered_values
         IntegerValues
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             is_decreasing
             is_increasing
             max_value
             min_value
             preference_direction
         PreferenceDirection
+            __entries
+            __getstate__
             __init__
+            __members__
+            __setstate__
             antitone
-            as_integer_ratio
-            bit_length
-            conjugate
             decreasing
-            denominator
-            from_bytes
-            imag
             increasing
             isotone
             name
-            names
-            numerator
-            real
-            to_bytes
-            values
+            value
         RealValues
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             is_decreasing
             is_increasing
             max_value
             min_value
             preference_direction
         ValueType
+            __entries
+            __getstate__
             __init__
-            as_integer_ratio
-            bit_length
-            conjugate
-            denominator
+            __members__
+            __setstate__
             enumerated
-            from_bytes
-            imag
             integer
             name
-            names
-            numerator
             real
-            to_bytes
-            values
-        __getinitargs__
+            value
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         enumerated_values
         integer_values
         is_enumerated
@@ -175,22 +159,6 @@ liblincs
         __setstate__
         args
         with_traceback
-    Enumerated
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        value
-    EnumeratedThresholds
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        thresholds
-    EnumeratedValues
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        get_value_rank
-        ordered_values
     ImproveProfilesWithAccuracyHeuristicOnCpu
         __init__
         improve_profiles
@@ -200,195 +168,6 @@ liblincs
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
         __init__
         initialize_profiles
-    Integer
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        value
-    IntegerThresholds
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        thresholds
-    IntegerValues
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        is_decreasing
-        is_increasing
-        max_value
-        min_value
-        preference_direction
-    Internal
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-    Iterable[AcceptedValues]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[Alternative]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[Category]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[Criterion]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[Observer]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[Performance]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[PreferenceDirection]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[SufficientCoalitions]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[TerminationStrategy]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[UniformRandomBitsGenerator]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[ValueType]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[float]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[int]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[str]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Iterable[uint]
-        __contains__
-        __delitem__
-        __getitem__
-        __init__
-        __iter__
-        __len__
-        __setitem__
-        append
-        extend
-    Kind
-        __init__
-        as_integer_ratio
-        bit_length
-        conjugate
-        denominator
-        from_bytes
-        imag
-        name
-        names
-        numerator
-        real
-        roots
-        to_bytes
-        values
-        weights
     LearnMrsortByWeightsProfilesBreed
         BreedingStrategy
             __init__
@@ -448,9 +227,9 @@ liblincs
         with_traceback
     Model
         JSON_SCHEMA
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         accepted_values
         dump
         load
@@ -463,23 +242,23 @@ liblincs
         optimize_weights
     Performance
         Enumerated
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             value
         Integer
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             value
         Real
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             value
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         enumerated
         integer
         is_enumerated
@@ -487,90 +266,42 @@ liblincs
         is_real
         real
         value_type
-    PreferenceDirection
-        __init__
-        antitone
-        as_integer_ratio
-        bit_length
-        conjugate
-        decreasing
-        denominator
-        from_bytes
-        imag
-        increasing
-        isotone
-        name
-        names
-        numerator
-        real
-        to_bytes
-        values
     Problem
         JSON_SCHEMA
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         criteria
         dump
         load
         ordered_categories
-    Real
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        value
-    RealThresholds
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        thresholds
-    RealValues
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        is_decreasing
-        is_increasing
-        max_value
-        min_value
-        preference_direction
     ReinitializeLeastAccurate
         __init__
         breed
-    Roots
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        upset_roots
     SufficientCoalitions
         Kind
+            __entries
+            __getstate__
             __init__
-            as_integer_ratio
-            bit_length
-            conjugate
-            denominator
-            from_bytes
-            imag
+            __members__
+            __setstate__
             name
-            names
-            numerator
-            real
             roots
-            to_bytes
-            values
+            value
             weights
         Roots
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             upset_roots
         Weights
-            __getinitargs__
+            __getstate__
             __init__
-            __safe_for_unpickling__
+            __setstate__
             criterion_weights
-        __getinitargs__
+        __getstate__
         __init__
-        __safe_for_unpickling__
+        __setstate__
         is_roots
         is_weights
         kind
@@ -597,27 +328,6 @@ liblincs
     UniformRandomBitsGenerator
         __call__
         __init__
-    ValueType
-        __init__
-        as_integer_ratio
-        bit_length
-        conjugate
-        denominator
-        enumerated
-        from_bytes
-        imag
-        integer
-        name
-        names
-        numerator
-        real
-        to_bytes
-        values
-    Weights
-        __getinitargs__
-        __init__
-        __safe_for_unpickling__
-        criterion_weights
     __file__
     __name__
     __package__

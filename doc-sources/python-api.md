@@ -344,7 +344,7 @@ criterion.value_type, criterion.is_real, criterion.is_integer, criterion.is_enum
 
 
 ```text
-(liblincs.ValueType.integer, False, True, False)
+(<ValueType.integer: 1>, False, True, False)
 ```
 
 
@@ -363,7 +363,7 @@ values.preference_direction, values.is_increasing, values.is_decreasing
 
 
 ```text
-(liblincs.PreferenceDirection.isotone, True, False)
+(<PreferenceDirection.increasing: 0>, True, False)
 ```
 
 
@@ -410,7 +410,7 @@ criterion.value_type, criterion.is_real, criterion.is_integer, criterion.is_enum
 
 
 ```text
-(liblincs.ValueType.enumerated, False, False, True)
+(<ValueType.enumerated: 2>, False, False, True)
 ```
 
 
@@ -497,7 +497,7 @@ accepted.value_type, accepted.is_real, accepted.is_integer, accepted.is_enumerat
 
 
 ```text
-(liblincs.ValueType.integer, False, True, False)
+(<ValueType.integer: 1>, False, True, False)
 ```
 
 
@@ -511,7 +511,7 @@ accepted.kind, accepted.is_thresholds
 
 
 ```text
-(liblincs.Kind.thresholds, True)
+(<Kind.thresholds: 0>, True)
 ```
 
 
@@ -544,7 +544,7 @@ accepted.value_type, accepted.is_real, accepted.is_integer, accepted.is_enumerat
 
 
 ```text
-(liblincs.ValueType.enumerated, False, False, True)
+(<ValueType.enumerated: 2>, False, False, True)
 ```
 
 
@@ -558,7 +558,7 @@ accepted.kind, accepted.is_thresholds
 
 
 ```text
-(liblincs.Kind.thresholds, True)
+(<Kind.thresholds: 0>, True)
 ```
 
 
@@ -591,7 +591,7 @@ sufficient.kind, sufficient.is_weights, sufficient.is_roots
 
 
 ```text
-(liblincs.Kind.weights, True, False)
+(<Kind.weights: 0>, True, False)
 ```
 
 
@@ -667,7 +667,7 @@ performance.value_type, performance.is_real, performance.is_integer, performance
 
 
 ```text
-(liblincs.ValueType.integer, False, True, False)
+(<ValueType.integer: 1>, False, True, False)
 ```
 
 

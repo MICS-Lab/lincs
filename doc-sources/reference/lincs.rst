@@ -214,7 +214,7 @@
 
                 Descriptor of the enumerated values allowed for a criterion.
 
-                .. method:: __init__(ordered_values: Iterable[str])
+                .. method:: __init__(ordered_values: list[str])
 
                     Parameters map exactly to attributes with identical names.
 
@@ -249,7 +249,7 @@
 
             A classification problem, with criteria and categories.
 
-            .. method:: __init__(criteria: Iterable[Criterion], ordered_categories: Iterable[Category])
+            .. method:: __init__(criteria: list[Criterion], ordered_categories: list[Category])
 
                 Parameters map exactly to attributes with identical names.
 
@@ -339,7 +339,7 @@
 
                 Descriptor for thresholds for an real-valued criterion.
 
-                .. method:: __init__(thresholds: Iterable[Optional[float]])
+                .. method:: __init__(thresholds: list[Optional[float]])
 
                     Parameters map exactly to attributes with identical names.
 
@@ -357,7 +357,7 @@
 
                 Descriptor for thresholds for an integer-valued criterion.
 
-                .. method:: __init__(thresholds: Iterable[Optional[int]])
+                .. method:: __init__(thresholds: list[Optional[int]])
 
                     Parameters map exactly to attributes with identical names.
 
@@ -375,7 +375,7 @@
 
                 Descriptor for thresholds for a criterion taking enumerated values.
 
-                .. method:: __init__(thresholds: Iterable[Optional[str]])
+                .. method:: __init__(thresholds: list[Optional[str]])
 
                     Parameters map exactly to attributes with identical names.
 
@@ -437,7 +437,7 @@
 
                 Descriptor for sufficient coalitions defined by weights.
 
-                .. method:: __init__(criterion_weights: Iterable[float])
+                .. method:: __init__(criterion_weights: list[float])
 
                     Parameters map exactly to attributes with identical names.
 
@@ -455,7 +455,7 @@
 
                 Descriptor for sufficient coalitions defined by roots.
 
-                .. method:: __init__(problem: Problem, upset_roots: Iterable[Iterable[int]])
+                .. method:: __init__(problem: Problem, upset_roots: list[list[int]])
 
                     Parameters map exactly to attributes with identical names.
 
@@ -473,7 +473,7 @@
 
             An NCS classification model.
 
-            .. method:: __init__(problem: Problem, accepted_values: Iterable[AcceptedValues], sufficient_coalitions: Iterable[SufficientCoalitions])
+            .. method:: __init__(problem: Problem, accepted_values: list[AcceptedValues], sufficient_coalitions: list[SufficientCoalitions])
 
                 The :py:class:`Model` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names.
 
@@ -597,7 +597,7 @@
 
             An alternative, with its performance on each criterion, maybe classified.
 
-            .. method:: __init__(name: str, profile: Iterable[Performance], category_index: Optional[float]=None)
+            .. method:: __init__(name: str, profile: list[Performance], category_index: Optional[int]=None)
 
                 Parameters map exactly to attributes with identical names.
 
@@ -620,7 +620,7 @@
 
             A set of alternatives, maybe classified.
 
-            .. method:: __init__(problem: Problem, alternatives: Iterable[Alternative])
+            .. method:: __init__(problem: Problem, alternatives: list[Alternative])
 
                 The :py:class:`Alternatives` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names.
 
@@ -638,7 +638,7 @@
 
                 Load a set of alternatives (classified or not) from the provided ``.read``-supporting file-like object, in CSV format.
 
-        .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int, normalized_min_max: bool=True, allowed_preference_directions: Iterable[PreferenceDirection]=[], allowed_value_types: Iterable[ValueType]=[]) -> Problem
+        .. function:: generate_problem(criteria_count: int, categories_count: int, random_seed: int, normalized_min_max: bool=True, allowed_preference_directions: list[PreferenceDirection]=[PreferenceDirection.increasing], allowed_value_types: list[ValueType]=[ValueType.real]) -> Problem
 
             Generate a :py:class:`Problem` with ``criteria_count`` criteria and ``categories_count`` categories.
 
@@ -710,7 +710,7 @@
 
             The approach described in Olivier Sobrie's PhD thesis to learn MR-Sort models.
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: Iterable[Observer]=[])
+            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: list[Observer]=[])
 
                 Constructor accepting the strategies to use for each step of the learning.
 
@@ -992,7 +992,7 @@
 
             Termination strategy. Terminates the learning when one or more termination strategies decide to terminate.
 
-            .. method:: __init__(termination_strategies: Iterable[TerminationStrategy])
+            .. method:: __init__(termination_strategies: list[TerminationStrategy])
 
                 Constructor. Keeps references to each termination strategies.
 

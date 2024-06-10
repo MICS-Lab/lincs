@@ -918,6 +918,54 @@ class AlternativesTestCase(unittest.TestCase):
 
 
 class LearningTestCase(unittest.TestCase):
+    def test_access_wpb_learning_data(self):
+        problem = generate_problem(5, 3, 41)
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+
+        learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+
+        self.assertEqual(learning_data.criteria_count, 5)
+
+        self.assertEqual(learning_data.categories_count, 3)
+
+        self.assertEqual(learning_data.boundaries_count, 2)
+
+        self.assertEqual(learning_data.alternatives_count, 200)
+
+        self.assertEqual(len(learning_data.values_counts), 5)
+        self.assertEqual(learning_data.values_counts[0], 202)
+        self.assertEqual(list(learning_data.values_counts), [202, 202, 202, 202, 202])
+
+        self.assertEqual(len(learning_data.performance_ranks), 5)
+        self.assertEqual(len(learning_data.performance_ranks[0]), 200)
+        self.assertEqual(learning_data.performance_ranks[0][0], 24)
+
+        self.assertEqual(len(learning_data.assignments), 200)
+        self.assertEqual(learning_data.assignments[0], 0)
+
+        self.assertEqual(learning_data.models_count, 9)
+
+        self.assertEqual(len(learning_data.urbgs), 9)
+        self.assertEqual(learning_data.urbgs[0](), 3585619732)
+
+        self.assertEqual(learning_data.iteration_index, 0)
+
+        self.assertEqual(len(learning_data.model_indexes), 9)
+        self.assertEqual(learning_data.model_indexes[0], 0)
+
+        self.assertEqual(len(learning_data.accuracies), 9)
+        self.assertEqual(learning_data.accuracies[0], 0)
+
+        self.assertEqual(len(learning_data.profile_ranks), 9)
+        self.assertEqual(len(learning_data.profile_ranks[0]), 2)
+        self.assertEqual(len(learning_data.profile_ranks[0][0]), 5)
+        self.assertIsInstance(learning_data.profile_ranks[0][0][0], int)
+
+        self.assertEqual(len(learning_data.weights), 9)
+        self.assertEqual(len(learning_data.weights[0]), 5)
+        self.assertIsInstance(learning_data.weights[0][0], float)
+
     def test_basic_mrsort_learning(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)

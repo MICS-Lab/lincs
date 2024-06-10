@@ -46,27 +46,9 @@ children:
               doc: Enumerated values.
             - name: __init__
               show: false
-            - name: as_integer_ratio
-              show: false
-            - name: bit_length
-              show: false
-            - name: conjugate
-              show: false
-            - name: denominator
-              show: false
-            - name: from_bytes
-              show: false
-            - name: imag
-              show: false
             - name: name
               show: false
-            - name: names
-              show: false
-            - name: numerator
-              show: false
-            - name: to_bytes
-              show: false
-            - name: values
+            - name: value
               show: false
         - name: value_type
           type: ValueType
@@ -88,29 +70,9 @@ children:
               doc: Synonym for ``decreasing``.
             - name: __init__
               show: false
-            - name: as_integer_ratio
-              show: false
-            - name: bit_length
-              show: false
-            - name: conjugate
-              show: false
-            - name: denominator
-              show: false
-            - name: from_bytes
-              show: false
-            - name: imag
-              show: false
             - name: name
               show: false
-            - name: names
-              show: false
-            - name: numerator
-              show: false
-            - name: real
-              show: false
-            - name: to_bytes
-              show: false
-            - name: values
+            - name: value
               show: false
         - name: RealValues
           children:
@@ -184,29 +146,9 @@ children:
               doc: A threshold for each category.
             - name: __init__
               show: false
-            - name: as_integer_ratio
-              show: false
-            - name: bit_length
-              show: false
-            - name: conjugate
-              show: false
-            - name: denominator
-              show: false
-            - name: from_bytes
-              show: false
-            - name: imag
-              show: false
             - name: name
               show: false
-            - name: names
-              show: false
-            - name: numerator
-              show: false
-            - name: real
-              show: false
-            - name: to_bytes
-              show: false
-            - name: values
+            - name: value
               show: false
         - name: kind
           type: AcceptedValues.Kind
@@ -244,29 +186,9 @@ children:
               doc: For sufficient coalitions described by the roots of their upset.
             - name: __init__
               show: false
-            - name: as_integer_ratio
-              show: false
-            - name: bit_length
-              show: false
-            - name: conjugate
-              show: false
-            - name: denominator
-              show: false
-            - name: from_bytes
-              show: false
-            - name: imag
-              show: false
             - name: name
               show: false
-            - name: names
-              show: false
-            - name: numerator
-              show: false
-            - name: real
-              show: false
-            - name: to_bytes
-              show: false
-            - name: values
+            - name: value
               show: false
         - name: kind
           type: SufficientCoalitions.Kind
