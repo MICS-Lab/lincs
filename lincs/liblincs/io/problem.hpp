@@ -156,8 +156,6 @@ class Criterion {
     std::map<std::string, unsigned> value_ranks;
   };
 
-  // WARNING: keep the enum and the variant consistent
-  // (because the variant's index is used as the enum's value)
   enum class ValueType { real, integer, enumerated };
   typedef std::variant<RealValues, IntegerValues, EnumeratedValues> Values;
 
@@ -172,7 +170,14 @@ class Criterion {
  public:
   const std::string& get_name() const { return name; }
 
-  ValueType get_value_type() const { return ValueType(values.index()); }
+  ValueType get_value_type() const {
+    return dispatch(
+      values,
+      [](const RealValues&) { return ValueType::real; },
+      [](const IntegerValues&) { return ValueType::integer; },
+      [](const EnumeratedValues&) { return ValueType::enumerated; }
+    );
+  }
   const Values& get_values() const { return values; }
 
   bool is_real() const { return get_value_type() == ValueType::real; }

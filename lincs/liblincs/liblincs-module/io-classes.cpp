@@ -81,6 +81,19 @@ auto auto_enum(Scope& scope, const char* name, const char* docstring = nullptr) 
   return e;
 }
 
+// Inspired by https://stackoverflow.com/a/57643845/905845
+template<typename V, std::size_t I=0>
+V variant_cast(const py::object& obj) {
+  if constexpr (I < std::variant_size_v<V>) {
+    try {
+      return obj.cast<std::variant_alternative_t<I, V>>();
+    } catch (py::cast_error&) {
+      return variant_cast<V, I + 1>(obj);
+    }
+  }
+  throw py::cast_error();
+}
+
 }  // namespace
 
 namespace lincs {
@@ -107,14 +120,7 @@ void define_problem_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        const std::string name = t[0].cast<std::string>();
-        try {
-          return lincs::Criterion(name, lincs::Criterion::Values(t[1].cast<lincs::Criterion::RealValues>()));
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::Criterion(name, lincs::Criterion::Values(t[1].cast<lincs::Criterion::IntegerValues>()));
-        } catch (py::cast_error&) {}
-        return lincs::Criterion(name, lincs::Criterion::Values(t[1].cast<lincs::Criterion::EnumeratedValues>()));
+        return lincs::Criterion(t[0].cast<std::string>(), variant_cast<lincs::Criterion::Values>(t[1]));
       }
     ))
     .def(py::self == py::self)  // Private, undocumented, used only for our tests
@@ -315,19 +321,7 @@ void define_model_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        try {
-          return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::RealThresholds>());
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::IntegerThresholds>());
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::RealIntervals>());
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::IntegerIntervals>());
-        } catch (py::cast_error&) {}
-        return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::EnumeratedThresholds>());
+        return lincs::AcceptedValues(variant_cast<lincs::AcceptedValues::Self>(t[0]));
       }
     ))
   ;
@@ -489,10 +483,7 @@ void define_model_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        try {
-          return lincs::SufficientCoalitions(t[0].cast<lincs::SufficientCoalitions::Weights>());
-        } catch (py::cast_error&) {}
-        return lincs::SufficientCoalitions(t[0].cast<lincs::SufficientCoalitions::Roots>());
+        return lincs::SufficientCoalitions(variant_cast<lincs::SufficientCoalitions::Self>(t[0]));
       }
     ))
     .def(py::self == py::self)
@@ -632,13 +623,7 @@ void define_alternative_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        try {
-          return lincs::Performance(t[0].cast<lincs::Performance::Real>());
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::Performance(t[0].cast<lincs::Performance::Integer>());
-        } catch (py::cast_error&) {}
-        return lincs::Performance(t[0].cast<lincs::Performance::Enumerated>());
+        return lincs::Performance(variant_cast<lincs::Performance::Self>(t[0]));
       }
     ))
   ;

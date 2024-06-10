@@ -122,31 +122,24 @@ class AcceptedValues {
 
  public:
   Kind get_kind() const {
-    switch (self.index()) {
-      case 0:
-      case 1:
-      case 2:
-        return Kind::thresholds;
-      case 3:
-      case 4:
-        return Kind::intervals;
-      default:
-        unreachable();
-    }
+    return dispatch(
+      self,
+      [](const RealThresholds&) { return Kind::thresholds; },
+      [](const IntegerThresholds&) { return Kind::thresholds; },
+      [](const EnumeratedThresholds&) { return Kind::thresholds; },
+      [](const RealIntervals&) { return Kind::intervals; },
+      [](const IntegerIntervals&) { return Kind::intervals; }
+    );
   }
   Criterion::ValueType get_value_type() const {
-    switch (self.index()) {
-      case 0:
-      case 3:
-        return Criterion::ValueType::real;
-      case 1:
-      case 4:
-        return Criterion::ValueType::integer;
-      case 2:
-        return Criterion::ValueType::enumerated;
-      default:
-        unreachable();
-    }
+    return dispatch(
+      self,
+      [](const RealThresholds&) { return Criterion::ValueType::real; },
+      [](const IntegerThresholds&) { return Criterion::ValueType::integer; },
+      [](const EnumeratedThresholds&) { return Criterion::ValueType::enumerated; },
+      [](const RealIntervals&) { return Criterion::ValueType::real; },
+      [](const IntegerIntervals&) { return Criterion::ValueType::integer; }
+    );
   }
   const Self& get() const { return self; }
 
@@ -262,8 +255,6 @@ class SufficientCoalitions {
     std::vector<boost::dynamic_bitset<>> upset_roots;  // Indexed by [root_coalition_index][criterion_index] and true if the criterion is in the coalition
   };
 
-  // WARNING: keep the enum and the variant consistent
-  // (because the variant's index is used as the enum's value)
   enum class Kind { weights, roots };
   typedef std::variant<Weights, Roots> Self;
 
@@ -283,7 +274,13 @@ class SufficientCoalitions {
   }
 
  public:
-  Kind get_kind() const { return Kind(self.index()); }
+  Kind get_kind() const {
+    return dispatch(
+      self,
+      [](const Weights&) { return Kind::weights; },
+      [](const Roots&) { return Kind::roots; }
+    );
+  }
   const Self& get() const { return self; }
 
   bool is_weights() const { return get_kind() == Kind::weights; }
