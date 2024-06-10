@@ -122,6 +122,12 @@
 
                     For criteria where lower numerical values are known to be better.
 
+                .. property:: single_peaked
+                    :classmethod:
+                    :type: lincs.classification.Criterion.PreferenceDirection
+
+                    For criteria where intermediate numerical values are known to be better.
+
                 .. property:: isotone
                     :classmethod:
                     :type: lincs.classification.Criterion.PreferenceDirection
@@ -167,6 +173,11 @@
 
                     ``True`` if the criterion has decreasing preference direction.
 
+                .. property:: is_single_peaked
+                    :type: bool
+
+                    ``True`` if the criterion has single-peaked preference direction.
+
             .. property:: real_values
                 :type: RealValues
 
@@ -204,6 +215,11 @@
                     :type: bool
 
                     ``True`` if the criterion has decreasing preference direction.
+
+                .. property:: is_single_peaked
+                    :type: bool
+
+                    ``True`` if the criterion has single-peaked preference direction.
 
             .. property:: integer_values
                 :type: IntegerValues
@@ -295,6 +311,16 @@
 
                 Constructor for thresholds on an enumerated criterion.
 
+            .. method:: __init__(values: RealIntervals)
+                :noindex:
+
+                Constructor for intervals on a real-valued criterion.
+
+            .. method:: __init__(values: IntegerIntervals)
+                :noindex:
+
+                Constructor for intervals on an integer-valued criterion.
+
             .. property:: value_type
                 :type: ValueType
 
@@ -325,6 +351,12 @@
 
                     A threshold for each category.
 
+                .. property:: intervals
+                    :classmethod:
+                    :type: lincs.classification.AcceptedValues.Kind
+
+                    An interval for each category.
+
             .. property:: kind
                 :type: AcceptedValues.Kind
 
@@ -334,6 +366,11 @@
                 :type: bool
 
                 ``True`` if the descriptor is a set of thresholds.
+
+            .. property:: is_intervals
+                :type: bool
+
+                ``True`` if the descriptor is a set of intervals.
 
             .. class:: RealThresholds
 
@@ -388,6 +425,42 @@
                 :type: EnumeratedThresholds
 
                 Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``.
+
+            .. class:: RealIntervals
+
+                Descriptor for intervals for an real-valued criterion.
+
+                .. method:: __init__(intervals: list[Optional[tuple[float, float]]])
+
+                    Parameters map exactly to attributes with identical names.
+
+                .. property:: intervals
+                    :type: Iterable[Optional[Tuple[float, float]]]
+
+                    The intervals for this descriptor.
+
+            .. property:: real_intervals
+                :type: RealIntervals
+
+                Descriptor of the real intervals, accessible if ``is_real and is_intervals``.
+
+            .. class:: IntegerIntervals
+
+                Descriptor for intervals for an integer-valued criterion.
+
+                .. method:: __init__(intervals: list[Optional[tuple[int, int]]])
+
+                    Parameters map exactly to attributes with identical names.
+
+                .. property:: intervals
+                    :type: Iterable[Optional[Tuple[int, int]]]
+
+                    The intervals for this descriptor.
+
+            .. property:: integer_intervals
+                :type: IntegerIntervals
+
+                Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``.
 
         .. class:: SufficientCoalitions
 

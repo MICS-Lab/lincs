@@ -64,6 +64,8 @@ children:
               doc: For criteria where higher numerical values are known to be better.
             - name: decreasing
               doc: For criteria where lower numerical values are known to be better.
+            - name: single_peaked
+              doc: For criteria where intermediate numerical values are known to be better.
             - name: isotone
               doc: Synonym for ``increasing``.
             - name: antitone
@@ -87,6 +89,8 @@ children:
               type: bool
             - name: is_decreasing
               type: bool
+            - name: is_single_peaked
+              type: bool
         - name: real_values
           type: RealValues
         - name: IntegerValues
@@ -101,6 +105,8 @@ children:
             - name: is_increasing
               type: bool
             - name: is_decreasing
+              type: bool
+            - name: is_single_peaked
               type: bool
         - name: integer_values
           type: IntegerValues
@@ -144,6 +150,8 @@ children:
           children:
             - name: thresholds
               doc: A threshold for each category.
+            - name: intervals
+              doc: An interval for each category.
             - name: __init__
               show: false
             - name: name
@@ -153,6 +161,8 @@ children:
         - name: kind
           type: AcceptedValues.Kind
         - name: is_thresholds
+          type: bool
+        - name: is_intervals
           type: bool
         - name: RealThresholds
           children:
@@ -175,6 +185,20 @@ children:
               type: Iterable[Optional[str]]
         - name: enumerated_thresholds
           type: EnumeratedThresholds
+        - name: RealIntervals
+          children:
+            - name: __init__
+            - name: intervals
+              type: Iterable[Optional[Tuple[float, float]]]
+        - name: real_intervals
+          type: RealIntervals
+        - name: IntegerIntervals
+          children:
+            - name: __init__
+            - name: intervals
+              type: Iterable[Optional[Tuple[int, int]]]
+        - name: integer_intervals
+          type: IntegerIntervals
     - name: SufficientCoalitions
       children:
         - name: __init__

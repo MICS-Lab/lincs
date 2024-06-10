@@ -26,6 +26,11 @@ lincs: module
                 __init__: instancemethod
                 __setstate__: instancemethod
                 thresholds: property
+            IntegerIntervals: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                intervals: property
             IntegerThresholds: pybind11_type
                 __getstate__: instancemethod
                 __init__: instancemethod
@@ -37,9 +42,15 @@ lincs: module
                 __init__: instancemethod
                 __members__: dict
                 __setstate__: instancemethod
+                intervals: Kind
                 name: property
                 thresholds: Kind
                 value: property
+            RealIntervals: pybind11_type
+                __getstate__: instancemethod
+                __init__: instancemethod
+                __setstate__: instancemethod
+                intervals: property
             RealThresholds: pybind11_type
                 __getstate__: instancemethod
                 __init__: instancemethod
@@ -49,12 +60,15 @@ lincs: module
             __init__: instancemethod
             __setstate__: instancemethod
             enumerated_thresholds: property
+            integer_intervals: property
             integer_thresholds: property
             is_enumerated: property
             is_integer: property
+            is_intervals: property
             is_real: property
             is_thresholds: property
             kind: property
+            real_intervals: property
             real_thresholds: property
             value_type: property
         Alternative: pybind11_type
@@ -98,6 +112,7 @@ lincs: module
                 __setstate__: instancemethod
                 is_decreasing: property
                 is_increasing: property
+                is_single_peaked: property
                 max_value: property
                 min_value: property
                 preference_direction: property
@@ -112,6 +127,7 @@ lincs: module
                 increasing: PreferenceDirection
                 isotone: PreferenceDirection
                 name: property
+                single_peaked: PreferenceDirection
                 value: property
             RealValues: pybind11_type
                 __getstate__: instancemethod
@@ -119,6 +135,7 @@ lincs: module
                 __setstate__: instancemethod
                 is_decreasing: property
                 is_increasing: property
+                is_single_peaked: property
                 max_value: property
                 min_value: property
                 preference_direction: property
