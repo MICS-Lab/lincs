@@ -1,289 +1,344 @@
-lincs: module
-    DataValidationException: type
-        __init__: wrapper_descriptor
-        args: getset_descriptor
-        with_traceback: method_descriptor
-    LearningFailureException: type
-        __init__: wrapper_descriptor
-        args: getset_descriptor
-        with_traceback: method_descriptor
-    UniformRandomBitsGenerator: class
-        __call__: function
-        __init__: builtin_function_or_method
-    classification: module
-        AcceptedValues: class
-            EnumeratedThresholds: class
-                __init__: function
-                thresholds: property
-            IntegerThresholds: class
-                __init__: function
-                thresholds: property
-            Kind: type
-                __init__: wrapper_descriptor
-                as_integer_ratio: method_descriptor
-                bit_length: method_descriptor
-                conjugate: method_descriptor
-                denominator: getset_descriptor
-                from_bytes: builtin_function_or_method
-                imag: getset_descriptor
-                name: member_descriptor
-                names: dict
-                numerator: getset_descriptor
-                real: getset_descriptor
-                thresholds: Kind
-                to_bytes: method_descriptor
-                values: dict
-            RealThresholds: class
-                __init__: function
-                thresholds: property
-            __init__: function
-            enumerated_thresholds: property
-            integer_thresholds: property
-            is_enumerated: property
-            is_integer: property
-            is_real: property
-            is_thresholds: property
-            kind: property
-            real_thresholds: property
-            value_type: property
-        Alternative: class
-            __init__: function
-            category_index: property
-            name: property
-            profile: property
-        Alternatives: class
-            __init__: function
-            alternatives: property
-            dump: function
-            load: function
-        BalancedAlternativesGenerationException: type
-            __init__: wrapper_descriptor
-            args: getset_descriptor
-            with_traceback: method_descriptor
-        Category: class
-            __init__: function
-            name: property
-        ClassificationResult: class
-            __init__: builtin_function_or_method
-            changed: property
-            unchanged: property
-        Criterion: class
-            EnumeratedValues: class
-                __init__: function
-                get_value_rank: function
-                ordered_values: property
-            IntegerValues: class
-                __init__: function
-                is_decreasing: property
-                is_increasing: property
-                max_value: property
-                min_value: property
-                preference_direction: property
-            PreferenceDirection: type
-                __init__: wrapper_descriptor
-                antitone: PreferenceDirection
-                as_integer_ratio: method_descriptor
-                bit_length: method_descriptor
-                conjugate: method_descriptor
-                decreasing: PreferenceDirection
-                denominator: getset_descriptor
-                from_bytes: builtin_function_or_method
-                imag: getset_descriptor
-                increasing: PreferenceDirection
-                isotone: PreferenceDirection
-                name: member_descriptor
-                names: dict
-                numerator: getset_descriptor
-                real: getset_descriptor
-                to_bytes: method_descriptor
-                values: dict
-            RealValues: class
-                __init__: function
-                is_decreasing: property
-                is_increasing: property
-                max_value: property
-                min_value: property
-                preference_direction: property
-            ValueType: type
-                __init__: wrapper_descriptor
-                as_integer_ratio: method_descriptor
-                bit_length: method_descriptor
-                conjugate: method_descriptor
-                denominator: getset_descriptor
-                enumerated: ValueType
-                from_bytes: builtin_function_or_method
-                imag: getset_descriptor
-                integer: ValueType
-                name: member_descriptor
-                names: dict
-                numerator: getset_descriptor
-                real: ValueType
-                to_bytes: method_descriptor
-                values: dict
-            __init__: function
-            enumerated_values: property
-            integer_values: property
-            is_enumerated: property
-            is_integer: property
-            is_real: property
-            name: property
-            real_values: property
-            value_type: property
-        ImproveProfilesWithAccuracyHeuristicOnCpu: class
-            __init__: function
-            improve_profiles: function
-        ImproveProfilesWithAccuracyHeuristicOnGpu: class
-            __init__: function
-            improve_profiles: function
-        InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion: class
-            __init__: function
-            initialize_profiles: function
-        LearnMrsortByWeightsProfilesBreed: class
-            BreedingStrategy: class
-                __init__: function
-                breed: function
-            LearningData: class
-                __init__: function
-                accuracies: property
-                alternatives_count: property
-                assignments: property
-                boundaries_count: property
-                categories_count: property
-                criteria_count: property
-                get_best_accuracy: function
-                get_best_model: function
-                iteration_index: property
-                model_indexes: property
-                models_count: property
-                performance_ranks: property
-                profile_ranks: property
-                urbgs: property
-                values_counts: property
-                weights: property
-            Observer: class
-                __init__: function
-                after_iteration: function
-                before_return: function
-            ProfilesImprovementStrategy: class
-                __init__: function
-                improve_profiles: function
-            ProfilesInitializationStrategy: class
-                __init__: function
-                initialize_profiles: function
-            TerminationStrategy: class
-                __init__: function
-                terminate: function
-            WeightsOptimizationStrategy: class
-                __init__: function
-                optimize_weights: function
-            __init__: function
-            perform: function
-        LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat: class
-            __init__: function
-            perform: function
-        LearnUcncsByMaxSatBySeparationUsingEvalmaxsat: class
-            __init__: function
-            perform: function
-        LearnUcncsBySatByCoalitionsUsingMinisat: class
-            __init__: function
-            perform: function
-        LearnUcncsBySatBySeparationUsingMinisat: class
-            __init__: function
-            perform: function
-        Model: class
-            JSON_SCHEMA: str
-            __init__: function
-            accepted_values: property
-            dump: function
-            load: function
-            sufficient_coalitions: property
-        OptimizeWeightsUsingAlglib: class
-            __init__: function
-            optimize_weights: function
-        OptimizeWeightsUsingGlop: class
-            __init__: function
-            optimize_weights: function
-        Performance: class
-            Enumerated: class
-                __init__: function
-                value: property
-            Integer: class
-                __init__: function
-                value: property
-            Real: class
-                __init__: function
-                value: property
-            __init__: function
-            enumerated: property
-            integer: property
-            is_enumerated: property
-            is_integer: property
-            is_real: property
-            real: property
-            value_type: property
-        Problem: class
-            JSON_SCHEMA: str
-            __init__: function
-            criteria: property
-            dump: function
-            load: function
-            ordered_categories: property
-        ReinitializeLeastAccurate: class
-            __init__: function
-            breed: function
-        SufficientCoalitions: class
-            Kind: type
-                __init__: wrapper_descriptor
-                as_integer_ratio: method_descriptor
-                bit_length: method_descriptor
-                conjugate: method_descriptor
-                denominator: getset_descriptor
-                from_bytes: builtin_function_or_method
-                imag: getset_descriptor
-                name: member_descriptor
-                names: dict
-                numerator: getset_descriptor
-                real: getset_descriptor
-                roots: Kind
-                to_bytes: method_descriptor
-                values: dict
-                weights: Kind
-            Roots: class
-                __init__: function
-                upset_roots: property
-            Weights: class
-                __init__: function
-                criterion_weights: property
-            __init__: function
-            is_roots: property
-            is_weights: property
-            kind: property
-            roots: property
-            weights: property
-        TerminateAfterIterations: class
-            __init__: function
-            terminate: function
-        TerminateAfterIterationsWithoutProgress: class
-            __init__: function
-            terminate: function
-        TerminateAfterSeconds: class
-            __init__: function
-            terminate: function
-        TerminateAfterSecondsWithoutProgress: class
-            __init__: function
-            terminate: function
-        TerminateAtAccuracy: class
-            __init__: function
-            terminate: function
-        TerminateWhenAny: class
-            __init__: function
-            terminate: function
-        classify_alternatives: function
-        describe_model: function
-        describe_problem: function
-        generate_alternatives: function
-        generate_mrsort_model: function
-        generate_problem: function
-        misclassify_alternatives: function
-        visualize_model: function
-    has_gpu: bool
+lincs
+    DataValidationException
+        __init__
+        __setstate__
+        args
+        with_traceback
+    LearningFailureException
+        __init__
+        __setstate__
+        args
+        with_traceback
+    UniformRandomBitsGenerator
+        __call__
+        __init__
+    __builtins__
+    __cached__
+    __file__
+    __name__
+    __package__
+    __path__
+    __version__
+    classification
+        AcceptedValues
+            EnumeratedThresholds
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                thresholds
+            IntegerThresholds
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                thresholds
+            Kind
+                __init__
+                as_integer_ratio
+                bit_length
+                conjugate
+                denominator
+                from_bytes
+                imag
+                name
+                names
+                numerator
+                real
+                thresholds
+                to_bytes
+                values
+            RealThresholds
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                thresholds
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            enumerated_thresholds
+            integer_thresholds
+            is_enumerated
+            is_integer
+            is_real
+            is_thresholds
+            kind
+            real_thresholds
+            value_type
+        Alternative
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            category_index
+            name
+            profile
+        Alternatives
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            alternatives
+            dump
+            load
+        BalancedAlternativesGenerationException
+            __init__
+            __setstate__
+            args
+            with_traceback
+        Category
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            name
+        ClassificationResult
+            __init__
+            changed
+            unchanged
+        Criterion
+            EnumeratedValues
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                get_value_rank
+                ordered_values
+            IntegerValues
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                is_decreasing
+                is_increasing
+                max_value
+                min_value
+                preference_direction
+            PreferenceDirection
+                __init__
+                antitone
+                as_integer_ratio
+                bit_length
+                conjugate
+                decreasing
+                denominator
+                from_bytes
+                imag
+                increasing
+                isotone
+                name
+                names
+                numerator
+                real
+                to_bytes
+                values
+            RealValues
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                is_decreasing
+                is_increasing
+                max_value
+                min_value
+                preference_direction
+            ValueType
+                __init__
+                as_integer_ratio
+                bit_length
+                conjugate
+                denominator
+                enumerated
+                from_bytes
+                imag
+                integer
+                name
+                names
+                numerator
+                real
+                to_bytes
+                values
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            enumerated_values
+            integer_values
+            is_enumerated
+            is_integer
+            is_real
+            name
+            real_values
+            value_type
+        ImproveProfilesWithAccuracyHeuristicOnCpu
+            __init__
+            improve_profiles
+        ImproveProfilesWithAccuracyHeuristicOnGpu
+            __init__
+            improve_profiles
+        InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion
+            __init__
+            initialize_profiles
+        LearnMrsortByWeightsProfilesBreed
+            BreedingStrategy
+                __init__
+                breed
+            LearningData
+                __init__
+                accuracies
+                alternatives_count
+                assignments
+                boundaries_count
+                categories_count
+                criteria_count
+                get_best_accuracy
+                get_best_model
+                iteration_index
+                model_indexes
+                models_count
+                performance_ranks
+                profile_ranks
+                urbgs
+                values_counts
+                weights
+            Observer
+                __init__
+                after_iteration
+                before_return
+            ProfilesImprovementStrategy
+                __init__
+                improve_profiles
+            ProfilesInitializationStrategy
+                __init__
+                initialize_profiles
+            TerminationStrategy
+                __init__
+                terminate
+            WeightsOptimizationStrategy
+                __init__
+                optimize_weights
+            __init__
+            perform
+        LearnUcncsByMaxSatByCoalitionsUsingEvalmaxsat
+            __init__
+            perform
+        LearnUcncsByMaxSatBySeparationUsingEvalmaxsat
+            __init__
+            perform
+        LearnUcncsBySatByCoalitionsUsingMinisat
+            __init__
+            perform
+        LearnUcncsBySatBySeparationUsingMinisat
+            __init__
+            perform
+        Model
+            JSON_SCHEMA
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            accepted_values
+            dump
+            load
+            sufficient_coalitions
+        OptimizeWeightsUsingAlglib
+            __init__
+            optimize_weights
+        OptimizeWeightsUsingGlop
+            __init__
+            optimize_weights
+        Performance
+            Enumerated
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                value
+            Integer
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                value
+            Real
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                value
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            enumerated
+            integer
+            is_enumerated
+            is_integer
+            is_real
+            real
+            value_type
+        Problem
+            JSON_SCHEMA
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            criteria
+            dump
+            load
+            ordered_categories
+        ReinitializeLeastAccurate
+            __init__
+            breed
+        SufficientCoalitions
+            Kind
+                __init__
+                as_integer_ratio
+                bit_length
+                conjugate
+                denominator
+                from_bytes
+                imag
+                name
+                names
+                numerator
+                real
+                roots
+                to_bytes
+                values
+                weights
+            Roots
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                upset_roots
+            Weights
+                __getinitargs__
+                __init__
+                __safe_for_unpickling__
+                criterion_weights
+            __getinitargs__
+            __init__
+            __safe_for_unpickling__
+            is_roots
+            is_weights
+            kind
+            roots
+            weights
+        TerminateAfterIterations
+            __init__
+            terminate
+        TerminateAfterIterationsWithoutProgress
+            __init__
+            terminate
+        TerminateAfterSeconds
+            __init__
+            terminate
+        TerminateAfterSecondsWithoutProgress
+            __init__
+            terminate
+        TerminateAtAccuracy
+            __init__
+            terminate
+        TerminateWhenAny
+            __init__
+            terminate
+        __builtins__
+        __cached__
+        __file__
+        __name__
+        __package__
+        classify_alternatives
+        describe_model
+        describe_problem
+        generate_alternatives
+        generate_mrsort_model
+        generate_problem
+        misclassify_alternatives
+        visualize_model
+    has_gpu
