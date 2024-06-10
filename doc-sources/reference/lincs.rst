@@ -239,7 +239,7 @@
                     Get the rank of a given value.
 
                 .. property:: ordered_values
-                    :type: Iterable[str]
+                    :type: list[str]
 
                     The values for this criterion, from the worst to the best.
 
@@ -270,12 +270,12 @@
                 Parameters map exactly to attributes with identical names.
 
             .. property:: criteria
-                :type: Iterable[Criterion]
+                :type: list[Criterion]
 
                 The criteria of this problem.
 
             .. property:: ordered_categories
-                :type: Iterable[Category]
+                :type: list[Category]
 
                 The categories of this problem, from the worst to the best.
 
@@ -381,7 +381,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[Optional[float]]
+                    :type: list[Optional[float]]
 
                     The thresholds for this descriptor.
 
@@ -399,7 +399,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[Optional[int]]
+                    :type: list[Optional[int]]
 
                     The thresholds for this descriptor.
 
@@ -417,7 +417,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[Optional[str]]
+                    :type: list[Optional[str]]
 
                     The thresholds for this descriptor.
 
@@ -435,7 +435,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: intervals
-                    :type: Iterable[Optional[Tuple[float, float]]]
+                    :type: list[Optional[tuple[float, float]]]
 
                     The intervals for this descriptor.
 
@@ -453,7 +453,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: intervals
-                    :type: Iterable[Optional[Tuple[int, int]]]
+                    :type: list[Optional[tuple[int, int]]]
 
                     The intervals for this descriptor.
 
@@ -515,7 +515,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: criterion_weights
-                    :type: Iterable[float]
+                    :type: list[float]
 
                     The weights for each criterion.
 
@@ -533,7 +533,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: upset_roots
-                    :type: Iterable[Iterable[int]]
+                    :type: list[list[int]]
 
                     The roots of the upset of sufficient coalitions.
 
@@ -551,12 +551,12 @@
                 The :py:class:`Model` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names.
 
             .. property:: accepted_values
-                :type: Iterable[AcceptedValues]
+                :type: list[AcceptedValues]
 
                 The accepted values for each criterion.
 
             .. property:: sufficient_coalitions
-                :type: Iterable[SufficientCoalitions]
+                :type: list[SufficientCoalitions]
 
                 The sufficient coalitions for each category.
 
@@ -680,7 +680,7 @@
                 The name of the alternative.
 
             .. property:: profile
-                :type: Iterable[Performance]
+                :type: list[Performance]
 
                 The performance profile of the alternative.
 
@@ -698,7 +698,7 @@
                 The :py:class:`Alternatives` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names.
 
             .. property:: alternatives
-                :type: Iterable[Alternative]
+                :type: list[Alternative]
 
                 The :py:class:`Alternative` objects in this set.
 
@@ -816,17 +816,17 @@
                     Number of alternatives in the ``learning_set``.
 
                 .. property:: values_counts
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.
 
                 .. property:: performance_ranks
-                    :type: Iterable[Iterable[int]]
+                    :type: list[list[int]]
 
                     Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.
 
                 .. property:: assignments
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.
 
@@ -836,7 +836,7 @@
                     The number of in-progress models for this learning.
 
                 .. property:: urbgs
-                    :type: Iterable[UniformRandomBitsGenerator]
+                    :type: list[UniformRandomBitsGenerator]
 
                     Indexed by ``[model_index]``. Random number generators associated to each in-progress model.
 
@@ -846,22 +846,22 @@
                     The index of the current iteration of the WPB algorithm.
 
                 .. property:: model_indexes
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.
 
                 .. property:: weights
-                    :type: Iterable[Iterable[int]]
+                    :type: list[list[int]]
 
                     Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.
 
                 .. property:: profile_ranks
-                    :type: Iterable[Iterable[Iterable[int]]]
+                    :type: list[list[list[int]]]
 
                     Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each profile, for each model and criterion.
 
                 .. property:: accuracies
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``[model_index]``. Accuracy of each in-progress model.
 

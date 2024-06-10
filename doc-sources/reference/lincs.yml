@@ -115,7 +115,7 @@ children:
             - name: __init__
             - name: get_value_rank
             - name: ordered_values
-              type: Iterable[str]
+              type: list[str]
         - name: enumerated_values
           type: EnumeratedValues
     - name: Category
@@ -127,9 +127,9 @@ children:
       children:
         - name: __init__
         - name: criteria
-          type: Iterable[Criterion]
+          type: list[Criterion]
         - name: ordered_categories
-          type: Iterable[Category]
+          type: list[Category]
         - name: dump
         - name: load
           staticmethod: true
@@ -168,35 +168,35 @@ children:
           children:
             - name: __init__
             - name: thresholds
-              type: Iterable[Optional[float]]
+              type: list[Optional[float]]
         - name: real_thresholds
           type: RealThresholds
         - name: IntegerThresholds
           children:
             - name: __init__
             - name: thresholds
-              type: Iterable[Optional[int]]
+              type: list[Optional[int]]
         - name: integer_thresholds
           type: IntegerThresholds
         - name: EnumeratedThresholds
           children:
             - name: __init__
             - name: thresholds
-              type: Iterable[Optional[str]]
+              type: list[Optional[str]]
         - name: enumerated_thresholds
           type: EnumeratedThresholds
         - name: RealIntervals
           children:
             - name: __init__
             - name: intervals
-              type: Iterable[Optional[Tuple[float, float]]]
+              type: list[Optional[tuple[float, float]]]
         - name: real_intervals
           type: RealIntervals
         - name: IntegerIntervals
           children:
             - name: __init__
             - name: intervals
-              type: Iterable[Optional[Tuple[int, int]]]
+              type: list[Optional[tuple[int, int]]]
         - name: integer_intervals
           type: IntegerIntervals
     - name: SufficientCoalitions
@@ -224,23 +224,23 @@ children:
           children:
             - name: __init__
             - name: criterion_weights
-              type: Iterable[float]
+              type: list[float]
         - name: weights
           type: Weights
         - name: Roots
           children:
             - name: __init__
             - name: upset_roots
-              type: Iterable[Iterable[int]]
+              type: list[list[int]]
         - name: roots
           type: Roots
     - name: Model
       children:
         - name: __init__
         - name: accepted_values
-          type: Iterable[AcceptedValues]
+          type: list[AcceptedValues]
         - name: sufficient_coalitions
-          type: Iterable[SufficientCoalitions]
+          type: list[SufficientCoalitions]
         - name: dump
         - name: load
           staticmethod: true
@@ -284,14 +284,14 @@ children:
         - name: name
           type: str
         - name: profile
-          type: Iterable[Performance]
+          type: list[Performance]
         - name: category_index
           type: Optional[int]
     - name: Alternatives
       children:
         - name: __init__
         - name: alternatives
-          type: Iterable[Alternative]
+          type: list[Alternative]
         - name: dump
         - name: load
           staticmethod: true
@@ -341,25 +341,25 @@ children:
             - name: alternatives_count
               type: int
             - name: values_counts
-              type: Iterable[int]
+              type: list[int]
             - name: performance_ranks
-              type: Iterable[Iterable[int]]
+              type: list[list[int]]
             - name: assignments
-              type: Iterable[int]
+              type: list[int]
             - name: models_count
               type: int
             - name: urbgs
-              type: Iterable[UniformRandomBitsGenerator]
+              type: list[UniformRandomBitsGenerator]
             - name: iteration_index
               type: int
             - name: model_indexes
-              type: Iterable[int]
+              type: list[int]
             - name: weights
-              type: Iterable[Iterable[int]]
+              type: list[list[int]]
             - name: profile_ranks
-              type: Iterable[Iterable[Iterable[int]]]
+              type: list[list[list[int]]]
             - name: accuracies
-              type: Iterable[int]
+              type: list[int]
             - name: get_best_accuracy
             - name: get_best_model
         - name: ProfilesInitializationStrategy
