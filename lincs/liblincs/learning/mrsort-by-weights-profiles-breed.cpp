@@ -72,12 +72,6 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
 Model LearnMrsortByWeightsProfilesBreed::perform() {
   CHRONE();
 
-  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-    if (learning_data.single_peaked[criterion_index]) {
-      throw LearningFailureException("WeightsProfilesBreed doesn't support single-peaked criteria.");
-    }
-  }
-
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 
   while (true) {

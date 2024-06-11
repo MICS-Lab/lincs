@@ -19,26 +19,64 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
  private:
   void improve_model_profiles(unsigned model_index);
 
-  void improve_model_profile(
+  void improve_boundary_profiles(
     unsigned model_index,
     unsigned profile_index,
     ArrayView1D<Host, const unsigned> criterion_indexes
   );
 
-  void improve_model_profile(
+  void improve_low_profile_then_high_profile(
     unsigned model_index,
     unsigned profile_index,
     unsigned criterion_index
   );
 
-  Desirability compute_move_desirability(
+  Desirability compute_move_desirability_for_low_profile_first(
     unsigned model_index,
     unsigned profile_index,
     unsigned criterion_index,
     unsigned destination_rank
   );
 
-  void update_move_desirability(
+  void update_move_desirability_for_low_profile_first(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned destination_rank,
+    unsigned alternative_index,
+    Desirability* desirability
+  );
+
+  Desirability compute_move_desirability_for_high_profile_second(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned destination_rank
+  );
+
+  void update_move_desirability_for_high_profile_second(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned destination_rank,
+    unsigned alternative_index,
+    Desirability* desirability
+  );
+
+  void improve_low_profile_only(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index
+  );
+
+  Desirability compute_move_desirability_for_low_profile_only(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned destination_rank
+  );
+
+  void update_move_desirability_for_low_profile_only(
     unsigned model_index,
     unsigned profile_index,
     unsigned criterion_index,

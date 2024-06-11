@@ -468,6 +468,54 @@ TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::s
     {14});
 }
 
+TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria" * doctest::skip(skip_wpb)) {
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::single_peaked},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria" * doctest::skip(skip_wpb)) {
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::single_peaked},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    3, 5,
+    {lincs::Criterion::PreferenceDirection::single_peaked},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::single_peaked},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - single-peaked integer criteria" * doctest::skip(skip_wpb)) {
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::single_peaked},
+    {lincs::Criterion::ValueType::integer},
+    {});
+}
+
+TEST_CASE("Basic (and GPU) WPB learning - all" * doctest::skip(skip_wpb)) {
+  check_exact_learnings<BasicWpb<200>::Wrapper>(
+    3, 3,
+    {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing, lincs::Criterion::PreferenceDirection::single_peaked},
+    {lincs::Criterion::ValueType::real, lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
+    {});
+}
+
 TEST_CASE("Alglib WPB learning - real criteria" * doctest::skip(skip_wpb)) {
   check_exact_learnings<AlglibWpbWrapper>(
     1, 2,
