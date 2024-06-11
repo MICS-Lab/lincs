@@ -27,15 +27,15 @@ unsigned get_assignment(
   // phase keeping the maximum 'category_index' that passes the weight threshold.
   for (unsigned category_index = categories_count - 1; category_index != 0; --category_index) {
     const unsigned profile_index = category_index - 1;
-    float weight_at_or_better_than_profile = 0;
+    float accepted_weight = 0;
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
       const unsigned profile_rank = profile_ranks[model_index][profile_index][criterion_index];
       if (alternative_rank >= profile_rank) {
-        weight_at_or_better_than_profile += weights[model_index][criterion_index];
+        accepted_weight += weights[model_index][criterion_index];
       }
     }
-    if (weight_at_or_better_than_profile >= 1) {
+    if (accepted_weight >= 1) {
       return category_index;
     }
   }
@@ -70,13 +70,13 @@ void update_move_desirability(
     model_index,
     alternative_index);
 
-  float weight_at_or_better_than_profile = 0;
+  float accepted_weight = 0;
   // There is a criterion parameter above, *and* a local criterion just here
   for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
     const unsigned alternative_rank = performance_ranks[crit_index][alternative_index];
     const unsigned profile_rank = profile_ranks[model_index][profile_index][crit_index];
     if (alternative_rank >= profile_rank) {
-      weight_at_or_better_than_profile += weights[model_index][crit_index];
+      accepted_weight += weights[model_index][crit_index];
     }
   }
 
@@ -86,7 +86,7 @@ void update_move_desirability(
       && model_assignment == profile_index + 1
       && destination_rank > alternative_rank
       && alternative_rank >= current_rank
-      && weight_at_or_better_than_profile - weight < 1
+      && accepted_weight - weight < 1
     ) {
       atomicInc(&desirability->v, alternatives_count);
     }
@@ -95,7 +95,7 @@ void update_move_desirability(
       && model_assignment == profile_index + 1
       && destination_rank > alternative_rank
       && alternative_rank >= current_rank
-      && weight_at_or_better_than_profile - weight >= 1
+      && accepted_weight - weight >= 1
     ) {
       atomicInc(&desirability->w, alternatives_count);
     }
@@ -104,7 +104,7 @@ void update_move_desirability(
       && model_assignment == profile_index + 1
       && destination_rank > alternative_rank
       && alternative_rank >= current_rank
-      && weight_at_or_better_than_profile - weight < 1
+      && accepted_weight - weight < 1
     ) {
       atomicInc(&desirability->q, alternatives_count);
     }
@@ -130,7 +130,7 @@ void update_move_desirability(
       && model_assignment == profile_index
       && alternative_rank > destination_rank
       && current_rank > alternative_rank
-      && weight_at_or_better_than_profile + weight >= 1
+      && accepted_weight + weight >= 1
     ) {
       atomicInc(&desirability->v, alternatives_count);
     }
@@ -139,7 +139,7 @@ void update_move_desirability(
       && model_assignment == profile_index
       && alternative_rank > destination_rank
       && current_rank > alternative_rank
-      && weight_at_or_better_than_profile + weight < 1
+      && accepted_weight + weight < 1
     ) {
       atomicInc(&desirability->w, alternatives_count);
     }
@@ -148,7 +148,7 @@ void update_move_desirability(
       && model_assignment == profile_index
       && alternative_rank > destination_rank
       && current_rank > alternative_rank
-      && weight_at_or_better_than_profile + weight >= 1
+      && accepted_weight + weight >= 1
     ) {
       atomicInc(&desirability->q, alternatives_count);
     }

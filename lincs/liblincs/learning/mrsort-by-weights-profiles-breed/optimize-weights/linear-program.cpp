@@ -28,11 +28,11 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
   const float epsilon = 1e-6;
   LinearProgram program;
 
-  std::vector<typename LinearProgram::variable_type> weight_variables;
-  std::vector<typename LinearProgram::variable_type> x_variables;
-  std::vector<typename LinearProgram::variable_type> xp_variables;
-  std::vector<typename LinearProgram::variable_type> y_variables;
-  std::vector<typename LinearProgram::variable_type> yp_variables;
+  std::vector<typename LinearProgram::variable_type> weight_variables;  // Indexed by [criterion_index]
+  std::vector<typename LinearProgram::variable_type> x_variables;  // [alternative_index]
+  std::vector<typename LinearProgram::variable_type> xp_variables;  // [alternative_index]
+  std::vector<typename LinearProgram::variable_type> y_variables;  // [alternative_index]
+  std::vector<typename LinearProgram::variable_type> yp_variables;  // [alternative_index]
 
   weight_variables.reserve(learning_data.criteria_count);
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
@@ -58,31 +58,27 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
 
     const unsigned category_index = learning_data.assignments[alternative_index];
 
-    if (category_index != 0) {
+    if (category_index != 0) {  // Except bottom category
+      const unsigned profile_index = category_index - 1;  // Profile below category
       auto c = program.create_constraint();
       c.set_bounds(1, 1);
       c.set_coefficient(x_variables[alternative_index], -1);
       c.set_coefficient(xp_variables[alternative_index], 1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
-        const unsigned profile_rank = learning_data.low_profile_ranks[model_index][category_index - 1][criterion_index];
-        const bool is_better = alternative_rank >= profile_rank;
-        if (is_better) {
+        if (is_accepted(learning_data, model_index, profile_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
     }
 
-    if (category_index != learning_data.categories_count - 1) {
+    if (category_index != learning_data.categories_count - 1) {  // Except top category
+      const unsigned profile_index = category_index;  // Profile above category
       auto c = program.create_constraint();
       c.set_bounds(1 - epsilon, 1 - epsilon);
       c.set_coefficient(y_variables[alternative_index], 1);
       c.set_coefficient(yp_variables[alternative_index], -1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
-        const unsigned profile_rank = learning_data.low_profile_ranks[model_index][category_index][criterion_index];
-        const bool is_better = alternative_rank >= profile_rank;
-        if (is_better) {
+        if (is_accepted(learning_data, model_index, profile_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }

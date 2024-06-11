@@ -145,14 +145,11 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
 
   // @todo(Project management, later) Factorize with get_assignment
   // (Same remark in accuracy-heuristic-on-gpu.cu)
-  float weight_at_or_better_than_profile = 0;
+  float accepted_weight = 0;
   // There is a criterion parameter above, *and* a local criterion just here
   for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
-    const unsigned alternative_rank = learning_data.performance_ranks[crit_index][alternative_index];
-    const unsigned profile_rank = learning_data.low_profile_ranks[model_index][profile_index][crit_index];
-    const bool is_better = alternative_rank >= profile_rank;
-    if (is_better) {
-      weight_at_or_better_than_profile += learning_data.weights[model_index][crit_index];
+    if (is_accepted(learning_data, model_index, profile_index, crit_index, alternative_index)) {
+      accepted_weight += learning_data.weights[model_index][crit_index];
     }
   }
 
@@ -165,7 +162,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
   // - destination_value: b_j +/- \delta
   // - current_value: b_j
   // - alternative_value: a_j
-  // - weight_at_or_better_than_profile: \sigma
+  // - accepted_weight: \sigma
   // - weight: w_j
   // - 1: \lambda
   if (destination_rank > current_rank) {
@@ -174,7 +171,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && model_assignment == profile_index + 1
       && destination_rank > alternative_rank
       && alternative_rank >= current_rank
-      && weight_at_or_better_than_profile - weight < 1
+      && accepted_weight - weight < 1
     ) {
       ++desirability->v;
     }
@@ -183,7 +180,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && model_assignment == profile_index + 1
       && destination_rank > alternative_rank
       && alternative_rank >= current_rank
-      && weight_at_or_better_than_profile - weight >= 1
+      && accepted_weight - weight >= 1
     ) {
       ++desirability->w;
     }
@@ -192,7 +189,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && model_assignment == profile_index + 1
       && destination_rank > alternative_rank
       && alternative_rank >= current_rank
-      && weight_at_or_better_than_profile - weight < 1
+      && accepted_weight - weight < 1
     ) {
       ++desirability->q;
     }
@@ -218,7 +215,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && model_assignment == profile_index
       && alternative_rank > destination_rank
       && current_rank > alternative_rank
-      && weight_at_or_better_than_profile + weight >= 1
+      && accepted_weight + weight >= 1
     ) {
       ++desirability->v;
     }
@@ -227,7 +224,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && model_assignment == profile_index
       && alternative_rank > destination_rank
       && current_rank > alternative_rank
-      && weight_at_or_better_than_profile + weight < 1
+      && accepted_weight + weight < 1
     ) {
       ++desirability->w;
     }
@@ -236,7 +233,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability(
       && model_assignment == profile_index
       && alternative_rank > destination_rank
       && current_rank > alternative_rank
-      && weight_at_or_better_than_profile + weight >= 1
+      && accepted_weight + weight >= 1
     ) {
       ++desirability->q;
     }
