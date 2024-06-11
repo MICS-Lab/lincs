@@ -855,10 +855,15 @@
 
                     Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.
 
-                .. property:: profile_ranks
+                .. property:: low_profile_ranks
                     :type: list[list[list[int]]]
 
-                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each profile, for each model and criterion.
+                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each low profile, for each model and criterion.
+
+                .. property:: high_profile_ranks
+                    :type: list[list[list[int]]]
+
+                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each high profile, for each model and criterion.
 
                 .. property:: accuracies
                     :type: list[int]
@@ -879,7 +884,7 @@
 
                 .. method:: initialize_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    Method to override. Should initialize all ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
+                    Method to override. Should initialize all ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: WeightsOptimizationStrategy
 
@@ -895,7 +900,7 @@
 
                 .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    Method to override. Should improve ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
+                    Method to override. Should improve ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: BreedingStrategy
 

@@ -356,7 +356,9 @@ children:
               type: list[int]
             - name: weights
               type: list[list[int]]
-            - name: profile_ranks
+            - name: low_profile_ranks
+              type: list[list[list[int]]]
+            - name: high_profile_ranks
               type: list[list[list[int]]]
             - name: accuracies
               type: list[int]
