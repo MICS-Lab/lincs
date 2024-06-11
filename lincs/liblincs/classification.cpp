@@ -12,7 +12,7 @@
 
 namespace lincs {
 
-bool better_or_equal(
+bool accepted_by_criterion(
   const Problem& problem,
   const Model& model,
   const Alternatives& alternatives,
@@ -91,7 +91,7 @@ bool better_or_equal(
   );
 }
 
-bool is_good_enough(
+bool accepted_by_category(
   const Problem& problem,
   const Model& model,
   const Alternatives& alternatives,
@@ -108,13 +108,13 @@ bool is_good_enough(
 
   return std::visit(
     [&problem, &model, &alternatives, criteria_count, boundary_index, alternative_index](const auto& sufficient_coalitions) {
-      boost::dynamic_bitset<> at_or_better_than_profile(criteria_count);
+      boost::dynamic_bitset<> accepted_criteria(criteria_count);
       for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-        if (better_or_equal(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
-          at_or_better_than_profile[criterion_index] = true;
+        if (accepted_by_criterion(problem, model, alternatives, boundary_index, alternative_index, criterion_index)) {
+          accepted_criteria[criterion_index] = true;
         }
       }
-      return sufficient_coalitions.accept(at_or_better_than_profile);
+      return sufficient_coalitions.accept(accepted_criteria);
     },
     model.get_sufficient_coalitions()[boundary_index].get()
   );
@@ -131,7 +131,7 @@ ClassificationResult classify_alternatives(const Problem& problem, const Model& 
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     unsigned category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
-      if (is_good_enough(problem, model, *alternatives, category_index - 1, alternative_index)) {
+      if (accepted_by_category(problem, model, *alternatives, category_index - 1, alternative_index)) {
         break;
       }
     }
@@ -158,7 +158,7 @@ unsigned count_correctly_classified_alternatives(const Problem& problem, const M
   for (unsigned alternative_index = 0; alternative_index != alternatives_count; ++alternative_index) {
     unsigned category_index;
     for (category_index = categories_count - 1; category_index != 0; --category_index) {
-      if (is_good_enough(problem, model, alternatives, category_index - 1, alternative_index)) {
+      if (accepted_by_category(problem, model, alternatives, category_index - 1, alternative_index)) {
         break;
       }
     }
