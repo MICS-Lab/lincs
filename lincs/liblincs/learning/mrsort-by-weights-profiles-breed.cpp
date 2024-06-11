@@ -24,7 +24,8 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   iteration_index(0),
   model_indexes(models_count),
   accuracies(models_count, zeroed),
-  profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  low_profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  high_profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
   weights(models_count, criteria_count, uninitialized)
 {
   CHRONE();
@@ -54,8 +55,13 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> boundary_profile;
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      const unsigned profile_rank = profile_ranks[model_index][boundary_index][criterion_index];
-      boundary_profile.push_back(profile_rank);
+      const unsigned low_profile_rank = low_profile_ranks[model_index][boundary_index][criterion_index];
+      const unsigned high_profile_rank = high_profile_ranks[model_index][boundary_index][criterion_index];
+      if (single_peaked[criterion_index]) {
+        boundary_profile.push_back(std::make_pair(low_profile_rank, high_profile_rank));
+      } else {
+        boundary_profile.push_back(low_profile_rank);
+      }
     }
     boundaries.emplace_back(boundary_profile, coalitions);
   }
@@ -150,17 +156,14 @@ unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& l
   // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
   // phase keeping the maximum 'category_index' that passes the weight threshold.
   for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
-    const unsigned profile_index = category_index - 1;
-    float weight_at_or_better_than_profile = 0;
+    const unsigned boundary_index = category_index - 1;
+    float accepted_weight = 0;
     for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-      const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
-      const unsigned profile_rank = learning_data.profile_ranks[model_index][profile_index][criterion_index];
-      const bool is_better = alternative_rank >= profile_rank;
-      if (is_better) {
-        weight_at_or_better_than_profile += learning_data.weights[model_index][criterion_index];
+      if (is_accepted(learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
+        accepted_weight += learning_data.weights[model_index][criterion_index];
       }
     }
-    if (weight_at_or_better_than_profile >= 1) {
+    if (accepted_weight >= 1) {
       return category_index;
     }
   }

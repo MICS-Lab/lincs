@@ -258,7 +258,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
   // Get optimized weights
   copy(host_learning_data.weights, ref(gpu_learning_data.weights));
   // Get (re-)initialized profiles
-  copy(host_learning_data.profile_ranks, ref(gpu_learning_data.profile_ranks));
+  copy(host_learning_data.low_profile_ranks, ref(gpu_learning_data.profile_ranks));
 
   #pragma omp parallel for
   for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
@@ -267,7 +267,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
   }
 
   // Set improved profiles
-  copy(gpu_learning_data.profile_ranks, ref(host_learning_data.profile_ranks));
+  copy(gpu_learning_data.profile_ranks, ref(host_learning_data.low_profile_ranks));
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {
@@ -307,15 +307,15 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   const unsigned lowest_destination_rank =
     profile_index == 0 ?
       0 :
-      learning_data.profile_ranks[model_index][profile_index - 1][criterion_index];
+      learning_data.low_profile_ranks[model_index][profile_index - 1][criterion_index];
   const unsigned highest_destination_rank =
     profile_index == learning_data.boundaries_count - 1 ?
       learning_data.values_counts[criterion_index] - 1 :
-      learning_data.profile_ranks[model_index][profile_index + 1][criterion_index];
+      learning_data.low_profile_ranks[model_index][profile_index + 1][criterion_index];
 
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(learning_data.profile_ranks[model_index][profile_index][criterion_index] == lowest_destination_rank);
+    assert(learning_data.low_profile_ranks[model_index][profile_index][criterion_index] == lowest_destination_rank);
     return;
   }
 
@@ -369,7 +369,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
 
   // Lov-e-CUDA doesn't provide a way to copy scalars, so we're back to the basics, using cudaMemcpy directly and doing pointer arithmetic.
   check_cuda_error(cudaMemcpy(
-    host_learning_data.profile_ranks[model_index][profile_index].data() + criterion_index,
+    host_learning_data.low_profile_ranks[model_index][profile_index].data() + criterion_index,
     gpu_learning_data.profile_ranks[model_index][profile_index].data() + criterion_index,
     1 * sizeof(unsigned),
     cudaMemcpyDeviceToHost));

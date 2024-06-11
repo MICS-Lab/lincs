@@ -184,11 +184,12 @@ lincs: module
                 criteria_count: property
                 get_best_accuracy: instancemethod
                 get_best_model: instancemethod
+                high_profile_ranks: property
                 iteration_index: property
+                low_profile_ranks: property
                 model_indexes: property
                 models_count: property
                 performance_ranks: property
-                profile_ranks: property
                 urbgs: property
                 values_counts: property
                 weights: property

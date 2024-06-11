@@ -69,7 +69,8 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   unsigned iteration_index;
   std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes
   Array1D<Host, unsigned> accuracies;  // [model_index]
-  Array3D<Host, unsigned> profile_ranks;  // [model_index][profile_index][criterion_index]
+  Array3D<Host, unsigned> low_profile_ranks;  // [model_index][boundary_index][criterion_index]
+  Array3D<Host, unsigned> high_profile_ranks;  // [model_index][boundary_index][criterion_index]
   Array2D<Host, float> weights;  // [model_index][criterion_index]
   // @todo(Performance, later) Add models' ages
 

@@ -1056,10 +1056,15 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(len(learning_data.accuracies), 9)
         self.assertEqual(learning_data.accuracies[0], 0)
 
-        self.assertEqual(len(learning_data.profile_ranks), 9)
-        self.assertEqual(len(learning_data.profile_ranks[0]), 2)
-        self.assertEqual(len(learning_data.profile_ranks[0][0]), 5)
-        self.assertIsInstance(learning_data.profile_ranks[0][0][0], int)
+        self.assertEqual(len(learning_data.low_profile_ranks), 9)
+        self.assertEqual(len(learning_data.low_profile_ranks[0]), 2)
+        self.assertEqual(len(learning_data.low_profile_ranks[0][0]), 5)
+        self.assertIsInstance(learning_data.low_profile_ranks[0][0][0], int)
+
+        self.assertEqual(len(learning_data.high_profile_ranks), 9)
+        self.assertEqual(len(learning_data.high_profile_ranks[0]), 2)
+        self.assertEqual(len(learning_data.high_profile_ranks[0][0]), 5)
+        self.assertIsInstance(learning_data.high_profile_ranks[0][0][0], int)
 
         self.assertEqual(len(learning_data.weights), 9)
         self.assertEqual(len(learning_data.weights[0]), 5)
@@ -1301,7 +1306,7 @@ class LearningTestCase(unittest.TestCase):
                     model_index = learning_data.model_indexes[model_index_index]
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
-                            self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
+                            self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = 0
 
         class SillyWeightsOptimizationStrategy(LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
             def __init__(self, log, learning_data):
@@ -1329,7 +1334,7 @@ class LearningTestCase(unittest.TestCase):
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
                             rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))
-                            self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = rank
+                            self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = rank
 
         class SillyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
             def __init__(self, log, learning_data):

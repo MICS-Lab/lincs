@@ -48,7 +48,8 @@ void define_learning_classes(py::module& m) {
       .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "The index of the current iteration of the WPB algorithm.")
       .def_readonly("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.")
       .def_readonly("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "Indexed by ``[model_index]``. Accuracy of each in-progress model.")
-      .def_readonly("profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::profile_ranks, "Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each profile, for each model and criterion.")
+      .def_readonly("low_profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::low_profile_ranks, "Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each low profile, for each model and criterion.")
+      .def_readonly("high_profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::high_profile_ranks, "Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each high profile, for each model and criterion.")
       .def_readonly("weights", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::weights, "Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.")
       .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, "Return the accuracy of the best model so far.")
       .def("get_best_model", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_model, "Return the best model so far.")
@@ -76,7 +77,7 @@ void define_learning_classes(py::module& m) {
         "initialize_profiles",
         &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles,
         "model_indexes_begin"_a, "model_indexes_end"_a,
-        "Method to override. Should initialize all ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
+        "Method to override. Should initialize all ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
       )
     ;
 
@@ -128,7 +129,7 @@ void define_learning_classes(py::module& m) {
         "improve_profiles",
         &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles,
         "model_indexes_begin"_a, "model_indexes_end"_a,
-        "Method to override. Should improve ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
+        "Method to override. Should improve ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
       )
     ;
 
