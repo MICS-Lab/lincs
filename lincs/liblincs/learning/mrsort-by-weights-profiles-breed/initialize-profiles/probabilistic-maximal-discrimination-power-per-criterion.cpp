@@ -14,24 +14,16 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::Initia
   CHRONE();
 
   low_rank_generators.reserve(learning_data.criteria_count);
-  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-    auto& rank_generator = low_rank_generators.emplace_back();
-    rank_generator.reserve(learning_data.boundaries_count);
-
-    for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
-      auto rank_probabilities = get_candidate_probabilities_for_low_ranks(criterion_index, profile_index);
-      rank_generator.emplace_back(rank_probabilities);
-    }
-  }
-
   high_rank_generators.reserve(learning_data.criteria_count);
   for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-    auto& rank_generator = high_rank_generators.emplace_back();
-    rank_generator.reserve(learning_data.boundaries_count);
+    auto& low_rank_generator = low_rank_generators.emplace_back();
+    low_rank_generator.reserve(learning_data.boundaries_count);
+    auto& high_rank_generator = high_rank_generators.emplace_back();
+    high_rank_generator.reserve(learning_data.boundaries_count);
 
-    for (unsigned profile_index = 0; profile_index != learning_data.boundaries_count; ++profile_index) {
-      auto rank_probabilities = get_candidate_probabilities_for_high_ranks(criterion_index, profile_index);
-      rank_generator.emplace_back(rank_probabilities);
+    for (unsigned boundary_index = 0; boundary_index != learning_data.boundaries_count; ++boundary_index) {
+      low_rank_generator.emplace_back(get_candidate_probabilities_for_low_ranks(criterion_index, boundary_index));
+      high_rank_generator.emplace_back(get_candidate_probabilities_for_high_ranks(criterion_index, boundary_index));
     }
   }
 }
@@ -178,7 +170,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
         const unsigned boundary_index = category_index - 1;
         unsigned low_rank = low_rank_generators[criterion_index][boundary_index](learning_data.urbgs[model_index]);
 
-        // Enforce profiles ordering constraint
+        // Enforce profiles ordering constraint (1/2)
         if (boundary_index != learning_data.boundaries_count - 1) {
           low_rank = std::min(low_rank, learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]);
         }
@@ -188,6 +180,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
         if (learning_data.single_peaked[criterion_index]) {
           unsigned high_rank = high_rank_generators[criterion_index][boundary_index](learning_data.urbgs[model_index]);
 
+          // Enforce profiles ordering constraint (2/2)
           if (boundary_index == learning_data.boundaries_count - 1) {
             high_rank = std::max(high_rank, low_rank);
           } else {
@@ -220,11 +213,36 @@ TEST_CASE("Initialize profiles - respect ordering") {
 
   for (unsigned iteration = 0; iteration != 10; ++iteration) {
     initializer.initialize_profiles(0, 1);
-    // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint' code is removed
+    // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint (1/2)' code is removed
     CHECK(learning_data.low_profile_ranks[0][0][0] <= learning_data.low_profile_ranks[0][1][0]);
     CHECK(learning_data.low_profile_ranks[0][0][1] <= learning_data.low_profile_ranks[0][1][1]);
   }
 }
 
+TEST_CASE("Initialize profiles - respect ordering - single-peaked criteria") {
+  Problem problem{
+    {
+      Criterion("Criterion 1", Criterion::RealValues(Criterion::PreferenceDirection::single_peaked, 0, 1)),
+    },
+    {
+      Category("Category 1"),
+      Category("Category 2"),
+      Category("Category 3"),
+    }
+  };
+  Model model = generate_mrsort_classification_model(problem, 42);
+  auto learning_set = generate_classified_alternatives(problem, model, 1000, 42, 0.1);
+  LearnMrsortByWeightsProfilesBreed::LearningData learning_data(problem, learning_set, 1, 42);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion initializer(learning_data);
+
+  for (unsigned iteration = 0; iteration != 10; ++iteration) {
+    initializer.initialize_profiles(0, 1);
+    // This CHECK fails at least once when the 'Enforce profiles ordering constraint (1/2)' code is removed
+    CHECK(learning_data.low_profile_ranks[0][0][0] <= learning_data.low_profile_ranks[0][1][0]);
+    // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint (2/2)' code is removed
+    CHECK(learning_data.low_profile_ranks[0][1][0] <= learning_data.high_profile_ranks[0][1][0]);
+    CHECK(learning_data.high_profile_ranks[0][1][0] <= learning_data.high_profile_ranks[0][0][0]);
+  }
+}
 
 }  // namespace lincs
