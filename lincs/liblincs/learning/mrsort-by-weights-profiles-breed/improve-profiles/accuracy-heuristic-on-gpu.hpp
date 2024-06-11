@@ -32,18 +32,18 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
   void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
 
  private:
-  void improve_model_profiles(const unsigned model_index);
+  void improve_model_profiles(unsigned model_index);
 
   void improve_model_profile(
-    const unsigned model_index,
-    const unsigned profile_index,
+    unsigned model_index,
+    unsigned profile_index,
     ArrayView1D<Host, const unsigned> criterion_indexes
   );
 
   void improve_model_profile(
-    const unsigned model_index,
-    const unsigned profile_index,
-    const unsigned criterion_index
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index
   );
 
  private:
