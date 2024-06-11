@@ -304,11 +304,11 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
 ) {
   auto& learning_data = host_learning_data;
 
-  const float lowest_destination_rank =
+  const unsigned lowest_destination_rank =
     profile_index == 0 ?
       0 :
       learning_data.profile_ranks[model_index][profile_index - 1][criterion_index];
-  const float highest_destination_rank =
+  const unsigned highest_destination_rank =
     profile_index == learning_data.boundaries_count - 1 ?
       learning_data.values_counts[criterion_index] - 1 :
       learning_data.profile_ranks[model_index][profile_index + 1][criterion_index];
