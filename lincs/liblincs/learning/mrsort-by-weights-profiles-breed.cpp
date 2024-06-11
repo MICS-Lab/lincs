@@ -2,6 +2,7 @@
 
 #include "mrsort-by-weights-profiles-breed.hpp"
 
+#include <iostream>
 #include <map>
 #include <numeric>
 
@@ -69,15 +70,41 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   return post_process(boundaries);
 }
 
+#ifndef NDEBUG
+bool LearnMrsortByWeightsProfilesBreed::LearningData::model_is_correct(const unsigned model_index) const {
+  try {
+    get_model(model_index);
+  } catch (const DataValidationException& e) {
+    std::cerr << "Model " << model_index << " is incorrect: " << e.what() << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool LearnMrsortByWeightsProfilesBreed::LearningData::models_are_correct() const {
+  for (unsigned model_index = 0; model_index != models_count; ++model_index) {
+    if (!model_is_correct(model_index)) {
+      return false;
+    }
+  }
+  return true;
+}
+#endif
+
+
 Model LearnMrsortByWeightsProfilesBreed::perform() {
   CHRONE();
 
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 
+  assert(learning_data.models_are_correct());
+
   while (true) {
     // Improve
     weights_optimization_strategy.optimize_weights(0, learning_data.models_count);
     profiles_improvement_strategy.improve_profiles(0, learning_data.models_count);
+
+    assert(learning_data.models_are_correct());
 
     // @todo(Feature, later) Rework this main loop. Its current problems:
     //   - we return models that have gone through a last profiles improvement, but their weights have not been optimized

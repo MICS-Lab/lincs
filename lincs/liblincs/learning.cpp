@@ -481,7 +481,7 @@ TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria" * doctest
     3, 2,
     {lincs::Criterion::PreferenceDirection::single_peaked},
     {lincs::Criterion::ValueType::real},
-    {});
+    {52, 62, 63});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
@@ -489,7 +489,7 @@ TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria - long" * 
     3, 5,
     {lincs::Criterion::PreferenceDirection::single_peaked},
     {lincs::Criterion::ValueType::real},
-    {});
+    {1, 9, 14, 20, 23, 73, 81});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
@@ -497,7 +497,7 @@ TEST_CASE("Basic (and GPU) WPB learning - single-peaked real criteria - long" * 
     7, 2,
     {lincs::Criterion::PreferenceDirection::single_peaked},
     {lincs::Criterion::ValueType::real},
-    {});
+    {19, 34, 61, 73, 83, 98});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - single-peaked integer criteria" * doctest::skip(skip_wpb)) {
@@ -513,7 +513,7 @@ TEST_CASE("Basic (and GPU) WPB learning - all" * doctest::skip(skip_wpb)) {
     3, 3,
     {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing, lincs::Criterion::PreferenceDirection::single_peaked},
     {lincs::Criterion::ValueType::real, lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
-    {});
+    {34});
 }
 
 TEST_CASE("Alglib WPB learning - real criteria" * doctest::skip(skip_wpb)) {

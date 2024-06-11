@@ -115,13 +115,13 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile_then_high_pr
   // High profile
   {
     const unsigned lowest_destination_rank =
-      boundary_index == 0 ?
-        learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] :
-        learning_data.high_profile_ranks[model_index][boundary_index - 1][criterion_index];
-    const unsigned highest_destination_rank =
       boundary_index == learning_data.boundaries_count - 1 ?
-        learning_data.values_counts[criterion_index] - 1 :
+        learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] :
         learning_data.high_profile_ranks[model_index][boundary_index + 1][criterion_index];
+    const unsigned highest_destination_rank =
+      boundary_index == 0 ?
+        learning_data.values_counts[criterion_index] - 1 :
+        learning_data.high_profile_ranks[model_index][boundary_index - 1][criterion_index];
 
     assert(lowest_destination_rank <= highest_destination_rank);
     if (lowest_destination_rank == highest_destination_rank) {

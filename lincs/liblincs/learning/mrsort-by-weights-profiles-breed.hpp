@@ -80,6 +80,11 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   Model get_best_model() const { return get_model(model_indexes.back()); }
 
   Model get_model(const unsigned model_index) const;
+
+  #ifndef NDEBUG
+  bool model_is_correct(unsigned model_index) const;
+  bool models_are_correct() const;
+  #endif
 };
 
 // @todo(Project management, soon) Factorize with equivalent code in 'classification.?pp'
