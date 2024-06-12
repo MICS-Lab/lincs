@@ -280,7 +280,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const uns
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned profile_index = 0; profile_index != host_learning_data.boundaries_count; ++profile_index) {
-    shuffle(host_learning_data.urbgs[model_index], ref(criterion_indexes));
+    shuffle(host_learning_data.random_generators[model_index], ref(criterion_indexes));
     improve_model_profile(model_index, profile_index, criterion_indexes);
   }
 }
@@ -323,7 +323,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   unsigned actual_destinations_count = 0;
   if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
     for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-      host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.urbgs[model_index]);
+      host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.random_generators[model_index]);
     }
     actual_destinations_count = max_destinations_count;
   } else {
@@ -359,7 +359,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
     actual_destinations_count,
     gpu_learning_data.destination_ranks[model_index],
     gpu_learning_data.desirabilities[model_index],
-    std::uniform_real_distribution<float>(0, 1)(host_learning_data.urbgs[model_index]));
+    std::uniform_real_distribution<float>(0, 1)(host_learning_data.random_generators[model_index]));
   check_last_cuda_error_sync_stream(cudaStreamDefault);
 
   // @todo(Performance, later) Can we group this copying somehow?

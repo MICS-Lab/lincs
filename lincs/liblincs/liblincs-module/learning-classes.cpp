@@ -44,7 +44,7 @@ void define_learning_classes(py::module& m) {
       .def_readonly("assignments", &lincs::PreProcessedLearningSet::assignments, "Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.")
       // About WPB:
       .def_readonly("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "The number of in-progress models for this learning.")
-      .def_readonly("urbgs", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::urbgs, "Indexed by ``[model_index]``. Random number generators associated to each in-progress model.")
+      .def_readonly("random_generators", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::random_generators, "Indexed by ``[model_index]``. Random number generators associated to each in-progress model.")
       .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "The index of the current iteration of the WPB algorithm.")
       .def_readonly("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.")
       .def_readonly("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "Indexed by ``[model_index]``. Accuracy of each in-progress model.")

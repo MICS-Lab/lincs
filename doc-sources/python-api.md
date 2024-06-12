@@ -1068,11 +1068,11 @@ learning_data.models_count
 
 
 
-Each model comes with a uniform random bits generator (URBG for short):
+Each model comes with a uniform random bits generator:
 
 
 ```python
-[str(urbg)[:43] + '>' for urbg in learning_data.urbgs]  # Indexed by [model_index]
+[str(random_generator)[:43] + '>' for random_generator in learning_data.random_generators]  # Indexed by [model_index]
 ```
 
 
@@ -1092,11 +1092,11 @@ Each model comes with a uniform random bits generator (URBG for short):
 
 
 
-This lets heuristic strategies operate in parallel on models and still produce deterministic results. URBGs are callable to get the next pseudo-random integer:
+This lets heuristic strategies operate in parallel on models and still produce deterministic results. Random generators are callable to get the next pseudo-random integer:
 
 
 ```python
-[r() for r in learning_data.urbgs]
+[r() for r in learning_data.random_generators]
 ```
 
 

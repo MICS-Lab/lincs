@@ -21,7 +21,7 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
 ) :
   PreProcessedLearningSet(problem, learning_set),
   models_count(models_count_),
-  urbgs(models_count),
+  random_generators(models_count),
   iteration_index(0),
   model_indexes(models_count),
   accuracies(models_count, zeroed),
@@ -34,7 +34,7 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   std::iota(model_indexes.begin(), model_indexes.end(), 0);
 
   for (unsigned model_index = 0; model_index != models_count; ++model_index) {
-    urbgs[model_index].seed(random_seed * (model_index + 1));
+    random_generators[model_index].seed(random_seed * (model_index + 1));
   }
 }
 

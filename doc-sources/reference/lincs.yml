@@ -348,7 +348,7 @@ children:
               type: list[int]
             - name: models_count
               type: int
-            - name: urbgs
+            - name: random_generators
               type: list[UniformRandomBitsGenerator]
             - name: iteration_index
               type: int

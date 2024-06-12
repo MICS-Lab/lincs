@@ -1045,8 +1045,8 @@ class LearningTestCase(unittest.TestCase):
 
         self.assertEqual(learning_data.models_count, 9)
 
-        self.assertEqual(len(learning_data.urbgs), 9)
-        self.assertEqual(learning_data.urbgs[0](), 3585619732)
+        self.assertEqual(len(learning_data.random_generators), 9)
+        self.assertEqual(learning_data.random_generators[0](), 3585619732)
 
         self.assertEqual(learning_data.iteration_index, 0)
 

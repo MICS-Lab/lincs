@@ -835,7 +835,7 @@
 
                     The number of in-progress models for this learning.
 
-                .. property:: urbgs
+                .. property:: random_generators
                     :type: list[UniformRandomBitsGenerator]
 
                     Indexed by ``[model_index]``. Random number generators associated to each in-progress model.

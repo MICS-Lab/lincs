@@ -31,7 +31,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profiles(const uns
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned boundary_index = 0; boundary_index != learning_data.boundaries_count; ++boundary_index) {
-    shuffle(learning_data.urbgs[model_index], ref(criterion_indexes));
+    shuffle(learning_data.random_generators[model_index], ref(criterion_indexes));
     improve_boundary_profiles(model_index, boundary_index, criterion_indexes);
   }
 }
@@ -117,7 +117,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile(
     if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
       // We could try uniformly spread-out destinations instead of uniform random ones
       for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.urbgs[model_index]);
+        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.random_generators[model_index]);
         const float desirability = compute_move_desirability_for_low_profile(
           model_index,
           boundary_index,
@@ -145,7 +145,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile(
     }
 
     // @todo(Project management, later) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
-    if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
+    if (std::uniform_real_distribution<float>(0, 1)(learning_data.random_generators[model_index]) <= best_desirability) {
       learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = best_destination_rank;
     }
   }
@@ -316,7 +316,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_high_profile(
 
     if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
       for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.urbgs[model_index]);
+        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.random_generators[model_index]);
         const float desirability = compute_move_desirability_for_high_profile(
           model_index,
           boundary_index,
@@ -341,7 +341,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_high_profile(
       }
     }
 
-    if (std::uniform_real_distribution<float>(0, 1)(learning_data.urbgs[model_index]) <= best_desirability) {
+    if (std::uniform_real_distribution<float>(0, 1)(learning_data.random_generators[model_index]) <= best_desirability) {
       learning_data.high_profile_ranks[model_index][boundary_index][criterion_index] = best_destination_rank;
     }
   }

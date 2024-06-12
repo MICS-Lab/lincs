@@ -168,7 +168,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
       // Not parallel because of the profiles ordering constraint
       for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
         const unsigned boundary_index = category_index - 1;
-        unsigned low_rank = low_rank_generators[criterion_index][boundary_index](learning_data.urbgs[model_index]);
+        unsigned low_rank = low_rank_generators[criterion_index][boundary_index](learning_data.random_generators[model_index]);
 
         // Enforce profiles ordering constraint (1/2)
         if (boundary_index != learning_data.boundaries_count - 1) {
@@ -178,7 +178,7 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
         learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = low_rank;
 
         if (learning_data.single_peaked[criterion_index]) {
-          unsigned high_rank = high_rank_generators[criterion_index][boundary_index](learning_data.urbgs[model_index]);
+          unsigned high_rank = high_rank_generators[criterion_index][boundary_index](learning_data.random_generators[model_index]);
 
           // Enforce profiles ordering constraint (2/2)
           if (boundary_index == learning_data.boundaries_count - 1) {
