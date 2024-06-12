@@ -31,52 +31,52 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
     unsigned criterion_index
   );
 
-  Desirability compute_move_desirability_for_low_profile_first(
-    unsigned model_index,
-    unsigned profile_index,
-    unsigned criterion_index,
-    unsigned destination_rank
-  );
-
-  void update_move_desirability_for_low_profile_first(
-    unsigned model_index,
-    unsigned profile_index,
-    unsigned criterion_index,
-    unsigned destination_rank,
-    unsigned alternative_index,
-    Desirability* desirability
-  );
-
-  Desirability compute_move_desirability_for_high_profile_second(
-    unsigned model_index,
-    unsigned profile_index,
-    unsigned criterion_index,
-    unsigned destination_rank
-  );
-
-  void update_move_desirability_for_high_profile_second(
-    unsigned model_index,
-    unsigned profile_index,
-    unsigned criterion_index,
-    unsigned destination_rank,
-    unsigned alternative_index,
-    Desirability* desirability
-  );
-
   void improve_low_profile_only(
     unsigned model_index,
     unsigned profile_index,
     unsigned criterion_index
   );
 
-  Desirability compute_move_desirability_for_low_profile_only(
+  void improve_low_profile(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned lowest_destination_rank,
+    unsigned highest_destination_rank
+  );
+
+  Desirability compute_move_desirability_for_low_profile(
     unsigned model_index,
     unsigned profile_index,
     unsigned criterion_index,
     unsigned destination_rank
   );
 
-  void update_move_desirability_for_low_profile_only(
+  void update_move_desirability_for_low_profile(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned destination_rank,
+    unsigned alternative_index,
+    Desirability* desirability
+  );
+
+  void improve_high_profile(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned lowest_destination_rank,
+    unsigned highest_destination_rank
+  );
+
+  Desirability compute_move_desirability_for_high_profile(
+    unsigned model_index,
+    unsigned profile_index,
+    unsigned criterion_index,
+    unsigned destination_rank
+  );
+
+  void update_move_desirability_for_high_profile(
     unsigned model_index,
     unsigned profile_index,
     unsigned criterion_index,
