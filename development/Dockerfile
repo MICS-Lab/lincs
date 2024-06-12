@@ -144,7 +144,6 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
       lark \
       myst-parser \
       parver \
-      pybind11 \
       sphinx \
       sphinx-click \
       sphinx-jsonschema \
@@ -153,6 +152,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
  && python3 -m bash_kernel.install \
  && for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       build \
+      pybind11 \
     || exit 1; done
 # Recent patchelf version for 'auditwheel repair'
 RUN --mount=type=bind,from=download-patchelf,source=/download,target=/download \
