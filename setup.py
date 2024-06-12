@@ -224,14 +224,6 @@ def make_liblincs_extension():
         else:
             print("WARNING: 'chrones' was not found, lincs will be compiled without Chrones", file=sys.stderr)
 
-    pybind11_dirs = [
-        option[2:]
-        for option in subprocess.run(
-            [sys.executable, "-m", "pybind11", "--includes"], capture_output=True, universal_newlines=True, check=True,
-        ).stdout.strip().split(" ")
-    ]
-    include_dirs += pybind11_dirs
-
     if sys.platform == "linux":
         extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp"]
         extra_compile_args["vendored-c++"] = ["-std=c++17", "-Werror=switch", "-w", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]
