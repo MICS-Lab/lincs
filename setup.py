@@ -224,13 +224,15 @@ def make_liblincs_extension():
         else:
             print("WARNING: 'chrones' was not found, lincs will be compiled without Chrones", file=sys.stderr)
 
-    pybind11_dirs = [
-        option[2:]
-        for option in subprocess.run(
-            [sys.executable, "-m", "pybind11", "--includes"], capture_output=True, universal_newlines=True, check=True,
-        ).stdout.strip().split(" ")
-    ]
-    include_dirs += pybind11_dirs
+    try:
+        include_dirs += [
+            option[2:]
+            for option in subprocess.run(
+                [sys.executable, "-m", "pybind11", "--includes"], capture_output=True, universal_newlines=True, check=True,
+            ).stdout.strip().split(" ")
+        ]
+    except subprocess.CalledProcessError:
+        print("WARNING: 'pybind11' was not found, compilation will fail", file=sys.stderr)
 
     if sys.platform == "linux":
         extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp"]
