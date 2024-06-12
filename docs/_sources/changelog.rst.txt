@@ -4,6 +4,21 @@
 Changelog
 =========
 
+Version 2.0.0a1 (2024-06-12)
+============================
+
+- **Major** Support single-peaked criteria
+
+    - in all features (generation, description, classification, learning, ...) *except visualization*
+    - on the command-line: ``lincs generate classification-problem ... --allow-single-peaked-criteria``
+    - in the Python API: ``lc.generate_problem(..., allowed_preference_directions=[..., lc.Criterion.PreferenceDirection.single_peaked])``
+    - in the problem file format: ``preference_direction: single-peaked``
+    - in the model file format: ``kind: intervals`` and ``intervals: [[20, 80], [40, 60]]``
+    - with *all* learning approaches
+
+- **Breaking** Adapt parts of the Python API to support single-peaked criteria
+- **Breaking** Rename ``LearningData.urbgs`` to ``LearningData.random_generators``
+
 Version 2.0.0a0 (2024-05-23)
 ============================
 

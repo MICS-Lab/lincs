@@ -26,6 +26,26 @@ properties:
             - kind
             - thresholds
           additionalProperties: false
+        - properties:
+            kind:
+              type: string
+              const: intervals
+            intervals:
+              description: For each category but the lowest, the interval of values to be accepted in that category according to that criterion.
+              type: array
+              minItems: 1
+              items:
+                oneOf:
+                  - type: 'null'
+                  - type: array
+                    minItems: 2
+                    maxItems: 2
+                    items:
+                      type: number
+          required:
+            - kind
+            - intervals
+          additionalProperties: false
     minItems: 1
   sufficient_coalitions:
     description: For each category but the lowest, a description of the sufficient coalitions for that category.

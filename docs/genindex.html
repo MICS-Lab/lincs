@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; lincs 2.0.0a0 documentation</title>
+    <title>Index &#8212; lincs 2.0.0a1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6727bded"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=c35f39f4"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="#" />
@@ -79,6 +79,13 @@
 
       <ul>
         <li><a href="reference.html#cmdoption-lincs-generate-classification-problem-allow-integer-criteria">lincs-generate-classification-problem command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --allow-single-peaked-criteria
+
+      <ul>
+        <li><a href="reference.html#cmdoption-lincs-generate-classification-problem-allow-single-peaked-criteria">lincs-generate-classification-problem command line option</a>
 </li>
       </ul></li>
       <li>
@@ -334,14 +341,21 @@
 </li>
       </ul></li>
       <li>
+    --python-versions
+
+      <ul>
+        <li><a href="contributor-guide.html#cmdoption-.-run-development-cycle.sh-python-versions">./run-development-cycle.sh command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
     --quiet
 
       <ul>
         <li><a href="reference.html#cmdoption-lincs-info-has-gpu-quiet">lincs-info-has-gpu command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --random-seed
 
@@ -565,6 +579,8 @@
 </li>
         <li><a href="contributor-guide.html#cmdoption-.-run-development-cycle.sh-forbid-gpu">--forbid-gpu</a>
 </li>
+        <li><a href="contributor-guide.html#cmdoption-.-run-development-cycle.sh-python-versions">--python-versions</a>
+</li>
         <li><a href="contributor-guide.html#cmdoption-.-run-development-cycle.sh-single-python-version">--single-python-version</a>
 </li>
         <li><a href="contributor-guide.html#cmdoption-.-run-development-cycle.sh-skip-build">--skip-build</a>
@@ -607,7 +623,11 @@
       <ul>
         <li><a href="reference.html#lincs.classification.AcceptedValues.EnumeratedThresholds.__init__">(lincs.classification.AcceptedValues.EnumeratedThresholds method)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.EnumeratedThresholds.__init__">[1]</a>
 </li>
+        <li><a href="reference.html#lincs.classification.AcceptedValues.IntegerIntervals.__init__">(lincs.classification.AcceptedValues.IntegerIntervals method)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.IntegerIntervals.__init__">[1]</a>
+</li>
         <li><a href="reference.html#lincs.classification.AcceptedValues.IntegerThresholds.__init__">(lincs.classification.AcceptedValues.IntegerThresholds method)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.IntegerThresholds.__init__">[1]</a>
+</li>
+        <li><a href="reference.html#lincs.classification.AcceptedValues.RealIntervals.__init__">(lincs.classification.AcceptedValues.RealIntervals method)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.RealIntervals.__init__">[1]</a>
 </li>
         <li><a href="reference.html#lincs.classification.AcceptedValues.RealThresholds.__init__">(lincs.classification.AcceptedValues.RealThresholds method)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.RealThresholds.__init__">[1]</a>
 </li>
@@ -696,9 +716,13 @@
 </li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.EnumeratedThresholds">AcceptedValues.EnumeratedThresholds (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.EnumeratedThresholds">[1]</a>
 </li>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.IntegerIntervals">AcceptedValues.IntegerIntervals (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.IntegerIntervals">[1]</a>
+</li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.IntegerThresholds">AcceptedValues.IntegerThresholds (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.IntegerThresholds">[1]</a>
 </li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.Kind">AcceptedValues.Kind (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.Kind">[1]</a>
+</li>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.RealIntervals">AcceptedValues.RealIntervals (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.RealIntervals">[1]</a>
 </li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.RealThresholds">AcceptedValues.RealThresholds (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.RealThresholds">[1]</a>
 </li>
@@ -706,10 +730,10 @@
 </li>
       <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.after_iteration">after_iteration() (lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer method)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer.after_iteration">[1]</a>
 </li>
-      <li><a href="reference.html#lincs.classification.Alternative">Alternative (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.Alternative">[1]</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#lincs.classification.Alternative">Alternative (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.Alternative">[1]</a>
+</li>
       <li>
     ALTERNATIVES
 
@@ -877,6 +901,12 @@
       <li><a href="reference.html#lincs.has_gpu">has_gpu (in module lincs)</a>, <a href="reference/lincs.html#lincs.has_gpu">[1]</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.high_profile_rank_indexes">high_profile_rank_indexes (lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.high_profile_rank_indexes">[1]</a>
+</li>
+      <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.high_profile_ranks">high_profile_ranks (lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.high_profile_ranks">[1]</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
@@ -910,10 +940,20 @@
         <li><a href="reference.html#lincs.classification.Performance.integer">(lincs.classification.Performance property)</a>, <a href="reference/lincs.html#lincs.classification.Performance.integer">[1]</a>
 </li>
       </ul></li>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.integer_intervals">integer_intervals (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.integer_intervals">[1]</a>
+</li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.integer_thresholds">integer_thresholds (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.integer_thresholds">[1]</a>
 </li>
       <li><a href="reference.html#lincs.classification.Criterion.integer_values">integer_values (lincs.classification.Criterion property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.integer_values">[1]</a>
 </li>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.IntegerIntervals.intervals">intervals (lincs.classification.AcceptedValues.IntegerIntervals property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.IntegerIntervals.intervals">[1]</a>
+
+      <ul>
+        <li><a href="reference.html#lincs.classification.AcceptedValues.Kind.intervals">(lincs.classification.AcceptedValues.Kind property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.Kind.intervals">[1]</a>
+</li>
+        <li><a href="reference.html#lincs.classification.AcceptedValues.RealIntervals.intervals">(lincs.classification.AcceptedValues.RealIntervals property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.RealIntervals.intervals">[1]</a>
+</li>
+      </ul></li>
       <li><a href="reference.html#lincs.classification.Criterion.IntegerValues.is_decreasing">is_decreasing (lincs.classification.Criterion.IntegerValues property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.IntegerValues.is_decreasing">[1]</a>
 
       <ul>
@@ -944,6 +984,8 @@
         <li><a href="reference.html#lincs.classification.Performance.is_integer">(lincs.classification.Performance property)</a>, <a href="reference/lincs.html#lincs.classification.Performance.is_integer">[1]</a>
 </li>
       </ul></li>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.is_intervals">is_intervals (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.is_intervals">[1]</a>
+</li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.is_real">is_real (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.is_real">[1]</a>
 
       <ul>
@@ -954,6 +996,12 @@
       </ul></li>
       <li><a href="reference.html#lincs.classification.SufficientCoalitions.is_roots">is_roots (lincs.classification.SufficientCoalitions property)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions.is_roots">[1]</a>
 </li>
+      <li><a href="reference.html#lincs.classification.Criterion.IntegerValues.is_single_peaked">is_single_peaked (lincs.classification.Criterion.IntegerValues property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.IntegerValues.is_single_peaked">[1]</a>
+
+      <ul>
+        <li><a href="reference.html#lincs.classification.Criterion.RealValues.is_single_peaked">(lincs.classification.Criterion.RealValues property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.RealValues.is_single_peaked">[1]</a>
+</li>
+      </ul></li>
       <li><a href="reference.html#lincs.classification.AcceptedValues.is_thresholds">is_thresholds (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.is_thresholds">[1]</a>
 </li>
       <li><a href="reference.html#lincs.classification.SufficientCoalitions.is_weights">is_weights (lincs.classification.SufficientCoalitions property)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions.is_weights">[1]</a>
@@ -1105,6 +1153,8 @@
 </li>
         <li><a href="reference.html#cmdoption-lincs-generate-classification-problem-allow-integer-criteria">--allow-integer-criteria</a>
 </li>
+        <li><a href="reference.html#cmdoption-lincs-generate-classification-problem-allow-single-peaked-criteria">--allow-single-peaked-criteria</a>
+</li>
         <li><a href="reference.html#cmdoption-lincs-generate-classification-problem-denormalized-min-max">--denormalized-min-max</a>
 </li>
         <li><a href="reference.html#cmdoption-lincs-generate-classification-problem-forbid-increasing-criteria">--forbid-increasing-criteria</a>
@@ -1243,6 +1293,8 @@
         <li><a href="reference.html#lincs.classification.Problem.load">(lincs.classification.Problem static method)</a>, <a href="reference/lincs.html#lincs.classification.Problem.load">[1]</a>
 </li>
       </ul></li>
+      <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.low_profile_ranks">low_profile_ranks (lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.low_profile_ranks">[1]</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1412,24 +1464,26 @@
 </li>
       <li><a href="reference.html#lincs.classification.Alternative.profile">profile (lincs.classification.Alternative property)</a>, <a href="reference/lincs.html#lincs.classification.Alternative.profile">[1]</a>
 </li>
-      <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.profile_ranks">profile_ranks (lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.profile_ranks">[1]</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.random_generators">random_generators (lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.random_generators">[1]</a>
+</li>
       <li><a href="reference.html#lincs.classification.Criterion.ValueType.real">real (lincs.classification.Criterion.ValueType property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.ValueType.real">[1]</a>
 
       <ul>
         <li><a href="reference.html#lincs.classification.Performance.real">(lincs.classification.Performance property)</a>, <a href="reference/lincs.html#lincs.classification.Performance.real">[1]</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#lincs.classification.AcceptedValues.real_thresholds">real_thresholds (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.real_thresholds">[1]</a>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.real_intervals">real_intervals (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.real_intervals">[1]</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#lincs.classification.AcceptedValues.real_thresholds">real_thresholds (lincs.classification.AcceptedValues property)</a>, <a href="reference/lincs.html#lincs.classification.AcceptedValues.real_thresholds">[1]</a>
+</li>
       <li><a href="reference.html#lincs.classification.Criterion.real_values">real_values (lincs.classification.Criterion property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.real_values">[1]</a>
 </li>
       <li><a href="reference.html#lincs.classification.ReinitializeLeastAccurate">ReinitializeLeastAccurate (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.ReinitializeLeastAccurate">[1]</a>
@@ -1446,12 +1500,18 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#lincs.classification.Model.sufficient_coalitions">sufficient_coalitions (lincs.classification.Model property)</a>, <a href="reference/lincs.html#lincs.classification.Model.sufficient_coalitions">[1]</a>
+      <li><a href="reference.html#lincs.classification.Criterion.PreferenceDirection.single_peaked">single_peaked (lincs.classification.Criterion.PreferenceDirection property)</a>, <a href="reference/lincs.html#lincs.classification.Criterion.PreferenceDirection.single_peaked">[1]</a>
+
+      <ul>
+        <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.single_peaked">(lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.single_peaked">[1]</a>
 </li>
-      <li><a href="reference.html#lincs.classification.SufficientCoalitions">SufficientCoalitions (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions">[1]</a>
+      </ul></li>
+      <li><a href="reference.html#lincs.classification.Model.sufficient_coalitions">sufficient_coalitions (lincs.classification.Model property)</a>, <a href="reference/lincs.html#lincs.classification.Model.sufficient_coalitions">[1]</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference.html#lincs.classification.SufficientCoalitions">SufficientCoalitions (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions">[1]</a>
+</li>
       <li><a href="reference.html#lincs.classification.SufficientCoalitions.Kind">SufficientCoalitions.Kind (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions.Kind">[1]</a>
 </li>
       <li><a href="reference.html#lincs.classification.SufficientCoalitions.Roots">SufficientCoalitions.Roots (class in lincs.classification)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions.Roots">[1]</a>
@@ -1519,13 +1579,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#lincs.classification.ClassificationResult.unchanged">unchanged (lincs.classification.ClassificationResult property)</a>, <a href="reference/lincs.html#lincs.classification.ClassificationResult.unchanged">[1]</a>
 </li>
-      <li><a href="reference.html#lincs.UniformRandomBitsGenerator">UniformRandomBitsGenerator (class in lincs)</a>, <a href="reference/lincs.html#lincs.UniformRandomBitsGenerator">[1]</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#lincs.classification.SufficientCoalitions.Roots.upset_roots">upset_roots (lincs.classification.SufficientCoalitions.Roots property)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions.Roots.upset_roots">[1]</a>
+      <li><a href="reference.html#lincs.UniformRandomBitsGenerator">UniformRandomBitsGenerator (class in lincs)</a>, <a href="reference/lincs.html#lincs.UniformRandomBitsGenerator">[1]</a>
 </li>
-      <li><a href="reference.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.urbgs">urbgs (lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData property)</a>, <a href="reference/lincs.html#lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData.urbgs">[1]</a>
+      <li><a href="reference.html#lincs.classification.SufficientCoalitions.Roots.upset_roots">upset_roots (lincs.classification.SufficientCoalitions.Roots property)</a>, <a href="reference/lincs.html#lincs.classification.SufficientCoalitions.Roots.upset_roots">[1]</a>
 </li>
   </ul></td>
 </tr></table>

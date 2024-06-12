@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The Python API &#8212; lincs 2.0.0a0 documentation</title>
+    <title>The Python API &#8212; lincs 2.0.0a1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6727bded"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=c35f39f4"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -143,7 +143,7 @@ The weights associated to each criterion are:
   - Criterion &quot;Criterion 2&quot;: 0.62
   - Criterion &quot;Criterion 3&quot;: 0.41
   - Criterion &quot;Criterion 4&quot;: 0.10
-To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:
+To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:
   - For category &quot;Intermediate category 1&quot;: at least 0.26 on criterion &quot;Criterion 1&quot;, at least 0.06 on criterion &quot;Criterion 2&quot;, at least 0.16 on criterion &quot;Criterion 3&quot;, and at least 0.05 on criterion &quot;Criterion 4&quot;
   - For category &quot;Best category&quot;: at least 0.68 on criterion &quot;Criterion 1&quot;, at least 0.32 on criterion &quot;Criterion 2&quot;, at least 0.67 on criterion &quot;Criterion 3&quot;, and at least 0.60 on criterion &quot;Criterion 4&quot;
 </pre></div>
@@ -280,7 +280,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">criterion</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">criterion</span><span class="o">.</span><span class="n">is_real</span><span class="p">,</span> <span class="n">criterion</span><span class="o">.</span><span class="n">is_integer</span><span class="p">,</span> <span class="n">criterion</span><span class="o">.</span><span class="n">is_enumerated</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.ValueType.integer, False, True, False)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;ValueType.integer: 1&gt;, False, True, False)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="n">criterion</span><span class="o">.</span><span class="n">integer_values</span>
@@ -289,7 +289,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span><span class="o">.</span><span class="n">preference_direction</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">is_increasing</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">is_decreasing</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.PreferenceDirection.isotone, True, False)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;PreferenceDirection.increasing: 0&gt;, True, False)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span><span class="o">.</span><span class="n">min_value</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">max_value</span>
@@ -310,7 +310,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">criterion</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">criterion</span><span class="o">.</span><span class="n">is_real</span><span class="p">,</span> <span class="n">criterion</span><span class="o">.</span><span class="n">is_integer</span><span class="p">,</span> <span class="n">criterion</span><span class="o">.</span><span class="n">is_enumerated</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.ValueType.enumerated, False, False, True)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;ValueType.enumerated: 2&gt;, False, False, True)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="n">criterion</span><span class="o">.</span><span class="n">enumerated_values</span>
@@ -366,13 +366,13 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">accepted</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_real</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_integer</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_enumerated</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.ValueType.integer, False, True, False)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;ValueType.integer: 1&gt;, False, True, False)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">accepted</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_thresholds</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.Kind.thresholds, True)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;Kind.thresholds: 0&gt;, True)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">accepted</span><span class="o">.</span><span class="n">integer_thresholds</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span>
@@ -387,13 +387,13 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">accepted</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_real</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_integer</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_enumerated</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.ValueType.enumerated, False, False, True)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;ValueType.enumerated: 2&gt;, False, False, True)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">accepted</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">accepted</span><span class="o">.</span><span class="n">is_thresholds</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.Kind.thresholds, True)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;Kind.thresholds: 0&gt;, True)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">accepted</span><span class="o">.</span><span class="n">enumerated_thresholds</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span>
@@ -408,7 +408,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sufficient</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">sufficient</span><span class="o">.</span><span class="n">is_weights</span><span class="p">,</span> <span class="n">sufficient</span><span class="o">.</span><span class="n">is_roots</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.Kind.weights, True, False)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;Kind.weights: 0&gt;, True, False)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">sufficient</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">criterion_weights</span><span class="p">)</span>
@@ -455,7 +455,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">performance</span><span class="o">.</span><span class="n">value_type</span><span class="p">,</span> <span class="n">performance</span><span class="o">.</span><span class="n">is_real</span><span class="p">,</span> <span class="n">performance</span><span class="o">.</span><span class="n">is_integer</span><span class="p">,</span> <span class="n">performance</span><span class="o">.</span><span class="n">is_enumerated</span>
 </pre></div>
 </div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(liblincs.ValueType.integer, False, True, False)
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(&lt;ValueType.integer: 1&gt;, False, True, False)
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">performance</span><span class="o">.</span><span class="n">integer</span><span class="o">.</span><span class="n">value</span>
@@ -725,8 +725,8 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>9
 </pre></div>
 </div>
-<p>Each model comes with a uniform random bits generator (URBG for short):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">urbg</span><span class="p">)[:</span><span class="mi">43</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span> <span class="k">for</span> <span class="n">urbg</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">urbgs</span><span class="p">]</span>  <span class="c1"># Indexed by [model_index]</span>
+<p>Each model comes with a uniform random bits generator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">random_generator</span><span class="p">)[:</span><span class="mi">43</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span> <span class="k">for</span> <span class="n">random_generator</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">random_generators</span><span class="p">]</span>  <span class="c1"># Indexed by [model_index]</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[&#39;&lt;liblincs.UniformRandomBitsGenerator object&gt;&#39;,
@@ -740,8 +740,8 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
  &#39;&lt;liblincs.UniformRandomBitsGenerator object&gt;&#39;]
 </pre></div>
 </div>
-<p>This lets heuristic strategies operate in parallel on models and still produce deterministic results. URBGs are callable to get the next pseudo-random integer:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">r</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">urbgs</span><span class="p">]</span>
+<p>This lets heuristic strategies operate in parallel on models and still produce deterministic results. Random generators are callable to get the next pseudo-random integer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">r</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">random_generators</span><span class="p">]</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[494155588,
@@ -803,8 +803,8 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>True
 </pre></div>
 </div>
-<p>Its <code class="docutils literal notranslate"><span class="pre">profile_ranks</span></code> hold, for each in-progress model, boundary, and criterion, the rank of the boundary’s performance, on the same scale as the <code class="docutils literal notranslate"><span class="pre">performance_ranks</span></code> attributes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">profile_ranks</span><span class="p">]</span>  <span class="c1"># Indexed by [model_index][boundary_index][criterion_index]</span>
+<p>Its <code class="docutils literal notranslate"><span class="pre">low_profile_ranks</span></code> hold, for each in-progress model, boundary, and criterion, the rank of the boundary’s performance, on the same scale as the <code class="docutils literal notranslate"><span class="pre">performance_ranks</span></code> attributes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">low_profile_ranks</span><span class="p">]</span>  <span class="c1"># Indexed by [model_index][boundary_index][criterion_index]</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[[[124, 9, 0], [633, 9, 3]],
@@ -1026,7 +1026,7 @@ Final accuracy (after 9 iterations): 1000
 <h4>Other strategies<a class="headerlink" href="#other-strategies" title="Permalink to this heading">¶</a></h4>
 <p>Coming up with new interesting strategies is far from easy, so in this guide, we’ll just describe the interfaces that the WPB approach expects from these strategies, and not even <em>try</em> to do anything intelligent. That part is up to you!</p>
 <p>Each strategy must inherit from a given abstract base class, as you can see below. Each strategy must override a given method as is detailed below.</p>
-<p>Profiles initialization strategies must implement <code class="docutils literal notranslate"><span class="pre">.initialize_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should initialize all <code class="docutils literal notranslate"><span class="pre">profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
+<p>Profiles initialization strategies must implement <code class="docutils literal notranslate"><span class="pre">.initialize_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should initialize all <code class="docutils literal notranslate"><span class="pre">low_profile_ranks</span></code> and <code class="docutils literal notranslate"><span class="pre">high_profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesInitializationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesInitializationStrategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1038,7 +1038,7 @@ Final accuracy (after 9 iterations): 1000
             <span class="n">model_index</span> <span class="o">=</span> <span class="n">learning_data</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">boundary_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">criterion_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">low_profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 </pre></div>
 </div>
 <p>Weights optimization strategies must implement <code class="docutils literal notranslate"><span class="pre">.optimize_weights(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should optimize all <code class="docutils literal notranslate"><span class="pre">weights</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
@@ -1055,7 +1055,7 @@ Final accuracy (after 9 iterations): 1000
                 <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span>
 </pre></div>
 </div>
-<p>Profiles improvement strategies must implement <code class="docutils literal notranslate"><span class="pre">.improve_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should improve <code class="docutils literal notranslate"><span class="pre">profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
+<p>Profiles improvement strategies must implement <code class="docutils literal notranslate"><span class="pre">.improve_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should improve <code class="docutils literal notranslate"><span class="pre">low_profile_ranks</span></code> and <code class="docutils literal notranslate"><span class="pre">high_profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[learning_data.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesImprovementStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesImprovementStrategy</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_data</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1068,7 +1068,7 @@ Final accuracy (after 9 iterations): 1000
             <span class="k">for</span> <span class="n">boundary_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">criterion_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">criteria_count</span><span class="p">):</span>
                     <span class="n">rank</span> <span class="o">=</span> <span class="p">(</span><span class="n">boundary_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">values_counts</span><span class="p">[</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">boundaries_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">rank</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">learning_data</span><span class="o">.</span><span class="n">low_profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">criterion_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">rank</span>
 </pre></div>
 </div>
 <p>Breeding strategies must implement <code class="docutils literal notranslate"><span class="pre">.breed()</span></code>, that should breed all models.</p>
