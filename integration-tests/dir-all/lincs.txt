@@ -191,6 +191,7 @@ lincs: module
                 models_count: property
                 performance_ranks: property
                 random_generators: property
+                single_peaked: property
                 values_counts: property
                 weights: property
             Observer: pybind11_type

@@ -1018,7 +1018,7 @@ class AlternativesTestCase(unittest.TestCase):
 
 class LearningTestCase(unittest.TestCase):
     def test_access_wpb_learning_data(self):
-        problem = generate_problem(5, 3, 41)
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing, Criterion.PreferenceDirection.single_peaked])
         model = generate_mrsort_model(problem, 42)
         learning_set = generate_alternatives(problem, model, 200, 43)
 
@@ -1060,6 +1060,8 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(len(learning_data.low_profile_ranks[0]), 2)
         self.assertEqual(len(learning_data.low_profile_ranks[0][0]), 5)
         self.assertIsInstance(learning_data.low_profile_ranks[0][0][0], int)
+
+        self.assertEqual(list(learning_data.single_peaked), [False, True, False, False, True])
 
         self.assertEqual(len(learning_data.high_profile_ranks), 9)
         self.assertEqual(len(learning_data.high_profile_ranks[0]), 2)

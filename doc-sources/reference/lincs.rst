@@ -815,6 +815,11 @@
 
                     Number of alternatives in the ``learning_set``.
 
+                .. property:: single_peaked
+                    :type: list[bool]
+
+                    Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.
+
                 .. property:: values_counts
                     :type: list[int]
 
@@ -858,12 +863,12 @@
                 .. property:: low_profile_ranks
                     :type: list[list[list[int]]]
 
-                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each low profile, for each model and criterion.
+                    Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each low profile, for each model and criterion.
 
                 .. property:: high_profile_ranks
                     :type: list[list[list[int]]]
 
-                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each high profile, for each model and criterion.
+                    Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each high profile, for each model and criterion.
 
                 .. property:: accuracies
                     :type: list[int]

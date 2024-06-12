@@ -34,6 +34,21 @@ void enroll_standard_converters(py::module& m) {
 namespace lincs {
 
 void enroll_love_converters(py::module& m) {
+  py::class_<Array1D<Host, bool>>(m, "Array1D<Host, bool>")
+    .def("__len__", &Array1D<Host, bool>::s0)
+    .def("__getitem__", [](const Array1D<Host, bool>& c, unsigned i) {
+      if (i < 0 || i >= c.s0()) {
+        throw pybind11::index_error();
+      }
+      return c[i];
+    })
+    .def("__setitem__", [](Array1D<Host, bool>& c, unsigned i, bool v) {
+      if (i < 0 || i >= c.s0()) {
+        throw pybind11::index_error();
+      }
+      c[i] = v;
+    })
+  ;
   py::class_<Array1D<Host, unsigned>>(m, "Array1D<Host, unsigned>")
     .def("__len__", &Array1D<Host, unsigned>::s0)
     .def("__getitem__", [](const Array1D<Host, unsigned>& c, unsigned i) {

@@ -39,6 +39,7 @@ void define_learning_classes(py::module& m) {
       .def_readonly("categories_count", &lincs::PreProcessedLearningSet::categories_count, "Number of categories in the :py:class:`Problem`.")
       .def_readonly("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.")
       .def_readonly("alternatives_count", &lincs::PreProcessedLearningSet::alternatives_count, "Number of alternatives in the ``learning_set``.")
+      .def_readonly("single_peaked", &lincs::PreProcessedLearningSet::single_peaked, "Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.")
       .def_readonly("values_counts", &lincs::PreProcessedLearningSet::values_counts, "Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.")
       .def_readonly("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.")
       .def_readonly("assignments", &lincs::PreProcessedLearningSet::assignments, "Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.")

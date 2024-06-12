@@ -340,6 +340,8 @@ children:
               type: int
             - name: alternatives_count
               type: int
+            - name: single_peaked
+              type: list[bool]
             - name: values_counts
               type: list[int]
             - name: performance_ranks

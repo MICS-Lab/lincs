@@ -64,6 +64,11 @@ liblincs: module
         alternatives: property
         dump: instancemethod
         load: builtin_function_or_method
+    Array1D<Host, bool>: pybind11_type
+        __getitem__: instancemethod
+        __init__: wrapper_descriptor
+        __len__: instancemethod
+        __setitem__: instancemethod
     Array1D<Host, unsigned>: pybind11_type
         __getitem__: instancemethod
         __init__: wrapper_descriptor
@@ -206,6 +211,7 @@ liblincs: module
             models_count: property
             performance_ranks: property
             random_generators: property
+            single_peaked: property
             values_counts: property
             weights: property
         Observer: pybind11_type
