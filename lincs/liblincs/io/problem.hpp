@@ -15,6 +15,42 @@
 
 namespace lincs {
 
+/*
+Things that must change for single-peaked criteria:
+
+- 'Problem' and associated file format: DONE
+- 'Model' and associated file format: DONE
+- 'generate_classification_problem': DONE
+- 'generate_mrsort_classification_model': DONE
+- 'classify_alternatives': DONE
+- the pre- and post-processing: DONE
+- the testing: DONE
+- all learning strategies:
+  - All SAT-based approaches: DONE
+    - change variables named 'better' to 'accepted'
+    - replace clauses about monotonous implications by clauses about three variables: accepted at low value & accepted at high value => accepted at intermediate value
+  - WPB
+    - LearningData:
+      - rename 'profiles' to 'low_profiles
+      - add 'high_profiles' for single-peaked criteria
+    - Initialisation: treat low profiles exactly as if they were high profiles for a decreasing criterion, with ordering contraint between low and high profiles
+    - Weights optimisation: idem
+    - Profiles improvement: alternate between moving low and high profiles, with ordering contraints between lowest, lower, low, high, higher, highest profiles
+    - Breeding: nothing to do
+- Python interfaces to 'Problem' and 'Model'
+- Python interface to 'generate_classification_problem'
+- Python interface to 'generate_mrsort_classification_model'
+- Command-line interface for generate-classification-problem
+- 'lincs describe problem'
+- 'lincs describe model'
+- 'lincs visualize model [alternatives]'
+
+Things that should not need to change:
+- 'Alternatives': INDEED
+- 'generate_classified_alternatives': INDEED
+- 'misclassify_alternatives': INDEED
+*/
+
 class Criterion {
  public:
   enum class PreferenceDirection {
@@ -22,7 +58,7 @@ class Criterion {
     isotone=increasing,
     decreasing,
     antitone=decreasing,
-    // @todo(Feature, v1.2) Add single-peaked
+    single_peaked,
     // @todo(Feature, later) Add unknown
   };
 
@@ -43,6 +79,8 @@ class Criterion {
     bool is_increasing() const { return preference_direction == PreferenceDirection::increasing; }
 
     bool is_decreasing() const { return preference_direction == PreferenceDirection::decreasing; }
+
+    bool is_single_peaked() const { return preference_direction == PreferenceDirection::single_peaked; }
 
     float get_min_value() const { return min_value; }
 
@@ -73,6 +111,8 @@ class Criterion {
     bool is_increasing() const { return preference_direction == PreferenceDirection::increasing; }
 
     bool is_decreasing() const { return preference_direction == PreferenceDirection::decreasing; }
+
+    bool is_single_peaked() const { return preference_direction == PreferenceDirection::single_peaked; }
 
     int get_min_value() const { return min_value; }
 
@@ -116,8 +156,6 @@ class Criterion {
     std::map<std::string, unsigned> value_ranks;
   };
 
-  // WARNING: keep the enum and the variant consistent
-  // (because the variant's index is used as the enum's value)
   enum class ValueType { real, integer, enumerated };
   typedef std::variant<RealValues, IntegerValues, EnumeratedValues> Values;
 
@@ -132,7 +170,14 @@ class Criterion {
  public:
   const std::string& get_name() const { return name; }
 
-  ValueType get_value_type() const { return ValueType(values.index()); }
+  ValueType get_value_type() const {
+    return dispatch(
+      values,
+      [](const RealValues&) { return ValueType::real; },
+      [](const IntegerValues&) { return ValueType::integer; },
+      [](const EnumeratedValues&) { return ValueType::enumerated; }
+    );
+  }
   const Values& get_values() const { return values; }
 
   bool is_real() const { return get_value_type() == ValueType::real; }

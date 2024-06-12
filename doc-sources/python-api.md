@@ -148,7 +148,7 @@ The weights associated to each criterion are:
   - Criterion "Criterion 2": 0.62
   - Criterion "Criterion 3": 0.41
   - Criterion "Criterion 4": 0.10
-To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:
+To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:
   - For category "Intermediate category 1": at least 0.26 on criterion "Criterion 1", at least 0.06 on criterion "Criterion 2", at least 0.16 on criterion "Criterion 3", and at least 0.05 on criterion "Criterion 4"
   - For category "Best category": at least 0.68 on criterion "Criterion 1", at least 0.32 on criterion "Criterion 2", at least 0.67 on criterion "Criterion 3", and at least 0.60 on criterion "Criterion 4"
 ```
@@ -1068,11 +1068,11 @@ learning_data.models_count
 
 
 
-Each model comes with a uniform random bits generator (URBG for short):
+Each model comes with a uniform random bits generator:
 
 
 ```python
-[str(urbg)[:43] + '>' for urbg in learning_data.urbgs]  # Indexed by [model_index]
+[str(random_generator)[:43] + '>' for random_generator in learning_data.random_generators]  # Indexed by [model_index]
 ```
 
 
@@ -1092,11 +1092,11 @@ Each model comes with a uniform random bits generator (URBG for short):
 
 
 
-This lets heuristic strategies operate in parallel on models and still produce deterministic results. URBGs are callable to get the next pseudo-random integer:
+This lets heuristic strategies operate in parallel on models and still produce deterministic results. Random generators are callable to get the next pseudo-random integer:
 
 
 ```python
-[r() for r in learning_data.urbgs]
+[r() for r in learning_data.random_generators]
 ```
 
 
@@ -1203,11 +1203,11 @@ True
 
 
 
-Its `profile_ranks` hold, for each in-progress model, boundary, and criterion, the rank of the boundary's performance, on the same scale as the `performance_ranks` attributes.
+Its `low_profile_ranks` hold, for each in-progress model, boundary, and criterion, the rank of the boundary's performance, on the same scale as the `performance_ranks` attributes.
 
 
 ```python
-[[list(vv) for vv in v] for v in learning_data.profile_ranks]  # Indexed by [model_index][boundary_index][criterion_index]
+[[list(vv) for vv in v] for v in learning_data.low_profile_ranks]  # Indexed by [model_index][boundary_index][criterion_index]
 ```
 
 
@@ -1471,7 +1471,7 @@ Coming up with new interesting strategies is far from easy, so in this guide, we
 
 Each strategy must inherit from a given abstract base class, as you can see below. Each strategy must override a given method as is detailed below.
 
-Profiles initialization strategies must implement `.initialize_profiles(model_indexes_begin, model_indexes_end)`, that should initialize all `profile_ranks` for models at indexes in `[learning_data.model_index[i] for i in range(model_indexes_begin, model_indexes_end)]`.
+Profiles initialization strategies must implement `.initialize_profiles(model_indexes_begin, model_indexes_end)`, that should initialize all `low_profile_ranks` and `high_profile_ranks` for models at indexes in `[learning_data.model_index[i] for i in range(model_indexes_begin, model_indexes_end)]`.
 
 
 ```python
@@ -1486,7 +1486,7 @@ class SillyProfilesInitializationStrategy(lc.LearnMrsortByWeightsProfilesBreed.P
             model_index = learning_data.model_indexes[model_index_index]
             for boundary_index in range(self.learning_data.boundaries_count):
                 for criterion_index in range(self.learning_data.criteria_count):
-                    self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
+                    self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = 0
 ```
 
 Weights optimization strategies must implement `.optimize_weights(model_indexes_begin, model_indexes_end)`, that should optimize all `weights` for models at indexes in `[learning_data.model_index[i] for i in range(model_indexes_begin, model_indexes_end)]`.
@@ -1506,7 +1506,7 @@ class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.Weig
                 self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
 ```
 
-Profiles improvement strategies must implement `.improve_profiles(model_indexes_begin, model_indexes_end)`, that should improve `profile_ranks` for models at indexes in `[learning_data.model_index[i] for i in range(model_indexes_begin, model_indexes_end)]`.
+Profiles improvement strategies must implement `.improve_profiles(model_indexes_begin, model_indexes_end)`, that should improve `low_profile_ranks` and `high_profile_ranks` for models at indexes in `[learning_data.model_index[i] for i in range(model_indexes_begin, model_indexes_end)]`.
 
 
 ```python
@@ -1522,7 +1522,7 @@ class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.Prof
             for boundary_index in range(self.learning_data.boundaries_count):
                 for criterion_index in range(self.learning_data.criteria_count):
                     rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))
-                    self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = rank
+                    self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = rank
 ```
 
 Breeding strategies must implement `.breed()`, that should breed all models.

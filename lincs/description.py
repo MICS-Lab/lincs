@@ -29,15 +29,21 @@ def describe_classification_problem(problem: Problem) -> Iterable[str]:
             yield f'Criterion "{criterion.name}" takes real values between {values.min_value:.1f} and {values.max_value:.1f} included.'
             if values.is_increasing:
                 yield f'Higher values of "{criterion.name}" are known to be better.'
-            else:
+            elif values.is_decreasing:
                 yield f'Lower values of "{criterion.name}" are known to be better.'
+            else:
+                assert values.is_single_peaked
+                yield f'Intermediate values of "{criterion.name}" are known to be better.'
         elif criterion.is_integer:
             values = criterion.integer_values
             yield f'Criterion "{criterion.name}" takes integer values between {values.min_value} and {values.max_value} included.'
             if values.is_increasing:
                 yield f'Higher values of "{criterion.name}" are known to be better.'
-            else:
+            elif values.is_decreasing:
                 yield f'Lower values of "{criterion.name}" are known to be better.'
+            else:
+                assert values.is_single_peaked
+                yield f'Intermediate values of "{criterion.name}" are known to be better.'
         else:
             assert criterion.is_enumerated
             values = criterion.enumerated_values
@@ -94,13 +100,15 @@ class DescribeClassificationProblemTestCase(unittest.TestCase):
                     Criterion("Increasing integer criterion", Criterion.IntegerValues(Criterion.PreferenceDirection.increasing, 0, 10)),
                     Criterion("Decreasing integer criterion", Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 4, 16)),
                     Criterion("Enumerated criterion", Criterion.EnumeratedValues(["A", "B", "C"])),
+                    Criterion("Single-peaked real criterion", Criterion.RealValues(Criterion.PreferenceDirection.single_peaked, 5, 15)),
+                    Criterion("Single-peaked integer criterion", Criterion.IntegerValues(Criterion.PreferenceDirection.single_peaked, 0, 10)),
                 ],
                 [Category("Bad"), Category("Good")],
             ),
             [
                 'This a classification problem into 2 ordered categories named "Bad" and "Good".',
                 'The best category is "Good" and the worst category is "Bad".',
-                'There are 5 classification criteria (in no particular order).',
+                'There are 7 classification criteria (in no particular order).',
                 'Criterion "Increasing real criterion" takes real values between -5.2 and 10.3 included.',
                 'Higher values of "Increasing real criterion" are known to be better.',
                 'Criterion "Decreasing real criterion" takes real values between 5.0 and 15.0 included.',
@@ -111,6 +119,10 @@ class DescribeClassificationProblemTestCase(unittest.TestCase):
                 'Lower values of "Decreasing integer criterion" are known to be better.',
                 'Criterion "Enumerated criterion" takes values in the following set: A, B, C.',
                 'The best value for criterion "Enumerated criterion" is "C" and the worst value is "A".',
+                'Criterion "Single-peaked real criterion" takes real values between 5.0 and 15.0 included.',
+                'Intermediate values of "Single-peaked real criterion" are known to be better.',
+                'Criterion "Single-peaked integer criterion" takes integer values between 0 and 10 included.',
+                'Intermediate values of "Single-peaked integer criterion" are known to be better.',
             ]
         )
 
@@ -147,21 +159,32 @@ def describe_classification_model(problem: Problem, model: Model) -> Iterable[st
 
     def make_profile(accepted_values, boundary_index):
         for criterion_index, criterion in enumerate(problem.criteria):
-            assert accepted_values[criterion_index].is_thresholds
-            if criterion.is_real:
-                assert len(accepted_values[criterion_index].real_thresholds.thresholds) == boundaries_count
-                values = criterion.real_values
-                constraint = "at least" if values.is_increasing else "at most"
-                yield f'{constraint} {accepted_values[criterion_index].real_thresholds.thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
-            elif criterion.is_integer:
-                assert len(accepted_values[criterion_index].integer_thresholds.thresholds) == boundaries_count
-                values = criterion.integer_values
-                constraint = "at least" if values.is_increasing else "at most"
-                yield f'{constraint} {accepted_values[criterion_index].integer_thresholds.thresholds[boundary_index]} on criterion "{criterion.name}"'
+            if accepted_values[criterion_index].is_thresholds:
+                if criterion.is_real:
+                    assert len(accepted_values[criterion_index].real_thresholds.thresholds) == boundaries_count
+                    values = criterion.real_values
+                    constraint = "at least" if values.is_increasing else "at most"
+                    yield f'{constraint} {accepted_values[criterion_index].real_thresholds.thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
+                elif criterion.is_integer:
+                    assert len(accepted_values[criterion_index].integer_thresholds.thresholds) == boundaries_count
+                    values = criterion.integer_values
+                    constraint = "at least" if values.is_increasing else "at most"
+                    yield f'{constraint} {accepted_values[criterion_index].integer_thresholds.thresholds[boundary_index]} on criterion "{criterion.name}"'
+                else:
+                    assert criterion.is_enumerated
+                    assert len(accepted_values[criterion_index].enumerated_thresholds.thresholds) == boundaries_count
+                    yield f'at least "{accepted_values[criterion_index].enumerated_thresholds.thresholds[boundary_index]}" on criterion "{criterion.name}"'
             else:
-                assert criterion.is_enumerated
-                assert len(accepted_values[criterion_index].enumerated_thresholds.thresholds) == boundaries_count
-                yield f'at least "{accepted_values[criterion_index].enumerated_thresholds.thresholds[boundary_index]}" on criterion "{criterion.name}"'
+                accepted_values[criterion_index].is_intervals
+                if criterion.is_real:
+                    assert len(accepted_values[criterion_index].real_intervals.intervals) == boundaries_count
+                    interval = accepted_values[criterion_index].real_intervals.intervals[boundary_index]
+                    yield f'between {interval[0]:.2f} and {interval[1]:.2f} on criterion "{criterion.name}"'
+                else:
+                    assert criterion.is_integer
+                    assert len(accepted_values[criterion_index].integer_intervals.intervals) == boundaries_count
+                    interval = accepted_values[criterion_index].integer_intervals.intervals[boundary_index]
+                    yield f'between {interval[0]} and {interval[1]} on criterion "{criterion.name}"'
 
     is_uc = all(sufficient_coalitions == model.sufficient_coalitions[0] for sufficient_coalitions in model.sufficient_coalitions[1:])
     if is_uc:
@@ -172,27 +195,27 @@ def describe_classification_model(problem: Problem, model: Model) -> Iterable[st
             assert len(first_sufficient_coalitions.weights.criterion_weights) == criteria_count
             for criterion, weight in zip(problem.criteria, first_sufficient_coalitions.weights.criterion_weights):
                 yield f'  - Criterion "{criterion.name}": {weight:.2f}'
-            yield "To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:"
+            yield "To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:"
         else:
             assert first_sufficient_coalitions.is_roots
             yield "This is a Uc-NCS model: an NCS model with the same sufficient coalitions for all boundaries."
             yield "The sufficient coalitions of criteria are the following, as well as any of their unions:"
             yield from make_upset_roots(first_sufficient_coalitions.roots.upset_roots)
-            yield "To get into an upper category, an alternative must be better than the following profiles on a sufficient coalition of criteria:"
+            yield "To get into an upper category, an alternative must be accepted by the following boundaries on a sufficient coalition of criteria:"
         for boundary_index, category in enumerate(problem.ordered_categories[1:]):
             yield f'  - For category "{category.name}": {comma_and(make_profile(model.accepted_values, boundary_index))}'
     else:
         yield "This is a generic NCS model; sufficient coalitions are specified for each boundary."
         for boundary_index, (category, sufficient_coalitions) in enumerate(zip(problem.ordered_categories[1:], model.sufficient_coalitions)):
             if sufficient_coalitions.is_weights:
-                yield f'To get into category "{category.name}", an alternative must be better than the following profile on a set of criteria whose weights add up to at least 1:'
+                yield f'To get into category "{category.name}", an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:'
                 for profile, weight in zip(make_profile(model.accepted_values, boundary_index), sufficient_coalitions.weights.criterion_weights):
                     yield f'  - {profile} (weight: {weight:.2f})'
             else:
                 assert sufficient_coalitions.is_roots
                 yield f'The sufficient coalitions for category "{category.name}" are the following, as well as any of their unions:'
                 yield from make_upset_roots(sufficient_coalitions.roots.upset_roots)
-                yield f'To get into category "{category.name}", an alternative must be better than the following profile on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
+                yield f'To get into category "{category.name}", an alternative must be accepted by the following boundaries on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
 
 
 class DescribeClassificationModelTestCase(unittest.TestCase):
@@ -202,7 +225,7 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
         [
             Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
             Criterion("Criterion 2", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 0, 1)),
-            Criterion("Criterion 3", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            Criterion("Criterion 3", Criterion.RealValues(Criterion.PreferenceDirection.single_peaked, 0, 8)),
             Criterion("Criterion 4", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 0, 1)),
         ],
         [
@@ -222,7 +245,7 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                 [
                     AcceptedValues(AcceptedValues.RealThresholds([0.2, 0.7])),
                     AcceptedValues(AcceptedValues.RealThresholds([0.8, 0.7])),
-                    AcceptedValues(AcceptedValues.RealThresholds([0.4, 0.5])),
+                    AcceptedValues(AcceptedValues.RealIntervals([(1, 7), (3, 5)])),
                     AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
                 ],
                 [
@@ -237,9 +260,9 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                 '  - Criterion "Criterion 2": 0.50',
                 '  - Criterion "Criterion 3": 0.40',
                 '  - Criterion "Criterion 4": 0.20',
-                'To get into an upper category, an alternative must be better than the following profiles on a set of criteria whose weights add up to at least 1:',
-                '  - For category "Intermediate": at least 0.20 on criterion "Criterion 1", at most 0.80 on criterion "Criterion 2", at least 0.40 on criterion "Criterion 3", and at most 0.70 on criterion "Criterion 4"',
-                '  - For category "Good": at least 0.70 on criterion "Criterion 1", at most 0.70 on criterion "Criterion 2", at least 0.50 on criterion "Criterion 3", and at most 0.30 on criterion "Criterion 4"'
+                'To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:',
+                '  - For category "Intermediate": at least 0.20 on criterion "Criterion 1", at most 0.80 on criterion "Criterion 2", between 1.00 and 7.00 on criterion "Criterion 3", and at most 0.70 on criterion "Criterion 4"',
+                '  - For category "Good": at least 0.70 on criterion "Criterion 1", at most 0.70 on criterion "Criterion 2", between 3.00 and 5.00 on criterion "Criterion 3", and at most 0.30 on criterion "Criterion 4"'
             ],
         )
 
@@ -250,7 +273,7 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                 [
                     AcceptedValues(AcceptedValues.RealThresholds([0.2, 0.7])),
                     AcceptedValues(AcceptedValues.RealThresholds([0.8, 0.7])),
-                    AcceptedValues(AcceptedValues.RealThresholds([0.4, 0.5])),
+                    AcceptedValues(AcceptedValues.RealIntervals([(1, 7), (3, 5)])),
                     AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
                 ],
                 [
@@ -264,9 +287,9 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                 '  - "Criterion 1" and "Criterion 2"',
                 '  - "Criterion 1" and "Criterion 3"',
                 '  - "Criterion 2", "Criterion 3", and "Criterion 4"',
-                'To get into an upper category, an alternative must be better than the following profiles on a sufficient coalition of criteria:',
-                '  - For category "Intermediate": at least 0.20 on criterion "Criterion 1", at most 0.80 on criterion "Criterion 2", at least 0.40 on criterion "Criterion 3", and at most 0.70 on criterion "Criterion 4"',
-                '  - For category "Good": at least 0.70 on criterion "Criterion 1", at most 0.70 on criterion "Criterion 2", at least 0.50 on criterion "Criterion 3", and at most 0.30 on criterion "Criterion 4"'
+                'To get into an upper category, an alternative must be accepted by the following boundaries on a sufficient coalition of criteria:',
+                '  - For category "Intermediate": at least 0.20 on criterion "Criterion 1", at most 0.80 on criterion "Criterion 2", between 1.00 and 7.00 on criterion "Criterion 3", and at most 0.70 on criterion "Criterion 4"',
+                '  - For category "Good": at least 0.70 on criterion "Criterion 1", at most 0.70 on criterion "Criterion 2", between 3.00 and 5.00 on criterion "Criterion 3", and at most 0.30 on criterion "Criterion 4"'
             ],
         )
 
@@ -277,7 +300,7 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                 [
                     AcceptedValues(AcceptedValues.RealThresholds([0.2, 0.7])),
                     AcceptedValues(AcceptedValues.RealThresholds([0.8, 0.7])),
-                    AcceptedValues(AcceptedValues.RealThresholds([0.4, 0.5])),
+                    AcceptedValues(AcceptedValues.RealIntervals([(1, 7), (3, 5)])),
                     AcceptedValues(AcceptedValues.RealThresholds([0.7, 0.3])),
                 ],
                 [
@@ -291,11 +314,11 @@ class DescribeClassificationModelTestCase(unittest.TestCase):
                 '  - "Criterion 1" and "Criterion 2"',
                 '  - "Criterion 1" and "Criterion 3"',
                 '  - "Criterion 2", "Criterion 3", and "Criterion 4"',
-                'To get into category "Intermediate", an alternative must be better than the following profile on a sufficient coalition of criteria: at least 0.20 on criterion "Criterion 1", at most 0.80 on criterion "Criterion 2", at least 0.40 on criterion "Criterion 3", and at most 0.70 on criterion "Criterion 4"',
-                'To get into category "Good", an alternative must be better than the following profile on a set of criteria whose weights add up to at least 1:',
+                'To get into category "Intermediate", an alternative must be accepted by the following boundaries on a sufficient coalition of criteria: at least 0.20 on criterion "Criterion 1", at most 0.80 on criterion "Criterion 2", between 1.00 and 7.00 on criterion "Criterion 3", and at most 0.70 on criterion "Criterion 4"',
+                'To get into category "Good", an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:',
                 '  - at least 0.70 on criterion "Criterion 1" (weight: 0.70)',
                 '  - at most 0.70 on criterion "Criterion 2" (weight: 0.50)',
-                '  - at least 0.50 on criterion "Criterion 3" (weight: 0.40)',
+                '  - between 3.00 and 5.00 on criterion "Criterion 3" (weight: 0.40)',
                 '  - at most 0.30 on criterion "Criterion 4" (weight: 0.20)'
             ]
         )

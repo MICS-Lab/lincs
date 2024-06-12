@@ -81,6 +81,19 @@ auto auto_enum(Scope& scope, const char* name, const char* docstring = nullptr) 
   return e;
 }
 
+// Inspired by https://stackoverflow.com/a/57643845/905845
+template<typename V, std::size_t I=0>
+V variant_cast(const py::object& obj) {
+  if constexpr (I < std::variant_size_v<V>) {
+    try {
+      return obj.cast<std::variant_alternative_t<I, V>>();
+    } catch (py::cast_error&) {
+      return variant_cast<V, I + 1>(obj);
+    }
+  }
+  throw py::cast_error();
+}
+
 }  // namespace
 
 namespace lincs {
@@ -96,6 +109,8 @@ void define_problem_classes(py::module& m) {
     .def_property_readonly("is_real", &lincs::Criterion::is_real, "``True`` if the criterion is real-valued.")
     .def_property_readonly("is_integer", &lincs::Criterion::is_integer, "``True`` if the criterion is integer-valued.")
     .def_property_readonly("is_enumerated", &lincs::Criterion::is_enumerated, "``True`` if the criterion takes enumerated values.")
+    // @todo Think about exposing all our 'std::variant's as 'Union's; this is easy now that we use pybind11
+    // We could then deprecate the discriminated accessors like below, and rely on 'isinstance' or maybe even 'match' and 'case'.
     .def_property_readonly("real_values", &lincs::Criterion::get_real_values, "Descriptor of the real values allowed for this criterion, accessible if ``is_real``.")
     .def_property_readonly("integer_values", &lincs::Criterion::get_integer_values, "Descriptor of the integer values allowed for this criterion, accessible if ``is_integer``.")
     .def_property_readonly("enumerated_values", &lincs::Criterion::get_enumerated_values, "Descriptor of the enumerated values allowed for this criterion, accessible if ``is_enumerated``.")
@@ -107,14 +122,7 @@ void define_problem_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        const std::string name = t[0].cast<std::string>();
-        try {
-          return lincs::Criterion(name, lincs::Criterion::Values(t[1].cast<lincs::Criterion::RealValues>()));
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::Criterion(name, lincs::Criterion::Values(t[1].cast<lincs::Criterion::IntegerValues>()));
-        } catch (py::cast_error&) {}
-        return lincs::Criterion(name, lincs::Criterion::Values(t[1].cast<lincs::Criterion::EnumeratedValues>()));
+        return lincs::Criterion(t[0].cast<std::string>(), variant_cast<lincs::Criterion::Values>(t[1]));
       }
     ))
     .def(py::self == py::self)  // Private, undocumented, used only for our tests
@@ -148,6 +156,7 @@ void define_problem_classes(py::module& m) {
     .def_property_readonly("preference_direction", &lincs::Criterion::RealValues::get_preference_direction, "The preference direction for this criterion.")
     .def_property_readonly("is_increasing", &lincs::Criterion::RealValues::is_increasing, "``True`` if the criterion has increasing preference direction.")
     .def_property_readonly("is_decreasing", &lincs::Criterion::RealValues::is_decreasing, "``True`` if the criterion has decreasing preference direction.")
+    .def_property_readonly("is_single_peaked", &lincs::Criterion::RealValues::is_single_peaked, "``True`` if the criterion has single-peaked preference direction.")
     .def_property_readonly("min_value", &lincs::Criterion::RealValues::get_min_value, "The minimum value allowed for this criterion.")
     .def_property_readonly("max_value", &lincs::Criterion::RealValues::get_max_value, "The maximum value allowed for this criterion.")
     .def(py::pickle(
@@ -173,6 +182,7 @@ void define_problem_classes(py::module& m) {
     .def_property_readonly("preference_direction", &lincs::Criterion::IntegerValues::get_preference_direction, "The preference direction for this criterion.")
     .def_property_readonly("is_increasing", &lincs::Criterion::IntegerValues::is_increasing, "``True`` if the criterion has increasing preference direction.")
     .def_property_readonly("is_decreasing", &lincs::Criterion::IntegerValues::is_decreasing, "``True`` if the criterion has decreasing preference direction.")
+    .def_property_readonly("is_single_peaked", &lincs::Criterion::IntegerValues::is_single_peaked, "``True`` if the criterion has single-peaked preference direction.")
     .def_property_readonly("min_value", &lincs::Criterion::IntegerValues::get_min_value, "The minimum value allowed for this criterion.")
     .def_property_readonly("max_value", &lincs::Criterion::IntegerValues::get_max_value, "The maximum value allowed for this criterion.")
     .def(py::pickle(
@@ -299,9 +309,12 @@ void define_model_classes(py::module& m) {
     .def_property_readonly("is_enumerated", &lincs::AcceptedValues::is_enumerated, "``True`` if the corresponding criterion takes enumerated values.")
     .def_property_readonly("kind", &lincs::AcceptedValues::get_kind, "The kind of descriptor for these accepted values.")
     .def_property_readonly("is_thresholds", &lincs::AcceptedValues::is_thresholds, "``True`` if the descriptor is a set of thresholds.")
+    .def_property_readonly("is_intervals", &lincs::AcceptedValues::is_intervals, "``True`` if the descriptor is a set of intervals.")
     .def_property_readonly("real_thresholds", &lincs::AcceptedValues::get_real_thresholds, "Descriptor of the real thresholds, accessible if ``is_real and is_thresholds``.")
     .def_property_readonly("integer_thresholds", &lincs::AcceptedValues::get_integer_thresholds, "Descriptor of the integer thresholds, accessible if ``is_integer and is_thresholds``.")
     .def_property_readonly("enumerated_thresholds", &lincs::AcceptedValues::get_enumerated_thresholds, "Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``.")
+    .def_property_readonly("real_intervals", &lincs::AcceptedValues::get_real_intervals, "Descriptor of the real intervals, accessible if ``is_real and is_intervals``.")
+    .def_property_readonly("integer_intervals", &lincs::AcceptedValues::get_integer_intervals, "Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``.")
     .def(py::pickle(
       [](const lincs::AcceptedValues& accepted_values) {
         return std::visit(
@@ -310,13 +323,7 @@ void define_model_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        try {
-          return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::RealThresholds>());
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::IntegerThresholds>());
-        } catch (py::cast_error&) {}
-        return lincs::AcceptedValues(t[0].cast<lincs::AcceptedValues::EnumeratedThresholds>());
+        return lincs::AcceptedValues(variant_cast<lincs::AcceptedValues::Self>(t[0]));
       }
     ))
   ;
@@ -390,6 +397,48 @@ void define_model_classes(py::module& m) {
     ))
   ;
 
+  py::class_<lincs::AcceptedValues::RealIntervals>(
+    accepted_values_class,
+    "RealIntervals",
+    "Descriptor for intervals for an real-valued criterion."
+  )
+    .def(
+      py::init<const std::vector<std::optional<std::pair<float, float>>>&>(),
+      "intervals"_a,
+      "Parameters map exactly to attributes with identical names."
+    )
+    .def_property_readonly("intervals", &lincs::AcceptedValues::RealIntervals::get_intervals, "The intervals for this descriptor.")
+    .def(py::pickle(
+      [](const lincs::AcceptedValues::RealIntervals& intervals) {
+        return py::make_tuple(intervals.get_intervals());
+      },
+      [](py::tuple t) {
+        return lincs::AcceptedValues::RealIntervals(t[0].cast<std::vector<std::optional<std::pair<float, float>>>>());
+      }
+    ))
+  ;
+
+  py::class_<lincs::AcceptedValues::IntegerIntervals>(
+    accepted_values_class,
+    "IntegerIntervals",
+    "Descriptor for intervals for an integer-valued criterion."
+  )
+    .def(
+      py::init<const std::vector<std::optional<std::pair<int, int>>>&>(),
+      "intervals"_a,
+      "Parameters map exactly to attributes with identical names."
+    )
+    .def_property_readonly("intervals", &lincs::AcceptedValues::IntegerIntervals::get_intervals, "The intervals for this descriptor.")
+    .def(py::pickle(
+      [](const lincs::AcceptedValues::IntegerIntervals& intervals) {
+        return py::make_tuple(intervals.get_intervals());
+      },
+      [](py::tuple t) {
+        return lincs::AcceptedValues::IntegerIntervals(t[0].cast<std::vector<std::optional<std::pair<int, int>>>>());
+      }
+    ))
+  ;
+
   accepted_values_class
     .def(
       py::init<lincs::AcceptedValues::RealThresholds>(),
@@ -405,6 +454,16 @@ void define_model_classes(py::module& m) {
       py::init<lincs::AcceptedValues::EnumeratedThresholds>(),
       "values"_a,
       "Constructor for thresholds on an enumerated criterion."
+    )
+    .def(
+      py::init<lincs::AcceptedValues::RealIntervals>(),
+      "values"_a,
+      "Constructor for intervals on a real-valued criterion."
+    )
+    .def(
+      py::init<lincs::AcceptedValues::IntegerIntervals>(),
+      "values"_a,
+      "Constructor for intervals on an integer-valued criterion."
     )
   ;
 
@@ -426,10 +485,7 @@ void define_model_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        try {
-          return lincs::SufficientCoalitions(t[0].cast<lincs::SufficientCoalitions::Weights>());
-        } catch (py::cast_error&) {}
-        return lincs::SufficientCoalitions(t[0].cast<lincs::SufficientCoalitions::Roots>());
+        return lincs::SufficientCoalitions(variant_cast<lincs::SufficientCoalitions::Self>(t[0]));
       }
     ))
     .def(py::self == py::self)
@@ -569,13 +625,7 @@ void define_alternative_classes(py::module& m) {
         );
       },
       [](py::tuple t) {
-        try {
-          return lincs::Performance(t[0].cast<lincs::Performance::Real>());
-        } catch (py::cast_error&) {}
-        try {
-          return lincs::Performance(t[0].cast<lincs::Performance::Integer>());
-        } catch (py::cast_error&) {}
-        return lincs::Performance(t[0].cast<lincs::Performance::Enumerated>());
+        return lincs::Performance(variant_cast<lincs::Performance::Self>(t[0]));
       }
     ))
   ;

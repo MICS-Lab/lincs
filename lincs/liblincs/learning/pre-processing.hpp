@@ -13,10 +13,10 @@
 namespace lincs {
 
 struct PreProcessedBoundary {
-  std::vector<unsigned> profile_ranks;
+  std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> profile_ranks;
   SufficientCoalitions sufficient_coalitions;
 
-  PreProcessedBoundary(const std::vector<unsigned>& profile_ranks_, const SufficientCoalitions& sufficient_coalitions_) :
+  PreProcessedBoundary(const std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>>& profile_ranks_, const SufficientCoalitions& sufficient_coalitions_) :
     profile_ranks(profile_ranks_),
     sufficient_coalitions(sufficient_coalitions_)
   {}
@@ -48,6 +48,7 @@ class PreProcessedLearningSet {
   std::map<unsigned, std::vector<float>> real_sorted_values;  // Indexed by [criterion_index][value_rank]
   std::map<unsigned, std::vector<unsigned>> integer_sorted_values;  // Indexed by [criterion_index][value_rank]
  public:
+  Array1D<Host, bool> single_peaked;  // [criterion_index]
   Array1D<Host, unsigned> values_counts;  // [criterion_index]
   Array2D<Host, unsigned> performance_ranks;  // [criterion_index][alternative_index]
   Array1D<Host, unsigned> assignments;  // [alternative_index]

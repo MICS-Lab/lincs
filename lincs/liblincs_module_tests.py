@@ -105,12 +105,41 @@ class ProblemTestCase(unittest.TestCase):
         self.assertEqual(criterion.enumerated_values.get_value_rank("b"), 1)
         self.assertEqual(criterion.enumerated_values.get_value_rank("c"), 2)
 
+    def test_single_peaked_real_criteria(self):
+        criterion = Criterion("Criterion name", Criterion.RealValues(Criterion.PreferenceDirection.single_peaked, 0.25, 2.75))
+        self.assertEqual(criterion.name, "Criterion name")
+        self.assertEqual(criterion.value_type, Criterion.ValueType.real)
+        self.assertTrue(criterion.is_real)
+        self.assertFalse(criterion.is_integer)
+        self.assertFalse(criterion.is_enumerated)
+        self.assertTrue(criterion.real_values.is_single_peaked)
+        self.assertFalse(criterion.real_values.is_increasing)
+        self.assertFalse(criterion.real_values.is_decreasing)
+        self.assertEqual(criterion.real_values.preference_direction, Criterion.PreferenceDirection.single_peaked)
+        self.assertEqual(criterion.real_values.min_value, 0.25)
+        self.assertEqual(criterion.real_values.max_value, 2.75)
+
+    def test_single_peaked_integer_criteria(self):
+        criterion = Criterion("Criterion name", Criterion.IntegerValues(Criterion.PreferenceDirection.single_peaked, 25, 75))
+        self.assertEqual(criterion.name, "Criterion name")
+        self.assertEqual(criterion.value_type, Criterion.ValueType.integer)
+        self.assertFalse(criterion.is_real)
+        self.assertTrue(criterion.is_integer)
+        self.assertFalse(criterion.is_enumerated)
+        self.assertTrue(criterion.integer_values.is_single_peaked)
+        self.assertFalse(criterion.integer_values.is_increasing)
+        self.assertFalse(criterion.integer_values.is_decreasing)
+        self.assertEqual(criterion.integer_values.preference_direction, Criterion.PreferenceDirection.single_peaked)
+        self.assertEqual(criterion.integer_values.min_value, 25)
+        self.assertEqual(criterion.integer_values.max_value, 75)
+
     def test_pickle_and_deep_copy(self):
         problem = Problem(
             criteria=[
                 Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+                Criterion(name="Single-peaked criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.single_peaked, 0, 1)),
             ],
             ordered_categories=[
                 Category("Bad"),
@@ -124,7 +153,7 @@ class ProblemTestCase(unittest.TestCase):
         copied_problem = copy.deepcopy(problem)
 
         for p in (problem, unpickled_problem, copied_problem):
-            self.assertEqual(len(p.criteria), 3)
+            self.assertEqual(len(p.criteria), 4)
             self.assertEqual(p.criteria[0].name, "Real criterion")
             self.assertEqual(p.criteria[0].value_type, Criterion.ValueType.real)
             self.assertTrue(p.criteria[0].is_real)
@@ -150,6 +179,14 @@ class ProblemTestCase(unittest.TestCase):
             self.assertEqual(p.criteria[2].enumerated_values.get_value_rank("a"), 0)
             self.assertEqual(p.criteria[2].enumerated_values.get_value_rank("b"), 1)
             self.assertEqual(p.criteria[2].enumerated_values.get_value_rank("c"), 2)
+            self.assertEqual(p.criteria[3].name, "Single-peaked criterion")
+            self.assertEqual(p.criteria[3].value_type, Criterion.ValueType.real)
+            self.assertTrue(p.criteria[3].is_real)
+            self.assertFalse(p.criteria[3].is_integer)
+            self.assertFalse(p.criteria[3].is_enumerated)
+            self.assertEqual(p.criteria[3].real_values.preference_direction, Criterion.PreferenceDirection.single_peaked)
+            self.assertEqual(p.criteria[3].real_values.min_value, 0)
+            self.assertEqual(p.criteria[3].real_values.max_value, 1)
             self.assertEqual(len(p.ordered_categories), 3)
             self.assertEqual(p.ordered_categories[0].name, "Bad")
             self.assertEqual(p.ordered_categories[1].name, "Medium")
@@ -161,6 +198,7 @@ class ProblemTestCase(unittest.TestCase):
             self.assertIsNot(p.criteria[0], problem.criteria[0])
             self.assertIsNot(p.criteria[1], problem.criteria[1])
             self.assertIsNot(p.criteria[2], problem.criteria[2])
+            self.assertIsNot(p.criteria[3], problem.criteria[3])
             self.assertIsNot(p.ordered_categories, problem.ordered_categories)
             self.assertIsNot(p.ordered_categories[0], problem.ordered_categories[0])
             self.assertIsNot(p.ordered_categories[1], problem.ordered_categories[1])
@@ -447,12 +485,56 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(len(model.accepted_values[0].enumerated_thresholds.thresholds), 1)
         self.assertEqual(model.accepted_values[0].enumerated_thresholds.thresholds[0], "mid")
 
+    def test_init_single_peaked(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.IntegerValues(Criterion.PreferenceDirection.single_peaked, 0, 10)),
+                Criterion("Criterion 2", Criterion.RealValues(Criterion.PreferenceDirection.single_peaked, 0, 100)),
+            ],
+            [
+                Category("Category 1"),
+                Category("Category 2"),
+                Category("Category 3"),
+            ],
+        )
+        model = Model(
+            problem,
+            [
+                AcceptedValues(AcceptedValues.IntegerIntervals([(2, 8), (4, 6)])),
+                AcceptedValues(AcceptedValues.RealIntervals([(20, 80), (40, 60)])),
+            ],
+            [
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5])),
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5])),
+            ],
+        )
+        self.assertEqual(len(model.accepted_values), 2)
+        self.assertEqual(model.accepted_values[0].value_type, Criterion.ValueType.integer)
+        self.assertFalse(model.accepted_values[0].is_real)
+        self.assertTrue(model.accepted_values[0].is_integer)
+        self.assertFalse(model.accepted_values[0].is_enumerated)
+        self.assertEqual(model.accepted_values[0].kind, AcceptedValues.Kind.intervals)
+        self.assertTrue(model.accepted_values[0].is_intervals)
+        self.assertEqual(len(model.accepted_values[0].integer_intervals.intervals), 2)
+        self.assertEqual(model.accepted_values[0].integer_intervals.intervals[0], (2, 8))
+        self.assertEqual(model.accepted_values[0].integer_intervals.intervals[1], (4, 6))
+        self.assertEqual(model.accepted_values[1].value_type, Criterion.ValueType.real)
+        self.assertTrue(model.accepted_values[1].is_real)
+        self.assertFalse(model.accepted_values[1].is_integer)
+        self.assertFalse(model.accepted_values[1].is_enumerated)
+        self.assertEqual(model.accepted_values[1].kind, AcceptedValues.Kind.intervals)
+        self.assertTrue(model.accepted_values[1].is_intervals)
+        self.assertEqual(len(model.accepted_values[1].real_intervals.intervals), 2)
+        self.assertEqual(model.accepted_values[1].real_intervals.intervals[0], (20, 80))
+        self.assertEqual(model.accepted_values[1].real_intervals.intervals[1], (40, 60))
+
     def test_pickle_and_deep_copy(self):
         problem = Problem(
             criteria=[
                 Criterion(name="Real criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.increasing, 5, 10)),
                 Criterion(name="Integer criterion", values=Criterion.IntegerValues(Criterion.PreferenceDirection.decreasing, 15, 100)),
                 Criterion(name="Enumerated criterion", values=Criterion.EnumeratedValues(["a", "b", "c"])),
+                Criterion(name="Single-peaked criterion", values=Criterion.RealValues(Criterion.PreferenceDirection.single_peaked, 0, 8)),
             ],
             ordered_categories=[
                 Category("Bad"),
@@ -466,10 +548,11 @@ class ModelTestCase(unittest.TestCase):
                 AcceptedValues(AcceptedValues.RealThresholds([7, 9])),
                 AcceptedValues(AcceptedValues.IntegerThresholds([50, 25])),
                 AcceptedValues(AcceptedValues.EnumeratedThresholds(["b", "c"])),
+                AcceptedValues(AcceptedValues.RealIntervals([(1, 7), (3, 5)])),
             ],
             sufficient_coalitions=[
-                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5])),
-                SufficientCoalitions(SufficientCoalitions.Roots(problem, [[0, 1], [0, 2]])),
+                SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.5, 0.5, 0.5])),
+                SufficientCoalitions(SufficientCoalitions.Roots(problem, [[0, 1], [0, 2], [0, 3]])),
             ],
         )
         pickled_model = pickle.dumps(model)
@@ -478,13 +561,14 @@ class ModelTestCase(unittest.TestCase):
         copied_model = copy.deepcopy(model)
 
         for m in (model, unpickled_model, copied_model):
-            self.assertEqual(len(m.accepted_values), 3)
+            self.assertEqual(len(m.accepted_values), 4)
             self.assertEqual(m.accepted_values[0].value_type, Criterion.ValueType.real)
             self.assertTrue(m.accepted_values[0].is_real)
             self.assertFalse(m.accepted_values[0].is_integer)
             self.assertFalse(m.accepted_values[0].is_enumerated)
             self.assertEqual(m.accepted_values[0].kind, AcceptedValues.Kind.thresholds)
             self.assertTrue(m.accepted_values[0].is_thresholds)
+            self.assertFalse(m.accepted_values[0].is_intervals)
             self.assertEqual(len(m.accepted_values[0].real_thresholds.thresholds), 2)
             self.assertEqual(m.accepted_values[0].real_thresholds.thresholds[0], 7)
             self.assertEqual(m.accepted_values[0].real_thresholds.thresholds[1], 9)
@@ -494,6 +578,7 @@ class ModelTestCase(unittest.TestCase):
             self.assertFalse(m.accepted_values[1].is_enumerated)
             self.assertEqual(m.accepted_values[1].kind, AcceptedValues.Kind.thresholds)
             self.assertTrue(m.accepted_values[1].is_thresholds)
+            self.assertFalse(m.accepted_values[1].is_intervals)
             self.assertEqual(len(m.accepted_values[1].integer_thresholds.thresholds), 2)
             self.assertEqual(m.accepted_values[1].integer_thresholds.thresholds[0], 50)
             self.assertEqual(m.accepted_values[1].integer_thresholds.thresholds[1], 25)
@@ -503,17 +588,29 @@ class ModelTestCase(unittest.TestCase):
             self.assertTrue(m.accepted_values[2].is_enumerated)
             self.assertEqual(m.accepted_values[2].kind, AcceptedValues.Kind.thresholds)
             self.assertTrue(m.accepted_values[2].is_thresholds)
+            self.assertFalse(m.accepted_values[2].is_intervals)
             self.assertEqual(len(m.accepted_values[2].enumerated_thresholds.thresholds), 2)
             self.assertEqual(m.accepted_values[2].enumerated_thresholds.thresholds[0], "b")
             self.assertEqual(m.accepted_values[2].enumerated_thresholds.thresholds[1], "c")
+            self.assertEqual(m.accepted_values[3].value_type, Criterion.ValueType.real)
+            self.assertTrue(m.accepted_values[3].is_real)
+            self.assertFalse(m.accepted_values[3].is_integer)
+            self.assertFalse(m.accepted_values[3].is_enumerated)
+            self.assertEqual(m.accepted_values[3].kind, AcceptedValues.Kind.intervals)
+            self.assertFalse(m.accepted_values[3].is_thresholds)
+            self.assertTrue(m.accepted_values[3].is_intervals)
+            self.assertEqual(len(m.accepted_values[3].real_intervals.intervals), 2)
+            self.assertEqual(m.accepted_values[3].real_intervals.intervals[0], (1, 7))
+            self.assertEqual(m.accepted_values[3].real_intervals.intervals[1], (3, 5))
             self.assertEqual(len(m.sufficient_coalitions), 2)
             self.assertEqual(m.sufficient_coalitions[0].kind, SufficientCoalitions.Kind.weights)
             self.assertTrue(m.sufficient_coalitions[0].is_weights)
             self.assertFalse(m.sufficient_coalitions[0].is_roots)
-            self.assertEqual(len(m.sufficient_coalitions[0].weights.criterion_weights), 3)
+            self.assertEqual(len(m.sufficient_coalitions[0].weights.criterion_weights), 4)
             self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[0], 0.5)
             self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[1], 0.5)
             self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[2], 0.5)
+            self.assertEqual(m.sufficient_coalitions[0].weights.criterion_weights[3], 0.5)
             self.assertEqual(m.sufficient_coalitions[1].kind, SufficientCoalitions.Kind.roots)
             self.assertFalse(m.sufficient_coalitions[1].is_weights)
             self.assertTrue(m.sufficient_coalitions[1].is_roots)
@@ -521,6 +618,8 @@ class ModelTestCase(unittest.TestCase):
             self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[0][1], 1)
             self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[1][0], 0)
             self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[1][1], 2)
+            self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[2][0], 0)
+            self.assertEqual(m.sufficient_coalitions[1].roots.upset_roots[2][1], 3)
 
         for m in (unpickled_model, copied_model):
             self.assertIsNot(m, model)
@@ -919,7 +1018,7 @@ class AlternativesTestCase(unittest.TestCase):
 
 class LearningTestCase(unittest.TestCase):
     def test_access_wpb_learning_data(self):
-        problem = generate_problem(5, 3, 41)
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing, Criterion.PreferenceDirection.single_peaked])
         model = generate_mrsort_model(problem, 42)
         learning_set = generate_alternatives(problem, model, 200, 43)
 
@@ -946,8 +1045,8 @@ class LearningTestCase(unittest.TestCase):
 
         self.assertEqual(learning_data.models_count, 9)
 
-        self.assertEqual(len(learning_data.urbgs), 9)
-        self.assertEqual(learning_data.urbgs[0](), 3585619732)
+        self.assertEqual(len(learning_data.random_generators), 9)
+        self.assertEqual(learning_data.random_generators[0](), 3585619732)
 
         self.assertEqual(learning_data.iteration_index, 0)
 
@@ -957,10 +1056,21 @@ class LearningTestCase(unittest.TestCase):
         self.assertEqual(len(learning_data.accuracies), 9)
         self.assertEqual(learning_data.accuracies[0], 0)
 
-        self.assertEqual(len(learning_data.profile_ranks), 9)
-        self.assertEqual(len(learning_data.profile_ranks[0]), 2)
-        self.assertEqual(len(learning_data.profile_ranks[0][0]), 5)
-        self.assertIsInstance(learning_data.profile_ranks[0][0][0], int)
+        self.assertEqual(len(learning_data.low_profile_ranks), 9)
+        self.assertEqual(len(learning_data.low_profile_ranks[0]), 2)
+        self.assertEqual(len(learning_data.low_profile_ranks[0][0]), 5)
+        self.assertIsInstance(learning_data.low_profile_ranks[0][0][0], int)
+
+        self.assertEqual(list(learning_data.single_peaked), [False, True, False, False, True])
+
+        self.assertEqual(len(learning_data.high_profile_rank_indexes), 5)
+        self.assertEqual(learning_data.high_profile_rank_indexes[1], 0)
+        self.assertEqual(learning_data.high_profile_rank_indexes[4], 1)
+
+        self.assertEqual(len(learning_data.high_profile_ranks), 9)
+        self.assertEqual(len(learning_data.high_profile_ranks[0]), 2)
+        self.assertEqual(len(learning_data.high_profile_ranks[0][0]), 2)
+        self.assertIsInstance(learning_data.high_profile_ranks[0][0][0], int)
 
         self.assertEqual(len(learning_data.weights), 9)
         self.assertEqual(len(learning_data.weights[0]), 5)
@@ -1202,7 +1312,7 @@ class LearningTestCase(unittest.TestCase):
                     model_index = learning_data.model_indexes[model_index_index]
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
-                            self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = 0
+                            self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = 0
 
         class SillyWeightsOptimizationStrategy(LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
             def __init__(self, log, learning_data):
@@ -1230,7 +1340,7 @@ class LearningTestCase(unittest.TestCase):
                     for boundary_index in range(self.learning_data.boundaries_count):
                         for criterion_index in range(self.learning_data.criteria_count):
                             rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))
-                            self.learning_data.profile_ranks[model_index][boundary_index][criterion_index] = rank
+                            self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = rank
 
         class SillyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
             def __init__(self, log, learning_data):

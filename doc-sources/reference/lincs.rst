@@ -122,6 +122,12 @@
 
                     For criteria where lower numerical values are known to be better.
 
+                .. property:: single_peaked
+                    :classmethod:
+                    :type: lincs.classification.Criterion.PreferenceDirection
+
+                    For criteria where intermediate numerical values are known to be better.
+
                 .. property:: isotone
                     :classmethod:
                     :type: lincs.classification.Criterion.PreferenceDirection
@@ -167,6 +173,11 @@
 
                     ``True`` if the criterion has decreasing preference direction.
 
+                .. property:: is_single_peaked
+                    :type: bool
+
+                    ``True`` if the criterion has single-peaked preference direction.
+
             .. property:: real_values
                 :type: RealValues
 
@@ -205,6 +216,11 @@
 
                     ``True`` if the criterion has decreasing preference direction.
 
+                .. property:: is_single_peaked
+                    :type: bool
+
+                    ``True`` if the criterion has single-peaked preference direction.
+
             .. property:: integer_values
                 :type: IntegerValues
 
@@ -223,7 +239,7 @@
                     Get the rank of a given value.
 
                 .. property:: ordered_values
-                    :type: Iterable[str]
+                    :type: list[str]
 
                     The values for this criterion, from the worst to the best.
 
@@ -254,12 +270,12 @@
                 Parameters map exactly to attributes with identical names.
 
             .. property:: criteria
-                :type: Iterable[Criterion]
+                :type: list[Criterion]
 
                 The criteria of this problem.
 
             .. property:: ordered_categories
-                :type: Iterable[Category]
+                :type: list[Category]
 
                 The categories of this problem, from the worst to the best.
 
@@ -295,6 +311,16 @@
 
                 Constructor for thresholds on an enumerated criterion.
 
+            .. method:: __init__(values: RealIntervals)
+                :noindex:
+
+                Constructor for intervals on a real-valued criterion.
+
+            .. method:: __init__(values: IntegerIntervals)
+                :noindex:
+
+                Constructor for intervals on an integer-valued criterion.
+
             .. property:: value_type
                 :type: ValueType
 
@@ -325,6 +351,12 @@
 
                     A threshold for each category.
 
+                .. property:: intervals
+                    :classmethod:
+                    :type: lincs.classification.AcceptedValues.Kind
+
+                    An interval for each category.
+
             .. property:: kind
                 :type: AcceptedValues.Kind
 
@@ -335,6 +367,11 @@
 
                 ``True`` if the descriptor is a set of thresholds.
 
+            .. property:: is_intervals
+                :type: bool
+
+                ``True`` if the descriptor is a set of intervals.
+
             .. class:: RealThresholds
 
                 Descriptor for thresholds for an real-valued criterion.
@@ -344,7 +381,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[Optional[float]]
+                    :type: list[Optional[float]]
 
                     The thresholds for this descriptor.
 
@@ -362,7 +399,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[Optional[int]]
+                    :type: list[Optional[int]]
 
                     The thresholds for this descriptor.
 
@@ -380,7 +417,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: thresholds
-                    :type: Iterable[Optional[str]]
+                    :type: list[Optional[str]]
 
                     The thresholds for this descriptor.
 
@@ -388,6 +425,42 @@
                 :type: EnumeratedThresholds
 
                 Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``.
+
+            .. class:: RealIntervals
+
+                Descriptor for intervals for an real-valued criterion.
+
+                .. method:: __init__(intervals: list[Optional[tuple[float, float]]])
+
+                    Parameters map exactly to attributes with identical names.
+
+                .. property:: intervals
+                    :type: list[Optional[tuple[float, float]]]
+
+                    The intervals for this descriptor.
+
+            .. property:: real_intervals
+                :type: RealIntervals
+
+                Descriptor of the real intervals, accessible if ``is_real and is_intervals``.
+
+            .. class:: IntegerIntervals
+
+                Descriptor for intervals for an integer-valued criterion.
+
+                .. method:: __init__(intervals: list[Optional[tuple[int, int]]])
+
+                    Parameters map exactly to attributes with identical names.
+
+                .. property:: intervals
+                    :type: list[Optional[tuple[int, int]]]
+
+                    The intervals for this descriptor.
+
+            .. property:: integer_intervals
+                :type: IntegerIntervals
+
+                Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``.
 
         .. class:: SufficientCoalitions
 
@@ -442,7 +515,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: criterion_weights
-                    :type: Iterable[float]
+                    :type: list[float]
 
                     The weights for each criterion.
 
@@ -460,7 +533,7 @@
                     Parameters map exactly to attributes with identical names.
 
                 .. property:: upset_roots
-                    :type: Iterable[Iterable[int]]
+                    :type: list[list[int]]
 
                     The roots of the upset of sufficient coalitions.
 
@@ -478,12 +551,12 @@
                 The :py:class:`Model` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names.
 
             .. property:: accepted_values
-                :type: Iterable[AcceptedValues]
+                :type: list[AcceptedValues]
 
                 The accepted values for each criterion.
 
             .. property:: sufficient_coalitions
-                :type: Iterable[SufficientCoalitions]
+                :type: list[SufficientCoalitions]
 
                 The sufficient coalitions for each category.
 
@@ -607,7 +680,7 @@
                 The name of the alternative.
 
             .. property:: profile
-                :type: Iterable[Performance]
+                :type: list[Performance]
 
                 The performance profile of the alternative.
 
@@ -625,7 +698,7 @@
                 The :py:class:`Alternatives` being initialized must correspond to the given :py:class:`Problem`. Other parameters map exactly to attributes with identical names.
 
             .. property:: alternatives
-                :type: Iterable[Alternative]
+                :type: list[Alternative]
 
                 The :py:class:`Alternative` objects in this set.
 
@@ -742,18 +815,23 @@
 
                     Number of alternatives in the ``learning_set``.
 
+                .. property:: single_peaked
+                    :type: list[bool]
+
+                    Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.
+
                 .. property:: values_counts
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.
 
                 .. property:: performance_ranks
-                    :type: Iterable[Iterable[int]]
+                    :type: list[list[int]]
 
                     Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.
 
                 .. property:: assignments
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.
 
@@ -762,8 +840,8 @@
 
                     The number of in-progress models for this learning.
 
-                .. property:: urbgs
-                    :type: Iterable[UniformRandomBitsGenerator]
+                .. property:: random_generators
+                    :type: list[UniformRandomBitsGenerator]
 
                     Indexed by ``[model_index]``. Random number generators associated to each in-progress model.
 
@@ -773,22 +851,32 @@
                     The index of the current iteration of the WPB algorithm.
 
                 .. property:: model_indexes
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.
 
                 .. property:: weights
-                    :type: Iterable[Iterable[int]]
+                    :type: list[list[int]]
 
                     Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.
 
-                .. property:: profile_ranks
-                    :type: Iterable[Iterable[Iterable[int]]]
+                .. property:: low_profile_ranks
+                    :type: list[list[list[int]]]
 
-                    Indexed by ``[model_index][profile_index][criterion_index]``. The current rank of each profile, for each model and criterion.
+                    Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each low profile, for each model and criterion.
+
+                .. property:: high_profile_rank_indexes
+                    :type: list[unsigned]
+
+                    Indexed by ``[criterion_index]``. The index in ``high_profile_ranks``, for each single-peaked criterion.
+
+                .. property:: high_profile_ranks
+                    :type: list[list[list[int]]]
+
+                    Indexed by ``[model_index][boundary_index][high_profile_rank_indexes[criterion_index]]``. The current rank of each high profile, for each model and single-peaked criterion.
 
                 .. property:: accuracies
-                    :type: Iterable[int]
+                    :type: list[int]
 
                     Indexed by ``[model_index]``. Accuracy of each in-progress model.
 
@@ -806,7 +894,7 @@
 
                 .. method:: initialize_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    Method to override. Should initialize all ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
+                    Method to override. Should initialize all ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: WeightsOptimizationStrategy
 
@@ -822,7 +910,7 @@
 
                 .. method:: improve_profiles(model_indexes_begin: int, model_indexes_end: int)
 
-                    Method to override. Should improve ``profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
+                    Method to override. Should improve ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``.
 
             .. class:: BreedingStrategy
 

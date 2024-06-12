@@ -1,5 +1,6 @@
 # Copyright 2023-2024 Vincent Jacques
 
+import sys
 from typing import Iterable
 import unittest
 
@@ -43,15 +44,25 @@ def visualize_classification_model(problem: Problem, model: Model, alternatives:
 
     boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
     for criterion, accepted_values in zip(problem.criteria, model.accepted_values):
-        assert accepted_values.is_thresholds
         if criterion.is_real:
-            for boundary_index in range(boundaries_count):
-                boundary_profiles[boundary_index].append(accepted_values.real_thresholds.thresholds[boundary_index])
+            if accepted_values.is_thresholds:
+                for boundary_index in range(boundaries_count):
+                    boundary_profiles[boundary_index].append(accepted_values.real_thresholds.thresholds[boundary_index])
+            else:
+                assert accepted_values.is_intervals
+                print("Single-peaked criteria are not yet supported by the visualization.", file=sys.stderr)
+                exit(1)
         elif criterion.is_integer:
-            for boundary_index in range(boundaries_count):
-                boundary_profiles[boundary_index].append(accepted_values.integer_thresholds.thresholds[boundary_index])
+            if accepted_values.is_thresholds:
+                for boundary_index in range(boundaries_count):
+                    boundary_profiles[boundary_index].append(accepted_values.integer_thresholds.thresholds[boundary_index])
+            else:
+                assert accepted_values.is_intervals
+                print("Single-peaked criteria are not yet supported by the visualization.", file=sys.stderr)
+                exit(1)
         else:
             assert criterion.is_enumerated
+            assert accepted_values.is_thresholds
             for boundary_index in range(boundaries_count):
                 boundary_profiles[boundary_index].append(criterion.enumerated_values.get_value_rank(accepted_values.enumerated_thresholds.thresholds[boundary_index]))
 

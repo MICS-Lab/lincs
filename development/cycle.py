@@ -533,7 +533,7 @@ def make_python_reference():
                     | "<" CNAME "." CNAME ":" SIGNED_NUMBER ">" -> enum
                     | "[" default_value "]" -> list
 
-        TNAME: /[a-zA-Z0-9.\[\]:]+/
+        TNAME: /[a-zA-Z0-9.\[\],]+[a-zA-Z0-9.\[\]]/
         %import common.CNAME
         %import common.SIGNED_NUMBER
 
@@ -575,6 +575,9 @@ def make_python_reference():
             return (args[0].value, args[1].value, args[2])
 
     def fix_signature(path, signature):
+        signature = signature.replace("[float, float]", "[float,float]")
+        signature = signature.replace("[int, int]", "[int,int]")
+
         parsed = signature_parser.parse(signature)
         parameters, return_type = SignatureTransformer().transform(parsed)
 
@@ -595,6 +598,8 @@ def make_python_reference():
             type = type.replace("AcceptedValues.", "")
             type = type.replace("SufficientCoalitions.", "")
             type = type.replace("Performance.", "")
+            type = type.replace("[float,float]", "[float, float]")
+            type = type.replace("[int,int]", "[int, int]")
 
             if default is None:
                 text_parameters.append(f"{name}: {type}")

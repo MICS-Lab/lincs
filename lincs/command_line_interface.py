@@ -152,6 +152,11 @@ def generate():
     help="Allow criteria to have decreasing preference direction. (By default, all criteria have increasing preference direction)",
 )
 @click.option(
+    "--allow-single-peaked-criteria",
+    is_flag=True,
+    help="Allow criteria to have single-peaked preference direction. (By default, all criteria have increasing preference direction)",
+)
+@click.option(
     "--forbid-real-criteria",
     is_flag=True,
     help="Forbid criteria with real values. (Requires another '--allow-...-criteria' option)",
@@ -182,7 +187,7 @@ def classification_problem(
     criteria_count,
     categories_count,
     denormalized_min_max,
-    forbid_increasing_criteria, allow_decreasing_criteria,
+    forbid_increasing_criteria, allow_decreasing_criteria, allow_single_peaked_criteria,
     forbid_real_criteria, allow_enumerated_criteria, allow_integer_criteria,
     output_problem,
     random_seed
@@ -199,6 +204,9 @@ def classification_problem(
     if allow_decreasing_criteria:
         command_line += ["--allow-decreasing-criteria"]
         allowed_preference_directions.append(lincs.classification.Criterion.PreferenceDirection.decreasing)
+    if allow_single_peaked_criteria:
+        command_line += ["--allow-single-peaked-criteria"]
+        allowed_preference_directions.append(lincs.classification.Criterion.PreferenceDirection.single_peaked)
 
     allowed_value_types = []
     if forbid_real_criteria:
