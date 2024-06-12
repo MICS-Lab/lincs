@@ -21,25 +21,25 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
 
   void improve_boundary_profiles(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     ArrayView1D<Host, const unsigned> criterion_indexes
   );
 
   void improve_low_profile_then_high_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index
   );
 
   void improve_low_profile_only(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index
   );
 
   void improve_low_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index,
     unsigned lowest_destination_rank,
     unsigned highest_destination_rank
@@ -47,14 +47,14 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
 
   Desirability compute_move_desirability_for_low_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index,
     unsigned destination_rank
   );
 
   void update_move_desirability_for_low_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index,
     unsigned destination_rank,
     unsigned alternative_index,
@@ -63,7 +63,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
 
   void improve_high_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index,
     unsigned lowest_destination_rank,
     unsigned highest_destination_rank
@@ -71,14 +71,14 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
 
   Desirability compute_move_desirability_for_high_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index,
     unsigned destination_rank
   );
 
   void update_move_desirability_for_high_profile(
     unsigned model_index,
-    unsigned profile_index,
+    unsigned boundary_index,
     unsigned criterion_index,
     unsigned destination_rank,
     unsigned alternative_index,
