@@ -659,7 +659,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
 ) {
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(host_learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
+    assert(host_learning_data.high_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
   } else {
     Array1D<Host, unsigned> host_destination_ranks(max_destinations_count, uninitialized);
     unsigned actual_destinations_count = 0;
