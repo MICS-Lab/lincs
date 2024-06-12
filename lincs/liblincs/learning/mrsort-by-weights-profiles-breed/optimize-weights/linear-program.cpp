@@ -59,26 +59,26 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
     const unsigned category_index = learning_data.assignments[alternative_index];
 
     if (category_index != 0) {  // Except bottom category
-      const unsigned profile_index = category_index - 1;  // Profile below category
+      const unsigned boundary_index = category_index - 1;  // Profile below category
       auto c = program.create_constraint();
       c.set_bounds(1, 1);
       c.set_coefficient(x_variables[alternative_index], -1);
       c.set_coefficient(xp_variables[alternative_index], 1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, profile_index, criterion_index, alternative_index)) {
+        if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
     }
 
     if (category_index != learning_data.categories_count - 1) {  // Except top category
-      const unsigned profile_index = category_index;  // Profile above category
+      const unsigned boundary_index = category_index;  // Profile above category
       auto c = program.create_constraint();
       c.set_bounds(1 - epsilon, 1 - epsilon);
       c.set_coefficient(y_variables[alternative_index], 1);
       c.set_coefficient(yp_variables[alternative_index], -1);
       for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, profile_index, criterion_index, alternative_index)) {
+        if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }

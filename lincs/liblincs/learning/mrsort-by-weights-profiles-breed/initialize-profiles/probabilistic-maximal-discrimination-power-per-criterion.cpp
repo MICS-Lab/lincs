@@ -30,7 +30,7 @@ InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::Initia
 
 std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities_for_low_ranks(
   unsigned criterion_index,
-  unsigned profile_index
+  unsigned boundary_index
 ) {
   CHRONE();
 
@@ -45,9 +45,9 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
   for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     const unsigned rank = learning_data.performance_ranks[criterion_index][alternative_index];
     const unsigned assignment = learning_data.assignments[alternative_index];
-    if (assignment == profile_index) {
+    if (assignment == boundary_index) {
       candidates_worse.push_back(rank);
-    } else if (assignment == profile_index + 1) {
+    } else if (assignment == boundary_index + 1) {
       candidates_better.push_back(rank);
     }
   }
@@ -92,7 +92,7 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
 
 std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::get_candidate_probabilities_for_high_ranks(
   unsigned criterion_index,
-  unsigned profile_index
+  unsigned boundary_index
 ) {
   CHRONE();
 
@@ -107,9 +107,9 @@ std::map<unsigned, double> InitializeProfilesForProbabilisticMaximalDiscriminati
   for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
     const unsigned rank = learning_data.performance_ranks[criterion_index][alternative_index];
     const unsigned assignment = learning_data.assignments[alternative_index];
-    if (assignment == profile_index) {
+    if (assignment == boundary_index) {
       candidates_worse.push_back(rank);
-    } else if (assignment == profile_index + 1) {
+    } else if (assignment == boundary_index + 1) {
       candidates_better.push_back(rank);
     }
   }

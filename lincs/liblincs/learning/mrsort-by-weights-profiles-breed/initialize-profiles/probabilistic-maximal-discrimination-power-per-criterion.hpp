@@ -20,12 +20,12 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
  private:
   std::map<unsigned, double> get_candidate_probabilities_for_low_ranks(
     unsigned criterion_index,
-    unsigned profile_index
+    unsigned boundary_index
   );
 
   std::map<unsigned, double> get_candidate_probabilities_for_high_ranks(
     unsigned criterion_index,
-    unsigned profile_index
+    unsigned boundary_index
   );
 
  private:

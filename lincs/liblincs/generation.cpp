@@ -199,8 +199,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           unreachable();
         });
         // ... and assign it.
-        for (unsigned profile_index = 0; profile_index != values_count; ++profile_index) {
-          columns[criterion_index][profile_index] = column[profile_index];
+        for (unsigned boundary_index = 0; boundary_index != values_count; ++boundary_index) {
+          columns[criterion_index][boundary_index] = column[boundary_index];
         }
       },
       [&gen, boundaries_count, &columns, criterion_index](const Criterion::IntegerValues& values) {
@@ -221,8 +221,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           }
           unreachable();
         });
-        for (unsigned profile_index = 0; profile_index != values_count; ++profile_index) {
-          columns[criterion_index][profile_index] = column[profile_index];
+        for (unsigned boundary_index = 0; boundary_index != values_count; ++boundary_index) {
+          columns[criterion_index][boundary_index] = column[boundary_index];
         }
       },
       [&gen, boundaries_count, &columns, criterion_index](const Criterion::EnumeratedValues& values) {
@@ -234,8 +234,8 @@ Model generate_mrsort_classification_model(const Problem& problem, const unsigne
           ranks.begin(), ranks.end(),
           [&values_distribution, &gen]() { return values_distribution(gen); });
         std::sort(ranks.begin(), ranks.end(), [](unsigned left, unsigned right) { return right >= left; });
-        for (unsigned profile_index = 0; profile_index != values_count; ++profile_index) {
-          columns[criterion_index][profile_index] = values.get_ordered_values()[ranks[profile_index]];
+        for (unsigned boundary_index = 0; boundary_index != values_count; ++boundary_index) {
+          columns[criterion_index][boundary_index] = values.get_ordered_values()[ranks[boundary_index]];
         }
       }
     );
