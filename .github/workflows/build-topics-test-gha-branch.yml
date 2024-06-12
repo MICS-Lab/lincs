@@ -4,30 +4,8 @@ on:
     branches:
       - topics/test-gha
 jobs:
-  make-source-dist:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Install dependencies
-        run: pip3 install build twine
-
-      - name: Get the code
-        uses: actions/checkout@v4
-
-      - name: Build the source distribution
-        run: python3 -m build --sdist
-      - name: Check the source distribution
-        run: twine check dist/*
-
-      - name: Upload the source distribution to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-dist
-          path: dist
-
   build-for-linux:
     runs-on: ubuntu-20.04
-    needs:
-      - make-source-dist
     strategy:
       matrix:
         python_version: ['3.8', '3.12']
@@ -37,7 +15,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
-        run: pip${{ matrix.python_version }} install auditwheel build Chrones pybind11 twine
+        run: pip${{ matrix.python_version }} install auditwheel build Chrones pybind11 twine wheel
       - name: Install CUDA
         run: |
           sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
@@ -77,17 +55,11 @@ jobs:
             tar xf *.tar.gz
             sudo cp bin/patchelf /usr/local/bin
 
-      - name: Dowload the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
+      - name: Get the code
+        uses: actions/checkout@v4
 
       - name: Build the wheel
-        run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
+        run: python${{ matrix.python_version }} -m build --no-isolation --wheel --outdir local-dist
         env:
           LINCS_DEV_FORCE_NVCC: "true"
           LINCS_DEV_FORCE_CHRONES: "true"
@@ -96,16 +68,8 @@ jobs:
       - name: Check the wheel
         run: twine check dist/*.whl
 
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-dist-${{ matrix.python_version }}-linux
-          path: dist
-
   build-for-windows:
     runs-on: windows-2019
-    needs:
-      - build-for-linux
     strategy:
       matrix:
         python_version: ['3.8', '3.12']
@@ -115,7 +79,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
-        run: pip install build delvewheel pybind11 twine
+        run: pip install build delvewheel pybind11 twine wheel
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
@@ -162,18 +126,11 @@ jobs:
             cp -r include/* /d/lincs-deps/include
             cp -r lib/* /d/lincs-deps/lib
 
-      - name: Dowload the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        shell: msys2 {0}
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
+      - name: Get the code
+        uses: actions/checkout@v4
 
       - name: Build the wheel
-        run: python -m build --wheel --outdir local-dist (get-item lincs-*)
+        run: python -m build --no-isolation --wheel --outdir local-dist (get-item lincs-*)
         env:
           LINCS_DEV_FORCE_NVCC: "true"
           LINCS_DEV_DEPENDENCIES: d:\lincs-deps
@@ -183,16 +140,8 @@ jobs:
       - name: Check the wheel
         run: twine check (get-item dist\*.whl)
 
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-dist-${{ matrix.python_version }}-windows
-          path: dist
-
   build-for-macos:
     runs-on: macos-11
-    needs:
-      - build-for-windows
     strategy:
       matrix:
         python_version: ['3.8', '3.12']
@@ -204,7 +153,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
-        run: pip3 install build delocate pybind11 twine
+        run: pip3 install build delocate pybind11 twine wheel
       - name: Install OpenMP
         run: |
             cd /Users/runner/work
@@ -236,24 +185,12 @@ jobs:
             sudo cp -r include/* /usr/local/include
             sudo cp -r lib/* /usr/local/lib
 
-      - name: Dowload the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
+      - name: Get the code
+        uses: actions/checkout@v4
 
       - name: Build the wheel
-        run: python3 -m build --wheel --outdir local-dist lincs-*
+        run: python3 -m build --no-isolation --wheel --outdir local-dist lincs-*
       - name: Make the wheel machine-independent
         run: delocate-wheel --wheel-dir dist local-dist/*.whl
       - name: Check the wheel
         run: twine check dist/*.whl
-
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-dist-${{ matrix.python_version }}-macos
-          path: dist
