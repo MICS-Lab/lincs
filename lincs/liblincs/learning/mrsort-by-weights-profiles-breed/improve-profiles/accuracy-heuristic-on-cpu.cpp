@@ -192,7 +192,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability_for_low
   float accepted_weight = 0;
   // There is a 'criterion_index' parameter above, *and* a local 'crit_index' just here
   for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
-    if (is_accepted(learning_data, model_index, boundary_index, crit_index, alternative_index)) {
+    if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, boundary_index, crit_index, alternative_index)) {
       accepted_weight += learning_data.weights[model_index][crit_index];
     }
   }
@@ -386,7 +386,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability_for_hig
   float accepted_weight = 0;
   // There is a 'criterion_index' parameter above, *and* a local 'crit_index' just here
   for (unsigned crit_index = 0; crit_index != learning_data.criteria_count; ++crit_index) {
-    if (is_accepted(learning_data, model_index, boundary_index, crit_index, alternative_index)) {
+    if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, boundary_index, crit_index, alternative_index)) {
       accepted_weight += learning_data.weights[model_index][crit_index];
     }
   }

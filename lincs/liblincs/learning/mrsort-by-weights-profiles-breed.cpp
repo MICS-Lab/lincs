@@ -166,6 +166,23 @@ bool LearnMrsortByWeightsProfilesBreed::is_correctly_assigned(
   return actual_assignment == expected_assignment;
 }
 
+bool LearnMrsortByWeightsProfilesBreed::is_accepted(
+  const LearnMrsortByWeightsProfilesBreed::LearningData& learning_data,
+  const unsigned model_index,
+  const unsigned boundary_index,
+  const unsigned criterion_index,
+  const unsigned alternative_index
+) {
+  const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
+  const unsigned low_profile_rank = learning_data.low_profile_ranks[model_index][boundary_index][criterion_index];
+  if (learning_data.single_peaked[criterion_index]) {
+    const unsigned high_profile_rank = learning_data.high_profile_ranks[model_index][boundary_index][criterion_index];
+    return low_profile_rank <= alternative_rank && alternative_rank <= high_profile_rank;
+  } else {
+    return low_profile_rank <= alternative_rank;
+  }
+}
+
 unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
   // @todo(Performance, later) Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
