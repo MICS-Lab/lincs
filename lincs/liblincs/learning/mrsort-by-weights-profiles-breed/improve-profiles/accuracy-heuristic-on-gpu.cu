@@ -302,20 +302,18 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   const unsigned profile_index,
   const unsigned criterion_index
 ) {
-  auto& learning_data = host_learning_data;
-
   const unsigned lowest_destination_rank =
     profile_index == 0 ?
       0 :
-      learning_data.low_profile_ranks[model_index][profile_index - 1][criterion_index];
+      host_learning_data.low_profile_ranks[model_index][profile_index - 1][criterion_index];
   const unsigned highest_destination_rank =
-    profile_index == learning_data.boundaries_count - 1 ?
-      learning_data.values_counts[criterion_index] - 1 :
-      learning_data.low_profile_ranks[model_index][profile_index + 1][criterion_index];
+    profile_index == host_learning_data.boundaries_count - 1 ?
+      host_learning_data.values_counts[criterion_index] - 1 :
+      host_learning_data.low_profile_ranks[model_index][profile_index + 1][criterion_index];
 
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(learning_data.low_profile_ranks[model_index][profile_index][criterion_index] == lowest_destination_rank);
+    assert(host_learning_data.low_profile_ranks[model_index][profile_index][criterion_index] == lowest_destination_rank);
     return;
   }
 
@@ -323,7 +321,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profile(
   unsigned actual_destinations_count = 0;
   if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
     for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-      host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.random_generators[model_index]);
+      host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(host_learning_data.random_generators[model_index]);
     }
     actual_destinations_count = max_destinations_count;
   } else {
