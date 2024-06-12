@@ -1,9 +1,8 @@
 // Copyright 2023-2024 Vincent Jacques
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 #include "../learning.hpp"
+#include "../vendored/pybind11/pybind11.h"
+#include "../vendored/pybind11/stl.h"
 
 
 namespace py = pybind11;

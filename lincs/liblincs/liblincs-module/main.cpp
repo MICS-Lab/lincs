@@ -1,9 +1,8 @@
 // Copyright 2023-2024 Vincent Jacques
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 #include "../chrones.hpp"
+#include "../vendored/pybind11/pybind11.h"
+#include "../vendored/pybind11/stl.h"
 
 #ifndef DOCTEST_CONFIG_DISABLE
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN

@@ -2,12 +2,12 @@
 
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <pybind11/pybind11.h>
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
 
 #include "../io.hpp"
 #include "../vendored/magic_enum.hpp"
+#include "../vendored/pybind11/pybind11.h"
+#include "../vendored/pybind11/operators.h"
+#include "../vendored/pybind11/stl.h"
 
 
 namespace py = pybind11;

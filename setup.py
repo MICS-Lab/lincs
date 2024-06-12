@@ -224,13 +224,6 @@ def make_liblincs_extension():
         else:
             print("WARNING: 'chrones' was not found, lincs will be compiled without Chrones", file=sys.stderr)
 
-    try:
-        import pybind11
-    except ImportError:
-        print("WARNING: 'pybind11' was not found, compilation will fail. (Source distribution is OK)", file=sys.stderr)
-    else:
-        include_dirs += [pybind11.get_include()]
-
     if sys.platform == "linux":
         extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp"]
         extra_compile_args["vendored-c++"] = ["-std=c++17", "-Werror=switch", "-w", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]

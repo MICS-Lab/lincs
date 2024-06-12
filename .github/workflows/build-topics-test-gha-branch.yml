@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
-        run: pip${{ matrix.python_version }} install auditwheel build Chrones pybind11 twine wheel
+        run: pip${{ matrix.python_version }} install auditwheel build Chrones twine
       - name: Install CUDA
         run: |
           sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build the wheel
-        run: python${{ matrix.python_version }} -m build --no-isolation --wheel --outdir local-dist
+        run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist
         env:
           LINCS_DEV_FORCE_NVCC: "true"
           LINCS_DEV_FORCE_CHRONES: "true"
@@ -79,7 +79,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
-        run: pip install build delvewheel pybind11 twine wheel
+        run: pip install build delvewheel twine
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.14
         id: cuda-toolkit
@@ -130,7 +130,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build the wheel
-        run: python -m build --no-isolation --wheel --outdir local-dist (get-item lincs-*)
+        run: python -m build --wheel --outdir local-dist
         env:
           LINCS_DEV_FORCE_NVCC: "true"
           LINCS_DEV_DEPENDENCIES: d:\lincs-deps
@@ -153,7 +153,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
-        run: pip3 install build delocate pybind11 twine wheel
+        run: pip3 install build delocate twine
       - name: Install OpenMP
         run: |
             cd /Users/runner/work
@@ -189,7 +189,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build the wheel
-        run: python3 -m build --no-isolation --wheel --outdir local-dist lincs-*
+        run: python3 -m build --wheel --outdir local-dist
       - name: Make the wheel machine-independent
         run: delocate-wheel --wheel-dir dist local-dist/*.whl
       - name: Check the wheel

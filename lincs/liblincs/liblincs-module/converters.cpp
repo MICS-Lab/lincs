@@ -5,11 +5,10 @@
 #include <string>
 #include <vector>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 #include "../lincs.hpp"
 #include "../vendored/lov-e.hpp"
+#include "../vendored/pybind11/pybind11.h"
+#include "../vendored/pybind11/stl.h"
 
 
 namespace py = pybind11;
