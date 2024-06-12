@@ -36,6 +36,10 @@ import yaml
     help="Run tests under a single Python version to save time. Please run the full development cycle at least once before submitting your changes.",
 )
 @click.option(
+    "--python-versions", default=os.environ["LINCS_DEV_PYTHON_VERSIONS"],
+    help="Run tests under the specified Python versions. Space-separated list.",
+)
+@click.option(
     "--unit-coverage", is_flag=True,
     help="Measure coverage of unit tests, stop right after that. Implies --single-python-version. Quite long.",
 )
@@ -102,6 +106,7 @@ import yaml
 def main(
     with_docs,
     single_python_version,
+    python_versions,
     unit_coverage,
     skip_build,
     skip_unit,
@@ -130,7 +135,7 @@ def main(
     if unit_coverage:
         single_python_version = True
 
-    python_versions = os.environ["LINCS_DEV_PYTHON_VERSIONS"].split(" ")
+    python_versions = python_versions.split(" ")
     if single_python_version:
         python_versions = [python_versions[0]]  # Use the lowest version to ensure backward compatibility
     os.environ["LINCS_DEV_PYTHON_VERSIONS"] = " ".join(python_versions)
