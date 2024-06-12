@@ -184,10 +184,10 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
           if (boundary_index == learning_data.boundaries_count - 1) {
             high_rank = std::max(high_rank, low_rank);
           } else {
-            high_rank = std::max(high_rank, learning_data.high_profile_ranks[model_index][boundary_index + 1][criterion_index]);
+            high_rank = std::max(high_rank, learning_data.high_profile_ranks[model_index][boundary_index + 1][learning_data.high_profile_rank_indexes[criterion_index]]);
           }
 
-          learning_data.high_profile_ranks[model_index][boundary_index][criterion_index] = high_rank;
+          learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]] = high_rank;
         }
       }
     }

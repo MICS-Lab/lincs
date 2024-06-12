@@ -204,6 +204,7 @@ liblincs: module
             criteria_count: property
             get_best_accuracy: instancemethod
             get_best_model: instancemethod
+            high_profile_rank_indexes: property
             high_profile_ranks: property
             iteration_index: property
             low_profile_ranks: property

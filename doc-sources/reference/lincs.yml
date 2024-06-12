@@ -360,6 +360,8 @@ children:
               type: list[list[int]]
             - name: low_profile_ranks
               type: list[list[list[int]]]
+            - name: high_profile_rank_indexes
+              type: list[unsigned]
             - name: high_profile_ranks
               type: list[list[list[int]]]
             - name: accuracies

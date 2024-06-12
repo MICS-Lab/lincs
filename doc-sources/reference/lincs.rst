@@ -865,10 +865,15 @@
 
                     Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each low profile, for each model and criterion.
 
+                .. property:: high_profile_rank_indexes
+                    :type: list[unsigned]
+
+                    Indexed by ``[criterion_index]``. The index in ``high_profile_ranks``, for each single-peaked criterion.
+
                 .. property:: high_profile_ranks
                     :type: list[list[list[int]]]
 
-                    Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each high profile, for each model and criterion.
+                    Indexed by ``[model_index][boundary_index][high_profile_rank_indexes[criterion_index]]``. The current rank of each high profile, for each model and single-peaked criterion.
 
                 .. property:: accuracies
                     :type: list[int]

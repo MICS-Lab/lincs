@@ -16,6 +16,7 @@ bool is_accepted(
   const ArrayView2D<Device, const unsigned> performance_ranks,
   const ArrayView1D<Device, const bool> single_peaked,
   const ArrayView3D<Device, const unsigned> low_profile_ranks,
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, const unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned boundary_index,
@@ -25,7 +26,7 @@ bool is_accepted(
   const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
   const unsigned low_profile_rank = low_profile_ranks[model_index][boundary_index][criterion_index];
   if (single_peaked[criterion_index]) {
-    const unsigned high_profile_rank = high_profile_ranks[model_index][boundary_index][criterion_index];
+    const unsigned high_profile_rank = high_profile_ranks[model_index][boundary_index][high_profile_rank_indexes[criterion_index]];
     return low_profile_rank <= alternative_rank && alternative_rank <= high_profile_rank;
   } else {
     return low_profile_rank <= alternative_rank;
@@ -38,6 +39,7 @@ unsigned get_assignment(
   const ArrayView2D<Device, const float> weights,
   const ArrayView1D<Device, const bool> single_peaked,
   const ArrayView3D<Device, const unsigned> low_profile_ranks,
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, const unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned alternative_index
@@ -52,7 +54,7 @@ unsigned get_assignment(
     const unsigned boundary_index = category_index - 1;
     float accepted_weight = 0;
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-      if (is_accepted(performance_ranks, single_peaked, low_profile_ranks, high_profile_ranks, model_index, boundary_index, criterion_index, alternative_index)) {
+      if (is_accepted(performance_ranks, single_peaked, low_profile_ranks, high_profile_rank_indexes, high_profile_ranks, model_index, boundary_index, criterion_index, alternative_index)) {
         accepted_weight += weights[model_index][criterion_index];
       }
     }
@@ -70,6 +72,7 @@ void update_move_desirability_for_low_profile(
   const ArrayView2D<Device, const float> weights,
   const ArrayView1D<Device, const bool> single_peaked,
   const ArrayView3D<Device, const unsigned> low_profile_ranks,
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, const unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned boundary_index,
@@ -91,6 +94,7 @@ void update_move_desirability_for_low_profile(
     weights,
     single_peaked,
     low_profile_ranks,
+    high_profile_rank_indexes,
     high_profile_ranks,
     model_index,
     alternative_index);
@@ -98,7 +102,7 @@ void update_move_desirability_for_low_profile(
   float accepted_weight = 0;
   // There is a 'criterion_index' parameter above, *and* a local 'crit_index' just here
   for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
-    if (is_accepted(performance_ranks, single_peaked, low_profile_ranks, high_profile_ranks, model_index, boundary_index, crit_index, alternative_index)) {
+    if (is_accepted(performance_ranks, single_peaked, low_profile_ranks, high_profile_rank_indexes, high_profile_ranks, model_index, boundary_index, crit_index, alternative_index)) {
       accepted_weight += weights[model_index][crit_index];
     }
   }
@@ -202,6 +206,7 @@ void compute_move_desirabilities_for_low_profile__kernel(
   const ArrayView2D<Device, const float> weights,
   const ArrayView1D<Device, const bool> single_peaked,
   const ArrayView3D<Device, const unsigned> low_profile_ranks,
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, const unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned boundary_index,
@@ -223,6 +228,7 @@ void compute_move_desirabilities_for_low_profile__kernel(
       weights,
       single_peaked,
       low_profile_ranks,
+      high_profile_rank_indexes,
       high_profile_ranks,
       model_index,
       boundary_index,
@@ -270,6 +276,7 @@ void update_move_desirability_for_high_profile(
   const ArrayView2D<Device, const float> weights,
   const ArrayView1D<Device, const bool> single_peaked,
   const ArrayView3D<Device, const unsigned> low_profile_ranks,
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, const unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned boundary_index,
@@ -281,7 +288,7 @@ void update_move_desirability_for_high_profile(
   const unsigned alternatives_count = performance_ranks.s0();
   const unsigned criteria_count = performance_ranks.s1();
 
-  const unsigned current_rank = high_profile_ranks[model_index][boundary_index][criterion_index];
+  const unsigned current_rank = high_profile_ranks[model_index][boundary_index][high_profile_rank_indexes[criterion_index]];
   const float weight = weights[model_index][criterion_index];
 
   const unsigned alternative_rank = performance_ranks[criterion_index][alternative_index];
@@ -291,6 +298,7 @@ void update_move_desirability_for_high_profile(
     weights,
     single_peaked,
     low_profile_ranks,
+    high_profile_rank_indexes,
     high_profile_ranks,
     model_index,
     alternative_index);
@@ -298,7 +306,7 @@ void update_move_desirability_for_high_profile(
   float accepted_weight = 0;
   // There is a 'criterion_index' parameter above, *and* a local 'crit_index' just here
   for (unsigned crit_index = 0; crit_index != criteria_count; ++crit_index) {
-    if (is_accepted(performance_ranks, single_peaked, low_profile_ranks, high_profile_ranks, model_index, boundary_index, crit_index, alternative_index)) {
+    if (is_accepted(performance_ranks, single_peaked, low_profile_ranks, high_profile_rank_indexes, high_profile_ranks, model_index, boundary_index, crit_index, alternative_index)) {
       accepted_weight += weights[model_index][crit_index];
     }
   }
@@ -402,6 +410,7 @@ void compute_move_desirabilities_for_high_profile__kernel(
   const ArrayView2D<Device, const float> weights,
   const ArrayView1D<Device, const bool> single_peaked,
   const ArrayView3D<Device, const unsigned> low_profile_ranks,
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, const unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned boundary_index,
@@ -423,6 +432,7 @@ void compute_move_desirabilities_for_high_profile__kernel(
       weights,
       single_peaked,
       low_profile_ranks,
+      high_profile_rank_indexes,
       high_profile_ranks,
       model_index,
       boundary_index,
@@ -435,6 +445,7 @@ void compute_move_desirabilities_for_high_profile__kernel(
 
 __global__
 void apply_best_move_for_high_profile__kernel(
+  const ArrayView1D<Device, const unsigned> high_profile_rank_indexes,
   const ArrayView3D<Device, unsigned> high_profile_ranks,
   const unsigned model_index,
   const unsigned boundary_index,
@@ -459,7 +470,7 @@ void apply_best_move_for_high_profile__kernel(
   }
 
   if (best_desirability >= desirability_threshold) {
-    high_profile_ranks[model_index][boundary_index][criterion_index] = best_destination_rank;
+    high_profile_ranks[model_index][boundary_index][high_profile_rank_indexes[criterion_index]] = best_destination_rank;
   }
 }
 
@@ -473,7 +484,8 @@ ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(cons
   single_peaked(host_learning_data.single_peaked.template clone_to<Device>()),
   weights(host_learning_data.models_count, host_learning_data.criteria_count, uninitialized),
   low_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.criteria_count, uninitialized),
-  high_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.criteria_count, uninitialized),
+  high_profile_rank_indexes(host_learning_data.high_profile_rank_indexes.template clone_to<Device>()),
+  high_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.high_profile_ranks.s0(), uninitialized),
   desirabilities(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized),
   destination_ranks(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
 {}
@@ -537,6 +549,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
   const unsigned boundary_index,
   const unsigned criterion_index
 ) {
+  assert(host_learning_data.single_peaked[criterion_index]);
+
   improve_low_profile(
     model_index,
     boundary_index,
@@ -545,7 +559,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
       0 :
       host_learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
     boundary_index == host_learning_data.boundaries_count - 1 ?
-      host_learning_data.high_profile_ranks[model_index][boundary_index][criterion_index]:
+      host_learning_data.high_profile_ranks[model_index][boundary_index][host_learning_data.high_profile_rank_indexes[criterion_index]]:
       host_learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
 
@@ -555,10 +569,10 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
     criterion_index,
     boundary_index == host_learning_data.boundaries_count - 1 ?
       host_learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] :
-      host_learning_data.high_profile_ranks[model_index][boundary_index + 1][criterion_index],
+      host_learning_data.high_profile_ranks[model_index][boundary_index + 1][host_learning_data.high_profile_rank_indexes[criterion_index]],
     boundary_index == 0 ?
       host_learning_data.values_counts[criterion_index] - 1 :
-      host_learning_data.high_profile_ranks[model_index][boundary_index - 1][criterion_index]
+      host_learning_data.high_profile_ranks[model_index][boundary_index - 1][host_learning_data.high_profile_rank_indexes[criterion_index]]
   );
 }
 
@@ -616,6 +630,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile(
       gpu_learning_data.weights,
       gpu_learning_data.single_peaked,
       gpu_learning_data.low_profile_ranks,
+      gpu_learning_data.high_profile_rank_indexes,
       gpu_learning_data.high_profile_ranks,
       model_index,
       boundary_index,
@@ -657,9 +672,10 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
   const unsigned lowest_destination_rank,
   const unsigned highest_destination_rank
 ) {
+  assert(host_learning_data.single_peaked[criterion_index]);
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(host_learning_data.high_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
+    assert(host_learning_data.high_profile_ranks[model_index][boundary_index][host_learning_data.high_profile_rank_indexes[criterion_index]] == lowest_destination_rank);
   } else {
     Array1D<Host, unsigned> host_destination_ranks(max_destinations_count, uninitialized);
     unsigned actual_destinations_count = 0;
@@ -686,6 +702,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
       gpu_learning_data.weights,
       gpu_learning_data.single_peaked,
       gpu_learning_data.low_profile_ranks,
+      gpu_learning_data.high_profile_rank_indexes,
       gpu_learning_data.high_profile_ranks,
       model_index,
       boundary_index,
@@ -696,6 +713,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
     apply_best_move_for_high_profile__kernel<<<1, 1>>>(
+      gpu_learning_data.high_profile_rank_indexes,
       ref(gpu_learning_data.high_profile_ranks),
       model_index,
       boundary_index,
@@ -706,9 +724,11 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
       std::uniform_real_distribution<float>(0, 1)(host_learning_data.random_generators[model_index]));
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
+    assert(0 <= host_learning_data.high_profile_rank_indexes[criterion_index]);
+    assert(host_learning_data.high_profile_rank_indexes[criterion_index] < host_learning_data.high_profile_ranks.s0());
     check_cuda_error(cudaMemcpy(
-      host_learning_data.high_profile_ranks[model_index][boundary_index].data() + criterion_index,
-      gpu_learning_data.high_profile_ranks[model_index][boundary_index].data() + criterion_index,
+      host_learning_data.high_profile_ranks[model_index][boundary_index].data() + host_learning_data.high_profile_rank_indexes[criterion_index],
+      gpu_learning_data.high_profile_ranks[model_index][boundary_index].data() + host_learning_data.high_profile_rank_indexes[criterion_index],
       1 * sizeof(unsigned),
       cudaMemcpyDeviceToHost));
   }

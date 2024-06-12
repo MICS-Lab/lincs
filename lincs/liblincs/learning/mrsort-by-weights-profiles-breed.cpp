@@ -26,7 +26,8 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   model_indexes(models_count),
   accuracies(models_count, zeroed),
   low_profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
-  high_profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  high_profile_rank_indexes(criteria_count, uninitialized),
+  high_profile_ranks(models_count, boundaries_count, count_single_peaked_criteria(), uninitialized),
   weights(models_count, criteria_count, uninitialized)
 {
   CHRONE();
@@ -36,6 +37,25 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   for (unsigned model_index = 0; model_index != models_count; ++model_index) {
     random_generators[model_index].seed(random_seed * (model_index + 1));
   }
+
+  unsigned count = 0;
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    if (single_peaked[criterion_index]) {
+      high_profile_rank_indexes[criterion_index] = count;
+      ++count;
+    }
+  }
+  assert(high_profile_ranks.s0() == count);
+}
+
+unsigned LearnMrsortByWeightsProfilesBreed::LearningData::count_single_peaked_criteria() const {
+  unsigned count = 0;
+  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    if (single_peaked[criterion_index]) {
+      ++count;
+    }
+  }
+  return count;
 }
 
 Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned model_index) const {
@@ -57,8 +77,8 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     boundary_profile.reserve(criteria_count);
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       const unsigned low_profile_rank = low_profile_ranks[model_index][boundary_index][criterion_index];
-      const unsigned high_profile_rank = high_profile_ranks[model_index][boundary_index][criterion_index];
       if (single_peaked[criterion_index]) {
+        const unsigned high_profile_rank = high_profile_ranks[model_index][boundary_index][high_profile_rank_indexes[criterion_index]];
         boundary_profile.push_back(std::make_pair(low_profile_rank, high_profile_rank));
       } else {
         boundary_profile.push_back(low_profile_rank);
@@ -176,7 +196,7 @@ bool LearnMrsortByWeightsProfilesBreed::is_accepted(
   const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
   const unsigned low_profile_rank = learning_data.low_profile_ranks[model_index][boundary_index][criterion_index];
   if (learning_data.single_peaked[criterion_index]) {
-    const unsigned high_profile_rank = learning_data.high_profile_ranks[model_index][boundary_index][criterion_index];
+    const unsigned high_profile_rank = learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]];
     return low_profile_rank <= alternative_rank && alternative_rank <= high_profile_rank;
   } else {
     return low_profile_rank <= alternative_rank;

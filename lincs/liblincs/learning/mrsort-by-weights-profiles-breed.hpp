@@ -71,7 +71,8 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes
   Array1D<Host, unsigned> accuracies;  // [model_index]
   Array3D<Host, unsigned> low_profile_ranks;  // [model_index][boundary_index][criterion_index]
-  Array3D<Host, unsigned> high_profile_ranks;  // [model_index][boundary_index][criterion_index]
+  Array1D<Host, unsigned> high_profile_rank_indexes;  // [criterion_index], meaningful only for single-peaked criteria (i.e. when single_peaked[criterion_index] is true)
+  Array3D<Host, unsigned> high_profile_ranks;  // [model_index][boundary_index][high_profile_rank_indexes[criterion_index]]
   Array2D<Host, float> weights;  // [model_index][criterion_index]
   // @todo(Performance, later) Add models' ages
 
@@ -86,6 +87,9 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   bool model_is_correct(unsigned model_index) const;
   bool models_are_correct() const;
   #endif
+
+ private:
+  unsigned count_single_peaked_criteria() const;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {

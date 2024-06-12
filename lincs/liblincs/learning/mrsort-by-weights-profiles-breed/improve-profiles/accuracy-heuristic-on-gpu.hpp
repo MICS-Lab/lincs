@@ -21,7 +21,8 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
     Array1D<Device, bool> single_peaked;  // [criterion_index]
     Array2D<Device, float> weights;  // [criterion_index][model_index]
     Array3D<Device, unsigned> low_profile_ranks;  // [criterion_index][boundary_index][model_index]
-    Array3D<Device, unsigned> high_profile_ranks;  // [criterion_index][boundary_index][model_index]
+    Array1D<Device, unsigned> high_profile_rank_indexes;  // [criterion_index]
+    Array3D<Device, unsigned> high_profile_ranks;  // [criterion_index][boundary_index][high_profile_rank_indexes[criterion_index]]
 
     Array2D<Device, Desirability> desirabilities;  // [model_index][desination_index]
     Array2D<Device, unsigned> destination_ranks;  // [model_index][desination_index]

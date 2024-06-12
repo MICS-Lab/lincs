@@ -1063,9 +1063,13 @@ class LearningTestCase(unittest.TestCase):
 
         self.assertEqual(list(learning_data.single_peaked), [False, True, False, False, True])
 
+        self.assertEqual(len(learning_data.high_profile_rank_indexes), 5)
+        self.assertEqual(learning_data.high_profile_rank_indexes[1], 0)
+        self.assertEqual(learning_data.high_profile_rank_indexes[4], 1)
+
         self.assertEqual(len(learning_data.high_profile_ranks), 9)
         self.assertEqual(len(learning_data.high_profile_ranks[0]), 2)
-        self.assertEqual(len(learning_data.high_profile_ranks[0][0]), 5)
+        self.assertEqual(len(learning_data.high_profile_ranks[0][0]), 2)
         self.assertIsInstance(learning_data.high_profile_ranks[0][0][0], int)
 
         self.assertEqual(len(learning_data.weights), 9)
