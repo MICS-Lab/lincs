@@ -21,204 +21,202 @@ void define_learning_classes(py::module& m) {
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, "Actually perform the learning and return the learned model.")
   ;
 
-  {
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData>(
-      learn_wbp_class,
-      "LearningData",
-      "Data shared by all the strategies used in this learning."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData>(
+    learn_wbp_class,
+    "LearningData",
+    "Data shared by all the strategies used in this learning."
+  )
+    .def(
+      py::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>(),
+      "problem"_a, "learning_set"_a, "models_count"_a, "random_seed"_a,
+      "Constructor, pre-processing the learning set into a simpler form for strategies.",
+      py::keep_alive<1, 2>()
+      // No reference kept on 'learning_set' => no py::keep_alive<1, 3>()
     )
-      .def(
-        py::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>(),
-        "problem"_a, "learning_set"_a, "models_count"_a, "random_seed"_a,
-        "Constructor, pre-processing the learning set into a simpler form for strategies.",
-        py::keep_alive<1, 2>()
-        // No reference kept on 'learning_set' => no py::keep_alive<1, 3>()
-      )
-      // About the problem and learning set:
-      .def_readonly("criteria_count", &lincs::PreProcessedLearningSet::criteria_count, "Number of criteria in the :py:class:`Problem`.")
-      .def_readonly("categories_count", &lincs::PreProcessedLearningSet::categories_count, "Number of categories in the :py:class:`Problem`.")
-      .def_readonly("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.")
-      .def_readonly("alternatives_count", &lincs::PreProcessedLearningSet::alternatives_count, "Number of alternatives in the ``learning_set``.")
-      .def_readonly("single_peaked", &lincs::PreProcessedLearningSet::single_peaked, "Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.")
-      .def_readonly("values_counts", &lincs::PreProcessedLearningSet::values_counts, "Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.")
-      .def_readonly("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.")
-      .def_readonly("assignments", &lincs::PreProcessedLearningSet::assignments, "Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.")
-      // About WPB:
-      .def_readonly("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "The number of in-progress models for this learning.")
-      .def_readonly("random_generators", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::random_generators, "Indexed by ``[model_index]``. Random number generators associated to each in-progress model.")
-      .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "The index of the current iteration of the WPB algorithm.")
-      .def_readonly("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.")
-      .def_readonly("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "Indexed by ``[model_index]``. Accuracy of each in-progress model.")
-      .def_readonly("low_profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::low_profile_ranks, "Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each low profile, for each model and criterion.")
-      .def_readonly("high_profile_rank_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::high_profile_rank_indexes, "Indexed by ``[criterion_index]``. The index in ``high_profile_ranks``, for each single-peaked criterion.")
-      .def_readonly("high_profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::high_profile_ranks, "Indexed by ``[model_index][boundary_index][high_profile_rank_indexes[criterion_index]]``. The current rank of each high profile, for each model and single-peaked criterion.")
-      .def_readonly("weights", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::weights, "Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.")
-      .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, "Return the accuracy of the best model so far.")
-      .def("get_best_model", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_model, "Return the best model so far.")
-    ;
+    // About the problem and learning set:
+    .def_readonly("criteria_count", &lincs::PreProcessedLearningSet::criteria_count, "Number of criteria in the :py:class:`Problem`.")
+    .def_readonly("categories_count", &lincs::PreProcessedLearningSet::categories_count, "Number of categories in the :py:class:`Problem`.")
+    .def_readonly("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.")
+    .def_readonly("alternatives_count", &lincs::PreProcessedLearningSet::alternatives_count, "Number of alternatives in the ``learning_set``.")
+    .def_readonly("single_peaked", &lincs::PreProcessedLearningSet::single_peaked, "Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.")
+    .def_readonly("values_counts", &lincs::PreProcessedLearningSet::values_counts, "Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.")
+    .def_readonly("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.")
+    .def_readonly("assignments", &lincs::PreProcessedLearningSet::assignments, "Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.")
+    // About WPB:
+    .def_readonly("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "The number of in-progress models for this learning.")
+    .def_readonly("random_generators", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::random_generators, "Indexed by ``[model_index]``. Random number generators associated to each in-progress model.")
+    .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "The index of the current iteration of the WPB algorithm.")
+    .def_readonly("model_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::model_indexes, "Indexed by ``0`` to ``models_count - 1``. Indexes of in-progress models ordered by increasing accuracy.")
+    .def_readonly("accuracies", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::accuracies, "Indexed by ``[model_index]``. Accuracy of each in-progress model.")
+    .def_readonly("low_profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::low_profile_ranks, "Indexed by ``[model_index][boundary_index][criterion_index]``. The current rank of each low profile, for each model and criterion.")
+    .def_readonly("high_profile_rank_indexes", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::high_profile_rank_indexes, "Indexed by ``[criterion_index]``. The index in ``high_profile_ranks``, for each single-peaked criterion.")
+    .def_readonly("high_profile_ranks", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::high_profile_ranks, "Indexed by ``[model_index][boundary_index][high_profile_rank_indexes[criterion_index]]``. The current rank of each high profile, for each model and single-peaked criterion.")
+    .def_readonly("weights", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::weights, "Indexed by ``[model_index][criterion_index]``. The current MR-Sort weight of each criterion for each model.")
+    .def("get_best_accuracy", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_accuracy, "Return the accuracy of the best model so far.")
+    .def("get_best_model", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::get_best_model, "Return the best model so far.")
+  ;
 
-    struct PyProfilesInitializationStrategy : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
-      using lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::ProfilesInitializationStrategy;
-      void initialize_profiles(const unsigned begin, const unsigned end) override {
-        PYBIND11_OVERRIDE_PURE(
-            void,
-            lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy,
-            initialize_profiles,
-            begin, end
-        );
-      }
-    };
+  struct PyProfilesInitializationStrategy : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
+    using lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::ProfilesInitializationStrategy;
+    void initialize_profiles(const unsigned begin, const unsigned end) override {
+      PYBIND11_OVERRIDE_PURE(
+          void,
+          lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy,
+          initialize_profiles,
+          begin, end
+      );
+    }
+  };
 
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, PyProfilesInitializationStrategy>(
-      learn_wbp_class,
-      "ProfilesInitializationStrategy",
-      "Abstract base class for profiles initialization strategies."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy, PyProfilesInitializationStrategy>(
+    learn_wbp_class,
+    "ProfilesInitializationStrategy",
+    "Abstract base class for profiles initialization strategies."
+  )
+    .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
+    .def(
+      "initialize_profiles",
+      &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles,
+      "model_indexes_begin"_a, "model_indexes_end"_a,
+      "Method to override. Should initialize all ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
     )
-      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
-      .def(
-        "initialize_profiles",
-        &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles,
-        "model_indexes_begin"_a, "model_indexes_end"_a,
-        "Method to override. Should initialize all ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
-      )
-    ;
+  ;
 
-    struct PyWeightsOptimizationStrategy : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
-      using lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::WeightsOptimizationStrategy;
-      void optimize_weights(const unsigned begin, const unsigned end) override {
-        PYBIND11_OVERRIDE_PURE(
-            void,
-            lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy,
-            optimize_weights,
-            begin, end
-        );
-      }
-    };
+  struct PyWeightsOptimizationStrategy : lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
+    using lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::WeightsOptimizationStrategy;
+    void optimize_weights(const unsigned begin, const unsigned end) override {
+      PYBIND11_OVERRIDE_PURE(
+          void,
+          lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy,
+          optimize_weights,
+          begin, end
+      );
+    }
+  };
 
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, PyWeightsOptimizationStrategy>(
-      learn_wbp_class,
-      "WeightsOptimizationStrategy",
-      "Abstract base class for weights optimization strategies."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy, PyWeightsOptimizationStrategy>(
+    learn_wbp_class,
+    "WeightsOptimizationStrategy",
+    "Abstract base class for weights optimization strategies."
+  )
+    .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
+    .def(
+      "optimize_weights",
+      &lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights,
+      "model_indexes_begin"_a, "model_indexes_end"_a,
+      "Method to override. Should optimize ``weights`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
     )
-      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
-      .def(
-        "optimize_weights",
-        &lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights,
-        "model_indexes_begin"_a, "model_indexes_end"_a,
-        "Method to override. Should optimize ``weights`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
-      )
-    ;
+  ;
 
-    struct PyProfilesImprovementStrategy : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
-      using lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::ProfilesImprovementStrategy;
-      void improve_profiles(const unsigned begin, const unsigned end) override {
-        PYBIND11_OVERRIDE_PURE(
-            void,
-            lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy,
-            improve_profiles,
-            begin, end
-        );
-      }
-    };
+  struct PyProfilesImprovementStrategy : lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
+    using lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::ProfilesImprovementStrategy;
+    void improve_profiles(const unsigned begin, const unsigned end) override {
+      PYBIND11_OVERRIDE_PURE(
+          void,
+          lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy,
+          improve_profiles,
+          begin, end
+      );
+    }
+  };
 
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, PyProfilesImprovementStrategy>(
-      learn_wbp_class,
-      "ProfilesImprovementStrategy",
-      "Abstract base class for profiles improvement strategies."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy, PyProfilesImprovementStrategy>(
+    learn_wbp_class,
+    "ProfilesImprovementStrategy",
+    "Abstract base class for profiles improvement strategies."
+  )
+    .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
+    .def(
+      "improve_profiles",
+      &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles,
+      "model_indexes_begin"_a, "model_indexes_end"_a,
+      "Method to override. Should improve ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
     )
-      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
-      .def(
-        "improve_profiles",
-        &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles,
-        "model_indexes_begin"_a, "model_indexes_end"_a,
-        "Method to override. Should improve ``low_profile_ranks`` and ``high_profile_ranks`` of models at indexes in ``[model_indexes[i] for i in range(model_indexes_begin, model_indexes_end)]``."
-      )
-    ;
+  ;
 
-    struct PyBreedingStrategy : lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
-      using lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::BreedingStrategy;
-      void breed() override {
-        PYBIND11_OVERRIDE_PURE(
-            void,
-            lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy,
-            breed
-        );
-      }
-    };
+  struct PyBreedingStrategy : lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
+    using lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::BreedingStrategy;
+    void breed() override {
+      PYBIND11_OVERRIDE_PURE(
+          void,
+          lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy,
+          breed
+      );
+    }
+  };
 
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, PyBreedingStrategy>(
-      learn_wbp_class,
-      "BreedingStrategy",
-      "Abstract base class for breeding strategies."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy, PyBreedingStrategy>(
+    learn_wbp_class,
+    "BreedingStrategy",
+    "Abstract base class for breeding strategies."
+  )
+    .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
+    .def(
+      "breed",
+      &lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed,
+      "Method to override."
     )
-      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
-      .def(
-        "breed",
-        &lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed,
-        "Method to override."
-      )
-    ;
+  ;
 
-    struct PyTerminationStrategy : lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
-      using lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::TerminationStrategy;
-      bool terminate() override {
-        PYBIND11_OVERRIDE_PURE(
-            bool,
-            lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy,
-            terminate
-        );
-      }
-    };
+  struct PyTerminationStrategy : lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
+    using lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::TerminationStrategy;
+    bool terminate() override {
+      PYBIND11_OVERRIDE_PURE(
+          bool,
+          lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy,
+          terminate
+      );
+    }
+  };
 
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy, PyTerminationStrategy>(
-      learn_wbp_class,
-      "TerminationStrategy",
-      "Abstract base class for termination strategies."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy, PyTerminationStrategy>(
+    learn_wbp_class,
+    "TerminationStrategy",
+    "Abstract base class for termination strategies."
+  )
+    .def(py::init<>())
+    .def(
+      "terminate",
+      &lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate,
+      "Method to override. Should return ``True`` if the learning should stop, ``False`` otherwise."
     )
-      .def(py::init<>())
-      .def(
-        "terminate",
-        &lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy::terminate,
-        "Method to override. Should return ``True`` if the learning should stop, ``False`` otherwise."
-      )
-    ;
+  ;
 
-    struct PyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
-      using lincs::LearnMrsortByWeightsProfilesBreed::Observer::Observer;
-      void after_iteration() override {
-        PYBIND11_OVERRIDE_PURE(
-            void,
-            lincs::LearnMrsortByWeightsProfilesBreed::Observer,
-            after_iteration
-        );
-      }
-      void before_return() override {
-        PYBIND11_OVERRIDE_PURE(
-            void,
-            lincs::LearnMrsortByWeightsProfilesBreed::Observer,
-            before_return
-        );
-      }
-    };
+  struct PyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
+    using lincs::LearnMrsortByWeightsProfilesBreed::Observer::Observer;
+    void after_iteration() override {
+      PYBIND11_OVERRIDE_PURE(
+          void,
+          lincs::LearnMrsortByWeightsProfilesBreed::Observer,
+          after_iteration
+      );
+    }
+    void before_return() override {
+      PYBIND11_OVERRIDE_PURE(
+          void,
+          lincs::LearnMrsortByWeightsProfilesBreed::Observer,
+          before_return
+      );
+    }
+  };
 
-    py::class_<lincs::LearnMrsortByWeightsProfilesBreed::Observer, PyObserver>(
-      learn_wbp_class,
-      "Observer",
-      "Abstract base class for observation strategies."
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::Observer, PyObserver>(
+    learn_wbp_class,
+    "Observer",
+    "Abstract base class for observation strategies."
+  )
+    .def(py::init<>())
+    .def(
+      "after_iteration",
+      &lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration,
+      "Method to override. Called after each iteration. Should not change anything in the learning data."
     )
-      .def(py::init<>())
-      .def(
-        "after_iteration",
-        &lincs::LearnMrsortByWeightsProfilesBreed::Observer::after_iteration,
-        "Method to override. Called after each iteration. Should not change anything in the learning data."
-      )
-      .def(
-        "before_return",
-        &lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return,
-        "Method to override. Called just before returning the learned model. Should not change anything in the learning data."
-      )
-    ;
-  }
+    .def(
+      "before_return",
+      &lincs::LearnMrsortByWeightsProfilesBreed::Observer::before_return,
+      "Method to override. Called just before returning the learned model. Should not change anything in the learning data."
+    )
+  ;
 
   learn_wbp_class
     .def(
