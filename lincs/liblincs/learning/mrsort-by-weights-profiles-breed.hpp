@@ -65,7 +65,7 @@ class LearnMrsortByWeightsProfilesBreed {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLearningSet {
-  unsigned models_count;
+  const unsigned models_count;
   std::vector<std::mt19937> random_generators;  // [model_index]
   unsigned iteration_index;
   std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes

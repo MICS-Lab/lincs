@@ -8,6 +8,7 @@
 
 
 namespace lincs {
+
 PreProcessedLearningSet::PreProcessedLearningSet(
   const Problem& problem_,
   const Alternatives& learning_set
