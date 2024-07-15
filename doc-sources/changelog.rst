@@ -4,26 +4,29 @@
 Changelog
 =========
 
-Version 2.0.0a1 (2024-06-12)
-============================
+Version 2.0.0 (2024-07-XX)
+==========================
 
-- **Major** Support single-peaked criteria
+- Support Python 3.12
 
-    - in all features (generation, description, classification, learning, ...) *except visualization*
-    - on the command-line: ``lincs generate classification-problem ... --allow-single-peaked-criteria``
-    - in the Python API: ``lc.generate_problem(..., allowed_preference_directions=[..., lc.Criterion.PreferenceDirection.single_peaked])``
-    - in the problem file format: ``preference_direction: single-peaked``
-    - in the model file format: ``kind: intervals`` and ``intervals: [[20, 80], [40, 60]]``
-    - with *all* learning approaches
+- **Major** Support single-peaked criteria:
+    - on the command-line, ``lincs generate classification-problem`` has a new ``--allow-single-peaked-criteria`` option
+    - in the Problem file format, there is a new value ``single-peaked`` for ``preference_direction````
+    - in the Model file format, there is a new possible value for ``accepted_values.kind``: ``intervals``, used with ``intervals: [[20, 80], [40, 60]]``
+    - in the Python API:
+        - there is a new value in ``Criterion.PreferenceDirection``: ``single_peaked``, typically used with ``lc.generate_problem(..., allowed_preference_directions=[..., lc.Criterion.PreferenceDirection.single_peaked])``
+        - there is a new value in ``AcceptedValues.Kind``: ``intervals``
+        - **Breaking** Adapt parts of the Python API to support single-peaked criteria
+    - *all* the learning approaches work
+    - the human-readable output of ``lincs describe`` has changed slightly to accommodate for single-peaked criteria
+    - ``lincs visualize`` fails when called with single-peaked criteria. See this discussion: https://github.com/MICS-Lab/lincs/discussions/21
 
-- **Breaking** Adapt parts of the Python API to support single-peaked criteria
 - **Breaking** Rename ``LearningData.urbgs`` to ``LearningData.random_generators``
 
-Version 2.0.0a0 (2024-05-23)
-============================
-
-- **Breaking** Let some thresholds be unreachable! (Fix bug found in real-life ASA data)
-- Support Python 3.12
+- **Breaking** Let some thresholds be unreachable (Fix bug found in real-life ASA data)
+    - in the Model file format, the last items in a ``thresholds`` or ``intervals`` list can be ``null``
+    - in the Python API, the last items in a ``thresholds`` or ``intervals`` list can be ``None``
+    - (there is a runtime check that all are ``null`` after the first ``null``)
 
 Version 1.1.0 (2024-02-08)
 ==========================

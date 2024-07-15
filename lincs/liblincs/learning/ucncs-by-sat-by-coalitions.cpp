@@ -14,7 +14,7 @@
 
 namespace lincs {
 
-// @todo(Project management, v1.2) Factorize common parts of all SAT approaches (when we implement single-peaked criteria)
+// @todo(Project management, later) Factorize common parts of all SAT approaches
 // For example:
 // - 'decode' is almost identical between the 'by separation' approaches
 // - 'decode' is identical between the 'by coalitions' approaches

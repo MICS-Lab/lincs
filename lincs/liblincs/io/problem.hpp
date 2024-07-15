@@ -15,42 +15,6 @@
 
 namespace lincs {
 
-/*
-Things that must change for single-peaked criteria:
-
-- 'Problem' and associated file format: DONE
-- 'Model' and associated file format: DONE
-- 'generate_classification_problem': DONE
-- 'generate_mrsort_classification_model': DONE
-- 'classify_alternatives': DONE
-- the pre- and post-processing: DONE
-- the testing: DONE
-- all learning strategies:
-  - All SAT-based approaches: DONE
-    - change variables named 'better' to 'accepted'
-    - replace clauses about monotonous implications by clauses about three variables: accepted at low value & accepted at high value => accepted at intermediate value
-  - WPB
-    - LearningData:
-      - rename 'profiles' to 'low_profiles
-      - add 'high_profiles' for single-peaked criteria
-    - Initialisation: treat low profiles exactly as if they were high profiles for a decreasing criterion, with ordering contraint between low and high profiles
-    - Weights optimisation: idem
-    - Profiles improvement: alternate between moving low and high profiles, with ordering contraints between lowest, lower, low, high, higher, highest profiles
-    - Breeding: nothing to do
-- Python interfaces to 'Problem' and 'Model'
-- Python interface to 'generate_classification_problem'
-- Python interface to 'generate_mrsort_classification_model'
-- Command-line interface for generate-classification-problem
-- 'lincs describe problem'
-- 'lincs describe model'
-- 'lincs visualize model [alternatives]'
-
-Things that should not need to change:
-- 'Alternatives': INDEED
-- 'generate_classified_alternatives': INDEED
-- 'misclassify_alternatives': INDEED
-*/
-
 class Criterion {
  public:
   enum class PreferenceDirection {
@@ -127,8 +91,6 @@ class Criterion {
   };
 
   class EnumeratedValues {
-    // @todo(Feature, v1.2) Support single-peaked enumerated criteria
-
    public:
     EnumeratedValues(const std::vector<std::string>& ordered_values_) : ordered_values(ordered_values_), value_ranks() {
       validate(ordered_values.size() >= 2, "An enumerated criterion must have at least 2 values");

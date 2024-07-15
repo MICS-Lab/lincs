@@ -109,7 +109,7 @@ void define_problem_classes(py::module& m) {
     .def_property_readonly("is_real", &lincs::Criterion::is_real, "``True`` if the criterion is real-valued.")
     .def_property_readonly("is_integer", &lincs::Criterion::is_integer, "``True`` if the criterion is integer-valued.")
     .def_property_readonly("is_enumerated", &lincs::Criterion::is_enumerated, "``True`` if the criterion takes enumerated values.")
-    // @todo Think about exposing all our 'std::variant's as 'Union's; this is easy now that we use pybind11
+    // @todo(Project management, 2.0) Think about exposing all our 'std::variant's as 'Union's; this is easy now that we use pybind11
     // We could then deprecate the discriminated accessors like below, and rely on 'isinstance' or maybe even 'match' and 'case'.
     .def_property_readonly("real_values", &lincs::Criterion::get_real_values, "Descriptor of the real values allowed for this criterion, accessible if ``is_real``.")
     .def_property_readonly("integer_values", &lincs::Criterion::get_integer_values, "Descriptor of the integer values allowed for this criterion, accessible if ``is_integer``.")

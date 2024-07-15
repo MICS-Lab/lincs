@@ -9,13 +9,13 @@ import matplotlib.pyplot
 from .classification import Problem, Model, Alternative
 
 
+single_peaked_not_supported_message = "Single-peaked criteria are not yet supported by the visualization. See https://github.com/MICS-Lab/lincs/discussions/21 and maybe contribute your ideas?"
+
+
 def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: matplotlib.pyplot.Axes):
     """
     Create a visual representation of a classification model and classified alternatives, using Matplotlib.
     """
-
-    # @todo(Feature, v1.2) Visualize single-peaked criteria.
-    # See the possible solutions in e-mail "Visualisation des critères single-peaked" 2023-11-24
 
     criteria_count = len(problem.criteria)
     assert criteria_count >= 1
@@ -50,7 +50,7 @@ def visualize_classification_model(problem: Problem, model: Model, alternatives:
                     boundary_profiles[boundary_index].append(accepted_values.real_thresholds.thresholds[boundary_index])
             else:
                 assert accepted_values.is_intervals
-                print("Single-peaked criteria are not yet supported by the visualization.", file=sys.stderr)
+                print(single_peaked_not_supported_message, file=sys.stderr)
                 exit(1)
         elif criterion.is_integer:
             if accepted_values.is_thresholds:
@@ -58,7 +58,7 @@ def visualize_classification_model(problem: Problem, model: Model, alternatives:
                     boundary_profiles[boundary_index].append(accepted_values.integer_thresholds.thresholds[boundary_index])
             else:
                 assert accepted_values.is_intervals
-                print("Single-peaked criteria are not yet supported by the visualization.", file=sys.stderr)
+                print(single_peaked_not_supported_message, file=sys.stderr)
                 exit(1)
         else:
             assert criterion.is_enumerated

@@ -2,7 +2,9 @@
 
 #include "mrsort-by-weights-profiles-breed.hpp"
 
+#ifndef NDEBUG
 #include <iostream>
+#endif
 #include <map>
 #include <numeric>
 

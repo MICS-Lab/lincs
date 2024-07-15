@@ -13,14 +13,14 @@ On these 3 OSes, *lincs* only support x86_64 CPUs.
 
 *lincs* is licensed under the GNU Lesser General Public License v3.0 as indicated by the two files `COPYING <COPYING>`_ and `COPYING.LESSER <COPYING.LESSER>`_.
 
+We kindly ask that scientific publications using *lincs* cite it `as indicated here <https://centralesupelec.hal.science/hal-04591129>`_.
+
 *lincs* is available for install from the `Python package index <https://pypi.org/project/lincs/>`_.
 Its `documentation <http://mics-lab.github.io/lincs/>`_
 and its `source code <https://github.com/mics-lab/lincs/>`_ are on GitHub.
 
 Questions? Remarks? Bugs? Want to contribute? Open `an issue <https://github.com/MICS-Lab/lincs/issues>`_ or `a discussion <https://github.com/MICS-Lab/lincs/discussions>`_!
 You should probably take a look at `our roadmap <https://mics-lab.github.io/lincs/roadmap.html>`_ first.
-
-@todo(Project management, v1.1) Add a note asking academics to kindly cite our ROADEF 2024 paper.
 
 
 Contributors
