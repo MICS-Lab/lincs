@@ -16,6 +16,7 @@ Version 2.0.0 (2024-07-XX)
     - in the Python API:
         - there is a new value in ``Criterion.PreferenceDirection``: ``single_peaked``, typically used with ``lc.generate_problem(..., allowed_preference_directions=[..., lc.Criterion.PreferenceDirection.single_peaked])``
         - there is a new value in ``AcceptedValues.Kind``: ``intervals``
+        - some strategies for ``LearnMrsortByWeightsProfilesBreed`` must explicitly opt-in to support single-peaked criteria by calling their base class constructor with ``supports_single_peaked_criteria=True``
         - **Breaking** Adapt parts of the Python API to support single-peaked criteria
     - *all* the learning approaches work
     - the human-readable output of ``lincs describe`` has changed slightly to accommodate for single-peaked criteria

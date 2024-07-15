@@ -1420,6 +1420,315 @@ class LearningTestCase(unittest.TestCase):
         self.assertAlmostEqual(learned_model.sufficient_coalitions[1].weights.criterion_weights[1], 1.1 / 3)
         self.assertAlmostEqual(learned_model.sufficient_coalitions[1].weights.criterion_weights[2], 1.1 / 3)
 
+    def test_profiles_initialization_strategy_that_does_not_support_single_peaked_criteria(self):
+        class MyProfileInitializationStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+
+            def initialize_profiles(self, begin, end):
+                return self.strategy.initialize_profiles(begin, end)
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = MyProfileInitializationStrategy(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+
+        with self.assertRaises(LearningFailureException) as cm:
+            learning.perform()
+        self.assertEqual(cm.exception.args[0], "This profiles initialization strategy doesn't support single-peaked criteria.")
+
+    def test_profiles_initialization_strategy_that_does_support_single_peaked_criteria(self):
+        class MyProfileInitializationStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
+            def __init__(self, learning_data):
+                super().__init__(supports_single_peaked_criteria=True)
+                self.strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+
+            def initialize_profiles(self, begin, end):
+                return self.strategy.initialize_profiles(begin, end)
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = MyProfileInitializationStrategy(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+    def test_weights_optimization_strategy_that_does_not_support_single_peaked_criteria(self):
+        class MyWeightsOptimizationStrategy(LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.strategy = OptimizeWeightsUsingGlop(learning_data)
+
+            def optimize_weights(self, begin, end):
+                return self.strategy.optimize_weights(begin, end)
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = MyWeightsOptimizationStrategy(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+
+        with self.assertRaises(LearningFailureException) as cm:
+            learning.perform()
+        self.assertEqual(cm.exception.args[0], "This weights optimization strategy doesn't support single-peaked criteria.")
+
+    def test_weights_optimization_strategy_that_does_support_single_peaked_criteria(self):
+        class MyWeightsOptimizationStrategy(LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
+            def __init__(self, learning_data):
+                super().__init__(True)
+                self.strategy = OptimizeWeightsUsingGlop(learning_data)
+
+            def optimize_weights(self, begin, end):
+                return self.strategy.optimize_weights(begin, end)
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = MyWeightsOptimizationStrategy(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+    def test_profiles_improvement_strategy_that_does_not_support_single_peaked_criteria(self):
+        class MyProfilesImprovementStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
+            def __init__(self, learning_data):
+                super().__init__()
+                self.strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+
+            def improve_profiles(self, begin, end):
+                return self.strategy.improve_profiles(begin, end)
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = MyProfilesImprovementStrategy(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+
+        with self.assertRaises(LearningFailureException) as cm:
+            learning.perform()
+        self.assertEqual(cm.exception.args[0], "This profiles improvement strategy doesn't support single-peaked criteria.")
+
+    def test_profiles_improvement_strategy_that_does_support_single_peaked_criteria(self):
+        class MyProfilesImprovementStrategy(LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
+            def __init__(self, learning_data):
+                super().__init__(True)
+                self.strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+
+            def improve_profiles(self, begin, end):
+                return self.strategy.improve_profiles(begin, end)
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = MyProfilesImprovementStrategy(learning_data)
+            breeding_strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+    def test_breeding_strategy_that_does_not_support_single_peaked_criteria(self):
+        class MyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
+            def __init__(self, learning_data, profiles_initialization_strategy, count):
+                super().__init__()
+                self.strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+
+            def breed(self):
+                return self.strategy.breed()
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = MyBreedingStrategy(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+
+        with self.assertRaises(LearningFailureException) as cm:
+            learning.perform()
+        self.assertEqual(cm.exception.args[0], "This breeding strategy doesn't support single-peaked criteria.")
+
+    def test_breeding_strategy_that_does_support_single_peaked_criteria(self):
+        class MyBreedingStrategy(LearnMrsortByWeightsProfilesBreed.BreedingStrategy):
+            def __init__(self, learning_data, profiles_initialization_strategy, count):
+                super().__init__(True)
+                self.strategy = ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+
+            def breed(self):
+                return self.strategy.breed()
+
+        def make_learning(problem, learning_set):
+            learning_data = LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, 9, 44)
+            profiles_initialization_strategy = InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+            weights_optimization_strategy = OptimizeWeightsUsingGlop(learning_data)
+            profiles_improvement_strategy = ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+            breeding_strategy = MyBreedingStrategy(learning_data, profiles_initialization_strategy, 4)
+            termination_strategy = TerminateAtAccuracy(learning_data, len(learning_set.alternatives))
+            return LearnMrsortByWeightsProfilesBreed(
+                learning_data,
+                profiles_initialization_strategy,
+                weights_optimization_strategy,
+                profiles_improvement_strategy,
+                breeding_strategy,
+                termination_strategy,
+            )
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.increasing])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+        problem = generate_problem(5, 3, 41, allowed_preference_directions=[Criterion.PreferenceDirection.single_peaked])
+        model = generate_mrsort_model(problem, 42)
+        learning_set = generate_alternatives(problem, model, 200, 43)
+        learning = make_learning(problem, learning_set)
+        learning.perform()
+
+
     def test_observers(self):
         problem = generate_problem(5, 3, 41)
         model = generate_mrsort_model(problem, 42)

@@ -28,8 +28,9 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   model_indexes(models_count),
   accuracies(models_count, zeroed),
   low_profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  single_peaked_criteria_count(count_single_peaked_criteria()),
   high_profile_rank_indexes(criteria_count, uninitialized),
-  high_profile_ranks(models_count, boundaries_count, count_single_peaked_criteria(), uninitialized),
+  high_profile_ranks(models_count, boundaries_count, single_peaked_criteria_count, uninitialized),
   weights(models_count, criteria_count, uninitialized)
 {
   CHRONE();
@@ -116,6 +117,21 @@ bool LearnMrsortByWeightsProfilesBreed::LearningData::models_are_correct() const
 
 Model LearnMrsortByWeightsProfilesBreed::perform() {
   CHRONE();
+
+  if (learning_data.single_peaked_criteria_count != 0) {
+    if (!profiles_initialization_strategy.supports_single_peaked_criteria) {
+      throw LearningFailureException("This profiles initialization strategy doesn't support single-peaked criteria.");
+    }
+    if (!weights_optimization_strategy.supports_single_peaked_criteria) {
+      throw LearningFailureException("This weights optimization strategy doesn't support single-peaked criteria.");
+    }
+    if (!profiles_improvement_strategy.supports_single_peaked_criteria) {
+      throw LearningFailureException("This profiles improvement strategy doesn't support single-peaked criteria.");
+    }
+    if (!breeding_strategy.supports_single_peaked_criteria) {
+      throw LearningFailureException("This breeding strategy doesn't support single-peaked criteria.");
+    }
+  }
 
   profiles_initialization_strategy.initialize_profiles(0, learning_data.models_count);
 

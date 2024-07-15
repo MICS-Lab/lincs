@@ -74,7 +74,7 @@ void define_learning_classes(py::module& m) {
       "ProfilesInitializationStrategy",
       "Abstract base class for profiles initialization strategies."
     )
-      .def(py::init<>())
+      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
       .def(
         "initialize_profiles",
         &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy::initialize_profiles,
@@ -100,7 +100,7 @@ void define_learning_classes(py::module& m) {
       "WeightsOptimizationStrategy",
       "Abstract base class for weights optimization strategies."
     )
-      .def(py::init<>())
+      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
       .def(
         "optimize_weights",
         &lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy::optimize_weights,
@@ -126,7 +126,7 @@ void define_learning_classes(py::module& m) {
       "ProfilesImprovementStrategy",
       "Abstract base class for profiles improvement strategies."
     )
-      .def(py::init<>())
+      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
       .def(
         "improve_profiles",
         &lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy::improve_profiles,
@@ -151,7 +151,7 @@ void define_learning_classes(py::module& m) {
       "BreedingStrategy",
       "Abstract base class for breeding strategies."
     )
-      .def(py::init<>())
+      .def(py::init<bool>(), py::arg("supports_single_peaked_criteria") = false)
       .def(
         "breed",
         &lincs::LearnMrsortByWeightsProfilesBreed::BreedingStrategy::breed,

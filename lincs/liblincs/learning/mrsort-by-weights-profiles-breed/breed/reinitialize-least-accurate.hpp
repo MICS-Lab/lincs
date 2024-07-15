@@ -15,6 +15,7 @@ class ReinitializeLeastAccurate : public LearnMrsortByWeightsProfilesBreed::Bree
     LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy& profiles_initialization_strategy_,
     unsigned count_
   ) :
+    LearnMrsortByWeightsProfilesBreed::BreedingStrategy(true),
     learning_data(learning_data_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
     count(count_)

@@ -11,7 +11,10 @@ namespace lincs {
 template<typename LinearProgram>
 class OptimizeWeightsUsingLinearProgram : public LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
  public:
-  OptimizeWeightsUsingLinearProgram(LearningData& learning_data_) : learning_data(learning_data_) {}
+  OptimizeWeightsUsingLinearProgram(LearningData& learning_data_) :
+    LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy(true),
+    learning_data(learning_data_)
+  {}
 
  public:
   void optimize_weights(unsigned model_indexes_begin, unsigned model_indexes_end) override;

@@ -71,6 +71,7 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   std::vector<unsigned> model_indexes;  // [model_index_index]: this is a reordering of the models' indexes
   Array1D<Host, unsigned> accuracies;  // [model_index]
   Array3D<Host, unsigned> low_profile_ranks;  // [model_index][boundary_index][criterion_index]
+  const unsigned single_peaked_criteria_count;
   Array1D<Host, unsigned> high_profile_rank_indexes;  // [criterion_index], meaningful only for single-peaked criteria (i.e. when single_peaked[criterion_index] is true)
   Array3D<Host, unsigned> high_profile_ranks;  // [model_index][boundary_index][high_profile_rank_indexes[criterion_index]]
   Array2D<Host, float> weights;  // [model_index][criterion_index]
@@ -95,33 +96,49 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
 struct LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
   typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
+  ProfilesInitializationStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
+
   virtual ~ProfilesInitializationStrategy() {}
 
   virtual void initialize_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
+
+  const bool supports_single_peaked_criteria;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
   typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
+  WeightsOptimizationStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
+
   virtual ~WeightsOptimizationStrategy() {}
 
   virtual void optimize_weights(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
+
+  const bool supports_single_peaked_criteria;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
   typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
+  ProfilesImprovementStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
+
   virtual ~ProfilesImprovementStrategy() {}
 
   virtual void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) = 0;
+
+  const bool supports_single_peaked_criteria;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
   typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
 
+  BreedingStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
+
   virtual ~BreedingStrategy() {}
 
   virtual void breed() = 0;
+
+  const bool supports_single_peaked_criteria;
 };
 
 struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {

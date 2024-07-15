@@ -10,7 +10,10 @@
 
 namespace lincs {
 
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_) : learning_data(learning_data_) {
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_) :
+  LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy(true),
+  learning_data(learning_data_)
+{
   CHRONE();
 
   low_rank_generators.reserve(learning_data.criteria_count);

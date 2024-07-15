@@ -11,7 +11,10 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(LearningData& learning_data_) : learning_data(learning_data_) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(LearningData& learning_data_) :
+    LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy(true),
+    learning_data(learning_data_)
+  {}
 
  public:
   void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;

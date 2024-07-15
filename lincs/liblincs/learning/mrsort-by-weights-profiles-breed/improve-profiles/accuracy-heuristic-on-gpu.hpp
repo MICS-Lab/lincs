@@ -29,7 +29,11 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
   };
 
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(LearningData& host_learning_data_) : host_learning_data(host_learning_data_), gpu_learning_data(host_learning_data) {}
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(LearningData& host_learning_data_) :
+    LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy(true),
+    host_learning_data(host_learning_data_),
+    gpu_learning_data(host_learning_data)
+  {}
 
  public:
   void improve_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
