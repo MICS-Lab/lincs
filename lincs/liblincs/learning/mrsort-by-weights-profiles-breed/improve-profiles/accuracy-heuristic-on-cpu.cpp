@@ -14,8 +14,10 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(
 ) {
   CHRONE();
 
+  const int model_indexes_end_ = model_indexes_end;
+
   #pragma omp parallel for
-  for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
+  for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end_; ++model_indexes_index) {
     const unsigned model_index = learning_data.model_indexes[model_indexes_index];
     improve_model_profiles(model_index);
   }

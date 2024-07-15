@@ -724,7 +724,6 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
       std::uniform_real_distribution<float>(0, 1)(host_learning_data.random_generators[model_index]));
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
-    assert(0 <= host_learning_data.high_profile_rank_indexes[criterion_index]);
     assert(host_learning_data.high_profile_rank_indexes[criterion_index] < host_learning_data.high_profile_ranks.s0());
     check_cuda_error(cudaMemcpy(
       host_learning_data.high_profile_ranks[model_index][boundary_index].data() + host_learning_data.high_profile_rank_indexes[criterion_index],
