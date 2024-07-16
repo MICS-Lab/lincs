@@ -181,3 +181,46 @@ jobs:
         run: delocate-wheel --wheel-dir dist local-dist/*.whl
       - name: Check the wheel
         run: twine check dist/*.whl
+
+  check:
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build-for-linux
+      - build-for-windows
+      - build-for-macos
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - windows-2019
+          - windows-2022
+          - macos-12
+          - macos-13
+          # No macos-14: we don't support M1 chips
+        python_version: ['3.8', '3.12']
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+      # DO NOT install any other dependencies, to test that the wheels are self-contained
+
+      - name: Dowload the wheels from GitHub Actions artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheel-dist-${{ matrix.python_version }}-*
+          merge-multiple: true
+
+      - name: Install the wheel
+        run: pip${{ matrix.python_version }} install --find-links . --pre lincs
+
+      - name: Run lincs
+        run: lincs --help
+      - run: lincs generate classification-problem 3 2 --output-problem problem.yml
+      - run: lincs generate classification-model problem.yml --output-model model.yml
+      - run: lincs generate classified-alternatives problem.yml model.yml 100 --output-alternatives learning-set.csv
+      - run: lincs learn classification-model problem.yml learning-set.csv --output-model learned-model.yml
+      - run: lincs classification-accuracy problem.yml learned-model.yml learning-set.csv
