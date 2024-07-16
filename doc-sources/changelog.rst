@@ -4,7 +4,7 @@
 Changelog
 =========
 
-Version 2.0.0 (2024-07-XX)
+Version 2.0.0 (2024-XX-YY)
 ==========================
 
 - Support Python 3.12

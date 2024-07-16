@@ -12,6 +12,7 @@
    get-started
    user-guide
    python-api
+   single-peaked
    reference
    contributor-guide
    roadmap

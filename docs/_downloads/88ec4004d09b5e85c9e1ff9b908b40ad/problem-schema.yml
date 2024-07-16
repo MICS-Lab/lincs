@@ -21,7 +21,6 @@ properties:
               type: string
               enum: [real, integer]
             preference_direction:
-              description: May be extended in the future to handle criteria with unknown preference direction.
               type: string
               enum: [increasing, isotone, decreasing, antitone, single-peaked]
             min_value:

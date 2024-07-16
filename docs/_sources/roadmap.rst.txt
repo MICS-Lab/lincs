@@ -24,7 +24,7 @@ Later versions
 - Interface with `XMCDA <http://www.decision-deck.org/xmcda/>`_
 - Publish the C++ API
 - Integrate with `Decision Deck <http://www.decision-deck.org/>`_, by implementing an `XMCDA web service <http://www.decision-deck.org/ws/>`_
-- Support Intel Silicon on macOS
+- Support Apple Silicon (M1 ARM processor) on macOS
 - Support ARM processors on Linux and Windows
 - Explore the use of neural networks to learn MR-Sort models
 - Explore "parsimony" to select significant criteria (a.k.a. features) and discard the others

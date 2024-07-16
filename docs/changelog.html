@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; lincs 2.0.0a1 documentation</title>
+    <title>Changelog &#8212; lincs 2.0.0a2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=c35f39f4"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f4a7b39e"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -34,30 +34,45 @@
             
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">¶</a></h1>
-<section id="version-2-0-0a1-2024-06-12">
-<h2>Version 2.0.0a1 (2024-06-12)<a class="headerlink" href="#version-2-0-0a1-2024-06-12" title="Permalink to this heading">¶</a></h2>
-<ul>
-<li><p><strong>Major</strong> Support single-peaked criteria</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>in all features (generation, description, classification, learning, …) <em>except visualization</em></p></li>
-<li><p>on the command-line: <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-problem</span> <span class="pre">...</span> <span class="pre">--allow-single-peaked-criteria</span></code></p></li>
-<li><p>in the Python API: <code class="docutils literal notranslate"><span class="pre">lc.generate_problem(...,</span> <span class="pre">allowed_preference_directions=[...,</span> <span class="pre">lc.Criterion.PreferenceDirection.single_peaked])</span></code></p></li>
-<li><p>in the problem file format: <code class="docutils literal notranslate"><span class="pre">preference_direction:</span> <span class="pre">single-peaked</span></code></p></li>
-<li><p>in the model file format: <code class="docutils literal notranslate"><span class="pre">kind:</span> <span class="pre">intervals</span></code> and <code class="docutils literal notranslate"><span class="pre">intervals:</span> <span class="pre">[[20,</span> <span class="pre">80],</span> <span class="pre">[40,</span> <span class="pre">60]]</span></code></p></li>
-<li><p>with <em>all</em> learning approaches</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p><strong>Breaking</strong> Adapt parts of the Python API to support single-peaked criteria</p></li>
-<li><p><strong>Breaking</strong> Rename <code class="docutils literal notranslate"><span class="pre">LearningData.urbgs</span></code> to <code class="docutils literal notranslate"><span class="pre">LearningData.random_generators</span></code></p></li>
-</ul>
-</section>
-<section id="version-2-0-0a0-2024-05-23">
-<h2>Version 2.0.0a0 (2024-05-23)<a class="headerlink" href="#version-2-0-0a0-2024-05-23" title="Permalink to this heading">¶</a></h2>
+<section id="version-2-0-0-2024-xx-yy">
+<h2>Version 2.0.0 (2024-XX-YY)<a class="headerlink" href="#version-2-0-0-2024-xx-yy" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><strong>Breaking</strong> Let some thresholds be unreachable! (Fix bug found in real-life ASA data)</p></li>
 <li><p>Support Python 3.12</p></li>
+<li><p>Drop support for macOS 11 (<a class="reference external" href="https://github.blog/changelog/2024-05-20-actions-upcoming-changes-to-github-hosted-macos-runners/">not supported by GitHub Actions anymore</a>)</p></li>
+<li><dl class="simple">
+<dt><strong>Major</strong> Support single-peaked criteria:</dt><dd><ul>
+<li><p>on the command-line, <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-problem</span></code> has a new <code class="docutils literal notranslate"><span class="pre">--allow-single-peaked-criteria</span></code> option</p></li>
+<li><p>in the Problem file format, there is a new value <code class="docutils literal notranslate"><span class="pre">single-peaked</span></code> for <code class="docutils literal notranslate"><span class="pre">preference_direction``</span></code></p></li>
+<li><p>in the Model file format, there is a new possible value for <code class="docutils literal notranslate"><span class="pre">accepted_values.kind</span></code>: <code class="docutils literal notranslate"><span class="pre">intervals</span></code>, used with <code class="docutils literal notranslate"><span class="pre">intervals:</span> <span class="pre">[[20,</span> <span class="pre">80],</span> <span class="pre">[40,</span> <span class="pre">60]]</span></code></p></li>
+<li><dl class="simple">
+<dt>in the Python API:</dt><dd><ul>
+<li><p>there is a new value in <code class="docutils literal notranslate"><span class="pre">Criterion.PreferenceDirection</span></code>: <code class="docutils literal notranslate"><span class="pre">single_peaked</span></code>, typically used with <code class="docutils literal notranslate"><span class="pre">lc.generate_problem(...,</span> <span class="pre">allowed_preference_directions=[...,</span> <span class="pre">lc.Criterion.PreferenceDirection.single_peaked])</span></code></p></li>
+<li><p>there is a new value in <code class="docutils literal notranslate"><span class="pre">AcceptedValues.Kind</span></code>: <code class="docutils literal notranslate"><span class="pre">intervals</span></code></p></li>
+<li><p>some strategies for <code class="docutils literal notranslate"><span class="pre">LearnMrsortByWeightsProfilesBreed</span></code> must explicitly opt-in to support single-peaked criteria by calling their base class constructor with <code class="docutils literal notranslate"><span class="pre">supports_single_peaked_criteria=True</span></code></p></li>
+<li><p><strong>Breaking</strong> Adapt parts of the Python API to support single-peaked criteria</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><em>all</em> the learning approaches work</p></li>
+<li><p>the human-readable output of <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">describe</span></code> has changed slightly to accommodate for single-peaked criteria</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span></code> fails when called with single-peaked criteria. See <a class="reference external" href="https://github.com/MICS-Lab/lincs/discussions/21">this discussion</a></p></li>
+<li><p>documented in <a class="reference internal" href="single-peaked.html"><span class="doc">our “Single-peaked criteria” guide</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Breaking</strong> Let some thresholds be unreachable (Fix bug found in real-life ASA data)</dt><dd><ul>
+<li><p>in the Model file format, the last items in a <code class="docutils literal notranslate"><span class="pre">thresholds</span></code> or <code class="docutils literal notranslate"><span class="pre">intervals</span></code> list can be <code class="docutils literal notranslate"><span class="pre">null</span></code></p></li>
+<li><p>in the Python API, the last items in a <code class="docutils literal notranslate"><span class="pre">thresholds</span></code> or <code class="docutils literal notranslate"><span class="pre">intervals</span></code> list can be <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p>(there is a runtime check that all are <code class="docutils literal notranslate"><span class="pre">null</span></code> after the first <code class="docutils literal notranslate"><span class="pre">null</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><strong>Breaking</strong> Split <code class="docutils literal notranslate"><span class="pre">LearnMrsortByWeightsProfilesBreed.LearningData</span></code> into <code class="docutils literal notranslate"><span class="pre">PreprocessedLearningSet</span></code> and <code class="docutils literal notranslate"><span class="pre">LearnMrsortByWeightsProfilesBreed.ModelsBeingLearned</span></code></p></li>
+<li><p><strong>Breaking</strong> Rename <code class="docutils literal notranslate"><span class="pre">LearningData.urbgs</span></code> to <code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned.random_generators</span></code></p></li>
 </ul>
 </section>
 <section id="version-1-1-0-2024-02-08">
@@ -373,12 +388,12 @@ It establishes the first tier of the stable API: the command-line interface.</p>
 <li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single-peaked.html">Single-peaked criteria</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-2-0-0a1-2024-06-12">Version 2.0.0a1 (2024-06-12)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#version-2-0-0a0-2024-05-23">Version 2.0.0a0 (2024-05-23)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-2-0-0-2024-xx-yy">Version 2.0.0 (2024-XX-YY)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-1-0-2024-02-08">Version 1.1.0 (2024-02-08)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#publish-the-python-api">Publish the Python API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#improve-lincs-visualize">Improve <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span></code></a></li>

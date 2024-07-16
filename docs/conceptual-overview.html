@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Conceptual overview &#8212; lincs 2.0.0a1 documentation</title>
+    <title>Conceptual overview &#8212; lincs 2.0.0a2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=c35f39f4"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f4a7b39e"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -41,10 +41,10 @@
 Most often, <span class="math notranslate nohighlight">\(a\)</span> will be zero.
 This choice matches the indexing convention used in the Python and C++ programming languages,
 so our documentation is as close as possible to our implementation.
-For example, <span class="math notranslate nohighlight">\([0..4) = \{0, 1, 2, 3\}\)</span>.
+For example, <span class="math notranslate nohighlight">\([0..4)\)</span> is <span class="math notranslate nohighlight">\(\{0, 1, 2, 3\}\)</span>.
 Note that <span class="math notranslate nohighlight">\([0..n)\)</span> contains <span class="math notranslate nohighlight">\(n\)</span> elements.</p>
 <p>For a given set <span class="math notranslate nohighlight">\(S\)</span>, we denote the set of all its subsets (<em>a.k.a.</em> its power set) by <span class="math notranslate nohighlight">\(\mathcal{P}(S)\)</span>.
-For example <span class="math notranslate nohighlight">\(\mathcal{P}(\{0, 1, 2\}) = \{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}\)</span>.</p>
+For example <span class="math notranslate nohighlight">\(\mathcal{P}(\{0, 1, 2\})\)</span> is <span class="math notranslate nohighlight">\(\{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}\)</span>.</p>
 </section>
 <section id="about-classification">
 <span id="overview-about-classification"></span><h2>About classification<a class="headerlink" href="#about-classification" title="Permalink to this heading">¶</a></h2>
@@ -72,6 +72,9 @@ For a given student, their performances are their actual grades on each topic, t
 <p>In that setting, alternatives are the Cartesian product of the criteria: <span class="math notranslate nohighlight">\(X = \prod_{i \in [0..n)} X_i\)</span>.
 For a given alternative <span class="math notranslate nohighlight">\(x = (x_0, ..., x_{n-1}) \in X\)</span>, its performance on criterion <span class="math notranslate nohighlight">\(i\)</span> is <span class="math notranslate nohighlight">\(x_i \in X_i\)</span>.</p>
 </div>
+<p>Note that there is no assumption about criteria being numerical.
+And if they happen to be numerical, there is no assumption that their pre-order <span class="math notranslate nohighlight">\(\preccurlyeq_i\)</span> matches the natural numerical ordering.
+This lets <em>lincs</em> support criteria with enumerated values, as well as criteria with numerical values but with a decreasing preference direction.</p>
 <p><em>lincs</em> stores and reads information about the classification problem using <a class="reference internal" href="reference.html#ref-file-problem"><span class="std std-ref">the YAML problem file format</span></a>.
 Alternatives are stored and read using <a class="reference internal" href="reference.html#ref-file-alternatives"><span class="std std-ref">the CSV alternatives file format</span></a>.</p>
 </section>
@@ -133,6 +136,8 @@ We use it in <em>lincs</em> because it is somewhat simple and matches the implem
 <li><p>the up-closed-ness-by-inclusion(!) of the sufficient coalitions matches the intuition that they are <em>sufficient</em> criteria: if a few criteria are sufficient, then more criteria are still sufficient</p></li>
 <li><p>the imbrication of sufficient coalitions matches the intuition that upper categories are more selective than lower ones</p></li>
 </ul>
+<p>This definition does not handle real-life criteria like <em>e.g.</em> a patient’s blood pressure, where intermediate values are better than extreme values.
+These so-called “single-peaked” criteria are <a class="reference internal" href="single-peaked.html"><span class="doc">supported by *lincs*</span></a> with an extended definition of NCS models.</p>
 <p>NCS classification models are stored and read using <a class="reference internal" href="reference.html#ref-file-ncs-model"><span class="std std-ref">the YAML NCS model file format</span></a>.</p>
 <section id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
@@ -507,6 +512,7 @@ Finally, they compare how close the learned model behaves to the original one to
 <li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single-peaked.html">Single-peaked criteria</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
