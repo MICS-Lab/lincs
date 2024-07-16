@@ -10,10 +10,10 @@
 
 namespace lincs {
 
-InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const PreProcessedLearningSet& preprocessed_learning_set_, LearningData& learning_data_) :
+InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const PreprocessedLearningSet& preprocessed_learning_set_, ModelsBeingLearned& models_being_learned_) :
   LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy(true),
   preprocessed_learning_set(preprocessed_learning_set_),
-  learning_data(learning_data_)
+  models_being_learned(models_being_learned_)
 {
   CHRONE();
 
@@ -165,33 +165,33 @@ void InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion::i
   // @todo(Performance, later) Parallelize these loops?
   // Embarrassingly parallel
   for (unsigned model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
-    const unsigned model_index = learning_data.model_indexes[model_indexes_index];
+    const unsigned model_index = models_being_learned.model_indexes[model_indexes_index];
 
     // Embarrassingly parallel
     for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
       // Not parallel because of the profiles ordering constraint
       for (unsigned category_index = preprocessed_learning_set.categories_count - 1; category_index != 0; --category_index) {
         const unsigned boundary_index = category_index - 1;
-        unsigned low_rank = low_rank_generators[criterion_index][boundary_index](learning_data.random_generators[model_index]);
+        unsigned low_rank = low_rank_generators[criterion_index][boundary_index](models_being_learned.random_generators[model_index]);
 
         // Enforce profiles ordering constraint (1/2)
         if (boundary_index != preprocessed_learning_set.boundaries_count - 1) {
-          low_rank = std::min(low_rank, learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]);
+          low_rank = std::min(low_rank, models_being_learned.low_profile_ranks[model_index][boundary_index + 1][criterion_index]);
         }
 
-        learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = low_rank;
+        models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index] = low_rank;
 
         if (preprocessed_learning_set.single_peaked[criterion_index]) {
-          unsigned high_rank = high_rank_generators[criterion_index][boundary_index](learning_data.random_generators[model_index]);
+          unsigned high_rank = high_rank_generators[criterion_index][boundary_index](models_being_learned.random_generators[model_index]);
 
           // Enforce profiles ordering constraint (2/2)
           if (boundary_index == preprocessed_learning_set.boundaries_count - 1) {
             high_rank = std::max(high_rank, low_rank);
           } else {
-            high_rank = std::max(high_rank, learning_data.high_profile_ranks[model_index][boundary_index + 1][learning_data.high_profile_rank_indexes[criterion_index]]);
+            high_rank = std::max(high_rank, models_being_learned.high_profile_ranks[model_index][boundary_index + 1][models_being_learned.high_profile_rank_indexes[criterion_index]]);
           }
 
-          learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]] = high_rank;
+          models_being_learned.high_profile_ranks[model_index][boundary_index][models_being_learned.high_profile_rank_indexes[criterion_index]] = high_rank;
         }
       }
     }
@@ -212,15 +212,15 @@ TEST_CASE("Initialize profiles - respect ordering") {
   };
   Model model = generate_mrsort_classification_model(problem, 42);
   auto learning_set = generate_classified_alternatives(problem, model, 1000, 42, 0.1);
-  PreProcessedLearningSet preprocessed_learning_set(problem, learning_set);
-  LearnMrsortByWeightsProfilesBreed::LearningData learning_data(preprocessed_learning_set, 1, 42);
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion initializer(preprocessed_learning_set, learning_data);
+  PreprocessedLearningSet preprocessed_learning_set(problem, learning_set);
+  LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned models_being_learned(preprocessed_learning_set, 1, 42);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion initializer(preprocessed_learning_set, models_being_learned);
 
   for (unsigned iteration = 0; iteration != 10; ++iteration) {
     initializer.initialize_profiles(0, 1);
     // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint (1/2)' code is removed
-    CHECK(learning_data.low_profile_ranks[0][0][0] <= learning_data.low_profile_ranks[0][1][0]);
-    CHECK(learning_data.low_profile_ranks[0][0][1] <= learning_data.low_profile_ranks[0][1][1]);
+    CHECK(models_being_learned.low_profile_ranks[0][0][0] <= models_being_learned.low_profile_ranks[0][1][0]);
+    CHECK(models_being_learned.low_profile_ranks[0][0][1] <= models_being_learned.low_profile_ranks[0][1][1]);
   }
 }
 
@@ -237,17 +237,17 @@ TEST_CASE("Initialize profiles - respect ordering - single-peaked criteria") {
   };
   Model model = generate_mrsort_classification_model(problem, 42);
   auto learning_set = generate_classified_alternatives(problem, model, 1000, 42, 0.1);
-  PreProcessedLearningSet preprocessed_learning_set(problem, learning_set);
-  LearnMrsortByWeightsProfilesBreed::LearningData learning_data(preprocessed_learning_set, 1, 42);
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion initializer(preprocessed_learning_set, learning_data);
+  PreprocessedLearningSet preprocessed_learning_set(problem, learning_set);
+  LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned models_being_learned(preprocessed_learning_set, 1, 42);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion initializer(preprocessed_learning_set, models_being_learned);
 
   for (unsigned iteration = 0; iteration != 10; ++iteration) {
     initializer.initialize_profiles(0, 1);
     // This CHECK fails at least once when the 'Enforce profiles ordering constraint (1/2)' code is removed
-    CHECK(learning_data.low_profile_ranks[0][0][0] <= learning_data.low_profile_ranks[0][1][0]);
+    CHECK(models_being_learned.low_profile_ranks[0][0][0] <= models_being_learned.low_profile_ranks[0][1][0]);
     // Both CHECKs fail at least once when the 'Enforce profiles ordering constraint (2/2)' code is removed
-    CHECK(learning_data.low_profile_ranks[0][1][0] <= learning_data.high_profile_ranks[0][1][0]);
-    CHECK(learning_data.high_profile_ranks[0][1][0] <= learning_data.high_profile_ranks[0][0][0]);
+    CHECK(models_being_learned.low_profile_ranks[0][1][0] <= models_being_learned.high_profile_ranks[0][1][0]);
+    CHECK(models_being_learned.high_profile_ranks[0][1][0] <= models_being_learned.high_profile_ranks[0][0][0]);
   }
 }
 

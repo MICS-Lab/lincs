@@ -20,7 +20,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_weights(
 
   #pragma omp parallel for
   for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end_; ++model_indexes_index) {
-    const unsigned model_index = learning_data.model_indexes[model_indexes_index];
+    const unsigned model_index = models_being_learned.model_indexes[model_indexes_index];
     optimize_model_weights(model_index);
   }
 }
@@ -67,7 +67,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_coefficient(x_variables[alternative_index], -1);
       c.set_coefficient(xp_variables[alternative_index], 1);
       for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
-        if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
+        if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, models_being_learned, model_index, boundary_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
@@ -80,7 +80,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_coefficient(y_variables[alternative_index], 1);
       c.set_coefficient(yp_variables[alternative_index], -1);
       for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
-        if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
+        if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, models_being_learned, model_index, boundary_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
@@ -90,7 +90,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
   auto values = program.solve();
 
   for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
-    learning_data.weights[model_index][criterion_index] = values[weight_variables[criterion_index]];
+    models_being_learned.weights[model_index][criterion_index] = values[weight_variables[criterion_index]];
   }
 }
 

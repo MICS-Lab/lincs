@@ -12,30 +12,30 @@
 
 namespace lincs {
 
-struct PreProcessedBoundary {
+struct PreprocessedBoundary {
   std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> profile_ranks;
   SufficientCoalitions sufficient_coalitions;
 
-  PreProcessedBoundary(const std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>>& profile_ranks_, const SufficientCoalitions& sufficient_coalitions_) :
+  PreprocessedBoundary(const std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>>& profile_ranks_, const SufficientCoalitions& sufficient_coalitions_) :
     profile_ranks(profile_ranks_),
     sufficient_coalitions(sufficient_coalitions_)
   {}
 };
 
-class PreProcessedLearningSet {
+class PreprocessedLearningSet {
  public:
   // Not copyable
-  PreProcessedLearningSet(const PreProcessedLearningSet&) = delete;
-  PreProcessedLearningSet& operator=(const PreProcessedLearningSet&) = delete;
+  PreprocessedLearningSet(const PreprocessedLearningSet&) = delete;
+  PreprocessedLearningSet& operator=(const PreprocessedLearningSet&) = delete;
 
   // Movable
-  PreProcessedLearningSet(PreProcessedLearningSet&&) = default;
-  PreProcessedLearningSet& operator=(PreProcessedLearningSet&&) = default;
+  PreprocessedLearningSet(PreprocessedLearningSet&&) = default;
+  PreprocessedLearningSet& operator=(PreprocessedLearningSet&&) = default;
 
-  PreProcessedLearningSet(const Problem&, const Alternatives&);
+  PreprocessedLearningSet(const Problem&, const Alternatives&);
 
  public:
-  Model post_process(const std::vector<PreProcessedBoundary>&) const;
+  Model post_process(const std::vector<PreprocessedBoundary>&) const;
 
  private:
   const Problem& problem;

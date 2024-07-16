@@ -106,20 +106,20 @@ void check_non_exact_learnings(
 }
 
 struct AccuracyObserver : lincs::LearnMrsortByWeightsProfilesBreed::Observer {
-  AccuracyObserver(const LearningData& learning_data_) :
-    learning_data(learning_data_),
+  AccuracyObserver(const ModelsBeingLearned& models_being_learned_) :
+    models_being_learned(models_being_learned_),
     accuracies()
   {}
 
   void after_iteration() override {
-    accuracies.push_back(learning_data.get_best_accuracy());
+    accuracies.push_back(models_being_learned.get_best_accuracy());
   }
 
   void before_return() override {
-    accuracies.push_back(learning_data.get_best_accuracy());
+    accuracies.push_back(models_being_learned.get_best_accuracy());
   }
 
-  const LearningData& learning_data;
+  const ModelsBeingLearned& models_being_learned;
   std::vector<unsigned> accuracies;
 };
 
@@ -134,19 +134,19 @@ class BasicWpb {
   struct CpuWrapper {
     CpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       preprocessed_learning_set(problem, learning_set),
-      learning_data(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
-      profiles_initialization_strategy(preprocessed_learning_set, learning_data),
-      weights_optimization_strategy(preprocessed_learning_set, learning_data),
-      profiles_improvement_strategy(preprocessed_learning_set, learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy_accuracy(learning_data, target_accuracy),
-      termination_strategy_progress(learning_data, 200),
+      models_being_learned(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
+      profiles_initialization_strategy(preprocessed_learning_set, models_being_learned),
+      weights_optimization_strategy(preprocessed_learning_set, models_being_learned),
+      profiles_improvement_strategy(preprocessed_learning_set, models_being_learned),
+      breeding_strategy(models_being_learned, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+      termination_strategy_accuracy(models_being_learned, target_accuracy),
+      termination_strategy_progress(models_being_learned, 200),
       termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
-      observer(learning_data),
+      observer(models_being_learned),
       observers{&observer},
       learning(
         preprocessed_learning_set,
-        learning_data,
+        models_being_learned,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -158,8 +158,8 @@ class BasicWpb {
 
     auto perform() { return learning.perform(); }
 
-    PreProcessedLearningSet preprocessed_learning_set;
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+    PreprocessedLearningSet preprocessed_learning_set;
+    LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned models_being_learned;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;
@@ -176,19 +176,19 @@ class BasicWpb {
   struct GpuWrapper {
     GpuWrapper(const Problem& problem, const Alternatives& learning_set) :
       preprocessed_learning_set(problem, learning_set),
-      learning_data(LearnMrsortByWeightsProfilesBreed::LearningData(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
-      profiles_initialization_strategy(preprocessed_learning_set, learning_data),
-      weights_optimization_strategy(preprocessed_learning_set, learning_data),
-      profiles_improvement_strategy(preprocessed_learning_set, learning_data),
-      breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-      termination_strategy_accuracy(learning_data, target_accuracy),
-      termination_strategy_progress(learning_data, 200),
+      models_being_learned(LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44)),
+      profiles_initialization_strategy(preprocessed_learning_set, models_being_learned),
+      weights_optimization_strategy(preprocessed_learning_set, models_being_learned),
+      profiles_improvement_strategy(preprocessed_learning_set, models_being_learned),
+      breeding_strategy(models_being_learned, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+      termination_strategy_accuracy(models_being_learned, target_accuracy),
+      termination_strategy_progress(models_being_learned, 200),
       termination_strategy({&termination_strategy_accuracy, &termination_strategy_progress}),
-      observer(learning_data),
+      observer(models_being_learned),
       observers{&observer},
       learning(
         preprocessed_learning_set,
-        learning_data,
+        models_being_learned,
         profiles_initialization_strategy,
         weights_optimization_strategy,
         profiles_improvement_strategy,
@@ -200,8 +200,8 @@ class BasicWpb {
 
     auto perform() { return learning.perform(); }
 
-    PreProcessedLearningSet preprocessed_learning_set;
-    LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+    PreprocessedLearningSet preprocessed_learning_set;
+    LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned models_being_learned;
     InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
     OptimizeWeightsUsingGlop weights_optimization_strategy;
     ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
@@ -284,15 +284,15 @@ class AlglibWpbWrapper {
  public:
   AlglibWpbWrapper(const Problem& problem, const Alternatives& learning_set) :
     preprocessed_learning_set(problem, learning_set),
-    learning_data(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
-    profiles_initialization_strategy(preprocessed_learning_set, learning_data),
-    weights_optimization_strategy(preprocessed_learning_set, learning_data),
-    profiles_improvement_strategy(preprocessed_learning_set, learning_data),
-    breeding_strategy(learning_data, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
-    termination_strategy(learning_data, 200),
+    models_being_learned(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
+    profiles_initialization_strategy(preprocessed_learning_set, models_being_learned),
+    weights_optimization_strategy(preprocessed_learning_set, models_being_learned),
+    profiles_improvement_strategy(preprocessed_learning_set, models_being_learned),
+    breeding_strategy(models_being_learned, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+    termination_strategy(models_being_learned, 200),
     learning(
       preprocessed_learning_set,
-      learning_data,
+      models_being_learned,
       profiles_initialization_strategy,
       weights_optimization_strategy,
       profiles_improvement_strategy,
@@ -305,8 +305,8 @@ class AlglibWpbWrapper {
   auto perform() { return learning.perform(); }
 
  private:
-  PreProcessedLearningSet preprocessed_learning_set;
-  LearnMrsortByWeightsProfilesBreed::LearningData learning_data;
+  PreprocessedLearningSet preprocessed_learning_set;
+  LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned models_being_learned;
   InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
   OptimizeWeightsUsingAlglib weights_optimization_strategy;
   ImproveProfilesWithAccuracyHeuristicOnCpu profiles_improvement_strategy;

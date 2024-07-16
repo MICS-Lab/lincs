@@ -10,15 +10,15 @@ namespace lincs {
 
 class TerminateAfterIterations : public LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
  public:
-  explicit TerminateAfterIterations(const LearningData& learning_data_, const unsigned max_iterations_count_) : learning_data(learning_data_), max_iterations_count(max_iterations_count_) {}
+  explicit TerminateAfterIterations(const ModelsBeingLearned& models_being_learned_, const unsigned max_iterations_count_) : models_being_learned(models_being_learned_), max_iterations_count(max_iterations_count_) {}
 
  public:
   bool terminate() override {
-    return learning_data.iteration_index >= max_iterations_count - 1;
+    return models_being_learned.iteration_index >= max_iterations_count - 1;
   }
 
  private:
-  const LearningData& learning_data;
+  const ModelsBeingLearned& models_being_learned;
   const unsigned max_iterations_count;
 };
 

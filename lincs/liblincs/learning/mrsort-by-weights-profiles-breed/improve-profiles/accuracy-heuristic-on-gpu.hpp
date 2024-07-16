@@ -13,8 +13,8 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  private:
-  struct GpuLearningData {
-    GpuLearningData(const PreProcessedLearningSet&, const LearningData&);
+  struct GpuModelsBeingLearned {
+    GpuModelsBeingLearned(const PreprocessedLearningSet&, const ModelsBeingLearned&);
 
     Array2D<Device, unsigned> performance_ranks;  // Indexed by [criterion_index][alternative_index]
     Array1D<Device, unsigned> assignments;  // [alternative_index]
@@ -29,11 +29,11 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
   };
 
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(const PreProcessedLearningSet& preprocessed_learning_set, LearningData& host_learning_data_) :
+  explicit ImproveProfilesWithAccuracyHeuristicOnGpu(const PreprocessedLearningSet& preprocessed_learning_set, ModelsBeingLearned& host_models_being_learned_) :
     LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy(true),
     preprocessed_learning_set(preprocessed_learning_set),
-    host_learning_data(host_learning_data_),
-    gpu_learning_data(preprocessed_learning_set, host_learning_data)
+    host_models_being_learned(host_models_being_learned_),
+    gpu_models_being_learned(preprocessed_learning_set, host_models_being_learned)
   {}
 
  public:
@@ -77,9 +77,9 @@ class ImproveProfilesWithAccuracyHeuristicOnGpu : public LearnMrsortByWeightsPro
   );
 
  private:
-  const PreProcessedLearningSet& preprocessed_learning_set;
-  LearningData& host_learning_data;
-  GpuLearningData gpu_learning_data;
+  const PreprocessedLearningSet& preprocessed_learning_set;
+  ModelsBeingLearned& host_models_being_learned;
+  GpuModelsBeingLearned gpu_models_being_learned;
 
   static const unsigned max_destinations_count = 64;
 };

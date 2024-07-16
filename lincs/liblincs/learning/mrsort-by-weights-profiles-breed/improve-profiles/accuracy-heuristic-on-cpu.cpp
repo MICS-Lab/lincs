@@ -18,7 +18,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_profiles(
 
   #pragma omp parallel for
   for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end_; ++model_indexes_index) {
-    const unsigned model_index = learning_data.model_indexes[model_indexes_index];
+    const unsigned model_index = models_being_learned.model_indexes[model_indexes_index];
     improve_model_profiles(model_index);
   }
 }
@@ -33,7 +33,7 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_model_profiles(const uns
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
   for (unsigned boundary_index = 0; boundary_index != preprocessed_learning_set.boundaries_count; ++boundary_index) {
-    shuffle(learning_data.random_generators[model_index], ref(criterion_indexes));
+    shuffle(models_being_learned.random_generators[model_index], ref(criterion_indexes));
     improve_boundary_profiles(model_index, boundary_index, criterion_indexes);
   }
 }
@@ -67,10 +67,10 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile_then_high_pr
     criterion_index,
     boundary_index == 0 ?
       0 :
-      learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
+      models_being_learned.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
     boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
-      learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]]:
-      learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
+      models_being_learned.high_profile_ranks[model_index][boundary_index][models_being_learned.high_profile_rank_indexes[criterion_index]]:
+      models_being_learned.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
 
   improve_high_profile(
@@ -78,11 +78,11 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile_then_high_pr
     boundary_index,
     criterion_index,
     boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
-      learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] :
-      learning_data.high_profile_ranks[model_index][boundary_index + 1][learning_data.high_profile_rank_indexes[criterion_index]],
+      models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index] :
+      models_being_learned.high_profile_ranks[model_index][boundary_index + 1][models_being_learned.high_profile_rank_indexes[criterion_index]],
     boundary_index == 0 ?
       preprocessed_learning_set.values_counts[criterion_index] - 1 :
-      learning_data.high_profile_ranks[model_index][boundary_index - 1][learning_data.high_profile_rank_indexes[criterion_index]]
+      models_being_learned.high_profile_ranks[model_index][boundary_index - 1][models_being_learned.high_profile_rank_indexes[criterion_index]]
   );
 }
 
@@ -97,10 +97,10 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile_only(
     criterion_index,
     boundary_index == 0 ?
       0 :
-      learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
+      models_being_learned.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
     boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
       preprocessed_learning_set.values_counts[criterion_index] - 1 :
-      learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
+      models_being_learned.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
 }
 
@@ -113,15 +113,15 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile(
 ) {
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
+    assert(models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
   } else {
-    unsigned best_destination_rank = learning_data.low_profile_ranks[model_index][boundary_index][criterion_index];
+    unsigned best_destination_rank = models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index];
     float best_desirability = Desirability().value();
 
     if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
       // We could try uniformly spread-out destinations instead of uniform random ones
       for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.random_generators[model_index]);
+        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(models_being_learned.random_generators[model_index]);
         const float desirability = compute_move_desirability_for_low_profile(
           model_index,
           boundary_index,
@@ -149,8 +149,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_low_profile(
     }
 
     // @todo(Project management, later) Desirability can be as high as 2. The [0, 1] interval is a weird choice.
-    if (std::uniform_real_distribution<float>(0, 1)(learning_data.random_generators[model_index]) <= best_desirability) {
-      learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = best_destination_rank;
+    if (std::uniform_real_distribution<float>(0, 1)(models_being_learned.random_generators[model_index]) <= best_desirability) {
+      models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index] = best_destination_rank;
     }
   }
 }
@@ -184,20 +184,20 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability_for_low
   const unsigned alternative_index,
   Desirability* desirability
 ) {
-  const unsigned current_rank = learning_data.low_profile_ranks[model_index][boundary_index][criterion_index];
-  const float weight = learning_data.weights[model_index][criterion_index];
+  const unsigned current_rank = models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index];
+  const float weight = models_being_learned.weights[model_index][criterion_index];
 
   const unsigned alternative_rank = preprocessed_learning_set.performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = preprocessed_learning_set.assignments[alternative_index];
-  const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(preprocessed_learning_set, learning_data, model_index, alternative_index);
+  const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(preprocessed_learning_set, models_being_learned, model_index, alternative_index);
 
   // @todo(Project management, later) Factorize with get_assignment
   // (Same remark in accuracy-heuristic-on-gpu.cu)
   float accepted_weight = 0;
   // There is a 'criterion_index' parameter above, *and* a local 'crit_index' just here
   for (unsigned crit_index = 0; crit_index != preprocessed_learning_set.criteria_count; ++crit_index) {
-    if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, crit_index, alternative_index)) {
-      accepted_weight += learning_data.weights[model_index][crit_index];
+    if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, models_being_learned, model_index, boundary_index, crit_index, alternative_index)) {
+      accepted_weight += models_being_learned.weights[model_index][crit_index];
     }
   }
 
@@ -314,14 +314,14 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_high_profile(
   assert(preprocessed_learning_set.single_peaked[criterion_index]);
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]] == lowest_destination_rank);
+    assert(models_being_learned.high_profile_ranks[model_index][boundary_index][models_being_learned.high_profile_rank_indexes[criterion_index]] == lowest_destination_rank);
   } else {
-    unsigned best_destination_rank = learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]];
+    unsigned best_destination_rank = models_being_learned.high_profile_ranks[model_index][boundary_index][models_being_learned.high_profile_rank_indexes[criterion_index]];
     float best_desirability = Desirability().value();
 
     if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
       for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(learning_data.random_generators[model_index]);
+        const unsigned destination_rank = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(models_being_learned.random_generators[model_index]);
         const float desirability = compute_move_desirability_for_high_profile(
           model_index,
           boundary_index,
@@ -346,8 +346,8 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::improve_high_profile(
       }
     }
 
-    if (std::uniform_real_distribution<float>(0, 1)(learning_data.random_generators[model_index]) <= best_desirability) {
-      learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]] = best_destination_rank;
+    if (std::uniform_real_distribution<float>(0, 1)(models_being_learned.random_generators[model_index]) <= best_desirability) {
+      models_being_learned.high_profile_ranks[model_index][boundary_index][models_being_learned.high_profile_rank_indexes[criterion_index]] = best_destination_rank;
     }
   }
 }
@@ -382,18 +382,18 @@ void ImproveProfilesWithAccuracyHeuristicOnCpu::update_move_desirability_for_hig
   Desirability* desirability
 ) {
   assert(preprocessed_learning_set.single_peaked[criterion_index]);
-  const unsigned current_rank = learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]];
-  const float weight = learning_data.weights[model_index][criterion_index];
+  const unsigned current_rank = models_being_learned.high_profile_ranks[model_index][boundary_index][models_being_learned.high_profile_rank_indexes[criterion_index]];
+  const float weight = models_being_learned.weights[model_index][criterion_index];
 
   const unsigned alternative_rank = preprocessed_learning_set.performance_ranks[criterion_index][alternative_index];
   const unsigned learning_assignment = preprocessed_learning_set.assignments[alternative_index];
-  const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(preprocessed_learning_set, learning_data, model_index, alternative_index);
+  const unsigned model_assignment = LearnMrsortByWeightsProfilesBreed::get_assignment(preprocessed_learning_set, models_being_learned, model_index, alternative_index);
 
   float accepted_weight = 0;
   // There is a 'criterion_index' parameter above, *and* a local 'crit_index' just here
   for (unsigned crit_index = 0; crit_index != preprocessed_learning_set.criteria_count; ++crit_index) {
-    if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, crit_index, alternative_index)) {
-      accepted_weight += learning_data.weights[model_index][crit_index];
+    if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, models_being_learned, model_index, boundary_index, crit_index, alternative_index)) {
+      accepted_weight += models_being_learned.weights[model_index][crit_index];
     }
   }
 

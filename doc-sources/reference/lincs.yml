@@ -326,7 +326,7 @@ children:
       children:
         - name: __init__
         - name: perform
-    - name: PreProcessedLearningSet
+    - name: PreprocessedLearningSet
       children:
         - name: __init__
         - name: criteria_count
@@ -348,7 +348,7 @@ children:
     - name: LearnMrsortByWeightsProfilesBreed
       children:
         - name: __init__
-        - name: LearningData
+        - name: ModelsBeingLearned
           children:
             - name: __init__
             - name: models_count

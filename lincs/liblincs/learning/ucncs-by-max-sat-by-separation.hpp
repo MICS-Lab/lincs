@@ -44,7 +44,7 @@ class MaxSatSeparationUcncsLearning {
   const Problem& input_problem;
   const Alternatives& input_learning_set;
   #endif
-  PreProcessedLearningSet learning_set;
+  PreprocessedLearningSet learning_set;
   const typename MaxSatProblem::weight_type subgoal_weight;
   const typename MaxSatProblem::weight_type goal_weight;
   // See more comments in 'ucncs-by-sat-by-coalitions.hpp' and 'ucncs-by-sat-by-separation.hpp'

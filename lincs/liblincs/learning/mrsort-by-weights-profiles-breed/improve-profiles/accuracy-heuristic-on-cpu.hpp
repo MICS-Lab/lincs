@@ -11,10 +11,10 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(const PreProcessedLearningSet& preprocessed_learning_set_, LearningData& learning_data_) :
+  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(const PreprocessedLearningSet& preprocessed_learning_set_, ModelsBeingLearned& models_being_learned_) :
     LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy(true),
     preprocessed_learning_set(preprocessed_learning_set_),
-    learning_data(learning_data_)
+    models_being_learned(models_being_learned_)
   {}
 
  public:
@@ -90,8 +90,8 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
   );
 
  private:
- const PreProcessedLearningSet& preprocessed_learning_set;
-  LearningData& learning_data;
+ const PreprocessedLearningSet& preprocessed_learning_set;
+  ModelsBeingLearned& models_being_learned;
 
   static const unsigned max_destinations_count = 64;
 };

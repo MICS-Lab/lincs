@@ -26,7 +26,7 @@ from liblincs import ClassificationResult
 from liblincs import classify_alternatives
 
 # Learning
-from liblincs import PreProcessedLearningSet
+from liblincs import PreprocessedLearningSet
 
 # Learning - weights-profiles-breed
 from liblincs import LearnMrsortByWeightsProfilesBreed
