@@ -225,7 +225,7 @@ def make_liblincs_extension():
             print("WARNING: 'chrones' was not found, lincs will be compiled without Chrones", file=sys.stderr)
 
     if sys.platform == "linux":
-        extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp"]
+        extra_compile_args["c++"] = ["-std=c++17", "-Werror=switch", "-fopenmp", "-Wall", "-Wextra"]
         extra_compile_args["vendored-c++"] = ["-std=c++17", "-Werror=switch", "-w", "-DQUIET", "-DNBUILD", "-DNCONTRACTS"]
         extra_link_args += ["-fopenmp"]
         libraries += [

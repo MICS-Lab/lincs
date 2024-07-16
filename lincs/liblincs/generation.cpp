@@ -490,10 +490,10 @@ Alternatives generate_uniform_classified_alternatives(
     for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
       profile.push_back(dispatch(
         problem.get_criteria()[criterion_index].get_values(),
-        [&real_values_distributions, &gen, criterion_index](const Criterion::RealValues& values) {
+        [&real_values_distributions, &gen, criterion_index](const Criterion::RealValues&) {
           return Performance(Performance::Real(real_values_distributions[criterion_index](gen)));
         },
-        [&int_values_distributions, &gen, criterion_index](const Criterion::IntegerValues& values) {
+        [&int_values_distributions, &gen, criterion_index](const Criterion::IntegerValues&) {
           return Performance(Performance::Integer(int_values_distributions[criterion_index](gen)));
         },
         [&enum_values_distributions, &gen, criterion_index](const Criterion::EnumeratedValues& values) {

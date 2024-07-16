@@ -15,6 +15,7 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include "../vendored/eval-max-sat/EvalMaxSAT.h"
 #pragma GCC diagnostic pop  // No associated push => restore command-line options
 #undef LOG

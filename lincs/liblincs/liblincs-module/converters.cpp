@@ -37,13 +37,13 @@ void enroll_love_converters(py::module& m) {
   py::class_<Array1D<Host, bool>>(m, "Array1D<Host, bool>")
     .def("__len__", &Array1D<Host, bool>::s0)
     .def("__getitem__", [](const Array1D<Host, bool>& c, unsigned i) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       return c[i];
     })
     .def("__setitem__", [](Array1D<Host, bool>& c, unsigned i, bool v) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       c[i] = v;
@@ -52,13 +52,13 @@ void enroll_love_converters(py::module& m) {
   py::class_<Array1D<Host, unsigned>>(m, "Array1D<Host, unsigned>")
     .def("__len__", &Array1D<Host, unsigned>::s0)
     .def("__getitem__", [](const Array1D<Host, unsigned>& c, unsigned i) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       return c[i];
     })
     .def("__setitem__", [](Array1D<Host, unsigned>& c, unsigned i, unsigned v) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       c[i] = v;
@@ -67,13 +67,13 @@ void enroll_love_converters(py::module& m) {
   py::class_<ArrayView1D<Host, unsigned>>(m, "ArrayView1D<Host, unsigned>")
     .def("__len__", &ArrayView1D<Host, unsigned>::s0)
     .def("__getitem__", [](const ArrayView1D<Host, unsigned>& c, unsigned i) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       return c[i];
     })
     .def("__setitem__", [](ArrayView1D<Host, unsigned>& c, unsigned i, unsigned v) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       c[i] = v;
@@ -82,7 +82,7 @@ void enroll_love_converters(py::module& m) {
   py::class_<Array2D<Host, unsigned>>(m, "Array2D<Host, unsigned>")
     .def("__len__", &Array2D<Host, unsigned>::s1)
     .def("__getitem__", [](const Array2D<Host, unsigned>& c, unsigned i) {
-      if (i < 0 || i >= c.s1()) {
+      if (i >= c.s1()) {
         throw pybind11::index_error();
       }
       return c[i];
@@ -91,7 +91,7 @@ void enroll_love_converters(py::module& m) {
   py::class_<ArrayView2D<Host, unsigned>>(m, "ArrayView2D<Host, unsigned>")
     .def("__len__", &ArrayView2D<Host, unsigned>::s1)
     .def("__getitem__", [](const ArrayView2D<Host, unsigned>& c, unsigned i) {
-      if (i < 0 || i >= c.s1()) {
+      if (i >= c.s1()) {
         throw pybind11::index_error();
       }
       return c[i];
@@ -100,7 +100,7 @@ void enroll_love_converters(py::module& m) {
   py::class_<Array3D<Host, unsigned>>(m, "Array3D<Host, unsigned>")
     .def("__len__", &Array3D<Host, unsigned>::s2)
     .def("__getitem__", [](const Array3D<Host, unsigned>& c, unsigned i) {
-      if (i < 0 || i >= c.s2()) {
+      if (i >= c.s2()) {
         throw pybind11::index_error();
       }
       return c[i];
@@ -109,13 +109,13 @@ void enroll_love_converters(py::module& m) {
   py::class_<ArrayView1D<Host, float>>(m, "ArrayView1D<Host, float>")
     .def("__len__", &ArrayView1D<Host, float>::s0)
     .def("__getitem__", [](const ArrayView1D<Host, float>& c, unsigned i) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       return c[i];
     })
     .def("__setitem__", [](ArrayView1D<Host, float>& c, unsigned i, float v) {
-      if (i < 0 || i >= c.s0()) {
+      if (i >= c.s0()) {
         throw pybind11::index_error();
       }
       c[i] = v;
@@ -124,7 +124,7 @@ void enroll_love_converters(py::module& m) {
   py::class_<Array2D<Host, float>>(m, "Array2D<Host, float>")
     .def("__len__", &Array2D<Host, float>::s1)
     .def("__getitem__", [](const Array2D<Host, float>& c, unsigned i) {
-      if (i < 0 || i >= c.s1()) {
+      if (i >= c.s1()) {
         throw pybind11::index_error();
       }
       return c[i];
