@@ -59,12 +59,7 @@ jobs:
             tar xf boost_*.tar.gz
             rm boost_*.tar.gz
             cd boost_*
-            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
-            ./bootstrap.sh
-            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage
             sudo cp -r boost /usr/local/include
-            sudo cp -r stage/lib/* /usr/local/lib
-            sudo ldconfig
       - name: Install OR-Tools
         run: |
             cd /home/runner/work
@@ -159,12 +154,8 @@ jobs:
             rm boost_*.tar.gz
             mv boost_* boost
             cd boost
-            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
-            ./bootstrap.bat
-            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage || true
             mkdir -p /d/lincs-deps/include /d/lincs-deps/lib
             cp -r boost /d/lincs-deps/include
-            cp -r stage/lib/* /d/lincs-deps/lib
       - name: Install OR-Tools
         shell: msys2 {0}
         run: |
@@ -235,11 +226,7 @@ jobs:
             tar xf boost_*.tar.gz
             rm boost_*.tar.gz
             cd boost_*
-            echo "using python : ${{ matrix.python_version }} ;" >tools/build/src/user-config.jam
-            ./bootstrap.sh
-            ./b2 --with-python python=${{ matrix.python_version }} link=shared variant=release stage
             sudo cp -r boost /usr/local/include
-            sudo cp -r stage/lib/* /usr/local/lib
       - name: Install OR-Tools
         run: |
             cd /Users/runner/work
