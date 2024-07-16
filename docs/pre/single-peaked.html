@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Single-peaked criteria &#8212; lincs 2.0.0a2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f4a7b39e"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="prev" title="The Python API" href="python-api.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="single-peaked-criteria">
+<h1>Single-peaked criteria<a class="headerlink" href="#single-peaked-criteria" title="Permalink to this heading">¶</a></h1>
+<p>Single-peaked criteria are criteria where intermediate values are preferred to extreme values.
+This is the case <em>e.g.</em> when corelating a patient’s blood pressure to their global health status:
+low blood pressure is bad, high blood pressure is bad, and intermediate values are good.
+This kind of criterion does not fit well with the NCS models defined in our <a class="reference internal" href="conceptual-overview.html#overview-ncs"><span class="std std-ref">conceptual overview</span></a>:
+these models have a single lower profile for each category, which assume that criteria have monotonous preference direction.</p>
+<p>It is however possible to generalize this definition in a way that fits both cases cleanly.</p>
+<p>This document describes this formalism and how it’s put into action in <em>lincs</em>.
+It is organized like our whole user documentation, but focusing on single-peaked criteria.
+It assumes you’ve read out <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a>.</p>
+<p>Depending on your preferred learning style, you can start with the “Conceptual overview” section below,
+or jump directly to the more hands-on sections below it, that build on our <a class="reference internal" href="user-guide.html"><span class="doc">user guide</span></a>.</p>
+<section id="conceptual-overview">
+<h2>Conceptual overview<a class="headerlink" href="#conceptual-overview" title="Permalink to this heading">¶</a></h2>
+<p>This section builds on our <a class="reference internal" href="conceptual-overview.html"><span class="doc">conceptual overview documentation</span></a>.</p>
+<p>We define “generalized NCS model” in this section, but later, we’ll simply refer to them as “NCS models”.
+In any context involving single-peaked criteria, it’s understood that “NCS model” means “generalized NCS model”.</p>
+<div class="admonition-formal-definition admonition">
+<p class="admonition-title">Formal definition</p>
+<p>A generalized NCS model is a parametric function from <span class="math notranslate nohighlight">\(X\)</span> to <span class="math notranslate nohighlight">\([0..p)\)</span> defined by the following parameters:</p>
+<ul class="simple">
+<li><p>for each category but the first, <em>i.e.</em> for <span class="math notranslate nohighlight">\(C^h\)</span> for <span class="math notranslate nohighlight">\(h \in [1..p)\)</span>:</p>
+<ul>
+<li><p>the set of performance values it accepts on each criterion <span class="math notranslate nohighlight">\(\mathcal{B}^h_i \subseteq X_i\)</span> for <span class="math notranslate nohighlight">\(i \in [0..n)\)</span></p></li>
+<li><p>its sufficient coalitions <span class="math notranslate nohighlight">\(\mathcal{F}^h \subseteq \mathcal{P}([0..n))\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p>With the following constraints:</p>
+<ul class="simple">
+<li><p>the set of performance must be imbricated: <span class="math notranslate nohighlight">\(\mathcal{B}^h_i \supseteq \mathcal{B}^{h + 1}_i\)</span> for each category <span class="math notranslate nohighlight">\(h \in [1..p-1)\)</span> and each criterion <span class="math notranslate nohighlight">\(i \in [0..n)\)</span></p></li>
+<li><p>each category’s set of sufficient coalitions <span class="math notranslate nohighlight">\(\mathcal{F}^h\)</span> must be up-closed by inclusion: if <span class="math notranslate nohighlight">\(S \in \mathcal{F}^h\)</span> and <span class="math notranslate nohighlight">\(S \subset T \in \mathcal{P}([0..n))\)</span>, then <span class="math notranslate nohighlight">\(T \in \mathcal{F}^h\)</span></p></li>
+<li><p>sufficient coalitions must be imbricated: <span class="math notranslate nohighlight">\(\mathcal{F}^1 \supseteq ... \supseteq \mathcal{F}^{p-1}\)</span></p></li>
+</ul>
+<p>This generalized NCS model assigns an alternative <span class="math notranslate nohighlight">\(x = (x_0, ..., x_{n-1}) \in X\)</span> to the best category <span class="math notranslate nohighlight">\(C^h\)</span>
+such that the criteria on which <span class="math notranslate nohighlight">\(x\)</span> has performances in that category’s accepted values are sufficient,
+defaulting to the worst category (<span class="math notranslate nohighlight">\(C^0\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[f: x \mapsto \max (\{0\} \cup \{ h \in [1..p): \{ i \in [0..n): x_i \in \mathcal{B}^h_i \} \in \mathcal{F}^h \})\]</div>
+</div>
+<p>This definition is equivalent to the previous one when <span class="math notranslate nohighlight">\(\mathcal{B}^h_i = \{x_i : x_i \in X_i \land b_i \preccurlyeq_i x_i\}\)</span>
+where <span class="math notranslate nohighlight">\(b_i\)</span> is the lower threshold.</p>
+<p>It also specializes nicely for single-peaked criteria, where the accepted values are imbricated intervals:
+<span class="math notranslate nohighlight">\(\mathcal{B}^h_i = \{x_i : x_i \in X_i \land b_i \preccurlyeq_i x_i \preccurlyeq_i B_i\}\)</span>
+where <span class="math notranslate nohighlight">\(b_i\)</span> is the lower bound of the interval and <span class="math notranslate nohighlight">\(B_i\)</span> is its higher bound.</p>
+</section>
+<section id="in-the-problem-file-format">
+<h2>In the problem file format<a class="headerlink" href="#in-the-problem-file-format" title="Permalink to this heading">¶</a></h2>
+<p>In the problem file format, single-peaked criteria are described with:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 1</span>
+<span class="w">  </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">  </span><span class="nt">preference_direction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">single-peaked</span>
+<span class="w">  </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+<span class="w">  </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20.5</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">single-peaked</span></code> <code class="docutils literal notranslate"><span class="pre">preference_direction</span></code> is only allowed for criteria with <code class="docutils literal notranslate"><span class="pre">real</span></code> or <code class="docutils literal notranslate"><span class="pre">integer</span></code> <code class="docutils literal notranslate"><span class="pre">value_type</span></code>.
+Enumerated criteria are monotonous by design, as their values are ordered.</p>
+</section>
+<section id="in-the-model-file-format">
+<h2>In the model file format<a class="headerlink" href="#in-the-model-file-format" title="Permalink to this heading">¶</a></h2>
+<p>In <em>lincs</em>, the model file format is designed to allow any kind of description for the accepted values.
+Currently, two kinds are supported: <code class="docutils literal notranslate"><span class="pre">thresholds</span></code> and <code class="docutils literal notranslate"><span class="pre">intervals</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">thresholds</span></code> correspond to the less generic definition, where criteria are monotonous.
+For such a criterion, the model files contains the list of the <span class="math notranslate nohighlight">\(b^h_i\)</span> for <span class="math notranslate nohighlight">\(h \in [1..p-1)\)</span>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">6.09463787</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">19.7704506</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>For single-peaked criteria, the sets of accepted values are imbricated intervals.
+In the model file, they are described like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intervals</span>
+<span class="w">    </span><span class="nt">intervals</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[[</span><span class="nv">20</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">80</span><span class="p p-Indicator">],</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">40</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">60</span><span class="p p-Indicator">]]</span>
+</pre></div>
+</div>
+</section>
+<section id="using-the-command-line">
+<h2>Using the command line<a class="headerlink" href="#using-the-command-line" title="Permalink to this heading">¶</a></h2>
+<p>The only differences when using the command-line with single-peaked criteria are:</p>
+<ul class="simple">
+<li><p>you need to supply the <code class="docutils literal notranslate"><span class="pre">--allow-single-peaked-criteria</span></code> option to <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">generate</span> <span class="pre">classification-problem</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span>&#160; <span class="pre">classification-problem</span></code> fails with an informative message and a link to <a class="reference external" href="https://github.com/MICS-Lab/lincs/discussions/21">this discussion</a>.</p></li>
+</ul>
+<p>I encourage you to follow our <a class="reference internal" href="get-started.html"><span class="doc">“Get started” guide</span></a> again, with <code class="docutils literal notranslate"><span class="pre">--allow-single-peaked-criteria</span></code>.
+Note that you may need to generate several problems before getting one with an actual single-peaked criterion, due to the random generation.</p>
+</section>
+<section id="using-the-python-api">
+<h2>Using the Python API<a class="headerlink" href="#using-the-python-api" title="Permalink to this heading">¶</a></h2>
+<p>This section builds on our <a class="reference internal" href="python-api.html"><span class="doc">Python API guide</span></a>.</p>
+<p><cite>lc.generate_problem</cite> accepts a <code class="docutils literal notranslate"><span class="pre">allowed_preference_directions</span></code> parameter, a list of <code class="docutils literal notranslate"><span class="pre">lc.Criterion.PreferenceDirection``s.</span>
+<span class="pre">To</span> <span class="pre">generate</span> <span class="pre">a</span> <span class="pre">problem</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">single-peaked</span> <span class="pre">criterion,</span> <span class="pre">you</span> <span class="pre">must</span> <span class="pre">add</span> <span class="pre">``lc.Criterion.PreferenceDirection.single_peaked</span></code> to this list.</p>
+<p>When creating a problem manually, you can specify a criterion as taking <code class="docutils literal notranslate"><span class="pre">lc.Criterion.IntegerValues(lc.Criterion.PreferenceDirection.single_peaked,</span> <span class="pre">0,</span> <span class="pre">100)</span></code>.</p>
+<p>When creating a model manually, the accepted values for such a criterion must look like <code class="docutils literal notranslate"><span class="pre">lc.AcceptedValues.IntegerIntervals([[20,</span> <span class="pre">80],</span> <span class="pre">[40,</span> <span class="pre">60]])</span></code>.</p>
+<p>When creating your own strategies, if you want them to support single-peaked criteria,
+you need to call the base strategy class’ constructor with <code class="docutils literal notranslate"><span class="pre">supports_single_peaked_criteria=True</span></code>.
+If you don’t, the learning will throw an exception before it begins.</p>
+<p>You can then use <code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned.high_profile_ranks</span></code>,
+but only for criteria that have a <code class="docutils literal notranslate"><span class="pre">True</span></code> value for <code class="docutils literal notranslate"><span class="pre">PreprocessedLearningSet.single_peaked</span></code>.</p>
+<p>Note that this attribute is indexed with an additional indirection to avoid allocating unused data:
+it’s only allocated for actual single-peaked criteria and must be accessed as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">preprocessed_learning_set</span><span class="o">.</span><span class="n">single_peaked</span><span class="p">[</span><span class="n">criterion_index</span><span class="p">]</span>
+<span class="n">high_profile_rank_index</span> <span class="o">=</span> <span class="n">models_being_learned</span><span class="o">.</span><span class="n">high_profile_rank_indexes</span><span class="p">[</span><span class="n">criterion_index</span><span class="p">]</span>
+<span class="n">models_being_learned</span><span class="o">.</span><span class="n">high_profile_ranks</span><span class="p">[</span><span class="n">model_index</span><span class="p">][</span><span class="n">boundary_index</span><span class="p">][</span><span class="n">high_profile_rank_index</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">lincs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-started.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Single-peaked criteria</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conceptual-overview">Conceptual overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#in-the-problem-file-format">In the problem file format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#in-the-model-file-format">In the model file format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-command-line">Using the command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-python-api">Using the Python API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="python-api.html" title="previous chapter">The Python API</a></li>
+      <li>Next: <a href="reference.html" title="next chapter">Reference</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;Copyright 2023-2024 Vincent Jacques.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/single-peaked.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

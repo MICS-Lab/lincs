@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Get started &#8212; lincs 2.0.0a2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f4a7b39e"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User Guide" href="user-guide.html" />
+    <link rel="prev" title="Conceptual overview" href="conceptual-overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="get-started">
+<h1>Get started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h1>
+<section id="get-lincs">
+<h2>Get <em>lincs</em><a class="headerlink" href="#get-lincs" title="Permalink to this heading">¶</a></h2>
+<p>We provide binary wheels for <em>lincs</em> on Linux, Windows and macOS for x86_64 processors,
+so running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lincs</span> <span class="pre">--only-binary</span> <span class="pre">lincs</span></code> should be enough on those systems.</p>
+<p>We generally recommend you use <code class="docutils literal notranslate"><span class="pre">pip</span></code> in a virtual environment (<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">venv</span></code>) or directly <code class="docutils literal notranslate"><span class="pre">pipx</span></code> to install any package, including <em>lincs</em>.
+Recent Ubuntu systems will even enforce that, by <a class="reference external" href="https://itsfoss.com/externally-managed-environment/">refusing to install PyPI packages</a> in the “externally managed” default environment.</p>
+<p>Alternatively, you can use our <a class="reference external" href="https://hub.docker.com/repository/docker/jacquev6/lincs">Docker image</a> (<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">--rm</span> <span class="pre">-it</span> <span class="pre">jacquev6/lincs:latest</span></code>) and run the commands below in there.</p>
+<p>If you’re on a platform for which we don’t make wheels and our Docker image doesn’t cover your needs, you’ll have to build <em>lincs</em> from sources.
+We don’t recommend you do that, because it can be a lot of work.
+If you really want to go that route, you may want to start by reading the <a class="reference external" href="https://github.com/MICS-Lab/lincs/blob/main/.github/workflows/distribute-release.yml">GitHub Actions workflow</a> we use to build the binary wheels.
+You’ll probably start by trying <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lincs</span></code>, see what dependencies are missing, install them and iterate from there.
+If you end up modifying <em>lincs</em> to make it work on your platform, we kindly ask you to contribute your changes back to the project.</p>
+</section>
+<section id="start-using-lincs-command-line-interface">
+<span id="start-command-line"></span><h2>Start using <em>lincs</em>’ command-line interface<a class="headerlink" href="#start-using-lincs-command-line-interface" title="Permalink to this heading">¶</a></h2>
+<p>Even if you plan to use <em>lincs</em> mainly through its Python API, we do recommend you go through this section first.
+It will make it easier for you when you go through our <a class="reference internal" href="python-api.html"><span class="doc">Python API guide</span></a>.</p>
+<p>If you’re a Jupyter user, you can <a class="reference external" href="get-started.ipynb">download the notebook</a> this section is based on.</p>
+<p>The command-line interface is the easiest way to get started with <em>lincs</em>, starting with <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">--help</span></code>, which should output something like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: lincs [OPTIONS] COMMAND [ARGS]...
+
+  lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for
+  training and using MCDA models.
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  classification-accuracy  Compute a classification accuracy.
+  classify                 Classify alternatives.
+  describe                 Provide human-readable descriptions.
+  generate                 Generate synthetic data.
+  info                     Get information about lincs itself.
+  learn                    Learn a model.
+  visualize                Make graphs from data.
+</pre></div>
+</div>
+<p>It’s organized into sub-commands, the first one being <code class="docutils literal notranslate"><span class="pre">generate</span></code>, to generate synthetic pseudo-random data.</p>
+<p><em>lincs</em> is designed to handle real-world data, but it’s often easier to start with synthetic data to get familiar with the tooling and required file formats.
+Synthetic data is described in our <a class="reference internal" href="conceptual-overview.html#overview-synthetic-data"><span class="std std-ref">conceptual overview documentation</span></a>.</p>
+<p>So, start by generating a classification problem with 4 criteria and 3 categories:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-problem<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span><span class="w"> </span>--output-problem<span class="w"> </span>problem.yml
+</pre></div>
+</div>
+<p>The generated <code class="docutils literal notranslate"><span class="pre">problem.yml</span></code> should look like:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 2.0.0a2): lincs generate classification-problem 4 3 --random-seed 40</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">classification-problem</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">criteria</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 1</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">preference_direction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">increasing</span>
+<span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 2</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">preference_direction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">increasing</span>
+<span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 3</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">preference_direction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">increasing</span>
+<span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Criterion 4</span>
+<span class="w">    </span><span class="nt">value_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">real</span>
+<span class="w">    </span><span class="nt">preference_direction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">increasing</span>
+<span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">ordered_categories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Worst category</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Intermediate category 1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Best category</span>
+</pre></div>
+</div>
+<p>You can edit this file to change the criteria names, the number of categories, <em>etc.</em> as long as you keep the same format.
+That format is explained in details in our <a class="reference internal" href="user-guide.html#user-file-problem"><span class="std std-ref">user guide</span></a>.
+The concept of “classification problem” is described in our <a class="reference internal" href="conceptual-overview.html#overview-about-classification"><span class="std std-ref">conceptual overview documentation</span></a>.
+Note that to keep this “Get Started” simple, we only consider the most basic kind of criteria: real-valued,
+with normalized minimal and maximal values, and increasing preference direction.
+There are many other kinds of criteria, and you can read about them in our user guide.</p>
+<p>If you want a human-readable explanation of the problem, you can use:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>describe<span class="w"> </span>classification-problem<span class="w"> </span>problem.yml
+</pre></div>
+</div>
+<p>It will tell you something like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This a classification problem into 3 ordered categories named &quot;Worst category&quot;, &quot;Intermediate category 1&quot; and &quot;Best category&quot;.
+The best category is &quot;Best category&quot; and the worst category is &quot;Worst category&quot;.
+There are 4 classification criteria (in no particular order).
+Criterion &quot;Criterion 1&quot; takes real values between 0.0 and 1.0 included.
+Higher values of &quot;Criterion 1&quot; are known to be better.
+Criterion &quot;Criterion 2&quot; takes real values between 0.0 and 1.0 included.
+Higher values of &quot;Criterion 2&quot; are known to be better.
+Criterion &quot;Criterion 3&quot; takes real values between 0.0 and 1.0 included.
+Higher values of &quot;Criterion 3&quot; are known to be better.
+Criterion &quot;Criterion 4&quot; takes real values between 0.0 and 1.0 included.
+Higher values of &quot;Criterion 4&quot; are known to be better.
+</pre></div>
+</div>
+<p>Then generate an NCS classification model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>--output-model<span class="w"> </span>model.yml
+</pre></div>
+</div>
+<p>It should look like:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 2.0.0a2): lincs generate classification-model problem.yml --random-seed 41 --model-type mrsort</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.255905151</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.676961303</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0551739037</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.324553937</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.162252158</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.673279881</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0526000932</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.598555863</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.147771254</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.618687689</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.406786472</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.0960085914</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
+</pre></div>
+</div>
+<p>The file format, including the <code class="docutils literal notranslate"><span class="pre">*coalitions</span></code> YAML reference, is documented in our <a class="reference internal" href="user-guide.html#user-file-ncs-model"><span class="std std-ref">user guide</span></a>.</p>
+<p>You can visualize it using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>model.yml<span class="w"> </span>model.png
+</pre></div>
+</div>
+<p>It should output something like:</p>
+<img alt="Model visualization" class="align-center" src="_images/model.png" />
+<p>The model format is quite generic to ensure <em>lincs</em> can evolve to handle future models,
+so you may want to get a human-readable description of a model, including wether it’s an MR-Sort or Uc-NCS model, using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>describe<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>model.yml
+</pre></div>
+</div>
+<p>It should output something like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries.
+The weights associated to each criterion are:
+  - Criterion &quot;Criterion 1&quot;: 0.15
+  - Criterion &quot;Criterion 2&quot;: 0.62
+  - Criterion &quot;Criterion 3&quot;: 0.41
+  - Criterion &quot;Criterion 4&quot;: 0.10
+To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:
+  - For category &quot;Intermediate category 1&quot;: at least 0.26 on criterion &quot;Criterion 1&quot;, at least 0.06 on criterion &quot;Criterion 2&quot;, at least 0.16 on criterion &quot;Criterion 3&quot;, and at least 0.05 on criterion &quot;Criterion 4&quot;
+  - For category &quot;Best category&quot;: at least 0.68 on criterion &quot;Criterion 1&quot;, at least 0.32 on criterion &quot;Criterion 2&quot;, at least 0.67 on criterion &quot;Criterion 3&quot;, and at least 0.60 on criterion &quot;Criterion 4&quot;
+</pre></div>
+</div>
+<p>And finally generate a set of classified alternatives:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classified-alternatives<span class="w"> </span>problem.yml<span class="w"> </span>model.yml<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--output-alternatives<span class="w"> </span>learning-set.csv
+</pre></div>
+</div>
+<p>The file format is documented in our <a class="reference internal" href="reference.html#ref-file-alternatives"><span class="std std-ref">reference documentation</span></a>.</p>
+<p>It should start with something like this, and contain 1000 alternatives:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Reproduction command (with lincs version 2.0.0a2): lincs generate classified-alternatives problem.yml model.yml 1000 --random-seed 42 --misclassified-count 0
+name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,&quot;Criterion 4&quot;,category
+&quot;Alternative 1&quot;,0.37454012,0.796543002,0.95071429,0.183434784,&quot;Best category&quot;
+&quot;Alternative 2&quot;,0.731993914,0.779690981,0.598658502,0.596850157,&quot;Intermediate category 1&quot;
+&quot;Alternative 3&quot;,0.156018645,0.445832759,0.15599452,0.0999749228,&quot;Worst category&quot;
+&quot;Alternative 4&quot;,0.0580836125,0.4592489,0.866176128,0.333708614,&quot;Best category&quot;
+&quot;Alternative 5&quot;,0.601114988,0.14286682,0.708072603,0.650888503,&quot;Intermediate category 1&quot;
+</pre></div>
+</div>
+<p>You can visualize its first five alternatives using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>model.yml<span class="w"> </span>--alternatives<span class="w"> </span>learning-set.csv<span class="w"> </span>--alternatives-count<span class="w"> </span><span class="m">5</span><span class="w"> </span>alternatives.png
+</pre></div>
+</div>
+<p>It should output something like:</p>
+<img alt="Alternatives visualization" class="align-center" src="_images/alternatives.png" />
+<p>You now have a (synthetic) learning set. You can use it to train a new model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span>problem.yml<span class="w"> </span>learning-set.csv<span class="w"> </span>--output-model<span class="w"> </span>trained-model.yml
+</pre></div>
+</div>
+<p>The trained model has the same structure as the original (synthetic) model because they are both MR-Sort models for the same problem.
+The learning set doesn’t contain all the information from the original model,
+and the trained model was reconstituted from this partial information,
+so it is numerically different:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 2.0.0a2): lincs learn classification-model problem.yml learning-set.csv --model-type mrsort --mrsort.strategy weights-profiles-breed --mrsort.weights-profiles-breed.models-count 9 --mrsort.weights-profiles-breed.accuracy-heuristic.random-seed 43 --mrsort.weights-profiles-breed.initialization-strategy maximize-discrimination-per-criterion --mrsort.weights-profiles-breed.weights-strategy linear-program --mrsort.weights-profiles-breed.linear-program.solver glop --mrsort.weights-profiles-breed.profiles-strategy accuracy-heuristic --mrsort.weights-profiles-breed.accuracy-heuristic.processor cpu --mrsort.weights-profiles-breed.breed-strategy reinitialize-least-accurate --mrsort.weights-profiles-breed.reinitialize-least-accurate.portion 0.5 --mrsort.weights-profiles-breed.target-accuracy 1.0</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
+<span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">accepted_values</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.339874953</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.421424538</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0556534864</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.326433569</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.162616938</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.67343241</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">thresholds</span>
+<span class="w">    </span><span class="nt">thresholds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.0878681168</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.252649099</span><span class="p p-Indicator">]</span>
+<span class="nt">sufficient_coalitions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;coalitions</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weights</span>
+<span class="w">    </span><span class="nt">criterion_weights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.01327896e-06</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.999998987</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nv">*coalitions</span>
+</pre></div>
+</div>
+<p>If the training is effective, the resulting trained model should however behave closely to the original one.
+To see how close a trained model is to the original one, you can reclassify a testing set.</p>
+<p>First, generate a testing set from the original model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classified-alternatives<span class="w"> </span>problem.yml<span class="w"> </span>model.yml<span class="w"> </span><span class="m">3000</span><span class="w"> </span>--output-alternatives<span class="w"> </span>testing-set.csv
+</pre></div>
+</div>
+<p>Then ask the trained model to classify it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>classify<span class="w"> </span>problem.yml<span class="w"> </span>trained-model.yml<span class="w"> </span>testing-set.csv<span class="w"> </span>--output-alternatives<span class="w"> </span>reclassified-testing-set.csv
+</pre></div>
+</div>
+<p>There are a few differences between the original testing set and the reclassified one:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>diff<span class="w"> </span>testing-set.csv<span class="w"> </span>reclassified-testing-set.csv
+</pre></div>
+</div>
+<p>That command should show a few alternatives that are not classified the same way by the original and the trained model:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>522c522
+<span class="gd">&lt; &quot;Alternative 520&quot;,0.617141366,0.326259822,0.901315808,0.460642993,&quot;Best category&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 520&quot;,0.617141366,0.326259822,0.901315808,0.460642993,&quot;Intermediate category 1&quot;</span>
+615c615
+<span class="gd">&lt; &quot;Alternative 613&quot;,0.547554553,0.0552174859,0.690436542,0.511019647,&quot;Intermediate category 1&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 613&quot;,0.547554553,0.0552174859,0.690436542,0.511019647,&quot;Worst category&quot;</span>
+2596c2596
+<span class="gd">&lt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Intermediate category 1&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 2594&quot;,0.234433308,0.780464768,0.162389532,0.622178912,&quot;Worst category&quot;</span>
+2610c2610
+<span class="gd">&lt; &quot;Alternative 2608&quot;,0.881479025,0.055544015,0.82936728,0.853676081,&quot;Intermediate category 1&quot;</span>
+<span class="gs">---</span>
+<span class="gi">&gt; &quot;Alternative 2608&quot;,0.881479025,0.055544015,0.82936728,0.853676081,&quot;Worst category&quot;</span>
+</pre></div>
+</div>
+<p>You can also measure the classification accuracy of the trained model on that testing set:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>classification-accuracy<span class="w"> </span>problem.yml<span class="w"> </span>trained-model.yml<span class="w"> </span>testing-set.csv
+</pre></div>
+</div>
+<p>It should be close to 100%:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2996/3000
+</pre></div>
+</div>
+</section>
+<section id="what-now">
+<h2>What now?<a class="headerlink" href="#what-now" title="Permalink to this heading">¶</a></h2>
+<p>If you haven’t done so yet, we recommend you now read our <a class="reference internal" href="conceptual-overview.html"><span class="doc">conceptual overview documentation</span></a>.</p>
+<p>Keep in mind that we’ve only demonstrated the default learning approach in this guide.
+See our <a class="reference internal" href="user-guide.html"><span class="doc">user guide</span></a> for more details.</p>
+<p>Once you’re comfortable with the concepts and tooling, you can use a learning set based on real-world data and train a model that you can use to classify new real-world alternatives.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">lincs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#get-lincs">Get <em>lincs</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#start-using-lincs-command-line-interface">Start using <em>lincs</em>’ command-line interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-now">What now?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python-api.html">The Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single-peaked.html">Single-peaked criteria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="conceptual-overview.html" title="previous chapter">Conceptual overview</a></li>
+      <li>Next: <a href="user-guide.html" title="next chapter">User Guide</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;Copyright 2023-2024 Vincent Jacques.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/get-started.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
