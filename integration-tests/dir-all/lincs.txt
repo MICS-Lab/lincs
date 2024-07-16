@@ -174,7 +174,7 @@ lincs: module
             BreedingStrategy: pybind11_type
                 __init__: instancemethod
                 breed: instancemethod
-            LearningData: pybind11_type
+            ModelsBeingLearned: pybind11_type
                 __init__: instancemethod
                 accuracies: property
                 get_best_accuracy: instancemethod
@@ -258,7 +258,7 @@ lincs: module
             is_real: property
             real: property
             value_type: property
-        PreProcessedLearningSet: pybind11_type
+        PreprocessedLearningSet: pybind11_type
             __init__: instancemethod
             alternatives_count: property
             assignments: property

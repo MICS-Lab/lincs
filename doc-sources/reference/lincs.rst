@@ -779,7 +779,7 @@
 
                 Actually perform the learning and return the learned model.
 
-        .. class:: PreProcessedLearningSet
+        .. class:: PreprocessedLearningSet
 
             A representation of a learning set with its data normalized as ranks (unsigned integers).
 
@@ -831,15 +831,15 @@
 
             The approach described in Olivier Sobrie's PhD thesis to learn MR-Sort models.
 
-            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: list[Observer]=[])
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: list[Observer]=[])
 
                 Constructor accepting the strategies to use for each step of the learning.
 
-            .. class:: LearningData
+            .. class:: ModelsBeingLearned
 
                 Data shared by all the strategies used in this learning.
 
-                .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, models_count: int, random_seed: int)
+                .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_count: int, random_seed: int)
 
                     Constructor, allocating but not initializing data about models about to be learned.
 
@@ -956,7 +956,7 @@
 
             The profiles initialization strategy described in Olivier Sobrie's PhD thesis.
 
-            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -968,7 +968,7 @@
 
             The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using AlgLib.
 
-            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -980,7 +980,7 @@
 
             The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using GLOP.
 
-            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -992,7 +992,7 @@
 
             The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CPU.
 
-            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -1004,7 +1004,7 @@
 
             The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CUDA-capable GPU.
 
-            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -1016,7 +1016,7 @@
 
             The breeding strategy described in Olivier Sobrie's PhD thesis: re-initializes ``count`` in-progress models.
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, count: int)
+            .. method:: __init__(models_being_learned: ModelsBeingLearned, profiles_initialization_strategy: ProfilesInitializationStrategy, count: int)
 
                 Constructor. Keeps references to the profiles initialization strategy and the learning data.
 
@@ -1028,7 +1028,7 @@
 
             Termination strategy. Terminates the learning after a given number of iterations.
 
-            .. method:: __init__(learning_data: LearningData, max_iterations_count: int)
+            .. method:: __init__(models_being_learned: ModelsBeingLearned, max_iterations_count: int)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -1040,7 +1040,7 @@
 
             Termination strategy. Terminates the learning after a given number of iterations without progress.
 
-            .. method:: __init__(learning_data: LearningData, max_iterations_count: int)
+            .. method:: __init__(models_being_learned: ModelsBeingLearned, max_iterations_count: int)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -1064,7 +1064,7 @@
 
             Termination strategy. Terminates the learning after a given duration without progress.
 
-            .. method:: __init__(learning_data: LearningData, max_seconds: float)
+            .. method:: __init__(models_being_learned: ModelsBeingLearned, max_seconds: float)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -1076,7 +1076,7 @@
 
             Termination strategy. Terminates the learning when the best model reaches a given accuracy.
 
-            .. method:: __init__(learning_data: LearningData, target_accuracy: int)
+            .. method:: __init__(models_being_learned: ModelsBeingLearned, target_accuracy: int)
 
                 Constructor. Keeps a reference to the learning data.
 
