@@ -9,7 +9,7 @@ Version 2.0.0 (2024-07-XX)
 
 - Support Python 3.12
 
-- Drop support for macOS 11 (`not supported by GitHub Actions anymore <https://github.blog/changelog/2024-05-20-actions-upcoming-changes-to-github-hosted-macos-runners/>_`)
+- Drop support for macOS 11 (`not supported by GitHub Actions anymore <https://github.blog/changelog/2024-05-20-actions-upcoming-changes-to-github-hosted-macos-runners/>`_)
 
 - **Major** Support single-peaked criteria:
     - on the command-line, ``lincs generate classification-problem`` has a new ``--allow-single-peaked-criteria`` option
@@ -22,9 +22,8 @@ Version 2.0.0 (2024-07-XX)
         - **Breaking** Adapt parts of the Python API to support single-peaked criteria
     - *all* the learning approaches work
     - the human-readable output of ``lincs describe`` has changed slightly to accommodate for single-peaked criteria
-    - ``lincs visualize`` fails when called with single-peaked criteria. See this discussion: https://github.com/MICS-Lab/lincs/discussions/21
-
-- **Breaking** Rename ``LearningData.urbgs`` to ``LearningData.random_generators``
+    - ``lincs visualize`` fails when called with single-peaked criteria. See `this discussion <https://github.com/MICS-Lab/lincs/discussions/21>`_
+    - documented in :doc:`our "Single-peaked criteria" guide <single-peaked>`
 
 - **Breaking** Let some thresholds be unreachable (Fix bug found in real-life ASA data)
     - in the Model file format, the last items in a ``thresholds`` or ``intervals`` list can be ``null``
@@ -32,6 +31,8 @@ Version 2.0.0 (2024-07-XX)
     - (there is a runtime check that all are ``null`` after the first ``null``)
 
 - **Breaking** Split ``LearnMrsortByWeightsProfilesBreed.LearningData`` into ``PreprocessedLearningSet`` and ``LearnMrsortByWeightsProfilesBreed.ModelsBeingLearned``
+
+- **Breaking** Rename ``LearningData.urbgs`` to ``ModelsBeingLearned.random_generators``
 
 Version 1.1.0 (2024-02-08)
 ==========================

@@ -951,21 +951,20 @@ problem = lc.Problem(
 learning_set = lc.generate_alternatives(problem, lc.generate_mrsort_model(problem, random_seed=42), alternatives_count=1000, random_seed=43)
 ```
 
-#### `ModelsBeingLearned`
+#### `PreprocessedLearningSet`
 
-First, let's get more familiar with the `ModelsBeingLearned`. You've seen it briefly in the first part of this guide but its purpose might still be quite obscure at this point.
+First, let's get more familiar with `PreprocessedLearningSet` and `ModelsBeingLearned`.
+You've seen them briefly in the first part of this guide but their purpose might still be quite obscure at this point.
 
 
 ```python
 preprocessed_learning_set = lc.PreprocessedLearningSet(problem, learning_set)
-models_being_learned = lc.LearnMrsortByWeightsProfilesBreed.ModelsBeingLearned(preprocessed_learning_set, models_count=9, random_seed=43)
 ```
 
-This object is shared by all strategies. They communicate by changing it, using side effects. It's the state of the WPB algorithm. It contains two families of attributes.
+Learning algorithms don't need to know if a criterion has `integer` or `real` values, or if it has `increasing` or `decreasing` preference direction.
+The `PreprocessedLearningSet` gives them a simplified, unified view in the form of parformance "ranks": for each alternative, on each criterion, it contains the rank of that alternatives performance. This is like having only `increasing` `integer` criteria taking consecuteive values up from zero with no gaps.
 
-##### Input data
-
-The first family of attributes is about the problem and learning set. These attributes never change. First, the counts:
+First, it provides the different counts from the problem and learning set, in a unified way:
 
 
 ```python
@@ -980,8 +979,6 @@ The first family of attributes is about the problem and learning set. These attr
 ```
 
 
-
-The learning set is pre-processed in the `ModelsBeingLearned` so that the WPB algorithm doesn't have to manipulate the different type of criterion values. In the `ModelsBeingLearned`, we keep only the ranks of the performances of each alternative in the learning set. The learning set is also destructured into a few arrays. Here are the attributes that describe this pre-processed learning set:
 
 The number of distinct values actually seen for each criterion (including the min and max values for numerical criteria):
 
@@ -1021,20 +1018,6 @@ For each criterion, the ranks of the performance of each alternative:
 
 The assignment of each alternative, *i.e.* the index of its category:
 
-
-```python
-list(preprocessed_learning_set.assignments)[:10] + ['...']  # Indexed by [alternative_index]
-```
-
-
-
-
-```text
-[2, 2, 2, 0, 1, 1, 1, 2, 2, 0, '...']
-```
-
-
-
 All these attributes are iterable and allow random access through an integer index. They do not support splicing.
 
 
@@ -1051,9 +1034,28 @@ preprocessed_learning_set.assignments[0]
 
 
 
-##### In-progress data
 
-The second family of attributes is about the WPB algorithm itself.
+```python
+list(preprocessed_learning_set.assignments)[:10] + ['...']  # Indexed by [alternative_index]
+```
+
+
+
+
+```text
+[2, 2, 2, 0, 1, 1, 1, 2, 2, 0, '...']
+```
+
+
+
+#### `ModelsBeingLearned`
+
+
+```python
+models_being_learned = lc.LearnMrsortByWeightsProfilesBreed.ModelsBeingLearned(preprocessed_learning_set, models_count=9, random_seed=43)
+```
+
+This object is shared by all strategies. They communicate by changing it, using side effects. It's the state of the WPB algorithm.
 
 The WPB approach operates on several "in progress" models. Their number is constant:
 
@@ -1297,7 +1299,7 @@ models_being_learned.get_best_accuracy()
 
 #### `Observer` strategies
 
-With this hopefully better understanding of `ModelsBeingLearned`, let's write our own `Observer` strategy.
+With this hopefully better understanding of `PreprocessedLearningSet` and `ModelsBeingLearned`, let's write our own `Observer` strategy.
 It's arguably the simplest to starts with, because it's not expected to *change* the `ModelsBeingLearned`, but only *observe* it at some key points of the learning.
 
 To start as simple as possible, lets reproduce the behavior of the `--...-verbose` flag on the command line, by creating an observer that just prints the best accuracy at each step.

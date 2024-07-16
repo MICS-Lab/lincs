@@ -11,11 +11,11 @@ In this document, we denote the interval of integers from :math:`a` to :math:`b 
 Most often, :math:`a` will be zero.
 This choice matches the indexing convention used in the Python and C++ programming languages,
 so our documentation is as close as possible to our implementation.
-For example, :math:`[0..4) = \{0, 1, 2, 3\}`.
+For example, :math:`[0..4)` is :math:`\{0, 1, 2, 3\}`.
 Note that :math:`[0..n)` contains :math:`n` elements.
 
 For a given set :math:`S`, we denote the set of all its subsets (*a.k.a.* its power set) by :math:`\mathcal{P}(S)`.
-For example :math:`\mathcal{P}(\{0, 1, 2\}) = \{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}`.
+For example :math:`\mathcal{P}(\{0, 1, 2\})` is :math:`\{\{\}, \{0\}, \{1\}, \{2\}, \{0, 1\}, \{0, 2\}, \{1, 2\}, \{0, 1, 2\}\}`.
 
 
 .. _overview-about-classification:
@@ -49,6 +49,10 @@ The same vocabulary could apply to triaging patients in an hospital based on vit
 
   In that setting, alternatives are the Cartesian product of the criteria: :math:`X = \prod_{i \in [0..n)} X_i`.
   For a given alternative :math:`x = (x_0, ..., x_{n-1}) \in X`, its performance on criterion :math:`i` is :math:`x_i \in X_i`.
+
+Note that there is no assumption about criteria being numerical.
+And if they happen to be numerical, there is no assumption that their pre-order :math:`\preccurlyeq_i` matches the natural numerical ordering.
+This lets *lincs* support criteria with enumerated values, as well as criteria with numerical values but with a decreasing preference direction.
 
 *lincs* stores and reads information about the classification problem using :ref:`the YAML problem file format <ref-file-problem>`.
 Alternatives are stored and read using :ref:`the CSV alternatives file format <ref-file-alternatives>`.
@@ -122,6 +126,9 @@ The constraints in the definition all ensure NCS models behave according to intu
 - the ordering of profiles ensures consistency with the order on categories
 - the up-closed-ness-by-inclusion(!) of the sufficient coalitions matches the intuition that they are *sufficient* criteria: if a few criteria are sufficient, then more criteria are still sufficient
 - the imbrication of sufficient coalitions matches the intuition that upper categories are more selective than lower ones
+
+This definition does not handle real-life criteria like *e.g.* a patient's blood pressure, where intermediate values are better than extreme values.
+These so-called "single-peaked" criteria are :doc:`supported by *lincs* <single-peaked>` with an extended definition of NCS models.
 
 NCS classification models are stored and read using :ref:`the YAML NCS model file format <ref-file-ncs-model>`.
 

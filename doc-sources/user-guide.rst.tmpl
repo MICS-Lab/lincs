@@ -38,8 +38,6 @@ This list must contain at least one element because classification problems must
 
 Each criterion has a ``name``.
 
-Currently, criteria can only take floating point values, so their ``value_type`` is always ``real``.
-We expect this could evolve to also support criteria with integer or explicitly enumerated values.
 A criterion's ``value_type`` specifies the kind of values it can take: ``real``, ``integer`` or ``enumerated``.
 
 For numerical criteria (*i.e* with ``real`` or ``integer`` ``value_type``),
@@ -47,10 +45,8 @@ the ``preference_direction`` key describe what makes "good values" for this crit
 If it is ``increasing`` (resp. ``decreasing``), then higher (resp. lower) numerical values correspond to upper categories.
 Note that this preference direction comes from expert knowledge about the structure of the problem,
 and will be used as an absolute truth when learning a model for this problem.
-We expect the supported preference directions could evolve to also support single-peaked criteria,
-where intermediate numerical value correspond to upper categories, and extreme values to lower categories.
-We also expect this could evolve to support criteria with unknown preference direction,
-to support the case where no expert knowledge is available and delegate this choice to the learning process.
+It can also be ``single-peaked`` for criteria where intermediate values correspond to upper categories.
+These single-peaked criteria are described in :doc:`their own document <single-peaked>`.
 
 For ``enumerated`` criteria, the ``ordered_values`` key is a list of the values the criterion can take, each one as a string.
 The preference direction is implied in that case: the list must be sorted from the worst value to the best one.
@@ -98,28 +94,29 @@ It must contain exactly as many elements as the ``criteria`` list in the problem
 
 For NCS models as currently defined in our conceptual overview, accepted values are simply above a profile.
 The profile is a list of thresholds, one for each criterion, that separates two categories.
-But this lacks generality, and we expect this could evolve, for example for single-peaked criteria.
+But this lacks generality and does not apply for for single-peaked criteria.
 For such a criterion, the determination of the accepted values will require two limits (upper and lower) instead of just one threshold.
 
 So our file format takes an transposed approach and focusses on criteria instead of profiles:
 for each criterion, it describes the method used to accept values at different category levels.
 
-For current criteria (with ``increasing`` or ``decreasing`` preference direction), the method is always ``kind: thresholds``,
+For criteria with ``increasing`` or ``decreasing`` preference direction, the method is always ``kind: thresholds``,
 and the ``thresholds`` attribute lists the successive values required to enter an upper category.
 It must have as many elements as there are boundaries between categories, *i.e.* as there are categories minus one.
 It's always sorted, in increasing order for ``increasing`` criteria and in decreasing order for ``decreasing`` criteria.
 
-Note that this list is not a profile: it does not describe the limits between categories.
+Note that this list is not a profile: it does not describe the limits between categories, but the consecutive limits related to a given criterion.
 The matrix made of these lists is the transposed of the matrix made of the profiles.
 
-When we support single-peaked criteria or criteria with unknown preference direction,
-we'll introduce other ``kinds`` of accepted values with new attributes instead of ``thresholds``.
+For criteria with ``single-peaked`` preference direction, the method is ``kind: intervals``.
+It's described in details in our :doc:`single-peaked criteria documentation <single-peaked>`.
 
 ==================================  ========================  ==========================
 Criterion ``preference_direction``  Accepted values ``kind``  Accepted values attributes
 ==================================  ========================  ==========================
 ``increasing``                      ``thresholds``            ``thresholds``
 ``decreasing``                      ``thresholds``            ``thresholds``
+``single-peaked``                   ``intervals``             ``intervals``
 ==================================  ========================  ==========================
 
 Sufficient coalitions
@@ -228,15 +225,18 @@ The ``--help`` option on the command-line and our :ref:`reference documentation 
 A set of options selects the ``value_type`` of the criteria in the generated problem.
 By default, they are all ``real``.
 The ``--allow-integer-criteria`` and ``--allow-enumerated-criteria`` options let you generate problems with ``integer`` and ``enumerated`` criteria respectively.
-The ``--forbid-real-criteria``... forbids ``real`` criteria.
+The ``--forbid-real-criteria`` option forbids ``real`` criteria.
 The ``value_type`` of each criterion is chosen pseudo-randomly among the allowed ones.
 
 For numerical criteria, the ``--denormalized-min-max`` option generates problems with pseudo-random ``min_value`` and ``max_value`` for each criterion.
 By default, they are always set at 0 and 1.
 
-For numerical criteria, ``--allow-decreasing-criteria`` chooses pseudo-randomly the ``preference_direction`` of each criterion between ``increasing`` and ``decreasing``.
+Another set of options selects the ``preference_direction`` of the criteria in the generated problem.
 By default, all criteria have ``increasing`` preference direction.
-It can be used in conjunction with ``--forbid-increasing-criteria`` to generate problems with only ``decreasing`` criteria.
+For numerical criteria, ``--allow-decreasing-criteria`` lets you generate problems with ``decreasing`` criteria,
+and ``--allow-single-peaked-criteria`` lets you generate problems with ``single-peaked`` criteria.
+The ``--forbid-increasing-criteria`` option forbids ``increasing`` criteria.
+The ``preference_direction`` of each criterion is chosen pseudo-randomly among the allowed ones.
 
 Generating a model
 ------------------

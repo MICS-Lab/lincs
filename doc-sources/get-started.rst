@@ -209,9 +209,9 @@ And finally generate a set of classified alternatives:
 
 The file format is documented in our :ref:`reference documentation <ref-file-alternatives>`.
 
-@todo(Feature, later) Should we provide utilities to split a set of alternatives into a training set and a testing set?
-Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
-Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
+.. @todo(Feature, later) Should we provide utilities to split a set of alternatives into a training set and a testing set?
+   Currently we suggest generating two sets from a synthetic model, but for real-world data it could be useful to split a single set.
+   Then we'll need to think about the how the ``--max-imbalance`` option interacts with that feature.
 
 It should start with something like this, and contain 1000 alternatives:
 
