@@ -779,11 +779,59 @@
 
                 Actually perform the learning and return the learned model.
 
+        .. class:: PreProcessedLearningSet
+
+            A representation of a learning set with its data normalized as ranks (unsigned integers).
+
+            .. method:: __init__(problem: Problem, learning_set: Alternatives)
+
+                Constructor, pre-processing the learning set into a simpler form for learning.
+
+            .. property:: criteria_count
+                :type: int
+
+                Number of criteria in the :py:class:`Problem`.
+
+            .. property:: categories_count
+                :type: int
+
+                Number of categories in the :py:class:`Problem`.
+
+            .. property:: boundaries_count
+                :type: int
+
+                Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.
+
+            .. property:: alternatives_count
+                :type: int
+
+                Number of alternatives in the ``learning_set``.
+
+            .. property:: single_peaked
+                :type: list[bool]
+
+                Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.
+
+            .. property:: values_counts
+                :type: list[int]
+
+                Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.
+
+            .. property:: performance_ranks
+                :type: list[list[int]]
+
+                Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.
+
+            .. property:: assignments
+                :type: list[int]
+
+                Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.
+
         .. class:: LearnMrsortByWeightsProfilesBreed
 
             The approach described in Olivier Sobrie's PhD thesis to learn MR-Sort models.
 
-            .. method:: __init__(learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: list[Observer]=[])
+            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData, profiles_initialization_strategy: ProfilesInitializationStrategy, weights_optimization_strategy: WeightsOptimizationStrategy, profiles_improvement_strategy: ProfilesImprovementStrategy, breeding_strategy: BreedingStrategy, termination_strategy: TerminationStrategy, observers: list[Observer]=[])
 
                 Constructor accepting the strategies to use for each step of the learning.
 
@@ -791,49 +839,9 @@
 
                 Data shared by all the strategies used in this learning.
 
-                .. method:: __init__(problem: Problem, learning_set: Alternatives, models_count: int, random_seed: int)
+                .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, models_count: int, random_seed: int)
 
-                    Constructor, pre-processing the learning set into a simpler form for strategies.
-
-                .. property:: criteria_count
-                    :type: int
-
-                    Number of criteria in the :py:class:`Problem`.
-
-                .. property:: categories_count
-                    :type: int
-
-                    Number of categories in the :py:class:`Problem`.
-
-                .. property:: boundaries_count
-                    :type: int
-
-                    Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.
-
-                .. property:: alternatives_count
-                    :type: int
-
-                    Number of alternatives in the ``learning_set``.
-
-                .. property:: single_peaked
-                    :type: list[bool]
-
-                    Indexed by ``[criterion_index]``. Whether each criterion is single-peaked or not.
-
-                .. property:: values_counts
-                    :type: list[int]
-
-                    Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.
-
-                .. property:: performance_ranks
-                    :type: list[list[int]]
-
-                    Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.
-
-                .. property:: assignments
-                    :type: list[int]
-
-                    Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.
+                    Constructor, allocating but not initializing data about models about to be learned.
 
                 .. property:: models_count
                     :type: int
@@ -948,7 +956,7 @@
 
             The profiles initialization strategy described in Olivier Sobrie's PhD thesis.
 
-            .. method:: __init__(learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -960,7 +968,7 @@
 
             The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using AlgLib.
 
-            .. method:: __init__(learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -972,7 +980,7 @@
 
             The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using GLOP.
 
-            .. method:: __init__(learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -984,7 +992,7 @@
 
             The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CPU.
 
-            .. method:: __init__(learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
 
                 Constructor. Keeps a reference to the learning data.
 
@@ -996,7 +1004,7 @@
 
             The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CUDA-capable GPU.
 
-            .. method:: __init__(learning_data: LearningData)
+            .. method:: __init__(preprocessed_learning_set: PreProcessedLearningSet, learning_data: LearningData)
 
                 Constructor. Keeps a reference to the learning data.
 

@@ -862,28 +862,29 @@ def classification_model(
             command_line += ["--mrsort.weights-profiles-breed.models-count", mrsort__weights_profiles_breed__models_count]
             command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed", mrsort__weights_profiles_breed__accuracy_heuristic__random_seed]
 
-            learning_data = lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            preprocessed_learning_set = lincs.classification.PreProcessedLearningSet(problem, learning_set)
+            learning_data = lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData(preprocessed_learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             command_line += ["--mrsort.weights-profiles-breed.initialization-strategy", mrsort__weights_profiles_breed__initialization_strategy]
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
-                profiles_initialization_strategy = lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+                profiles_initialization_strategy = lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(preprocessed_learning_set, learning_data)
 
             command_line += ["--mrsort.weights-profiles-breed.weights-strategy", mrsort__weights_profiles_breed__weights_strategy]
             if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
                 command_line += ["--mrsort.weights-profiles-breed.linear-program.solver", mrsort__weights_profiles_breed__linear_program__solver]
                 if mrsort__weights_profiles_breed__linear_program__solver == "glop":
-                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingGlop(learning_data)
+                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingGlop(preprocessed_learning_set, learning_data)
                 elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
-                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingAlglib(learning_data)
+                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingAlglib(preprocessed_learning_set, learning_data)
 
             command_line += ["--mrsort.weights-profiles-breed.profiles-strategy", mrsort__weights_profiles_breed__profiles_strategy]
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
                 command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.processor", mrsort__weights_profiles_breed__accuracy_heuristic__processor]
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
-                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu(preprocessed_learning_set, learning_data)
                 elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
                     assert lincs.has_gpu
-                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
+                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu(preprocessed_learning_set, learning_data)
 
             command_line += ["--mrsort.weights-profiles-breed.breed-strategy", mrsort__weights_profiles_breed__breed_strategy]
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
@@ -944,6 +945,7 @@ def classification_model(
                 observers.append(metadata_observer)
 
             learning = lincs.classification.LearnMrsortByWeightsProfilesBreed(
+                preprocessed_learning_set,
                 learning_data,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,

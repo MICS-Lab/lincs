@@ -26,6 +26,7 @@ class LearnMrsortByWeightsProfilesBreed {
 
  public:
   LearnMrsortByWeightsProfilesBreed(
+    const PreProcessedLearningSet& preprocessed_learning_set_,
     LearningData& learning_data_,
     ProfilesInitializationStrategy& profiles_initialization_strategy_,
     WeightsOptimizationStrategy& weights_optimization_strategy_,
@@ -34,6 +35,7 @@ class LearnMrsortByWeightsProfilesBreed {
     TerminationStrategy& termination_strategy_,
     const std::vector<Observer*>& observers_ = {}
   ) :
+    preprocessed_learning_set(preprocessed_learning_set_),
     learning_data(learning_data_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
     weights_optimization_strategy(weights_optimization_strategy_),
@@ -51,10 +53,11 @@ class LearnMrsortByWeightsProfilesBreed {
   bool is_correctly_assigned(unsigned model_index, unsigned alternative_index);
 
  public:
-  static bool is_accepted(const LearningData&, unsigned model_index, unsigned boundary_index, unsigned criterion_index, unsigned alternative_index);
-  static unsigned get_assignment(const LearningData&, unsigned model_index, unsigned alternative_index);
+  static bool is_accepted(const PreProcessedLearningSet& preprocessed_learning_set, const LearningData&, unsigned model_index, unsigned boundary_index, unsigned criterion_index, unsigned alternative_index);
+  static unsigned get_assignment(const PreProcessedLearningSet& preprocessed_learning_set, const LearningData&, unsigned model_index, unsigned alternative_index);
 
  private:
+  const PreProcessedLearningSet& preprocessed_learning_set;
   LearningData& learning_data;
   ProfilesInitializationStrategy& profiles_initialization_strategy;
   WeightsOptimizationStrategy& weights_optimization_strategy;
@@ -64,7 +67,8 @@ class LearnMrsortByWeightsProfilesBreed {
   std::vector<Observer*> observers;
 };
 
-struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLearningSet {
+struct LearnMrsortByWeightsProfilesBreed::LearningData {
+  const PreProcessedLearningSet& preprocessed_learning_set;
   const unsigned models_count;
   std::vector<std::mt19937> random_generators;  // [model_index]
   unsigned iteration_index;
@@ -77,7 +81,7 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   Array2D<Host, float> weights;  // [model_index][criterion_index]
   // @todo(Performance, later) Add models' ages
 
-  LearningData(const Problem& problem, const Alternatives& learning_set, unsigned models_count, unsigned random_seed);
+  LearningData(const PreProcessedLearningSet& preprocessed_learning_set, unsigned models_count, unsigned random_seed);
 
   unsigned get_best_accuracy() const { return accuracies[model_indexes.back()]; }
   Model get_best_model() const { return get_model(model_indexes.back()); }

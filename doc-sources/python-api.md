@@ -203,10 +203,11 @@ When using the Python API, you have to create these strategies yourself:
 
 
 ```python
-learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
-profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
-profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+preprocessed_learning_set = lc.PreProcessedLearningSet(problem, learning_set)
+learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(preprocessed_learning_set, models_count=9, random_seed=43)
+profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(preprocessed_learning_set, learning_data)
+weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(preprocessed_learning_set, learning_data)
+profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(preprocessed_learning_set, learning_data)
 breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
 termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 ```
@@ -216,6 +217,7 @@ Then create the learning itself:
 
 ```python
 learning = lc.LearnMrsortByWeightsProfilesBreed(
+    preprocessed_learning_set,
     learning_data,
     profiles_initialization_strategy,
     weights_optimization_strategy,
@@ -955,7 +957,8 @@ First, let's get more familiar with the `LearningData`. You've seen it briefly i
 
 
 ```python
-learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
+preprocessed_learning_set = lc.PreProcessedLearningSet(problem, learning_set)
+learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(preprocessed_learning_set, models_count=9, random_seed=43)
 ```
 
 This object is shared by all strategies. They communicate by changing it, using side effects. It's the state of the WPB algorithm. It contains two families of attributes.
@@ -966,7 +969,7 @@ The first family of attributes is about the problem and learning set. These attr
 
 
 ```python
-(learning_data.criteria_count, learning_data.categories_count, learning_data.boundaries_count, learning_data.alternatives_count)
+(preprocessed_learning_set.criteria_count, preprocessed_learning_set.categories_count, preprocessed_learning_set.boundaries_count, preprocessed_learning_set.alternatives_count)
 ```
 
 
@@ -984,7 +987,7 @@ The number of distinct values actually seen for each criterion (including the mi
 
 
 ```python
-list(learning_data.values_counts)  # Indexed by [criterion_index]
+list(preprocessed_learning_set.values_counts)  # Indexed by [criterion_index]
 ```
 
 
@@ -1002,7 +1005,7 @@ For each criterion, the ranks of the performance of each alternative:
 
 
 ```python
-[list(v)[:10] + ['...'] for v in learning_data.performance_ranks]  # Indexed by [criterion_index][alternative_index]
+[list(v)[:10] + ['...'] for v in preprocessed_learning_set.performance_ranks]  # Indexed by [criterion_index][alternative_index]
 ```
 
 
@@ -1020,7 +1023,7 @@ The assignment of each alternative, *i.e.* the index of its category:
 
 
 ```python
-list(learning_data.assignments)[:10] + ['...']  # Indexed by [alternative_index]
+list(preprocessed_learning_set.assignments)[:10] + ['...']  # Indexed by [alternative_index]
 ```
 
 
@@ -1036,7 +1039,7 @@ All these attributes are iterable and allow random access through an integer ind
 
 
 ```python
-learning_data.assignments[0]
+preprocessed_learning_set.assignments[0]
 ```
 
 
@@ -1136,14 +1139,16 @@ The remaining attributes are modified at each iteration, and start uninitialized
 
 
 ```python
-learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
-profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
-profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+preprocessed_learning_set = lc.PreProcessedLearningSet(problem, learning_set)
+learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(preprocessed_learning_set, models_count=9, random_seed=43)
+profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(preprocessed_learning_set, learning_data)
+weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(preprocessed_learning_set, learning_data)
+profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(preprocessed_learning_set, learning_data)
 breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
 termination_strategy = lc.TerminateAfterIterations(learning_data, max_iterations_count=1)
 
 lc.LearnMrsortByWeightsProfilesBreed(
+    preprocessed_learning_set,
     learning_data,
     profiles_initialization_strategy,
     weights_optimization_strategy,
@@ -1317,14 +1322,15 @@ We can now pass it to a learning and perform that learning to observe its effect
 
 
 ```python
-profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
-profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(preprocessed_learning_set, learning_data)
+weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(preprocessed_learning_set, learning_data)
+profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(preprocessed_learning_set, learning_data)
 breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
 termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 observer = VerboseObserver(learning_data)
 
 learned_model = lc.LearnMrsortByWeightsProfilesBreed(
+    preprocessed_learning_set,
     learning_data,
     profiles_initialization_strategy,
     weights_optimization_strategy,
@@ -1368,15 +1374,17 @@ class IntermediatesObserver(lc.LearnMrsortByWeightsProfilesBreed.Observer):
     def before_return(self):
         pass
 
-learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)  # Do *not* reuse the same `LearningData` for several learnings
-profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
-weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(learning_data)
-profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+preprocessed_learning_set = lc.PreProcessedLearningSet(problem, learning_set)
+learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(preprocessed_learning_set, models_count=9, random_seed=43)  # Do *not* reuse the same `LearningData` for several learnings
+profiles_initialization_strategy = lc.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(preprocessed_learning_set, learning_data)
+weights_optimization_strategy = lc.OptimizeWeightsUsingGlop(preprocessed_learning_set, learning_data)
+profiles_improvement_strategy = lc.ImproveProfilesWithAccuracyHeuristicOnCpu(preprocessed_learning_set, learning_data)
 breeding_strategy = lc.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy=profiles_initialization_strategy, count=4)
 termination_strategy = lc.TerminateAtAccuracy(learning_data, target_accuracy=len(learning_set.alternatives))
 observer = IntermediatesObserver(problem, learning_data)
 
 final_model = lc.LearnMrsortByWeightsProfilesBreed(
+    preprocessed_learning_set,
     learning_data,
     profiles_initialization_strategy,
     weights_optimization_strategy,
@@ -1476,16 +1484,17 @@ Profiles initialization strategies must implement `.initialize_profiles(model_in
 
 ```python
 class SillyProfilesInitializationStrategy(lc.LearnMrsortByWeightsProfilesBreed.ProfilesInitializationStrategy):
-    def __init__(self, learning_data):
+    def __init__(self, preprocessed_learning_set, learning_data):
         super().__init__()
+        self.preprocessed_learning_set = preprocessed_learning_set
         self.learning_data = learning_data
 
     def initialize_profiles(self, model_indexes_begin, model_indexes_end):
         print("initialize_profiles", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
             model_index = learning_data.model_indexes[model_index_index]
-            for boundary_index in range(self.learning_data.boundaries_count):
-                for criterion_index in range(self.learning_data.criteria_count):
+            for boundary_index in range(self.preprocessed_learning_set.boundaries_count):
+                for criterion_index in range(self.preprocessed_learning_set.criteria_count):
                     self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = 0
 ```
 
@@ -1494,16 +1503,17 @@ Weights optimization strategies must implement `.optimize_weights(model_indexes_
 
 ```python
 class SillyWeightsOptimizationStrategy(lc.LearnMrsortByWeightsProfilesBreed.WeightsOptimizationStrategy):
-    def __init__(self, learning_data):
+    def __init__(self, preprocessed_learning_set, learning_data):
         super().__init__()
+        self.preprocessed_learning_set = preprocessed_learning_set
         self.learning_data = learning_data
 
     def optimize_weights(self, model_indexes_begin, model_indexes_end):
         print("optimize_weights", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
             model_index = learning_data.model_indexes[model_index_index]
-            for criterion_index in range(self.learning_data.criteria_count):
-                self.learning_data.weights[model_index][criterion_index] = 1.1 / self.learning_data.criteria_count
+            for criterion_index in range(self.preprocessed_learning_set.criteria_count):
+                self.learning_data.weights[model_index][criterion_index] = 1.1 / self.preprocessed_learning_set.criteria_count
 ```
 
 Profiles improvement strategies must implement `.improve_profiles(model_indexes_begin, model_indexes_end)`, that should improve `low_profile_ranks` and `high_profile_ranks` for models at indexes in `[learning_data.model_index[i] for i in range(model_indexes_begin, model_indexes_end)]`.
@@ -1511,17 +1521,18 @@ Profiles improvement strategies must implement `.improve_profiles(model_indexes_
 
 ```python
 class SillyProfilesImprovementStrategy(lc.LearnMrsortByWeightsProfilesBreed.ProfilesImprovementStrategy):
-    def __init__(self, learning_data):
+    def __init__(self, preprocessed_learning_set, learning_data):
         super().__init__()
+        self.preprocessed_learning_set = preprocessed_learning_set
         self.learning_data = learning_data
 
     def improve_profiles(self, model_indexes_begin, model_indexes_end):
         print("improve_profiles", model_indexes_begin, model_indexes_end, file=sys.stderr)
         for model_index_index in range(model_indexes_begin, model_indexes_end):
-            model_index = learning_data.model_indexes[model_index_index]
-            for boundary_index in range(self.learning_data.boundaries_count):
-                for criterion_index in range(self.learning_data.criteria_count):
-                    rank = (boundary_index + 1) * (self.learning_data.values_counts[criterion_index] // (self.learning_data.boundaries_count + 1))
+            model_index = self.learning_data.model_indexes[model_index_index]
+            for boundary_index in range(self.preprocessed_learning_set.boundaries_count):
+                for criterion_index in range(self.preprocessed_learning_set.criteria_count):
+                    rank = (boundary_index + 1) * (self.preprocessed_learning_set.values_counts[criterion_index] // (self.preprocessed_learning_set.boundaries_count + 1))
                     self.learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] = rank
 ```
 
@@ -1564,10 +1575,11 @@ problem = lc.Problem(
 )
 learning_set = lc.generate_alternatives(problem, lc.generate_mrsort_model(problem, random_seed=42), alternatives_count=1000, random_seed=43)
 
-learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, models_count=9, random_seed=43)
-profiles_initialization_strategy = SillyProfilesInitializationStrategy(learning_data)
-weights_optimization_strategy = SillyWeightsOptimizationStrategy(learning_data)
-profiles_improvement_strategy = SillyProfilesImprovementStrategy(learning_data)
+preprocessed_learning_set = lc.PreProcessedLearningSet(problem, learning_set)
+learning_data = lc.LearnMrsortByWeightsProfilesBreed.LearningData(preprocessed_learning_set, models_count=9, random_seed=43)
+profiles_initialization_strategy = SillyProfilesInitializationStrategy(preprocessed_learning_set, learning_data)
+weights_optimization_strategy = SillyWeightsOptimizationStrategy(preprocessed_learning_set, learning_data)
+profiles_improvement_strategy = SillyProfilesImprovementStrategy(preprocessed_learning_set, learning_data)
 breeding_strategy = SillyBreedingStrategy(learning_data)
 termination_strategy = SillyTerminationStrategy(learning_data)
 ```
@@ -1577,6 +1589,7 @@ Here are the logs produced by these silly strategies during the learning:
 
 ```python
 learned_model = lc.LearnMrsortByWeightsProfilesBreed(
+    preprocessed_learning_set,
     learning_data,
     profiles_initialization_strategy,
     weights_optimization_strategy,

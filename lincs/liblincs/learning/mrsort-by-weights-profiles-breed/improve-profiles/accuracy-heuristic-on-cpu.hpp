@@ -11,8 +11,9 @@ namespace lincs {
 
 class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
  public:
-  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(LearningData& learning_data_) :
+  explicit ImproveProfilesWithAccuracyHeuristicOnCpu(const PreProcessedLearningSet& preprocessed_learning_set_, LearningData& learning_data_) :
     LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy(true),
+    preprocessed_learning_set(preprocessed_learning_set_),
     learning_data(learning_data_)
   {}
 
@@ -89,6 +90,7 @@ class ImproveProfilesWithAccuracyHeuristicOnCpu : public LearnMrsortByWeightsPro
   );
 
  private:
+ const PreProcessedLearningSet& preprocessed_learning_set;
   LearningData& learning_data;
 
   static const unsigned max_destinations_count = 64;

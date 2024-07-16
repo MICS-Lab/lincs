@@ -36,16 +36,16 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
   std::vector<typename LinearProgram::variable_type> y_variables;  // [alternative_index]
   std::vector<typename LinearProgram::variable_type> yp_variables;  // [alternative_index]
 
-  weight_variables.reserve(learning_data.criteria_count);
-  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
+  weight_variables.reserve(preprocessed_learning_set.criteria_count);
+  for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
     weight_variables.push_back(program.create_variable());
   }
 
-  x_variables.reserve(learning_data.alternatives_count);
-  xp_variables.reserve(learning_data.alternatives_count);
-  y_variables.reserve(learning_data.alternatives_count);
-  yp_variables.reserve(learning_data.alternatives_count);
-  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
+  x_variables.reserve(preprocessed_learning_set.alternatives_count);
+  xp_variables.reserve(preprocessed_learning_set.alternatives_count);
+  y_variables.reserve(preprocessed_learning_set.alternatives_count);
+  yp_variables.reserve(preprocessed_learning_set.alternatives_count);
+  for (unsigned alternative_index = 0; alternative_index != preprocessed_learning_set.alternatives_count; ++alternative_index) {
     x_variables.push_back(program.create_variable());
     xp_variables.push_back(program.create_variable());
     y_variables.push_back(program.create_variable());
@@ -54,11 +54,11 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
 
   program.mark_all_variables_created();
 
-  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != preprocessed_learning_set.alternatives_count; ++alternative_index) {
     program.set_objective_coefficient(xp_variables[alternative_index], 1);
     program.set_objective_coefficient(yp_variables[alternative_index], 1);
 
-    const unsigned category_index = learning_data.assignments[alternative_index];
+    const unsigned category_index = preprocessed_learning_set.assignments[alternative_index];
 
     if (category_index != 0) {  // Except bottom category
       const unsigned boundary_index = category_index - 1;  // Profile below category
@@ -66,21 +66,21 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
       c.set_bounds(1, 1);
       c.set_coefficient(x_variables[alternative_index], -1);
       c.set_coefficient(xp_variables[alternative_index], 1);
-      for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
+      for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
+        if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
     }
 
-    if (category_index != learning_data.categories_count - 1) {  // Except top category
+    if (category_index != preprocessed_learning_set.categories_count - 1) {  // Except top category
       const unsigned boundary_index = category_index;  // Profile above category
       auto c = program.create_constraint();
       c.set_bounds(1 - epsilon, 1 - epsilon);
       c.set_coefficient(y_variables[alternative_index], 1);
       c.set_coefficient(yp_variables[alternative_index], -1);
-      for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-        if (LearnMrsortByWeightsProfilesBreed::is_accepted(learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
+      for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
+        if (LearnMrsortByWeightsProfilesBreed::is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
           c.set_coefficient(weight_variables[criterion_index], 1);
         }
       }
@@ -89,7 +89,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
 
   auto values = program.solve();
 
-  for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
+  for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
     learning_data.weights[model_index][criterion_index] = values[weight_variables[criterion_index]];
   }
 }

@@ -16,22 +16,21 @@
 namespace lincs {
 
 LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
-    const Problem& problem,
-    const Alternatives& learning_set,
+    const PreProcessedLearningSet& preprocessed_learning_set_,
     const unsigned models_count_,
     const unsigned random_seed
 ) :
-  PreProcessedLearningSet(problem, learning_set),
+  preprocessed_learning_set(preprocessed_learning_set_),
   models_count(models_count_),
   random_generators(models_count),
   iteration_index(0),
   model_indexes(models_count),
   accuracies(models_count, zeroed),
-  low_profile_ranks(models_count, boundaries_count, criteria_count, uninitialized),
+  low_profile_ranks(models_count, preprocessed_learning_set.boundaries_count, preprocessed_learning_set.criteria_count, uninitialized),
   single_peaked_criteria_count(count_single_peaked_criteria()),
-  high_profile_rank_indexes(criteria_count, uninitialized),
-  high_profile_ranks(models_count, boundaries_count, single_peaked_criteria_count, uninitialized),
-  weights(models_count, criteria_count, uninitialized)
+  high_profile_rank_indexes(preprocessed_learning_set.criteria_count, uninitialized),
+  high_profile_ranks(models_count, preprocessed_learning_set.boundaries_count, single_peaked_criteria_count, uninitialized),
+  weights(models_count, preprocessed_learning_set.criteria_count, uninitialized)
 {
   CHRONE();
 
@@ -42,8 +41,8 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
   }
 
   unsigned count = 0;
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    if (single_peaked[criterion_index]) {
+  for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
+    if (preprocessed_learning_set.single_peaked[criterion_index]) {
       high_profile_rank_indexes[criterion_index] = count;
       ++count;
     }
@@ -53,8 +52,8 @@ LearnMrsortByWeightsProfilesBreed::LearningData::LearningData(
 
 unsigned LearnMrsortByWeightsProfilesBreed::LearningData::count_single_peaked_criteria() const {
   unsigned count = 0;
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
-    if (single_peaked[criterion_index]) {
+  for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
+    if (preprocessed_learning_set.single_peaked[criterion_index]) {
       ++count;
     }
   }
@@ -67,20 +66,20 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
   assert(model_index < models_count);
 
   std::vector<float> model_weights;
-  model_weights.reserve(criteria_count);
-  for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+  model_weights.reserve(preprocessed_learning_set.criteria_count);
+  for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
     model_weights.push_back(weights[model_index][criterion_index]);
   }
   SufficientCoalitions coalitions = SufficientCoalitions(SufficientCoalitions::Weights(model_weights));
 
   std::vector<PreProcessedBoundary> boundaries;
-  boundaries.reserve(boundaries_count);
-  for (unsigned boundary_index = 0; boundary_index != boundaries_count; ++boundary_index) {
+  boundaries.reserve(preprocessed_learning_set.boundaries_count);
+  for (unsigned boundary_index = 0; boundary_index != preprocessed_learning_set.boundaries_count; ++boundary_index) {
     std::vector<std::variant<unsigned, std::pair<unsigned, unsigned>>> boundary_profile;
-    boundary_profile.reserve(criteria_count);
-    for (unsigned criterion_index = 0; criterion_index != criteria_count; ++criterion_index) {
+    boundary_profile.reserve(preprocessed_learning_set.criteria_count);
+    for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
       const unsigned low_profile_rank = low_profile_ranks[model_index][boundary_index][criterion_index];
-      if (single_peaked[criterion_index]) {
+      if (preprocessed_learning_set.single_peaked[criterion_index]) {
         const unsigned high_profile_rank = high_profile_ranks[model_index][boundary_index][high_profile_rank_indexes[criterion_index]];
         boundary_profile.push_back(std::make_pair(low_profile_rank, high_profile_rank));
       } else {
@@ -90,7 +89,7 @@ Model LearnMrsortByWeightsProfilesBreed::LearningData::get_model(const unsigned 
     boundaries.emplace_back(boundary_profile, coalitions);
   }
 
-  return post_process(boundaries);
+  return preprocessed_learning_set.post_process(boundaries);
 }
 
 #ifndef NDEBUG
@@ -161,7 +160,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
     );
 
     // Succeed?
-    if (learning_data.get_best_accuracy() == learning_data.alternatives_count || termination_strategy.terminate()) {
+    if (learning_data.get_best_accuracy() == preprocessed_learning_set.alternatives_count || termination_strategy.terminate()) {
       for (auto observer : observers) {
         observer->before_return();
       }
@@ -186,7 +185,7 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned model_index) {
   unsigned accuracy = 0;
 
-  for (unsigned alternative_index = 0; alternative_index != learning_data.alternatives_count; ++alternative_index) {
+  for (unsigned alternative_index = 0; alternative_index != preprocessed_learning_set.alternatives_count; ++alternative_index) {
     if (is_correctly_assigned(model_index, alternative_index)) {
       ++accuracy;
     }
@@ -196,24 +195,26 @@ unsigned LearnMrsortByWeightsProfilesBreed::compute_accuracy(const unsigned mode
 }
 
 bool LearnMrsortByWeightsProfilesBreed::is_correctly_assigned(
-    const unsigned model_index,
-    const unsigned alternative_index) {
-  const unsigned expected_assignment = learning_data.assignments[alternative_index];
-  const unsigned actual_assignment = get_assignment(learning_data, model_index, alternative_index);
+  const unsigned model_index,
+  const unsigned alternative_index
+) {
+  const unsigned expected_assignment = preprocessed_learning_set.assignments[alternative_index];
+  const unsigned actual_assignment = get_assignment(preprocessed_learning_set, learning_data, model_index, alternative_index);
 
   return actual_assignment == expected_assignment;
 }
 
 bool LearnMrsortByWeightsProfilesBreed::is_accepted(
+  const PreProcessedLearningSet& preprocessed_learning_set,
   const LearnMrsortByWeightsProfilesBreed::LearningData& learning_data,
   const unsigned model_index,
   const unsigned boundary_index,
   const unsigned criterion_index,
   const unsigned alternative_index
 ) {
-  const unsigned alternative_rank = learning_data.performance_ranks[criterion_index][alternative_index];
+  const unsigned alternative_rank = preprocessed_learning_set.performance_ranks[criterion_index][alternative_index];
   const unsigned low_profile_rank = learning_data.low_profile_ranks[model_index][boundary_index][criterion_index];
-  if (learning_data.single_peaked[criterion_index]) {
+  if (preprocessed_learning_set.single_peaked[criterion_index]) {
     const unsigned high_profile_rank = learning_data.high_profile_ranks[model_index][boundary_index][learning_data.high_profile_rank_indexes[criterion_index]];
     return low_profile_rank <= alternative_rank && alternative_rank <= high_profile_rank;
   } else {
@@ -221,21 +222,21 @@ bool LearnMrsortByWeightsProfilesBreed::is_accepted(
   }
 }
 
-unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
+unsigned LearnMrsortByWeightsProfilesBreed::get_assignment(const PreProcessedLearningSet& preprocessed_learning_set, const LearningData& learning_data, const unsigned model_index, const unsigned alternative_index) {
   // @todo(Performance, later) Evaluate if it's worth storing and updating the models' assignments
   // (instead of recomputing them here)
   // Same question in accuracy-heuristic-on-gpu.cu
   assert(model_index < learning_data.models_count);
-  assert(alternative_index < learning_data.alternatives_count);
+  assert(alternative_index < preprocessed_learning_set.alternatives_count);
 
   // Not parallelizable in this form because the loop gets interrupted by a return. But we could rewrite it
   // to always perform all its iterations, and then it would be yet another map-reduce, with the reduce
   // phase keeping the maximum 'category_index' that passes the weight threshold.
-  for (unsigned category_index = learning_data.categories_count - 1; category_index != 0; --category_index) {
+  for (unsigned category_index = preprocessed_learning_set.categories_count - 1; category_index != 0; --category_index) {
     const unsigned boundary_index = category_index - 1;
     float accepted_weight = 0;
-    for (unsigned criterion_index = 0; criterion_index != learning_data.criteria_count; ++criterion_index) {
-      if (is_accepted(learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
+    for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
+      if (is_accepted(preprocessed_learning_set, learning_data, model_index, boundary_index, criterion_index, alternative_index)) {
         accepted_weight += learning_data.weights[model_index][criterion_index];
       }
     }

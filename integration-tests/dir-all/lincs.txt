@@ -177,11 +177,6 @@ lincs: module
             LearningData: pybind11_type
                 __init__: instancemethod
                 accuracies: property
-                alternatives_count: property
-                assignments: property
-                boundaries_count: property
-                categories_count: property
-                criteria_count: property
                 get_best_accuracy: instancemethod
                 get_best_model: instancemethod
                 high_profile_rank_indexes: property
@@ -190,10 +185,7 @@ lincs: module
                 low_profile_ranks: property
                 model_indexes: property
                 models_count: property
-                performance_ranks: property
                 random_generators: property
-                single_peaked: property
-                values_counts: property
                 weights: property
             Observer: pybind11_type
                 __init__: instancemethod
@@ -266,6 +258,16 @@ lincs: module
             is_real: property
             real: property
             value_type: property
+        PreProcessedLearningSet: pybind11_type
+            __init__: instancemethod
+            alternatives_count: property
+            assignments: property
+            boundaries_count: property
+            categories_count: property
+            criteria_count: property
+            performance_ranks: property
+            single_peaked: property
+            values_counts: property
         Problem: pybind11_type
             JSON_SCHEMA: str
             __getstate__: instancemethod

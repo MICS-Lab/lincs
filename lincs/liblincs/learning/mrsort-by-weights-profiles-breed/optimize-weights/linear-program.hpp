@@ -11,8 +11,9 @@ namespace lincs {
 template<typename LinearProgram>
 class OptimizeWeightsUsingLinearProgram : public LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
  public:
-  OptimizeWeightsUsingLinearProgram(LearningData& learning_data_) :
+  OptimizeWeightsUsingLinearProgram(const PreProcessedLearningSet& preprocessed_learning_set_, LearningData& learning_data_) :
     LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy(true),
+    preprocessed_learning_set(preprocessed_learning_set_),
     learning_data(learning_data_)
   {}
 
@@ -23,6 +24,7 @@ class OptimizeWeightsUsingLinearProgram : public LearnMrsortByWeightsProfilesBre
   void optimize_model_weights(unsigned model_index);
 
  private:
+  const PreProcessedLearningSet& preprocessed_learning_set;
   LearningData& learning_data;
 };
 

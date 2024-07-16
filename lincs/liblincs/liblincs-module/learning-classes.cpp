@@ -21,19 +21,18 @@ void define_learning_classes(py::module& m) {
     .def("perform", &lincs::LearnMrsortByWeightsProfilesBreed::perform, "Actually perform the learning and return the learned model.")
   ;
 
-  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData>(
-    learn_wbp_class,
-    "LearningData",
-    "Data shared by all the strategies used in this learning."
+  py::class_<lincs::PreProcessedLearningSet>(
+    m,
+    "PreProcessedLearningSet",
+    "A representation of a learning set with its data normalized as ranks (unsigned integers)."
   )
     .def(
-      py::init<const lincs::Problem&, const lincs::Alternatives&, unsigned, unsigned>(),
-      "problem"_a, "learning_set"_a, "models_count"_a, "random_seed"_a,
-      "Constructor, pre-processing the learning set into a simpler form for strategies.",
+      py::init<const lincs::Problem&, const lincs::Alternatives&>(),
+      "problem"_a, "learning_set"_a,
+      "Constructor, pre-processing the learning set into a simpler form for learning.",
       py::keep_alive<1, 2>()
       // No reference kept on 'learning_set' => no py::keep_alive<1, 3>()
     )
-    // About the problem and learning set:
     .def_readonly("criteria_count", &lincs::PreProcessedLearningSet::criteria_count, "Number of criteria in the :py:class:`Problem`.")
     .def_readonly("categories_count", &lincs::PreProcessedLearningSet::categories_count, "Number of categories in the :py:class:`Problem`.")
     .def_readonly("boundaries_count", &lincs::PreProcessedLearningSet::boundaries_count, "Number of boundaries in the :py:class:`Problem`, *i.e* ``categories_count - 1``.")
@@ -42,7 +41,19 @@ void define_learning_classes(py::module& m) {
     .def_readonly("values_counts", &lincs::PreProcessedLearningSet::values_counts, "Indexed by ``[criterion_index]``. Number of different values for each criterion, in the ``learning_set`` and min and max values for numerical criteria.")
     .def_readonly("performance_ranks", &lincs::PreProcessedLearningSet::performance_ranks, "Indexed by ``[criterion_index][alternative_index]``. Rank of each alternative in the ``learning_set`` for each criterion.")
     .def_readonly("assignments", &lincs::PreProcessedLearningSet::assignments, "Indexed by ``[alternative_index]``. Category index of each alternative in the ``learning_set``.")
-    // About WPB:
+  ;
+
+  py::class_<lincs::LearnMrsortByWeightsProfilesBreed::LearningData>(
+    learn_wbp_class,
+    "LearningData",
+    "Data shared by all the strategies used in this learning."
+  )
+    .def(
+      py::init<const lincs::PreProcessedLearningSet&, unsigned, unsigned>(),
+      "preprocessed_learning_set"_a, "models_count"_a, "random_seed"_a,
+      "Constructor, allocating but not initializing data about models about to be learned.",
+      py::keep_alive<1, 2>()
+    )
     .def_readonly("models_count", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::models_count, "The number of in-progress models for this learning.")
     .def_readonly("random_generators", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::random_generators, "Indexed by ``[model_index]``. Random number generators associated to each in-progress model.")
     .def_readonly("iteration_index", &lincs::LearnMrsortByWeightsProfilesBreed::LearningData::iteration_index, "The index of the current iteration of the WPB algorithm.")
@@ -221,6 +232,7 @@ void define_learning_classes(py::module& m) {
   learn_wbp_class
     .def(
       py::init<
+        const PreProcessedLearningSet&,
         lincs::LearnMrsortByWeightsProfilesBreed::LearningData&,
         lincs::LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy&,
         lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy&,
@@ -229,6 +241,7 @@ void define_learning_classes(py::module& m) {
         lincs::LearnMrsortByWeightsProfilesBreed::TerminationStrategy&,
         std::vector<lincs::LearnMrsortByWeightsProfilesBreed::Observer*>
       >(),
+      "preprocessed_learning_set"_a,
       "learning_data"_a,
       "profiles_initialization_strategy"_a,
       "weights_optimization_strategy"_a,
@@ -243,7 +256,8 @@ void define_learning_classes(py::module& m) {
       py::keep_alive<1, 5>(),
       py::keep_alive<1, 6>(),
       py::keep_alive<1, 7>(),
-      py::keep_alive<1, 8>()
+      py::keep_alive<1, 8>(),
+      py::keep_alive<1, 9>()
     )
   ;
 
@@ -256,10 +270,11 @@ void define_learning_classes(py::module& m) {
     "The profiles initialization strategy described in Olivier Sobrie's PhD thesis."
   )
     .def(
-      py::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
-      "learning_data"_a,
+      py::init<const lincs::PreProcessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
+      "preprocessed_learning_set"_a, "learning_data"_a,
       "Constructor. Keeps a reference to the learning data.",
-      py::keep_alive<1, 2>()
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
     )
     .def(
       "initialize_profiles",
@@ -278,10 +293,11 @@ void define_learning_classes(py::module& m) {
     "The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using GLOP."
   )
     .def(
-      py::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
-      "learning_data"_a,
+      py::init<const lincs::PreProcessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
+      "preprocessed_learning_set"_a, "learning_data"_a,
       "Constructor. Keeps a reference to the learning data.",
-      py::keep_alive<1, 2>()
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
     )
     .def(
       "optimize_weights",
@@ -300,10 +316,11 @@ void define_learning_classes(py::module& m) {
     "The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using AlgLib."
   )
     .def(
-      py::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
-      "learning_data"_a,
+      py::init<const lincs::PreProcessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
+      "preprocessed_learning_set"_a, "learning_data"_a,
       "Constructor. Keeps a reference to the learning data.",
-      py::keep_alive<1, 2>()
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
     )
     .def(
       "optimize_weights",
@@ -322,10 +339,11 @@ void define_learning_classes(py::module& m) {
     "The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CPU."
   )
     .def(
-      py::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
-      "learning_data"_a,
+      py::init<const lincs::PreProcessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
+      "preprocessed_learning_set"_a, "learning_data"_a,
       "Constructor. Keeps a reference to the learning data.",
-      py::keep_alive<1, 2>()
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
     )
     .def(
       "improve_profiles",
@@ -345,10 +363,11 @@ void define_learning_classes(py::module& m) {
     "The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CUDA-capable GPU."
   )
     .def(
-      py::init<lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
-      "learning_data"_a,
+      py::init<const lincs::PreProcessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::LearningData&>(),
+      "preprocessed_learning_set"_a, "learning_data"_a,
       "Constructor. Keeps a reference to the learning data.",
-      py::keep_alive<1, 2>()
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
     )
     .def(
       "improve_profiles",

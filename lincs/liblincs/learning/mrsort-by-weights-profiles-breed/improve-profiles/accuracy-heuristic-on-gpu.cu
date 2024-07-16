@@ -478,14 +478,14 @@ void apply_best_move_for_high_profile__kernel(
 
 namespace lincs {
 
-ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(const LearningData& host_learning_data) :
-  performance_ranks(host_learning_data.performance_ranks.template clone_to<Device>()),
-  assignments(host_learning_data.assignments.template clone_to<Device>()),
-  single_peaked(host_learning_data.single_peaked.template clone_to<Device>()),
-  weights(host_learning_data.models_count, host_learning_data.criteria_count, uninitialized),
-  low_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.criteria_count, uninitialized),
+ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(const PreProcessedLearningSet& preprocessed_learning_set, const LearningData& host_learning_data) :
+  performance_ranks(preprocessed_learning_set.performance_ranks.template clone_to<Device>()),
+  assignments(preprocessed_learning_set.assignments.template clone_to<Device>()),
+  single_peaked(preprocessed_learning_set.single_peaked.template clone_to<Device>()),
+  weights(host_learning_data.models_count, preprocessed_learning_set.criteria_count, uninitialized),
+  low_profile_ranks(host_learning_data.models_count, preprocessed_learning_set.boundaries_count, preprocessed_learning_set.criteria_count, uninitialized),
   high_profile_rank_indexes(host_learning_data.high_profile_rank_indexes.template clone_to<Device>()),
-  high_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.high_profile_ranks.s0(), uninitialized),
+  high_profile_ranks(host_learning_data.models_count, preprocessed_learning_set.boundaries_count, host_learning_data.high_profile_ranks.s0(), uninitialized),
   desirabilities(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized),
   destination_ranks(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
 {}
@@ -514,15 +514,15 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {
-  Array1D<Host, unsigned> criterion_indexes(host_learning_data.criteria_count, uninitialized);
+  Array1D<Host, unsigned> criterion_indexes(preprocessed_learning_set.criteria_count, uninitialized);
   // Not worth parallelizing because learning_data.criteria_count is typically small
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != host_learning_data.criteria_count; ++crit_idx_idx) {
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != preprocessed_learning_set.criteria_count; ++crit_idx_idx) {
     criterion_indexes[crit_idx_idx] = crit_idx_idx;
   }
 
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned boundary_index = 0; boundary_index != host_learning_data.boundaries_count; ++boundary_index) {
+  for (unsigned boundary_index = 0; boundary_index != preprocessed_learning_set.boundaries_count; ++boundary_index) {
     shuffle(host_learning_data.random_generators[model_index], ref(criterion_indexes));
     improve_boundary_profiles(model_index, boundary_index, criterion_indexes);
   }
@@ -535,8 +535,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_boundary_profiles(
 ) {
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != host_learning_data.criteria_count; ++crit_idx_idx) {
-    if (host_learning_data.single_peaked[criterion_indexes[crit_idx_idx]]) {
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != preprocessed_learning_set.criteria_count; ++crit_idx_idx) {
+    if (preprocessed_learning_set.single_peaked[criterion_indexes[crit_idx_idx]]) {
       improve_low_profile_then_high_profile(model_index, boundary_index, criterion_indexes[crit_idx_idx]);
     } else {
       improve_low_profile_only(model_index, boundary_index, criterion_indexes[crit_idx_idx]);
@@ -549,7 +549,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
   const unsigned boundary_index,
   const unsigned criterion_index
 ) {
-  assert(host_learning_data.single_peaked[criterion_index]);
+  assert(preprocessed_learning_set.single_peaked[criterion_index]);
 
   improve_low_profile(
     model_index,
@@ -558,7 +558,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
     boundary_index == 0 ?
       0 :
       host_learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
-    boundary_index == host_learning_data.boundaries_count - 1 ?
+    boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
       host_learning_data.high_profile_ranks[model_index][boundary_index][host_learning_data.high_profile_rank_indexes[criterion_index]]:
       host_learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
@@ -567,11 +567,11 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
     model_index,
     boundary_index,
     criterion_index,
-    boundary_index == host_learning_data.boundaries_count - 1 ?
+    boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
       host_learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] :
       host_learning_data.high_profile_ranks[model_index][boundary_index + 1][host_learning_data.high_profile_rank_indexes[criterion_index]],
     boundary_index == 0 ?
-      host_learning_data.values_counts[criterion_index] - 1 :
+      preprocessed_learning_set.values_counts[criterion_index] - 1 :
       host_learning_data.high_profile_ranks[model_index][boundary_index - 1][host_learning_data.high_profile_rank_indexes[criterion_index]]
   );
 }
@@ -588,8 +588,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_only(
     boundary_index == 0 ?
       0 :
       host_learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
-    boundary_index == host_learning_data.boundaries_count - 1 ?
-      host_learning_data.values_counts[criterion_index] - 1 :
+    boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
+      preprocessed_learning_set.values_counts[criterion_index] - 1 :
       host_learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
 }
@@ -623,7 +623,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile(
 
     copy(host_destination_ranks, ref(gpu_learning_data.destination_ranks[model_index]));
     gpu_learning_data.desirabilities[model_index].fill_with_zeros();
-    Grid grid = grid::make(host_learning_data.alternatives_count, actual_destinations_count);
+    Grid grid = grid::make(preprocessed_learning_set.alternatives_count, actual_destinations_count);
     compute_move_desirabilities_for_low_profile__kernel<<<LOVE_CONFIG(grid)>>>(
       gpu_learning_data.performance_ranks,
       gpu_learning_data.assignments,
@@ -672,7 +672,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
   const unsigned lowest_destination_rank,
   const unsigned highest_destination_rank
 ) {
-  assert(host_learning_data.single_peaked[criterion_index]);
+  assert(preprocessed_learning_set.single_peaked[criterion_index]);
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
     assert(host_learning_data.high_profile_ranks[model_index][boundary_index][host_learning_data.high_profile_rank_indexes[criterion_index]] == lowest_destination_rank);
@@ -695,7 +695,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
 
     copy(host_destination_ranks, ref(gpu_learning_data.destination_ranks[model_index]));
     gpu_learning_data.desirabilities[model_index].fill_with_zeros();
-    Grid grid = grid::make(host_learning_data.alternatives_count, actual_destinations_count);
+    Grid grid = grid::make(preprocessed_learning_set.alternatives_count, actual_destinations_count);
     compute_move_desirabilities_for_high_profile__kernel<<<LOVE_CONFIG(grid)>>>(
       gpu_learning_data.performance_ranks,
       gpu_learning_data.assignments,
