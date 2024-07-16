@@ -2,7 +2,7 @@ name: Test building on GitHub Actions
 on:
   push:
     branches:
-      - topics/test-gha
+      - test-gha/*
 jobs:
   build-for-linux:
     runs-on: ubuntu-20.04
