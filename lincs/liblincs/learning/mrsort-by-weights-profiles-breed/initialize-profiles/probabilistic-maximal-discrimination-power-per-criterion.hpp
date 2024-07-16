@@ -12,7 +12,7 @@ namespace lincs {
 
 class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion : public LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
  public:
-  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(LearningData& learning_data_);
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(const PreprocessedLearningSet& preprocessed_learning_set, ModelsBeingLearned& models_being_learned_);
 
  public:
   void initialize_profiles(unsigned model_indexes_begin, unsigned model_indexes_end) override;
@@ -29,7 +29,8 @@ class InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion :
   );
 
  private:
-  LearningData& learning_data;
+  const PreprocessedLearningSet& preprocessed_learning_set;
+  ModelsBeingLearned& models_being_learned;
   std::vector<std::vector<ProbabilityWeightedGenerator<unsigned>>> low_rank_generators;
   std::vector<std::vector<ProbabilityWeightedGenerator<unsigned>>> high_rank_generators;
 };

@@ -47,7 +47,7 @@ class SatCoalitionsUcncsLearning {
   const Problem& input_problem;
   const Alternatives& input_learning_set;
   #endif
-  PreProcessedLearningSet learning_set;
+  PreprocessedLearningSet learning_set;
   const unsigned coalitions_count;
   // @todo(Performance, later) Dematerialize 'all_coalitions':
   // use a more abstract class that can be used in place of the current std::vector<boost::dynamic_bitset<>>

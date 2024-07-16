@@ -16,7 +16,7 @@ class LearnMrsortByWeightsProfilesBreed {
  public:
   static const unsigned default_models_count = 9;
 
-  struct LearningData;
+  struct ModelsBeingLearned;
   struct ProfilesInitializationStrategy;
   struct WeightsOptimizationStrategy;
   struct ProfilesImprovementStrategy;
@@ -26,7 +26,8 @@ class LearnMrsortByWeightsProfilesBreed {
 
  public:
   LearnMrsortByWeightsProfilesBreed(
-    LearningData& learning_data_,
+    const PreprocessedLearningSet& preprocessed_learning_set_,
+    ModelsBeingLearned& models_being_learned_,
     ProfilesInitializationStrategy& profiles_initialization_strategy_,
     WeightsOptimizationStrategy& weights_optimization_strategy_,
     ProfilesImprovementStrategy& profiles_improvement_strategy_,
@@ -34,7 +35,8 @@ class LearnMrsortByWeightsProfilesBreed {
     TerminationStrategy& termination_strategy_,
     const std::vector<Observer*>& observers_ = {}
   ) :
-    learning_data(learning_data_),
+    preprocessed_learning_set(preprocessed_learning_set_),
+    models_being_learned(models_being_learned_),
     profiles_initialization_strategy(profiles_initialization_strategy_),
     weights_optimization_strategy(weights_optimization_strategy_),
     profiles_improvement_strategy(profiles_improvement_strategy_),
@@ -51,11 +53,12 @@ class LearnMrsortByWeightsProfilesBreed {
   bool is_correctly_assigned(unsigned model_index, unsigned alternative_index);
 
  public:
-  static bool is_accepted(const LearningData&, unsigned model_index, unsigned boundary_index, unsigned criterion_index, unsigned alternative_index);
-  static unsigned get_assignment(const LearningData&, unsigned model_index, unsigned alternative_index);
+  static bool is_accepted(const PreprocessedLearningSet& preprocessed_learning_set, const ModelsBeingLearned&, unsigned model_index, unsigned boundary_index, unsigned criterion_index, unsigned alternative_index);
+  static unsigned get_assignment(const PreprocessedLearningSet& preprocessed_learning_set, const ModelsBeingLearned&, unsigned model_index, unsigned alternative_index);
 
  private:
-  LearningData& learning_data;
+  const PreprocessedLearningSet& preprocessed_learning_set;
+  ModelsBeingLearned& models_being_learned;
   ProfilesInitializationStrategy& profiles_initialization_strategy;
   WeightsOptimizationStrategy& weights_optimization_strategy;
   ProfilesImprovementStrategy& profiles_improvement_strategy;
@@ -64,7 +67,8 @@ class LearnMrsortByWeightsProfilesBreed {
   std::vector<Observer*> observers;
 };
 
-struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLearningSet {
+struct LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned {
+  const PreprocessedLearningSet& preprocessed_learning_set;
   const unsigned models_count;
   std::vector<std::mt19937> random_generators;  // [model_index]
   unsigned iteration_index;
@@ -77,7 +81,7 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
   Array2D<Host, float> weights;  // [model_index][criterion_index]
   // @todo(Performance, later) Add models' ages
 
-  LearningData(const Problem& problem, const Alternatives& learning_set, unsigned models_count, unsigned random_seed);
+  ModelsBeingLearned(const PreprocessedLearningSet& preprocessed_learning_set, unsigned models_count, unsigned random_seed);
 
   unsigned get_best_accuracy() const { return accuracies[model_indexes.back()]; }
   Model get_best_model() const { return get_model(model_indexes.back()); }
@@ -94,7 +98,7 @@ struct LearnMrsortByWeightsProfilesBreed::LearningData : public PreProcessedLear
 };
 
 struct LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
-  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+  typedef LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned ModelsBeingLearned;
 
   ProfilesInitializationStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
 
@@ -106,7 +110,7 @@ struct LearnMrsortByWeightsProfilesBreed::ProfilesInitializationStrategy {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
-  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+  typedef LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned ModelsBeingLearned;
 
   WeightsOptimizationStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
 
@@ -118,7 +122,7 @@ struct LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
-  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+  typedef LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned ModelsBeingLearned;
 
   ProfilesImprovementStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
 
@@ -130,7 +134,7 @@ struct LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
-  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+  typedef LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned ModelsBeingLearned;
 
   BreedingStrategy(bool supports_single_peaked_criteria_ = false) : supports_single_peaked_criteria(supports_single_peaked_criteria_) {}
 
@@ -142,7 +146,7 @@ struct LearnMrsortByWeightsProfilesBreed::BreedingStrategy {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
-  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+  typedef LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned ModelsBeingLearned;
 
   virtual ~TerminationStrategy() {}
 
@@ -150,7 +154,7 @@ struct LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
 };
 
 struct LearnMrsortByWeightsProfilesBreed::Observer {
-  typedef LearnMrsortByWeightsProfilesBreed::LearningData LearningData;
+  typedef LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned ModelsBeingLearned;
 
   virtual ~Observer() {}
 

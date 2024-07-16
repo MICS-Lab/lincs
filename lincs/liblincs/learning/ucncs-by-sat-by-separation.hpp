@@ -41,7 +41,7 @@ class SatSeparationUcncsLearning {
   const Problem& input_problem;
   const Alternatives& input_learning_set;
   #endif
-  PreProcessedLearningSet learning_set;
+  PreprocessedLearningSet learning_set;
   // Alternatives better than category k
   std::vector<std::vector<unsigned>> better_alternative_indexes;
   // Alternatives in category k or worse

@@ -478,16 +478,16 @@ void apply_best_move_for_high_profile__kernel(
 
 namespace lincs {
 
-ImproveProfilesWithAccuracyHeuristicOnGpu::GpuLearningData::GpuLearningData(const LearningData& host_learning_data) :
-  performance_ranks(host_learning_data.performance_ranks.template clone_to<Device>()),
-  assignments(host_learning_data.assignments.template clone_to<Device>()),
-  single_peaked(host_learning_data.single_peaked.template clone_to<Device>()),
-  weights(host_learning_data.models_count, host_learning_data.criteria_count, uninitialized),
-  low_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.criteria_count, uninitialized),
-  high_profile_rank_indexes(host_learning_data.high_profile_rank_indexes.template clone_to<Device>()),
-  high_profile_ranks(host_learning_data.models_count, host_learning_data.boundaries_count, host_learning_data.high_profile_ranks.s0(), uninitialized),
-  desirabilities(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized),
-  destination_ranks(host_learning_data.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
+ImproveProfilesWithAccuracyHeuristicOnGpu::GpuModelsBeingLearned::GpuModelsBeingLearned(const PreprocessedLearningSet& preprocessed_learning_set, const ModelsBeingLearned& host_models_being_learned) :
+  performance_ranks(preprocessed_learning_set.performance_ranks.template clone_to<Device>()),
+  assignments(preprocessed_learning_set.assignments.template clone_to<Device>()),
+  single_peaked(preprocessed_learning_set.single_peaked.template clone_to<Device>()),
+  weights(host_models_being_learned.models_count, preprocessed_learning_set.criteria_count, uninitialized),
+  low_profile_ranks(host_models_being_learned.models_count, preprocessed_learning_set.boundaries_count, preprocessed_learning_set.criteria_count, uninitialized),
+  high_profile_rank_indexes(host_models_being_learned.high_profile_rank_indexes.template clone_to<Device>()),
+  high_profile_ranks(host_models_being_learned.models_count, preprocessed_learning_set.boundaries_count, host_models_being_learned.high_profile_ranks.s0(), uninitialized),
+  desirabilities(host_models_being_learned.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized),
+  destination_ranks(host_models_being_learned.models_count, ImproveProfilesWithAccuracyHeuristicOnGpu::max_destinations_count, uninitialized)
 {}
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
@@ -497,33 +497,33 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_profiles(
   CHRONE();
 
   // Get optimized weights
-  copy(host_learning_data.weights, ref(gpu_learning_data.weights));
+  copy(host_models_being_learned.weights, ref(gpu_models_being_learned.weights));
   // Get (re-)initialized profiles
-  copy(host_learning_data.low_profile_ranks, ref(gpu_learning_data.low_profile_ranks));
-  copy(host_learning_data.high_profile_ranks, ref(gpu_learning_data.high_profile_ranks));
+  copy(host_models_being_learned.low_profile_ranks, ref(gpu_models_being_learned.low_profile_ranks));
+  copy(host_models_being_learned.high_profile_ranks, ref(gpu_models_being_learned.high_profile_ranks));
 
   #pragma omp parallel for
   for (int model_indexes_index = model_indexes_begin; model_indexes_index < model_indexes_end; ++model_indexes_index) {
-    const unsigned model_index = host_learning_data.model_indexes[model_indexes_index];
+    const unsigned model_index = host_models_being_learned.model_indexes[model_indexes_index];
     improve_model_profiles(model_index);
   }
 
   // Set improved profiles
-  copy(gpu_learning_data.low_profile_ranks, ref(host_learning_data.low_profile_ranks));
-  copy(gpu_learning_data.high_profile_ranks, ref(host_learning_data.high_profile_ranks));
+  copy(gpu_models_being_learned.low_profile_ranks, ref(host_models_being_learned.low_profile_ranks));
+  copy(gpu_models_being_learned.high_profile_ranks, ref(host_models_being_learned.high_profile_ranks));
 }
 
 void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_model_profiles(const unsigned model_index) {
-  Array1D<Host, unsigned> criterion_indexes(host_learning_data.criteria_count, uninitialized);
-  // Not worth parallelizing because learning_data.criteria_count is typically small
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != host_learning_data.criteria_count; ++crit_idx_idx) {
+  Array1D<Host, unsigned> criterion_indexes(preprocessed_learning_set.criteria_count, uninitialized);
+  // Not worth parallelizing because models_being_learned.criteria_count is typically small
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != preprocessed_learning_set.criteria_count; ++crit_idx_idx) {
     criterion_indexes[crit_idx_idx] = crit_idx_idx;
   }
 
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned boundary_index = 0; boundary_index != host_learning_data.boundaries_count; ++boundary_index) {
-    shuffle(host_learning_data.random_generators[model_index], ref(criterion_indexes));
+  for (unsigned boundary_index = 0; boundary_index != preprocessed_learning_set.boundaries_count; ++boundary_index) {
+    shuffle(host_models_being_learned.random_generators[model_index], ref(criterion_indexes));
     improve_boundary_profiles(model_index, boundary_index, criterion_indexes);
   }
 }
@@ -535,8 +535,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_boundary_profiles(
 ) {
   // Not parallel because iteration N+1 relies on side effect in iteration N
   // (We could challenge this aspect of the algorithm described by Sobrie)
-  for (unsigned crit_idx_idx = 0; crit_idx_idx != host_learning_data.criteria_count; ++crit_idx_idx) {
-    if (host_learning_data.single_peaked[criterion_indexes[crit_idx_idx]]) {
+  for (unsigned crit_idx_idx = 0; crit_idx_idx != preprocessed_learning_set.criteria_count; ++crit_idx_idx) {
+    if (preprocessed_learning_set.single_peaked[criterion_indexes[crit_idx_idx]]) {
       improve_low_profile_then_high_profile(model_index, boundary_index, criterion_indexes[crit_idx_idx]);
     } else {
       improve_low_profile_only(model_index, boundary_index, criterion_indexes[crit_idx_idx]);
@@ -549,7 +549,7 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
   const unsigned boundary_index,
   const unsigned criterion_index
 ) {
-  assert(host_learning_data.single_peaked[criterion_index]);
+  assert(preprocessed_learning_set.single_peaked[criterion_index]);
 
   improve_low_profile(
     model_index,
@@ -557,22 +557,22 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_then_high_pr
     criterion_index,
     boundary_index == 0 ?
       0 :
-      host_learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
-    boundary_index == host_learning_data.boundaries_count - 1 ?
-      host_learning_data.high_profile_ranks[model_index][boundary_index][host_learning_data.high_profile_rank_indexes[criterion_index]]:
-      host_learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
+      host_models_being_learned.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
+    boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
+      host_models_being_learned.high_profile_ranks[model_index][boundary_index][host_models_being_learned.high_profile_rank_indexes[criterion_index]]:
+      host_models_being_learned.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
 
   improve_high_profile(
     model_index,
     boundary_index,
     criterion_index,
-    boundary_index == host_learning_data.boundaries_count - 1 ?
-      host_learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] :
-      host_learning_data.high_profile_ranks[model_index][boundary_index + 1][host_learning_data.high_profile_rank_indexes[criterion_index]],
+    boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
+      host_models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index] :
+      host_models_being_learned.high_profile_ranks[model_index][boundary_index + 1][host_models_being_learned.high_profile_rank_indexes[criterion_index]],
     boundary_index == 0 ?
-      host_learning_data.values_counts[criterion_index] - 1 :
-      host_learning_data.high_profile_ranks[model_index][boundary_index - 1][host_learning_data.high_profile_rank_indexes[criterion_index]]
+      preprocessed_learning_set.values_counts[criterion_index] - 1 :
+      host_models_being_learned.high_profile_ranks[model_index][boundary_index - 1][host_models_being_learned.high_profile_rank_indexes[criterion_index]]
   );
 }
 
@@ -587,10 +587,10 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile_only(
     criterion_index,
     boundary_index == 0 ?
       0 :
-      host_learning_data.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
-    boundary_index == host_learning_data.boundaries_count - 1 ?
-      host_learning_data.values_counts[criterion_index] - 1 :
-      host_learning_data.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
+      host_models_being_learned.low_profile_ranks[model_index][boundary_index - 1][criterion_index],
+    boundary_index == preprocessed_learning_set.boundaries_count - 1 ?
+      preprocessed_learning_set.values_counts[criterion_index] - 1 :
+      host_models_being_learned.low_profile_ranks[model_index][boundary_index + 1][criterion_index]
   );
 }
 
@@ -603,13 +603,13 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile(
 ) {
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(host_learning_data.low_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
+    assert(host_models_being_learned.low_profile_ranks[model_index][boundary_index][criterion_index] == lowest_destination_rank);
   } else {
     Array1D<Host, unsigned> host_destination_ranks(max_destinations_count, uninitialized);
     unsigned actual_destinations_count = 0;
     if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
       for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-        host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(host_learning_data.random_generators[model_index]);
+        host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(host_models_being_learned.random_generators[model_index]);
       }
       actual_destinations_count = max_destinations_count;
     } else {
@@ -621,34 +621,34 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile(
       assert(actual_destinations_count == highest_destination_rank - lowest_destination_rank + 1);
     }
 
-    copy(host_destination_ranks, ref(gpu_learning_data.destination_ranks[model_index]));
-    gpu_learning_data.desirabilities[model_index].fill_with_zeros();
-    Grid grid = grid::make(host_learning_data.alternatives_count, actual_destinations_count);
+    copy(host_destination_ranks, ref(gpu_models_being_learned.destination_ranks[model_index]));
+    gpu_models_being_learned.desirabilities[model_index].fill_with_zeros();
+    Grid grid = grid::make(preprocessed_learning_set.alternatives_count, actual_destinations_count);
     compute_move_desirabilities_for_low_profile__kernel<<<LOVE_CONFIG(grid)>>>(
-      gpu_learning_data.performance_ranks,
-      gpu_learning_data.assignments,
-      gpu_learning_data.weights,
-      gpu_learning_data.single_peaked,
-      gpu_learning_data.low_profile_ranks,
-      gpu_learning_data.high_profile_rank_indexes,
-      gpu_learning_data.high_profile_ranks,
+      gpu_models_being_learned.performance_ranks,
+      gpu_models_being_learned.assignments,
+      gpu_models_being_learned.weights,
+      gpu_models_being_learned.single_peaked,
+      gpu_models_being_learned.low_profile_ranks,
+      gpu_models_being_learned.high_profile_rank_indexes,
+      gpu_models_being_learned.high_profile_ranks,
       model_index,
       boundary_index,
       criterion_index,
       actual_destinations_count,
-      gpu_learning_data.destination_ranks[model_index],
-      ref(gpu_learning_data.desirabilities[model_index]));
+      gpu_models_being_learned.destination_ranks[model_index],
+      ref(gpu_models_being_learned.desirabilities[model_index]));
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
     apply_best_move_for_low_profile__kernel<<<1, 1>>>(
-      ref(gpu_learning_data.low_profile_ranks),
+      ref(gpu_models_being_learned.low_profile_ranks),
       model_index,
       boundary_index,
       criterion_index,
       actual_destinations_count,
-      gpu_learning_data.destination_ranks[model_index],
-      gpu_learning_data.desirabilities[model_index],
-      std::uniform_real_distribution<float>(0, 1)(host_learning_data.random_generators[model_index]));
+      gpu_models_being_learned.destination_ranks[model_index],
+      gpu_models_being_learned.desirabilities[model_index],
+      std::uniform_real_distribution<float>(0, 1)(host_models_being_learned.random_generators[model_index]));
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
     // @todo(Performance, later) Can we group this copying somehow?
@@ -658,8 +658,8 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_low_profile(
 
     // Lov-e-CUDA doesn't provide a way to copy scalars, so we're back to the basics, using cudaMemcpy directly and doing pointer arithmetic.
     check_cuda_error(cudaMemcpy(
-      host_learning_data.low_profile_ranks[model_index][boundary_index].data() + criterion_index,
-      gpu_learning_data.low_profile_ranks[model_index][boundary_index].data() + criterion_index,
+      host_models_being_learned.low_profile_ranks[model_index][boundary_index].data() + criterion_index,
+      gpu_models_being_learned.low_profile_ranks[model_index][boundary_index].data() + criterion_index,
       1 * sizeof(unsigned),
       cudaMemcpyDeviceToHost));
   }
@@ -672,16 +672,16 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
   const unsigned lowest_destination_rank,
   const unsigned highest_destination_rank
 ) {
-  assert(host_learning_data.single_peaked[criterion_index]);
+  assert(preprocessed_learning_set.single_peaked[criterion_index]);
   assert(lowest_destination_rank <= highest_destination_rank);
   if (lowest_destination_rank == highest_destination_rank) {
-    assert(host_learning_data.high_profile_ranks[model_index][boundary_index][host_learning_data.high_profile_rank_indexes[criterion_index]] == lowest_destination_rank);
+    assert(host_models_being_learned.high_profile_ranks[model_index][boundary_index][host_models_being_learned.high_profile_rank_indexes[criterion_index]] == lowest_destination_rank);
   } else {
     Array1D<Host, unsigned> host_destination_ranks(max_destinations_count, uninitialized);
     unsigned actual_destinations_count = 0;
     if (highest_destination_rank - lowest_destination_rank >= max_destinations_count) {
       for (unsigned destination_index = 0; destination_index != max_destinations_count; ++destination_index) {
-        host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(host_learning_data.random_generators[model_index]);
+        host_destination_ranks[destination_index] = std::uniform_int_distribution<unsigned>(lowest_destination_rank, highest_destination_rank)(host_models_being_learned.random_generators[model_index]);
       }
       actual_destinations_count = max_destinations_count;
     } else {
@@ -693,41 +693,41 @@ void ImproveProfilesWithAccuracyHeuristicOnGpu::improve_high_profile(
       assert(actual_destinations_count == highest_destination_rank - lowest_destination_rank + 1);
     }
 
-    copy(host_destination_ranks, ref(gpu_learning_data.destination_ranks[model_index]));
-    gpu_learning_data.desirabilities[model_index].fill_with_zeros();
-    Grid grid = grid::make(host_learning_data.alternatives_count, actual_destinations_count);
+    copy(host_destination_ranks, ref(gpu_models_being_learned.destination_ranks[model_index]));
+    gpu_models_being_learned.desirabilities[model_index].fill_with_zeros();
+    Grid grid = grid::make(preprocessed_learning_set.alternatives_count, actual_destinations_count);
     compute_move_desirabilities_for_high_profile__kernel<<<LOVE_CONFIG(grid)>>>(
-      gpu_learning_data.performance_ranks,
-      gpu_learning_data.assignments,
-      gpu_learning_data.weights,
-      gpu_learning_data.single_peaked,
-      gpu_learning_data.low_profile_ranks,
-      gpu_learning_data.high_profile_rank_indexes,
-      gpu_learning_data.high_profile_ranks,
+      gpu_models_being_learned.performance_ranks,
+      gpu_models_being_learned.assignments,
+      gpu_models_being_learned.weights,
+      gpu_models_being_learned.single_peaked,
+      gpu_models_being_learned.low_profile_ranks,
+      gpu_models_being_learned.high_profile_rank_indexes,
+      gpu_models_being_learned.high_profile_ranks,
       model_index,
       boundary_index,
       criterion_index,
       actual_destinations_count,
-      gpu_learning_data.destination_ranks[model_index],
-      ref(gpu_learning_data.desirabilities[model_index]));
+      gpu_models_being_learned.destination_ranks[model_index],
+      ref(gpu_models_being_learned.desirabilities[model_index]));
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
     apply_best_move_for_high_profile__kernel<<<1, 1>>>(
-      gpu_learning_data.high_profile_rank_indexes,
-      ref(gpu_learning_data.high_profile_ranks),
+      gpu_models_being_learned.high_profile_rank_indexes,
+      ref(gpu_models_being_learned.high_profile_ranks),
       model_index,
       boundary_index,
       criterion_index,
       actual_destinations_count,
-      gpu_learning_data.destination_ranks[model_index],
-      gpu_learning_data.desirabilities[model_index],
-      std::uniform_real_distribution<float>(0, 1)(host_learning_data.random_generators[model_index]));
+      gpu_models_being_learned.destination_ranks[model_index],
+      gpu_models_being_learned.desirabilities[model_index],
+      std::uniform_real_distribution<float>(0, 1)(host_models_being_learned.random_generators[model_index]));
     check_last_cuda_error_sync_stream(cudaStreamDefault);
 
-    assert(host_learning_data.high_profile_rank_indexes[criterion_index] < host_learning_data.high_profile_ranks.s0());
+    assert(host_models_being_learned.high_profile_rank_indexes[criterion_index] < host_models_being_learned.high_profile_ranks.s0());
     check_cuda_error(cudaMemcpy(
-      host_learning_data.high_profile_ranks[model_index][boundary_index].data() + host_learning_data.high_profile_rank_indexes[criterion_index],
-      gpu_learning_data.high_profile_ranks[model_index][boundary_index].data() + host_learning_data.high_profile_rank_indexes[criterion_index],
+      host_models_being_learned.high_profile_ranks[model_index][boundary_index].data() + host_models_being_learned.high_profile_rank_indexes[criterion_index],
+      gpu_models_being_learned.high_profile_ranks[model_index][boundary_index].data() + host_models_being_learned.high_profile_rank_indexes[criterion_index],
       1 * sizeof(unsigned),
       cudaMemcpyDeviceToHost));
   }

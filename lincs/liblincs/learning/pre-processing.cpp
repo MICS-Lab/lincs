@@ -9,7 +9,7 @@
 
 namespace lincs {
 
-PreProcessedLearningSet::PreProcessedLearningSet(
+PreprocessedLearningSet::PreprocessedLearningSet(
   const Problem& problem_,
   const Alternatives& learning_set
 ) :
@@ -116,7 +116,7 @@ PreProcessedLearningSet::PreProcessedLearningSet(
   }
 }
 
-Model PreProcessedLearningSet::post_process(const std::vector<PreProcessedBoundary>& boundaries) const {
+Model PreprocessedLearningSet::post_process(const std::vector<PreprocessedBoundary>& boundaries) const {
   assert(boundaries.size() == boundaries_count);
 
   std::vector<AcceptedValues> accepted_values;

@@ -13,10 +13,10 @@ namespace lincs {
 class TerminateAfterSecondsWithoutProgress : public LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
  public:
   explicit TerminateAfterSecondsWithoutProgress(
-    const LearningData& learning_data_,
+    const ModelsBeingLearned& models_being_learned_,
     const float max_seconds_
   ) :
-    learning_data(learning_data_),
+    models_being_learned(models_being_learned_),
     max_seconds(max_seconds_),
     last_progress_at(std::chrono::steady_clock::now()),
     previous_best_accuracy(0)
@@ -24,7 +24,7 @@ class TerminateAfterSecondsWithoutProgress : public LearnMrsortByWeightsProfiles
 
  public:
   bool terminate() override {
-    const unsigned new_best_accuracy = learning_data.get_best_accuracy();
+    const unsigned new_best_accuracy = models_being_learned.get_best_accuracy();
     if (new_best_accuracy > previous_best_accuracy) {
       last_progress_at = std::chrono::steady_clock::now();
       previous_best_accuracy = new_best_accuracy;
@@ -37,7 +37,7 @@ class TerminateAfterSecondsWithoutProgress : public LearnMrsortByWeightsProfiles
   }
 
  private:
-  const LearningData& learning_data;
+  const ModelsBeingLearned& models_being_learned;
   const float max_seconds;
   std::chrono::steady_clock::time_point last_progress_at;
   unsigned previous_best_accuracy;

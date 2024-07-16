@@ -290,7 +290,7 @@ Model SatSeparationUcncsLearning<SatProblem>::decode(const std::vector<bool>& so
     }
   }
 
-  std::vector<PreProcessedBoundary> boundaries;
+  std::vector<PreprocessedBoundary> boundaries;
   boundaries.reserve(learning_set.boundaries_count);
   for (unsigned boundary_index = 0; boundary_index != learning_set.boundaries_count; ++boundary_index) {
     boundaries.emplace_back(profile_ranks[boundary_index], SufficientCoalitions(SufficientCoalitions::Roots(Internal(), roots)));

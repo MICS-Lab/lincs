@@ -11,10 +11,10 @@ namespace lincs {
 class TerminateAfterIterationsWithoutProgress : public LearnMrsortByWeightsProfilesBreed::TerminationStrategy {
  public:
   explicit TerminateAfterIterationsWithoutProgress(
-    const LearningData& learning_data_,
+    const ModelsBeingLearned& models_being_learned_,
     const unsigned max_iterations_count_
   ) :
-    learning_data(learning_data_),
+    models_being_learned(models_being_learned_),
     max_iterations_count(max_iterations_count_),
     last_progress_iteration_index(0),
     previous_best_accuracy(0)
@@ -22,12 +22,12 @@ class TerminateAfterIterationsWithoutProgress : public LearnMrsortByWeightsProfi
 
  public:
   bool terminate() override {
-    const unsigned new_best_accuracy = learning_data.get_best_accuracy();
+    const unsigned new_best_accuracy = models_being_learned.get_best_accuracy();
     if (new_best_accuracy > previous_best_accuracy) {
-      last_progress_iteration_index = learning_data.iteration_index;
+      last_progress_iteration_index = models_being_learned.iteration_index;
       previous_best_accuracy = new_best_accuracy;
       return false;
-    } else if (learning_data.iteration_index - last_progress_iteration_index >= max_iterations_count) {
+    } else if (models_being_learned.iteration_index - last_progress_iteration_index >= max_iterations_count) {
       return true;
     } else {
       return false;
@@ -35,7 +35,7 @@ class TerminateAfterIterationsWithoutProgress : public LearnMrsortByWeightsProfi
   }
 
  private:
-  const LearningData& learning_data;
+  const ModelsBeingLearned& models_being_learned;
   const unsigned max_iterations_count;
   unsigned last_progress_iteration_index;
   unsigned previous_best_accuracy;

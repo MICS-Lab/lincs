@@ -862,46 +862,47 @@ def classification_model(
             command_line += ["--mrsort.weights-profiles-breed.models-count", mrsort__weights_profiles_breed__models_count]
             command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.random-seed", mrsort__weights_profiles_breed__accuracy_heuristic__random_seed]
 
-            learning_data = lincs.classification.LearnMrsortByWeightsProfilesBreed.LearningData(problem, learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
+            preprocessed_learning_set = lincs.classification.PreprocessedLearningSet(problem, learning_set)
+            models_being_learned = lincs.classification.LearnMrsortByWeightsProfilesBreed.ModelsBeingLearned(preprocessed_learning_set, mrsort__weights_profiles_breed__models_count, mrsort__weights_profiles_breed__accuracy_heuristic__random_seed)
 
             command_line += ["--mrsort.weights-profiles-breed.initialization-strategy", mrsort__weights_profiles_breed__initialization_strategy]
             if mrsort__weights_profiles_breed__initialization_strategy == "maximize-discrimination-per-criterion":
-                profiles_initialization_strategy = lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(learning_data)
+                profiles_initialization_strategy = lincs.classification.InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion(preprocessed_learning_set, models_being_learned)
 
             command_line += ["--mrsort.weights-profiles-breed.weights-strategy", mrsort__weights_profiles_breed__weights_strategy]
             if mrsort__weights_profiles_breed__weights_strategy == "linear-program":
                 command_line += ["--mrsort.weights-profiles-breed.linear-program.solver", mrsort__weights_profiles_breed__linear_program__solver]
                 if mrsort__weights_profiles_breed__linear_program__solver == "glop":
-                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingGlop(learning_data)
+                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingGlop(preprocessed_learning_set, models_being_learned)
                 elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
-                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingAlglib(learning_data)
+                    weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingAlglib(preprocessed_learning_set, models_being_learned)
 
             command_line += ["--mrsort.weights-profiles-breed.profiles-strategy", mrsort__weights_profiles_breed__profiles_strategy]
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":
                 command_line += ["--mrsort.weights-profiles-breed.accuracy-heuristic.processor", mrsort__weights_profiles_breed__accuracy_heuristic__processor]
                 if mrsort__weights_profiles_breed__accuracy_heuristic__processor == "cpu":
-                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu(learning_data)
+                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnCpu(preprocessed_learning_set, models_being_learned)
                 elif mrsort__weights_profiles_breed__accuracy_heuristic__processor == "gpu":
                     assert lincs.has_gpu
-                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu(learning_data)
+                    profiles_improvement_strategy = lincs.classification.ImproveProfilesWithAccuracyHeuristicOnGpu(preprocessed_learning_set, models_being_learned)
 
             command_line += ["--mrsort.weights-profiles-breed.breed-strategy", mrsort__weights_profiles_breed__breed_strategy]
             if mrsort__weights_profiles_breed__breed_strategy == "reinitialize-least-accurate":
                 command_line += ["--mrsort.weights-profiles-breed.reinitialize-least-accurate.portion", mrsort__weights_profiles_breed__reinitialize_least_accurate__portion]
                 count = int(mrsort__weights_profiles_breed__reinitialize_least_accurate__portion * mrsort__weights_profiles_breed__models_count)
-                breeding_strategy = lincs.classification.ReinitializeLeastAccurate(learning_data, profiles_initialization_strategy, count)
+                breeding_strategy = lincs.classification.ReinitializeLeastAccurate(models_being_learned, profiles_initialization_strategy, count)
 
             command_line += ["--mrsort.weights-profiles-breed.target-accuracy", mrsort__weights_profiles_breed__target_accuracy]
             termination_strategies = [lincs.classification.TerminateAtAccuracy(
-                learning_data,
+                models_being_learned,
                 math.ceil(mrsort__weights_profiles_breed__target_accuracy * len(learning_set.alternatives)),
             )]
             if mrsort__weights_profiles_breed__max_iterations is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-iterations", mrsort__weights_profiles_breed__max_iterations]
-                termination_strategies.append(lincs.classification.TerminateAfterIterations(learning_data, mrsort__weights_profiles_breed__max_iterations))
+                termination_strategies.append(lincs.classification.TerminateAfterIterations(models_being_learned, mrsort__weights_profiles_breed__max_iterations))
             if mrsort__weights_profiles_breed__max_iterations_without_progress is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-iterations-without-progress", mrsort__weights_profiles_breed__max_iterations_without_progress]
-                termination_strategies.append(lincs.classification.TerminateAfterIterationsWithoutProgress(learning_data, mrsort__weights_profiles_breed__max_iterations_without_progress))
+                termination_strategies.append(lincs.classification.TerminateAfterIterationsWithoutProgress(models_being_learned, mrsort__weights_profiles_breed__max_iterations_without_progress))
             if mrsort__weights_profiles_breed__max_duration is not None:
                 command_line += ["--mrsort.weights-profiles-breed.max-duration", mrsort__weights_profiles_breed__max_duration]
                 termination_strategies.append(lincs.classification.TerminateAfterSeconds(mrsort__weights_profiles_breed__max_duration))
@@ -916,35 +917,36 @@ def classification_model(
             observers = []
             if mrsort__weights_profiles_breed__verbose:
                 class VerboseObserver(lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer):
-                    def __init__(self, learning_data):
+                    def __init__(self, models_being_learned):
                         super().__init__()
-                        self.learning_data = learning_data
+                        self.models_being_learned = models_being_learned
 
                     def after_iteration(self):
-                        print(f"Best accuracy (after {self.learning_data.iteration_index + 1} iterations): {self.learning_data.get_best_accuracy()}", file=sys.stderr)
+                        print(f"Best accuracy (after {self.models_being_learned.iteration_index + 1} iterations): {self.models_being_learned.get_best_accuracy()}", file=sys.stderr)
 
                     def before_return(self):
-                        print(f"Final accuracy (after {self.learning_data.iteration_index + 1} iterations): {self.learning_data.get_best_accuracy()}", file=sys.stderr)
+                        print(f"Final accuracy (after {self.models_being_learned.iteration_index + 1} iterations): {self.models_being_learned.get_best_accuracy()}", file=sys.stderr)
 
-                observers.append(VerboseObserver(learning_data))
+                observers.append(VerboseObserver(models_being_learned))
             if mrsort__weights_profiles_breed__output_metadata:
                 class MetadataObserver(lincs.classification.LearnMrsortByWeightsProfilesBreed.Observer):
-                    def __init__(self, learning_data):
+                    def __init__(self, models_being_learned):
                         super().__init__()
-                        self.learning_data = learning_data
+                        self.models_being_learned = models_being_learned
                         self.accuracies = []
 
                     def after_iteration(self):
-                        self.accuracies.append(self.learning_data.get_best_accuracy())
+                        self.accuracies.append(self.models_being_learned.get_best_accuracy())
 
                     def before_return(self):
-                        self.accuracies.append(self.learning_data.get_best_accuracy())
+                        self.accuracies.append(self.models_being_learned.get_best_accuracy())
 
-                metadata_observer = MetadataObserver(learning_data)
+                metadata_observer = MetadataObserver(models_being_learned)
                 observers.append(metadata_observer)
 
             learning = lincs.classification.LearnMrsortByWeightsProfilesBreed(
-                learning_data,
+                preprocessed_learning_set,
+                models_being_learned,
                 profiles_initialization_strategy,
                 weights_optimization_strategy,
                 profiles_improvement_strategy,
@@ -1016,7 +1018,7 @@ def classification_model(
             json.dump(
                 {
                     "termination_condition": termination_condition,
-                    "iterations_count": learning_data.iteration_index,
+                    "iterations_count": models_being_learned.iteration_index,
                     "intermediate_accuracies": metadata_observer.accuracies,
                 },
                 mrsort__weights_profiles_breed__output_metadata,

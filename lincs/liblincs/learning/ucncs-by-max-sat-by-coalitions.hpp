@@ -48,7 +48,7 @@ class MaxSatCoalitionsUcncsLearning {
   const Problem& input_problem;
   const Alternatives& input_learning_set;
   #endif
-  PreProcessedLearningSet learning_set;
+  PreprocessedLearningSet learning_set;
   const unsigned coalitions_count;
   typedef boost::dynamic_bitset<> Coalition;
   // See more comments in 'ucncs-by-sat-by-coalitions.hpp'
