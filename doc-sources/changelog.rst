@@ -29,6 +29,8 @@ Version 2.0.0 (2024-07-XX)
     - in the Python API, the last items in a ``thresholds`` or ``intervals`` list can be ``None``
     - (there is a runtime check that all are ``null`` after the first ``null``)
 
+- **Breaking** Split ``LearnMrsortByWeightsProfilesBreed.LearningData`` into ``PreprocessedLearningSet`` and ``LearnMrsortByWeightsProfilesBreed.ModelsBeingLearned``
+
 Version 1.1.0 (2024-02-08)
 ==========================
 
