@@ -195,14 +195,14 @@ jobs:
           path: dist
 
   build-for-macos:
-    runs-on: macos-11
+    runs-on: macos-12
     needs:
       - make-source-dist
     strategy:
       matrix:
         python_version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     env:
-      MACOSX_DEPLOYMENT_TARGET: 11.0
+      MACOSX_DEPLOYMENT_TARGET: 12.0
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -272,9 +272,9 @@ jobs:
           - ubuntu-22.04
           - windows-2019
           - windows-2022
-          - macos-11
           - macos-12
           - macos-13
+          # No macos-14: we don't support M1 chips
         python_version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
       - name: Install Python

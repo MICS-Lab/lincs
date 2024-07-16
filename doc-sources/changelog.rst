@@ -9,6 +9,8 @@ Version 2.0.0 (2024-07-XX)
 
 - Support Python 3.12
 
+- Drop support for macOS 11 (`not supported by GitHub Actions anymore <https://github.blog/changelog/2024-05-20-actions-upcoming-changes-to-github-hosted-macos-runners/>_`)
+
 - **Major** Support single-peaked criteria:
     - on the command-line, ``lincs generate classification-problem`` has a new ``--allow-single-peaked-criteria`` option
     - in the Problem file format, there is a new value ``single-peaked`` for ``preference_direction````
