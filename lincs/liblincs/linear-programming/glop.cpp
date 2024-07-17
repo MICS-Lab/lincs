@@ -15,6 +15,7 @@ GlopLinearProgram::solution_type GlopLinearProgram::solve() {
   parameters.set_provide_strong_optimal_guarantee(true);
   solver.SetParameters(parameters);
 
+  program.CleanUp();
   #ifndef NDEBUG
   auto status =
   #endif
