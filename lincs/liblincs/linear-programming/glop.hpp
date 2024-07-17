@@ -49,7 +49,11 @@ class GlopLinearProgram {
     return Constraint(program);
   }
 
-  operations_research::glop::DenseRow solve();
+  struct solution_type {
+    operations_research::glop::DenseRow assignments;
+    float cost;
+  };
+  solution_type solve();
 
  private:
   operations_research::glop::LinearProgram program;

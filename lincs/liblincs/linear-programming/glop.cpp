@@ -7,7 +7,7 @@
 
 namespace lincs {
 
-operations_research::glop::DenseRow GlopLinearProgram::solve() {
+GlopLinearProgram::solution_type GlopLinearProgram::solve() {
   CHRONE();
 
   operations_research::glop::LPSolver solver;
@@ -20,7 +20,8 @@ operations_research::glop::DenseRow GlopLinearProgram::solve() {
   #endif
   solver.Solve(program);
   assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
-  return solver.variable_values();
+
+  return solution_type{solver.variable_values(), float(solver.GetObjectiveValue())};
 }
 
 }  // namespace lincs

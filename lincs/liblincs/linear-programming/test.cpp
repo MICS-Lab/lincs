@@ -58,9 +58,11 @@ void test_linear_program() {
   // Expected solution:
   //     x0 = 0
   //     x1 = 1
+  // with cost = -1
   auto solution = lp.solve();
-  CHECK(std::abs(solution[x0] - 0) < 1e-6);
-  CHECK(std::abs(solution[x1] - 1) < 1e-6);
+  CHECK(std::abs(solution.assignments[x0] - 0) < 1e-6);
+  CHECK(std::abs(solution.assignments[x1] - 1) < 1e-6);
+  CHECK(std::abs(solution.cost - -1) < 1e-6);
 }
 
 TEST_CASE("GLOP linear program") {

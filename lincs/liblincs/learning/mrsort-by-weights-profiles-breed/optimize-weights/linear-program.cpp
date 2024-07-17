@@ -87,7 +87,7 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
     }
   }
 
-  auto values = program.solve();
+  auto values = program.solve().assignments;
 
   for (unsigned criterion_index = 0; criterion_index != preprocessed_learning_set.criteria_count; ++criterion_index) {
     models_being_learned.weights[model_index][criterion_index] = values[weight_variables[criterion_index]];

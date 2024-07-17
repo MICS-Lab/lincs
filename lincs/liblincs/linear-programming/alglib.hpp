@@ -75,7 +75,11 @@ class AlglibLinearProgram {
     return Constraint(state);
   }
 
-  alglib::real_1d_array solve();
+  struct solution_type {
+    alglib::real_1d_array assignments;
+    float cost;
+  };
+  solution_type solve();
 
  private:
   variable_type next_variable_index;
