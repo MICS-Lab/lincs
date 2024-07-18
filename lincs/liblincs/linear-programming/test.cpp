@@ -38,6 +38,8 @@ void test(F&& f) {
 
 const float infinity = std::numeric_limits<float>::infinity();
 
+// @todo(Project management, when we release our in-house LP solvers) Add tests from https://www4.uwsp.edu/math/afelt/slptestset/download.html
+
 TEST_CASE("'Small house' linear program") {
   test([](auto& linear_program) {
     auto x = linear_program.create_variable();
@@ -64,6 +66,153 @@ TEST_CASE("'Small house' linear program") {
     CHECK(std::abs(solution.assignments[x] - 0) < 1e-6);
     CHECK(std::abs(solution.assignments[y] - 1) < 1e-6);
     CHECK(std::abs(solution.cost - -1) < 1e-6);
+
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Octagon linear program - solution on octagon") {
+  test([](auto& linear_program) {
+    auto x = linear_program.create_variable();
+    auto y = linear_program.create_variable();
+
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -1);
+    linear_program.set_objective_coefficient(y, -1);
+
+    // Octagon centered on (0,0)
+    linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, 1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, 2).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, -1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -2).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -2).set_coefficient(y, 1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, 2).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -2).set_coefficient(y, -1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, -2).set_bounds(-infinity, 3);
+
+    auto solution = linear_program.solve();
+    CHECK(std::abs(solution.assignments[x] - 1) < 1e-6);
+    CHECK(std::abs(solution.assignments[y] - 1) < 1e-6);
+    CHECK(std::abs(solution.cost - -2) < 1e-6);
+
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Octagon linear program - solution on origin (Because of implicit positivity constraints on each variable!)") {
+  test([](auto& linear_program) {
+    auto x = linear_program.create_variable();
+    auto y = linear_program.create_variable();
+
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, 1);
+    linear_program.set_objective_coefficient(y, 1);
+
+    // Octagon centered on (0,0)
+    linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, 1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, 2).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, -1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -2).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -2).set_coefficient(y, 1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, 2).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -2).set_coefficient(y, -1).set_bounds(-infinity, 3);
+    linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, -2).set_bounds(-infinity, 3);
+
+    auto solution = linear_program.solve();
+    CHECK(std::abs(solution.assignments[x] - 0) < 1e-6);
+    CHECK(std::abs(solution.assignments[y] - 0) < 1e-6);
+    CHECK(std::abs(solution.cost - 0) < 1e-6);
+
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Triangle far from origin linear program - 1") {
+  test([](auto& linear_program) {
+    auto x = linear_program.create_variable();
+    auto y = linear_program.create_variable();
+
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, 1);
+    linear_program.set_objective_coefficient(y, 2);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -1).set_bounds(1, infinity);
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-infinity, 2);
+
+    auto solution = linear_program.solve();
+    CHECK(std::abs(solution.assignments[x] - 1) < 1e-6);
+    CHECK(std::abs(solution.assignments[y] - 0) < 1e-6);
+    CHECK(std::abs(solution.cost - 1) < 1e-6);
+
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Triangle far from origin linear program - 2") {
+  test([](auto& linear_program) {
+    auto x = linear_program.create_variable();
+    auto y = linear_program.create_variable();
+
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -2);
+    linear_program.set_objective_coefficient(y, -1);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -1).set_bounds(1, infinity);
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-infinity, 2);
+
+    auto solution = linear_program.solve();
+    CHECK(std::abs(solution.assignments[x] - 2) < 1e-6);
+    CHECK(std::abs(solution.assignments[y] - 1) < 1e-6);
+    CHECK(std::abs(solution.cost - -5) < 1e-6);
+
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Triangle far from origin linear program - 3") {
+  test([](auto& linear_program) {
+    auto x = linear_program.create_variable();
+    auto y = linear_program.create_variable();
+
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -1);
+    linear_program.set_objective_coefficient(y, 1);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -1).set_bounds(1, infinity);
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-infinity, 2);
+
+    auto solution = linear_program.solve();
+    CHECK(std::abs(solution.assignments[x] - 2) < 1e-6);
+    CHECK(std::abs(solution.assignments[y] - 0) < 1e-6);
+    CHECK(std::abs(solution.cost - -2) < 1e-6);
+
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Wikipedia example") {
+  // https://en.wikipedia.org/wiki/Simplex_algorithm#Example
+  test([](auto& linear_program) {
+    auto x = linear_program.create_variable();
+    auto y = linear_program.create_variable();
+    auto z = linear_program.create_variable();
+
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -2);
+    linear_program.set_objective_coefficient(y, -3);
+    linear_program.set_objective_coefficient(z, -4);
+
+    linear_program.create_constraint().set_coefficient(x, 3).set_coefficient(y, 2).set_coefficient(z, 1).set_bounds(-infinity, 10);
+    linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, 5).set_coefficient(z, 3).set_bounds(-infinity, 15);
+
+    auto solution = linear_program.solve();
+    CHECK(std::abs(solution.cost - -20) < 1e-6);
 
     return solution.cost;
   });
