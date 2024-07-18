@@ -32,12 +32,14 @@ class GlopLinearProgram {
   struct Constraint {
     Constraint(operations_research::glop::LinearProgram& program_) : program(program_), index(program_.CreateNewConstraint()) {}
 
-    void set_bounds(float lower_bound, float upper_bound) {
+    Constraint& set_bounds(float lower_bound, float upper_bound) {
       program.SetConstraintBounds(index, lower_bound, upper_bound);
+      return *this;
     }
 
-    void set_coefficient(variable_type variable, float coefficient) {
+    Constraint& set_coefficient(variable_type variable, float coefficient) {
       program.SetCoefficient(index, variable, coefficient);
+      return *this;
     }
 
    private:
