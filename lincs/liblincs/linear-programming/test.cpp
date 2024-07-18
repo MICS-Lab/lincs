@@ -80,7 +80,7 @@ typedef std::tuple<
 > LinearPrograms;
 
 template<typename LinearProgram>
-LinearProgram& initialize(unsigned seed, LinearProgram& lp) {
+float initialize_and_solve(unsigned seed, LinearProgram& lp) {
   std::mt19937 mt(seed);
 
   std::uniform_int_distribution<unsigned> make_variables_count(2, 10);
@@ -98,9 +98,13 @@ LinearProgram& initialize(unsigned seed, LinearProgram& lp) {
   lp.mark_all_variables_created();
 
   // Give a coefficient to each variable
-  for (const auto& v : variables) {
-    // @todo(Project management, when we release our in-house LP solvers) Let some variables not appear in the objective
-    lp.set_objective_coefficient(v, make_objective_coefficient(mt));
+  // @todo(Project management, when we release our in-house LP solvers) Let some variables not appear in the objective
+  std::vector<float> objective_coefficients;
+  objective_coefficients.resize(variables_count);
+  for (unsigned i = 0; i != variables_count; ++i) {
+    const float coefficient = make_objective_coefficient(mt);
+    objective_coefficients[i] = coefficient;
+    lp.set_objective_coefficient(variables[i], coefficient);
   }
 
   // Box all variables to ensure the problem is bounded
@@ -119,7 +123,15 @@ LinearProgram& initialize(unsigned seed, LinearProgram& lp) {
     }
   }
 
-  return lp;
+  auto solution = lp.solve();
+
+  float expected_cost = 0;
+  for (unsigned i = 0; i != variables_count; ++i) {
+    expected_cost += objective_coefficients[i] * solution.assignments[variables[i]];
+  }
+  CHECK(std::abs(solution.cost - expected_cost) < 2e-6);
+
+  return solution.cost;
 }
 
 TEST_CASE("Linear program solvers consistency on programs with optimal solutions") {
@@ -129,7 +141,7 @@ TEST_CASE("Linear program solvers consistency on programs with optimal solutions
     LinearPrograms linear_programs;
 
     const auto costs = std::apply(
-      [seed](auto&... linear_program) { return std::make_tuple(initialize(seed, linear_program).solve().cost...); },
+      [seed](auto&... linear_program) { return std::make_tuple(initialize_and_solve(seed, linear_program)...); },
       linear_programs
     );
 
