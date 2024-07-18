@@ -213,6 +213,8 @@ TEST_CASE("Wikipedia example") {
 
     auto solution = linear_program.solve();
     CHECK(std::abs(solution.cost - -20) < 1e-6);
+    const float recomputed_cost = -2 * solution.assignments[x] -3 * solution.assignments[y] - 4 * solution.assignments[z];
+    CHECK(std::abs(recomputed_cost - -20) < 1e-6);
 
     return solution.cost;
   });
