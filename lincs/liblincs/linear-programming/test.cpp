@@ -16,53 +16,69 @@ void test_linear_program() {
   LinearProgram lp;
 
   // Objective: minimize:
-  //     F(x0, x1) = -0.1 * x0 - x1
-  auto x0 = lp.create_variable();
-  auto x1 = lp.create_variable();
+  //     F(x, y) = -0.1 * x - y
+  auto x = lp.create_variable();
+  auto y = lp.create_variable();
 
   lp.mark_all_variables_created();
 
-  lp.set_objective_coefficient(x0, -0.1);
-  lp.set_objective_coefficient(x1, -1);
+  lp.set_objective_coefficient(x, -0.1);
+  lp.set_objective_coefficient(y, -1);
 
   // Constraints:
-  //     -1 <= x0 <= +1
+  //     -1 <= x <= +1
   {
     auto c = lp.create_constraint();
     c.set_bounds(-1, 1);
-    c.set_coefficient(x0, 1);
+    c.set_coefficient(x, 1);
   }
 
-  //     -1 <= x1 <= +1
+  //     -1 <= y <= +1
   {
     auto c = lp.create_constraint();
     c.set_bounds(-1, 1);
-    c.set_coefficient(x1, 1);
+    c.set_coefficient(y, 1);
   }
 
-  //     x0 - x1 >= -1
+  //     x - y >= -1
   {
     auto c = lp.create_constraint();
     c.set_bounds(-1, +infinity);
-    c.set_coefficient(x0, 1);
-    c.set_coefficient(x1, -1);
+    c.set_coefficient(x, 1);
+    c.set_coefficient(y, -1);
   }
 
-  //     x0 + x1 <= 1
+  //     x + y <= 1
   {
     auto c = lp.create_constraint();
     c.set_bounds(-infinity, 1);
-    c.set_coefficient(x0, 1);
-    c.set_coefficient(x1, 1);
+    c.set_coefficient(x, 1);
+    c.set_coefficient(y, 1);
   }
 
-  // Expected solution:
-  //     x0 = 0
-  //     x1 = 1
-  // with cost = -1
+  //  y=1          /+\
+  //             /     \
+  //           /         \
+  //         /             \
+  //       /                 \
+  //  y=0 +   Allowed         +
+  //      |    Region         |
+  //      |                   |
+  //      |                   |
+  //      |                   |
+  //      |                   |
+  // y=-1 +-------------------+
+  //     x=-1      x=0      x=1
+
+  // Basic feasible solutions ('+' in graph above):
+  //   F(1, 0) = -0.1
+  //   F(0, 1) = -1  <-- Optimal solution
+  //   F(-1, 0) = 0.1
+  //   F(-1, -1) = 1.1
+  //   F(1, -1) = 0.9
   auto solution = lp.solve();
-  CHECK(std::abs(solution.assignments[x0] - 0) < 1e-6);
-  CHECK(std::abs(solution.assignments[x1] - 1) < 1e-6);
+  CHECK(std::abs(solution.assignments[x] - 0) < 1e-6);
+  CHECK(std::abs(solution.assignments[y] - 1) < 1e-6);
   CHECK(std::abs(solution.cost - -1) < 1e-6);
 }
 
