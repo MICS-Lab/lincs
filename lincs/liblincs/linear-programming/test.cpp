@@ -79,6 +79,21 @@ typedef std::tuple<
   lincs::AlglibLinearProgram
 > LinearPrograms;
 
+template<unsigned Index, typename... Float>
+void check_all_equal_impl(const std::tuple<Float...>& costs) {
+  static_assert(0 < Index);
+  static_assert(Index <= sizeof...(Float));
+  if constexpr (Index < sizeof...(Float)) {
+    CHECK(std::abs(std::get<0>(costs) - std::get<Index>(costs)) < 1e-6);
+    check_all_equal_impl<Index + 1>(costs);
+  }
+}
+
+template<typename... Float>
+void check_all_equal(const std::tuple<Float...>& costs) {
+  check_all_equal_impl<1>(costs);
+}
+
 TEST_CASE("Linear program solvers consistency on programs with optimal solutions") {
   for (unsigned seed = 0; seed != 10'000; ++seed) {
     CAPTURE(seed);
@@ -144,7 +159,7 @@ TEST_CASE("Linear program solvers consistency on programs with optimal solutions
       linear_programs
     );
 
-    CHECK(std::abs(std::get<0>(costs) - std::get<1>(costs)) < 1e-6);
+    check_all_equal(costs);
   }
 }
 
