@@ -9,91 +9,91 @@
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
-template<typename LinearProgram>
-void test_linear_program() {
-  const float infinity = std::numeric_limits<float>::infinity();
-
-  LinearProgram lp;
-
-  // Objective: minimize:
-  //     F(x, y) = -0.1 * x - y
-  auto x = lp.create_variable();
-  auto y = lp.create_variable();
-
-  lp.mark_all_variables_created();
-
-  lp.set_objective_coefficient(x, -0.1);
-  lp.set_objective_coefficient(y, -1);
-
-  // Constraints:
-  //     -1 <= x <= +1
-  {
-    auto c = lp.create_constraint();
-    c.set_bounds(-1, 1);
-    c.set_coefficient(x, 1);
-  }
-
-  //     -1 <= y <= +1
-  {
-    auto c = lp.create_constraint();
-    c.set_bounds(-1, 1);
-    c.set_coefficient(y, 1);
-  }
-
-  //     x - y >= -1
-  {
-    auto c = lp.create_constraint();
-    c.set_bounds(-1, +infinity);
-    c.set_coefficient(x, 1);
-    c.set_coefficient(y, -1);
-  }
-
-  //     x + y <= 1
-  {
-    auto c = lp.create_constraint();
-    c.set_bounds(-infinity, 1);
-    c.set_coefficient(x, 1);
-    c.set_coefficient(y, 1);
-  }
-
-  //  y=1          /+\
-  //             /     \
-  //           /         \
-  //         /             \
-  //       /                 \
-  //  y=0 +   Allowed         +
-  //      |    Region         |
-  //      |                   |
-  //      |                   |
-  //      |                   |
-  //      |                   |
-  // y=-1 +-------------------+
-  //     x=-1      x=0      x=1
-
-  // Basic feasible solutions ('+' in graph above):
-  //   F(1, 0) = -0.1
-  //   F(0, 1) = -1  <-- Optimal solution
-  //   F(-1, 0) = 0.1
-  //   F(-1, -1) = 1.1
-  //   F(1, -1) = 0.9
-  auto solution = lp.solve();
-  CHECK(std::abs(solution.assignments[x] - 0) < 1e-6);
-  CHECK(std::abs(solution.assignments[y] - 1) < 1e-6);
-  CHECK(std::abs(solution.cost - -1) < 1e-6);
-}
-
-TEST_CASE("GLOP linear program") {
-  test_linear_program<lincs::GlopLinearProgram>();
-}
-
-TEST_CASE("Alglib linear program") {
-  test_linear_program<lincs::AlglibLinearProgram>();
-}
-
 typedef std::tuple<
   lincs::GlopLinearProgram,
   lincs::AlglibLinearProgram
 > LinearPrograms;
+
+TEST_CASE("'Small house' linear program") {
+  LinearPrograms linear_programs;
+
+  std::apply(
+    [](auto&... linear_program) {
+      (([&linear_program]() {
+        const float infinity = std::numeric_limits<float>::infinity();
+
+        // Objective: minimize:
+        //     F(x, y) = -0.1 * x - y
+        auto x = linear_program.create_variable();
+        auto y = linear_program.create_variable();
+
+        linear_program.mark_all_variables_created();
+
+        linear_program.set_objective_coefficient(x, -0.1);
+        linear_program.set_objective_coefficient(y, -1);
+
+        // Constraints:
+        /*
+        //  y=1          /+\
+        //             /     \
+        //           /         \
+        //         /             \
+        //       /                 \
+        //  y=0 +   Allowed         +
+        //      |    Region         |
+        //      |                   |
+        //      |                   |
+        //      |                   |
+        //      |                   |
+        // y=-1 +-------------------+
+        //     x=-1      x=0      x=1
+        */
+
+        //     -1 <= x <= +1
+        {
+          auto c = linear_program.create_constraint();
+          c.set_bounds(-1, 1);
+          c.set_coefficient(x, 1);
+        }
+
+        //     -1 <= y <= +1
+        {
+          auto c = linear_program.create_constraint();
+          c.set_bounds(-1, 1);
+          c.set_coefficient(y, 1);
+        }
+
+        //     x - y >= -1
+        {
+          auto c = linear_program.create_constraint();
+          c.set_bounds(-1, +infinity);
+          c.set_coefficient(x, 1);
+          c.set_coefficient(y, -1);
+        }
+
+        //     x + y <= 1
+        {
+          auto c = linear_program.create_constraint();
+          c.set_bounds(-infinity, 1);
+          c.set_coefficient(x, 1);
+          c.set_coefficient(y, 1);
+        }
+
+        // Basic feasible solutions ('+' in graph in add_constraints_...):
+        //   F(1, 0) = -0.1
+        //   F(0, 1) = -1  <-- Optimal solution
+        //   F(-1, 0) = 0.1
+        //   F(-1, -1) = 1.1
+        //   F(1, -1) = 0.9
+        auto solution = linear_program.solve();
+        CHECK(std::abs(solution.assignments[x] - 0) < 1e-6);
+        CHECK(std::abs(solution.assignments[y] - 1) < 1e-6);
+        CHECK(std::abs(solution.cost - -1) < 1e-6);
+      })(), ...);
+    },
+    linear_programs
+  );
+}
 
 template<unsigned Index, typename... Float>
 void check_all_equal_impl(const std::tuple<Float...>& costs) {
@@ -110,7 +110,7 @@ void check_all_equal(const std::tuple<Float...>& costs) {
   check_all_equal_impl<1>(costs);
 }
 
-TEST_CASE("Linear program solvers consistency on programs with optimal solutions") {
+TEST_CASE("Random linear programs with optimal solutions") {
   for (unsigned seed = 0; seed != 10'000; ++seed) {
     CAPTURE(seed);
 
