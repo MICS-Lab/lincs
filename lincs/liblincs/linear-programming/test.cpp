@@ -99,10 +99,11 @@ LinearProgram& initialize(unsigned seed, LinearProgram& lp) {
 
   // Give a coefficient to each variable
   for (const auto& v : variables) {
+    // @todo(Project management, when we release our in-house LP solvers) Let some variables not appear in the objective
     lp.set_objective_coefficient(v, make_objective_coefficient(mt));
   }
 
-  // Box all variables to ensure the problem is bounded and has an optimal solution
+  // Box all variables to ensure the problem is bounded
   for (const auto& v : variables) {
     auto c = lp.create_constraint();
     c.set_bounds(-1, 1);
@@ -112,6 +113,7 @@ LinearProgram& initialize(unsigned seed, LinearProgram& lp) {
   for (unsigned i = 0; i != constraints_count; ++i) {
     auto c = lp.create_constraint();
     c.set_bounds(-1, 1);
+    // @todo(Project management, when we release our in-house LP solvers) Let some variables not appear in some constraints
     for (const auto& v : variables) {
       c.set_coefficient(v, make_constraint_coefficient(mt));
     }
@@ -120,7 +122,7 @@ LinearProgram& initialize(unsigned seed, LinearProgram& lp) {
   return lp;
 }
 
-TEST_CASE("Linear program solvers consistency") {
+TEST_CASE("Linear program solvers consistency on programs with optimal solutions") {
   for (unsigned seed = 0; seed != 10'000; ++seed) {
     CAPTURE(seed);
 
@@ -134,3 +136,5 @@ TEST_CASE("Linear program solvers consistency") {
     CHECK(std::abs(std::get<0>(costs) - std::get<1>(costs)) < 1e-6);
   }
 }
+
+// @todo(Project management, when we release our in-house LP solvers) Test consistency on all kinds of linear programs (unbounded, infeasible, others?)
