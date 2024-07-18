@@ -4,6 +4,7 @@
 #include <random>
 
 #include "alglib.hpp"
+#include "custom-on-cpu.hpp"
 #include "glop.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -11,7 +12,8 @@
 
 typedef std::tuple<
   lincs::GlopLinearProgram,
-  lincs::AlglibLinearProgram
+  lincs::AlglibLinearProgram,
+  lincs::CustomOnCpuLinearProgram
 > LinearPrograms;
 
 template<unsigned Index, typename... Float>
