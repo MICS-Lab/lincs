@@ -11,6 +11,7 @@
 #undef CHECK_GT
 #undef CHECK_LE
 #undef CHECK_GE
+#undef CHECK_NEAR
 #undef LOG
 
 

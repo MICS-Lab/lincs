@@ -253,7 +253,10 @@ def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_sat, skip_max_sat
     )
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
-    command = ["/tmp/lincs-tests"]
+    command = [
+        # "gdb", "--eval-command=run", "--eval-command=quit",
+        "/tmp/lincs-tests",
+    ]
     if skip_wpb:
         env["LINCS_DEV_SKIP_WPB"] = "true"
     if skip_sat:

@@ -10,6 +10,11 @@
 
 namespace lincs {
 
+struct CustomOnCpuVerbose {
+  CustomOnCpuVerbose();
+  ~CustomOnCpuVerbose();
+};
+
 class CustomOnCpuLinearProgram {
  public:
   typedef unsigned variable_type;
@@ -23,17 +28,17 @@ class CustomOnCpuLinearProgram {
     objective_coefficients[variable] = coefficient;
   }
 
-  struct Constraint {
-    Constraint(CustomOnCpuLinearProgram* program, unsigned index) : program(program), index(index) {}
+  struct ConstraintFacade {
+    ConstraintFacade(CustomOnCpuLinearProgram* program, unsigned index) : program(program), index(index) {}
 
-    Constraint& set_bounds(float lower_bound, float upper_bound) {
-      std::get<0>(program->constraints[index]) = lower_bound;
-      std::get<1>(program->constraints[index]) = upper_bound;
+    ConstraintFacade& set_bounds(float lower_bound, float upper_bound) {
+      program->constraints[index].lower_bound = lower_bound;
+      program->constraints[index].upper_bound = upper_bound;
       return *this;
     }
 
-    Constraint& set_coefficient(variable_type variable, float coefficient) {
-      std::get<2>(program->constraints[index])[variable] = coefficient;
+    ConstraintFacade& set_coefficient(variable_type variable, float coefficient) {
+      program->constraints[index].coefficients[variable] = coefficient;
       return *this;
     }
 
@@ -42,9 +47,9 @@ class CustomOnCpuLinearProgram {
     const unsigned index;
   };
 
-  Constraint create_constraint() {
+  ConstraintFacade create_constraint() {
     constraints.emplace_back();
-    return {this, constraints.size() - 1};
+    return {this, unsigned(constraints.size() - 1)};
   }
 
   struct solution_type {
@@ -53,10 +58,22 @@ class CustomOnCpuLinearProgram {
   };
   solution_type solve();
 
+ public:
+  unsigned variables_count() const { return next_variable_index; }
+
+  const std::map<variable_type, float>& get_objective_coefficients() const { return objective_coefficients; }
+
+  struct Constraint {
+    float lower_bound;
+    float upper_bound;
+    std::map<variable_type, float> coefficients;
+  };
+  const std::vector<Constraint>& get_constraints() const { return constraints; }
+
  private:
   variable_type next_variable_index = 0;
   std::map<variable_type, float> objective_coefficients;
-  std::vector<std::tuple<float, float, std::map<variable_type, float>>> constraints;
+  std::vector<Constraint> constraints;
 };
 
 }  // namespace lincs
