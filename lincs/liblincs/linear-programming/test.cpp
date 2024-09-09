@@ -10,9 +10,15 @@
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
+const float infinity = std::numeric_limits<float>::infinity();
+
 float relative_difference(float a, float b) {
-  if (a == 0 || b == 0) {
+  if (a == b) {  // Handle infinities
+    return 0;
+  } else if (a == 0 || b == 0) {
     return std::max(std::abs(a), std::abs(b));
+  } else if (std::abs(a) == infinity || std::abs(b) == infinity) {
+    return 1;
   } else {
     return std::abs(a - b) / std::max(std::abs(a), std::abs(b));
   }
@@ -48,8 +54,6 @@ void test(F&& f) {
   const auto costs = std::apply([&f](auto&... linear_program) { return std::make_tuple(f(linear_program)...); }, linear_programs);
   check_all_equal(costs);
 }
-
-const float infinity = std::numeric_limits<float>::infinity();
 
 // @todo(Project management, when we release our in-house LP solvers) Add tests from https://www4.uwsp.edu/math/afelt/slptestset/download.html
 
@@ -532,6 +536,21 @@ TEST_CASE("Random linear programs with optimal solutions") {
       return solution.cost;
     });
   }
+}
+
+TEST_CASE("Unbounded") {
+  test([](auto& linear_program) {
+    const auto x = linear_program.create_variable();
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -1);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(0, infinity);
+
+    const auto solution = linear_program.solve();
+    CHECK(solution.cost == -infinity);
+    return solution.cost;
+  });
 }
 
 // @todo(Project management, when we release our in-house LP solvers) Test consistency on all kinds of linear programs (unbounded, infeasible, others?)

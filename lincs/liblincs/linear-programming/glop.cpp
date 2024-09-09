@@ -20,9 +20,15 @@ GlopLinearProgram::solution_type GlopLinearProgram::solve() {
   auto status =
   #endif
   solver.Solve(program);
-  assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
-
-  return solution_type{solver.variable_values(), float(solver.GetObjectiveValue())};
+  if (status == operations_research::glop::ProblemStatus::OPTIMAL) {
+    return solution_type{solver.variable_values(), float(solver.GetObjectiveValue())};
+  } else if (status == operations_research::glop::ProblemStatus::INFEASIBLE_OR_UNBOUNDED) {
+    // @todo Check it is indeed unbounded. See https://github.com/google/or-tools/blob/v8.2/ortools/lp_data/lp_types.h#L116
+    return solution_type{solver.variable_values(), -std::numeric_limits<float>::infinity()};
+  } else {
+    std::cerr << "Unexpected GLOP status: " << status << std::endl;
+    assert(false);
+  }
 }
 
 }  // namespace lincs
