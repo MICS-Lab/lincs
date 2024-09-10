@@ -1,6 +1,9 @@
 // Copyright 2024 Vincent Jacques
 
 #include <cassert>
+#include <ctime>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -15,6 +18,77 @@
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
+
+namespace fs = std::filesystem;
+
+namespace {
+
+std::string no_loss(const float f) {
+  std::ostringstream out;
+  out /*<< std::setprecision(20)*/ << f;
+  std::istringstream in(out.str());
+  float f2;
+  in >> f2;
+  assert(f2 == f);
+  return out.str();
+}
+
+void dump(const lincs::CustomOnCpuLinearProgram& program) {
+  std::ostringstream out;
+  out << "// Copyright 2023-2024 Vincent Jacques\n"
+      << "\n"
+      << "#include \"testing.hpp\"\n"
+      << "\n"
+      << "\n"
+      << "TEST_CASE(\"Bug\") {\n"
+      << "  test([](auto& linear_program) {\n"
+      << "    {\n";
+  for (unsigned i = 0; i != program.variables_count(); ++i) {
+    out << "      const auto x" << i << " = linear_program.create_variable();\n";
+  }
+  out << "      linear_program.mark_all_variables_created();\n";
+  for (const auto& [variable, coefficient] : program.get_objective_coefficients()) {
+    out << "      linear_program.set_objective_coefficient(x" << variable << ", " << no_loss(coefficient) << ");\n";
+  }
+  for (const auto& constraint : program.get_constraints()) {
+    out << "      { "
+      << "auto c = linear_program.create_constraint();"
+      << " c.set_bounds(" << no_loss(constraint.lower_bound) << ", " << no_loss(constraint.upper_bound) << ");";
+    for (const auto& [variable, coefficient] : constraint.coefficients) {
+      out << " c.set_coefficient(x" << variable << ", " << no_loss(coefficient) << ");";
+    }
+    out << " }\n";
+  }
+  out << "    }\n"
+      << "    return linear_program.solve().cost;\n"
+      << "  });\n"
+      << "}\n";
+
+  bool found = false;
+  for (const auto & entry : fs::directory_iterator("lincs/liblincs/linear-programming")) {
+    std::ifstream file(entry.path());
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    if (content == out.str()) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    std::ofstream file(str(boost::format("lincs/liblincs/linear-programming/test-bug-%||.cpp") % std::time(nullptr)));
+    file << out.str();
+  }
+}
+
+#ifdef NDEBUG
+  #define assertWithDump(expr, program) static_cast<void>(0)
+#else
+  #define assertWithDump(expr, program) \
+     (static_cast<bool>(expr) \
+      ? static_cast<void>(0) \
+      : (dump(program), __assert_fail(#expr, __FILE__, __LINE__, __func__)))
+#endif
+
+}  // namespace
 
 namespace lincs {
 
@@ -161,6 +235,7 @@ class Simplex {
 
   void pivot(const unsigned leaving_row, const unsigned entering_column) {
     const float pivot_value = constraints_coefficients[leaving_row][entering_column];
+    assert(pivot_value > 0);
     for (unsigned col = 0; col != total_variables_count; ++col) {
       constraints_coefficients[leaving_row][col] /= pivot_value;
     }
@@ -337,14 +412,15 @@ class CustomOnCpuLinearProgramSolver {
       Simplex(first_tableau).run();  // We don't care if it's optimal or unbounded
 
       const auto first_assignments = first_tableau.get_assignments();
-      for (unsigned artificial_variable_index = first_tableau.client_variables_count + first_tableau.slack_variables_count; artificial_variable_index < first_tableau.client_variables_count + first_tableau.slack_variables_count + first_tableau.artificial_variables_count; ++artificial_variable_index) {
-        if (first_assignments[artificial_variable_index] != 0) {
+      for (unsigned artificial_variable_index = 0; artificial_variable_index < first_tableau.artificial_variables_count; ++artificial_variable_index) {
+        if (first_assignments[first_tableau.client_variables_count + first_tableau.slack_variables_count + artificial_variable_index] != 0) {
           if (verbose) {
             std::cout << "  Infeasible!" << std::endl;
           }
           return {first_assignments, std::numeric_limits<float>::quiet_NaN()};
         }
       }
+      assertWithDump(first_tableau.costs[1] == 0, program);
 
       if (verbose) {
         std::cout << "SECOND PHASE" << std::endl;
@@ -602,7 +678,7 @@ class CustomOnCpuLinearProgramSolver {
     }
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     for (unsigned row = 0; row != constraints_count; ++row) {
-      assert(first_tableau.basic_variable_cols[row] < total_variables_count);
+      assertWithDump(first_tableau.basic_variable_cols[row] < total_variables_count, program);
       basic_variable_cols[row] = first_tableau.basic_variable_cols[row];
     }
 

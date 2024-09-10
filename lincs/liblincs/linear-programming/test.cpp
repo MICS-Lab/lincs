@@ -1,59 +1,7 @@
 // Copyright 2023-2024 Vincent Jacques
 
-#include <limits>
-#include <random>
+#include "testing.hpp"
 
-#include "alglib.hpp"
-#include "custom-on-cpu.hpp"
-#include "glop.hpp"
-
-#include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
-
-
-const float infinity = std::numeric_limits<float>::infinity();
-
-float relative_difference(float a, float b) {
-  if (a == b) {  // Handle infinities
-    return 0;
-  } else if (a == 0 || b == 0) {
-    return std::max(std::abs(a), std::abs(b));
-  } else if (std::abs(a) == infinity || std::abs(b) == infinity) {
-    return 1;
-  } else {
-    return std::abs(a - b) / std::max(std::abs(a), std::abs(b));
-  }
-}
-
-#define CHECK_NEAR(a, b) CHECK(relative_difference(a, b) < 1e-5)
-
-
-typedef std::tuple<
-  lincs::GlopLinearProgram,
-  lincs::AlglibLinearProgram,
-  lincs::CustomOnCpuLinearProgram
-> LinearPrograms;
-
-template<unsigned Index, typename... Float>
-void check_all_equal_impl(const std::tuple<Float...>& costs) {
-  static_assert(0 < Index);
-  static_assert(Index <= sizeof...(Float));
-  if constexpr (Index < sizeof...(Float)) {
-    CHECK_NEAR(std::get<0>(costs), std::get<Index>(costs));
-    check_all_equal_impl<Index + 1>(costs);
-  }
-}
-
-template<typename... Float>
-void check_all_equal(const std::tuple<Float...>& costs) {
-  check_all_equal_impl<1>(costs);
-}
-
-template <typename F>
-void test(F&& f) {
-  LinearPrograms linear_programs;
-  const auto costs = std::apply([&f](auto&... linear_program) { return std::make_tuple(f(linear_program)...); }, linear_programs);
-  check_all_equal(costs);
-}
 
 // @todo(Project management, when we release our in-house LP solvers) Add tests from https://www4.uwsp.edu/math/afelt/slptestset/download.html
 
@@ -526,6 +474,8 @@ TEST_CASE("Random linear programs with optimal solutions") {
       }
 
       const auto solution = linear_program.solve();
+      CHECK(solution.cost != -infinity);
+      CHECK(!std::isnan(solution.cost));
 
       float expected_cost = 0;
       for (unsigned i = 0; i != variables_count; ++i) {
@@ -538,7 +488,7 @@ TEST_CASE("Random linear programs with optimal solutions") {
   }
 }
 
-TEST_CASE("Unbounded") {
+TEST_CASE("Unbounded (single phase)") {
   test([](auto& linear_program) {
     const auto x = linear_program.create_variable();
     linear_program.mark_all_variables_created();
@@ -549,6 +499,36 @@ TEST_CASE("Unbounded") {
 
     const auto solution = linear_program.solve();
     CHECK(solution.cost == -infinity);
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Unbounded (two phases)") {
+  test([](auto& linear_program) {
+    const auto x = linear_program.create_variable();
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -1);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(1, infinity);
+
+    const auto solution = linear_program.solve();
+    CHECK(solution.cost == -infinity);
+    return solution.cost;
+  });
+}
+
+TEST_CASE("Infeasible") {
+  test([](auto& linear_program) {
+    const auto x = linear_program.create_variable();
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, -1);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-2, -1);
+
+    const auto solution = linear_program.solve();
+    CHECK(std::isnan(solution.cost));
     return solution.cost;
   });
 }
