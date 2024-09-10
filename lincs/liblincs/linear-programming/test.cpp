@@ -16,7 +16,7 @@ TEST_CASE("Example 1.1 of https://webspace.maths.qmul.ac.uk/felix.fischer/teachi
 
     linear_program.create_constraint().set_coefficient(x1, 1).set_coefficient(x2, 2).set_bounds(-infinity, 6);
     linear_program.create_constraint().set_coefficient(x1, 1).set_coefficient(x2, -1).set_bounds(-infinity, 3);
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
 
     CHECK_NEAR(solution.assignments[x1], 4);
     CHECK_NEAR(solution.assignments[x2], 1);
@@ -37,7 +37,7 @@ TEST_CASE("Simplex orthogonal to objective gradient, origin feasible but not opt
 
     linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, 1).set_bounds(-infinity, +1);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
 
     // Can't check the assignments because they are not unique
     CHECK_NEAR(solution.cost, -1);
@@ -68,7 +68,7 @@ TEST_CASE("'Small house' linear program") {
 
     // Optimal solution:
     // F(0, 1) = -1
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x], 0);
     CHECK_NEAR(solution.assignments[y], 1);
     CHECK_NEAR(solution.cost, -1);
@@ -97,7 +97,7 @@ TEST_CASE("Octagon linear program - solution on octagon") {
     linear_program.create_constraint().set_coefficient(x, -2).set_coefficient(y, -1).set_bounds(-infinity, 3);
     linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, -2).set_bounds(-infinity, 3);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x], 1);
     CHECK_NEAR(solution.assignments[y], 1);
     CHECK_NEAR(solution.cost, -2);
@@ -126,7 +126,7 @@ TEST_CASE("Octagon linear program - solution on origin (Because of implicit posi
     linear_program.create_constraint().set_coefficient(x, -2).set_coefficient(y, -1).set_bounds(-infinity, 3);
     linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, -2).set_bounds(-infinity, 3);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x], 0);
     CHECK_NEAR(solution.assignments[y], 0);
     CHECK_NEAR(solution.cost, 0);
@@ -145,7 +145,7 @@ TEST_CASE("One unused variable") {
 
     linear_program.create_constraint().set_coefficient(x0, 1).set_bounds(-infinity, 1);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x0], 1);
     CHECK_NEAR(solution.assignments[x1], 0);  // Not unique but all current solvers happen to return this value
     CHECK_NEAR(solution.cost, -1);
@@ -165,7 +165,7 @@ TEST_CASE("Two unused variables") {
 
     linear_program.create_constraint().set_coefficient(x2, 1).set_bounds(-infinity, 1);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x0], 0);  // Not unique but all current solvers happen to return this value
     CHECK_NEAR(solution.assignments[x1], 0);  // Idem
     CHECK_NEAR(solution.assignments[x2], 1);
@@ -187,7 +187,7 @@ TEST_CASE("Equality constraint with origin feasible") {
     linear_program.create_constraint().set_coefficient(x1, 1).set_coefficient(x2, -2).set_bounds(0, 0);
     linear_program.create_constraint().set_coefficient(x1, 1).set_coefficient(x2, 1).set_bounds(-infinity, 3);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x1], 2);
     CHECK_NEAR(solution.assignments[x2], 1);
     CHECK_NEAR(solution.cost, -3);
@@ -209,7 +209,7 @@ TEST_CASE("Section 8 of https://webspace.maths.qmul.ac.uk/felix.fischer/teaching
     linear_program.create_constraint().set_coefficient(x1, 2).set_coefficient(x2, -1).set_bounds(1, infinity);
     linear_program.create_constraint().set_coefficient(x2, 3).set_bounds(-infinity, 2);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
 
     CHECK_NEAR(solution.assignments[x1], 2./3);
     CHECK_NEAR(solution.assignments[x2], 1./3);
@@ -245,7 +245,7 @@ TEST_CASE("Section 8 of https://webspace.maths.qmul.ac.uk/felix.fischer/teaching
   //     linear_program.create_constraint().set_coefficient(x1, 2 + make_small_variation(mt)).set_coefficient(x2, -1 + make_small_variation(mt)).set_bounds(1 + make_small_variation(mt), infinity);
   //     linear_program.create_constraint().set_coefficient(x2, 3 + make_small_variation(mt)).set_bounds(-infinity, 2 + make_small_variation(mt));
 
-  //     const auto solution = linear_program.solve();
+  //     const auto solution = *linear_program.solve();
 
   //     return solution.cost;
   //   });
@@ -261,7 +261,7 @@ TEST_CASE("Origin not feasible") {
 
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(1, +infinity);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
 
     CHECK_NEAR(solution.assignments[x], 1);
     CHECK_NEAR(solution.cost, 1);
@@ -281,7 +281,7 @@ TEST_CASE("Simplex orthogonal to objective gradient, origin not feasible - 1") {
 
     linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, 1).set_bounds(1, +infinity);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
 
     // Can't check the assignments because they are not unique
     CHECK_NEAR(solution.cost, 1);
@@ -301,7 +301,7 @@ TEST_CASE("Simplex orthogonal to objective gradient, origin not feasible - 2") {
 
     linear_program.create_constraint().set_coefficient(x, -1).set_coefficient(y, -1).set_bounds(-infinity, -1);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
 
     // Can't check the assignments because they are not unique
     CHECK_NEAR(solution.cost, 1);
@@ -323,7 +323,7 @@ TEST_CASE("Triangle far from origin linear program - 1") {
     linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -1).set_bounds(1, infinity);
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-infinity, 2);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x], 1);
     CHECK_NEAR(solution.assignments[y], 0);
     CHECK_NEAR(solution.cost, 1);
@@ -345,7 +345,7 @@ TEST_CASE("Triangle far from origin linear program - 2") {
     linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -1).set_bounds(1, infinity);
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-infinity, 2);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x], 2);
     CHECK_NEAR(solution.assignments[y], 1);
     CHECK_NEAR(solution.cost, -5);
@@ -367,7 +367,7 @@ TEST_CASE("Triangle far from origin linear program - 3") {
     linear_program.create_constraint().set_coefficient(x, 1).set_coefficient(y, -1).set_bounds(1, infinity);
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-infinity, 2);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.assignments[x], 2);
     CHECK_NEAR(solution.assignments[y], 0);
     CHECK_NEAR(solution.cost, -2);
@@ -392,7 +392,7 @@ TEST_CASE("Wikipedia example 1") {
     linear_program.create_constraint().set_coefficient(x, 3).set_coefficient(y, 2).set_coefficient(z, 1).set_bounds(-infinity, 10);
     linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, 5).set_coefficient(z, 3).set_bounds(-infinity, 15);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.cost, -20);
     const float recomputed_cost = -2 * solution.assignments[x] -3 * solution.assignments[y] - 4 * solution.assignments[z];
     CHECK_NEAR(recomputed_cost, solution.cost);
@@ -417,7 +417,7 @@ TEST_CASE("Wikipedia example 2 - equality constraints, origin not feasible") {
     linear_program.create_constraint().set_coefficient(x, 3).set_coefficient(y, 2).set_coefficient(z, 1).set_bounds(10, 10);
     linear_program.create_constraint().set_coefficient(x, 2).set_coefficient(y, 5).set_coefficient(z, 3).set_bounds(15, 15);
 
-    const auto solution = linear_program.solve();
+    const auto solution = *linear_program.solve();
     CHECK_NEAR(solution.cost, -130./7.);
     const float recomputed_cost = -2 * solution.assignments[x] -3 * solution.assignments[y] - 4 * solution.assignments[z];
     CHECK_NEAR(recomputed_cost, solution.cost);
@@ -426,7 +426,7 @@ TEST_CASE("Wikipedia example 2 - equality constraints, origin not feasible") {
   });
 }
 
-TEST_CASE("Random linear programs with optimal solutions") {
+TEST_CASE("Random linear programs with optimal solutions reached in one Simplex phase") {
   for (unsigned seed = 0; seed != 10'000; ++seed) {
     CAPTURE(seed);
 
@@ -473,7 +473,7 @@ TEST_CASE("Random linear programs with optimal solutions") {
         }
       }
 
-      const auto solution = linear_program.solve();
+      const auto solution = *linear_program.solve();
       CHECK(solution.cost != -infinity);
       CHECK(!std::isnan(solution.cost));
 
@@ -488,8 +488,70 @@ TEST_CASE("Random linear programs with optimal solutions") {
   }
 }
 
+TEST_CASE("Random linear programs requiring two Simplex phases") {
+  for (unsigned seed = 0; seed != 10'000; ++seed) {
+    CAPTURE(seed);
+
+    test([seed](auto& linear_program) -> std::optional<float> {
+      std::mt19937 mt(seed);
+
+      std::uniform_int_distribution<unsigned> make_variables_count(2, 10);
+      const unsigned variables_count = make_variables_count(mt);
+      std::uniform_real_distribution<float> make_objective_coefficient(-3, 3);
+      std::uniform_int_distribution<unsigned> make_constraints_count(1, 2 * variables_count);
+      const unsigned constraints_count = make_constraints_count(mt);
+      std::uniform_real_distribution<float> make_constraint_coefficient(-1, 1);
+
+      std::vector<decltype(linear_program.create_variable())> variables;
+      for (unsigned i = 0; i != variables_count; ++i) {
+        variables.push_back(linear_program.create_variable());
+      }
+
+      linear_program.mark_all_variables_created();
+
+      // Give a coefficient to each variable
+      // @todo(Project management, when we release our in-house LP solvers) Let some variables not appear in the objective
+      std::vector<float> objective_coefficients;
+      objective_coefficients.resize(variables_count);
+      for (unsigned i = 0; i != variables_count; ++i) {
+        const float coefficient = make_objective_coefficient(mt);
+        objective_coefficients[i] = coefficient;
+        linear_program.set_objective_coefficient(variables[i], coefficient);
+      }
+
+      // Box all variables to ensure the problem is bounded
+      for (const auto& v : variables) {
+        auto c = linear_program.create_constraint();
+        c.set_bounds(-infinity, 1);
+        c.set_coefficient(v, 1);
+      }
+
+      for (unsigned i = 0; i != constraints_count; ++i) {
+        auto c = linear_program.create_constraint();
+        c.set_bounds(1, 10);
+        // @todo(Project management, when we release our in-house LP solvers) Let some variables not appear in some constraints
+        for (const auto& v : variables) {
+          c.set_coefficient(v, make_constraint_coefficient(mt));
+        }
+      }
+
+      const auto solution = linear_program.solve();
+      if (solution) {
+        float expected_cost = 0;
+        for (unsigned i = 0; i != variables_count; ++i) {
+          expected_cost += objective_coefficients[i] * solution->assignments[variables[i]];
+        }
+        CHECK_NEAR(solution->cost, expected_cost);
+        return solution->cost;
+      } else {
+        return std::nullopt;
+      }
+    });
+  }
+}
+
 TEST_CASE("Unbounded (single phase)") {
-  test([](auto& linear_program) {
+  test([](auto& linear_program) -> std::optional<float> {
     const auto x = linear_program.create_variable();
     linear_program.mark_all_variables_created();
 
@@ -498,13 +560,13 @@ TEST_CASE("Unbounded (single phase)") {
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(0, infinity);
 
     const auto solution = linear_program.solve();
-    CHECK(solution.cost == -infinity);
-    return solution.cost;
+    CHECK_FALSE(solution);
+    return std::nullopt;
   });
 }
 
 TEST_CASE("Unbounded (two phases)") {
-  test([](auto& linear_program) {
+  test([](auto& linear_program) -> std::optional<float> {
     const auto x = linear_program.create_variable();
     linear_program.mark_all_variables_created();
 
@@ -513,13 +575,13 @@ TEST_CASE("Unbounded (two phases)") {
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(1, infinity);
 
     const auto solution = linear_program.solve();
-    CHECK(solution.cost == -infinity);
-    return solution.cost;
+    CHECK_FALSE(solution);
+    return std::nullopt;
   });
 }
 
 TEST_CASE("Infeasible") {
-  test([](auto& linear_program) {
+  test([](auto& linear_program) -> std::optional<float> {
     const auto x = linear_program.create_variable();
     linear_program.mark_all_variables_created();
 
@@ -528,8 +590,8 @@ TEST_CASE("Infeasible") {
     linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-2, -1);
 
     const auto solution = linear_program.solve();
-    CHECK(std::isnan(solution.cost));
-    return solution.cost;
+    CHECK_FALSE(solution);
+    return std::nullopt;
   });
 }
 

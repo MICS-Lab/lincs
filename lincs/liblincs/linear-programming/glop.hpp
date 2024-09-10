@@ -3,6 +3,8 @@
 #ifndef LINCS__LINEAR_PROGRAMMING__GLOP_HPP
 #define LINCS__LINEAR_PROGRAMMING__GLOP_HPP
 
+#include <optional>
+
 #include <ortools/glop/lp_solver.h>
 #undef CHECK
 #undef CHECK_EQ
@@ -56,7 +58,7 @@ class GlopLinearProgram {
     operations_research::glop::DenseRow assignments;
     float cost;
   };
-  solution_type solve();
+  std::optional<solution_type> solve();
 
  private:
   operations_research::glop::LinearProgram program;

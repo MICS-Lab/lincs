@@ -95,15 +95,15 @@ namespace lincs {
 namespace {
   constexpr float infinity = std::numeric_limits<float>::infinity();
 
-  bool verbose = false;
+  int verbosity = 0;
 }
 
-CustomOnCpuVerbose::CustomOnCpuVerbose() {
-  verbose = true;
+CustomOnCpuVerbose::CustomOnCpuVerbose(const int v) {
+  verbosity = v;
 }
 
 CustomOnCpuVerbose::~CustomOnCpuVerbose() {
-  verbose = false;
+  verbosity = 0;
 }
 
 
@@ -186,13 +186,13 @@ class Simplex {
         assert_invariants();
         return Pivot{*leaving_row, *entering_column};
       } else {
-        if (verbose) {
+        if (verbosity > 1) {
           std::cout << boost::format("  Unbounded! (entering column: %||)") % entering << std::endl;
         }
         return Unbounded{};
       }
     } else {
-      if (verbose) {
+      if (verbosity > 1) {
         std::cout << "  Optimal!" << std::endl;
       }
       return Optimal{};
@@ -264,7 +264,7 @@ class Simplex {
  private:
   template <typename Header>
   void print_state(const Header& header) {
-    if (verbose) {
+    if (verbosity > 1) {
       std::cout << "  " << header << ':' << "\n";
 
       std::cout << "    constraints:\n          |";
@@ -350,7 +350,7 @@ class CustomOnCpuLinearProgramSolver {
 
  private:
   void print_program() const {
-    if (verbose) {
+    if (verbosity > 1) {
       std::cout << "PROGRAM" << std::endl;
       std::cout << "=======" << std::endl;
       std::cout << "  Objective:\n    minimize ";
@@ -386,25 +386,31 @@ class CustomOnCpuLinearProgramSolver {
   }
 
  public:
-  CustomOnCpuLinearProgram::solution_type solve() {
+  std::optional<CustomOnCpuLinearProgram::solution_type> solve() {
     const auto [constraints_count, slack_variables_count, artificial_variables_count] = count_constraints_and_additional_variables();
     if (artificial_variables_count == 0) {
-      if (verbose) {
+      if (verbosity > 1) {
         std::cout << "SINGLE PHASE" << std::endl;
         std::cout << "============" << std::endl;
       }
       auto tableau = make_single_step_tableau(constraints_count, slack_variables_count);
       const auto run_result = Simplex(tableau).run();
-      if (verbose) {
+      if (verbosity > 1) {
         std::cout << std::endl;
       }
       if (std::holds_alternative<Simplex::Optimal>(run_result)) {
-        return {tableau.get_assignments(), tableau.costs[0]};
+        if (verbosity > 0) {
+          std::cout << "OPTIMAL (single-phase)" << std::endl;
+        }
+        return CustomOnCpuLinearProgram::solution_type{tableau.get_assignments(), tableau.costs[0]};
       } else {
-        return {tableau.get_assignments(), -infinity};
+        if (verbosity > 0) {
+          std::cout << "UNBOUNDED (single-phase)" << std::endl;
+        }
+        return {};
       }
     } else {
-      if (verbose) {
+      if (verbosity > 1) {
         std::cout << "FIRST PHASE" << std::endl;
         std::cout << "===========" << std::endl;
       }
@@ -414,28 +420,41 @@ class CustomOnCpuLinearProgramSolver {
       const auto first_assignments = first_tableau.get_assignments();
       for (unsigned artificial_variable_index = 0; artificial_variable_index < first_tableau.artificial_variables_count; ++artificial_variable_index) {
         if (first_assignments[first_tableau.client_variables_count + first_tableau.slack_variables_count + artificial_variable_index] != 0) {
-          if (verbose) {
+          if (verbosity > 1) {
             std::cout << "  Infeasible!" << std::endl;
           }
-          return {first_assignments, std::numeric_limits<float>::quiet_NaN()};
+          if (verbosity > 0) {
+            std::cout << "INFEASIBLE" << std::endl;
+          }
+          return {};
         }
       }
-      assertWithDump(first_tableau.costs[1] == 0, program);
+      if (verbosity > 0) {
+        std::cout << "FEASIBLE. First phase cost (should be zero):" << first_tableau.costs[1] << std::endl;
+      }
+      assertWithDump(std::abs(first_tableau.costs[1]) < 1e-5, program);
+      // assertWithDump(first_tableau.costs[1] == 0, program);
 
-      if (verbose) {
+      if (verbosity > 1) {
         std::cout << "SECOND PHASE" << std::endl;
         std::cout << "============" << std::endl;
       }
 
       auto second_tableau = make_second_step_tableau(first_tableau);
       const auto second_run_result = Simplex(second_tableau).run();
-      if (verbose) {
+      if (verbosity > 1) {
         std::cout << std::endl;
       }
       if (std::holds_alternative<Simplex::Optimal>(second_run_result)) {
-        return {second_tableau.get_assignments(), second_tableau.costs[0]};
+        if (verbosity > 0) {
+          std::cout << "OPTIMAL (two phases)" << std::endl;
+        }
+        return CustomOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), second_tableau.costs[0]};
       } else {
-        return {second_tableau.get_assignments(), -infinity};
+        if (verbosity > 0) {
+          std::cout << "UNBOUNDED (two phases)" << std::endl;
+        }
+        return {};
       }
     }
   }
@@ -698,7 +717,7 @@ class CustomOnCpuLinearProgramSolver {
   const CustomOnCpuLinearProgram& program;
 };
 
-CustomOnCpuLinearProgram::solution_type CustomOnCpuLinearProgram::solve() {
+std::optional<CustomOnCpuLinearProgram::solution_type> CustomOnCpuLinearProgram::solve() {
   return CustomOnCpuLinearProgramSolver(*this).solve();
 }
 

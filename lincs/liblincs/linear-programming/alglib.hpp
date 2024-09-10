@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <map>
+#include <optional>
 
 #include "../vendored/alglib/optimization.h"
 
@@ -81,7 +82,7 @@ class AlglibLinearProgram {
     alglib::real_1d_array assignments;
     float cost;
   };
-  solution_type solve();
+  std::optional<solution_type> solve();
 
  private:
   variable_type next_variable_index;

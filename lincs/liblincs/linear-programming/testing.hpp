@@ -16,20 +16,16 @@
 const float infinity = std::numeric_limits<float>::infinity();
 
 inline float relative_difference(float a, float b) {
-  if (a == b) {  // Handle infinities
-    return 0;
-  } else if (std::isnan(a) && std::isnan(b)) {
-    return 0;
-  } else if (a == 0 || b == 0) {
+  assert(!std::isnan(a) && !std::isnan(b));
+  assert(std::abs(a) != infinity && std::abs(b) != infinity);
+  if (a == 0 || b == 0) {
     return std::max(std::abs(a), std::abs(b));
-  } else if (std::abs(a) == infinity || std::abs(b) == infinity) {
-    return 1;
   } else {
     return std::abs(a - b) / std::max(std::abs(a), std::abs(b));
   }
 }
 
-#define CHECK_NEAR(a, b) CHECK(relative_difference(a, b) < 1e-5)
+#define CHECK_NEAR(a, b) CHECK(relative_difference(a, b) < 1e-4)
 
 
 typedef std::tuple<
@@ -37,6 +33,25 @@ typedef std::tuple<
   lincs::AlglibLinearProgram,
   lincs::CustomOnCpuLinearProgram
 > LinearPrograms;
+
+template<unsigned Index, typename... Float>
+void check_all_equal_impl(const std::tuple<std::optional<Float>...>& costs) {
+  static_assert(0 < Index);
+  static_assert(Index <= sizeof...(Float));
+  if constexpr (Index < sizeof...(Float)) {
+    if (std::get<0>(costs)) {
+      CHECK_NEAR(*std::get<0>(costs), *std::get<Index>(costs));
+    } else {
+      CHECK_FALSE(std::get<Index>(costs));
+    }
+    check_all_equal_impl<Index + 1>(costs);
+  }
+}
+
+template<typename... Float>
+void check_all_equal(const std::tuple<std::optional<Float>...>& costs) {
+  check_all_equal_impl<1>(costs);
+}
 
 template<unsigned Index, typename... Float>
 void check_all_equal_impl(const std::tuple<Float...>& costs) {

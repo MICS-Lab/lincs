@@ -5,13 +5,14 @@
 
 #include <limits>
 #include <map>
+#include <optional>
 #include <vector>
 
 
 namespace lincs {
 
 struct CustomOnCpuVerbose {
-  CustomOnCpuVerbose();
+  CustomOnCpuVerbose(int = 2);
   ~CustomOnCpuVerbose();
 };
 
@@ -56,7 +57,7 @@ class CustomOnCpuLinearProgram {
     std::vector<float> assignments;
     float cost;
   };
-  solution_type solve();
+  std::optional<solution_type> solve();
 
  public:
   unsigned variables_count() const { return next_variable_index; }
