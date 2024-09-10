@@ -13,7 +13,7 @@
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
 
 
-const float infinity = std::numeric_limits<float>::infinity();
+constexpr float infinity = std::numeric_limits<float>::infinity();
 
 inline float relative_difference(float a, float b) {
   assert(!std::isnan(a) && !std::isnan(b));
@@ -40,7 +40,11 @@ void check_all_equal_impl(const std::tuple<std::optional<Float>...>& costs) {
   static_assert(Index <= sizeof...(Float));
   if constexpr (Index < sizeof...(Float)) {
     if (std::get<0>(costs)) {
-      CHECK_NEAR(*std::get<0>(costs), *std::get<Index>(costs));
+      if (std::get<Index>(costs)) {
+        CHECK_NEAR(*std::get<0>(costs), *std::get<Index>(costs));
+      } else {
+        CHECK(false);
+      }
     } else {
       CHECK_FALSE(std::get<Index>(costs));
     }

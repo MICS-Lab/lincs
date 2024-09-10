@@ -225,8 +225,8 @@ TEST_CASE("Section 8 of https://webspace.maths.qmul.ac.uk/felix.fischer/teaching
   // artificial variables at 0, it thinks it can still optimize the sum of the artificial variables, to a *negative* value,
   // which is inconsistent with the implicit non-negativity constraints on variables.
   // If, in 'find_entering_column', we define positivity as '> 1e-6' instead of '> 0', we get the expected result, but doing so
-  // is a scary hack that hides the actual problam and might cause other silent issues.
-  // We *could* interrupt phase 1 as soon as all artificial variables are non-basic. Is that less scary?
+  // is a scary hack that hides the actual problem and might cause other silent issues.
+  // We *could* interrupt phase 1 as soon as all artificial variables are non-basic. Is that any less scary?
   // for (unsigned seed = 0; seed != 1'000; ++seed) {
   //   CAPTURE(seed);
 

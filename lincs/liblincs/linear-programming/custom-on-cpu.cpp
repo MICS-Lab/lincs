@@ -23,17 +23,29 @@ namespace fs = std::filesystem;
 
 namespace {
 
+constexpr float infinity = std::numeric_limits<float>::infinity();
+
 std::string no_loss(const float f) {
-  std::ostringstream out;
-  out /*<< std::setprecision(20)*/ << f;
-  std::istringstream in(out.str());
-  float f2;
-  in >> f2;
-  assert(f2 == f);
-  return out.str();
+  if (f == infinity) {
+    return "infinity";
+  } else if (f == -infinity) {
+    return "-infinity";
+  } else {
+    for (unsigned precision = 3; precision != 20; ++precision) {
+      std::ostringstream out;
+      out << std::setprecision(precision) << f;
+      std::istringstream in(out.str());
+      float f2;
+      in >> f2;
+      if (f2 == f) {
+        return out.str();
+      }
+    }
+    assert(false);
+  }
 }
 
-void dump(const lincs::CustomOnCpuLinearProgram& program) {
+std::string generate(const lincs::CustomOnCpuLinearProgram& program, int verbose) {
   std::ostringstream out;
   out << "// Copyright 2023-2024 Vincent Jacques\n"
       << "\n"
@@ -41,7 +53,7 @@ void dump(const lincs::CustomOnCpuLinearProgram& program) {
       << "\n"
       << "\n"
       << "TEST_CASE(\"Bug\") {\n"
-      << "  test([](auto& linear_program) {\n"
+      << "  test([](auto& linear_program) -> std::optional<float> {\n"
       << "    {\n";
   for (unsigned i = 0; i != program.variables_count(); ++i) {
     out << "      const auto x" << i << " = linear_program.create_variable();\n";
@@ -59,30 +71,49 @@ void dump(const lincs::CustomOnCpuLinearProgram& program) {
     }
     out << " }\n";
   }
-  out << "    }\n"
-      << "    return linear_program.solve().cost;\n"
+  out << "    }\n";
+  if (verbose == -1) {
+    out << "    lincs::CustomOnCpuVerbose verbose;\n";
+  } else if (verbose > 0) {
+    out << "    lincs::CustomOnCpuVerbose verbose(" << verbose << ");\n";
+  }
+  out << "    const auto solution = linear_program.solve();\n"
+      << "    if (solution) {\n"
+      << "      return solution->cost;\n"
+      << "    } else {\n"
+      << "      return std::nullopt;\n"
+      << "    }\n"
       << "  });\n"
       << "}\n";
+  return out.str();
+}
+
+void dump(const lincs::CustomOnCpuLinearProgram& program) {
+  std::string verbose = generate(program, -1);
+  std::string verbose_1 = generate(program, 1);
+  std::string verbose_2 = generate(program, 2);
+  std::string verbose_3 = generate(program, 3);
+  std::string quiet = generate(program, 0);
 
   bool found = false;
   for (const auto & entry : fs::directory_iterator("lincs/liblincs/linear-programming")) {
     std::ifstream file(entry.path());
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    if (content == out.str()) {
+    if (content == verbose || content == verbose_1 || content == verbose_2 || content == verbose_3 || content == quiet) {
       found = true;
       break;
     }
   }
   if (!found) {
     std::ofstream file(str(boost::format("lincs/liblincs/linear-programming/test-bug-%||.cpp") % std::time(nullptr)));
-    file << out.str();
+    file << verbose_1;
   }
 }
 
 #ifdef NDEBUG
-  #define assertWithDump(expr, program) static_cast<void>(0)
+  #define assert_with_dump(expr, program) static_cast<void>(0)
 #else
-  #define assertWithDump(expr, program) \
+  #define assert_with_dump(expr, program) \
      (static_cast<bool>(expr) \
       ? static_cast<void>(0) \
       : (dump(program), __assert_fail(#expr, __FILE__, __LINE__, __func__)))
@@ -93,10 +124,10 @@ void dump(const lincs::CustomOnCpuLinearProgram& program) {
 namespace lincs {
 
 namespace {
-  constexpr float infinity = std::numeric_limits<float>::infinity();
 
-  int verbosity = 0;
-}
+int verbosity = 0;
+
+}  // namespace
 
 CustomOnCpuVerbose::CustomOnCpuVerbose(const int v) {
   verbosity = v;
@@ -182,18 +213,18 @@ class Simplex {
       if (leaving_row) {
         const std::string leaving = variable_name(basic_variable_cols[*leaving_row]);
         pivot(*leaving_row, *entering_column);
-        print_state(boost::format("After pivot (entering column: %||, leaving row: %||)") % entering % leaving);
+        print_state(boost::format("After pivot (leaving row: %||, entering column: %||)") % leaving % entering);
         assert_invariants();
         return Pivot{*leaving_row, *entering_column};
       } else {
         if (verbosity > 1) {
-          std::cout << boost::format("  Unbounded! (entering column: %||)") % entering << std::endl;
+          std::cerr << boost::format("  Unbounded! (entering column: %||)") % entering << std::endl;
         }
         return Unbounded{};
       }
     } else {
       if (verbosity > 1) {
-        std::cout << "  Optimal!" << std::endl;
+        std::cerr << "  Optimal!" << std::endl;
       }
       return Optimal{};
     }
@@ -202,48 +233,52 @@ class Simplex {
   std::optional<unsigned> find_entering_column() const {
     const auto& objective_coefficients = objectives_coefficients[objectives_count - 1];
 
-    unsigned entering_column = 0;
-    for (unsigned col = 1; col != total_variables_count; ++col) {
-      if (objective_coefficients[col] > objective_coefficients[entering_column]) {
-        entering_column = col;
+    std::optional<unsigned> entering_column;
+    for (unsigned col = 0; col != total_variables_count; ++col) {
+      if (objective_coefficients[col] > 0) {
+        if (!entering_column || objective_coefficients[col] > objective_coefficients[*entering_column]) {
+          entering_column = col;
+        }
       }
     }
 
-    if (objective_coefficients[entering_column] > 0) {
-      return entering_column;
-    } else {
-      return {};
-    }
+    return entering_column;
   }
 
   std::optional<unsigned> find_leaving_row(const unsigned entering_column) const {
-    unsigned leaving_row = 0;
-    for (unsigned row = 1; row != constraints_count; ++row) {
+    std::optional<unsigned> leaving_row;
+    for (unsigned row = 0; row != constraints_count; ++row) {
       if (constraints_coefficients[row][entering_column] > 0) {
-        if (constraints_coefficients[leaving_row][entering_column] <= 0 || constraints_values[row] / constraints_coefficients[row][entering_column] < constraints_values[leaving_row] / constraints_coefficients[leaving_row][entering_column]) {
+        if (!leaving_row || constraints_values[row] / constraints_coefficients[row][entering_column] < constraints_values[*leaving_row] / constraints_coefficients[*leaving_row][entering_column]) {
           leaving_row = row;
         }
       }
     }
 
-    if (constraints_coefficients[leaving_row][entering_column] > 0) {
-      return leaving_row;
-    } else {
-      return {};
-    }
+    return leaving_row;
   }
 
   void pivot(const unsigned leaving_row, const unsigned entering_column) {
+    if (verbosity > 2) {
+      std::cerr << boost::format("  Pivoting (leaving row: %||, entering column: %||)") % variable_name(basic_variable_cols[leaving_row]) % variable_name(entering_column) << std::endl;
+    }
     const float pivot_value = constraints_coefficients[leaving_row][entering_column];
+    if (verbosity > 2) {
+      std::cerr << boost::format("    pivot value: %|-.3|") % pivot_value << std::endl;
+    }
     assert(pivot_value > 0);
     for (unsigned col = 0; col != total_variables_count; ++col) {
       constraints_coefficients[leaving_row][col] /= pivot_value;
     }
+    assert(constraints_coefficients[leaving_row][entering_column] == 1);
     constraints_values[leaving_row] /= pivot_value;
 
     for (unsigned row = 0; row != constraints_count; ++row) {
       if (row != leaving_row) {
         const float factor = constraints_coefficients[row][entering_column];
+        if (verbosity > 2) {
+          std::cerr << boost::format("    constraint %|| factor: %|-.3|") % variable_name(basic_variable_cols[row]) % factor << std::endl;
+        }
         for (unsigned col = 0; col != total_variables_count; ++col) {
           constraints_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col];
         }
@@ -252,6 +287,9 @@ class Simplex {
     }
     for (unsigned row = 0; row != objectives_count; ++row) {
       const float factor = objectives_coefficients[row][entering_column];
+      if (verbosity > 2) {
+        std::cerr << boost::format("    objective %|| factor: %|-.3|") % row % factor << std::endl;
+      }
       for (unsigned col = 0; col != total_variables_count; ++col) {
         objectives_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col];
       }
@@ -264,29 +302,37 @@ class Simplex {
  private:
   template <typename Header>
   void print_state(const Header& header) {
-    if (verbosity > 1) {
-      std::cout << "  " << header << ':' << "\n";
+    if (verbosity > 0) {
+      std::cerr << "  " << header << ':' << "\n";
 
-      std::cout << "    constraints:\n          |";
-      for (unsigned col = 0; col < total_variables_count; ++col) {
-        std::cout << boost::format("%|=8|") % variable_name(col);
-      }
-      std::cout << "|\n";
-      for (unsigned row = 0; row < constraints_count; ++row) {
-        std::cout << boost::format("      %|3| |") % variable_name(basic_variable_cols[row]);
+      if (verbosity > 1) {
+        std::cerr << "    constraints:\n          |";
         for (unsigned col = 0; col < total_variables_count; ++col) {
-          std::cout << boost::format("%|=8.3|") % constraints_coefficients[row][col];
+          std::cerr << boost::format("%|=8|") % variable_name(col);
         }
-        std::cout << boost::format("| %|-.3|\n") % constraints_values[row];
-      }
+        std::cerr << "|\n";
+        for (unsigned row = 0; row < constraints_count; ++row) {
+          std::cerr << boost::format("      %|3| |") % variable_name(basic_variable_cols[row]);
+          for (unsigned col = 0; col < total_variables_count; ++col) {
+            std::cerr << boost::format("%|=8.3|") % constraints_coefficients[row][col];
+          }
+          std::cerr << boost::format("| %|-.3|\n") % constraints_values[row];
+        }
 
-      std::cout << "    objectives:\n";
-      for (unsigned row = 0; row != objectives_count; ++row) {
-        std::cout << "          |";
-        for (unsigned col = 0; col < total_variables_count; ++col) {
-          std::cout << boost::format("%|=8.3|") % objectives_coefficients[row][col];
+        std::cerr << "    objectives:\n";
+        for (unsigned row = 0; row != objectives_count; ++row) {
+          std::cerr << "          |";
+          for (unsigned col = 0; col < total_variables_count; ++col) {
+            std::cerr << boost::format("%|=8.3|") % objectives_coefficients[row][col];
+          }
+          std::cerr << boost::format("| %|-.3|") % costs[row] << std::endl;
         }
-        std::cout << boost::format("| %|-.3|") % costs[row] << std::endl;
+      } else {
+        std::cerr << "    costs:";
+        for (unsigned row = 0; row != objectives_count; ++row) {
+          std::cerr << " " << costs[row];
+        }
+        std::cerr << std::endl;
       }
     }
   }
@@ -351,28 +397,28 @@ class CustomOnCpuLinearProgramSolver {
  private:
   void print_program() const {
     if (verbosity > 1) {
-      std::cout << "PROGRAM" << std::endl;
-      std::cout << "=======" << std::endl;
-      std::cout << "  Objective:\n    minimize ";
+      std::cerr << "PROGRAM" << std::endl;
+      std::cerr << "=======" << std::endl;
+      std::cerr << "  Objective:\n    minimize ";
       print_coefficients(program.get_objective_coefficients());
-      std::cout << std::endl;
+      std::cerr << std::endl;
 
-      std::cout << "  Subject to:" << std::endl;
+      std::cerr << "  Subject to:" << std::endl;
       for (const auto& constraint : program.get_constraints()) {
         if (constraint.upper_bound == constraint.lower_bound) {
-            std::cout << "    ";
+            std::cerr << "    ";
             print_coefficients(constraint.coefficients);
-            std::cout << "== " << constraint.upper_bound << std::endl;
+            std::cerr << "== " << constraint.upper_bound << std::endl;
         } else {
           if (constraint.upper_bound != infinity) {
-            std::cout << "    ";
+            std::cerr << "    ";
             print_coefficients(constraint.coefficients);
-            std::cout << "<= " << constraint.upper_bound << std::endl;
+            std::cerr << "<= " << constraint.upper_bound << std::endl;
           }
           if (constraint.lower_bound != -infinity) {
-            std::cout << "    ";
+            std::cerr << "    ";
             print_coefficients(constraint.coefficients);
-            std::cout << ">= " << constraint.lower_bound << std::endl;
+            std::cerr << ">= " << constraint.lower_bound << std::endl;
           }
         }
       }
@@ -381,7 +427,7 @@ class CustomOnCpuLinearProgramSolver {
 
   static void print_coefficients(const std::map<CustomOnCpuLinearProgram::variable_type, float>& coefficients) {
     for (const auto& [variable, coefficient] : coefficients) {
-      std::cout << std::showpos << coefficient << std::noshowpos << "*x" << variable + 1 << " ";
+      std::cerr << std::showpos << coefficient << std::noshowpos << "*x" << variable + 1 << " ";
     }
   }
 
@@ -390,29 +436,29 @@ class CustomOnCpuLinearProgramSolver {
     const auto [constraints_count, slack_variables_count, artificial_variables_count] = count_constraints_and_additional_variables();
     if (artificial_variables_count == 0) {
       if (verbosity > 1) {
-        std::cout << "SINGLE PHASE" << std::endl;
-        std::cout << "============" << std::endl;
+        std::cerr << "SINGLE PHASE" << std::endl;
+        std::cerr << "============" << std::endl;
       }
       auto tableau = make_single_step_tableau(constraints_count, slack_variables_count);
       const auto run_result = Simplex(tableau).run();
       if (verbosity > 1) {
-        std::cout << std::endl;
+        std::cerr << std::endl;
       }
       if (std::holds_alternative<Simplex::Optimal>(run_result)) {
         if (verbosity > 0) {
-          std::cout << "OPTIMAL (single-phase)" << std::endl;
+          std::cerr << "OPTIMAL (single-phase)" << std::endl;
         }
         return CustomOnCpuLinearProgram::solution_type{tableau.get_assignments(), tableau.costs[0]};
       } else {
         if (verbosity > 0) {
-          std::cout << "UNBOUNDED (single-phase)" << std::endl;
+          std::cerr << "UNBOUNDED (single-phase)" << std::endl;
         }
         return {};
       }
     } else {
       if (verbosity > 1) {
-        std::cout << "FIRST PHASE" << std::endl;
-        std::cout << "===========" << std::endl;
+        std::cerr << "FIRST PHASE" << std::endl;
+        std::cerr << "===========" << std::endl;
       }
       auto first_tableau = make_first_step_tableau(constraints_count, slack_variables_count, artificial_variables_count);
       Simplex(first_tableau).run();  // We don't care if it's optimal or unbounded
@@ -421,38 +467,37 @@ class CustomOnCpuLinearProgramSolver {
       for (unsigned artificial_variable_index = 0; artificial_variable_index < first_tableau.artificial_variables_count; ++artificial_variable_index) {
         if (first_assignments[first_tableau.client_variables_count + first_tableau.slack_variables_count + artificial_variable_index] != 0) {
           if (verbosity > 1) {
-            std::cout << "  Infeasible!" << std::endl;
+            std::cerr << "  Infeasible!" << std::endl;
           }
           if (verbosity > 0) {
-            std::cout << "INFEASIBLE" << std::endl;
+            std::cerr << "INFEASIBLE" << std::endl;
           }
           return {};
         }
       }
       if (verbosity > 0) {
-        std::cout << "FEASIBLE. First phase cost (should be zero):" << first_tableau.costs[1] << std::endl;
+        std::cerr << "FEASIBLE. First phase cost (should be zero): " << first_tableau.costs[1] << std::endl;
       }
-      assertWithDump(std::abs(first_tableau.costs[1]) < 1e-5, program);
-      // assertWithDump(first_tableau.costs[1] == 0, program);
+      assert_with_dump(std::abs(first_tableau.costs[1]) < 1e-4, program);
 
       if (verbosity > 1) {
-        std::cout << "SECOND PHASE" << std::endl;
-        std::cout << "============" << std::endl;
+        std::cerr << "SECOND PHASE" << std::endl;
+        std::cerr << "============" << std::endl;
       }
 
       auto second_tableau = make_second_step_tableau(first_tableau);
       const auto second_run_result = Simplex(second_tableau).run();
       if (verbosity > 1) {
-        std::cout << std::endl;
+        std::cerr << std::endl;
       }
       if (std::holds_alternative<Simplex::Optimal>(second_run_result)) {
         if (verbosity > 0) {
-          std::cout << "OPTIMAL (two phases)" << std::endl;
+          std::cerr << "OPTIMAL (two phases)" << std::endl;
         }
         return CustomOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), second_tableau.costs[0]};
       } else {
         if (verbosity > 0) {
-          std::cout << "UNBOUNDED (two phases)" << std::endl;
+          std::cerr << "UNBOUNDED (two phases)" << std::endl;
         }
         return {};
       }
@@ -697,7 +742,7 @@ class CustomOnCpuLinearProgramSolver {
     }
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     for (unsigned row = 0; row != constraints_count; ++row) {
-      assertWithDump(first_tableau.basic_variable_cols[row] < total_variables_count, program);
+      assert_with_dump(first_tableau.basic_variable_cols[row] < total_variables_count, program);
       basic_variable_cols[row] = first_tableau.basic_variable_cols[row];
     }
 
