@@ -194,6 +194,19 @@ class Simplex {
   RunResult run() {
     while (true) {
       const auto step_result = step();
+      if (artificial_variables_count != 0) {
+        bool artificial_variable_still_in_base = false;
+        for (unsigned basic_variable_row = 0; basic_variable_row != constraints_count; ++basic_variable_row) {
+          const unsigned basic_variable_col = basic_variable_cols[basic_variable_row];
+          if (basic_variable_col >= client_variables_count + slack_variables_count) {
+            artificial_variable_still_in_base = true;
+            break;
+          }
+        }
+        if (!artificial_variable_still_in_base) {
+          return Optimal{};
+        }
+      }
       if (std::holds_alternative<Simplex::Optimal>(step_result)) {
         return Optimal{};
       } else if (std::holds_alternative<Simplex::Unbounded>(step_result)) {

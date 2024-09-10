@@ -219,37 +219,29 @@ TEST_CASE("Section 8 of https://webspace.maths.qmul.ac.uk/felix.fischer/teaching
   });
 
   // Small variations because the example has several equal constants in different places, so we need to make sure we don't mix them up
-  // @todo Restore these tests.
-  // Are we hitting numerical instability?
-  // For example for seed == 2, the phase 1 of the two-phase Simplex goes too far: after its finds a BFS with all
-  // artificial variables at 0, it thinks it can still optimize the sum of the artificial variables, to a *negative* value,
-  // which is inconsistent with the implicit non-negativity constraints on variables.
-  // If, in 'find_entering_column', we define positivity as '> 1e-6' instead of '> 0', we get the expected result, but doing so
-  // is a scary hack that hides the actual problem and might cause other silent issues.
-  // We *could* interrupt phase 1 as soon as all artificial variables are non-basic. Is that any less scary?
-  // for (unsigned seed = 0; seed != 1'000; ++seed) {
-  //   CAPTURE(seed);
+  for (unsigned seed = 0; seed != 1'000; ++seed) {
+    CAPTURE(seed);
 
-  //   test([seed](auto& linear_program) {
-  //     std::mt19937 mt(seed);
-  //     std::uniform_real_distribution<float> make_small_variation(-0.01, 0.01);
+    test([seed](auto& linear_program) {
+      std::mt19937 mt(seed);
+      std::uniform_real_distribution<float> make_small_variation(-0.01, 0.01);
 
-  //     const auto x1 = linear_program.create_variable();
-  //     const auto x2 = linear_program.create_variable();
-  //     linear_program.mark_all_variables_created();
+      const auto x1 = linear_program.create_variable();
+      const auto x2 = linear_program.create_variable();
+      linear_program.mark_all_variables_created();
 
-  //     linear_program.set_objective_coefficient(x1, 6 + make_small_variation(mt));
-  //     linear_program.set_objective_coefficient(x2, 3 + make_small_variation(mt));
+      linear_program.set_objective_coefficient(x1, 6 + make_small_variation(mt));
+      linear_program.set_objective_coefficient(x2, 3 + make_small_variation(mt));
 
-  //     linear_program.create_constraint().set_coefficient(x1, 1 + make_small_variation(mt)).set_coefficient(x2, 1 + make_small_variation(mt)).set_bounds(1 + make_small_variation(mt), infinity);
-  //     linear_program.create_constraint().set_coefficient(x1, 2 + make_small_variation(mt)).set_coefficient(x2, -1 + make_small_variation(mt)).set_bounds(1 + make_small_variation(mt), infinity);
-  //     linear_program.create_constraint().set_coefficient(x2, 3 + make_small_variation(mt)).set_bounds(-infinity, 2 + make_small_variation(mt));
+      linear_program.create_constraint().set_coefficient(x1, 1 + make_small_variation(mt)).set_coefficient(x2, 1 + make_small_variation(mt)).set_bounds(1 + make_small_variation(mt), infinity);
+      linear_program.create_constraint().set_coefficient(x1, 2 + make_small_variation(mt)).set_coefficient(x2, -1 + make_small_variation(mt)).set_bounds(1 + make_small_variation(mt), infinity);
+      linear_program.create_constraint().set_coefficient(x2, 3 + make_small_variation(mt)).set_bounds(-infinity, 2 + make_small_variation(mt));
 
-  //     const auto solution = *linear_program.solve();
+      const auto solution = *linear_program.solve();
 
-  //     return solution.cost;
-  //   });
-  // }
+      return solution.cost;
+    });
+  }
 }
 
 TEST_CASE("Origin not feasible") {
