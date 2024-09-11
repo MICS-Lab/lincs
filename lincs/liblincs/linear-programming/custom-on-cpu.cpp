@@ -144,15 +144,16 @@ struct Tableau {
   const unsigned artificial_variables_count;
   typedef double fp_type;
   Array2D<Host, fp_type> objectives;
-  Array2D<Host, fp_type> constraints_coefficients;
-  Array1D<Host, fp_type> constraints_values;
+  Array2D<Host, fp_type> constraints;
   std::vector<unsigned> basic_variable_cols;
 
   std::vector<float> get_assignments() const {
-    std::vector<float> assignments(client_variables_count + slack_variables_count + artificial_variables_count, 0);
-    for (unsigned basic_variable_row = 0; basic_variable_row < constraints_values.s0(); ++basic_variable_row) {
+    const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
+    std::vector<float> assignments(total_variables_count, 0);
+    const unsigned constraints_count = constraints.s1();
+    for (unsigned basic_variable_row = 0; basic_variable_row < constraints_count; ++basic_variable_row) {
       const unsigned basic_variable_col = basic_variable_cols[basic_variable_row];
-      assignments[basic_variable_col] = constraints_values[basic_variable_row];
+      assignments[basic_variable_col] = constraints[basic_variable_row][total_variables_count];
     }
     return assignments;
   }
@@ -168,9 +169,8 @@ class Simplex {
     total_variables_count(client_variables_count + slack_variables_count + artificial_variables_count),
     objectives_count(tableau.objectives.s1()),
     objectives(tableau.objectives),
-    constraints_count(tableau.constraints_coefficients.s1()),
-    constraints_coefficients(tableau.constraints_coefficients),
-    constraints_values(tableau.constraints_values),
+    constraints_count(tableau.constraints.s1()),
+    constraints(tableau.constraints),
     basic_variable_cols(tableau.basic_variable_cols)
   {
     print_state("Initial");
@@ -262,8 +262,8 @@ class Simplex {
     std::optional<unsigned> leaving_row;
     for (unsigned row = 0; row != constraints_count; ++row) {
       // @todo Consider adding: if (artificial_variables_count == 0 || basic_variable_cols[row] >= client_variables_count + slack_variables_count)  // Only select artificial variables for leaving when there are some
-      if (constraints_coefficients[row][entering_column] > 0) {
-        if (!leaving_row || constraints_values[row] / constraints_coefficients[row][entering_column] < constraints_values[*leaving_row] / constraints_coefficients[*leaving_row][entering_column]) {
+      if (constraints[row][entering_column] > 0) {
+        if (!leaving_row || constraints[row][total_variables_count] / constraints[row][entering_column] < constraints[*leaving_row][total_variables_count] / constraints[*leaving_row][entering_column]) {
           leaving_row = row;
         }
       }
@@ -276,7 +276,7 @@ class Simplex {
     if (verbosity > 2) {
       std::cerr << boost::format("  Pivoting (leaving row: %||, entering column: %||)") % variable_name(basic_variable_cols[leaving_row]) % variable_name(entering_column) << std::endl;
     }
-    const Tableau::fp_type pivot_value = constraints_coefficients[leaving_row][entering_column];
+    const Tableau::fp_type pivot_value = constraints[leaving_row][entering_column];
     if (verbosity > 2) {
       std::cerr << boost::format("    pivot value: %|-.3|") % pivot_value << std::endl;
     }
@@ -286,22 +286,22 @@ class Simplex {
 
     for (unsigned row = 0; row != constraints_count; ++row) {
       if (row != leaving_row) {
-        const Tableau::fp_type factor = constraints_coefficients[row][entering_column];
+        const Tableau::fp_type factor = constraints[row][entering_column];
         if (verbosity > 2) {
           std::cerr << boost::format("    constraint %|| factor: %|-.3|") % variable_name(basic_variable_cols[row]) % factor << std::endl;
         }
         for (unsigned col = 0; col != total_variables_count; ++col) {
           if (col != entering_column) {
             // @todo Investigate if there is a best way to do what each of these three lines do (mathematically, they all do the same, but with slight numerical differences)
-            // constraints_coefficients[row][col] -= factor * (constraints_coefficients[leaving_row][col] / pivot_value);
-            constraints_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col] / pivot_value;
-            // constraints_coefficients[row][col] = (constraints_coefficients[row][col] * pivot_value - factor * constraints_coefficients[leaving_row][col]) / pivot_value;
+            // constraints[row][col] -= factor * (constraints[leaving_row][col] / pivot_value);
+            constraints[row][col] -= factor * constraints[leaving_row][col] / pivot_value;
+            // constraints[row][col] = (constraints[row][col] * pivot_value - factor * constraints[leaving_row][col]) / pivot_value;
           }
         }
-        constraints_coefficients[row][entering_column] = 0;
-        // constraints_values[row] -= factor * (constraints_values[leaving_row] / pivot_value);
-        constraints_values[row] -= factor * constraints_values[leaving_row] / pivot_value;
-        // constraints_values[row] = (constraints_values[row] * pivot_value - factor * constraints_values[leaving_row]) / pivot_value;
+        constraints[row][entering_column] = 0;
+        // constraints[row][total_variables_count] -= factor * (constraints[leaving_row][total_variables_count] / pivot_value);
+        constraints[row][total_variables_count] -= factor * constraints[leaving_row][total_variables_count] / pivot_value;
+        // constraints[row][total_variables_count] = (constraints[row][total_variables_count] * pivot_value - factor * constraints[leaving_row][total_variables_count]) / pivot_value;
       }
     }
     for (unsigned row = 0; row != objectives_count; ++row) {
@@ -311,24 +311,24 @@ class Simplex {
       }
       for (unsigned col = 0; col != total_variables_count; ++col) {
         if (col != entering_column) {
-          // objectives[row][col] -= factor * (constraints_coefficients[leaving_row][col] / pivot_value);
-          objectives[row][col] -= factor * constraints_coefficients[leaving_row][col] / pivot_value;
-          // objectives[row][col] = (objectives[row][col] * pivot_value - factor * constraints_coefficients[leaving_row][col]) / pivot_value;
+          // objectives[row][col] -= factor * (constraints[leaving_row][col] / pivot_value);
+          objectives[row][col] -= factor * constraints[leaving_row][col] / pivot_value;
+          // objectives[row][col] = (objectives[row][col] * pivot_value - factor * constraints[leaving_row][col]) / pivot_value;
         }
       }
       objectives[row][entering_column] = 0;
-      // objectives[row][total_variables_count] -= factor * (constraints_values[leaving_row] / pivot_value);
-      objectives[row][total_variables_count] -= factor * constraints_values[leaving_row] / pivot_value;
-      // objectives[row][total_variables_count] = (objectives[row][total_variables_count] * pivot_value - factor * constraints_values[leaving_row]) / pivot_value;
+      // objectives[row][total_variables_count] -= factor * (constraints[leaving_row][total_variables_count] / pivot_value);
+      objectives[row][total_variables_count] -= factor * constraints[leaving_row][total_variables_count] / pivot_value;
+      // objectives[row][total_variables_count] = (objectives[row][total_variables_count] * pivot_value - factor * constraints[leaving_row][total_variables_count]) / pivot_value;
     }
 
-    constraints_values[leaving_row] = constraints_values[leaving_row] / pivot_value;
+    constraints[leaving_row][total_variables_count] = constraints[leaving_row][total_variables_count] / pivot_value;
     for (unsigned col = 0; col != total_variables_count; ++col) {
       if (col != entering_column) {
-        constraints_coefficients[leaving_row][col] = constraints_coefficients[leaving_row][col] / pivot_value;
+        constraints[leaving_row][col] = constraints[leaving_row][col] / pivot_value;
       }
     }
-    constraints_coefficients[leaving_row][entering_column] = 1;
+    constraints[leaving_row][entering_column] = 1;
 
     basic_variable_cols[leaving_row] = entering_column;
   }
@@ -348,9 +348,9 @@ class Simplex {
         for (unsigned row = 0; row < constraints_count; ++row) {
           std::cerr << boost::format("      %|3| |") % variable_name(basic_variable_cols[row]);
           for (unsigned col = 0; col < total_variables_count; ++col) {
-            std::cerr << boost::format("%|=8.3|") % constraints_coefficients[row][col];
+            std::cerr << boost::format("%|=8.3|") % constraints[row][col];
           }
-          std::cerr << boost::format("| %|-.3|\n") % constraints_values[row];
+          std::cerr << boost::format("| %|-.3|\n") % constraints[row][total_variables_count];
         }
 
         std::cerr << "    objectives:\n";
@@ -391,9 +391,8 @@ class Simplex {
   void assert_sizes_are_consistent() {
     assert(objectives.s1() == objectives_count);
     assert(objectives.s0() == total_variables_count + 1);
-    assert(constraints_coefficients.s1() == constraints_count);
-    assert(constraints_coefficients.s0() == total_variables_count);
-    assert(constraints_values.s0() == constraints_count);
+    assert(constraints.s1() == constraints_count);
+    assert(constraints.s0() == total_variables_count + 1);
     assert(basic_variable_cols.size() == constraints_count);
   }
 
@@ -401,7 +400,7 @@ class Simplex {
     for (unsigned basic_variable_row = 0; basic_variable_row != constraints_count; ++basic_variable_row) {
       const unsigned basic_variable_col = basic_variable_cols[basic_variable_row];
       for (unsigned row = 1; row < constraints_count; ++row) {
-        assert(constraints_coefficients[row][basic_variable_col] == (row == basic_variable_row ? 1. : 0.));
+        assert(constraints[row][basic_variable_col] == (row == basic_variable_row ? 1. : 0.));
       }
     }
   }
@@ -417,11 +416,11 @@ class Simplex {
     }
     for (unsigned row = 0; row != constraints_count; ++row) {
       for (unsigned col = 0; col != total_variables_count; ++col) {
-        assert(!std::isnan(constraints_coefficients[row][col]));
-        assert(!std::isinf(constraints_coefficients[row][col]));
+        assert(!std::isnan(constraints[row][col]));
+        assert(!std::isinf(constraints[row][col]));
       }
-      assert(!std::isnan(constraints_values[row]));
-      assert(!std::isinf(constraints_values[row]));
+      assert(!std::isnan(constraints[row][total_variables_count]));
+      assert(!std::isinf(constraints[row][total_variables_count]));
     }
   }
 
@@ -433,8 +432,7 @@ class Simplex {
   const unsigned objectives_count;
   Array2D<Host, Tableau::fp_type>& objectives;
   const unsigned constraints_count;
-  Array2D<Host, Tableau::fp_type>& constraints_coefficients;
-  Array1D<Host, Tableau::fp_type>& constraints_values;
+  Array2D<Host, Tableau::fp_type>& constraints;
   std::vector<unsigned>& basic_variable_cols;
 };
 
@@ -563,8 +561,7 @@ class CustomOnCpuLinearProgramSolver {
     const unsigned artificial_variables_count = 0;
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
 
-    Array2D<Host, Tableau::fp_type> constraints_coefficients(constraints_count, total_variables_count, zeroed);
-    Array1D<Host, Tableau::fp_type> constraints_values(constraints_count, zeroed);
+    Array2D<Host, Tableau::fp_type> constraints(constraints_count, total_variables_count + 1, zeroed);
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     std::vector<unsigned> artificial_variable_rows(total_variables_count, 0);
     populate_constraints(
@@ -572,8 +569,7 @@ class CustomOnCpuLinearProgramSolver {
       client_variables_count,
       slack_variables_count,
       artificial_variables_count,
-      constraints_coefficients,
-      constraints_values,
+      constraints,
       basic_variable_cols,
       artificial_variable_rows
     );
@@ -588,8 +584,7 @@ class CustomOnCpuLinearProgramSolver {
       slack_variables_count,
       artificial_variables_count,
       std::move(objectives),
-      std::move(constraints_coefficients),
-      std::move(constraints_values),
+      std::move(constraints),
       std::move(basic_variable_cols)
     };
   }
@@ -599,8 +594,7 @@ class CustomOnCpuLinearProgramSolver {
     assert(artificial_variables_count != 0);
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
 
-    Array2D<Host, Tableau::fp_type> constraints_coefficients(constraints_count, total_variables_count, zeroed);
-    Array1D<Host, Tableau::fp_type> constraints_values(constraints_count, zeroed);
+    Array2D<Host, Tableau::fp_type> constraints(constraints_count, total_variables_count + 1, zeroed);
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     std::vector<unsigned> artificial_variable_rows(total_variables_count, 0);
     populate_constraints(
@@ -608,8 +602,7 @@ class CustomOnCpuLinearProgramSolver {
       client_variables_count,
       slack_variables_count,
       artificial_variables_count,
-      constraints_coefficients,
-      constraints_values,
+      constraints,
       basic_variable_cols,
       artificial_variable_rows
     );
@@ -627,9 +620,9 @@ class CustomOnCpuLinearProgramSolver {
     for (unsigned artificial_variable_index = 0; artificial_variable_index != artificial_variables_count; ++artificial_variable_index) {
       const unsigned row = artificial_variable_rows[artificial_variable_index];
       for (unsigned col = 0; col < total_variables_count; ++col) {
-        objectives[1][col] += constraints_coefficients[row][col];
+        objectives[1][col] += constraints[row][col];
       }
-      objectives[1][total_variables_count] += constraints_values[row];
+      objectives[1][total_variables_count] += constraints[row][total_variables_count];
     }
 
     return {
@@ -637,8 +630,7 @@ class CustomOnCpuLinearProgramSolver {
       slack_variables_count,
       artificial_variables_count,
       std::move(objectives),
-      std::move(constraints_coefficients),
-      std::move(constraints_values),
+      std::move(constraints),
       std::move(basic_variable_cols)
     };
   }
@@ -676,11 +668,11 @@ class CustomOnCpuLinearProgramSolver {
     const unsigned client_variables_count,
     const unsigned slack_variables_count,
     const unsigned artificial_variables_count,
-    Array2D<Host, Tableau::fp_type>& constraints_coefficients,
-    Array1D<Host, Tableau::fp_type>& constraints_values,
+    Array2D<Host, Tableau::fp_type>& constraints,
     std::vector<unsigned>& basic_variable_cols,
     std::vector<unsigned>& artificial_variable_rows
   ) {
+    const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
     unsigned slack_variable_index = 0;
     unsigned artificial_variable_index = 0;
     unsigned constraint_index = 0;
@@ -688,11 +680,11 @@ class CustomOnCpuLinearProgramSolver {
       // @todo Factorize common parts between these branches. Maybe 'std::sign(...) * ...' can help us?
       if (constraint.upper_bound == constraint.lower_bound) {
         for (const auto& [variable_index, coefficient] : constraint.coefficients) {
-          constraints_coefficients[constraint_index][variable_index] = coefficient;
+          constraints[constraint_index][variable_index] = coefficient;
         }
-        constraints_values[constraint_index] = constraint.upper_bound;
+        constraints[constraint_index][total_variables_count] = constraint.upper_bound;
 
-        constraints_coefficients[constraint_index][client_variables_count + slack_variables_count + artificial_variable_index] = 1;
+        constraints[constraint_index][client_variables_count + slack_variables_count + artificial_variable_index] = 1;
         basic_variable_cols[constraint_index] = client_variables_count + slack_variables_count + artificial_variable_index;
         artificial_variable_rows[artificial_variable_index] = constraint_index;
         ++artificial_variable_index;
@@ -702,24 +694,24 @@ class CustomOnCpuLinearProgramSolver {
         if (constraint.upper_bound != infinity) {
           if (constraint.upper_bound >= 0) {
             for (const auto& [variable_index, coefficient] : constraint.coefficients) {
-              constraints_coefficients[constraint_index][variable_index] = coefficient;
+              constraints[constraint_index][variable_index] = coefficient;
             }
-            constraints_values[constraint_index] = constraint.upper_bound;
+            constraints[constraint_index][total_variables_count] = constraint.upper_bound;
 
-            constraints_coefficients[constraint_index][client_variables_count + slack_variable_index] = 1;
+            constraints[constraint_index][client_variables_count + slack_variable_index] = 1;
             basic_variable_cols[constraint_index] = client_variables_count + slack_variable_index;
             ++slack_variable_index;
           } else {
             for (const auto& [variable_index, coefficient] : constraint.coefficients) {
-              constraints_coefficients[constraint_index][variable_index] = -coefficient;
+              constraints[constraint_index][variable_index] = -coefficient;
             }
-            constraints_values[constraint_index] = -constraint.upper_bound;
+            constraints[constraint_index][total_variables_count] = -constraint.upper_bound;
 
-            constraints_coefficients[constraint_index][client_variables_count + slack_variable_index] = -1;
+            constraints[constraint_index][client_variables_count + slack_variable_index] = -1;
             basic_variable_cols[constraint_index] = client_variables_count + slack_variable_index;
             ++slack_variable_index;
 
-            constraints_coefficients[constraint_index][client_variables_count + slack_variables_count + artificial_variable_index] = 1;
+            constraints[constraint_index][client_variables_count + slack_variables_count + artificial_variable_index] = 1;
             basic_variable_cols[constraint_index] = client_variables_count + slack_variables_count + artificial_variable_index;
             artificial_variable_rows[artificial_variable_index] = constraint_index;
             ++artificial_variable_index;
@@ -730,24 +722,24 @@ class CustomOnCpuLinearProgramSolver {
         if (constraint.lower_bound != -infinity) {
           if (constraint.lower_bound <= 0) {
             for (const auto& [variable_index, coefficient] : constraint.coefficients) {
-              constraints_coefficients[constraint_index][variable_index] = -coefficient;
+              constraints[constraint_index][variable_index] = -coefficient;
             }
-            constraints_values[constraint_index] = -constraint.lower_bound;
+            constraints[constraint_index][total_variables_count] = -constraint.lower_bound;
 
-            constraints_coefficients[constraint_index][client_variables_count + slack_variable_index] = 1;
+            constraints[constraint_index][client_variables_count + slack_variable_index] = 1;
             basic_variable_cols[constraint_index] = client_variables_count + slack_variable_index;
             ++slack_variable_index;
           } else {
             for (const auto& [variable_index, coefficient] : constraint.coefficients) {
-              constraints_coefficients[constraint_index][variable_index] = coefficient;
+              constraints[constraint_index][variable_index] = coefficient;
             }
-            constraints_values[constraint_index] = constraint.lower_bound;
+            constraints[constraint_index][total_variables_count] = constraint.lower_bound;
 
-            constraints_coefficients[constraint_index][client_variables_count + slack_variable_index] = -1;
+            constraints[constraint_index][client_variables_count + slack_variable_index] = -1;
             basic_variable_cols[constraint_index] = client_variables_count + slack_variable_index;
             ++slack_variable_index;
 
-            constraints_coefficients[constraint_index][client_variables_count + slack_variables_count + artificial_variable_index] = 1;
+            constraints[constraint_index][client_variables_count + slack_variables_count + artificial_variable_index] = 1;
             basic_variable_cols[constraint_index] = client_variables_count + slack_variables_count + artificial_variable_index;
             artificial_variable_rows[artificial_variable_index] = constraint_index;
             ++artificial_variable_index;
@@ -770,7 +762,7 @@ class CustomOnCpuLinearProgramSolver {
     const unsigned artificial_variables_count = 0;
 
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
-    const unsigned constraints_count = first_tableau.constraints_coefficients.s1();
+    const unsigned constraints_count = first_tableau.constraints.s1();
 
     Array2D<Host, Tableau::fp_type> objectives(1, total_variables_count + 1, zeroed);
     for (unsigned variable_index = 0; variable_index != total_variables_count; ++variable_index) {
@@ -778,15 +770,14 @@ class CustomOnCpuLinearProgramSolver {
     }
     objectives[0][total_variables_count] = first_tableau.objectives[0][first_tableau.client_variables_count + first_tableau.slack_variables_count + first_tableau.artificial_variables_count];
 
-    Array2D<Host, Tableau::fp_type> constraints_coefficients(constraints_count, total_variables_count, zeroed);
+    Array2D<Host, Tableau::fp_type> constraints(constraints_count, total_variables_count + 1, zeroed);
     for (unsigned row = 0; row != constraints_count; ++row) {
       for (unsigned col = 0; col != total_variables_count; ++col) {
-        constraints_coefficients[row][col] = first_tableau.constraints_coefficients[row][col];
+        constraints[row][col] = first_tableau.constraints[row][col];
       }
     }
-    Array1D<Host, Tableau::fp_type> constraints_values(constraints_count, zeroed);
     for (unsigned row = 0; row != constraints_count; ++row) {
-      constraints_values[row] = first_tableau.constraints_values[row];
+      constraints[row][total_variables_count] = first_tableau.constraints[row][first_tableau.client_variables_count + first_tableau.slack_variables_count + first_tableau.artificial_variables_count];
     }
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     for (unsigned row = 0; row != constraints_count; ++row) {
@@ -799,8 +790,7 @@ class CustomOnCpuLinearProgramSolver {
       slack_variables_count,
       artificial_variables_count,
       std::move(objectives),
-      std::move(constraints_coefficients),
-      std::move(constraints_values),
+      std::move(constraints),
       std::move(basic_variable_cols)
     };
   };
