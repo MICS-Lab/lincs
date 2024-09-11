@@ -143,8 +143,10 @@ struct Tableau {
   const unsigned slack_variables_count;
   const unsigned artificial_variables_count;
   const unsigned total_variables_count;  // client_variables_count + slack_variables_count + artificial_variables_count
+  const unsigned tableau_width;  // total_variables_count + 1
   const unsigned constraints_count;
   const unsigned objectives_count;
+  const unsigned tableau_height;  // constraints_count + objectives_count
   typedef double fp_type;
   Array2D<Host, fp_type> tableau;
   std::vector<unsigned> basic_variable_cols;
@@ -166,9 +168,11 @@ class Simplex {
     client_variables_count(tableau.client_variables_count),
     slack_variables_count(tableau.slack_variables_count),
     artificial_variables_count(tableau.artificial_variables_count),
-    total_variables_count(client_variables_count + slack_variables_count + artificial_variables_count),
+    total_variables_count(tableau.total_variables_count),
+    tableau_width(tableau.tableau_width),
     constraints_count(tableau.constraints_count),
     objectives_count(tableau.objectives_count),
+    tableau_height(tableau.tableau_height),
     tableau(tableau.tableau),
     basic_variable_cols(tableau.basic_variable_cols)
   {
@@ -283,13 +287,15 @@ class Simplex {
     assert(!std::isinf(pivot_value));
     assert(pivot_value > 0);
 
-    for (unsigned row = 0; row != constraints_count; ++row) {
+    for (unsigned row = 0; row != tableau_height; ++row) {
       if (row != leaving_row) {
         const Tableau::fp_type factor = tableau[row][entering_column];
         if (verbosity > 2) {
-          std::cerr << boost::format("    constraint %|| factor: %|-.3|") % variable_name(basic_variable_cols[row]) % factor << std::endl;
+          std::cerr << boost::format("    %|| %|| factor: %|-.3|") % (row < constraints_count ? "constraint" : "objective") % (row < constraints_count ? variable_name(basic_variable_cols[row]) : std::to_string(row - constraints_count)) % factor << std::endl;
         }
-        for (unsigned col = 0; col != total_variables_count; ++col) {
+        assert(!std::isnan(factor));
+        assert(!std::isinf(factor));
+        for (unsigned col = 0; col != tableau_width; ++col) {
           if (col != entering_column) {
             // @todo Investigate if there is a best way to do what each of these three lines do (mathematically, they all do the same, but with slight numerical differences)
             // tableau[row][col] -= factor * (tableau[leaving_row][col] / pivot_value);
@@ -298,31 +304,10 @@ class Simplex {
           }
         }
         tableau[row][entering_column] = 0;
-        // tableau[row][total_variables_count] -= factor * (tableau[leaving_row][total_variables_count] / pivot_value);
-        tableau[row][total_variables_count] -= factor * tableau[leaving_row][total_variables_count] / pivot_value;
-        // tableau[row][total_variables_count] = (tableau[row][total_variables_count] * pivot_value - factor * tableau[leaving_row][total_variables_count]) / pivot_value;
       }
-    }
-    for (unsigned row = 0; row != objectives_count; ++row) {
-      const Tableau::fp_type factor = tableau[constraints_count + row][entering_column];
-      if (verbosity > 2) {
-        std::cerr << boost::format("    objective %|| factor: %|-.3|") % row % factor << std::endl;
-      }
-      for (unsigned col = 0; col != total_variables_count; ++col) {
-        if (col != entering_column) {
-          // tableau[constraints_count + row][col] -= factor * (tableau[leaving_row][col] / pivot_value);
-          tableau[constraints_count + row][col] -= factor * tableau[leaving_row][col] / pivot_value;
-          // tableau[constraints_count + row][col] = (tableau[constraints_count + row][col] * pivot_value - factor * tableau[leaving_row][col]) / pivot_value;
-        }
-      }
-      tableau[constraints_count + row][entering_column] = 0;
-      // tableau[constraints_count + row][total_variables_count] -= factor * (tableau[leaving_row][total_variables_count] / pivot_value);
-      tableau[constraints_count + row][total_variables_count] -= factor * tableau[leaving_row][total_variables_count] / pivot_value;
-      // tableau[constraints_count + row][total_variables_count] = (tableau[constraints_count + row][total_variables_count] * pivot_value - factor * tableau[leaving_row][total_variables_count]) / pivot_value;
     }
 
-    tableau[leaving_row][total_variables_count] = tableau[leaving_row][total_variables_count] / pivot_value;
-    for (unsigned col = 0; col != total_variables_count; ++col) {
+    for (unsigned col = 0; col != tableau_width; ++col) {
       if (col != entering_column) {
         tableau[leaving_row][col] = tableau[leaving_row][col] / pivot_value;
       }
@@ -389,8 +374,10 @@ class Simplex {
 
   void assert_sizes_are_consistent() {
     assert(total_variables_count == client_variables_count + slack_variables_count + artificial_variables_count);
-    assert(tableau.s1() == constraints_count + objectives_count);
-    assert(tableau.s0() == total_variables_count + 1);
+    assert(tableau_width == total_variables_count + 1);
+    assert(tableau_height == constraints_count + objectives_count);
+    assert(tableau.s1() == tableau_height);
+    assert(tableau.s0() == tableau_width);
     assert(basic_variable_cols.size() == constraints_count);
   }
 
@@ -404,21 +391,11 @@ class Simplex {
   }
 
   void assert_no_nans_or_infinities() {
-    for (unsigned row = 0; row != objectives_count; ++row) {
-      for (unsigned col = 0; col != total_variables_count; ++col) {
-        assert(!std::isnan(tableau[constraints_count + row][col]));
-        assert(!std::isinf(tableau[constraints_count + row][col]));
-      }
-      assert(!std::isnan(tableau[constraints_count + row][total_variables_count]));
-      assert(!std::isinf(tableau[constraints_count + row][total_variables_count]));
-    }
-    for (unsigned row = 0; row != constraints_count; ++row) {
-      for (unsigned col = 0; col != total_variables_count; ++col) {
+    for (unsigned row = 0; row != tableau_height; ++row) {
+      for (unsigned col = 0; col != tableau_width; ++col) {
         assert(!std::isnan(tableau[row][col]));
         assert(!std::isinf(tableau[row][col]));
       }
-      assert(!std::isnan(tableau[row][total_variables_count]));
-      assert(!std::isinf(tableau[row][total_variables_count]));
     }
   }
 
@@ -427,8 +404,10 @@ class Simplex {
   const unsigned slack_variables_count;
   const unsigned artificial_variables_count;
   const unsigned total_variables_count;
+  const unsigned tableau_width;
   const unsigned constraints_count;
   const unsigned objectives_count;
+  const unsigned tableau_height;
   Array2D<Host, Tableau::fp_type>& tableau;
   std::vector<unsigned>& basic_variable_cols;
 };
@@ -584,8 +563,10 @@ class CustomOnCpuLinearProgramSolver {
       slack_variables_count,
       artificial_variables_count,
       total_variables_count,
+      tableau_width,
       constraints_count,
       objectives_count,
+      tableau_height,
       std::move(tableau),
       std::move(basic_variable_cols)
     };
@@ -624,10 +605,9 @@ class CustomOnCpuLinearProgramSolver {
     // ... in term of non-basic variables
     for (unsigned artificial_variable_index = 0; artificial_variable_index != artificial_variables_count; ++artificial_variable_index) {
       const unsigned row = artificial_variable_rows[artificial_variable_index];
-      for (unsigned col = 0; col < total_variables_count; ++col) {
+      for (unsigned col = 0; col < tableau_width; ++col) {
         tableau[constraints_count + 1][col] += tableau[row][col];
       }
-      tableau[constraints_count + 1][total_variables_count] += tableau[row][total_variables_count];
     }
 
     return {
@@ -635,8 +615,10 @@ class CustomOnCpuLinearProgramSolver {
       slack_variables_count,
       artificial_variables_count,
       total_variables_count,
+      tableau_width,
       constraints_count,
       objectives_count,
+      tableau_height,
       std::move(tableau),
       std::move(basic_variable_cols)
     };
@@ -798,8 +780,10 @@ class CustomOnCpuLinearProgramSolver {
       slack_variables_count,
       artificial_variables_count,
       total_variables_count,
+      tableau_width,
       constraints_count,
       objectives_count,
+      tableau_height,
       std::move(tableau),
       std::move(basic_variable_cols)
     };
