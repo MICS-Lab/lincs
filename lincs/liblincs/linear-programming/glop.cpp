@@ -16,10 +16,7 @@ std::optional<GlopLinearProgram::solution_type> GlopLinearProgram::solve() {
   solver.SetParameters(parameters);
 
   program.CleanUp();
-  #ifndef NDEBUG
-  auto status =
-  #endif
-  solver.Solve(program);
+  auto status = solver.Solve(program);
   if (status == operations_research::glop::ProblemStatus::OPTIMAL) {
     return solution_type{solver.variable_values(), float(solver.GetObjectiveValue())};
   } else {

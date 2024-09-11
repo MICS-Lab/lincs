@@ -8,6 +8,10 @@
 #include <optional>
 #include <vector>
 
+#ifndef NDEBUG
+#include "glop.hpp"
+#endif
+
 
 namespace lincs {
 
@@ -20,32 +24,57 @@ class CustomOnCpuLinearProgram {
  public:
   typedef unsigned variable_type;
   variable_type create_variable() {
+    #ifndef NDEBUG
+    glop_variables.push_back(glop_program.create_variable());
+    #endif
     return next_variable_index++;
   }
 
-  void mark_all_variables_created() {}
+  void mark_all_variables_created() {
+    #ifndef NDEBUG
+    glop_program.mark_all_variables_created();
+    #endif
+  }
 
   void set_objective_coefficient(variable_type variable, float coefficient) {
     objective_coefficients[variable] = coefficient;
+    #ifndef NDEBUG
+    glop_program.set_objective_coefficient(glop_variables[variable], coefficient);
+    #endif
   }
 
   struct ConstraintFacade {
-    ConstraintFacade(CustomOnCpuLinearProgram* program, unsigned index) : program(program), index(index) {}
+    ConstraintFacade(CustomOnCpuLinearProgram* program, unsigned index) :
+      program(program),
+      index(index)
+      #ifndef NDEBUG
+      , glop_constraint(program->glop_program.create_constraint())
+      #endif
+    {}
 
     ConstraintFacade& set_bounds(float lower_bound, float upper_bound) {
       program->constraints[index].lower_bound = lower_bound;
       program->constraints[index].upper_bound = upper_bound;
+      #ifndef NDEBUG
+      glop_constraint.set_bounds(lower_bound, upper_bound);
+      #endif
       return *this;
     }
 
     ConstraintFacade& set_coefficient(variable_type variable, float coefficient) {
       program->constraints[index].coefficients[variable] = coefficient;
+      #ifndef NDEBUG
+      glop_constraint.set_coefficient(program->glop_variables[variable], coefficient);
+      #endif
       return *this;
     }
 
    private:
     CustomOnCpuLinearProgram* const program;
     const unsigned index;
+    #ifndef NDEBUG
+    GlopLinearProgram::Constraint glop_constraint;
+    #endif
   };
 
   ConstraintFacade create_constraint() {
@@ -75,6 +104,10 @@ class CustomOnCpuLinearProgram {
   variable_type next_variable_index = 0;
   std::map<variable_type, float> objective_coefficients;
   std::vector<Constraint> constraints;
+#ifndef NDEBUG
+  GlopLinearProgram glop_program;
+  std::vector<GlopLinearProgram::variable_type> glop_variables;
+#endif
 };
 
 }  // namespace lincs

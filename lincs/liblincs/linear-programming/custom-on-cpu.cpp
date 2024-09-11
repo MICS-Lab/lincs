@@ -777,7 +777,23 @@ class CustomOnCpuLinearProgramSolver {
 };
 
 std::optional<CustomOnCpuLinearProgram::solution_type> CustomOnCpuLinearProgram::solve() {
-  return CustomOnCpuLinearProgramSolver(*this).solve();
+  const auto solution = CustomOnCpuLinearProgramSolver(*this).solve();
+  #ifndef NDEBUG
+  const auto glop_solution = glop_program.solve();
+  assert_with_dump(glop_solution.has_value() == solution.has_value(), *this);
+  if (solution) {
+    assert_with_dump(!std::isnan(glop_solution->cost), *this);
+    assert_with_dump(std::abs(glop_solution->cost) != infinity, *this);
+    assert_with_dump(!std::isnan(solution->cost), *this);
+    assert_with_dump(std::abs(solution->cost) != infinity, *this);
+    if (glop_solution->cost == 0 || solution->cost == 0) {
+      assert_with_dump(std::max(std::abs(glop_solution->cost), std::abs(solution->cost)) < 1e-4, *this);
+    } else {
+      assert_with_dump(std::abs(glop_solution->cost - solution->cost) / std::max(std::abs(glop_solution->cost), std::abs(solution->cost)) < 1e-4, *this);
+    }
+  }
+  #endif
+  return solution;
 }
 
 }  // namespace lincs

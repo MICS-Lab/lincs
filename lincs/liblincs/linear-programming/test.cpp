@@ -244,6 +244,24 @@ TEST_CASE("Section 8 of https://webspace.maths.qmul.ac.uk/felix.fischer/teaching
   }
 }
 
+TEST_CASE("Origin optimal") {
+  test([](auto& linear_program) {
+    const auto x = linear_program.create_variable();
+    linear_program.mark_all_variables_created();
+
+    linear_program.set_objective_coefficient(x, 1);
+
+    linear_program.create_constraint().set_coefficient(x, 1).set_bounds(-1, 1);
+
+    const auto solution = *linear_program.solve();
+
+    CHECK_NEAR(solution.assignments[x], 0);
+    CHECK_NEAR(solution.cost, 0);
+
+    return solution.cost;
+  });
+}
+
 TEST_CASE("Origin not feasible") {
   test([](auto& linear_program) {
     const auto x = linear_program.create_variable();
