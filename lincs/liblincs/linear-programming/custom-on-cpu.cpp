@@ -142,10 +142,11 @@ struct Tableau {
   const unsigned client_variables_count;
   const unsigned slack_variables_count;
   const unsigned artificial_variables_count;
-  Array2D<Host, float> objectives_coefficients;
-  Array1D<Host, float> costs;
-  Array2D<Host, float> constraints_coefficients;
-  Array1D<Host, float> constraints_values;
+  typedef double fp_type;
+  Array2D<Host, fp_type> objectives_coefficients;
+  Array1D<Host, fp_type> costs;
+  Array2D<Host, fp_type> constraints_coefficients;
+  Array1D<Host, fp_type> constraints_values;
   std::vector<unsigned> basic_variable_cols;
 
   std::vector<float> get_assignments() const {
@@ -275,7 +276,7 @@ class Simplex {
     if (verbosity > 2) {
       std::cerr << boost::format("  Pivoting (leaving row: %||, entering column: %||)") % variable_name(basic_variable_cols[leaving_row]) % variable_name(entering_column) << std::endl;
     }
-    const float pivot_value = constraints_coefficients[leaving_row][entering_column];
+    const Tableau::fp_type pivot_value = constraints_coefficients[leaving_row][entering_column];
     if (verbosity > 2) {
       std::cerr << boost::format("    pivot value: %|-.3|") % pivot_value << std::endl;
     }
@@ -288,7 +289,7 @@ class Simplex {
 
     for (unsigned row = 0; row != constraints_count; ++row) {
       if (row != leaving_row) {
-        const float factor = constraints_coefficients[row][entering_column];
+        const Tableau::fp_type factor = constraints_coefficients[row][entering_column];
         if (verbosity > 2) {
           std::cerr << boost::format("    constraint %|| factor: %|-.3|") % variable_name(basic_variable_cols[row]) % factor << std::endl;
         }
@@ -299,7 +300,7 @@ class Simplex {
       }
     }
     for (unsigned row = 0; row != objectives_count; ++row) {
-      const float factor = objectives_coefficients[row][entering_column];
+      const Tableau::fp_type factor = objectives_coefficients[row][entering_column];
       if (verbosity > 2) {
         std::cerr << boost::format("    objective %|| factor: %|-.3|") % row % factor << std::endl;
       }
@@ -391,11 +392,11 @@ class Simplex {
   const unsigned artificial_variables_count;
   const unsigned total_variables_count;
   const unsigned objectives_count;
-  Array2D<Host, float>& objectives_coefficients;
-  Array1D<Host, float>& costs;
+  Array2D<Host, Tableau::fp_type>& objectives_coefficients;
+  Array1D<Host, Tableau::fp_type>& costs;
   const unsigned constraints_count;
-  Array2D<Host, float>& constraints_coefficients;
-  Array1D<Host, float>& constraints_values;
+  Array2D<Host, Tableau::fp_type>& constraints_coefficients;
+  Array1D<Host, Tableau::fp_type>& constraints_values;
   std::vector<unsigned>& basic_variable_cols;
 };
 
@@ -461,7 +462,7 @@ class CustomOnCpuLinearProgramSolver {
         if (verbosity > 0) {
           std::cerr << "OPTIMAL (single-phase)" << std::endl;
         }
-        return CustomOnCpuLinearProgram::solution_type{tableau.get_assignments(), tableau.costs[0]};
+        return CustomOnCpuLinearProgram::solution_type{tableau.get_assignments(), static_cast<float>(tableau.costs[0])};
       } else {
         if (verbosity > 0) {
           std::cerr << "UNBOUNDED (single-phase)" << std::endl;
@@ -507,7 +508,7 @@ class CustomOnCpuLinearProgramSolver {
         if (verbosity > 0) {
           std::cerr << "OPTIMAL (two phases)" << std::endl;
         }
-        return CustomOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), second_tableau.costs[0]};
+        return CustomOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), static_cast<float>(second_tableau.costs[0])};
       } else {
         if (verbosity > 0) {
           std::cerr << "UNBOUNDED (two phases)" << std::endl;
@@ -523,8 +524,8 @@ class CustomOnCpuLinearProgramSolver {
     const unsigned artificial_variables_count = 0;
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
 
-    Array2D<Host, float> constraints_coefficients(constraints_count, total_variables_count, zeroed);
-    Array1D<Host, float> constraints_values(constraints_count, zeroed);
+    Array2D<Host, Tableau::fp_type> constraints_coefficients(constraints_count, total_variables_count, zeroed);
+    Array1D<Host, Tableau::fp_type> constraints_values(constraints_count, zeroed);
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     std::vector<unsigned> artificial_variable_rows(total_variables_count, 0);
     populate_constraints(
@@ -538,11 +539,11 @@ class CustomOnCpuLinearProgramSolver {
       artificial_variable_rows
     );
 
-    Array2D<Host, float> objectives_coefficients(1, total_variables_count, zeroed);
+    Array2D<Host, Tableau::fp_type> objectives_coefficients(1, total_variables_count, zeroed);
     for (const auto& [variable_index, coefficient] : program.get_objective_coefficients()) {
       objectives_coefficients[0][variable_index] = -coefficient;
     }
-    Array1D<Host, float> costs(1, zeroed);
+    Array1D<Host, Tableau::fp_type> costs(1, zeroed);
 
     return {
       client_variables_count,
@@ -561,8 +562,8 @@ class CustomOnCpuLinearProgramSolver {
     assert(artificial_variables_count != 0);
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
 
-    Array2D<Host, float> constraints_coefficients(constraints_count, total_variables_count, zeroed);
-    Array1D<Host, float> constraints_values(constraints_count, zeroed);
+    Array2D<Host, Tableau::fp_type> constraints_coefficients(constraints_count, total_variables_count, zeroed);
+    Array1D<Host, Tableau::fp_type> constraints_values(constraints_count, zeroed);
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     std::vector<unsigned> artificial_variable_rows(total_variables_count, 0);
     populate_constraints(
@@ -576,8 +577,8 @@ class CustomOnCpuLinearProgramSolver {
       artificial_variable_rows
     );
 
-    Array2D<Host, float> objectives_coefficients(2, total_variables_count, zeroed);
-    Array1D<Host, float> costs(2, zeroed);
+    Array2D<Host, Tableau::fp_type> objectives_coefficients(2, total_variables_count, zeroed);
+    Array1D<Host, Tableau::fp_type> costs(2, zeroed);
     // Phase 2 objective
     for (const auto& [variable_index, coefficient] : program.get_objective_coefficients()) {
       objectives_coefficients[0][variable_index] = -coefficient;
@@ -640,8 +641,8 @@ class CustomOnCpuLinearProgramSolver {
     const unsigned client_variables_count,
     const unsigned slack_variables_count,
     const unsigned artificial_variables_count,
-    Array2D<Host, float>& constraints_coefficients,
-    Array1D<Host, float>& constraints_values,
+    Array2D<Host, Tableau::fp_type>& constraints_coefficients,
+    Array1D<Host, Tableau::fp_type>& constraints_values,
     std::vector<unsigned>& basic_variable_cols,
     std::vector<unsigned>& artificial_variable_rows
   ) {
@@ -736,20 +737,20 @@ class CustomOnCpuLinearProgramSolver {
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
     const unsigned constraints_count = first_tableau.constraints_coefficients.s1();
 
-    Array2D<Host, float> objectives_coefficients(1, total_variables_count, zeroed);
+    Array2D<Host, Tableau::fp_type> objectives_coefficients(1, total_variables_count, zeroed);
     for (unsigned variable_index = 0; variable_index != total_variables_count; ++variable_index) {
       objectives_coefficients[0][variable_index] = first_tableau.objectives_coefficients[0][variable_index];
     }
-    Array1D<Host, float> costs(1, zeroed);
+    Array1D<Host, Tableau::fp_type> costs(1, zeroed);
     costs[0] = first_tableau.costs[0];
 
-    Array2D<Host, float> constraints_coefficients(constraints_count, total_variables_count, zeroed);
+    Array2D<Host, Tableau::fp_type> constraints_coefficients(constraints_count, total_variables_count, zeroed);
     for (unsigned row = 0; row != constraints_count; ++row) {
       for (unsigned col = 0; col != total_variables_count; ++col) {
         constraints_coefficients[row][col] = first_tableau.constraints_coefficients[row][col];
       }
     }
-    Array1D<Host, float> constraints_values(constraints_count, zeroed);
+    Array1D<Host, Tableau::fp_type> constraints_values(constraints_count, zeroed);
     for (unsigned row = 0; row != constraints_count; ++row) {
       constraints_values[row] = first_tableau.constraints_values[row];
     }

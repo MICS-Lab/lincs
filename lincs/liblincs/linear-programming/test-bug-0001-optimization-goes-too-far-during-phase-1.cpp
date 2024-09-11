@@ -15,7 +15,6 @@ TEST_CASE("Bug") {
       { auto c = linear_program.create_constraint(); c.set_bounds(0.999695, infinity); c.set_coefficient(x0, 2.0089545); c.set_coefficient(x1, -1.0012935); }
       { auto c = linear_program.create_constraint(); c.set_bounds(-infinity, 1.9964107); c.set_coefficient(x1, 2.9984074); }
     }
-    lincs::CustomOnCpuVerbose verbose;
     const auto solution = linear_program.solve();
     if (solution) {
       return solution->cost;
