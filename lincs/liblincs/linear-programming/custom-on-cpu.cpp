@@ -54,22 +54,22 @@ std::string generate(const lincs::CustomOnCpuLinearProgram& program, int verbose
       << "\n"
       << "TEST_CASE(\"Bug\") {\n"
       << "  test([](auto& linear_program) -> std::optional<float> {\n"
-      << "    {\n";
+      << "    {\n"
+      << "      std::vector<typename std::remove_reference_t<decltype(linear_program)>::variable_type> v;\n";
   for (unsigned i = 0; i != program.variables_count(); ++i) {
-    out << "      const auto x" << i << " = linear_program.create_variable();\n";
+    out << "      v.push_back(linear_program.create_variable());\n";
   }
   out << "      linear_program.mark_all_variables_created();\n";
   for (const auto& [variable, coefficient] : program.get_objective_coefficients()) {
-    out << "      linear_program.set_objective_coefficient(x" << variable << ", " << no_loss(coefficient) << ");\n";
+    out << "      linear_program.set_objective_coefficient(v[" << variable << "], " << no_loss(coefficient) << ");\n";
   }
   for (const auto& constraint : program.get_constraints()) {
-    out << "      { "
-      << "auto c = linear_program.create_constraint();"
-      << " c.set_bounds(" << no_loss(constraint.lower_bound) << ", " << no_loss(constraint.upper_bound) << ");";
+    out << "      linear_program.create_constraint()"
+      << ".set_bounds(" << no_loss(constraint.lower_bound) << ", " << no_loss(constraint.upper_bound) << ")";
     for (const auto& [variable, coefficient] : constraint.coefficients) {
-      out << " c.set_coefficient(x" << variable << ", " << no_loss(coefficient) << ");";
+      out << ".set_coefficient(v[" << variable << "], " << no_loss(coefficient) << ")";
     }
-    out << " }\n";
+    out << ";\n";
   }
   out << "    }\n";
   if (verbose == -1) {
