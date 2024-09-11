@@ -280,6 +280,8 @@ class Simplex {
     if (verbosity > 2) {
       std::cerr << boost::format("    pivot value: %|-.3|") % pivot_value << std::endl;
     }
+    assert(!std::isnan(pivot_value));
+    assert(!std::isinf(pivot_value));
     assert(pivot_value > 0);
     for (unsigned col = 0; col != total_variables_count; ++col) {
       constraints_coefficients[leaving_row][col] /= pivot_value;
@@ -365,6 +367,7 @@ class Simplex {
   void assert_invariants() {
     assert_sizes_are_consistent();
     assert_basic_variables_are_consistent();
+    assert_no_nans_or_infinities();
   }
 
   void assert_sizes_are_consistent() {
@@ -383,6 +386,25 @@ class Simplex {
       for (unsigned row = 1; row < constraints_count; ++row) {
         assert(constraints_coefficients[row][basic_variable_col] == (row == basic_variable_row ? 1. : 0.));
       }
+    }
+  }
+
+  void assert_no_nans_or_infinities() {
+    for (unsigned row = 0; row != objectives_count; ++row) {
+      for (unsigned col = 0; col != total_variables_count; ++col) {
+        assert(!std::isnan(objectives_coefficients[row][col]));
+        assert(!std::isinf(objectives_coefficients[row][col]));
+      }
+      assert(!std::isnan(costs[row]));
+      assert(!std::isinf(costs[row]));
+    }
+    for (unsigned row = 0; row != constraints_count; ++row) {
+      for (unsigned col = 0; col != total_variables_count; ++col) {
+        assert(!std::isnan(constraints_coefficients[row][col]));
+        assert(!std::isinf(constraints_coefficients[row][col]));
+      }
+      assert(!std::isnan(constraints_values[row]));
+      assert(!std::isinf(constraints_values[row]));
     }
   }
 
