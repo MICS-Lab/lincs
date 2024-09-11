@@ -249,6 +249,7 @@ class Simplex {
 
     std::optional<unsigned> entering_column;
     for (unsigned col = 0; col != total_variables_count; ++col) {
+      // @todo Consider adding: if (col < client_variables_count + slack_variables_count)  // Never select artificial variables for entering
       if (objective_coefficients[col] > 0) {
         if (!entering_column || objective_coefficients[col] > objective_coefficients[*entering_column]) {
           entering_column = col;
@@ -262,6 +263,7 @@ class Simplex {
   std::optional<unsigned> find_leaving_row(const unsigned entering_column) const {
     std::optional<unsigned> leaving_row;
     for (unsigned row = 0; row != constraints_count; ++row) {
+      // @todo Consider adding: if (artificial_variables_count == 0 || basic_variable_cols[row] >= client_variables_count + slack_variables_count)  // Only select artificial variables for leaving when there are some
       if (constraints_coefficients[row][entering_column] > 0) {
         if (!leaving_row || constraints_values[row] / constraints_coefficients[row][entering_column] < constraints_values[*leaving_row] / constraints_coefficients[*leaving_row][entering_column]) {
           leaving_row = row;
@@ -292,6 +294,7 @@ class Simplex {
         }
         for (unsigned col = 0; col != total_variables_count; ++col) {
           if (col != entering_column) {
+            // @todo Investigate if there is a best way to do what each of these three lines do (mathematically, they all do the same, but with slight numerical differences)
             // constraints_coefficients[row][col] -= factor * (constraints_coefficients[leaving_row][col] / pivot_value);
             constraints_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col] / pivot_value;
             // constraints_coefficients[row][col] = (constraints_coefficients[row][col] * pivot_value - factor * constraints_coefficients[leaving_row][col]) / pivot_value;
