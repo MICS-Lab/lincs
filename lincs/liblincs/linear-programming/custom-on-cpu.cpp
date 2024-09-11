@@ -283,11 +283,6 @@ class Simplex {
     assert(!std::isnan(pivot_value));
     assert(!std::isinf(pivot_value));
     assert(pivot_value > 0);
-    for (unsigned col = 0; col != total_variables_count; ++col) {
-      constraints_coefficients[leaving_row][col] /= pivot_value;
-    }
-    assert(constraints_coefficients[leaving_row][entering_column] == 1);
-    constraints_values[leaving_row] /= pivot_value;
 
     for (unsigned row = 0; row != constraints_count; ++row) {
       if (row != leaving_row) {
@@ -296,9 +291,16 @@ class Simplex {
           std::cerr << boost::format("    constraint %|| factor: %|-.3|") % variable_name(basic_variable_cols[row]) % factor << std::endl;
         }
         for (unsigned col = 0; col != total_variables_count; ++col) {
-          constraints_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col];
+          if (col != entering_column) {
+            // constraints_coefficients[row][col] -= factor * (constraints_coefficients[leaving_row][col] / pivot_value);
+            constraints_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col] / pivot_value;
+            // constraints_coefficients[row][col] = (constraints_coefficients[row][col] * pivot_value - factor * constraints_coefficients[leaving_row][col]) / pivot_value;
+          }
         }
-        constraints_values[row] -= factor * constraints_values[leaving_row];
+        constraints_coefficients[row][entering_column] = 0;
+        // constraints_values[row] -= factor * (constraints_values[leaving_row] / pivot_value);
+        constraints_values[row] -= factor * constraints_values[leaving_row] / pivot_value;
+        // constraints_values[row] = (constraints_values[row] * pivot_value - factor * constraints_values[leaving_row]) / pivot_value;
       }
     }
     for (unsigned row = 0; row != objectives_count; ++row) {
@@ -307,10 +309,25 @@ class Simplex {
         std::cerr << boost::format("    objective %|| factor: %|-.3|") % row % factor << std::endl;
       }
       for (unsigned col = 0; col != total_variables_count; ++col) {
-        objectives_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col];
+        if (col != entering_column) {
+          // objectives_coefficients[row][col] -= factor * (constraints_coefficients[leaving_row][col] / pivot_value);
+          objectives_coefficients[row][col] -= factor * constraints_coefficients[leaving_row][col] / pivot_value;
+          // objectives_coefficients[row][col] = (objectives_coefficients[row][col] * pivot_value - factor * constraints_coefficients[leaving_row][col]) / pivot_value;
+        }
       }
-      costs[row] -= factor * constraints_values[leaving_row];
+      objectives_coefficients[row][entering_column] = 0;
+      // costs[row] -= factor * (constraints_values[leaving_row] / pivot_value);
+      costs[row] -= factor * constraints_values[leaving_row] / pivot_value;
+      // costs[row] = (costs[row] * pivot_value - factor * constraints_values[leaving_row]) / pivot_value;
     }
+
+    constraints_values[leaving_row] = constraints_values[leaving_row] / pivot_value;
+    for (unsigned col = 0; col != total_variables_count; ++col) {
+      if (col != entering_column) {
+        constraints_coefficients[leaving_row][col] = constraints_coefficients[leaving_row][col] / pivot_value;
+      }
+    }
+    constraints_coefficients[leaving_row][entering_column] = 1;
 
     basic_variable_cols[leaving_row] = entering_column;
   }
@@ -514,7 +531,7 @@ class CustomOnCpuLinearProgramSolver {
       if (verbosity > 0) {
         std::cerr << "FEASIBLE. First phase cost (should be zero): " << first_tableau.costs[1] << std::endl;
       }
-      assert_with_dump(std::abs(first_tableau.costs[1]) < 1e-4, program);
+      assert_with_dump(std::abs(first_tableau.costs[1]) < 1e-14, program);
 
       if (verbosity > 1) {
         std::cerr << "SECOND PHASE" << std::endl;
