@@ -297,9 +297,11 @@ class Simplex {
         assert(!std::isinf(factor));
         for (unsigned col = 0; col != tableau_width; ++col) {
           if (col != entering_column) {
-            // @todo Investigate if there is a best way to do what each of these three lines do (mathematically, they all do the same, but with slight numerical differences)
-            // tableau[row][col] -= factor * (tableau[leaving_row][col] / pivot_value);
-            tableau[row][col] -= factor * tableau[leaving_row][col] / pivot_value;
+            // @todo Investigate if there is a best way to do what each of these three lines do.
+            // Mathematically they all do the same thing, but with slight numerical differences.
+            // They all fail 'test-bug-0003'. The third one also fails 'test-bug-0002'.
+            // tableau[row][col] = tableau[row][col] - factor * (tableau[leaving_row][col] / pivot_value);
+            tableau[row][col] = tableau[row][col] - factor * tableau[leaving_row][col] / pivot_value;
             // tableau[row][col] = (tableau[row][col] * pivot_value - factor * tableau[leaving_row][col]) / pivot_value;
           }
         }
