@@ -466,7 +466,7 @@ class CustomOnCpuLinearProgramSolver {
         std::cerr << "SINGLE PHASE" << std::endl;
         std::cerr << "============" << std::endl;
       }
-      auto tableau = make_single_step_tableau(constraints_count, slack_variables_count);
+      auto tableau = make_single_phase_tableau(constraints_count, slack_variables_count);
       const auto run_result = Simplex(tableau).run();
       if (verbosity > 1) {
         std::cerr << std::endl;
@@ -487,7 +487,7 @@ class CustomOnCpuLinearProgramSolver {
         std::cerr << "FIRST PHASE" << std::endl;
         std::cerr << "===========" << std::endl;
       }
-      auto first_tableau = make_first_step_tableau(constraints_count, slack_variables_count, artificial_variables_count);
+      auto first_tableau = make_first_phase_tableau(constraints_count, slack_variables_count, artificial_variables_count);
       Simplex(first_tableau).run();  // We don't care if it's optimal or unbounded
 
       const auto first_assignments = first_tableau.get_assignments();
@@ -512,7 +512,7 @@ class CustomOnCpuLinearProgramSolver {
         std::cerr << "============" << std::endl;
       }
 
-      auto second_tableau = make_second_step_tableau(first_tableau);
+      auto second_tableau = make_second_phase_tableau(first_tableau);
       const auto second_run_result = Simplex(second_tableau).run();
       if (verbosity > 1) {
         std::cerr << std::endl;
@@ -532,7 +532,7 @@ class CustomOnCpuLinearProgramSolver {
   }
 
  private:
-  Tableau make_single_step_tableau(const unsigned constraints_count, const unsigned slack_variables_count) {
+  Tableau make_single_phase_tableau(const unsigned constraints_count, const unsigned slack_variables_count) {
     const unsigned client_variables_count = program.variables_count();
     const unsigned artificial_variables_count = 0;
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
@@ -572,7 +572,7 @@ class CustomOnCpuLinearProgramSolver {
     };
   }
 
-  Tableau make_first_step_tableau(const unsigned constraints_count, const unsigned slack_variables_count, const unsigned artificial_variables_count) {
+  Tableau make_first_phase_tableau(const unsigned constraints_count, const unsigned slack_variables_count, const unsigned artificial_variables_count) {
     const unsigned client_variables_count = program.variables_count();
     assert(artificial_variables_count != 0);
     const unsigned total_variables_count = client_variables_count + slack_variables_count + artificial_variables_count;
@@ -743,8 +743,11 @@ class CustomOnCpuLinearProgramSolver {
     assert(artificial_variable_index == artificial_variables_count);
   }
 
-  Tableau make_second_step_tableau(const Tableau& first_tableau) {
-    // @todo Replace these copies by a partial reuse of the first tableau. It's just a matter of indexing, right?
+  Tableau make_second_phase_tableau(const Tableau& first_tableau) {
+    // @todo Consider reusing the first tableau's memory instead of copying it.
+    // It's not clear a priori what's the most costly:
+    //   - the copy to create a contiguous second phase tableau
+    //   - the reduction of cache locality of using a non-contiguous second phase tableau
 
     const unsigned client_variables_count = first_tableau.client_variables_count;
     const unsigned slack_variables_count = first_tableau.slack_variables_count;
@@ -769,6 +772,7 @@ class CustomOnCpuLinearProgramSolver {
     for (unsigned row = 0; row != constraints_count; ++row) {
       tableau[row][total_variables_count] = first_tableau.tableau[row][first_tableau.total_variables_count];
     }
+
     std::vector<unsigned> basic_variable_cols(constraints_count, 0);
     for (unsigned row = 0; row != constraints_count; ++row) {
       assert_with_dump(first_tableau.basic_variable_cols[row] < total_variables_count, program);
