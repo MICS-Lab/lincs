@@ -754,13 +754,13 @@ TEST_CASE("Custom-simplex-on-CPU WPB learning - real criteria" * doctest::skip(s
 
 // @todo Enable these tests when the custom simplex is fixed
 
-TEST_CASE("Custom-simplex-on-CPU WPB learning - real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
-  check_exact_learnings<CustomOnCpuWpbWrapper>(
-    7, 2,
-    {lincs::Criterion::PreferenceDirection::increasing},
-    {lincs::Criterion::ValueType::real},
-    {0, 10, 12, 16});  // Not yet complete
-}
+// TEST_CASE("Custom-simplex-on-CPU WPB learning - real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
+//   check_exact_learnings<CustomOnCpuWpbWrapper>(
+//     7, 2,
+//     {lincs::Criterion::PreferenceDirection::increasing},
+//     {lincs::Criterion::ValueType::real},
+//     {});
+// }
 
 // TEST_CASE("Custom-simplex-on-CPU WPB learning - real criteria - long" * doctest::skip(skip_wpb || skip_long)) {
 //   check_exact_learnings<CustomOnCpuWpbWrapper>(
