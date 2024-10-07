@@ -190,4 +190,5 @@ RUN pip3 install --user noop
 
 # CCache
 RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc
+RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-g++
 RUN ln -s $(which ccache) /home/user/.local/bin/nvcc
