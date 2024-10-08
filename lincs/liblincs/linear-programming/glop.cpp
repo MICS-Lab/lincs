@@ -7,7 +7,7 @@
 
 namespace lincs {
 
-operations_research::glop::DenseRow GlopLinearProgram::solve() {
+std::optional<GlopLinearProgram::solution_type> GlopLinearProgram::solve() {
   CHRONE();
 
   operations_research::glop::LPSolver solver;
@@ -15,12 +15,13 @@ operations_research::glop::DenseRow GlopLinearProgram::solve() {
   parameters.set_provide_strong_optimal_guarantee(true);
   solver.SetParameters(parameters);
 
-  #ifndef NDEBUG
-  auto status =
-  #endif
-  solver.Solve(program);
-  assert(status == operations_research::glop::ProblemStatus::OPTIMAL);
-  return solver.variable_values();
+  program.CleanUp();
+  auto status = solver.Solve(program);
+  if (status == operations_research::glop::ProblemStatus::OPTIMAL) {
+    return solution_type{solver.variable_values(), float(solver.GetObjectiveValue())};
+  } else {
+    return {};
+  }
 }
 
 }  // namespace lincs

@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <map>
+#include <optional>
 
 #include "../vendored/alglib/optimization.h"
 
@@ -55,13 +56,15 @@ class AlglibLinearProgram {
       alglib::minlpaddlc2(state, idxa, vala, nnz, lower_bound, upper_bound);
     }
 
-    void set_bounds(float lower_bound_, float upper_bound_) {
+    Constraint& set_bounds(float lower_bound_, float upper_bound_) {
       lower_bound = lower_bound_;
       upper_bound = upper_bound_;
+      return *this;
     }
 
-    void set_coefficient(variable_type variable, float coefficient) {
+    Constraint& set_coefficient(variable_type variable, float coefficient) {
       coefficients[variable] = coefficient;
+      return *this;
     }
 
    private:
@@ -75,7 +78,11 @@ class AlglibLinearProgram {
     return Constraint(state);
   }
 
-  alglib::real_1d_array solve();
+  struct solution_type {
+    alglib::real_1d_array assignments;
+    float cost;
+  };
+  std::optional<solution_type> solve();
 
  private:
   variable_type next_variable_index;

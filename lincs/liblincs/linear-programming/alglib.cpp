@@ -7,7 +7,7 @@
 
 namespace lincs {
 
-alglib::real_1d_array AlglibLinearProgram::solve() {
+std::optional<AlglibLinearProgram::solution_type> AlglibLinearProgram::solve() {
   CHRONE();
 
   alglib::real_1d_array c;
@@ -18,8 +18,11 @@ alglib::real_1d_array AlglibLinearProgram::solve() {
   alglib::real_1d_array x;
   alglib::minlpreport rep;
   alglib::minlpresults(state, x, rep);
-
-  return x;
+  if (rep.terminationtype >= 1 && rep.terminationtype <= 4) {
+    return solution_type{x, float(rep.f)};
+  } else {
+    return {};
+  }
 }
 
 }  // namespace lincs

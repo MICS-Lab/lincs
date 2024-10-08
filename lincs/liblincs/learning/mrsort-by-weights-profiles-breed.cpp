@@ -138,6 +138,12 @@ Model LearnMrsortByWeightsProfilesBreed::perform() {
 
   while (true) {
     // Improve
+    // @todo(Performance, later) Consider keeping the common part of all LPs in memory, and use it as a base for the LPs.
+    // (The part that comes from the structure of the problem, and the part that comes from the learing set: they are always the same.)
+    // @todo(Performance, later) Consider modifying the linear programs instead of regenerating them.
+    // We know what profiles have changed since the last iteration, so maybe we could just update the constraints.
+    // @todo(Performance, later) Consider stopping the LP optimization after the first phase,
+    // i.e. when we have the first feasible solution. Maybe we don't need the optimal solution?
     weights_optimization_strategy.optimize_weights(0, models_being_learned.models_count);
     profiles_improvement_strategy.improve_profiles(0, models_being_learned.models_count);
 

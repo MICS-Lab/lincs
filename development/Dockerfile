@@ -169,6 +169,13 @@ RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
 # Finalization
 RUN ldconfig
 
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
+ && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+      gdb
+
 # User
 ARG UID
 RUN useradd user --uid $UID --create-home
@@ -183,4 +190,5 @@ RUN pip3 install --user noop
 
 # CCache
 RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-gcc
+RUN ln -s $(which ccache) /home/user/.local/bin/x86_64-linux-gnu-g++
 RUN ln -s $(which ccache) /home/user/.local/bin/nvcc
