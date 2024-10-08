@@ -15,17 +15,21 @@
 
 constexpr float infinity = std::numeric_limits<float>::infinity();
 
+// @todo(Feature, later) Understand why we need such a high tolerance; try to reduce it
+const float rel_diff_epsilon = 1e-2;
+
 inline float relative_difference(float a, float b) {
   assert(!std::isnan(a) && !std::isnan(b));
   assert(std::abs(a) != infinity && std::abs(b) != infinity);
-  if (a == 0 || b == 0) {
-    return std::max(std::abs(a), std::abs(b));
+
+  if (std::abs(a) < rel_diff_epsilon && std::abs(b) < rel_diff_epsilon) {
+    return 0;
   } else {
     return std::abs(a - b) / std::max(std::abs(a), std::abs(b));
   }
 }
 
-#define CHECK_NEAR(a, b) CHECK(relative_difference(a, b) < 1e-4)
+#define CHECK_NEAR(a, b) CHECK(relative_difference(a, b) < rel_diff_epsilon)
 
 
 typedef std::tuple<

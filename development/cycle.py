@@ -60,6 +60,18 @@ import yaml
     help="Skip WPB learnings unit tests to save time.",
 )
 @click.option(
+    "--skip-wpb-glop-unit", is_flag=True,
+    help="Skip WPB learnings using GLOP unit tests to save time.",
+)
+@click.option(
+    "--skip-wpb-alglib-unit", is_flag=True,
+    help="Skip WPB learnings using Alglib unit tests to save time.",
+)
+@click.option(
+    "--skip-wpb-custom-unit", is_flag=True,
+    help="Skip WPB learnings using custom LP solver unit tests to save time.",
+)
+@click.option(
     "--skip-sat-unit", is_flag=True,
     help="Skip SAT-based learnings unit tests to save time.",
 )
@@ -112,6 +124,9 @@ def main(
     skip_unit,
     skip_long_unit,
     skip_wpb_unit,
+    skip_wpb_glop_unit,
+    skip_wpb_alglib_unit,
+    skip_wpb_custom_unit,
     skip_sat_unit,
     skip_max_sat_unit,
     skip_cpp_unit,
@@ -169,6 +184,9 @@ def main(
                 python_version=python_versions[0],
                 skip_long=skip_long_unit,
                 skip_wpb=skip_wpb_unit,
+                skip_wpb_glop=skip_wpb_glop_unit,
+                skip_wpb_alglib=skip_wpb_alglib_unit,
+                skip_wpb_custom=skip_wpb_custom_unit,
                 skip_sat=skip_sat_unit,
                 skip_max_sat=skip_max_sat_unit,
                 doctest_options=doctest_option,
@@ -241,7 +259,7 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_sat, skip_max_sat, doctest_options):
+def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_wpb_glop, skip_wpb_alglib, skip_wpb_custom, skip_sat, skip_max_sat, doctest_options):
     suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
@@ -259,6 +277,12 @@ def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_sat, skip_max_sat
     ]
     if skip_wpb:
         env["LINCS_DEV_SKIP_WPB"] = "true"
+    if skip_wpb_glop:
+        env["LINCS_DEV_SKIP_WPB_GLOP"] = "true"
+    if skip_wpb_alglib:
+        env["LINCS_DEV_SKIP_WPB_ALGLIB"] = "true"
+    if skip_wpb_custom:
+        env["LINCS_DEV_SKIP_WPB_CUSTOM"] = "true"
     if skip_sat:
         env["LINCS_DEV_SKIP_SAT"] = "true"
     if skip_max_sat:

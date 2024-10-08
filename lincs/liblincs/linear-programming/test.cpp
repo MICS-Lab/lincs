@@ -605,4 +605,56 @@ TEST_CASE("Infeasible") {
   });
 }
 
+TEST_CASE("More random linear programs with optimal solutions") {
+  for (unsigned variables_count = 2; variables_count != 10; ++variables_count) {
+    CAPTURE(variables_count);
+
+    for (unsigned seed = 0; seed != 100; ++seed) {
+      CAPTURE(seed);
+
+      test([variables_count, seed](auto& linear_program) {
+        std::vector<typename std::remove_reference_t<decltype(linear_program)>::variable_type> variables;
+        for (unsigned i = 0; i != variables_count; ++i) {
+          variables.push_back(linear_program.create_variable());
+        }
+        linear_program.mark_all_variables_created();
+        for (const auto& v : variables) {
+          linear_program.create_constraint().set_coefficient(v, 1).set_bounds(0, 1000);
+        }
+
+        std::mt19937 mt(seed);
+
+        std::uniform_real_distribution<float> make_objective_coefficient(-3, 3);
+        for (const auto& v : variables) {
+          linear_program.set_objective_coefficient(v, make_objective_coefficient(mt));
+        }
+
+        std::uniform_int_distribution<unsigned> make_constraints_count(0, 2 * variables_count);
+        std::uniform_int_distribution<unsigned> make_constraint_variables_count(2, variables_count);
+        const unsigned constraints_count = make_constraints_count(mt);
+        for (unsigned constraint_index = 0; constraint_index != constraints_count; ++constraint_index) {
+          std::vector<unsigned> variable_indices(variables_count, 0);
+          std::iota(variable_indices.begin(), variable_indices.end(), 0);
+          std::shuffle(variable_indices.begin(), variable_indices.end(), mt);
+          variable_indices.resize(make_constraint_variables_count(mt));
+
+          auto constraint = linear_program.create_constraint();
+          float value_at_one = 0;
+          for (const auto& variable_index : variable_indices) {
+            const float coefficient = make_objective_coefficient(mt);
+            constraint.set_coefficient(variables[variable_index], coefficient);
+            value_at_one += coefficient;
+          }
+          // Make sure the Simplex contains point (1, 1, ..., 1)
+          constraint.set_bounds(value_at_one - 1, value_at_one + 1);
+        }
+
+        const auto solution = linear_program.solve();
+        CHECK(solution);
+        return solution->cost;
+      });
+    }
+  }
+}
+
 // @todo(Project management, when we release our in-house LP solvers) Test consistency on all kinds of linear programs (unbounded, infeasible, others?)
