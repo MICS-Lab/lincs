@@ -1,6 +1,9 @@
 // Copyright 2024 Vincent Jacques
 
+#include "custom-on-cpu.hpp"
+
 #include <cassert>
+#include <cmath>
 #include <ctime>
 #include <filesystem>
 #include <fstream>
@@ -13,7 +16,6 @@
 
 #include <boost/format.hpp>
 
-#include "custom-on-cpu.hpp"
 #include "../vendored/lov-e.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -137,6 +139,7 @@ CustomOnCpuVerbose::~CustomOnCpuVerbose() {
   verbosity = 0;
 }
 
+namespace {
 
 struct Tableau {
   const unsigned client_variables_count;
@@ -160,7 +163,6 @@ struct Tableau {
     return assignments;
   }
 };
-
 
 class Simplex {
  public:
@@ -808,6 +810,8 @@ class CustomOnCpuLinearProgramSolver {
  private:
   const CustomOnCpuLinearProgram& program;
 };
+
+}  // namespace
 
 std::optional<CustomOnCpuLinearProgram::solution_type> CustomOnCpuLinearProgram::solve() {
   const auto solution = CustomOnCpuLinearProgramSolver(*this).solve();

@@ -272,7 +272,7 @@ def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_wpb_glop, skip_wp
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
     command = [
-        # "gdb", "--eval-command=run", "--eval-command=quit",
+        # "gdb", "--eval-command=run " + ' '.join(doctest_options), "--eval-command=quit",
         "/tmp/lincs-tests",
     ]
     if skip_wpb:

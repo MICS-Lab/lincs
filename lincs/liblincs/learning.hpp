@@ -22,6 +22,7 @@
 #include "learning/ucncs-by-sat-by-separation.hpp"
 #include "linear-programming/alglib.hpp"
 #include "linear-programming/custom-on-cpu.hpp"
+#include "linear-programming/custom-on-gpu.hpp"
 #include "linear-programming/glop.hpp"
 #include "sat/eval-max-sat.hpp"
 #include "sat/minisat.hpp"
@@ -31,6 +32,7 @@ namespace lincs {
   typedef MaxSatSeparationUcncsLearning<EvalmaxsatMaxSatProblem> LearnUcncsByMaxSatBySeparationUsingEvalmaxsat;
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<CustomOnCpuLinearProgram> OptimizeWeightsUsingCustomOnCpu;
+  typedef OptimizeWeightsUsingLinearProgram<CustomOnGpuLinearProgram> OptimizeWeightsUsingCustomOnGpu;
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
   typedef SatCoalitionsUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
   typedef SatSeparationUcncsLearning<MinisatSatProblem> LearnUcncsBySatBySeparationUsingMinisat;

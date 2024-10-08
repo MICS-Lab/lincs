@@ -8,6 +8,7 @@
 
 #include "alglib.hpp"
 #include "custom-on-cpu.hpp"
+#include "custom-on-gpu.hpp"
 #include "glop.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
@@ -35,7 +36,8 @@ inline float relative_difference(float a, float b) {
 typedef std::tuple<
   lincs::GlopLinearProgram,
   lincs::AlglibLinearProgram,
-  lincs::CustomOnCpuLinearProgram
+  lincs::CustomOnCpuLinearProgram,
+  lincs::CustomOnGpuLinearProgram
 > LinearPrograms;
 
 template<unsigned Index, typename... Float>
