@@ -153,11 +153,12 @@ RUN --mount=type=bind,from=download-patchelf,source=/download,target=/download \
     set -x \
  && cp /download/patchelf/bin/patchelf /usr/local/bin
 
-# Python packages: runtime dependencies
+# Python packages: install and runtime dependencies
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       click~=8.1 \
       matplotlib~=3.7 \
+      setuptools~=75.1 \
       six~=1.16 \
     || exit 1; done
 
