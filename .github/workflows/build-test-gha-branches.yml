@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python_version: ['3.8', '3.12']
+        python_version: ['3.8', '3.13']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -63,11 +63,17 @@ jobs:
       - name: Check the wheel
         run: twine check dist/*.whl
 
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-linux
+          path: dist
+
   build-for-windows:
     runs-on: windows-2019
     strategy:
       matrix:
-        python_version: ['3.8', '3.12']
+        python_version: ['3.8', '3.13']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -131,11 +137,17 @@ jobs:
       - name: Check the wheel
         run: twine check (get-item dist\*.whl)
 
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-windows
+          path: dist
+
   build-for-macos:
     runs-on: macos-12
     strategy:
       matrix:
-        python_version: ['3.8', '3.12']
+        python_version: ['3.8', '3.13']
     env:
       MACOSX_DEPLOYMENT_TARGET: 12.0
     steps:
@@ -182,6 +194,12 @@ jobs:
       - name: Check the wheel
         run: twine check dist/*.whl
 
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-macos
+          path: dist
+
   check:
     runs-on: ${{ matrix.os }}
     needs:
@@ -200,7 +218,7 @@ jobs:
           - macos-12
           - macos-13
           # No macos-14: we don't support M1 chips
-        python_version: ['3.8', '3.12']
+        python_version: ['3.8', '3.13']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -208,7 +226,7 @@ jobs:
           python-version: ${{ matrix.python_version }}
       # DO NOT install any other dependencies, to test that the wheels are self-contained
 
-      - name: Dowload the wheels from GitHub Actions artifacts
+      - name: Download the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: wheel-dist-${{ matrix.python_version }}-*

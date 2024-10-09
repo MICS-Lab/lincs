@@ -88,7 +88,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       sudo
 
 # Python versions
-ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11 3.12"
+ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11 3.12 3.13"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,from=download-get-pip,source=/download,target=/download \
@@ -101,18 +101,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
  && add-apt-repository ppa:deadsnakes/ppa \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      $(for python_version in $non_default_python_versions; do echo "python$python_version-dev python$python_version-distutils python$python_version-venv"; done) \
+      $(for python_version in $non_default_python_versions; do echo python$python_version-dev; echo python$python_version-distutils; echo python$python_version-venv; done | grep -v python3.13-distutils) \
  && for python_version in $non_default_python_versions $default_python_version; do python$python_version /download/get-pip.py || exit 1; done
 
 # Boost
 RUN --mount=type=bind,from=download-boost,source=/download,target=/download,readwrite \
     set -x \
- && cd /download/boost \
- && (for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "using python : $version ;"; done) >tools/build/src/user-config.jam \
- && ./bootstrap.sh --with-libraries=python \
- && ./b2 $(for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "python=$version"; done) \
- && cp -r /download/boost/boost /usr/local/include \
- && cp -r /download/boost/stage/lib/* /usr/local/lib
+ && cp -r /download/boost/boost /usr/local/include
 
 # NVidia packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -158,11 +153,12 @@ RUN --mount=type=bind,from=download-patchelf,source=/download,target=/download \
     set -x \
  && cp /download/patchelf/bin/patchelf /usr/local/bin
 
-# Python packages: runtime dependencies
+# Python packages: install and runtime dependencies
 RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
     for python_version in $LINCS_DEV_PYTHON_VERSIONS; do python$python_version -m pip install \
       click~=8.1 \
       matplotlib~=3.7 \
+      setuptools~=75.1 \
       six~=1.16 \
     || exit 1; done
 
