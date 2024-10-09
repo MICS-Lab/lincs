@@ -63,6 +63,12 @@ jobs:
       - name: Check the wheel
         run: twine check dist/*.whl
 
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-linux
+          path: dist
+
   build-for-windows:
     runs-on: windows-2019
     strategy:
@@ -131,6 +137,12 @@ jobs:
       - name: Check the wheel
         run: twine check (get-item dist\*.whl)
 
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-windows
+          path: dist
+
   build-for-macos:
     runs-on: macos-12
     strategy:
@@ -182,6 +194,12 @@ jobs:
       - name: Check the wheel
         run: twine check dist/*.whl
 
+      - name: Upload the wheel to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-dist-${{ matrix.python_version }}-macos
+          path: dist
+
   check:
     runs-on: ${{ matrix.os }}
     needs:
@@ -208,7 +226,7 @@ jobs:
           python-version: ${{ matrix.python_version }}
       # DO NOT install any other dependencies, to test that the wheels are self-contained
 
-      - name: Dowload the wheels from GitHub Actions artifacts
+      - name: Download the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: wheel-dist-${{ matrix.python_version }}-*
