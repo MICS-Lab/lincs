@@ -7,7 +7,7 @@ Changelog
 Version 2.0.0 (2024-XX-YY)
 ==========================
 
-- Support Python 3.12
+- Support Python 3.12 and 3.13
 
 - Drop support for macOS 11 (`not supported by GitHub Actions anymore <https://github.blog/changelog/2024-05-20-actions-upcoming-changes-to-github-hosted-macos-runners/>`_)
 

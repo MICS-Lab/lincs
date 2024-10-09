@@ -88,7 +88,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       sudo
 
 # Python versions
-ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11 3.12"
+ENV LINCS_DEV_PYTHON_VERSIONS="3.8 3.9 3.10 3.11 3.12 3.13"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,from=download-get-pip,source=/download,target=/download \
@@ -101,7 +101,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
  && add-apt-repository ppa:deadsnakes/ppa \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      $(for python_version in $non_default_python_versions; do echo "python$python_version-dev python$python_version-distutils python$python_version-venv"; done) \
+      $(for python_version in $non_default_python_versions; do echo python$python_version-dev; echo python$python_version-distutils; echo python$python_version-venv; done | grep -v python3.13-distutils) \
  && for python_version in $non_default_python_versions $default_python_version; do python$python_version /download/get-pip.py || exit 1; done
 
 # Boost

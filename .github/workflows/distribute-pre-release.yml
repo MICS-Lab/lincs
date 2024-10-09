@@ -39,7 +39,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -112,7 +112,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -202,7 +202,7 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     env:
       MACOSX_DEPLOYMENT_TARGET: 12.0
     steps:
@@ -277,7 +277,7 @@ jobs:
           - macos-12
           - macos-13
           # No macos-14: we don't support M1 chips
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - name: Install Python
         uses: actions/setup-python@v5
@@ -338,7 +338,7 @@ jobs:
       - name: Download the wheels from GitHub Actions artifacts
         uses: actions/download-artifact@v4
         with:
-          name: wheel-dist-3.10-linux
+          name: wheel-dist-3.13-linux
           path: docker
       - name: Build the Docker image
         run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker
