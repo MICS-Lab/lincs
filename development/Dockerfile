@@ -107,12 +107,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Boost
 RUN --mount=type=bind,from=download-boost,source=/download,target=/download,readwrite \
     set -x \
- && cd /download/boost \
- && (for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "using python : $version ;"; done) >tools/build/src/user-config.jam \
- && ./bootstrap.sh --with-libraries=python \
- && ./b2 $(for version in $LINCS_DEV_PYTHON_VERSIONS; do echo "python=$version"; done) \
- && cp -r /download/boost/boost /usr/local/include \
- && cp -r /download/boost/stage/lib/* /usr/local/lib
+ && cp -r /download/boost/boost /usr/local/include
 
 # NVidia packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
