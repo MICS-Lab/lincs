@@ -108,6 +108,10 @@ import yaml
     """),
 )
 @click.option(
+    "--forbid-nvcc", is_flag=True,
+    help="Build lincs without NVCC.",
+)
+@click.option(
     "--forbid-chrones", is_flag=True,
     help="Build lincs without Chrones.",
 )
@@ -135,14 +139,17 @@ def main(
     skip_notebooks,
     skip_unchanged_notebooks,
     forbid_gpu,
+    forbid_nvcc,
     forbid_chrones,
     doctest_option,
 ):
-    if forbid_gpu:
-        os.environ["LINCS_DEV_FORBID_GPU"] = "true"
+    if forbid_nvcc:
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
+        forbid_gpu = True
     else:
         os.environ["LINCS_DEV_FORCE_NVCC"] = "true"
+    if forbid_gpu:
+        os.environ["LINCS_DEV_FORBID_GPU"] = "true"
     if forbid_chrones:
         os.environ["LINCS_DEV_FORBID_CHRONES"] = "true"
     else:
