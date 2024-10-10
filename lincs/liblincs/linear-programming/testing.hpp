@@ -36,8 +36,8 @@ inline float relative_difference(float a, float b) {
 typedef std::tuple<
   lincs::GlopLinearProgram,
   lincs::AlglibLinearProgram,
-  lincs::CustomOnCpuLinearProgram,
-  lincs::CustomOnGpuLinearProgram
+  lincs::InHouseSimplexOnCpuLinearProgram,
+  lincs::InHouseSimplexOnGpuLinearProgram
 > LinearPrograms;
 
 template<unsigned Index, typename... Float>

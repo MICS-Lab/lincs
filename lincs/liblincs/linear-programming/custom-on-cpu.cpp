@@ -49,7 +49,7 @@ std::string no_loss(const float f) {
   }
 }
 
-std::string generate(const lincs::CustomOnCpuLinearProgram& program, int verbose) {
+std::string generate(const lincs::InHouseSimplexOnCpuLinearProgram& program, int verbose) {
   std::ostringstream out;
   out << "// Copyright 2023-2024 Vincent Jacques\n"
       << "\n"
@@ -77,9 +77,9 @@ std::string generate(const lincs::CustomOnCpuLinearProgram& program, int verbose
   }
   out << "    }\n";
   if (verbose == -1) {
-    out << "    lincs::CustomOnCpuVerbose verbose;\n";
+    out << "    lincs::InHouseSimplexOnCpuVerbose verbose;\n";
   } else if (verbose > 0) {
-    out << "    lincs::CustomOnCpuVerbose verbose(" << verbose << ");\n";
+    out << "    lincs::InHouseSimplexOnCpuVerbose verbose(" << verbose << ");\n";
   }
   out << "    const auto solution = linear_program.solve();\n"
       << "    if (solution) {\n"
@@ -92,7 +92,7 @@ std::string generate(const lincs::CustomOnCpuLinearProgram& program, int verbose
   return out.str();
 }
 
-void dump(const lincs::CustomOnCpuLinearProgram& program) {
+void dump(const lincs::InHouseSimplexOnCpuLinearProgram& program) {
   std::string verbose = generate(program, -1);
   std::string verbose_1 = generate(program, 1);
   std::string verbose_2 = generate(program, 2);
@@ -137,11 +137,11 @@ int verbosity = 0;
 
 }  // namespace
 
-CustomOnCpuVerbose::CustomOnCpuVerbose(const int v) {
+InHouseSimplexOnCpuVerbose::InHouseSimplexOnCpuVerbose(const int v) {
   verbosity = v;
 }
 
-CustomOnCpuVerbose::~CustomOnCpuVerbose() {
+InHouseSimplexOnCpuVerbose::~InHouseSimplexOnCpuVerbose() {
   verbosity = 0;
 }
 
@@ -444,9 +444,9 @@ class Simplex {
   std::vector<unsigned>& basic_variable_cols;
 };
 
-class CustomOnCpuLinearProgramSolver {
+class InHouseSimplexOnCpuLinearProgramSolver {
  public:
-  CustomOnCpuLinearProgramSolver(const CustomOnCpuLinearProgram& program) :
+  InHouseSimplexOnCpuLinearProgramSolver(const InHouseSimplexOnCpuLinearProgram& program) :
     program(program)
   {
     #ifndef NDEBUG
@@ -486,7 +486,7 @@ class CustomOnCpuLinearProgramSolver {
     }
   }
 
-  static void print_coefficients(const std::map<CustomOnCpuLinearProgram::variable_type, float>& coefficients) {
+  static void print_coefficients(const std::map<InHouseSimplexOnCpuLinearProgram::variable_type, float>& coefficients) {
     for (const auto& [variable, coefficient] : coefficients) {
       std::cerr << std::showpos << coefficient << std::noshowpos << "*x" << variable + 1 << " ";
     }
@@ -494,7 +494,7 @@ class CustomOnCpuLinearProgramSolver {
   #endif
 
  public:
-  std::optional<CustomOnCpuLinearProgram::solution_type> solve() {
+  std::optional<InHouseSimplexOnCpuLinearProgram::solution_type> solve() {
     const auto [constraints_count, slack_variables_count, artificial_variables_count] = count_constraints_and_additional_variables();
     const unsigned client_variables_count = program.variables_count();
     if (artificial_variables_count == 0) {
@@ -517,7 +517,7 @@ class CustomOnCpuLinearProgramSolver {
           std::cerr << "OPTIMAL (single-phase)" << std::endl;
         }
         #endif
-        return CustomOnCpuLinearProgram::solution_type{tableau.get_assignments(), static_cast<float>(tableau.tableau[tableau.constraints_count + 0][tableau.total_variables_count])};
+        return InHouseSimplexOnCpuLinearProgram::solution_type{tableau.get_assignments(), static_cast<float>(tableau.tableau[tableau.constraints_count + 0][tableau.total_variables_count])};
       } else {
         #ifndef NDEBUG
         if (verbosity > 0) {
@@ -581,7 +581,7 @@ class CustomOnCpuLinearProgramSolver {
           std::cerr << "OPTIMAL (two phases)" << std::endl;
         }
         #endif
-        return CustomOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), static_cast<float>(second_tableau.tableau[constraints_count + 0][client_variables_count + slack_variables_count])};
+        return InHouseSimplexOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), static_cast<float>(second_tableau.tableau[constraints_count + 0][client_variables_count + slack_variables_count])};
       } else {
         #ifndef NDEBUG
         if (verbosity > 0) {
@@ -856,13 +856,13 @@ class CustomOnCpuLinearProgramSolver {
   };
 
  private:
-  const CustomOnCpuLinearProgram& program;
+  const InHouseSimplexOnCpuLinearProgram& program;
 };
 
 }  // namespace
 
-std::optional<CustomOnCpuLinearProgram::solution_type> CustomOnCpuLinearProgram::solve() {
-  const auto solution = CustomOnCpuLinearProgramSolver(*this).solve();
+std::optional<InHouseSimplexOnCpuLinearProgram::solution_type> InHouseSimplexOnCpuLinearProgram::solve() {
+  const auto solution = InHouseSimplexOnCpuLinearProgramSolver(*this).solve();
   #ifndef NDEBUG
   const auto glop_solution = glop_program.solve();
   assert_with_dump(glop_solution.has_value() == solution.has_value(), *this);
@@ -880,7 +880,7 @@ std::optional<CustomOnCpuLinearProgram::solution_type> CustomOnCpuLinearProgram:
         ||
         std::abs(glop_solution->cost - solution->cost) / std::max(std::abs(glop_solution->cost), std::abs(solution->cost)) < epsilon;
       if (!close_enough) {
-        std::cerr << "Glop: " << glop_solution->cost << " vs. Custom: " << solution->cost
+        std::cerr << "Glop: " << glop_solution->cost << " vs. in-house: " << solution->cost
           << "(rel. diff.:" << std::abs(glop_solution->cost - solution->cost) / std::max(std::abs(glop_solution->cost), std::abs(solution->cost)) << ")" << std::endl;
       }
       assert_with_dump(close_enough, *this);

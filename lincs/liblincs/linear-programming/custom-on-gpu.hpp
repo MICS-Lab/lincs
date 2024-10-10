@@ -15,7 +15,7 @@
 
 namespace lincs {
 
-class CustomOnGpuLinearProgram {
+class InHouseSimplexOnGpuLinearProgram {
  public:
   typedef unsigned variable_type;
   variable_type create_variable() {
@@ -39,7 +39,7 @@ class CustomOnGpuLinearProgram {
   }
 
   struct ConstraintFacade {
-    ConstraintFacade(CustomOnGpuLinearProgram* program, unsigned index) :
+    ConstraintFacade(InHouseSimplexOnGpuLinearProgram* program, unsigned index) :
       program(program),
       index(index)
       #ifndef NDEBUG
@@ -65,10 +65,10 @@ class CustomOnGpuLinearProgram {
     }
 
    private:
-    CustomOnGpuLinearProgram* const program;
+    InHouseSimplexOnGpuLinearProgram* const program;
     const unsigned index;
     #ifndef NDEBUG
-    CustomOnCpuLinearProgram::ConstraintFacade on_cpu_constraint;
+    InHouseSimplexOnCpuLinearProgram::ConstraintFacade on_cpu_constraint;
     #endif
   };
 
@@ -100,8 +100,8 @@ class CustomOnGpuLinearProgram {
   std::map<variable_type, float> objective_coefficients;
   std::vector<Constraint> constraints;
 #ifndef NDEBUG
-  CustomOnCpuLinearProgram on_cpu_program;
-  std::vector<CustomOnCpuLinearProgram::variable_type> on_cpu_variables;
+  InHouseSimplexOnCpuLinearProgram on_cpu_program;
+  std::vector<InHouseSimplexOnCpuLinearProgram::variable_type> on_cpu_variables;
 #endif
 };
 

@@ -97,8 +97,8 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
 }
 
 template class OptimizeWeightsUsingLinearProgram<GlopLinearProgram>;
-template class OptimizeWeightsUsingLinearProgram<CustomOnCpuLinearProgram>;
-template class OptimizeWeightsUsingLinearProgram<CustomOnGpuLinearProgram>;
+template class OptimizeWeightsUsingLinearProgram<InHouseSimplexOnCpuLinearProgram>;
+template class OptimizeWeightsUsingLinearProgram<InHouseSimplexOnGpuLinearProgram>;
 template class OptimizeWeightsUsingLinearProgram<AlglibLinearProgram>;
 
 }  // namespace lincs

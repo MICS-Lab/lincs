@@ -269,12 +269,12 @@ class Simplex {
   std::vector<unsigned>& basic_variable_cols;
 };
 
-class CustomOnGpuLinearProgramSolver {
+class InHouseSimplexOnGpuLinearProgramSolver {
  public:
-  CustomOnGpuLinearProgramSolver(const CustomOnGpuLinearProgram& program) : program(program) {}
+  InHouseSimplexOnGpuLinearProgramSolver(const InHouseSimplexOnGpuLinearProgram& program) : program(program) {}
 
  public:
-  std::optional<CustomOnGpuLinearProgram::solution_type> solve() {
+  std::optional<InHouseSimplexOnGpuLinearProgram::solution_type> solve() {
     const auto [constraints_count, slack_variables_count, artificial_variables_count] = count_constraints_and_additional_variables();
     const unsigned client_variables_count = program.variables_count();
     if (artificial_variables_count == 0) {
@@ -282,7 +282,7 @@ class CustomOnGpuLinearProgramSolver {
       const auto run_result = Simplex(tableau).run();
       if (run_result == Simplex::RunResult::optimal) {
         copy(tableau.device_tableau, ref(tableau.host_tableau));
-        return CustomOnGpuLinearProgram::solution_type{tableau.get_assignments_from_host(), static_cast<float>(tableau.host_tableau[tableau.constraints_count + 0][tableau.total_variables_count])};
+        return InHouseSimplexOnGpuLinearProgram::solution_type{tableau.get_assignments_from_host(), static_cast<float>(tableau.host_tableau[tableau.constraints_count + 0][tableau.total_variables_count])};
       } else {
         return {};
       }
@@ -302,7 +302,7 @@ class CustomOnGpuLinearProgramSolver {
       const auto second_run_result = Simplex(second_tableau).run();
       if (second_run_result == Simplex::RunResult::optimal) {
         copy(second_tableau.device_tableau, ref(second_tableau.host_tableau));
-        return CustomOnGpuLinearProgram::solution_type{second_tableau.get_assignments_from_host(), static_cast<float>(second_tableau.host_tableau[constraints_count + 0][client_variables_count + slack_variables_count])};
+        return InHouseSimplexOnGpuLinearProgram::solution_type{second_tableau.get_assignments_from_host(), static_cast<float>(second_tableau.host_tableau[constraints_count + 0][client_variables_count + slack_variables_count])};
       } else {
         return {};
       }
@@ -583,13 +583,13 @@ class CustomOnGpuLinearProgramSolver {
   };
 
  private:
-  const CustomOnGpuLinearProgram& program;
+  const InHouseSimplexOnGpuLinearProgram& program;
 };
 
 }  // namespace
 
-std::optional<CustomOnGpuLinearProgram::solution_type> CustomOnGpuLinearProgram::solve() {
-  const auto solution = CustomOnGpuLinearProgramSolver(*this).solve();
+std::optional<InHouseSimplexOnGpuLinearProgram::solution_type> InHouseSimplexOnGpuLinearProgram::solve() {
+  const auto solution = InHouseSimplexOnGpuLinearProgramSolver(*this).solve();
 
   #ifndef NDEBUG
   const auto on_cpu_solution = on_cpu_program.solve();
@@ -606,7 +606,7 @@ std::optional<CustomOnGpuLinearProgram::solution_type> CustomOnGpuLinearProgram:
         ||
         std::abs(on_cpu_solution->cost - solution->cost) / std::max(std::abs(on_cpu_solution->cost), std::abs(solution->cost)) < epsilon;
       if (!close_enough) {
-        std::cerr << "Glop: " << on_cpu_solution->cost << " vs. Custom: " << solution->cost
+        std::cerr << "Cost found on CPU: " << on_cpu_solution->cost << " vs. GPU: " << solution->cost
           << " (rel. diff.:" << std::abs(on_cpu_solution->cost - solution->cost) / std::max(std::abs(on_cpu_solution->cost), std::abs(solution->cost)) << ")" << std::endl;
       }
       assert(close_enough);

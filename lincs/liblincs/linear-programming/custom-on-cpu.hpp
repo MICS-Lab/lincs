@@ -17,14 +17,14 @@ namespace lincs {
 
 #ifndef NDEBUG
 
-struct CustomOnCpuVerbose {
-  CustomOnCpuVerbose(int = 2);
-  ~CustomOnCpuVerbose();
+struct InHouseSimplexOnCpuVerbose {
+  InHouseSimplexOnCpuVerbose(int = 2);
+  ~InHouseSimplexOnCpuVerbose();
 };
 
 #endif
 
-class CustomOnCpuLinearProgram {
+class InHouseSimplexOnCpuLinearProgram {
  public:
   typedef unsigned variable_type;
   variable_type create_variable() {
@@ -48,7 +48,7 @@ class CustomOnCpuLinearProgram {
   }
 
   struct ConstraintFacade {
-    ConstraintFacade(CustomOnCpuLinearProgram* program, unsigned index) :
+    ConstraintFacade(InHouseSimplexOnCpuLinearProgram* program, unsigned index) :
       program(program),
       index(index)
       #ifndef NDEBUG
@@ -74,7 +74,7 @@ class CustomOnCpuLinearProgram {
     }
 
    private:
-    CustomOnCpuLinearProgram* const program;
+    InHouseSimplexOnCpuLinearProgram* const program;
     const unsigned index;
     #ifndef NDEBUG
     GlopLinearProgram::Constraint glop_constraint;
