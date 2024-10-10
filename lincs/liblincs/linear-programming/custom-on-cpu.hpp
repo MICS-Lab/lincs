@@ -15,10 +15,14 @@
 
 namespace lincs {
 
+#ifndef NDEBUG
+
 struct CustomOnCpuVerbose {
   CustomOnCpuVerbose(int = 2);
   ~CustomOnCpuVerbose();
 };
+
+#endif
 
 class CustomOnCpuLinearProgram {
  public:

@@ -27,6 +27,8 @@ namespace {
 
 constexpr float infinity = std::numeric_limits<float>::infinity();
 
+#ifndef NDEBUG
+
 std::string no_loss(const float f) {
   if (f == infinity) {
     return "infinity";
@@ -112,6 +114,8 @@ void dump(const lincs::CustomOnCpuLinearProgram& program) {
   }
 }
 
+#endif
+
 #ifdef NDEBUG
   #define assert_with_dump(expr, program) static_cast<void>(0)
 #else
@@ -124,6 +128,8 @@ void dump(const lincs::CustomOnCpuLinearProgram& program) {
 }  // namespace
 
 namespace lincs {
+
+#ifndef NDEBUG
 
 namespace {
 
@@ -138,6 +144,8 @@ CustomOnCpuVerbose::CustomOnCpuVerbose(const int v) {
 CustomOnCpuVerbose::~CustomOnCpuVerbose() {
   verbosity = 0;
 }
+
+#endif
 
 namespace {
 
@@ -178,8 +186,10 @@ class Simplex {
     tableau(tableau.tableau),
     basic_variable_cols(tableau.basic_variable_cols)
   {
+    #ifndef NDEBUG
     print_state("Initial");
     assert_invariants();
+    #endif
   }
 
  public:
@@ -225,24 +235,32 @@ class Simplex {
   StepResult step() {
     std::optional<unsigned> entering_column = find_entering_column();
     if (entering_column) {
+      #ifndef NDEBUG
       const std::string entering = variable_name(*entering_column);
+      #endif
       std::optional<unsigned> leaving_row = find_leaving_row(*entering_column);
       if (leaving_row) {
-        const std::string leaving = variable_name(basic_variable_cols[*leaving_row]);
         pivot(*leaving_row, *entering_column);
+        #ifndef NDEBUG
+        const std::string leaving = variable_name(basic_variable_cols[*leaving_row]);
         print_state(boost::format("After pivot (leaving row: %||, entering column: %||)") % leaving % entering);
         assert_invariants();
+        #endif
         return Pivot{*leaving_row, *entering_column};
       } else {
+        #ifndef NDEBUG
         if (verbosity > 1) {
           std::cerr << boost::format("  Unbounded! (entering column: %||)") % entering << std::endl;
         }
+        #endif
         return Unbounded{};
       }
     } else {
+      #ifndef NDEBUG
       if (verbosity > 1) {
         std::cerr << "  Optimal!" << std::endl;
       }
+      #endif
       return Optimal{};
     }
   }
@@ -278,13 +296,13 @@ class Simplex {
   }
 
   void pivot(const unsigned leaving_row, const unsigned entering_column) {
+    const Tableau::fp_type pivot_value = tableau[leaving_row][entering_column];
+    #ifndef NDEBUG
     if (verbosity > 2) {
       std::cerr << boost::format("  Pivoting (leaving row: %||, entering column: %||)") % variable_name(basic_variable_cols[leaving_row]) % variable_name(entering_column) << std::endl;
-    }
-    const Tableau::fp_type pivot_value = tableau[leaving_row][entering_column];
-    if (verbosity > 2) {
       std::cerr << boost::format("    pivot value: %|-.3|") % pivot_value << std::endl;
     }
+    #endif
     assert(!std::isnan(pivot_value));
     assert(!std::isinf(pivot_value));
     assert(pivot_value > 0);
@@ -292,9 +310,11 @@ class Simplex {
     for (unsigned row = 0; row != tableau_height; ++row) {
       if (row != leaving_row) {
         const Tableau::fp_type factor = tableau[row][entering_column];
+        #ifndef NDEBUG
         if (verbosity > 2) {
           std::cerr << boost::format("    %|| %|| factor: %|-.3|") % (row < constraints_count ? "constraint" : "objective") % (row < constraints_count ? variable_name(basic_variable_cols[row]) : std::to_string(row - constraints_count)) % factor << std::endl;
         }
+        #endif
         assert(!std::isnan(factor));
         assert(!std::isinf(factor));
         for (unsigned col = 0; col != tableau_width; ++col) {
@@ -327,6 +347,7 @@ class Simplex {
     basic_variable_cols[leaving_row] = entering_column;
   }
 
+  #ifndef NDEBUG
  private:
   template <typename Header>
   void print_state(const Header& header) {
@@ -408,6 +429,7 @@ class Simplex {
       }
     }
   }
+  #endif
 
  private:
   const unsigned client_variables_count;
@@ -427,9 +449,12 @@ class CustomOnCpuLinearProgramSolver {
   CustomOnCpuLinearProgramSolver(const CustomOnCpuLinearProgram& program) :
     program(program)
   {
+    #ifndef NDEBUG
     print_program();
+    #endif
   }
 
+  #ifndef NDEBUG
  private:
   void print_program() const {
     if (verbosity > 1) {
@@ -466,52 +491,66 @@ class CustomOnCpuLinearProgramSolver {
       std::cerr << std::showpos << coefficient << std::noshowpos << "*x" << variable + 1 << " ";
     }
   }
+  #endif
 
  public:
   std::optional<CustomOnCpuLinearProgram::solution_type> solve() {
     const auto [constraints_count, slack_variables_count, artificial_variables_count] = count_constraints_and_additional_variables();
     const unsigned client_variables_count = program.variables_count();
     if (artificial_variables_count == 0) {
+      #ifndef NDEBUG
       if (verbosity > 1) {
         std::cerr << "SINGLE PHASE" << std::endl;
         std::cerr << "============" << std::endl;
       }
+      #endif
       auto tableau = make_single_phase_tableau(constraints_count, slack_variables_count);
       const auto run_result = Simplex(tableau).run();
+      #ifndef NDEBUG
       if (verbosity > 1) {
         std::cerr << std::endl;
       }
+      #endif
       if (std::holds_alternative<Simplex::Optimal>(run_result)) {
+        #ifndef NDEBUG
         if (verbosity > 0) {
           std::cerr << "OPTIMAL (single-phase)" << std::endl;
         }
+        #endif
         return CustomOnCpuLinearProgram::solution_type{tableau.get_assignments(), static_cast<float>(tableau.tableau[tableau.constraints_count + 0][tableau.total_variables_count])};
       } else {
+        #ifndef NDEBUG
         if (verbosity > 0) {
           std::cerr << "UNBOUNDED (single-phase)" << std::endl;
         }
+        #endif
         return {};
       }
     } else {
+      #ifndef NDEBUG
       if (verbosity > 1) {
         std::cerr << "FIRST PHASE" << std::endl;
         std::cerr << "===========" << std::endl;
       }
+      #endif
       auto first_tableau = make_first_phase_tableau(constraints_count, slack_variables_count, artificial_variables_count);
       Simplex(first_tableau).run();  // We don't care if it's optimal or unbounded
 
       const auto first_assignments = first_tableau.get_assignments();
       for (unsigned artificial_variable_index = 0; artificial_variable_index < first_tableau.artificial_variables_count; ++artificial_variable_index) {
         if (first_assignments[first_tableau.client_variables_count + first_tableau.slack_variables_count + artificial_variable_index] != 0) {
+          #ifndef NDEBUG
           if (verbosity > 1) {
             std::cerr << "  Infeasible!" << std::endl;
           }
           if (verbosity > 0) {
             std::cerr << "INFEASIBLE" << std::endl;
           }
+          #endif
           return {};
         }
       }
+      #ifndef NDEBUG
       {
         // @todo(Feature, later) Understand why we need such a high tolerance; try to reduce it
         const Tableau::fp_type epsilon = 1e-3;
@@ -520,26 +559,35 @@ class CustomOnCpuLinearProgramSolver {
         }
         assert_with_dump(std::abs(first_tableau.tableau[constraints_count + 1][first_tableau.total_variables_count]) < epsilon, program);
       }
+      #endif
 
+      #ifndef NDEBUG
       if (verbosity > 1) {
         std::cerr << "SECOND PHASE" << std::endl;
         std::cerr << "============" << std::endl;
       }
+      #endif
 
       auto second_tableau = make_second_phase_tableau(first_tableau);
       const auto second_run_result = Simplex(second_tableau).run();
+      #ifndef NDEBUG
       if (verbosity > 1) {
         std::cerr << std::endl;
       }
+      #endif
       if (std::holds_alternative<Simplex::Optimal>(second_run_result)) {
+        #ifndef NDEBUG
         if (verbosity > 0) {
           std::cerr << "OPTIMAL (two phases)" << std::endl;
         }
+        #endif
         return CustomOnCpuLinearProgram::solution_type{second_tableau.get_assignments(), static_cast<float>(second_tableau.tableau[constraints_count + 0][client_variables_count + slack_variables_count])};
       } else {
+        #ifndef NDEBUG
         if (verbosity > 0) {
           std::cerr << "UNBOUNDED (two phases)" << std::endl;
         }
+        #endif
         return {};
       }
     }
