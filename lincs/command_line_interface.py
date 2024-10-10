@@ -716,11 +716,25 @@ max_sat_options = [
                                         "solver",
                                         dict(
                                             help="The solver to use to solve the linear programs.",
-                                            type=click.Choice(["glop", "alglib"]),
+                                            type=click.Choice(["glop", "alglib", "experimental-in-house-simplex"]),
                                             default="glop",
                                             show_default=True,
                                         ),
-                                        {},
+                                        {
+                                            "experimental-in-house-simplex": [
+                                                (
+                                                    "processor",
+                                                    dict(
+                                                        help="The processor to use to solve the linear program using our EXPERIMENTAL in-house Simplex (that you should probably not use)."
+                                                        + ("" if lincs.has_gpu else " (Only 'cpu' is available because lincs was compiled without 'nvcc')"),
+                                                        type=click.Choice(["cpu"] + (["gpu"] if lincs.has_gpu else [])),
+                                                        default="cpu",
+                                                        show_default=True,
+                                                    ),
+                                                    {},
+                                                )
+                                            ]
+                                        },
                                     ),
                                 ],
                             },
@@ -833,6 +847,7 @@ def classification_model(
     mrsort__weights_profiles_breed__initialization_strategy,
     mrsort__weights_profiles_breed__weights_strategy,
     mrsort__weights_profiles_breed__linear_program__solver,
+    mrsort__weights_profiles_breed__linear_program__experimental_in_house_simplex__processor,
     mrsort__weights_profiles_breed__profiles_strategy,
     mrsort__weights_profiles_breed__accuracy_heuristic__random_seed,
     mrsort__weights_profiles_breed__accuracy_heuristic__processor,
@@ -876,6 +891,13 @@ def classification_model(
                     weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingGlop(preprocessed_learning_set, models_being_learned)
                 elif mrsort__weights_profiles_breed__linear_program__solver == "alglib":
                     weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingAlglib(preprocessed_learning_set, models_being_learned)
+                elif mrsort__weights_profiles_breed__linear_program__solver == "experimental-in-house-simplex":
+                    command_line += ["--mrsort.weights-profiles-breed.linear-program.experimental-in-house-simplex.processor", mrsort__weights_profiles_breed__linear_program__experimental_in_house_simplex__processor]
+                    if mrsort__weights_profiles_breed__linear_program__experimental_in_house_simplex__processor == "cpu":
+                        weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingInHouseSimplexOnCpu(preprocessed_learning_set, models_being_learned)
+                    elif mrsort__weights_profiles_breed__linear_program__experimental_in_house_simplex__processor == "gpu":
+                        assert lincs.has_gpu
+                        weights_optimization_strategy = lincs.classification.OptimizeWeightsUsingInHouseSimplexOnGpu(preprocessed_learning_set, models_being_learned)
 
             command_line += ["--mrsort.weights-profiles-breed.profiles-strategy", mrsort__weights_profiles_breed__profiles_strategy]
             if mrsort__weights_profiles_breed__profiles_strategy == "accuracy-heuristic":

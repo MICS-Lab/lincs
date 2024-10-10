@@ -68,6 +68,10 @@ import yaml
     help="Skip WPB learnings using Alglib unit tests to save time.",
 )
 @click.option(
+    "--skip-wpb-in-house-simplex-unit", is_flag=True,
+    help="Skip WPB learnings using in-house Simplex LP solver unit tests to save time.",
+)
+@click.option(
     "--skip-sat-unit", is_flag=True,
     help="Skip SAT-based learnings unit tests to save time.",
 )
@@ -104,6 +108,10 @@ import yaml
     """),
 )
 @click.option(
+    "--forbid-nvcc", is_flag=True,
+    help="Build lincs without NVCC.",
+)
+@click.option(
     "--forbid-chrones", is_flag=True,
     help="Build lincs without Chrones.",
 )
@@ -122,6 +130,7 @@ def main(
     skip_wpb_unit,
     skip_wpb_glop_unit,
     skip_wpb_alglib_unit,
+    skip_wpb_in_house_simplex_unit,
     skip_sat_unit,
     skip_max_sat_unit,
     skip_cpp_unit,
@@ -130,14 +139,17 @@ def main(
     skip_notebooks,
     skip_unchanged_notebooks,
     forbid_gpu,
+    forbid_nvcc,
     forbid_chrones,
     doctest_option,
 ):
-    if forbid_gpu:
-        os.environ["LINCS_DEV_FORBID_GPU"] = "true"
+    if forbid_nvcc:
         os.environ["LINCS_DEV_FORBID_NVCC"] = "true"
+        forbid_gpu = True
     else:
         os.environ["LINCS_DEV_FORCE_NVCC"] = "true"
+    if forbid_gpu:
+        os.environ["LINCS_DEV_FORBID_GPU"] = "true"
     if forbid_chrones:
         os.environ["LINCS_DEV_FORBID_CHRONES"] = "true"
     else:
@@ -181,6 +193,7 @@ def main(
                 skip_wpb=skip_wpb_unit,
                 skip_wpb_glop=skip_wpb_glop_unit,
                 skip_wpb_alglib=skip_wpb_alglib_unit,
+                skip_wpb_in_house_simplex=skip_wpb_in_house_simplex_unit,
                 skip_sat=skip_sat_unit,
                 skip_max_sat=skip_max_sat_unit,
                 doctest_options=doctest_option,
@@ -253,7 +266,7 @@ def print_title(title, under="="):
     print(flush=True)
 
 
-def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_wpb_glop, skip_wpb_alglib, skip_sat, skip_max_sat, doctest_options):
+def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_wpb_glop, skip_wpb_alglib, skip_wpb_in_house_simplex, skip_sat, skip_max_sat, doctest_options):
     suffix = "m" if int(python_version.split(".")[1]) < 8 else ""
     subprocess.run(
         [
@@ -266,7 +279,7 @@ def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_wpb_glop, skip_wp
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = "."
     command = [
-        # "gdb", "--eval-command=run", "--eval-command=quit",
+        # "gdb", "--eval-command=run " + ' '.join(doctest_options), "--eval-command=quit",
         "/tmp/lincs-tests",
     ]
     if skip_wpb:
@@ -275,6 +288,8 @@ def run_cpp_tests(*, python_version, skip_long, skip_wpb, skip_wpb_glop, skip_wp
         env["LINCS_DEV_SKIP_WPB_GLOP"] = "true"
     if skip_wpb_alglib:
         env["LINCS_DEV_SKIP_WPB_ALGLIB"] = "true"
+    if skip_wpb_in_house_simplex:
+        env["LINCS_DEV_SKIP_WPB_IN_HOUSE_SIMPLEX"] = "true"
     if skip_sat:
         env["LINCS_DEV_SKIP_SAT"] = "true"
     if skip_max_sat:

@@ -415,6 +415,14 @@ children:
       children:
         - name: __init__
         - name: optimize_weights
+    - name: OptimizeWeightsUsingInHouseSimplexOnCpu
+      children:
+        - name: __init__
+        - name: optimize_weights
+    - name: OptimizeWeightsUsingInHouseSimplexOnGpu
+      children:
+        - name: __init__
+        - name: optimize_weights
     - name: ImproveProfilesWithAccuracyHeuristicOnCpu
       children:
         - name: __init__

@@ -257,6 +257,12 @@ liblincs: module
     OptimizeWeightsUsingGlop: pybind11_type
         __init__: instancemethod
         optimize_weights: instancemethod
+    OptimizeWeightsUsingInHouseSimplexOnCpu: pybind11_type
+        __init__: instancemethod
+        optimize_weights: instancemethod
+    OptimizeWeightsUsingInHouseSimplexOnGpu: pybind11_type
+        __init__: instancemethod
+        optimize_weights: instancemethod
     Performance: pybind11_type
         Enumerated: pybind11_type
             __getstate__: instancemethod
