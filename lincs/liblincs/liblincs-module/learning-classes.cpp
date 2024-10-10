@@ -353,6 +353,7 @@ void define_learning_classes(py::module& m) {
     )
   ;
 
+  #ifdef LINCS_HAS_NVCC
   py::class_<
     lincs::OptimizeWeightsUsingInHouseSimplexOnGpu,
     lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy
@@ -375,6 +376,7 @@ void define_learning_classes(py::module& m) {
       "Overrides the base method."
     )
   ;
+  #endif  // LINCS_HAS_NVCC
 
   py::class_<
     lincs::ImproveProfilesWithAccuracyHeuristicOnCpu,

@@ -98,7 +98,9 @@ void OptimizeWeightsUsingLinearProgram<LinearProgram>::optimize_model_weights(un
 
 template class OptimizeWeightsUsingLinearProgram<GlopLinearProgram>;
 template class OptimizeWeightsUsingLinearProgram<InHouseSimplexOnCpuLinearProgram>;
+#ifdef LINCS_HAS_NVCC
 template class OptimizeWeightsUsingLinearProgram<InHouseSimplexOnGpuLinearProgram>;
+#endif  // LINCS_HAS_NVCC
 template class OptimizeWeightsUsingLinearProgram<AlglibLinearProgram>;
 
 }  // namespace lincs

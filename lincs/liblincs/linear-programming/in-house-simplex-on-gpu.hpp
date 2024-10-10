@@ -15,6 +15,8 @@
 
 namespace lincs {
 
+#ifdef LINCS_HAS_NVCC
+
 class InHouseSimplexOnGpuLinearProgram {
  public:
   typedef unsigned variable_type;
@@ -104,6 +106,8 @@ class InHouseSimplexOnGpuLinearProgram {
   std::vector<InHouseSimplexOnCpuLinearProgram::variable_type> on_cpu_variables;
 #endif
 };
+
+#endif  // LINCS_HAS_NVCC
 
 }  // namespace lincs
 

@@ -32,7 +32,9 @@ namespace lincs {
   typedef MaxSatSeparationUcncsLearning<EvalmaxsatMaxSatProblem> LearnUcncsByMaxSatBySeparationUsingEvalmaxsat;
   typedef OptimizeWeightsUsingLinearProgram<AlglibLinearProgram> OptimizeWeightsUsingAlglib;
   typedef OptimizeWeightsUsingLinearProgram<InHouseSimplexOnCpuLinearProgram> OptimizeWeightsUsingInHouseSimplexOnCpu;
+  #ifdef LINCS_HAS_NVCC
   typedef OptimizeWeightsUsingLinearProgram<InHouseSimplexOnGpuLinearProgram> OptimizeWeightsUsingInHouseSimplexOnGpu;
+  #endif  // LINCS_HAS_NVCC
   typedef OptimizeWeightsUsingLinearProgram<GlopLinearProgram> OptimizeWeightsUsingGlop;
   typedef SatCoalitionsUcncsLearning<MinisatSatProblem> LearnUcncsBySatByCoalitionsUsingMinisat;
   typedef SatSeparationUcncsLearning<MinisatSatProblem> LearnUcncsBySatBySeparationUsingMinisat;
