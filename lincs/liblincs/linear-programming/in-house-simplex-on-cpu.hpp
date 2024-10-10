@@ -1,7 +1,7 @@
 // Copyright 2024 Vincent Jacques
 
-#ifndef LINCS__LINEAR_PROGRAMMING__CUSTOM_ON_GPU_HPP
-#define LINCS__LINEAR_PROGRAMMING__CUSTOM_ON_GPU_HPP
+#ifndef LINCS__LINEAR_PROGRAMMING__IN_HOUSE_SIMPLEX_ON_CPU_HPP
+#define LINCS__LINEAR_PROGRAMMING__IN_HOUSE_SIMPLEX_ON_CPU_HPP
 
 #include <limits>
 #include <map>
@@ -9,41 +9,50 @@
 #include <vector>
 
 #ifndef NDEBUG
-#include "custom-on-cpu.hpp"
+#include "glop.hpp"
 #endif
 
 
 namespace lincs {
 
-class InHouseSimplexOnGpuLinearProgram {
+#ifndef NDEBUG
+
+struct InHouseSimplexOnCpuVerbose {
+  InHouseSimplexOnCpuVerbose(int = 2);
+  ~InHouseSimplexOnCpuVerbose();
+};
+
+#endif
+
+class InHouseSimplexOnCpuLinearProgram {
  public:
   typedef unsigned variable_type;
   variable_type create_variable() {
     #ifndef NDEBUG
-    on_cpu_variables.push_back(on_cpu_program.create_variable());
+    glop_variables.push_back(glop_program.create_variable());
     #endif
     return next_variable_index++;
   }
 
   void mark_all_variables_created() {
     #ifndef NDEBUG
-    on_cpu_program.mark_all_variables_created();
+    glop_program.mark_all_variables_created();
     #endif
   }
 
   void set_objective_coefficient(variable_type variable, float coefficient) {
     objective_coefficients[variable] = coefficient;
     #ifndef NDEBUG
-    on_cpu_program.set_objective_coefficient(on_cpu_variables[variable], coefficient);
+    glop_program.set_objective_coefficient(glop_variables[variable], coefficient);
     #endif
   }
 
   struct ConstraintFacade {
-    ConstraintFacade(InHouseSimplexOnGpuLinearProgram* program, unsigned index) :
+    ConstraintFacade(InHouseSimplexOnCpuLinearProgram* program, unsigned index) :
       program(program),
       index(index)
       #ifndef NDEBUG
-      , on_cpu_constraint(program->on_cpu_program.create_constraint())
+      , glop_constraint(program->glop_program.create_constraint())
       #endif
     {}
 
@@ -51,7 +60,7 @@ class InHouseSimplexOnGpuLinearProgram {
       program->constraints[index].lower_bound = lower_bound;
       program->constraints[index].upper_bound = upper_bound;
       #ifndef NDEBUG
-      on_cpu_constraint.set_bounds(lower_bound, upper_bound);
+      glop_constraint.set_bounds(lower_bound, upper_bound);
       #endif
       return *this;
     }
@@ -59,16 +68,16 @@ class InHouseSimplexOnGpuLinearProgram {
     ConstraintFacade& set_coefficient(variable_type variable, float coefficient) {
       program->constraints[index].coefficients[variable] = coefficient;
       #ifndef NDEBUG
-      on_cpu_constraint.set_coefficient(program->on_cpu_variables[variable], coefficient);
+      glop_constraint.set_coefficient(program->glop_variables[variable], coefficient);
       #endif
       return *this;
     }
 
    private:
-    InHouseSimplexOnGpuLinearProgram* const program;
+    InHouseSimplexOnCpuLinearProgram* const program;
     const unsigned index;
     #ifndef NDEBUG
-    InHouseSimplexOnCpuLinearProgram::ConstraintFacade on_cpu_constraint;
+    GlopLinearProgram::Constraint glop_constraint;
     #endif
   };
 
@@ -100,11 +109,11 @@ class InHouseSimplexOnGpuLinearProgram {
   std::map<variable_type, float> objective_coefficients;
   std::vector<Constraint> constraints;
 #ifndef NDEBUG
-  InHouseSimplexOnCpuLinearProgram on_cpu_program;
-  std::vector<InHouseSimplexOnCpuLinearProgram::variable_type> on_cpu_variables;
+  GlopLinearProgram glop_program;
+  std::vector<GlopLinearProgram::variable_type> glop_variables;
 #endif
 };
 
 }  // namespace lincs
 
-#endif  // LINCS__LINEAR_PROGRAMMING__CUSTOM_ON_GPU_HPP
+#endif  // LINCS__LINEAR_PROGRAMMING__IN_HOUSE_SIMPLEX_ON_CPU_HPP

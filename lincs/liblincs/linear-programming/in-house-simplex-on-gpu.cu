@@ -1,6 +1,6 @@
 // Copyright 2024 Vincent Jacques
 
-#include "custom-on-gpu.hpp"
+#include "in-house-simplex-on-gpu.hpp"
 
 #include <cmath>
 #include <variant>

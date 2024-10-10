@@ -1,6 +1,6 @@
 // Copyright 2024 Vincent Jacques
 
-#include "custom-on-cpu.hpp"
+#include "in-house-simplex-on-cpu.hpp"
 
 #include <cassert>
 #include <cmath>

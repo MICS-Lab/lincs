@@ -7,8 +7,8 @@
 #include <random>
 
 #include "alglib.hpp"
-#include "custom-on-cpu.hpp"
-#include "custom-on-gpu.hpp"
+#include "in-house-simplex-on-cpu.hpp"
+#include "in-house-simplex-on-gpu.hpp"
 #include "glop.hpp"
 
 #include "../vendored/doctest.h"  // Keep last because it defines really common names like CHECK that we don't want injected into other headers
