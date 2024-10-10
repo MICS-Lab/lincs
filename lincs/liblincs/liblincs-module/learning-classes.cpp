@@ -331,6 +331,52 @@ void define_learning_classes(py::module& m) {
   ;
 
   py::class_<
+    lincs::OptimizeWeightsUsingInHouseSimplexOnCpu,
+    lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy
+  >(
+    m,
+    "OptimizeWeightsUsingInHouseSimplexOnCpu",
+    "The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using our in-house Simplex, on the CPU. THIS IS AN EXPERIMENTAL FEATURE, you should probably not use it."
+  )
+    .def(
+      py::init<const lincs::PreprocessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned&>(),
+      "preprocessed_learning_set"_a, "models_being_learned"_a,
+      "Constructor. Keeps a reference to the learning data.",
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
+    )
+    .def(
+      "optimize_weights",
+      &lincs::OptimizeWeightsUsingInHouseSimplexOnCpu::optimize_weights,
+      "model_indexes_begin"_a, "model_indexes_end"_a,
+      "Overrides the base method."
+    )
+  ;
+
+  py::class_<
+    lincs::OptimizeWeightsUsingInHouseSimplexOnGpu,
+    lincs::LearnMrsortByWeightsProfilesBreed::WeightsOptimizationStrategy
+  >(
+    m,
+    "OptimizeWeightsUsingInHouseSimplexOnGpu",
+    "The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using our in-house Simplex, on the GPU. THIS IS AN EXPERIMENTAL FEATURE, you should probably not use it."
+  )
+    .def(
+      py::init<const lincs::PreprocessedLearningSet&, lincs::LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned&>(),
+      "preprocessed_learning_set"_a, "models_being_learned"_a,
+      "Constructor. Keeps a reference to the learning data.",
+      py::keep_alive<1, 2>(),
+      py::keep_alive<1, 3>()
+    )
+    .def(
+      "optimize_weights",
+      &lincs::OptimizeWeightsUsingInHouseSimplexOnGpu::optimize_weights,
+      "model_indexes_begin"_a, "model_indexes_end"_a,
+      "Overrides the base method."
+    )
+  ;
+
+  py::class_<
     lincs::ImproveProfilesWithAccuracyHeuristicOnCpu,
     lincs::LearnMrsortByWeightsProfilesBreed::ProfilesImprovementStrategy
   >(
