@@ -353,6 +353,45 @@ class CustomOnCpuWpbWrapper {
   LearnMrsortByWeightsProfilesBreed learning;
 };
 
+#ifdef LINCS_HAS_NVCC
+
+class CustomOnGpuWpbWrapper {
+ public:
+  CustomOnGpuWpbWrapper(const Problem& problem, const Alternatives& learning_set) :
+    preprocessed_learning_set(problem, learning_set),
+    models_being_learned(preprocessed_learning_set, LearnMrsortByWeightsProfilesBreed::default_models_count, 44),
+    profiles_initialization_strategy(preprocessed_learning_set, models_being_learned),
+    weights_optimization_strategy(preprocessed_learning_set, models_being_learned),
+    profiles_improvement_strategy(preprocessed_learning_set, models_being_learned),
+    breeding_strategy(models_being_learned, profiles_initialization_strategy, LearnMrsortByWeightsProfilesBreed::default_models_count / 2),
+    termination_strategy(models_being_learned, 200),
+    learning(
+      preprocessed_learning_set,
+      models_being_learned,
+      profiles_initialization_strategy,
+      weights_optimization_strategy,
+      profiles_improvement_strategy,
+      breeding_strategy,
+      termination_strategy
+    )
+  {}
+
+ public:
+  auto perform() { return learning.perform(); }
+
+ private:
+  PreprocessedLearningSet preprocessed_learning_set;
+  LearnMrsortByWeightsProfilesBreed::ModelsBeingLearned models_being_learned;
+  InitializeProfilesForProbabilisticMaximalDiscriminationPowerPerCriterion profiles_initialization_strategy;
+  OptimizeWeightsUsingCustomOnGpu weights_optimization_strategy;
+  ImproveProfilesWithAccuracyHeuristicOnGpu profiles_improvement_strategy;
+  ReinitializeLeastAccurate breeding_strategy;
+  TerminateAfterIterationsWithoutProgress termination_strategy;
+  LearnMrsortByWeightsProfilesBreed learning;
+};
+
+#endif
+
 }  // namespace
 
 TEST_CASE("Basic (and GPU) WPB learning - real criteria" * doctest::skip(skip_wpb_glop)) {
@@ -734,6 +773,62 @@ TEST_CASE("Custom-simplex-on-CPU WPB learning - real criteria - 4*3 - long" * do
     // (It's due to the poor quality of our in-house Simplex implementation)
     {33, 53, 54, 55, 56, 59, 65, 84, 89, 95});
 }
+
+#ifdef LINCS_HAS_NVCC
+
+TEST_CASE("Custom-simplex-on-GPU WPB learning - real criteria - 1*2" * doctest::skip(skip_wpb_custom)) {
+  check_exact_learnings<CustomOnGpuWpbWrapper>(
+    1, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Custom-simplex-on-GPU WPB learning - real criteria - 3*2" * doctest::skip(skip_wpb_custom)) {
+  check_exact_learnings<CustomOnGpuWpbWrapper>(
+    3, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Custom-simplex-on-GPU WPB learning - real criteria - 1*3" * doctest::skip(skip_wpb_custom)) {
+  check_exact_learnings<CustomOnGpuWpbWrapper>(
+    1, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Custom-simplex-on-GPU WPB learning - real criteria - 2*3" * doctest::skip(skip_wpb_custom)) {
+  check_exact_learnings<CustomOnGpuWpbWrapper>(
+    2, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    {});
+}
+
+TEST_CASE("Custom-simplex-on-GPU WPB learning - real criteria - 7*2 - long" * doctest::skip(skip_wpb_custom || skip_long)) {
+  check_exact_learnings<CustomOnGpuWpbWrapper>(
+    7, 2,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    // @todo(Feature, later) Reduce the number of failed learnings
+    // (It's due to the poor quality of our in-house Simplex implementation)
+    {0, 2, 6, 10, 12, 13, 16, 18, 22, 25, 26, 28, 32, 34, 35, 36, 38, 41, 44, 47, 48, 51, 59, 62, 64, 69, 71, 74, 76, 79, 85, 89, 90, 95, 97, 98, 99});
+}
+
+TEST_CASE("Custom-simplex-on-GPU WPB learning - real criteria - 4*3 - long" * doctest::skip(skip_wpb_custom || skip_long)) {
+  check_exact_learnings<CustomOnGpuWpbWrapper>(
+    4, 3,
+    {lincs::Criterion::PreferenceDirection::increasing},
+    {lincs::Criterion::ValueType::real},
+    // @todo(Feature, later) Reduce the number of failed learnings
+    // (It's due to the poor quality of our in-house Simplex implementation)
+    {33, 53, 54, 55, 56, 59, 65, 84, 89, 95});
+}
+
+#endif
 
 TEST_CASE("SAT by coalitions using Minisat learning - real criteria" * doctest::skip(skip_sat)) {
   check_exact_learnings<LearnUcncsBySatByCoalitionsUsingMinisat>(
