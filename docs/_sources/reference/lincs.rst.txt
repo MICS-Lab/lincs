@@ -988,6 +988,30 @@
 
                 Overrides the base method.
 
+        .. class:: OptimizeWeightsUsingInHouseSimplexOnCpu
+
+            The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using our in-house Simplex, on the CPU. THIS IS AN EXPERIMENTAL FEATURE, you should probably not use it.
+
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
+
+                Constructor. Keeps a reference to the learning data.
+
+            .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
+
+                Overrides the base method.
+
+        .. class:: OptimizeWeightsUsingInHouseSimplexOnGpu
+
+            The weights optimization strategy described in Olivier Sobrie's PhD thesis. The linear program is solved using our in-house Simplex, on the GPU. THIS IS AN EXPERIMENTAL FEATURE, you should probably not use it.
+
+            .. method:: __init__(preprocessed_learning_set: PreprocessedLearningSet, models_being_learned: ModelsBeingLearned)
+
+                Constructor. Keeps a reference to the learning data.
+
+            .. method:: optimize_weights(model_indexes_begin: int, model_indexes_end: int)
+
+                Overrides the base method.
+
         .. class:: ImproveProfilesWithAccuracyHeuristicOnCpu
 
             The profiles improvement strategy described in Olivier Sobrie's PhD thesis. Run on the CPU.

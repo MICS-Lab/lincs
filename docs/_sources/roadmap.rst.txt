@@ -14,7 +14,7 @@ Version 2.0
 
 (planned late 2024)
 
-- Support Python 3.12
+- Support Python 3.12 and 3.13
 - Support single-peaked criteria (where intermediate values are preferred to extreme values)
 - Explore the possibility of optimizing the WPB weights on the GPU
 
