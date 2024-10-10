@@ -220,62 +220,70 @@ class BasicWpb {
  public:
   class Wrapper {
    public:
-    Wrapper(const Problem& problem_, const Alternatives& learning_set) :
+    Wrapper(const Problem& problem_, const Alternatives& learning_set_) :
       problem(problem_),
-      cpu_wrapper(problem_, learning_set),
-      gpu_wrapper(problem_, learning_set)
+      learning_set(learning_set_)
     {}
 
    public:
     auto perform() {
+      CpuWrapper cpu_wrapper(problem, learning_set);
       std::optional<Model> cpu_model;
       try {
         cpu_model = cpu_wrapper.perform();
       } catch (const LearningFailureException&) { /* Nothing */ }
       const bool cpu_success = cpu_model.has_value();
 
-      std::optional<Model> gpu_model;
-      try {
-        gpu_model = gpu_wrapper.perform();
-      } catch (const LearningFailureException&) { /* Nothing */ }
-      bool gpu_success = gpu_model.has_value();
-
-      CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
-      if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
-        std::cerr << "CPU accuracies:";
-        for (unsigned accuracy: cpu_wrapper.observer.accuracies) {
-          std::cerr << " " << accuracy;
-        }
-        std::cerr << std::endl;
-        std::cerr << "GPU accuracies:";
-        for (unsigned accuracy: gpu_wrapper.observer.accuracies) {
-          std::cerr << " " << accuracy;
-        }
-        std::cerr << std::endl;
-      }
-
-      if (cpu_success == gpu_success) {
+      if (forbid_gpu) {
         if (cpu_success) {
-          CHECK(*cpu_model == *gpu_model);
           return *cpu_model;
         } else {
-          throw LearningFailureException("Both CPU and GPU failed");
+          throw LearningFailureException("CPU failed");
         }
       } else {
-        if (cpu_success) {
-          FAIL("CPU succeeded but GPU failed");
-          return *cpu_model;
+        GpuWrapper gpu_wrapper(problem, learning_set);
+        std::optional<Model> gpu_model;
+        try {
+          gpu_model = gpu_wrapper.perform();
+        } catch (const LearningFailureException&) { /* Nothing */ }
+        bool gpu_success = gpu_model.has_value();
+
+        CHECK(cpu_wrapper.observer.accuracies == gpu_wrapper.observer.accuracies);
+        if (cpu_wrapper.observer.accuracies != gpu_wrapper.observer.accuracies) {
+          std::cerr << "CPU accuracies:";
+          for (unsigned accuracy: cpu_wrapper.observer.accuracies) {
+            std::cerr << " " << accuracy;
+          }
+          std::cerr << std::endl;
+          std::cerr << "GPU accuracies:";
+          for (unsigned accuracy: gpu_wrapper.observer.accuracies) {
+            std::cerr << " " << accuracy;
+          }
+          std::cerr << std::endl;
+        }
+
+        if (cpu_success == gpu_success) {
+          if (cpu_success) {
+            CHECK(*cpu_model == *gpu_model);
+            return *cpu_model;
+          } else {
+            throw LearningFailureException("Both CPU and GPU failed");
+          }
         } else {
-          FAIL("GPU succeeded but CPU failed");
-          return *gpu_model;
+          if (cpu_success) {
+            FAIL("CPU succeeded but GPU failed");
+            return *cpu_model;
+          } else {
+            FAIL("GPU succeeded but CPU failed");
+            return *gpu_model;
+          }
         }
       }
     }
 
    private:
     const Problem& problem;
-    CpuWrapper cpu_wrapper;
-    GpuWrapper gpu_wrapper;
+    const Alternatives& learning_set;
   };
   #else
  public:
@@ -776,7 +784,7 @@ TEST_CASE("In-house-simplex-on-CPU WPB learning - real criteria - 4*3 - long" * 
 
 #ifdef LINCS_HAS_NVCC
 
-TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 1*2" * doctest::skip(skip_wpb_in_house_simplex)) {
+TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 1*2" * doctest::skip(forbid_gpu || skip_wpb_in_house_simplex)) {
   check_exact_learnings<InHouseSimplexOnGpuWpbWrapper>(
     1, 2,
     {lincs::Criterion::PreferenceDirection::increasing},
@@ -784,7 +792,7 @@ TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 1*2" * doctest
     {});
 }
 
-TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 3*2" * doctest::skip(skip_wpb_in_house_simplex)) {
+TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 3*2" * doctest::skip(forbid_gpu || skip_wpb_in_house_simplex)) {
   check_exact_learnings<InHouseSimplexOnGpuWpbWrapper>(
     3, 2,
     {lincs::Criterion::PreferenceDirection::increasing},
@@ -792,7 +800,7 @@ TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 3*2" * doctest
     {});
 }
 
-TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 1*3" * doctest::skip(skip_wpb_in_house_simplex)) {
+TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 1*3" * doctest::skip(forbid_gpu || skip_wpb_in_house_simplex)) {
   check_exact_learnings<InHouseSimplexOnGpuWpbWrapper>(
     1, 3,
     {lincs::Criterion::PreferenceDirection::increasing},
@@ -800,7 +808,7 @@ TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 1*3" * doctest
     {});
 }
 
-TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 2*3" * doctest::skip(skip_wpb_in_house_simplex)) {
+TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 2*3" * doctest::skip(forbid_gpu || skip_wpb_in_house_simplex)) {
   check_exact_learnings<InHouseSimplexOnGpuWpbWrapper>(
     2, 3,
     {lincs::Criterion::PreferenceDirection::increasing},
@@ -808,7 +816,7 @@ TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 2*3" * doctest
     {});
 }
 
-TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 7*2 - long" * doctest::skip(skip_wpb_in_house_simplex || skip_long)) {
+TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 7*2 - long" * doctest::skip(forbid_gpu || skip_wpb_in_house_simplex || skip_long)) {
   check_exact_learnings<InHouseSimplexOnGpuWpbWrapper>(
     7, 2,
     {lincs::Criterion::PreferenceDirection::increasing},
@@ -818,7 +826,7 @@ TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 7*2 - long" * 
     {0, 2, 6, 10, 12, 13, 16, 18, 22, 25, 26, 28, 32, 34, 35, 36, 38, 41, 44, 47, 48, 51, 59, 62, 64, 69, 71, 74, 76, 79, 85, 89, 90, 95, 97, 98, 99});
 }
 
-TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 4*3 - long" * doctest::skip(skip_wpb_in_house_simplex || skip_long)) {
+TEST_CASE("In-house-simplex-on-GPU WPB learning - real criteria - 4*3 - long" * doctest::skip(forbid_gpu || skip_wpb_in_house_simplex || skip_long)) {
   check_exact_learnings<InHouseSimplexOnGpuWpbWrapper>(
     4, 3,
     {lincs::Criterion::PreferenceDirection::increasing},

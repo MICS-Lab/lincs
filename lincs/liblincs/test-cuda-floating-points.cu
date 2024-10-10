@@ -11,6 +11,17 @@
 
 namespace {
 
+bool env_is_true(const char* name) {
+  const char* value = std::getenv(name);
+  return value && std::string(value) == "true";
+}
+
+const bool forbid_gpu = env_is_true("LINCS_DEV_FORBID_GPU");
+
+}  // namespace
+
+namespace {
+
 typedef GridFactory1D<128> grid;
 
 __global__ void kernel(
@@ -30,7 +41,7 @@ __global__ void kernel(
   }
 }
 
-TEST_CASE("floating point operations on random doubles behave bit-to-bit-the-same on the GPU and on the CPU") {
+TEST_CASE("floating point operations on random doubles behave bit-to-bit-the-same on the GPU and on the CPU" * doctest::skip(forbid_gpu)) {
   const unsigned count = 1'000'000;
   for (unsigned random_seed = 0; random_seed != 25; ++random_seed) {
     std::mt19937 gen(random_seed);
@@ -84,7 +95,7 @@ __global__ void kernel(
   outputs[0] = compute(inputs[0], inputs[1], inputs[2], inputs[3]);
 }
 
-TEST_CASE("Specific operations on specific values behave differently on the GPU and on the CPU") {
+TEST_CASE("Specific operations on specific values behave differently on the GPU and on the CPU" * doctest::skip(forbid_gpu)) {
   Array1D<Host, double> inputs_on_host(4, uninitialized);
   inputs_on_host[0] = 0.6636555388921431;
   inputs_on_host[1] = 2.3023796233172344;

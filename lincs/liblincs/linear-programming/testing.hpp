@@ -40,7 +40,13 @@ typedef std::tuple<
   lincs::InHouseSimplexOnGpuLinearProgram,
   #endif  // LINCS_HAS_NVCC
   lincs::InHouseSimplexOnCpuLinearProgram
-> LinearPrograms;
+> LinearProgramsWithGpu;
+
+typedef std::tuple<
+  lincs::GlopLinearProgram,
+  lincs::AlglibLinearProgram,
+  lincs::InHouseSimplexOnCpuLinearProgram
+> LinearProgramsWithoutGpu;
 
 template<unsigned Index, typename... Float>
 void check_all_equal_impl(const std::tuple<std::optional<Float>...>& costs) {
@@ -80,11 +86,28 @@ void check_all_equal(const std::tuple<Float...>& costs) {
   check_all_equal_impl<1>(costs);
 }
 
+namespace {
+
+bool env_is_true(const char* name) {
+  const char* value = std::getenv(name);
+  return value && std::string(value) == "true";
+}
+
+const bool forbid_gpu = env_is_true("LINCS_DEV_FORBID_GPU");
+
+}  // namespace
+
 template <typename F>
 void test(F&& f) {
-  LinearPrograms linear_programs;
-  const auto costs = std::apply([&f](auto&... linear_program) { return std::make_tuple(f(linear_program)...); }, linear_programs);
-  check_all_equal(costs);
+  if (forbid_gpu) {
+    LinearProgramsWithoutGpu linear_programs;
+    const auto costs = std::apply([&f](auto&... linear_program) { return std::make_tuple(f(linear_program)...); }, linear_programs);
+    check_all_equal(costs);
+  } else {
+    LinearProgramsWithGpu linear_programs;
+    const auto costs = std::apply([&f](auto&... linear_program) { return std::make_tuple(f(linear_program)...); }, linear_programs);
+    check_all_equal(costs);
+  }
 }
 
 #endif  // LINCS__LINEAR_PROGRAMMING__TESTING_HPP
