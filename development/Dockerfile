@@ -31,7 +31,7 @@ WORKDIR /download
 FROM downloader AS download-boost
 
 RUN set -x \
- && wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz \
+ && wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz \
  && tar xf boost_*.tar.gz \
  && rm boost_*.tar.gz \
  && mv boost_* boost
