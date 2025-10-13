@@ -1,13 +1,6 @@
 # Copyright 2023-2024 Vincent Jacques
 
-# About the choice of Ubuntu 20.04 instead of 22.04: it an acceptable compromise:
-# - it's an LTS version as well
-# - the deadsnakes PPA supports it
-# - NVidia supports the same versions of CUDA as for 22.04
-# - its gcc version supports C++17
-# - it allows building manylinux_2_31 wheels, which are slightly more widely usable than the manylinux_2_34 wheels produced on 22.04
-
-FROM ubuntu:20.04 AS base
+FROM ubuntu:22.04 AS base
 
 # https://docs.docker.com/engine/reference/builder/#run---mounttypecache
 RUN set -x \
@@ -40,8 +33,13 @@ RUN set -x \
 FROM downloader AS download-get-pip
 
 RUN set -x \
- && wget https://bootstrap.pypa.io/get-pip.py
-
+ && wget https://bootstrap.pypa.io/pip/3.8/get-pip.py -O get-pip-3.8.py \
+ && wget https://bootstrap.pypa.io/get-pip.py -O get-pip-3.9.py \
+ && ln -s get-pip-3.9.py get-pip-3.10.py \
+ && ln -s get-pip-3.9.py get-pip-3.11.py \
+ && ln -s get-pip-3.9.py get-pip-3.12.py \
+ && ln -s get-pip-3.9.py get-pip-3.13.py \
+ && true
 
 FROM downloader AS download-or-tools
 
@@ -100,8 +98,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
  && add-apt-repository ppa:deadsnakes/ppa \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-      $(for python_version in $non_default_python_versions; do echo python$python_version-dev; echo python$python_version-distutils; echo python$python_version-venv; done | grep -v python3.13-distutils) \
- && for python_version in $non_default_python_versions $default_python_version; do python$python_version /download/get-pip.py || exit 1; done
+      $(for python_version in $non_default_python_versions; do echo python$python_version-dev; echo python$python_version-distutils; echo python$python_version-venv; done | grep -v -e python3.12-distutils -e python3.13-distutils) \
+ && for python_version in $non_default_python_versions $default_python_version; do python$python_version /download/get-pip-$python_version.py || exit 1; done
 
 # Boost
 RUN --mount=type=bind,from=download-boost,source=/download,target=/download,readwrite \
