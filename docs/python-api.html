@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The Python API &#8212; lincs 2.0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d7b522e2"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <title>The Python API &#8212; lincs 2.0.2rc0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <script src="_static/documentation_options.js?v=7360c6d0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Single-peaked criteria" href="single-peaked.html" />
@@ -19,8 +20,9 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -34,14 +36,14 @@
             
   <!-- WARNING: this file is generated from 'doc-sources/python-api/python-api.ipynb'. MANUAL EDITS WILL BE LOST. -->
 <section id="the-python-api">
-<h1>The Python API<a class="headerlink" href="#the-python-api" title="Permalink to this heading">¶</a></h1>
+<h1>The Python API<a class="headerlink" href="#the-python-api" title="Link to this heading">¶</a></h1>
 <p>This document builds up on <a class="reference internal" href="get-started.html"><span class="doc">our “Get Started” guide</span></a> and our <a class="reference internal" href="user-guide.html"><span class="doc">user guide</span></a>, and introduces <em>lincs</em>’ Python API.
 This API is more flexible, albeit more complex, than the command-line interface you’ve been using so far.</p>
 <p>If you’re a Jupyter user, you can <a class="reference download internal" download="" href="_downloads/019271a03d05a599bcfb6d68c868c86a/python-api.ipynb"><span class="xref download myst">download the notebook</span></a> this document is based on.</p>
 <section id="do-it-again-in-python">
-<h2>Do it again, in Python<a class="headerlink" href="#do-it-again-in-python" title="Permalink to this heading">¶</a></h2>
+<h2>Do it again, in Python<a class="headerlink" href="#do-it-again-in-python" title="Link to this heading">¶</a></h2>
 <p>First, lets do exactly the same thing as in our “Get started” guide, but using the Python API.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lincs</span> <span class="kn">import</span> <span class="n">classification</span> <span class="k">as</span> <span class="n">lc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lincs</span><span class="w"> </span><span class="kn">import</span> <span class="n">classification</span> <span class="k">as</span> <span class="n">lc</span>
 </pre></div>
 </div>
 <p>Generate a synthetic classification problem:</p>
@@ -50,7 +52,7 @@ This API is more flexible, albeit more complex, than the command-line interface 
 </div>
 <p>The first difference with the command-line interface is the third argument to the call to <code class="docutils literal notranslate"><span class="pre">generate_problem</span></code>: it’s the pseudo-random seed optionally passed by the <code class="docutils literal notranslate"><span class="pre">--random-seed</span></code> option on the command line. All pseudo-random seeds are mandatory in the Python API, so that you have full control of reproducibility. If you don’t care about it, you can use <code class="docutils literal notranslate"><span class="pre">random.randrange(2**30)</span></code> to use pseudo-random pseudo-random seeds. (No typo here: the pseudo-random seeds are pseudo-random.)</p>
 <p>Generated problems are returned as Python objects of class <code class="docutils literal notranslate"><span class="pre">lincs.Problem</span></code>. You can print them:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="n">problem</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -125,7 +127,7 @@ Higher values of &quot;Criterion 4&quot; are known to be better.
 </pre></div>
 </div>
 <p>Visualization functions interface with <a class="reference external" href="https://matplotlib.org/">Matplotlib</a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
@@ -153,7 +155,7 @@ To get into an upper category, an alternative must be accepted by the following 
 </pre></div>
 </div>
 <p>Dump it (in memory instead of on <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> to print only the first few lines):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
 <span class="n">learning_set</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[:</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;...&#39;</span><span class="p">]))</span>
@@ -235,12 +237,12 @@ When using the Python API, you have to create these strategies yourself:</p>
 As you can see the Python API is more verbose, but for good reasons: it’s more powerful as you’ll see in the next section.</p>
 </section>
 <section id="do-more-with-the-python-api">
-<h2>Do more, with the Python API<a class="headerlink" href="#do-more-with-the-python-api" title="Permalink to this heading">¶</a></h2>
+<h2>Do more, with the Python API<a class="headerlink" href="#do-more-with-the-python-api" title="Link to this heading">¶</a></h2>
 <section id="create-classification-objects">
-<h3>Create classification objects<a class="headerlink" href="#create-classification-objects" title="Permalink to this heading">¶</a></h3>
+<h3>Create classification objects<a class="headerlink" href="#create-classification-objects" title="Link to this heading">¶</a></h3>
 <p>You don’t have to use our pseudo-random generation functions; you can create <code class="docutils literal notranslate"><span class="pre">Problem</span></code>, <code class="docutils literal notranslate"><span class="pre">Model</span></code>, <em>etc.</em> instances yourself.</p>
 <section id="create-a-problem">
-<h4>Create a <code class="docutils literal notranslate"><span class="pre">Problem</span></code><a class="headerlink" href="#create-a-problem" title="Permalink to this heading">¶</a></h4>
+<h4>Create a <code class="docutils literal notranslate"><span class="pre">Problem</span></code><a class="headerlink" href="#create-a-problem" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
     <span class="n">criteria</span><span class="o">=</span><span class="p">[</span>
         <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="p">(</span><span class="s2">&quot;Physics grade&quot;</span><span class="p">,</span> <span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">IntegerValues</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">Criterion</span><span class="o">.</span><span class="n">PreferenceDirection</span><span class="o">.</span><span class="n">increasing</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)),</span>
@@ -332,7 +334,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </div>
 </section>
 <section id="create-a-model">
-<h4>Create a <code class="docutils literal notranslate"><span class="pre">Model</span></code><a class="headerlink" href="#create-a-model" title="Permalink to this heading">¶</a></h4>
+<h4>Create a <code class="docutils literal notranslate"><span class="pre">Model</span></code><a class="headerlink" href="#create-a-model" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
     <span class="n">problem</span><span class="p">,</span>
     <span class="n">accepted_values</span><span class="o">=</span><span class="p">[</span>
@@ -421,7 +423,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </div>
 </section>
 <section id="create-classified-alternatives">
-<h4>Create (classified) <code class="docutils literal notranslate"><span class="pre">Alternatives</span></code><a class="headerlink" href="#create-classified-alternatives" title="Permalink to this heading">¶</a></h4>
+<h4>Create (classified) <code class="docutils literal notranslate"><span class="pre">Alternatives</span></code><a class="headerlink" href="#create-classified-alternatives" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alternatives</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Alternatives</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="p">[</span>
     <span class="n">lc</span><span class="o">.</span><span class="n">Alternative</span><span class="p">(</span>
         <span class="s2">&quot;Unclassified alternative&quot;</span><span class="p">,</span>
@@ -475,9 +477,9 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </section>
 </section>
 <section id="clone-classification-objects">
-<h3>Clone classification objects<a class="headerlink" href="#clone-classification-objects" title="Permalink to this heading">¶</a></h3>
+<h3>Clone classification objects<a class="headerlink" href="#clone-classification-objects" title="Link to this heading">¶</a></h3>
 <p>Just use <a class="reference external" href="https://docs.python.org/3/library/copy.html#copy.deepcopy"><code class="docutils literal notranslate"><span class="pre">copy.deepcopy</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">copy</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
 <span class="n">copied_problem</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
 <span class="n">copied_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -487,9 +489,9 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <p>This is especially useful <em>e.g.</em> if you want to identify alternatives that are classified differently by two models, because <code class="docutils literal notranslate"><span class="pre">lc.classify_alternatives</span></code> mutates the alternatives: clone the <code class="docutils literal notranslate"><span class="pre">Alternatives</span></code>, classify the copy and iterate over the <a class="reference external" href="https://docs.python.org/3/library/functions.html#zip"><code class="docutils literal notranslate"><span class="pre">zip</span></code></a> of both <code class="docutils literal notranslate"><span class="pre">Alternatives</span></code>, comparing their <code class="docutils literal notranslate"><span class="pre">.category_index</span></code>.</p>
 </section>
 <section id="serialize-classification-objects">
-<h3>Serialize classification objects<a class="headerlink" href="#serialize-classification-objects" title="Permalink to this heading">¶</a></h3>
+<h3>Serialize classification objects<a class="headerlink" href="#serialize-classification-objects" title="Link to this heading">¶</a></h3>
 <section id="in-yaml-and-csv-like-the-command-line">
-<h4>In YAML and CSV like the command-line<a class="headerlink" href="#in-yaml-and-csv-like-the-command-line" title="Permalink to this heading">¶</a></h4>
+<h4>In YAML and CSV like the command-line<a class="headerlink" href="#in-yaml-and-csv-like-the-command-line" title="Link to this heading">¶</a></h4>
 <p>(and the upcoming C++ API)</p>
 <p>Classification objects have a <code class="docutils literal notranslate"><span class="pre">.dump</span></code> method, and their classes have a static <code class="docutils literal notranslate"><span class="pre">.load</span></code> method that accept file-like objects.</p>
 <p>We’ve used them above to print classification objects to <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code>. Here is an example of how to use them with actual files:</p>
@@ -542,9 +544,9 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </div>
 </section>
 <section id="using-the-python-specific-pickle-module">
-<h4>Using the Python-specific <code class="docutils literal notranslate"><span class="pre">pickle</span></code> module<a class="headerlink" href="#using-the-python-specific-pickle-module" title="Permalink to this heading">¶</a></h4>
+<h4>Using the Python-specific <code class="docutils literal notranslate"><span class="pre">pickle</span></code> module<a class="headerlink" href="#using-the-python-specific-pickle-module" title="Link to this heading">¶</a></h4>
 <p>Classification objects simply support <a class="reference external" href="https://docs.python.org/3/library/pickle.html">pickling</a> and unpickling. We recommend using the YAML and CSV formats whenever possible because they are not tied to the Python language (or the <em>lincs</em> library for that matter).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 
 <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">problem</span><span class="p">))</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
 </pre></div>
@@ -570,7 +572,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </section>
 </section>
 <section id="customize-the-model-visualization">
-<h3>Customize the model visualization<a class="headerlink" href="#customize-the-model-visualization" title="Permalink to this heading">¶</a></h3>
+<h3>Customize the model visualization<a class="headerlink" href="#customize-the-model-visualization" title="Link to this heading">¶</a></h3>
 <p>We’ve decided to not implement any customization for the visualizations produced by <code class="docutils literal notranslate"><span class="pre">lincs.classification.visualize_model</span></code> (and thus <code class="docutils literal notranslate"><span class="pre">lincs</span> <span class="pre">visualize</span> <span class="pre">classification-model</span></code>) because this would make it less robust and increase its complexity beyond the scope of <em>lincs</em>.</p>
 <p>However, <code class="docutils literal notranslate"><span class="pre">lincs.classification.visualize_model</span></code> is written in Python, using the Python API described in this guide. This means that you can get inspiration from its <a class="reference external" href="https://github.com/MICS-Lab/lincs/blob/main/lincs/visualization.py">source code</a> (<em>i.e.</em> copy-paste it) to produce custom visualizations for your needs.</p>
 <p>Be aware that our implementation supports a few edge cases, so it might be a bit more complex than what you actually need:</p>
@@ -654,7 +656,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 <p><img alt="png" src="_images/python-api_97_0.png" /></p>
 </section>
 <section id="create-your-own-learning-strategies">
-<h3>Create your own learning strategies<a class="headerlink" href="#create-your-own-learning-strategies" title="Permalink to this heading">¶</a></h3>
+<h3>Create your own learning strategies<a class="headerlink" href="#create-your-own-learning-strategies" title="Link to this heading">¶</a></h3>
 <p>The “Weights, profiles, breed” learning approach uses strategies for each of its steps. <em>lincs</em> provides effective strategies as you’ve seen in the first part of this guide. You can also define your own strategies, to experiment with new ways to learn.</p>
 <p>Let’s create a problem and learning set for this section:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">problem</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
@@ -669,7 +671,7 @@ As you can see the Python API is more verbose, but for good reasons: it’s more
 </pre></div>
 </div>
 <section id="preprocessedlearningset">
-<h4><code class="docutils literal notranslate"><span class="pre">PreprocessedLearningSet</span></code><a class="headerlink" href="#preprocessedlearningset" title="Permalink to this heading">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">PreprocessedLearningSet</span></code><a class="headerlink" href="#preprocessedlearningset" title="Link to this heading">¶</a></h4>
 <p>First, let’s get more familiar with <code class="docutils literal notranslate"><span class="pre">PreprocessedLearningSet</span></code> and <code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned</span></code>.
 You’ve seen them briefly in the first part of this guide but their purpose might still be quite obscure at this point.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">preprocessed_learning_set</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">PreprocessedLearningSet</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">learning_set</span><span class="p">)</span>
@@ -717,7 +719,7 @@ The <code class="docutils literal notranslate"><span class="pre">PreprocessedLea
 </div>
 </section>
 <section id="modelsbeinglearned">
-<h4><code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned</span></code><a class="headerlink" href="#modelsbeinglearned" title="Permalink to this heading">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned</span></code><a class="headerlink" href="#modelsbeinglearned" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ModelsBeingLearned</span><span class="p">(</span><span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_count</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -867,20 +869,20 @@ The <code class="docutils literal notranslate"><span class="pre">PreprocessedLea
 </div>
 </section>
 <section id="observer-strategies">
-<h4><code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategies<a class="headerlink" href="#observer-strategies" title="Permalink to this heading">¶</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategies<a class="headerlink" href="#observer-strategies" title="Link to this heading">¶</a></h4>
 <p>With this hopefully better understanding of <code class="docutils literal notranslate"><span class="pre">PreprocessedLearningSet</span></code> and <code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned</span></code>, let’s write our own <code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategy.
 It’s arguably the simplest to starts with, because it’s not expected to <em>change</em> the <code class="docutils literal notranslate"><span class="pre">ModelsBeingLearned</span></code>, but only <em>observe</em> it at some key points of the learning.</p>
 <p>To start as simple as possible, lets reproduce the behavior of the <code class="docutils literal notranslate"><span class="pre">--...-verbose</span></code> flag on the command line, by creating an observer that just prints the best accuracy at each step.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Observer</span></code> strategies must define two methods to be called by the learning algorithm: <code class="docutils literal notranslate"><span class="pre">after_iteration</span></code>, to be called at the end of each iteration, after the breeding of models is done, and <code class="docutils literal notranslate"><span class="pre">before_return</span></code>, to be called just before the final model is returned.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VerboseObserver</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">Observer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">VerboseObserver</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">Observer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
 
-    <span class="k">def</span> <span class="nf">after_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">after_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best accuracy (after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">iteration_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations): </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">get_best_accuracy</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">before_return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">before_return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final accuracy (after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">iteration_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations): </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">get_best_accuracy</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -916,20 +918,20 @@ Final accuracy (after 9 iterations): 1000
 </pre></div>
 </div>
 <p>Now let’s do something slightly more complicated: our goal for <code class="docutils literal notranslate"><span class="pre">IntermediatesObserver</span></code> is to keep track of the best model so far at different times during the learning. Specifically, we want to keep the models at iterations 1, 2, 4, 8, <em>etc.</em>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
-<span class="k">class</span> <span class="nc">IntermediatesObserver</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">Observer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IntermediatesObserver</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">Observer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="n">problem</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_models</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">after_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">after_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">iteration_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">get_best_model</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">before_return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">before_return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
 <span class="n">preprocessed_learning_set</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">PreprocessedLearningSet</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">learning_set</span><span class="p">)</span>
@@ -1031,17 +1033,17 @@ Final accuracy (after 9 iterations): 1000
 </div>
 </section>
 <section id="other-strategies">
-<h4>Other strategies<a class="headerlink" href="#other-strategies" title="Permalink to this heading">¶</a></h4>
+<h4>Other strategies<a class="headerlink" href="#other-strategies" title="Link to this heading">¶</a></h4>
 <p>Coming up with new interesting strategies is far from easy, so in this guide, we’ll just describe the interfaces that the WPB approach expects from these strategies, and not even <em>try</em> to do anything intelligent. That part is up to you!</p>
 <p>Each strategy must inherit from a given abstract base class, as you can see below. Each strategy must override a given method as is detailed below.</p>
 <p>Profiles initialization strategies must implement <code class="docutils literal notranslate"><span class="pre">.initialize_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should initialize all <code class="docutils literal notranslate"><span class="pre">low_profile_ranks</span></code> and <code class="docutils literal notranslate"><span class="pre">high_profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[models_being_learned.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesInitializationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesInitializationStrategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SillyProfilesInitializationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesInitializationStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_learning_set</span> <span class="o">=</span> <span class="n">preprocessed_learning_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
 
-    <span class="k">def</span> <span class="nf">initialize_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;initialize_profiles&quot;</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">model_index_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
             <span class="n">model_index</span> <span class="o">=</span> <span class="n">models_being_learned</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
@@ -1051,13 +1053,13 @@ Final accuracy (after 9 iterations): 1000
 </pre></div>
 </div>
 <p>Weights optimization strategies must implement <code class="docutils literal notranslate"><span class="pre">.optimize_weights(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should optimize all <code class="docutils literal notranslate"><span class="pre">weights</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[models_being_learned.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyWeightsOptimizationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">WeightsOptimizationStrategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SillyWeightsOptimizationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">WeightsOptimizationStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_learning_set</span> <span class="o">=</span> <span class="n">preprocessed_learning_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
 
-    <span class="k">def</span> <span class="nf">optimize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;optimize_weights&quot;</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">model_index_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
             <span class="n">model_index</span> <span class="o">=</span> <span class="n">models_being_learned</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
@@ -1066,13 +1068,13 @@ Final accuracy (after 9 iterations): 1000
 </pre></div>
 </div>
 <p>Profiles improvement strategies must implement <code class="docutils literal notranslate"><span class="pre">.improve_profiles(model_indexes_begin,</span> <span class="pre">model_indexes_end)</span></code>, that should improve <code class="docutils literal notranslate"><span class="pre">low_profile_ranks</span></code> and <code class="docutils literal notranslate"><span class="pre">high_profile_ranks</span></code> for models at indexes in <code class="docutils literal notranslate"><span class="pre">[models_being_learned.model_index[i]</span> <span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">range(model_indexes_begin,</span> <span class="pre">model_indexes_end)]</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyProfilesImprovementStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesImprovementStrategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SillyProfilesImprovementStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">ProfilesImprovementStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessed_learning_set</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessed_learning_set</span> <span class="o">=</span> <span class="n">preprocessed_learning_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
 
-    <span class="k">def</span> <span class="nf">improve_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">improve_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;improve_profiles&quot;</span><span class="p">,</span> <span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">model_index_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model_indexes_begin</span><span class="p">,</span> <span class="n">model_indexes_end</span><span class="p">):</span>
             <span class="n">model_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">model_indexes</span><span class="p">[</span><span class="n">model_index_index</span><span class="p">]</span>
@@ -1083,22 +1085,22 @@ Final accuracy (after 9 iterations): 1000
 </pre></div>
 </div>
 <p>Breeding strategies must implement <code class="docutils literal notranslate"><span class="pre">.breed()</span></code>, that should breed all models.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyBreedingStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">BreedingStrategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SillyBreedingStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">BreedingStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
 
-    <span class="k">def</span> <span class="nf">breed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">breed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;breed&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Termination strategies must implement <code class="docutils literal notranslate"><span class="pre">.terminate()</span></code>, that should return <code class="docutils literal notranslate"><span class="pre">True</span></code> to terminate the learning.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SillyTerminationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">TerminationStrategy</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SillyTerminationStrategy</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">LearnMrsortByWeightsProfilesBreed</span><span class="o">.</span><span class="n">TerminationStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_being_learned</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span> <span class="o">=</span> <span class="n">models_being_learned</span>
 
-    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;terminate&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_being_learned</span><span class="o">.</span><span class="n">iteration_index</span> <span class="o">==</span> <span class="mi">3</span>
 </pre></div>
@@ -1183,7 +1185,7 @@ terminate
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">lincs</a></h1>
 
@@ -1194,7 +1196,16 @@ terminate
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">README</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">Conceptual overview</a></li>
@@ -1228,16 +1239,6 @@ terminate
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -1251,11 +1252,11 @@ terminate
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;Copyright 2023-2024 Vincent Jacques.
+      &#169;Copyright 2023-2024 Vincent Jacques.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="_sources/python-api.md.txt"

@@ -4,6 +4,12 @@
 Changelog
 =========
 
+Version 2.0.2rc0 (2025-10-14)
+=============================
+
+- Support Python 3.14
+- Provide ``manylinux_2_35`` wheels instead of ``manylinux_2_31`` (because GitHub Actions dropped Ubuntu 20.04 runners)
+
 Versions 2.0.0 and 2.0.1 (2024-12-06)
 =====================================
 

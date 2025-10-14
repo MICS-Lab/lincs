@@ -209,8 +209,14 @@ def make_liblincs_extension():
             print("WARNING: 'nvcc' was not found, lincs will be compiled without CUDA support", file=sys.stderr)
 
     try:
+        chrones_env = dict(os.environ)
+        chrones_env.pop("PYTHONPATH", None)
         chrones_dir = subprocess.run(
-            ["chrones", "instrument", "c++", "header-location"], capture_output=True, universal_newlines=True, check=True,
+            ["chrones", "instrument", "c++", "header-location"],
+            capture_output=True,
+            universal_newlines=True,
+            check=True,
+            env=chrones_env,
         ).stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         chrones_dir = None
