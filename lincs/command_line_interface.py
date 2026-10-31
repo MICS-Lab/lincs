@@ -10,7 +10,6 @@ import random
 import sys
 
 import click
-import matplotlib.pyplot as plt
 
 import lincs
 
@@ -447,6 +446,8 @@ def classification_model(
     alternatives_count,
     output,
 ):
+    import matplotlib.pyplot as plt
+
     with loading_guard():
         problem = lincs.classification.Problem.load(problem)
         model = lincs.classification.Model.load(problem, model)
