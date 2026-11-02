@@ -1,10 +1,11 @@
 # Copyright 2023-2024 Vincent Jacques
 
 import sys
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 import unittest
 
-import matplotlib.pyplot
+if TYPE_CHECKING:
+    import matplotlib.pyplot
 
 from .classification import Problem, Criterion, AcceptedValues, Model, Performance, Alternative, Alternatives
 
@@ -12,7 +13,7 @@ from .classification import Problem, Criterion, AcceptedValues, Model, Performan
 single_peaked_not_supported_message = "Single-peaked criteria are not yet supported by the visualization. See https://github.com/MICS-Lab/lincs/discussions/21 and maybe contribute your ideas?"
 
 
-def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: matplotlib.pyplot.Axes):
+def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: "matplotlib.pyplot.Axes"):
     """
     Create a visual representation of a classification model and classified alternatives, using Matplotlib.
     """
