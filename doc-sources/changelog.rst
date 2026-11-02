@@ -4,6 +4,14 @@
 Changelog
 =========
 
+Version 2.0.3a0 (2026-11-02)
+============================
+
+- Support Python 3.15
+- Drop support for Python 3.8 and 3.9
+
+- Support the ``match`` keyword for pattern matching on values and descriptors.
+
 Version 2.0.2 (2025-10-14)
 ==========================
 

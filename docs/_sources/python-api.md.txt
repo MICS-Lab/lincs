@@ -450,6 +450,26 @@ values.get_value_rank(value="a")
 
 
 
+Or you can use a modern, less verbose [`match` statement](https://docs.python.org/3/tutorial/controlflow.html#match-statements):
+
+
+```python
+for criterion in problem.criteria:
+    match criterion.values:
+        case lc.Criterion.RealValues(preference_direction, min_value, max_value):
+            print(f"{criterion.name}: real values between {min_value} and {max_value} ({preference_direction.name})")
+        case lc.Criterion.IntegerValues(preference_direction, min_value, max_value):
+            print(f"{criterion.name}: integer values between {min_value} and {max_value} ({preference_direction.name})")
+        case lc.Criterion.EnumeratedValues(ordered_values):
+            print(f"{criterion.name}: enumerated values {', '.join(ordered_values)}")
+```
+
+```text
+Physics grade: integer values between 0 and 100 (increasing)
+Literature grade: enumerated values f, e, d, c, b, a
+```
+
+
 #### Create a `Model`
 
 
@@ -579,6 +599,24 @@ list(accepted.enumerated_thresholds.thresholds)
 
 
 
+Or with a `match` statement:
+
+
+```python
+for accepted in model.accepted_values:
+    match accepted.descriptor:
+        case lc.AcceptedValues.RealThresholds(thresholds) | lc.AcceptedValues.IntegerThresholds(thresholds) | lc.AcceptedValues.EnumeratedThresholds(thresholds):
+            print("Thresholds:", list(thresholds))
+        case lc.AcceptedValues.RealIntervals(intervals) | lc.AcceptedValues.IntegerIntervals(intervals):
+            print("Intervals:", list(intervals))
+```
+
+```text
+Thresholds: [50, 80]
+Thresholds: ['c', 'a']
+```
+
+
 
 ```python
 sufficient = model.sufficient_coalitions[0]
@@ -610,6 +648,24 @@ list(sufficient.weights.criterion_weights)
 [0.5, 0.5]
 ```
 
+
+
+Or with a `match` statement:
+
+
+```python
+for sufficient in model.sufficient_coalitions:
+    match sufficient.descriptor:
+        case lc.SufficientCoalitions.Weights(criterion_weights):
+            print("Weights:", list(criterion_weights))
+        case lc.SufficientCoalitions.Roots(upset_roots):
+            print("Roots:", [list(root) for root in upset_roots])
+```
+
+```text
+Weights: [0.5, 0.5]
+Weights: [0.5, 0.5]
+```
 
 
 #### Create (classified) `Alternatives`
@@ -686,6 +742,26 @@ performance.integer.value
 50
 ```
 
+
+
+Or with a `match` statement:
+
+
+```python
+for performance in alternative.profile:
+    match performance.value:
+        case lc.Performance.Real(value):
+            print("Real performance:", value)
+        case lc.Performance.Integer(value):
+            print("Integer performance:", value)
+        case lc.Performance.Enumerated(value):
+            print("Enumerated performance:", value)
+```
+
+```text
+Integer performance: 50
+Enumerated performance: c
+```
 
 
 
@@ -836,7 +912,7 @@ lc.visualize_model(problem, model, [], axes)
 
 
 
-![png](python-api_files/python-api_89_0.png)
+![png](python-api_files/python-api_97_0.png)
 
 
 
@@ -859,7 +935,7 @@ lc.visualize_model(problem, model, [], axes)
 
 
 
-![png](python-api_files/python-api_91_0.png)
+![png](python-api_files/python-api_99_0.png)
 
 
 
@@ -881,7 +957,7 @@ lc.visualize_model(problem, model, [], axes)
 
 
 
-![png](python-api_files/python-api_93_0.png)
+![png](python-api_files/python-api_101_0.png)
 
 
 
@@ -903,7 +979,7 @@ lc.visualize_model(problem, model, [], axes)
 
 
 
-![png](python-api_files/python-api_95_0.png)
+![png](python-api_files/python-api_103_0.png)
 
 
 
@@ -928,7 +1004,7 @@ lc.visualize_model(problem, model, [], axes)
 
 
 
-![png](python-api_files/python-api_97_0.png)
+![png](python-api_files/python-api_105_0.png)
 
 
 

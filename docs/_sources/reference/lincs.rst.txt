@@ -91,20 +91,25 @@
 
                 The type of values for this criterion.
 
+            .. property:: values
+                :type: Union[RealValues, IntegerValues, EnumeratedValues]
+
+                Descriptor of the values allowed for this criterion: a :py:class:`RealValues`, an :py:class:`IntegerValues` or an :py:class:`EnumeratedValues`. Meant to be used with ``match``.
+
             .. property:: is_real
                 :type: bool
 
-                ``True`` if the criterion is real-valued.
+                ``True`` if the criterion is real-valued. Deprecated: use ``match`` on ``values`` instead.
 
             .. property:: is_integer
                 :type: bool
 
-                ``True`` if the criterion is integer-valued.
+                ``True`` if the criterion is integer-valued. Deprecated: use ``match`` on ``values`` instead.
 
             .. property:: is_enumerated
                 :type: bool
 
-                ``True`` if the criterion takes enumerated values.
+                ``True`` if the criterion takes enumerated values. Deprecated: use ``match`` on ``values`` instead.
 
             .. class:: PreferenceDirection
 
@@ -181,7 +186,7 @@
             .. property:: real_values
                 :type: RealValues
 
-                Descriptor of the real values allowed for this criterion, accessible if ``is_real``.
+                Descriptor of the real values allowed for this criterion, accessible if ``is_real``. Deprecated: use ``match`` on ``values`` instead.
 
             .. class:: IntegerValues
 
@@ -224,7 +229,7 @@
             .. property:: integer_values
                 :type: IntegerValues
 
-                Descriptor of the integer values allowed for this criterion, accessible if ``is_integer``.
+                Descriptor of the integer values allowed for this criterion, accessible if ``is_integer``. Deprecated: use ``match`` on ``values`` instead.
 
             .. class:: EnumeratedValues
 
@@ -246,7 +251,7 @@
             .. property:: enumerated_values
                 :type: EnumeratedValues
 
-                Descriptor of the enumerated values allowed for this criterion, accessible if ``is_enumerated``.
+                Descriptor of the enumerated values allowed for this criterion, accessible if ``is_enumerated``. Deprecated: use ``match`` on ``values`` instead.
 
         .. class:: Category
 
@@ -329,17 +334,17 @@
             .. property:: is_real
                 :type: bool
 
-                ``True`` if the corresponding criterion is real-valued.
+                ``True`` if the corresponding criterion is real-valued. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. property:: is_integer
                 :type: bool
 
-                ``True`` if the corresponding criterion is integer-valued.
+                ``True`` if the corresponding criterion is integer-valued. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. property:: is_enumerated
                 :type: bool
 
-                ``True`` if the corresponding criterion takes enumerated values.
+                ``True`` if the corresponding criterion takes enumerated values. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: Kind
 
@@ -362,15 +367,20 @@
 
                 The kind of descriptor for these accepted values.
 
+            .. property:: descriptor
+                :type: Union[RealThresholds, IntegerThresholds, EnumeratedThresholds, RealIntervals, IntegerIntervals]
+
+                Descriptor of the accepted values: a :py:class:`RealThresholds`, an :py:class:`IntegerThresholds`, an :py:class:`EnumeratedThresholds`, a :py:class:`RealIntervals` or an :py:class:`IntegerIntervals`. Meant to be used with ``match``.
+
             .. property:: is_thresholds
                 :type: bool
 
-                ``True`` if the descriptor is a set of thresholds.
+                ``True`` if the descriptor is a set of thresholds. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. property:: is_intervals
                 :type: bool
 
-                ``True`` if the descriptor is a set of intervals.
+                ``True`` if the descriptor is a set of intervals. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: RealThresholds
 
@@ -388,7 +398,7 @@
             .. property:: real_thresholds
                 :type: RealThresholds
 
-                Descriptor of the real thresholds, accessible if ``is_real and is_thresholds``.
+                Descriptor of the real thresholds, accessible if ``is_real and is_thresholds``. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: IntegerThresholds
 
@@ -406,7 +416,7 @@
             .. property:: integer_thresholds
                 :type: IntegerThresholds
 
-                Descriptor of the integer thresholds, accessible if ``is_integer and is_thresholds``.
+                Descriptor of the integer thresholds, accessible if ``is_integer and is_thresholds``. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: EnumeratedThresholds
 
@@ -424,7 +434,7 @@
             .. property:: enumerated_thresholds
                 :type: EnumeratedThresholds
 
-                Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``.
+                Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: RealIntervals
 
@@ -442,7 +452,7 @@
             .. property:: real_intervals
                 :type: RealIntervals
 
-                Descriptor of the real intervals, accessible if ``is_real and is_intervals``.
+                Descriptor of the real intervals, accessible if ``is_real and is_intervals``. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: IntegerIntervals
 
@@ -460,7 +470,7 @@
             .. property:: integer_intervals
                 :type: IntegerIntervals
 
-                Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``.
+                Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``. Deprecated: use ``match`` on ``descriptor`` instead.
 
         .. class:: SufficientCoalitions
 
@@ -496,15 +506,20 @@
 
                 The kind of descriptor for these sufficient coalitions.
 
+            .. property:: descriptor
+                :type: Union[Weights, Roots]
+
+                Descriptor of the sufficient coalitions: a :py:class:`Weights` or a :py:class:`Roots`. Meant to be used with ``match``.
+
             .. property:: is_weights
                 :type: bool
 
-                ``True`` if the descriptor is a set of weights.
+                ``True`` if the descriptor is a set of weights. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. property:: is_roots
                 :type: bool
 
-                ``True`` if the descriptor is a set of roots.
+                ``True`` if the descriptor is a set of roots. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: Weights
 
@@ -522,7 +537,7 @@
             .. property:: weights
                 :type: Weights
 
-                Descriptor of the weights, accessible if ``is_weights``.
+                Descriptor of the weights, accessible if ``is_weights``. Deprecated: use ``match`` on ``descriptor`` instead.
 
             .. class:: Roots
 
@@ -540,7 +555,7 @@
             .. property:: roots
                 :type: Roots
 
-                Descriptor of the roots, accessible if ``is_roots``.
+                Descriptor of the roots, accessible if ``is_roots``. Deprecated: use ``match`` on ``descriptor`` instead.
 
         .. class:: Model
 
@@ -601,20 +616,25 @@
 
                 The type of values for the corresponding criterion.
 
+            .. property:: value
+                :type: Union[Real, Integer, Enumerated]
+
+                The performance: a :py:class:`Real`, an :py:class:`Integer` or an :py:class:`Enumerated`. Meant to be used with ``match``.
+
             .. property:: is_real
                 :type: bool
 
-                ``True`` if the corresponding criterion is real-valued.
+                ``True`` if the corresponding criterion is real-valued. Deprecated: use ``match`` on ``value`` instead.
 
             .. property:: is_integer
                 :type: bool
 
-                ``True`` if the corresponding criterion is integer-valued.
+                ``True`` if the corresponding criterion is integer-valued. Deprecated: use ``match`` on ``value`` instead.
 
             .. property:: is_enumerated
                 :type: bool
 
-                ``True`` if the corresponding criterion takes enumerated values.
+                ``True`` if the corresponding criterion takes enumerated values. Deprecated: use ``match`` on ``value`` instead.
 
             .. class:: Real
 
@@ -632,7 +652,7 @@
             .. property:: real
                 :type: Real
 
-                The real performance, accessible if ``is_real``.
+                The real performance, accessible if ``is_real``. Deprecated: use ``match`` on ``value`` instead.
 
             .. class:: Integer
 
@@ -650,7 +670,7 @@
             .. property:: integer
                 :type: Integer
 
-                The integer performance, accessible if ``is_integer``.
+                The integer performance, accessible if ``is_integer``. Deprecated: use ``match`` on ``value`` instead.
 
             .. class:: Enumerated
 
@@ -668,7 +688,7 @@
             .. property:: enumerated
                 :type: Enumerated
 
-                The enumerated performance, accessible if ``is_enumerated``.
+                The enumerated performance, accessible if ``is_enumerated``. Deprecated: use ``match`` on ``value`` instead.
 
         .. class:: Alternative
 
