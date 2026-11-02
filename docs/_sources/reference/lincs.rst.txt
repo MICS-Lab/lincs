@@ -1158,7 +1158,7 @@
 
             Generate a human-readable description of a classification problem.
 
-        .. function:: visualize_model(problem: lincs.classification.Problem, model: lincs.classification.Model, alternatives: Iterable[lincs.classification.Alternative], axes: matplotlib.axes._axes.Axes)
+        .. function:: visualize_model(problem: lincs.classification.Problem, model: lincs.classification.Model, alternatives: Iterable[lincs.classification.Alternative], axes: 'matplotlib.pyplot.Axes')
 
             Create a visual representation of a classification model and classified alternatives, using Matplotlib.
 
