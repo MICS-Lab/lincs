@@ -518,7 +518,7 @@ template<typename WhereFrom, typename WhereTo, typename T>
 void copy(ArrayView1D<WhereFrom, T> src, ArrayView1D<WhereTo, typename std::remove_const<T>::type> dst) {
   assert(dst.s0() == src.s0());
 
-  From<WhereFrom>::template To<WhereTo>::template copy(
+  From<WhereFrom>::template To<WhereTo>::template copy<typename std::remove_const<T>::type>(
     src.s0(), src.data(), dst.data());
 }
 
@@ -698,7 +698,7 @@ void copy(ArrayView2D<WhereFrom, T> src, ArrayView2D<WhereTo, typename std::remo
   assert(dst.s1() == src.s1());
   assert(dst.s0() == src.s0());
 
-  From<WhereFrom>::template To<WhereTo>::template copy(
+  From<WhereFrom>::template To<WhereTo>::template copy<typename std::remove_const<T>::type>(
     src.s1() * src.s0(), src.data(), dst.data());
 }
 
@@ -874,7 +874,7 @@ void copy(ArrayView3D<WhereFrom, T> src, ArrayView3D<WhereTo, typename std::remo
   assert(dst.s1() == src.s1());
   assert(dst.s0() == src.s0());
 
-  From<WhereFrom>::template To<WhereTo>::template copy(
+  From<WhereFrom>::template To<WhereTo>::template copy<typename std::remove_const<T>::type>(
     src.s2() * src.s1() * src.s0(), src.data(), dst.data());
 }
 
@@ -1057,7 +1057,7 @@ void copy(ArrayView4D<WhereFrom, T> src, ArrayView4D<WhereTo, typename std::remo
   assert(dst.s1() == src.s1());
   assert(dst.s0() == src.s0());
 
-  From<WhereFrom>::template To<WhereTo>::template copy(
+  From<WhereFrom>::template To<WhereTo>::template copy<typename std::remove_const<T>::type>(
     src.s3() * src.s2() * src.s1() * src.s0(), src.data(), dst.data());
 }
 
@@ -1247,7 +1247,7 @@ void copy(ArrayView5D<WhereFrom, T> src, ArrayView5D<WhereTo, typename std::remo
   assert(dst.s1() == src.s1());
   assert(dst.s0() == src.s0());
 
-  From<WhereFrom>::template To<WhereTo>::template copy(
+  From<WhereFrom>::template To<WhereTo>::template copy<typename std::remove_const<T>::type>(
     src.s4() * src.s3() * src.s2() * src.s1() * src.s0(), src.data(), dst.data());
 }
 

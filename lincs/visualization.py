@@ -1,18 +1,19 @@
 # Copyright 2023-2024 Vincent Jacques
 
 import sys
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
 import unittest
 
-import matplotlib.pyplot
+if TYPE_CHECKING:
+    import matplotlib.pyplot
 
-from .classification import Problem, Model, Alternative, Alternatives
+from .classification import Problem, Criterion, AcceptedValues, Model, Performance, Alternative, Alternatives
 
 
 single_peaked_not_supported_message = "Single-peaked criteria are not yet supported by the visualization. See https://github.com/MICS-Lab/lincs/discussions/21 and maybe contribute your ideas?"
 
 
-def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: matplotlib.pyplot.Axes):
+def visualize_classification_model(problem: Problem, model: Model, alternatives: Iterable[Alternative], axes: "matplotlib.pyplot.Axes"):
     """
     Create a visual representation of a classification model and classified alternatives, using Matplotlib.
     """
@@ -47,27 +48,16 @@ def visualize_classification_model(problem: Problem, model: Model, alternatives:
 
     boundary_profiles = [[] for _ in problem.ordered_categories[1:]]
     for criterion, accepted_values in zip(problem.criteria, model.accepted_values):
-        if criterion.is_real:
-            if accepted_values.is_thresholds:
+        match accepted_values.descriptor:
+            case AcceptedValues.RealThresholds(thresholds) | AcceptedValues.IntegerThresholds(thresholds):
                 for boundary_index in range(boundaries_count):
-                    boundary_profiles[boundary_index].append(accepted_values.real_thresholds.thresholds[boundary_index])
-            else:
-                assert accepted_values.is_intervals
+                    boundary_profiles[boundary_index].append(thresholds[boundary_index])
+            case AcceptedValues.EnumeratedThresholds(thresholds):
+                for boundary_index in range(boundaries_count):
+                    boundary_profiles[boundary_index].append(criterion.values.get_value_rank(thresholds[boundary_index]))
+            case AcceptedValues.RealIntervals() | AcceptedValues.IntegerIntervals():
                 print(single_peaked_not_supported_message, file=sys.stderr)
                 exit(1)
-        elif criterion.is_integer:
-            if accepted_values.is_thresholds:
-                for boundary_index in range(boundaries_count):
-                    boundary_profiles[boundary_index].append(accepted_values.integer_thresholds.thresholds[boundary_index])
-            else:
-                assert accepted_values.is_intervals
-                print(single_peaked_not_supported_message, file=sys.stderr)
-                exit(1)
-        else:
-            assert criterion.is_enumerated
-            assert accepted_values.is_thresholds
-            for boundary_index in range(boundaries_count):
-                boundary_profiles[boundary_index].append(criterion.enumerated_values.get_value_rank(accepted_values.enumerated_thresholds.thresholds[boundary_index]))
 
     def extend(ys):
         return [ys[0]] + ys + [ys[-1]]
@@ -84,30 +74,27 @@ def visualize_classification_model(problem: Problem, model: Model, alternatives:
 
     for (x, criterion) in zip(xs, problem.criteria):
         criterion_axis = axes.secondary_yaxis(x)
-        if criterion.is_real:
-            values = criterion.real_values
-            ticks = [0, 0.25, 0.5, 0.75, 1]
-            labels = [f"{values.min_value + tick * (values.max_value - values.min_value):.1f}" for tick in ticks]
-            if values.is_increasing:
-                criterion_axis.set_yticks(ticks, labels)
-            else:
-                assert values.is_decreasing
-                criterion_axis.set_yticks(ticks, reversed(labels))
-        elif criterion.is_integer:
-            values = criterion.integer_values
-            labels = list(make_integer_labels(values.min_value, values.max_value))
-            ticks = [(label - values.min_value) / (values.max_value - values.min_value) for label in labels]
-            if values.is_increasing:
-                criterion_axis.set_yticks(ticks, labels)
-            else:
-                assert values.is_decreasing
-                criterion_axis.set_yticks(ticks, reversed(labels))
-        else:
-            assert criterion.is_enumerated
-            values = criterion.enumerated_values
-            ticks_count = len(values.ordered_values)
-            ticks = [n / (ticks_count - 1) for n in range(ticks_count)]
-            criterion_axis.set_yticks(ticks, values.ordered_values)
+        match criterion.values:
+            case Criterion.RealValues() as values:
+                ticks = [0, 0.25, 0.5, 0.75, 1]
+                labels = [f"{values.min_value + tick * (values.max_value - values.min_value):.1f}" for tick in ticks]
+                if values.is_increasing:
+                    criterion_axis.set_yticks(ticks, labels)
+                else:
+                    assert values.is_decreasing
+                    criterion_axis.set_yticks(ticks, reversed(labels))
+            case Criterion.IntegerValues() as values:
+                labels = list(make_integer_labels(values.min_value, values.max_value))
+                ticks = [(label - values.min_value) / (values.max_value - values.min_value) for label in labels]
+                if values.is_increasing:
+                    criterion_axis.set_yticks(ticks, labels)
+                else:
+                    assert values.is_decreasing
+                    criterion_axis.set_yticks(ticks, reversed(labels))
+            case Criterion.EnumeratedValues(ordered_values):
+                ticks_count = len(ordered_values)
+                ticks = [n / (ticks_count - 1) for n in range(ticks_count)]
+                criterion_axis.set_yticks(ticks, ordered_values)
 
     for (category_index, category) in enumerate(problem.ordered_categories):
         if category_index == 0:
@@ -250,13 +237,11 @@ def make_numeric_profile(criteria, profile):
 
 
 def make_numeric_value(criterion, y):
-    if criterion.is_real:
-        return y.real.value
-    elif criterion.is_integer:
-        return y.integer.value
-    else:
-        assert criterion.is_enumerated
-        return criterion.enumerated_values.get_value_rank(y.enumerated.value)
+    match y.value:
+        case Performance.Real(value) | Performance.Integer(value):
+            return value
+        case Performance.Enumerated(value):
+            return criterion.values.get_value_rank(value)
 
 
 def normalize_profile(criteria, ys):
@@ -267,20 +252,13 @@ def normalize_profile(criteria, ys):
 
 
 def normalize_value(criterion, y):
-    is_increasing = None
-    if criterion.is_real:
-        values = criterion.real_values
-        is_increasing = values.is_increasing
-        y = (y - values.min_value) / (values.max_value - values.min_value)
-    elif criterion.is_integer:
-        values = criterion.integer_values
-        is_increasing = values.is_increasing
-        y = (y - values.min_value) / (values.max_value - values.min_value)
-    else:
-        assert criterion.is_enumerated
-        values = criterion.enumerated_values
-        is_increasing = True
-        y = y / (len(values.ordered_values) - 1)
+    match criterion.values:
+        case Criterion.RealValues() | Criterion.IntegerValues() as values:
+            is_increasing = values.is_increasing
+            y = (y - values.min_value) / (values.max_value - values.min_value)
+        case Criterion.EnumeratedValues(ordered_values):
+            is_increasing = True
+            y = y / (len(ordered_values) - 1)
 
     if is_increasing:
         return y

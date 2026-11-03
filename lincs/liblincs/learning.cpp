@@ -476,7 +476,7 @@ TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::s
     7, 2,
     {lincs::Criterion::PreferenceDirection::increasing, lincs::Criterion::PreferenceDirection::decreasing},
     {lincs::Criterion::ValueType::integer, lincs::Criterion::ValueType::enumerated},
-    {11, 90});
+    {11, 66, 90});
 }
 
 TEST_CASE("Basic (and GPU) WPB learning - discrete criteria - long" * doctest::skip(skip_wpb_glop || skip_long)) {

@@ -106,14 +106,13 @@ void define_problem_classes(py::module& m) {
   )
     .def_property_readonly("name", &lincs::Criterion::get_name, "The name of the criterion.")
     .def_property_readonly("value_type", &lincs::Criterion::get_value_type, "The type of values for this criterion.")
-    .def_property_readonly("is_real", &lincs::Criterion::is_real, "``True`` if the criterion is real-valued.")
-    .def_property_readonly("is_integer", &lincs::Criterion::is_integer, "``True`` if the criterion is integer-valued.")
-    .def_property_readonly("is_enumerated", &lincs::Criterion::is_enumerated, "``True`` if the criterion takes enumerated values.")
-    // @todo(Project management, later) Expose all our 'std::variant's as 'Union's; this is easy now that we use pybind11
-    // @todo(Project management, even later, when we drop Python 3.9) Deprecate the discriminated accessors like below, and rely on on 'match/case' (available since Python 3.10).
-    .def_property_readonly("real_values", &lincs::Criterion::get_real_values, "Descriptor of the real values allowed for this criterion, accessible if ``is_real``.")
-    .def_property_readonly("integer_values", &lincs::Criterion::get_integer_values, "Descriptor of the integer values allowed for this criterion, accessible if ``is_integer``.")
-    .def_property_readonly("enumerated_values", &lincs::Criterion::get_enumerated_values, "Descriptor of the enumerated values allowed for this criterion, accessible if ``is_enumerated``.")
+    .def_property_readonly("values", &lincs::Criterion::get_values, "Descriptor of the values allowed for this criterion: a :py:class:`RealValues`, an :py:class:`IntegerValues` or an :py:class:`EnumeratedValues`. Meant to be used with ``match``.")
+    .def_property_readonly("is_real", &lincs::Criterion::is_real, "``True`` if the criterion is real-valued. Deprecated: use ``match`` on ``values`` instead.")
+    .def_property_readonly("is_integer", &lincs::Criterion::is_integer, "``True`` if the criterion is integer-valued. Deprecated: use ``match`` on ``values`` instead.")
+    .def_property_readonly("is_enumerated", &lincs::Criterion::is_enumerated, "``True`` if the criterion takes enumerated values. Deprecated: use ``match`` on ``values`` instead.")
+    .def_property_readonly("real_values", &lincs::Criterion::get_real_values, "Descriptor of the real values allowed for this criterion, accessible if ``is_real``. Deprecated: use ``match`` on ``values`` instead.")
+    .def_property_readonly("integer_values", &lincs::Criterion::get_integer_values, "Descriptor of the integer values allowed for this criterion, accessible if ``is_integer``. Deprecated: use ``match`` on ``values`` instead.")
+    .def_property_readonly("enumerated_values", &lincs::Criterion::get_enumerated_values, "Descriptor of the enumerated values allowed for this criterion, accessible if ``is_enumerated``. Deprecated: use ``match`` on ``values`` instead.")
     .def(py::pickle(
       [](const lincs::Criterion& criterion) {
         return std::visit(
@@ -168,6 +167,7 @@ void define_problem_classes(py::module& m) {
       }
     ))
   ;
+  criterion_class.attr("RealValues").attr("__match_args__") = py::make_tuple("preference_direction", "min_value", "max_value");
 
   py::class_<lincs::Criterion::IntegerValues>(
     criterion_class,
@@ -194,6 +194,7 @@ void define_problem_classes(py::module& m) {
       }
     ))
   ;
+  criterion_class.attr("IntegerValues").attr("__match_args__") = py::make_tuple("preference_direction", "min_value", "max_value");
 
   criterion_class.attr("EnumeratedValues") = py::class_<lincs::Criterion::EnumeratedValues>(
     criterion_class,
@@ -215,6 +216,7 @@ void define_problem_classes(py::module& m) {
       }
     ))
   ;
+  criterion_class.attr("EnumeratedValues").attr("__match_args__") = py::make_tuple("ordered_values");
 
   criterion_class
     .def(
@@ -304,17 +306,18 @@ void define_model_classes(py::module& m) {
     "The values accepted by a model for a criterion."
   )
     .def_property_readonly("value_type", &lincs::AcceptedValues::get_value_type, "The type of values for the corresponding criterion.")
-    .def_property_readonly("is_real", &lincs::AcceptedValues::is_real, "``True`` if the corresponding criterion is real-valued.")
-    .def_property_readonly("is_integer", &lincs::AcceptedValues::is_integer, "``True`` if the corresponding criterion is integer-valued.")
-    .def_property_readonly("is_enumerated", &lincs::AcceptedValues::is_enumerated, "``True`` if the corresponding criterion takes enumerated values.")
+    .def_property_readonly("descriptor", &lincs::AcceptedValues::get, "Descriptor of the accepted values: a :py:class:`RealThresholds`, an :py:class:`IntegerThresholds`, an :py:class:`EnumeratedThresholds`, a :py:class:`RealIntervals` or an :py:class:`IntegerIntervals`. Meant to be used with ``match``.")
+    .def_property_readonly("is_real", &lincs::AcceptedValues::is_real, "``True`` if the corresponding criterion is real-valued. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("is_integer", &lincs::AcceptedValues::is_integer, "``True`` if the corresponding criterion is integer-valued. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("is_enumerated", &lincs::AcceptedValues::is_enumerated, "``True`` if the corresponding criterion takes enumerated values. Deprecated: use ``match`` on ``descriptor`` instead.")
     .def_property_readonly("kind", &lincs::AcceptedValues::get_kind, "The kind of descriptor for these accepted values.")
-    .def_property_readonly("is_thresholds", &lincs::AcceptedValues::is_thresholds, "``True`` if the descriptor is a set of thresholds.")
-    .def_property_readonly("is_intervals", &lincs::AcceptedValues::is_intervals, "``True`` if the descriptor is a set of intervals.")
-    .def_property_readonly("real_thresholds", &lincs::AcceptedValues::get_real_thresholds, "Descriptor of the real thresholds, accessible if ``is_real and is_thresholds``.")
-    .def_property_readonly("integer_thresholds", &lincs::AcceptedValues::get_integer_thresholds, "Descriptor of the integer thresholds, accessible if ``is_integer and is_thresholds``.")
-    .def_property_readonly("enumerated_thresholds", &lincs::AcceptedValues::get_enumerated_thresholds, "Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``.")
-    .def_property_readonly("real_intervals", &lincs::AcceptedValues::get_real_intervals, "Descriptor of the real intervals, accessible if ``is_real and is_intervals``.")
-    .def_property_readonly("integer_intervals", &lincs::AcceptedValues::get_integer_intervals, "Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``.")
+    .def_property_readonly("is_thresholds", &lincs::AcceptedValues::is_thresholds, "``True`` if the descriptor is a set of thresholds. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("is_intervals", &lincs::AcceptedValues::is_intervals, "``True`` if the descriptor is a set of intervals. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("real_thresholds", &lincs::AcceptedValues::get_real_thresholds, "Descriptor of the real thresholds, accessible if ``is_real and is_thresholds``. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("integer_thresholds", &lincs::AcceptedValues::get_integer_thresholds, "Descriptor of the integer thresholds, accessible if ``is_integer and is_thresholds``. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("enumerated_thresholds", &lincs::AcceptedValues::get_enumerated_thresholds, "Descriptor of the enumerated thresholds, accessible if ``is_enumerated and is_thresholds``. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("real_intervals", &lincs::AcceptedValues::get_real_intervals, "Descriptor of the real intervals, accessible if ``is_real and is_intervals``. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("integer_intervals", &lincs::AcceptedValues::get_integer_intervals, "Descriptor of the integer intervals, accessible if ``is_integer and is_intervals``. Deprecated: use ``match`` on ``descriptor`` instead.")
     .def(py::pickle(
       [](const lincs::AcceptedValues& accepted_values) {
         return std::visit(
@@ -354,6 +357,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  accepted_values_class.attr("RealThresholds").attr("__match_args__") = py::make_tuple("thresholds");
 
   py::class_<lincs::AcceptedValues::IntegerThresholds>(
     accepted_values_class,
@@ -375,6 +379,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  accepted_values_class.attr("IntegerThresholds").attr("__match_args__") = py::make_tuple("thresholds");
 
   py::class_<lincs::AcceptedValues::EnumeratedThresholds>(
     accepted_values_class,
@@ -396,6 +401,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  accepted_values_class.attr("EnumeratedThresholds").attr("__match_args__") = py::make_tuple("thresholds");
 
   py::class_<lincs::AcceptedValues::RealIntervals>(
     accepted_values_class,
@@ -417,6 +423,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  accepted_values_class.attr("RealIntervals").attr("__match_args__") = py::make_tuple("intervals");
 
   py::class_<lincs::AcceptedValues::IntegerIntervals>(
     accepted_values_class,
@@ -438,6 +445,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  accepted_values_class.attr("IntegerIntervals").attr("__match_args__") = py::make_tuple("intervals");
 
   accepted_values_class
     .def(
@@ -473,10 +481,11 @@ void define_model_classes(py::module& m) {
     "The coalitions of sufficient criteria to accept an alternative in a category."
   )
     .def_property_readonly("kind", &lincs::SufficientCoalitions::get_kind, "The kind of descriptor for these sufficient coalitions.")
-    .def_property_readonly("is_weights", &lincs::SufficientCoalitions::is_weights, "``True`` if the descriptor is a set of weights.")
-    .def_property_readonly("is_roots", &lincs::SufficientCoalitions::is_roots, "``True`` if the descriptor is a set of roots.")
-    .def_property_readonly("weights", &lincs::SufficientCoalitions::get_weights, "Descriptor of the weights, accessible if ``is_weights``.")
-    .def_property_readonly("roots", &lincs::SufficientCoalitions::get_roots, "Descriptor of the roots, accessible if ``is_roots``.")
+    .def_property_readonly("descriptor", &lincs::SufficientCoalitions::get, "Descriptor of the sufficient coalitions: a :py:class:`Weights` or a :py:class:`Roots`. Meant to be used with ``match``.")
+    .def_property_readonly("is_weights", &lincs::SufficientCoalitions::is_weights, "``True`` if the descriptor is a set of weights. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("is_roots", &lincs::SufficientCoalitions::is_roots, "``True`` if the descriptor is a set of roots. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("weights", &lincs::SufficientCoalitions::get_weights, "Descriptor of the weights, accessible if ``is_weights``. Deprecated: use ``match`` on ``descriptor`` instead.")
+    .def_property_readonly("roots", &lincs::SufficientCoalitions::get_roots, "Descriptor of the roots, accessible if ``is_roots``. Deprecated: use ``match`` on ``descriptor`` instead.")
     .def(py::pickle(
       [](const lincs::SufficientCoalitions& sufficient_coalitions) {
         return std::visit(
@@ -517,6 +526,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  sufficient_coalitions_class.attr("Weights").attr("__match_args__") = py::make_tuple("criterion_weights");
 
   py::class_<lincs::SufficientCoalitions::Roots>(
     sufficient_coalitions_class,
@@ -547,6 +557,7 @@ void define_model_classes(py::module& m) {
       }
     ))
   ;
+  sufficient_coalitions_class.attr("Roots").attr("__match_args__") = py::make_tuple("upset_roots");
 
   sufficient_coalitions_class
     .def(
@@ -612,12 +623,13 @@ void define_alternative_classes(py::module& m) {
     "The performance of an alternative on a criterion."
   )
     .def_property_readonly("value_type", &lincs::Performance::get_value_type, "The type of values for the corresponding criterion.")
-    .def_property_readonly("is_real", &lincs::Performance::is_real, "``True`` if the corresponding criterion is real-valued.")
-    .def_property_readonly("is_integer", &lincs::Performance::is_integer, "``True`` if the corresponding criterion is integer-valued.")
-    .def_property_readonly("is_enumerated", &lincs::Performance::is_enumerated, "``True`` if the corresponding criterion takes enumerated values.")
-    .def_property_readonly("real", &lincs::Performance::get_real, "The real performance, accessible if ``is_real``.")
-    .def_property_readonly("integer", &lincs::Performance::get_integer, "The integer performance, accessible if ``is_integer``.")
-    .def_property_readonly("enumerated", &lincs::Performance::get_enumerated, "The enumerated performance, accessible if ``is_enumerated``.")
+    .def_property_readonly("value", &lincs::Performance::get, "The performance: a :py:class:`Real`, an :py:class:`Integer` or an :py:class:`Enumerated`. Meant to be used with ``match``.")
+    .def_property_readonly("is_real", &lincs::Performance::is_real, "``True`` if the corresponding criterion is real-valued. Deprecated: use ``match`` on ``value`` instead.")
+    .def_property_readonly("is_integer", &lincs::Performance::is_integer, "``True`` if the corresponding criterion is integer-valued. Deprecated: use ``match`` on ``value`` instead.")
+    .def_property_readonly("is_enumerated", &lincs::Performance::is_enumerated, "``True`` if the corresponding criterion takes enumerated values. Deprecated: use ``match`` on ``value`` instead.")
+    .def_property_readonly("real", &lincs::Performance::get_real, "The real performance, accessible if ``is_real``. Deprecated: use ``match`` on ``value`` instead.")
+    .def_property_readonly("integer", &lincs::Performance::get_integer, "The integer performance, accessible if ``is_integer``. Deprecated: use ``match`` on ``value`` instead.")
+    .def_property_readonly("enumerated", &lincs::Performance::get_enumerated, "The enumerated performance, accessible if ``is_enumerated``. Deprecated: use ``match`` on ``value`` instead.")
     .def(py::pickle(
       [](const lincs::Performance& performance) {
         return std::visit(
@@ -651,6 +663,7 @@ void define_alternative_classes(py::module& m) {
       }
     ))
   ;
+  performance_class.attr("Real").attr("__match_args__") = py::make_tuple("value");
 
   py::class_<lincs::Performance::Integer>(
     performance_class,
@@ -672,6 +685,7 @@ void define_alternative_classes(py::module& m) {
       }
     ))
   ;
+  performance_class.attr("Integer").attr("__match_args__") = py::make_tuple("value");
 
   py::class_<lincs::Performance::Enumerated>(
     performance_class,
@@ -693,6 +707,7 @@ void define_alternative_classes(py::module& m) {
       }
     ))
   ;
+  performance_class.attr("Enumerated").attr("__match_args__") = py::make_tuple("value");
 
   performance_class
     .def(

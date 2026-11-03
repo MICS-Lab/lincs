@@ -24,31 +24,26 @@ def describe_classification_problem(problem: Problem) -> Iterable[str]:
     else:
         yield f"There are {criteria_count} classification criteria (in no particular order)."
     for criterion in problem.criteria:
-        if criterion.is_real:
-            values = criterion.real_values
-            yield f'Criterion "{criterion.name}" takes real values between {values.min_value:.1f} and {values.max_value:.1f} included.'
-            if values.is_increasing:
-                yield f'Higher values of "{criterion.name}" are known to be better.'
-            elif values.is_decreasing:
-                yield f'Lower values of "{criterion.name}" are known to be better.'
-            else:
-                assert values.is_single_peaked
-                yield f'Intermediate values of "{criterion.name}" are known to be better.'
-        elif criterion.is_integer:
-            values = criterion.integer_values
-            yield f'Criterion "{criterion.name}" takes integer values between {values.min_value} and {values.max_value} included.'
-            if values.is_increasing:
-                yield f'Higher values of "{criterion.name}" are known to be better.'
-            elif values.is_decreasing:
-                yield f'Lower values of "{criterion.name}" are known to be better.'
-            else:
-                assert values.is_single_peaked
-                yield f'Intermediate values of "{criterion.name}" are known to be better.'
-        else:
-            assert criterion.is_enumerated
-            values = criterion.enumerated_values
-            yield f'Criterion "{criterion.name}" takes values in the following set: {", ".join(f"{value}" for value in values.ordered_values)}.'
-            yield f'The best value for criterion "{criterion.name}" is "{values.ordered_values[-1]}" and the worst value is "{values.ordered_values[0]}".'
+        match criterion.values:
+            case Criterion.RealValues() as values:
+                yield f'Criterion "{criterion.name}" takes real values between {values.min_value:.1f} and {values.max_value:.1f} included.'
+                yield from describe_preference_direction(criterion.name, values)
+            case Criterion.IntegerValues() as values:
+                yield f'Criterion "{criterion.name}" takes integer values between {values.min_value} and {values.max_value} included.'
+                yield from describe_preference_direction(criterion.name, values)
+            case Criterion.EnumeratedValues(ordered_values):
+                yield f'Criterion "{criterion.name}" takes values in the following set: {", ".join(f"{value}" for value in ordered_values)}.'
+                yield f'The best value for criterion "{criterion.name}" is "{ordered_values[-1]}" and the worst value is "{ordered_values[0]}".'
+
+
+def describe_preference_direction(criterion_name, values):
+    if values.is_increasing:
+        yield f'Higher values of "{criterion_name}" are known to be better.'
+    elif values.is_decreasing:
+        yield f'Lower values of "{criterion_name}" are known to be better.'
+    else:
+        assert values.is_single_peaked
+        yield f'Intermediate values of "{criterion_name}" are known to be better.'
 
 
 class DescribeClassificationProblemTestCase(unittest.TestCase):
@@ -161,63 +156,56 @@ def describe_classification_model(problem: Problem, model: Model) -> Iterable[st
 
     def make_profile(accepted_values, boundary_index):
         for criterion_index, criterion in enumerate(problem.criteria):
-            if accepted_values[criterion_index].is_thresholds:
-                if criterion.is_real:
-                    assert len(accepted_values[criterion_index].real_thresholds.thresholds) == boundaries_count
-                    values = criterion.real_values
-                    constraint = "at least" if values.is_increasing else "at most"
-                    yield f'{constraint} {accepted_values[criterion_index].real_thresholds.thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
-                elif criterion.is_integer:
-                    assert len(accepted_values[criterion_index].integer_thresholds.thresholds) == boundaries_count
-                    values = criterion.integer_values
-                    constraint = "at least" if values.is_increasing else "at most"
-                    yield f'{constraint} {accepted_values[criterion_index].integer_thresholds.thresholds[boundary_index]} on criterion "{criterion.name}"'
-                else:
-                    assert criterion.is_enumerated
-                    assert len(accepted_values[criterion_index].enumerated_thresholds.thresholds) == boundaries_count
-                    yield f'at least "{accepted_values[criterion_index].enumerated_thresholds.thresholds[boundary_index]}" on criterion "{criterion.name}"'
-            else:
-                accepted_values[criterion_index].is_intervals
-                if criterion.is_real:
-                    assert len(accepted_values[criterion_index].real_intervals.intervals) == boundaries_count
-                    interval = accepted_values[criterion_index].real_intervals.intervals[boundary_index]
+            match accepted_values[criterion_index].descriptor:
+                case AcceptedValues.RealThresholds(thresholds):
+                    assert len(thresholds) == boundaries_count
+                    constraint = "at least" if criterion.values.is_increasing else "at most"
+                    yield f'{constraint} {thresholds[boundary_index]:.2f} on criterion "{criterion.name}"'
+                case AcceptedValues.IntegerThresholds(thresholds):
+                    assert len(thresholds) == boundaries_count
+                    constraint = "at least" if criterion.values.is_increasing else "at most"
+                    yield f'{constraint} {thresholds[boundary_index]} on criterion "{criterion.name}"'
+                case AcceptedValues.EnumeratedThresholds(thresholds):
+                    assert len(thresholds) == boundaries_count
+                    yield f'at least "{thresholds[boundary_index]}" on criterion "{criterion.name}"'
+                case AcceptedValues.RealIntervals(intervals):
+                    assert len(intervals) == boundaries_count
+                    interval = intervals[boundary_index]
                     yield f'between {interval[0]:.2f} and {interval[1]:.2f} on criterion "{criterion.name}"'
-                else:
-                    assert criterion.is_integer
-                    assert len(accepted_values[criterion_index].integer_intervals.intervals) == boundaries_count
-                    interval = accepted_values[criterion_index].integer_intervals.intervals[boundary_index]
+                case AcceptedValues.IntegerIntervals(intervals):
+                    assert len(intervals) == boundaries_count
+                    interval = intervals[boundary_index]
                     yield f'between {interval[0]} and {interval[1]} on criterion "{criterion.name}"'
 
     is_uc = all(sufficient_coalitions == model.sufficient_coalitions[0] for sufficient_coalitions in model.sufficient_coalitions[1:])
     if is_uc:
-        first_sufficient_coalitions = model.sufficient_coalitions[0]
-        if first_sufficient_coalitions.is_weights:
-            yield "This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries."
-            yield "The weights associated to each criterion are:"
-            assert len(first_sufficient_coalitions.weights.criterion_weights) == criteria_count
-            for criterion, weight in zip(problem.criteria, first_sufficient_coalitions.weights.criterion_weights):
-                yield f'  - Criterion "{criterion.name}": {weight:.2f}'
-            yield "To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:"
-        else:
-            assert first_sufficient_coalitions.is_roots
-            yield "This is a Uc-NCS model: an NCS model with the same sufficient coalitions for all boundaries."
-            yield "The sufficient coalitions of criteria are the following, as well as any of their unions:"
-            yield from make_upset_roots(first_sufficient_coalitions.roots.upset_roots)
-            yield "To get into an upper category, an alternative must be accepted by the following boundaries on a sufficient coalition of criteria:"
+        match model.sufficient_coalitions[0].descriptor:
+            case SufficientCoalitions.Weights(criterion_weights):
+                yield "This is a MR-Sort (a.k.a. 1-Uc-NCS) model: an NCS model where the sufficient coalitions are specified using the same criterion weights for all boundaries."
+                yield "The weights associated to each criterion are:"
+                assert len(criterion_weights) == criteria_count
+                for criterion, weight in zip(problem.criteria, criterion_weights):
+                    yield f'  - Criterion "{criterion.name}": {weight:.2f}'
+                yield "To get into an upper category, an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:"
+            case SufficientCoalitions.Roots(upset_roots):
+                yield "This is a Uc-NCS model: an NCS model with the same sufficient coalitions for all boundaries."
+                yield "The sufficient coalitions of criteria are the following, as well as any of their unions:"
+                yield from make_upset_roots(upset_roots)
+                yield "To get into an upper category, an alternative must be accepted by the following boundaries on a sufficient coalition of criteria:"
         for boundary_index, category in enumerate(problem.ordered_categories[1:]):
             yield f'  - For category "{category.name}": {comma_and(make_profile(model.accepted_values, boundary_index))}'
     else:
         yield "This is a generic NCS model; sufficient coalitions are specified for each boundary."
         for boundary_index, (category, sufficient_coalitions) in enumerate(zip(problem.ordered_categories[1:], model.sufficient_coalitions)):
-            if sufficient_coalitions.is_weights:
-                yield f'To get into category "{category.name}", an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:'
-                for profile, weight in zip(make_profile(model.accepted_values, boundary_index), sufficient_coalitions.weights.criterion_weights):
-                    yield f'  - {profile} (weight: {weight:.2f})'
-            else:
-                assert sufficient_coalitions.is_roots
-                yield f'The sufficient coalitions for category "{category.name}" are the following, as well as any of their unions:'
-                yield from make_upset_roots(sufficient_coalitions.roots.upset_roots)
-                yield f'To get into category "{category.name}", an alternative must be accepted by the following boundaries on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
+            match sufficient_coalitions.descriptor:
+                case SufficientCoalitions.Weights(criterion_weights):
+                    yield f'To get into category "{category.name}", an alternative must be accepted by the following boundaries on a set of criteria whose weights add up to at least 1:'
+                    for profile, weight in zip(make_profile(model.accepted_values, boundary_index), criterion_weights):
+                        yield f'  - {profile} (weight: {weight:.2f})'
+                case SufficientCoalitions.Roots(upset_roots):
+                    yield f'The sufficient coalitions for category "{category.name}" are the following, as well as any of their unions:'
+                    yield from make_upset_roots(upset_roots)
+                    yield f'To get into category "{category.name}", an alternative must be accepted by the following boundaries on a sufficient coalition of criteria: {comma_and(make_profile(model.accepted_values, boundary_index))}'
 
 
 class DescribeClassificationModelTestCase(unittest.TestCase):

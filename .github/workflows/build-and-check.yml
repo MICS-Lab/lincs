@@ -1,13 +1,11 @@
-# WARNING: There is a lot of duplication between .yml workflows because I don't know (yet) how
-# to factorize these workflows. Keep things in sync.
-
-name: Distribute pre-release
+name: Build and check
 on:
-  push:
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+a[0-9]+
-      - v[0-9]+.[0-9]+.[0-9]+b[0-9]+
-      - v[0-9]+.[0-9]+.[0-9]+rc[0-9]+
+  workflow_call:
+    inputs:
+      python_versions:
+        description: JSON array of the Python versions to build and check wheels for
+        type: string
+        required: true
 jobs:
   make-source-dist:
     runs-on: ubuntu-22.04
@@ -16,7 +14,7 @@ jobs:
         run: pip3 install build twine
 
       - name: Get the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build the source distribution
         run: python3 -m build --sdist
@@ -24,7 +22,7 @@ jobs:
         run: twine check dist/*
 
       - name: Upload the source distribution to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: source-dist
           path: dist
@@ -35,10 +33,10 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python_version: ${{ fromJSON(inputs.python_versions) }}
     steps:
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
@@ -78,7 +76,7 @@ jobs:
             sudo cp bin/patchelf /usr/local/bin
 
       - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: source-dist
       - name: Unzip the source distribution
@@ -97,7 +95,7 @@ jobs:
         run: twine check dist/*.whl
 
       - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheel-dist-${{ matrix.python_version }}-linux
           path: dist
@@ -108,16 +106,16 @@ jobs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python_version: ${{ fromJSON(inputs.python_versions) }}
     steps:
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
         run: pip install build delvewheel twine
       - name: Install CUDA
-        uses: Jimver/cuda-toolkit@v0.2.19
+        uses: Jimver/cuda-toolkit@v0.2.36
         id: cuda-toolkit
         with:
           cuda: '12.4.1'
@@ -159,7 +157,7 @@ jobs:
             cp -r lib/* /d/lincs-deps/lib
 
       - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: source-dist
       - name: Unzip the source distribution
@@ -179,23 +177,23 @@ jobs:
         run: twine check (get-item dist\*.whl)
 
       - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheel-dist-${{ matrix.python_version }}-windows
           path: dist
 
   build-for-macos:
-    runs-on: macos-13
+    runs-on: macos-15-intel
     needs:
       - make-source-dist
     strategy:
       matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python_version: ${{ fromJSON(inputs.python_versions) }}
     env:
       MACOSX_DEPLOYMENT_TARGET: 12.0
     steps:
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python_version }}
       - name: Install Python packages
@@ -233,7 +231,7 @@ jobs:
             ln -s libortools.9.dylib libortools.dylib
 
       - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: source-dist
       - name: Unzip the source distribution
@@ -249,7 +247,7 @@ jobs:
         run: twine check dist/*.whl
 
       - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheel-dist-${{ matrix.python_version }}-macos
           path: dist
@@ -266,28 +264,17 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
+          - ubuntu-26.04
           - windows-2022
           - windows-2025
-          - macos-13
           - macos-14
           - macos-15
           - macos-15-intel
           - macos-26
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+          - macos-26-intel
+        python_version: ${{ fromJSON(inputs.python_versions) }}
         exclude:
-          # Older Python versions don't build 'universal2' wheels, so they can't run on the M1 runner that run macOS 14 and 15
-          - os: macos-14
-            python_version: '3.8'
-          - os: macos-15
-            python_version: '3.8'
-          - os: macos-26
-            python_version: '3.8'
-          - os: macos-14
-            python_version: '3.9'
-          - os: macos-15
-            python_version: '3.9'
-          - os: macos-26
-            python_version: '3.9'
+          # Older Python versions don't build 'universal2' wheels, so they can't run on the M1 runners
           - os: macos-14
             python_version: '3.10'
           - os: macos-15
@@ -296,13 +283,13 @@ jobs:
             python_version: '3.10'
     steps:
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python_version }}
       # DO NOT install any other dependencies, to test that the wheels are self-contained
 
       - name: Download the wheels from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: wheel-dist-${{ matrix.python_version }}-*
           merge-multiple: true
@@ -317,50 +304,3 @@ jobs:
       - run: lincs generate classified-alternatives problem.yml model.yml 100 --output-alternatives learning-set.csv
       - run: lincs learn classification-model problem.yml learning-set.csv --output-model learned-model.yml
       - run: lincs classification-accuracy problem.yml learned-model.yml learning-set.csv
-
-  publish-on-pypi:
-    runs-on: ubuntu-latest
-    needs:
-      - check
-    environment:
-      name: pypi
-      url: https://pypi.org/p/lincs
-    permissions:
-      id-token: write
-    steps:
-      - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-          path: dist
-      - name: Download the wheels from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: wheel-dist-*
-          merge-multiple: true
-          path: dist
-      - name: Publish all distributions to the Python Package Index
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist
-          verify-metadata: false
-          verbose: true
-
-  publish-on-dockerhub:
-    runs-on: ubuntu-latest
-    needs:
-      - check
-    steps:
-      - name: Get the code (just for the Dockerfile)
-        uses: actions/checkout@v4
-      - name: Download the wheels from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: wheel-dist-3.13-linux
-          path: docker
-      - name: Build the Docker image
-        run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker
-      - name: Login into Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD_JACQUEV6 }}" | docker login -u jacquev6 --password-stdin
-      - name: Push the Docker image
-        run: docker push jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//')

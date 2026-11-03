@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>User Guide &#8212; lincs 2.0.2 documentation</title>
+    <title>User Guide &#8212; lincs 2.0.3a1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-    <script src="_static/documentation_options.js?v=c2377ec0"></script>
+    <script src="_static/documentation_options.js?v=06307789"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -224,12 +224,12 @@ and using different coalitions for the two boundaries (so, no YAML anchor):</p>
 It’s a CSV file with a header line and one line per alternative.</p>
 <p>Like model files, alternatives files are always associated to a problem file.</p>
 <p>Here is an example corresponding to the problem above:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,category
-&quot;Alternative 1&quot;,10.8156891,4,A,Low
-&quot;Alternative 2&quot;,0.25551182,-1,D,High
-&quot;Alternative 3&quot;,18.4786396,4,B,Low
-&quot;Alternative 4&quot;,18.0154629,1,F,High
-&quot;Alternative 5&quot;,9.30789757,2,A,Medium
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,"Criterion 1","Criterion 2","Criterion 3",category
+"Alternative 1",10.8156891,4,A,Low
+"Alternative 2",0.25551182,-1,D,High
+"Alternative 3",18.4786396,4,B,Low
+"Alternative 4",18.0154629,1,F,High
+"Alternative 5",9.30789757,2,A,Medium
 </pre></div>
 </div>
 <p>Its header line contains the names of its columns.
@@ -237,12 +237,12 @@ Its first column, <code class="docutils literal notranslate"><span class="pre">n
 Its intermediate columns, named after the names of criteria, contain the values of the criteria for each alternative.
 Its last column, <code class="docutils literal notranslate"><span class="pre">category</span></code>, contains the names of the categories in which each alternative is classified.</p>
 <p>Values in the <code class="docutils literal notranslate"><span class="pre">category</span></code> column can be empty to describe alternatives that are not (yet) classified:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,&quot;Criterion 1&quot;,&quot;Criterion 2&quot;,&quot;Criterion 3&quot;,category
-&quot;Alternative 1&quot;,10.8156891,4.39045048,A,
-&quot;Alternative 2&quot;,0.25551182,-1.45864725,D,
-&quot;Alternative 3&quot;,18.4786396,4.31117153,B,
-&quot;Alternative 4&quot;,18.0154629,1.33949804,F,
-&quot;Alternative 5&quot;,9.30789757,2.66963387,A,
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name,"Criterion 1","Criterion 2","Criterion 3",category
+"Alternative 1",10.8156891,4.39045048,A,
+"Alternative 2",0.25551182,-1.45864725,D,
+"Alternative 3",18.4786396,4.31117153,B,
+"Alternative 4",18.0154629,1.33949804,F,
+"Alternative 5",9.30789757,2.66963387,A,
 </pre></div>
 </div>
 </section>
@@ -446,7 +446,7 @@ Here are two examples:</p>
 </pre></div>
 </div>
 <p>They produce a different kind of model, with the sufficient coalitions specified explicitly by their roots:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 2.0.2): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduction command (with lincs version 2.0.3a1): lincs learn classification-model problem.yml learning-set.csv --model-type ucncs --ucncs.strategy sat-by-coalitions</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ncs-classification-model</span>
 <span class="nt">format_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="nt">accepted_values</span><span class="p">:</span>

@@ -68,7 +68,7 @@ Problem generate_classification_problem(
 
   std::vector<Criterion> criteria;
   criteria.reserve(criteria_count);
-  for (const auto [name, min_value, max_value, direction] : criteria_data) {
+  for (const auto &[name, min_value, max_value, direction] : criteria_data) {
     switch (allowed_value_types[value_type_distribution(gen)]) {
       case Criterion::ValueType::real:
         criteria.emplace_back(Criterion(name, Criterion::RealValues(direction, min_value, max_value)));

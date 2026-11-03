@@ -1,325 +1,23 @@
-# WARNING: There is a lot of duplication between .yml workflows because I don't know (yet) how
-# to factorize these workflows. Keep things in sync.
-
-name: Distribute release
+name: Distribute (pre-)release
+run-name: Distribute ${{ github.ref_name }}
 on:
   push:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
+      # Pre-releases: same as releases, but not tagged as 'latest' on Docker Hub
+      - v[0-9]+.[0-9]+.[0-9]+a[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+b[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+rc[0-9]+
 jobs:
-  make-source-dist:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Install dependencies
-        run: pip3 install build twine
-
-      - name: Get the code
-        uses: actions/checkout@v4
-
-      - name: Build the source distribution
-        run: python3 -m build --sdist
-      - name: Check the source distribution
-        run: twine check dist/*
-
-      - name: Upload the source distribution to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-dist
-          path: dist
-
-  build-for-linux:
-    runs-on: ubuntu-22.04
-    needs:
-      - make-source-dist
-    strategy:
-      matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
-    steps:
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install Python packages
-        run: pip${{ matrix.python_version }} install build auditwheel twine Chrones
-      - name: Install CUDA
-        run: |
-          sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-          sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends cuda-cudart-dev-12-4 cuda-nvcc-12-4
-          echo "/usr/local/cuda-12.4/bin" >>$GITHUB_PATH
-      - name: Install Boost
-        run: |
-            cd /home/runner/work
-            wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-            tar xf boost_*.tar.gz
-            rm boost_*.tar.gz
-            cd boost_*
-            sudo cp -r boost /usr/local/include
-      - name: Install OR-Tools
-        run: |
-            cd /home/runner/work
-            wget https://github.com/google/or-tools/releases/download/v9.11/or-tools_amd64_ubuntu-20.04_cpp_v9.11.4210.tar.gz
-            tar xf or-tools_*.tar.gz
-            rm or-tools_*.tar.gz
-            cd or-tools_*
-            sudo cp -r include/* /usr/local/include
-            sudo cp -r lib/* /usr/local/lib
-            sudo ldconfig
-      - name: Install patchelf
-        run: |
-            cd /home/runner/work
-            mkdir patchelf
-            cd patchelf
-            wget https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz
-            tar xf *.tar.gz
-            sudo cp bin/patchelf /usr/local/bin
-
-      - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
-
-      - name: Build the wheel
-        run: python${{ matrix.python_version }} -m build --wheel --outdir local-dist lincs-*
-        env:
-          LINCS_DEV_FORCE_NVCC: "true"
-          LINCS_DEV_FORCE_CHRONES: "true"
-      - name: Make the wheel machine-independent
-        run: auditwheel repair --plat manylinux_2_35_x86_64 --strip local-dist/*.whl --wheel-dir dist
-      - name: Check the wheel
-        run: twine check dist/*.whl
-
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-dist-${{ matrix.python_version }}-linux
-          path: dist
-
-  build-for-windows:
-    runs-on: windows-2022
-    needs:
-      - make-source-dist
-    strategy:
-      matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
-    steps:
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install Python packages
-        run: pip install build delvewheel twine
-      - name: Install CUDA
-        uses: Jimver/cuda-toolkit@v0.2.19
-        id: cuda-toolkit
-        with:
-          cuda: '12.4.1'
-          use-github-cache: false
-          use-local-cache: false
-          method: network
-          # Package names from https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#id2
-          sub-packages: '["nvcc", "cudart"]'
-      - name: Install MSys2
-        uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          msystem: UCRT64
-          install: >-
-              gzip
-              tar
-              unzip
-              wget
-      - name: Install boost
-        shell: msys2 {0}
-        run: |
-            cd /d/a
-            wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-            tar xf boost_*.tar.gz
-            rm boost_*.tar.gz
-            mv boost_* boost
-            cd boost
-            mkdir -p /d/lincs-deps/include /d/lincs-deps/lib
-            cp -r boost /d/lincs-deps/include
-      - name: Install OR-Tools
-        shell: msys2 {0}
-        run: |
-            cd /d/a
-            wget https://github.com/google/or-tools/releases/download/v9.11/or-tools_x64_VisualStudio2022_cpp_v9.11.4210.zip
-            unzip or-tools_*.zip
-            rm or-tools_*.zip
-            cd or-tools_*
-            cp -r include/* /d/lincs-deps/include
-            cp -r lib/* /d/lincs-deps/lib
-
-      - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        shell: msys2 {0}
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
-
-      - name: Build the wheel
-        run: python -m build --wheel --outdir local-dist (get-item lincs-*)
-        env:
-          LINCS_DEV_FORCE_NVCC: "true"
-          LINCS_DEV_DEPENDENCIES: d:\lincs-deps
-      - name: Make the wheel machine-independent
-        run: delvewheel repair --strip (get-item local-dist\*.whl) --wheel-dir dist --add-path d:\lincs-deps\lib
-      - name: Check the wheel
-        run: twine check (get-item dist\*.whl)
-
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-dist-${{ matrix.python_version }}-windows
-          path: dist
-
-  build-for-macos:
-    runs-on: macos-13
-    needs:
-      - make-source-dist
-    strategy:
-      matrix:
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
-    env:
-      MACOSX_DEPLOYMENT_TARGET: 12.0
-    steps:
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install Python packages
-        run: pip3 install build delocate twine
-      - name: Install OpenMP
-        run: |
-            cd /Users/runner/work
-            mkdir openmp
-            cd openmp
-            wget https://mac.r-project.org/openmp/openmp-16.0.4-darwin20-Release.tar.gz
-            tar xf *.tar.gz
-            sudo cp usr/local/lib/* /usr/local/lib
-            sudo cp usr/local/include/* /usr/local/include
-      - name: Install Boost
-        run: |
-            cd /Users/runner/work
-            wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz
-            tar xf boost_*.tar.gz
-            rm boost_*.tar.gz
-            cd boost_*
-            sudo cp -r boost /usr/local/include
-      - name: Install OR-Tools
-        run: |
-            cd /Users/runner/work
-            wget https://github.com/google/or-tools/releases/download/v9.11/or-tools_x86_64_macOS-14.6.1_cpp_v9.11.4210.tar.gz
-            tar xf or-tools_x86_64_*.tar.gz
-            rm or-tools_x86_64_*.tar.gz
-            wget https://github.com/google/or-tools/releases/download/v9.11/or-tools_arm64_macOS-14.6.1_cpp_v9.11.4210.tar.gz
-            tar xf or-tools_arm64_*.tar.gz
-            rm or-tools_arm64_*.tar.gz
-            sudo cp -r or-tools_arm64_*/include/* /usr/local/include
-            lipo or-tools*/lib/libortools.9.11.dylib -output /usr/local/lib/libortools.9.11.dylib -create
-            cd /usr/local/lib
-            ln -s libortools.9.11.dylib libortools.9.dylib
-            ln -s libortools.9.dylib libortools.dylib
-
-      - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: source-dist
-      - name: Unzip the source distribution
-        run: |
-            tar xf *.tar.gz
-            rm *.tar.gz
-
-      - name: Build the wheel
-        run: python3 -m build --wheel --outdir local-dist lincs-*
-      - name: Make the wheel machine-independent
-        run: delocate-wheel --wheel-dir dist local-dist/*.whl
-      - name: Check the wheel
-        run: twine check dist/*.whl
-
-      - name: Upload the wheel to GitHub Actions artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel-dist-${{ matrix.python_version }}-macos
-          path: dist
-
-  check:
-    runs-on: ${{ matrix.os }}
-    needs:
-      - build-for-linux
-      - build-for-windows
-      - build-for-macos
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - windows-2022
-          - windows-2025
-          - macos-13
-          - macos-14
-          - macos-15
-          - macos-15-intel
-          - macos-26
-        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
-        exclude:
-          # Older Python versions don't build 'universal2' wheels, so they can't run on the M1 runner that run macOS 14 and 15
-          - os: macos-14
-            python_version: '3.8'
-          - os: macos-15
-            python_version: '3.8'
-          - os: macos-26
-            python_version: '3.8'
-          - os: macos-14
-            python_version: '3.9'
-          - os: macos-15
-            python_version: '3.9'
-          - os: macos-26
-            python_version: '3.9'
-          - os: macos-14
-            python_version: '3.10'
-          - os: macos-15
-            python_version: '3.10'
-          - os: macos-26
-            python_version: '3.10'
-    steps:
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      # DO NOT install any other dependencies, to test that the wheels are self-contained
-
-      - name: Download the wheels from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: wheel-dist-${{ matrix.python_version }}-*
-          merge-multiple: true
-
-      - name: Install the wheel
-        run: pip${{ matrix.python_version }} install --find-links . --pre lincs
-
-      - name: Run lincs
-        run: lincs --help
-      - run: lincs generate classification-problem 3 2 --output-problem problem.yml
-      - run: lincs generate classification-model problem.yml --output-model model.yml
-      - run: lincs generate classified-alternatives problem.yml model.yml 100 --output-alternatives learning-set.csv
-      - run: lincs learn classification-model problem.yml learning-set.csv --output-model learned-model.yml
-      - run: lincs classification-accuracy problem.yml learned-model.yml learning-set.csv
+  build-and-check:
+    uses: ./.github/workflows/build-and-check.yml
+    with:
+      python_versions: '["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]'
 
   publish-on-pypi:
     runs-on: ubuntu-latest
     needs:
-      - check
+      - build-and-check
     environment:
       name: pypi
       url: https://pypi.org/p/lincs
@@ -327,12 +25,12 @@ jobs:
       id-token: write
     steps:
       - name: Download the source distribution from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: source-dist
           path: dist
       - name: Download the wheels from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: wheel-dist-*
           merge-multiple: true
@@ -347,20 +45,24 @@ jobs:
   publish-on-dockerhub:
     runs-on: ubuntu-latest
     needs:
-      - check
+      - build-and-check
+    env:
+      IS_FINAL_RELEASE: ${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
     steps:
       - name: Get the code (just for the Dockerfile)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Download the wheels from GitHub Actions artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wheel-dist-3.13-linux
           path: docker
       - name: Build the Docker image
         run: docker build --pull --no-cache --build-arg lincs_version=$(echo ${{ github.ref_name }} | sed 's/^v//') --tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') docker
-      - run: docker tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') jacquev6/lincs:latest
+      - if: env.IS_FINAL_RELEASE == 'true'
+        run: docker tag jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//') jacquev6/lincs:latest
       - name: Login into Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD_JACQUEV6 }}" | docker login -u jacquev6 --password-stdin
       - name: Push the Docker image
         run: docker push jacquev6/lincs:$(echo ${{ github.ref_name }} | sed 's/^v//')
-      - run: docker push jacquev6/lincs:latest
+      - if: env.IS_FINAL_RELEASE == 'true'
+        run: docker push jacquev6/lincs:latest

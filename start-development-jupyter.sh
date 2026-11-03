@@ -43,14 +43,14 @@ docker build --build-arg UID=$(id -u) development --tag lincs-development
 docker run \
   --rm --interactive --tty \
   --env CCACHE_DIR=/wd/ccache \
-  --env LINCS_DEV_PYTHON_VERSIONS=3.8 \
+  --env LINCS_DEV_PYTHON_VERSIONS=3.10 \
   --volume "$PWD:/wd" --workdir /wd \
   $docker_run_gpu_arguments \
   --publish "8888:8888" \
   lincs-development bash -c """
 set -o errexit
 
-python3.8 -m pip install --user .
+python3.10 -m pip install --user .
 
 jupyter-lab \
   --no-browser \

@@ -249,7 +249,7 @@ class ArraysAndArrayViewSection:
             for d in ds:
                 yield f"  assert(dst.s{d}() == src.s{d}());"
             yield ""
-            yield "  From<WhereFrom>::template To<WhereTo>::template copy("
+            yield "  From<WhereFrom>::template To<WhereTo>::template copy<typename std::remove_const<T>::type>("
             yield f"    {sep('src.s{d}()', ' * ')}, src.data(), dst.data());"
             yield "}"
 

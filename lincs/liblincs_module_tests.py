@@ -1016,6 +1016,98 @@ class AlternativesTestCase(unittest.TestCase):
         self.assertEqual(cm.exception.args[0], "The performance of an alternative must be int the enumerated values for a criterion in the problem")
 
 
+class MatchTestCase(unittest.TestCase):
+    def test_criterion_values(self):
+        def describe(criterion):
+            match criterion.values:
+                case Criterion.RealValues(preference_direction, min_value, max_value):
+                    return ("real", preference_direction, min_value, max_value)
+                case Criterion.IntegerValues(preference_direction, min_value, max_value):
+                    return ("integer", preference_direction, min_value, max_value)
+                case Criterion.EnumeratedValues(ordered_values):
+                    return ("enumerated", list(ordered_values))
+
+        self.assertEqual(
+            describe(Criterion("Criterion", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0.25, 2.75))),
+            ("real", Criterion.PreferenceDirection.increasing, 0.25, 2.75),
+        )
+        self.assertEqual(
+            describe(Criterion("Criterion", Criterion.IntegerValues(Criterion.PreferenceDirection.single_peaked, 0, 20))),
+            ("integer", Criterion.PreferenceDirection.single_peaked, 0, 20),
+        )
+        self.assertEqual(
+            describe(Criterion("Criterion", Criterion.EnumeratedValues(["a", "b", "c"]))),
+            ("enumerated", ["a", "b", "c"]),
+        )
+
+    def test_criterion_values_by_keyword(self):
+        match Criterion("Criterion", Criterion.RealValues(Criterion.PreferenceDirection.decreasing, 0, 1)).values:
+            case Criterion.RealValues(preference_direction=Criterion.PreferenceDirection.decreasing, max_value=max_value):
+                self.assertEqual(max_value, 1)
+            case _:
+                self.fail()
+
+    def test_accepted_values_descriptor(self):
+        def describe(accepted_values):
+            match accepted_values.descriptor:
+                case AcceptedValues.RealThresholds(thresholds):
+                    return ("real thresholds", list(thresholds))
+                case AcceptedValues.IntegerThresholds(thresholds):
+                    return ("integer thresholds", list(thresholds))
+                case AcceptedValues.EnumeratedThresholds(thresholds):
+                    return ("enumerated thresholds", list(thresholds))
+                case AcceptedValues.RealIntervals(intervals):
+                    return ("real intervals", list(intervals))
+                case AcceptedValues.IntegerIntervals(intervals):
+                    return ("integer intervals", list(intervals))
+
+        self.assertEqual(describe(AcceptedValues(AcceptedValues.RealThresholds([0.5, None]))), ("real thresholds", [0.5, None]))
+        self.assertEqual(describe(AcceptedValues(AcceptedValues.IntegerThresholds([5]))), ("integer thresholds", [5]))
+        self.assertEqual(describe(AcceptedValues(AcceptedValues.EnumeratedThresholds(["b"]))), ("enumerated thresholds", ["b"]))
+        self.assertEqual(describe(AcceptedValues(AcceptedValues.RealIntervals([(0.25, 0.75)]))), ("real intervals", [(0.25, 0.75)]))
+        self.assertEqual(describe(AcceptedValues(AcceptedValues.IntegerIntervals([(2, 8)]))), ("integer intervals", [(2, 8)]))
+
+    def test_sufficient_coalitions_descriptor(self):
+        problem = Problem(
+            [
+                Criterion("Criterion 1", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+                Criterion("Criterion 2", Criterion.RealValues(Criterion.PreferenceDirection.increasing, 0, 1)),
+            ], [
+                Category("Category 1"),
+                Category("Category 2"),
+            ],
+        )
+
+        def describe(sufficient_coalitions):
+            match sufficient_coalitions.descriptor:
+                case SufficientCoalitions.Weights(criterion_weights):
+                    return ("weights", list(criterion_weights))
+                case SufficientCoalitions.Roots(upset_roots):
+                    return ("roots", [list(root) for root in upset_roots])
+
+        self.assertEqual(describe(SufficientCoalitions(SufficientCoalitions.Weights([0.5, 0.75]))), ("weights", [0.5, 0.75]))
+        self.assertEqual(describe(SufficientCoalitions(SufficientCoalitions.Roots(problem, [[0, 1]]))), ("roots", [[0, 1]]))
+
+    def test_performance_value(self):
+        def describe(performance):
+            match performance.value:
+                case Performance.Real(value):
+                    return ("real", value)
+                case Performance.Integer(value):
+                    return ("integer", value)
+                case Performance.Enumerated(value):
+                    return ("enumerated", value)
+
+        self.assertEqual(describe(Performance(Performance.Real(0.5))), ("real", 0.5))
+        self.assertEqual(describe(Performance(Performance.Integer(5))), ("integer", 5))
+        self.assertEqual(describe(Performance(Performance.Enumerated("a"))), ("enumerated", "a"))
+
+    def test_descriptors_outlive_their_owner(self):
+        values = Criterion("Criterion", Criterion.EnumeratedValues(["a", "b", "c"])).values
+        self.assertEqual(list(values.ordered_values), ["a", "b", "c"])
+        self.assertEqual(values.get_value_rank("b"), 1)
+
+
 class ProblemModelAlternativesConsistencyCheckTestCase(unittest.TestCase):
     def test_matching_problems_are_interchangeable__alternatives(self):
         problem = Problem(

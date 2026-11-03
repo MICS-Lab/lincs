@@ -6,7 +6,7 @@
     - on GitHub Pages (https://mics-lab.github.io/lincs/)
     So when you change it, take care to check all those places.
 
-*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of `MCDA <https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis>`_ algorithms, usable as a command-line utility and through a Python (3.8+) API.
+*lincs* (Learn and Infer Non Compensatory Sortings) is a collection of `MCDA <https://en.wikipedia.org/wiki/Multiple-criteria_decision_analysis>`_ algorithms, usable as a command-line utility and through a Python (3.10+) API.
 
 *lincs* supports Linux (x86_64), macOS (Intel and M1, M2...) and Windows (x86_64), with the exception that GPU-based algorithms are not available on macOS, because CUDA itself is not available there.
 

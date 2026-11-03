@@ -3,16 +3,19 @@ liblincs: module
         EnumeratedThresholds: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             thresholds: property
         IntegerIntervals: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             intervals: property
         IntegerThresholds: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             thresholds: property
         Kind: pybind11_type
@@ -28,16 +31,19 @@ liblincs: module
         RealIntervals: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             intervals: property
         RealThresholds: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             thresholds: property
         __getstate__: instancemethod
         __init__: instancemethod
         __setstate__: instancemethod
+        descriptor: property
         enumerated_thresholds: property
         integer_intervals: property
         integer_thresholds: property
@@ -119,12 +125,14 @@ liblincs: module
         EnumeratedValues: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             get_value_rank: instancemethod
             ordered_values: property
         IntegerValues: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             is_decreasing: property
             is_increasing: property
@@ -148,6 +156,7 @@ liblincs: module
         RealValues: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             is_decreasing: property
             is_increasing: property
@@ -177,6 +186,7 @@ liblincs: module
         name: property
         real_values: property
         value_type: property
+        values: property
     DataValidationException: type
         __init__: wrapper_descriptor
         __setstate__: method_descriptor
@@ -265,16 +275,19 @@ liblincs: module
         Enumerated: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             value: property
         Integer: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             value: property
         Real: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             value: property
         __getstate__: instancemethod
@@ -286,6 +299,7 @@ liblincs: module
         is_integer: property
         is_real: property
         real: property
+        value: property
         value_type: property
     PreprocessedLearningSet: pybind11_type
         __init__: instancemethod
@@ -323,16 +337,19 @@ liblincs: module
         Roots: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             upset_roots: property
         Weights: pybind11_type
             __getstate__: instancemethod
             __init__: instancemethod
+            __match_args__: tuple
             __setstate__: instancemethod
             criterion_weights: property
         __getstate__: instancemethod
         __init__: instancemethod
         __setstate__: instancemethod
+        descriptor: property
         is_roots: property
         is_weights: property
         kind: property

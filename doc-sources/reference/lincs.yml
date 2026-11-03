@@ -52,6 +52,8 @@ children:
               show: false
         - name: value_type
           type: ValueType
+        - name: values
+          type: Union[RealValues, IntegerValues, EnumeratedValues]
         - name: is_real
           type: bool
         - name: is_integer
@@ -160,6 +162,8 @@ children:
               show: false
         - name: kind
           type: AcceptedValues.Kind
+        - name: descriptor
+          type: Union[RealThresholds, IntegerThresholds, EnumeratedThresholds, RealIntervals, IntegerIntervals]
         - name: is_thresholds
           type: bool
         - name: is_intervals
@@ -216,6 +220,8 @@ children:
               show: false
         - name: kind
           type: SufficientCoalitions.Kind
+        - name: descriptor
+          type: Union[Weights, Roots]
         - name: is_weights
           type: bool
         - name: is_roots
@@ -252,6 +258,8 @@ children:
         - name: __init__
         - name: value_type
           type: ValueType
+        - name: value
+          type: Union[Real, Integer, Enumerated]
         - name: is_real
           type: bool
         - name: is_integer

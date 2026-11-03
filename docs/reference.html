@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Reference &#8212; lincs 2.0.2 documentation</title>
+    <title>Reference &#8212; lincs 2.0.3a1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-    <script src="_static/documentation_options.js?v=c2377ec0"></script>
+    <script src="_static/documentation_options.js?v=06307789"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -132,7 +132,7 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="2"><p><em>number</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="3"><p>False</p></td>
+<td colspan="3"><p>false</p></td>
 </tr>
 <tr class="row-even"><td colspan="4"><p>properties</p></td>
 </tr>
@@ -170,7 +170,7 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="2"><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="3"><p>False</p></td>
+<td colspan="3"><p>false</p></td>
 </tr>
 <tr class="row-odd"><td><p>minItems</p></td>
 <td colspan="5"><p>1</p></td>
@@ -198,13 +198,13 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="3"><p><em>string</em></p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="4"><p>False</p></td>
+<td colspan="4"><p>false</p></td>
 </tr>
 <tr class="row-even"><td><p>minItems</p></td>
 <td colspan="5"><p>2</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="6"><p>False</p></td>
+<td colspan="6"><p>false</p></td>
 </tr>
 </tbody>
 </table>
@@ -280,7 +280,7 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="4"><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="5"><p>False</p></td>
+<td colspan="5"><p>false</p></td>
 </tr>
 <tr class="row-even"><td colspan="6"><p>properties</p></td>
 </tr>
@@ -325,7 +325,7 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="4"><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="5"><p>False</p></td>
+<td colspan="5"><p>false</p></td>
 </tr>
 <tr class="row-even"><td><p>minItems</p></td>
 <td colspan="7"><p>1</p></td>
@@ -371,7 +371,7 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="4"><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p>additionalProperties</p></td>
-<td colspan="5"><p>False</p></td>
+<td colspan="5"><p>false</p></td>
 </tr>
 <tr class="row-odd"><td colspan="6"><p>properties</p></td>
 </tr>
@@ -407,13 +407,13 @@ The same formats are used when <em>lincs</em> outputs to actual files or to the 
 <td colspan="4"><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="5"><p>False</p></td>
+<td colspan="5"><p>false</p></td>
 </tr>
 <tr class="row-even"><td><p>minItems</p></td>
 <td colspan="7"><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p>additionalProperties</p></td>
-<td colspan="8"><p>False</p></td>
+<td colspan="8"><p>false</p></td>
 </tr>
 </tbody>
 </table>
@@ -443,6 +443,7 @@ or the names of the categories, as found in the associated problem file.</p>
 <section id="lincs">
 <h3>lincs<a class="headerlink" href="#lincs" title="Link to this heading">¶</a></h3>
 <p>lincs (Learn and Infer Non-Compensatory Sorting) is a set of tools for training and using MCDA models.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -460,6 +461,7 @@ or the names of the categories, as found in the associated problem file.</p>
 MODEL is a <em>classification model</em> file for that problem.
 TESTING_SET is a <em>classified alternatives</em> file for that problem.</p>
 <p>The classification accuracy is written to standard output as an integer between 0 and the number of alternatives.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>classification-accuracy<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>MODEL<span class="w"> </span>TESTING_SET
 </pre></div>
 </div>
@@ -489,6 +491,7 @@ TESTING_SET is a <em>classified alternatives</em> file for that problem.</p>
 <p>PROBLEM is a <em>classification problem</em> file.
 MODEL is a <em>classification model</em> file for that problem.
 ALTERNATIVES is an <em>unclassified alternatives</em> file for that problem.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>classify<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>MODEL<span class="w"> </span>ALTERNATIVES
 </pre></div>
 </div>
@@ -522,6 +525,7 @@ ALTERNATIVES is an <em>unclassified alternatives</em> file for that problem.</p>
 <section id="lincs-describe">
 <h4>describe<a class="headerlink" href="#lincs-describe" title="Link to this heading">¶</a></h4>
 <p>Provide human-readable descriptions.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>describe<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -530,6 +534,7 @@ ALTERNATIVES is an <em>unclassified alternatives</em> file for that problem.</p>
 <p>Describe a classification model.</p>
 <p>PROBLEM is a <em>classification problem</em> file.
 MODEL is a <em>classification model</em> file for that problem.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>describe<span class="w"> </span>classification-model<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>MODEL
 </pre></div>
 </div>
@@ -558,6 +563,7 @@ MODEL is a <em>classification model</em> file for that problem.</p>
 <h5>classification-problem<a class="headerlink" href="#lincs-describe-classification-problem" title="Link to this heading">¶</a></h5>
 <p>Describe a classification problem.</p>
 <p>PROBLEM is a <em>classification problem</em> file.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>describe<span class="w"> </span>classification-problem<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM
 </pre></div>
 </div>
@@ -580,6 +586,7 @@ MODEL is a <em>classification model</em> file for that problem.</p>
 <section id="lincs-generate">
 <h4>generate<a class="headerlink" href="#lincs-generate" title="Link to this heading">¶</a></h4>
 <p>Generate synthetic data.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -587,6 +594,7 @@ MODEL is a <em>classification model</em> file for that problem.</p>
 <h5>classification-model<a class="headerlink" href="#lincs-generate-classification-model" title="Link to this heading">¶</a></h5>
 <p>Generate a synthetic classification model.</p>
 <p>PROBLEM is a <em>classification problem</em> file describing the problem to generate a model for.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-model<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM
 </pre></div>
 </div>
@@ -641,6 +649,7 @@ MODEL is a <em>classification model</em> file for that problem.</p>
 <h5>classification-problem<a class="headerlink" href="#lincs-generate-classification-problem" title="Link to this heading">¶</a></h5>
 <p>Generate a synthetic classification problem.</p>
 <p>The generated problem has CRITERIA_COUNT criteria and CATEGORIES_COUNT categories.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classification-problem<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>CRITERIA_COUNT
 <span class="w">                                      </span>CATEGORIES_COUNT
 </pre></div>
@@ -719,6 +728,7 @@ MODEL is a <em>classification model</em> file for that problem.</p>
 <p>Generate synthetic classified alternatives.</p>
 <p>PROBLEM is a <em>classification problem</em> file describing the problem to generate alternatives for.
 MODEL is a <em>classification model</em> file for that problem describing the model to use to classify the generated alternatives.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>generate<span class="w"> </span>classified-alternatives<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>MODEL
 <span class="w">                                       </span>ALTERNATIVES_COUNT
 </pre></div>
@@ -772,12 +782,14 @@ MODEL is a <em>classification model</em> file for that problem describing the mo
 <section id="lincs-info">
 <h4>info<a class="headerlink" href="#lincs-info" title="Link to this heading">¶</a></h4>
 <p>Get information about lincs itself.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>info<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
 <section id="lincs-info-has-gpu">
 <h5>has-gpu<a class="headerlink" href="#lincs-info-has-gpu" title="Link to this heading">¶</a></h5>
 <p>Check whether lincs was compiled with CUDA support. Return code is 0 if CUDA is supported, 1 otherwise.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>info<span class="w"> </span>has-gpu<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -793,6 +805,7 @@ MODEL is a <em>classification model</em> file for that problem describing the mo
 <section id="lincs-learn">
 <h4>learn<a class="headerlink" href="#lincs-learn" title="Link to this heading">¶</a></h4>
 <p>Learn a model.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -804,6 +817,7 @@ LEARNING_SET is a <em>classified alternatives</em> file for that problem.
 It’s used as a source of truth to learn the model.</p>
 <p>If you use the –mrsort.weights-profiles-breed strategy, you SHOULD specify at least one
 termination strategy, e.g. –mrsort.weights-profiles-breed.max-duration.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>learn<span class="w"> </span>classification-model<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>LEARNING_SET
 </pre></div>
 </div>
@@ -1313,6 +1327,7 @@ termination strategy, e.g. –mrsort.weights-profiles-breed.max-duration.</p>
 <section id="lincs-visualize">
 <h4>visualize<a class="headerlink" href="#lincs-visualize" title="Link to this heading">¶</a></h4>
 <p>Make graphs from data.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -1322,6 +1337,7 @@ termination strategy, e.g. –mrsort.weights-profiles-breed.max-duration.</p>
 <p>PROBLEM is a <em>classification problem</em> file.
 MODEL is a <em>classification model</em> file for that problem describing the model to visualize.
 The generated image is written to the OUTPUT file in PNG format.</p>
+<p class="rubric">Usage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lincs<span class="w"> </span>visualize<span class="w"> </span>classification-model<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PROBLEM<span class="w"> </span>MODEL<span class="w"> </span>OUTPUT
 </pre></div>
 </div>
@@ -1465,21 +1481,27 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="lincs.classification.Criterion.values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.RealValues" title="lincs.classification.Criterion.RealValues"><span class="pre">RealValues</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.IntegerValues" title="lincs.classification.Criterion.IntegerValues"><span class="pre">IntegerValues</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.EnumeratedValues" title="lincs.classification.Criterion.EnumeratedValues"><span class="pre">EnumeratedValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.values" title="Link to this definition">¶</a></dt>
+<dd><p>Descriptor of the values allowed for this criterion: a <a class="reference internal" href="#lincs.classification.Criterion.RealValues" title="lincs.classification.Criterion.RealValues"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealValues</span></code></a>, an <a class="reference internal" href="#lincs.classification.Criterion.IntegerValues" title="lincs.classification.Criterion.IntegerValues"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegerValues</span></code></a> or an <a class="reference internal" href="#lincs.classification.Criterion.EnumeratedValues" title="lincs.classification.Criterion.EnumeratedValues"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumeratedValues</span></code></a>. Meant to be used with <code class="docutils literal notranslate"><span class="pre">match</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.is_real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.is_real" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is real-valued.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is real-valued. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">values</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.is_integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.is_integer" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is integer-valued.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion is integer-valued. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">values</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.is_enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Criterion.is_enumerated" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion takes enumerated values.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the criterion takes enumerated values. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">values</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1569,7 +1591,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.real_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.RealValues" title="lincs.classification.Criterion.RealValues"><span class="pre">RealValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.real_values" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the real values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code>.</p>
+<dd><p>Descriptor of the real values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">values</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1623,7 +1645,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.integer_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.IntegerValues" title="lincs.classification.Criterion.IntegerValues"><span class="pre">IntegerValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.integer_values" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the integer values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code>.</p>
+<dd><p>Descriptor of the integer values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">values</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1653,7 +1675,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Criterion.enumerated_values">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Criterion.EnumeratedValues" title="lincs.classification.Criterion.EnumeratedValues"><span class="pre">EnumeratedValues</span></a></em><a class="headerlink" href="#lincs.classification.Criterion.enumerated_values" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the enumerated values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code>.</p>
+<dd><p>Descriptor of the enumerated values allowed for this criterion, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">values</span></code> instead.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1761,19 +1783,19 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_real" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_integer" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_enumerated" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1801,15 +1823,21 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="lincs.classification.AcceptedValues.descriptor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">descriptor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.RealThresholds" title="lincs.classification.AcceptedValues.RealThresholds"><span class="pre">RealThresholds</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerThresholds" title="lincs.classification.AcceptedValues.IntegerThresholds"><span class="pre">IntegerThresholds</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.EnumeratedThresholds" title="lincs.classification.AcceptedValues.EnumeratedThresholds"><span class="pre">EnumeratedThresholds</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.RealIntervals" title="lincs.classification.AcceptedValues.RealIntervals"><span class="pre">RealIntervals</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerIntervals" title="lincs.classification.AcceptedValues.IntegerIntervals"><span class="pre">IntegerIntervals</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.descriptor" title="Link to this definition">¶</a></dt>
+<dd><p>Descriptor of the accepted values: a <a class="reference internal" href="#lincs.classification.AcceptedValues.RealThresholds" title="lincs.classification.AcceptedValues.RealThresholds"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealThresholds</span></code></a>, an <a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerThresholds" title="lincs.classification.AcceptedValues.IntegerThresholds"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegerThresholds</span></code></a>, an <a class="reference internal" href="#lincs.classification.AcceptedValues.EnumeratedThresholds" title="lincs.classification.AcceptedValues.EnumeratedThresholds"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnumeratedThresholds</span></code></a>, a <a class="reference internal" href="#lincs.classification.AcceptedValues.RealIntervals" title="lincs.classification.AcceptedValues.RealIntervals"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealIntervals</span></code></a> or an <a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerIntervals" title="lincs.classification.AcceptedValues.IntegerIntervals"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegerIntervals</span></code></a>. Meant to be used with <code class="docutils literal notranslate"><span class="pre">match</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_thresholds" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of thresholds.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of thresholds. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.is_intervals">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_intervals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.AcceptedValues.is_intervals" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of intervals.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of intervals. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1833,7 +1861,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.real_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.RealThresholds" title="lincs.classification.AcceptedValues.RealThresholds"><span class="pre">RealThresholds</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.real_thresholds" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the real thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>.</p>
+<dd><p>Descriptor of the real thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1857,7 +1885,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.integer_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerThresholds" title="lincs.classification.AcceptedValues.IntegerThresholds"><span class="pre">IntegerThresholds</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.integer_thresholds" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the integer thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>.</p>
+<dd><p>Descriptor of the integer thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1881,7 +1909,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.enumerated_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.EnumeratedThresholds" title="lincs.classification.AcceptedValues.EnumeratedThresholds"><span class="pre">EnumeratedThresholds</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.enumerated_thresholds" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the enumerated thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>.</p>
+<dd><p>Descriptor of the enumerated thresholds, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span> <span class="pre">and</span> <span class="pre">is_thresholds</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1905,7 +1933,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.real_intervals">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real_intervals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.RealIntervals" title="lincs.classification.AcceptedValues.RealIntervals"><span class="pre">RealIntervals</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.real_intervals" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the real intervals, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span> <span class="pre">and</span> <span class="pre">is_intervals</span></code>.</p>
+<dd><p>Descriptor of the real intervals, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span> <span class="pre">and</span> <span class="pre">is_intervals</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1929,7 +1957,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.AcceptedValues.integer_intervals">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer_intervals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.AcceptedValues.IntegerIntervals" title="lincs.classification.AcceptedValues.IntegerIntervals"><span class="pre">IntegerIntervals</span></a></em><a class="headerlink" href="#lincs.classification.AcceptedValues.integer_intervals" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the integer intervals, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span> <span class="pre">and</span> <span class="pre">is_intervals</span></code>.</p>
+<dd><p>Descriptor of the integer intervals, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span> <span class="pre">and</span> <span class="pre">is_intervals</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1975,15 +2003,21 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.descriptor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">descriptor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Weights" title="lincs.classification.SufficientCoalitions.Weights"><span class="pre">Weights</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Roots" title="lincs.classification.SufficientCoalitions.Roots"><span class="pre">Roots</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.descriptor" title="Link to this definition">¶</a></dt>
+<dd><p>Descriptor of the sufficient coalitions: a <a class="reference internal" href="#lincs.classification.SufficientCoalitions.Weights" title="lincs.classification.SufficientCoalitions.Weights"><code class="xref py py-class docutils literal notranslate"><span class="pre">Weights</span></code></a> or a <a class="reference internal" href="#lincs.classification.SufficientCoalitions.Roots" title="lincs.classification.SufficientCoalitions.Roots"><code class="xref py py-class docutils literal notranslate"><span class="pre">Roots</span></code></a>. Meant to be used with <code class="docutils literal notranslate"><span class="pre">match</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.is_weights">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.is_weights" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of weights.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of weights. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.is_roots">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_roots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.is_roots" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of roots.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the descriptor is a set of roots. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2007,7 +2041,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.weights">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Weights" title="lincs.classification.SufficientCoalitions.Weights"><span class="pre">Weights</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.weights" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the weights, accessible if <code class="docutils literal notranslate"><span class="pre">is_weights</span></code>.</p>
+<dd><p>Descriptor of the weights, accessible if <code class="docutils literal notranslate"><span class="pre">is_weights</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2031,7 +2065,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.SufficientCoalitions.roots">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">roots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.SufficientCoalitions.Roots" title="lincs.classification.SufficientCoalitions.Roots"><span class="pre">Roots</span></a></em><a class="headerlink" href="#lincs.classification.SufficientCoalitions.roots" title="Link to this definition">¶</a></dt>
-<dd><p>Descriptor of the roots, accessible if <code class="docutils literal notranslate"><span class="pre">is_roots</span></code>.</p>
+<dd><p>Descriptor of the roots, accessible if <code class="docutils literal notranslate"><span class="pre">is_roots</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">descriptor</span></code> instead.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2113,21 +2147,27 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="lincs.classification.Performance.value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Real" title="lincs.classification.Performance.Real"><span class="pre">Real</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Integer" title="lincs.classification.Performance.Integer"><span class="pre">Integer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Enumerated" title="lincs.classification.Performance.Enumerated"><span class="pre">Enumerated</span></a></em><a class="headerlink" href="#lincs.classification.Performance.value" title="Link to this definition">¶</a></dt>
+<dd><p>The performance: a <a class="reference internal" href="#lincs.classification.Performance.Real" title="lincs.classification.Performance.Real"><code class="xref py py-class docutils literal notranslate"><span class="pre">Real</span></code></a>, an <a class="reference internal" href="#lincs.classification.Performance.Integer" title="lincs.classification.Performance.Integer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Integer</span></code></a> or an <a class="reference internal" href="#lincs.classification.Performance.Enumerated" title="lincs.classification.Performance.Enumerated"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enumerated</span></code></a>. Meant to be used with <code class="docutils literal notranslate"><span class="pre">match</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.is_real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Performance.is_real" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is real-valued. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">value</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.is_integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Performance.is_integer" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion is integer-valued. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">value</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.is_enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#lincs.classification.Performance.is_enumerated" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values.</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the corresponding criterion takes enumerated values. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">value</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2151,7 +2191,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.real">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">real</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Real" title="lincs.classification.Performance.Real"><span class="pre">Real</span></a></em><a class="headerlink" href="#lincs.classification.Performance.real" title="Link to this definition">¶</a></dt>
-<dd><p>The real performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code>.</p>
+<dd><p>The real performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_real</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">value</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2175,7 +2215,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.integer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Integer" title="lincs.classification.Performance.Integer"><span class="pre">Integer</span></a></em><a class="headerlink" href="#lincs.classification.Performance.integer" title="Link to this definition">¶</a></dt>
-<dd><p>The integer performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code>.</p>
+<dd><p>The integer performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_integer</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">value</span></code> instead.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2199,7 +2239,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 <dl class="py property">
 <dt class="sig sig-object py" id="lincs.classification.Performance.enumerated">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enumerated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#lincs.classification.Performance.Enumerated" title="lincs.classification.Performance.Enumerated"><span class="pre">Enumerated</span></a></em><a class="headerlink" href="#lincs.classification.Performance.enumerated" title="Link to this definition">¶</a></dt>
-<dd><p>The enumerated performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code>.</p>
+<dd><p>The enumerated performance, accessible if <code class="docutils literal notranslate"><span class="pre">is_enumerated</span></code>. Deprecated: use <code class="docutils literal notranslate"><span class="pre">match</span></code> on <code class="docutils literal notranslate"><span class="pre">value</span></code> instead.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2872,7 +2912,7 @@ It contains general information (version, GPU availability, <em>etc.</em>) and i
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lincs.classification.visualize_model">
-<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">visualize_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Alternative" title="lincs.classification.Alternative"><span class="pre">Alternative</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">matplotlib.axes._axes.Axes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.visualize_model" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">lincs.classification.</span></span><span class="sig-name descname"><span class="pre">visualize_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Problem" title="lincs.classification.Problem"><span class="pre">Problem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lincs.classification.Model" title="lincs.classification.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lincs.classification.Alternative" title="lincs.classification.Alternative"><span class="pre">Alternative</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'matplotlib.pyplot.Axes'</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lincs.classification.visualize_model" title="Link to this definition">¶</a></dt>
 <dd><p>Create a visual representation of a classification model and classified alternatives, using Matplotlib.</p>
 </dd></dl>
 

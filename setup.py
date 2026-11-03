@@ -130,7 +130,7 @@ def customize_compiler_for_nvcc(compiler):
 
             return cpp_objects + vendored_cpp_objects + cuda_objects
 
-        def spawn(command):
+        def patch_command(command):
             if command[0] == nvcc:
                 patched_command = [nvcc]
                 xcompiler = False
@@ -154,12 +154,22 @@ def customize_compiler_for_nvcc(compiler):
                         patched_command.append(part[3:])
                     else:
                         print("WARNING: option passed by distutil to cl ignored when calling nvcc: " + part, file=sys.stderr)
-                default_spawn(patched_command)
+                return patched_command
             else:
-                default_spawn(command)
+                return command
+
+        def spawn(command, **kwargs):
+            default_spawn(patch_command(command), **kwargs)
 
         compiler.compile = compile
         compiler.spawn = spawn
+        if hasattr(compiler, "call"):
+            default_call = compiler.call
+
+            def call(command, **kwargs):
+                default_call(patch_command(command), **kwargs)
+
+            compiler.call = call
     else:
         assert False, f"Unsupported compiler type: {compiler.compiler_type}"
 
@@ -286,6 +296,7 @@ setuptools.setup(
     url="https://github.com/MICS-Lab/lincs",
     author="Vincent Jacques",
     author_email="vincent@vincent-jacques.net",
+    python_requires=">=3.10",
     install_requires=install_requires,
     packages=setuptools.find_namespace_packages(),
     include_package_data=True,
