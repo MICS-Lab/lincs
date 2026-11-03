@@ -31,6 +31,9 @@ with open("requirements.txt") as f:
 
 
 windows_cuda_path = os.environ.get("CUDA_PATH", r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4")
+# On Linux, CUDA_PATH (if set) selects the whole CUDA toolkit: nvcc, headers, and libraries at build and run time.
+linux_cuda_path = os.environ.get("CUDA_PATH")
+linux_nvcc = os.path.join(linux_cuda_path, "bin", "nvcc") if linux_cuda_path else "nvcc"
 
 
 # Method for building an extension with CUDA code extracted from https://stackoverflow.com/a/13300714/905845
@@ -47,7 +50,7 @@ def customize_compiler_for_nvcc(compiler):
 
         def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
             if os.path.splitext(src)[1] == ".cu":
-                compiler.set_executable("compiler_so", "nvcc")
+                compiler.set_executable("compiler_so", linux_nvcc)
                 postargs = extra_postargs["cuda"]
                 # Display number of GPU registered used (in case of 701=cudaErrorLaunchOutOfResources):
                 # postargs += ["-Xptxas", "-v"]
@@ -195,16 +198,20 @@ def make_liblincs_extension():
     libraries = []
     include_dirs = []
     library_dirs = []
+    runtime_library_dirs = []
     extra_link_args=[]
 
-    if os.environ.get("LINCS_DEV_FORBID_NVCC", "false") != "true" and shutil.which("nvcc") is not None:
+    if os.environ.get("LINCS_DEV_FORBID_NVCC", "false") != "true" and shutil.which(linux_nvcc if sys.platform == "linux" else "nvcc") is not None:
         sources += glob.glob(os.path.join("lincs", "liblincs", "**", "*.cu"), recursive=True)
         libraries += ["cudart"]
         define_macros += [("LINCS_HAS_NVCC", None)]
         # @todo(Project management, later) Support several versions of CUDA?
         if sys.platform == "linux":
-            include_dirs += ["/usr/local/cuda-12.4/targets/x86_64-linux/include"]
-            library_dirs += ["/usr/local/cuda-12.4/targets/x86_64-linux/lib"]
+            cuda_targets = os.path.join(linux_cuda_path or "/usr/local/cuda-12.4", "targets", "x86_64-linux")
+            include_dirs += [os.path.join(cuda_targets, "include")]
+            library_dirs += [os.path.join(cuda_targets, "lib")]
+            if linux_cuda_path:
+                runtime_library_dirs += [os.path.join(cuda_targets, "lib")]
             extra_compile_args["cuda"] = ["-std=c++17", "-Xcompiler", "-fopenmp,-fPIC,-Werror=switch"]
         elif sys.platform == "win32":
             include_dirs += [os.path.join(windows_cuda_path, "include")]
@@ -282,6 +289,7 @@ def make_liblincs_extension():
         define_macros=define_macros,
         include_dirs=include_dirs,
         library_dirs=library_dirs,
+        runtime_library_dirs=runtime_library_dirs,
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
     )
