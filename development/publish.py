@@ -10,33 +10,47 @@ import parver
 from cycle import build_sphinx_documentation, print_title
 
 
-@click.group()
+@click.group(help="Publish a new version of lincs: set the version, update the changelog and documentation, then commit, tag and push.")
 def main():
     pass
 
-@main.command()
-@click.argument("level", type=click.Choice(["patch", "minor", "major"]))
-@click.option("--dry-run", is_flag=True)
+level_argument = click.argument("level", type=click.Choice(["patch", "minor", "major"]), metavar="LEVEL")
+dry_run_option = click.option("--dry-run", is_flag=True, help="Update versions, changelog and documentation locally, but do not commit, tag or push. You have to revert these local changes yourself.")
+
+@main.command(
+    short_help="Publish a final release, without pre-releases.",
+    help="Publish a final release directly, without pre-releases. Run on 'main'.\n\nLEVEL ('patch', 'minor' or 'major') is the part of the version to bump. 'patch' publishes the current development version as is.\n\n\b\nExamples, from 3.4.5.dev0:\n  patch: publish 3.4.5, then work on 3.4.6.dev0\n  minor: publish 3.5.0, then work on 3.5.1.dev0\n  major: publish 4.0.0, then work on 4.0.1.dev0",
+)
+@level_argument
+@dry_run_option
 def quick(level, dry_run):
     publish(*make_quick_release_versions(level, read_dev_version()), "main", dry_run)
 
-@main.command()
-@click.argument("level", type=click.Choice(["patch", "minor", "major"]))
-@click.argument("pre", type=click.Choice(["alpha", "beta", "rc"]))
-@click.option("--dry-run", is_flag=True)
+@main.command(
+    short_help="Publish the first pre-release of a series.",
+    help="Publish the first pre-release of a new series. Run on 'develop'.\n\nLEVEL ('patch', 'minor' or 'major') is the part of the version to bump. 'patch' keeps the current version number.\n\nPRE ('alpha', 'beta' or 'rc') is the kind of pre-release. It can move forward from the current series (e.g. from alpha to beta) but not backward.\n\n\b\nExamples:\n  patch alpha, from 3.4.5.dev0: publish 3.4.5a0, then work on 3.4.5a1.dev0\n  minor beta, from 3.4.5a6.dev0: publish 3.5.0b0, then work on 3.5.0b1.dev0",
+)
+@level_argument
+@click.argument("pre", type=click.Choice(["alpha", "beta", "rc"]), metavar="PRE")
+@dry_run_option
 def first_pre(level, pre, dry_run):
     publish(*make_first_pre_release_versions(level, pre, read_dev_version()), "develop", dry_run)
 
-@main.command()
-@click.option("--dry-run", is_flag=True)
+@main.command(
+    short_help="Publish the next pre-release of the current series.",
+    help="Publish the next pre-release of the current alpha, beta or rc series. Run on 'develop'.\n\n\b\nExample, from 3.4.5b6.dev0:\n  publish 3.4.5b6, then work on 3.4.5b7.dev0",
+)
+@dry_run_option
 def next_pre(dry_run):
     publish(*make_next_pre_versions(read_dev_version()), "develop", dry_run)
 
-@main.command()
-@click.option("--dry-run", is_flag=True)
+@main.command(
+    short_help="Publish the final release of the current pre-release series.",
+    help="Publish the final release of the current pre-release series. Run on 'main', after merging 'develop' into it.\n\n\b\nExample, from 3.4.5rc2.dev0:\n  publish 3.4.5, then work on 3.4.6.dev0"
+)
+@dry_run_option
 def finalize(dry_run):
     publish(*make_final_release_versions(read_dev_version()), "main", dry_run)
-
 
 def make_quick_release_versions(level, dev_version):
     assert dev_version.dev == 0
@@ -304,4 +318,4 @@ def write_version(old_version, new_version):
 
 
 if __name__ == "__main__":
-    main()
+    main(prog_name="./publish.sh")
