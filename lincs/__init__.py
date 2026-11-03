@@ -18,7 +18,7 @@ from liblincs import UniformRandomBitsGenerator
 from . import classification
 
 # General information
-__version__ = "2.0.3"
+__version__ = "2.0.4.dev0"
 has_gpu = hasattr(classification, "ImproveProfilesWithAccuracyHeuristicOnGpu")
 
 try:
